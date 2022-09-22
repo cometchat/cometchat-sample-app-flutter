@@ -15,7 +15,7 @@
 
 <br>
 
-CometChat Pluto Sample App (built using CometChat UIKit) is a fully functional messaging app capable of one-on-one (private) and group messaging . This sample app enables users to send text and multimedia messages like images, videos, documents.**
+CometChat Flutter Sample App (built using CometChat UI Kit) is a fully functional messaging app capable of one-on-one (private) and group messaging. This sample app enables users to send text and multimedia messages like images, videos, documents.
 <br/>
 <hr/>
 
@@ -28,16 +28,16 @@ Before you begin, ensure you have met the following requirements:<br/>
 
 <hr/>
 
-## Installing Flutter Chat Pluto UI Kit :wrench:
+## Installing Flutter Chat App :wrench:
 
-Simply clone the project from [flutter-chat-pluto-uikit](https://github.com/cometchat-pro/flutter-chat-app/tree/Pluto) repository.
+Simply clone the project from [flutter-chat-app](https://github.com/cometchat-pro/flutter-chat-app) repository.
 
 
 ### Running the sample app
 
 To Run to sample app you have to do the following changes by Adding **APP_ID**, **AUTH_KEY** and  **REGION_CODE**
 
-You can obtain your  *APP_ID*, *AUTH_KEY* and *REGION_CODE* from [CometChat-Pro Dashboard](https://app.cometchat.io/)
+You can obtain your  *APP_ID*, *AUTH_KEY* and *REGION_CODE* from [CometChat Dashboard](https://app.cometchat.io/)
 
 - Open the project in Android Studio.
 
@@ -45,17 +45,15 @@ You can obtain your  *APP_ID*, *AUTH_KEY* and *REGION_CODE* from [CometChat-Pro 
 
 -  Select demo users or enter the **UID** at the time of login once the app is launched.
 
-- for running on IOS goto IOS folder of your app in terminal(use rositta for apple chip computers) and run `pod install`
+- for running on IOS go to IOS folder of your app in terminal(use rositta for apple chip computers) and run `pod install`
 
-<img align="center" width="100%" height="auto"
-src="./Screenshots/credentials.png">
 
 Build and run the Sample App.
 </hr>
 
-# Learn more about UI-Kit
+# Learn more about UI Kit
 
-Learn more about how to integrate [Pluto UI Kit](https://www.cometchat.com/docs/flutter-uikit-beta/integration) inside your app.
+Learn more about how to integrate [Flutter UI Kit](https://www.cometchat.com/docs/flutter-uikit-beta/integration) inside your app.
 <br/>
 <hr/>
 
@@ -63,7 +61,7 @@ Learn more about how to integrate [Pluto UI Kit](https://www.cometchat.com/docs/
 
 - To read the full documentation on UI Kit integration visit our [Documentation](https://www.cometchat.com/docs/flutter-uikit-beta/overview)  .
 
-- Facing any issues while integrating or installing the UI Kit please <a href="https://app.cometchat.io/"> connect with us via real time support present in CometChat Dashboard.</a>.
+- Facing any issues while integrating or installing the UI Kit please <a href="https://app.cometchat.com/"> connect with us via real time support present in CometChat Dashboard.</a>.
 
 ---
 
