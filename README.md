@@ -30,7 +30,7 @@ Before you begin, ensure you have met the following requirements:<br/>
 
 ## Installing Flutter Chat Pluto UI Kit :wrench:
 
-Simply clone the project from [flutter-chat-pluto-uikit](https://github.com/cometchat-pro/flutter-chat-app) repository.
+Simply clone the project from [flutter-chat-pluto-uikit](https://github.com/cometchat-pro/flutter-chat-app/tree/Pluto) repository.
 
 
 ### Running the sample app
