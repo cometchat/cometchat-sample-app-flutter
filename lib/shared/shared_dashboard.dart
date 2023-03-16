@@ -1,12 +1,17 @@
-import 'package:cometchat_flutter_sample_app/shared/avatar_container.dart';
-import 'package:cometchat_flutter_sample_app/shared/badge_container.dart';
-import 'package:cometchat_flutter_sample_app/shared/conversation_list_item_container.dart';
-import 'package:cometchat_flutter_sample_app/shared/data_item_container.dart';
-import 'package:cometchat_flutter_sample_app/shared/loaclization_container.dart';
-import 'package:cometchat_flutter_sample_app/shared/message_receipt_container.dart';
-import 'package:cometchat_flutter_sample_app/shared/sound_manager_container.dart';
-import 'package:cometchat_flutter_sample_app/shared/status_indicator_container.dart';
-import 'package:cometchat_flutter_sample_app/shared/theme_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/avatar_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/badge_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/resources/loacalization_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/message_receipt_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/resources/sound_manager_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/status_indicator_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/resources/theme_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/audio_bubble_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/cometchat_list_item_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/deleted_bubble_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/file_bubble_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/image_bubble_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/text_bubble_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/video_bubble_container.dart';
 import 'package:cometchat_flutter_sample_app/utils/label.dart';
 import 'package:cometchat_flutter_sample_app/utils/widget_card.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +26,7 @@ class SharedDashboard extends StatelessWidget {
         leadingImageURL: "assets/speakerwave2.png",
         title: "Sound Manager",
         description:
-            "CometChatSoundManager allows you to play different types of audio which is required for incoming and outgoing events . To learn more about this component click here",
+            "CometChatSoundManager allows you to play different types of audio which is required for incoming and outgoing events . To learn more about this component tap here",
         onTap: () {
           Navigator.push(
               context,
@@ -31,11 +36,11 @@ class SharedDashboard extends StatelessWidget {
         },
       ),
       WidgetProps(
-        leadingImageURL: "assets/macwindow.png",
+        leadingImageURL: "assets/icons/colors.png",
         title: "Theme",
         description:
             "CometChatTheme is a style applied to every component and every view in the activity or component in the UI kit"
-            ". To learn more about this component click here",
+            ". To learn more about this component tap here",
         onTap: () {
           Navigator.push(
               context,
@@ -49,7 +54,7 @@ class SharedDashboard extends StatelessWidget {
         title: "Localize",
         description:
             "CometChatLocalize allows you to detect the language of your users based on their browser of "
-            "device settings and set the language accordingly. To learn more about this component click here . ",
+            "device settings and set the language accordingly. To learn more about this component tap here . ",
         onTap: () {
           Navigator.push(
               context,
@@ -59,14 +64,14 @@ class SharedDashboard extends StatelessWidget {
         },
       ),
     ];
-
+/*
     final List<WidgetProps> sdkDerivedModuleList = [
       WidgetProps(
         leadingImageURL: "assets/sidebarleft.png",
         title: "Conversation List Item",
         description: "CometChatConversationListItem is a reusable component "
             "which is used to display the conversation list item in conversation list. "
-            "To learn more about this component click here",
+            "To learn more about this component tap here",
         onTap: () {
           Navigator.push(
               context,
@@ -90,64 +95,74 @@ class SharedDashboard extends StatelessWidget {
         },
       ),
     ];
+    */
 
-    final List<WidgetProps> secondaryModuleList = [
-      WidgetProps(
-        leadingImageURL: "assets/person.png",
-        title: "Avatar",
-        description:
-            "CometChatAvatar component displays an image or user/group avatar with fallback to the first two letters of the "
-            "user name/group name .",
-        onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AvatarContainer(),
-              ));
-        },
-      ),
-      WidgetProps(
-        leadingImageURL: "assets/rectanglebadge.png",
-        title: "Badge Count",
-        description:
-            "CometChtBadgeCount is a custom component which is used to display the unread message count. "
-            "It can be used in places like ConversationListItem , etc .",
-        onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const BadgeContainer(),
-              ));
-        },
-      ),
-      WidgetProps(
-        leadingImageURL: "assets/sidebarleft.png",
-        title: "Message Receipt",
-        description:
-            "CometChatMessageReceipt component renders the receipts such as sending , sent ,"
-            " delivered read and error state indicator of messages .",
-        onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const MessageReceiptContainer(),
-              ));
-        },
-      ),
-      WidgetProps(
-        leadingImageURL: "assets/status.png",
-        title: "Status Indicator",
-        description:
-            "StatusIndicator component indicates whether a user is online or offline. ",
-        onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const StatusIndicatorContainer(),
-              ));
-        },
-      ),
-    ];
+    List<WidgetProps> getViewModules(BuildContext context) {
+      return [
+        WidgetProps(
+          leadingImageURL: "assets/person.png",
+          title: "Avatar",
+          description:
+              "CometChatAvatar component displays an image or user/group avatar with fallback to the first two letters of the "
+              "user name/group name .",
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AvatarContainer(),
+                ));
+          },
+        ),
+        WidgetProps(
+          leadingImageURL: "assets/rectanglebadge.png",
+          title: "Badge Count",
+          description:
+              "CometChatBadgeCount is a custom component which is used to display the unread message count. "
+              "It can be used in places like ConversationListItem , etc .",
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BadgeContainer(),
+                ));
+          },
+        ),
+        WidgetProps(
+          leadingImageURL: "assets/sidebarleft.png",
+          title: "Message Receipt",
+          description:
+              "CometChatMessageReceipt component renders the receipts such as sending , sent ,"
+              " delivered read and error state indicator of messages .",
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MessageReceiptContainer(),
+                ));
+          },
+        ),
+        WidgetProps(
+          leadingImageURL: "assets/status.png",
+          title: "Status Indicator",
+          description:
+              "StatusIndicator component indicates whether a user is online or offline. ",
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StatusIndicatorContainer(),
+                ));
+          },
+        ),
+        getTextBubbleContainer(context),
+        getImageBubbleContainer(context),
+        getVideoBubbleContainer(context),
+        getAudioBubbleContainer(context),
+        getFileBubbleContainer(context),
+        //getDeleteMessageBubbleContainer(context),
+        getCometChatListItemContainer(context)
+      ];
+    }
 
     return Scaffold(
       body: Padding(
@@ -180,17 +195,13 @@ class SharedDashboard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Label(text: "Primary"),
+              const Label(text: "Resources"),
               WidgetCard(
                 widgets: primaryModuleList,
               ),
-              const Label(text: "SDK Derived"),
+              const Label(text: "Views"),
               WidgetCard(
-                widgets: sdkDerivedModuleList,
-              ),
-              const Label(text: "Secondary"),
-              WidgetCard(
-                widgets: secondaryModuleList,
+                widgets: getViewModules(context),
               ),
             ],
           ),

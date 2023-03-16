@@ -1,13 +1,14 @@
-import 'package:cometchat_flutter_sample_app/conversations/conversations_dashboard.dart';
-import 'package:cometchat_flutter_sample_app/groups/groups_dashboard.dart';
+
+import 'package:cometchat_flutter_sample_app/conversations_dashboard.dart';
+import 'package:cometchat_flutter_sample_app/groups_dashboard.dart';
+import 'package:cometchat_flutter_sample_app/messages_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/shared/shared_dashboard.dart';
-import 'package:cometchat_flutter_sample_app/users/users_dashboard.dart';
+import 'package:cometchat_flutter_sample_app/users_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/utils/alert.dart';
 import 'package:cometchat_flutter_sample_app/utils/module_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
 
-import 'messages/messages_dashboard.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -51,21 +52,34 @@ class _DashboardState extends State<Dashboard> {
                 ),
               ),
               ModuleCard(
-                title: "Chats",
+                title: "Conversations",
+                leading: Image.asset(
+                  'assets/icons/conversations.png',
+                  height: 40,
+                  width: 40,
+                ),
                 description:
-                    "Conversation Module helps you list the recent conversations between your users and groups. To learn more about this component click here",
+                    "Conversations module contains all available components for listing Conversation objects\n"
+                    "To explore the available components tap here\n",
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const ConversationDashboard()),
+                        builder: (context) => const ConversationsDashboard()),
                   );
                 },
               ),
               ModuleCard(
+                leading: Image.asset(
+                  'assets/icons/message.png',
+                  height: 48,
+                  width: 48,
+                ),
                 title: "Messages",
                 description:
-                    "Messages module helps you to send and receive in a conversation between a user and a group . To learn more about this component click here",
+                    "Messages module contains all available components involving Message objects.\n"
+                    "Components that helps you send, receive, view messages.\n"
+                    "To explore the available components tap here\n",
                 onTap: () {
                   Navigator.push(
                     context,
@@ -76,8 +90,14 @@ class _DashboardState extends State<Dashboard> {
               ),
               ModuleCard(
                 title: "Users",
+                leading: Image.asset(
+                  'assets/icons/user-solid.png',
+                  height: 40,
+                  width: 40,
+                ),
                 description:
-                    "Users Module helps you list all the users available in your app . To learn more about this component click here",
+                    "Users module contains all available components involving User objects\n"
+                    "To explore the available components tap here\n",
                 onTap: () {
                   Navigator.push(
                     context,
@@ -86,10 +106,17 @@ class _DashboardState extends State<Dashboard> {
                   );
                 },
               ),
+              
               ModuleCard(
+                leading: Image.asset(
+                  'assets/icons/group-chat.png',
+                  height: 48,
+                  width: 48,
+                ),
                 title: "Groups",
                 description:
-                    "Groups Module helps you list all the groups you are part of in your app. To learn more about this component click here",
+                    "Groups module contains all available components involving Group objects\n"
+                    "To explore the available components tap here\n",
                 onTap: () {
                   Navigator.push(
                     context,
@@ -100,8 +127,16 @@ class _DashboardState extends State<Dashboard> {
               ),
               ModuleCard(
                 title: "Shared",
+                leading: Image.asset(
+                  'assets/icons/review.png',
+                  height: 48,
+                  width: 48,
+                ),
                 description:
-                    "Shared module contains several reusable components that are divided into Primary, Secondary and SDK derived components. To learn more about this component click here",
+                    "Shared module contains several reusable components that are divided into Resources and Views.\n" 
+                    "Resources are components that enhance some visual and functional aspect of a component  "
+                    "and Views are core UI components which can collectively form a larger UI component\n"
+                    "To explore the available components tap here\n",
                 onTap: () {
                   Navigator.push(
                     context,

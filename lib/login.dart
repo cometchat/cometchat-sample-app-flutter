@@ -31,19 +31,34 @@ class _LoginState extends State<Login> {
     super.initState();
 
     //CometChat SDk should be initialized at the start of application. No need to initialize it again
-    AppSettings appSettings = (AppSettingsBuilder()
+    // AppSettings appSettings = (AppSettingsBuilder()
+    //       ..subscriptionType = CometChatSubscriptionType.allUsers
+    //       ..region = CometChatConstants.region
+    //       ..autoEstablishSocketConnection = true)
+    //     .build();
+    //
+    // CometChat.init(CometChatConstants.appId, appSettings,
+    //     onSuccess: (String successMessage) {
+    //   debugPrint("Initialization completed successfully  $successMessage");
+    // }, onError: (CometChatException excep) {
+    //   debugPrint("Initialization failed with exception: ${excep.message}");
+    // });
+
+    makeUISettings();
+
+    //initialization end
+  }
+
+  makeUISettings() {
+    UIKitSettings authSettings = (UIKitSettingsBuilder()
           ..subscriptionType = CometChatSubscriptionType.allUsers
           ..region = CometChatConstants.region
-          ..autoEstablishSocketConnection = true)
+          ..autoEstablishSocketConnection = true
+          ..appId = CometChatConstants.appId
+          ..apiKey = CometChatConstants.authKey)
         .build();
 
-    CometChat.init(CometChatConstants.appId, appSettings,
-        onSuccess: (String successMessage) {
-      debugPrint("Initialization completed successfully  $successMessage");
-    }, onError: (CometChatException excep) {
-      debugPrint("Initialization failed with exception: ${excep.message}");
-    });
-    //initialization end
+    CometChatUIKit.init(authSettings: authSettings);
   }
 
   //Login User function must pass userid and authkey should be used only while developing
@@ -68,9 +83,8 @@ class _LoginState extends State<Login> {
       }
     } catch (_) {}
 
-    await CometChat.login(userId, CometChatConstants.authKey,
-        onSuccess: (User loggedInUser) {
-      debugPrint("Login Successful : $loggedInUser");
+    await CometChatUIKit.login(userId, onSuccess: (User loggedInUser) {
+      debugPrint("Login Successful from UI : $loggedInUser");
       Navigator.of(context).pop();
       _user = loggedInUser;
       Navigator.push(
@@ -79,6 +93,18 @@ class _LoginState extends State<Login> {
       Navigator.of(context).pop();
       debugPrint("Login failed with exception:  ${e.message}");
     });
+
+    // await CometChat.login(userId, CometChatConstants.authKey,
+    //     onSuccess: (User loggedInUser) {
+    //   debugPrint("Login Successful : $loggedInUser");
+    //   Navigator.of(context).pop();
+    //   _user = loggedInUser;
+    //   Navigator.push(
+    //       context, MaterialPageRoute(builder: (context) => const Dashboard()));
+    // }, onError: (CometChatException e) {
+    //   Navigator.of(context).pop();
+    //   debugPrint("Login failed with exception:  ${e.message}");
+    // });
   }
 
   Widget userSelectionButton(
