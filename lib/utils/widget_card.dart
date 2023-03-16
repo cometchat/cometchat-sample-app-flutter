@@ -20,7 +20,11 @@ class WidgetCard extends StatelessWidget {
     WidgetProps _property = widgets[index];
     return ListTile(
       dense: true,
-      leading: Image.asset(_property.leadingImageURL),
+      leading: Image.asset(
+        _property.leadingImageURL,
+        height: _property.leadingImageDimensions,
+        width: _property.leadingImageDimensions,
+      ),
       title: Text(
         _property.title,
         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
@@ -54,12 +58,14 @@ class WidgetCard extends StatelessWidget {
 class WidgetProps {
   String title;
   String leadingImageURL;
+  double? leadingImageDimensions;
   String description;
   Function() onTap;
 
   WidgetProps(
       {required this.title,
       required this.leadingImageURL,
+      this.leadingImageDimensions,
       required this.description,
       required this.onTap});
 }

@@ -70,7 +70,8 @@ Learn more about how to integrate [Flutter UI Kit](https://www.cometchat.com/doc
 
 Thanks to the following people who have contributed to this project:
 
-[👨‍💻 @ShantanuKhare 💻](https://github.com/Shantanu-CometChat)
+[⚔️ @shantanukhare 🛡](https://github.com/Shantanu-CometChat) <br>
+[⚔️ @nabhodiptagarai 🛡](https://github.com/nabhodiptagarai) <br>
 
 ---
 
