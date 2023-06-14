@@ -5,10 +5,6 @@
 		</p>
 	</div>
 </div>
-</br></br>
-
-> We’ve introduced a major update to CometChat UI kits. Version 4 features a modular architecture that give you enhanced flexibility to build and customize your web and mobile apps. Read about this new and upgraded version [on our docs](https://www.cometchat.com/docs/flutter-uikit-beta/overview).
-<br/><br/>
 
 # Flutter Chat App
 
