@@ -1,7 +1,7 @@
 import 'package:cometchat_flutter_sample_app/utils/animated_toggle.dart';
 import 'package:cometchat_flutter_sample_app/utils/background_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 class AvatarContainer extends StatelessWidget {
   const AvatarContainer({Key? key}) : super(key: key);
@@ -50,7 +50,7 @@ class _AvatarViewState extends State<AvatarView> {
           child: CometChatAvatar(
             image: _showImage == true
                 // ? "https://data-us.cometchat.io/assets/images/avatars/spiderman.png"
-                ?'https://data-us.cometchat.io/208434241880dc4d/media/1676951632_1179067617_0bb4ab5734e38db8b6fce07a5a912b84.jpg'
+                ? 'https://data-us.cometchat.io/208434241880dc4d/media/1676951632_1179067617_0bb4ab5734e38db8b6fce07a5a912b84.jpg'
                 : null,
             name: "Shantanu",
             style: AvatarStyle(

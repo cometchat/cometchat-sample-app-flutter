@@ -1,6 +1,6 @@
 import 'package:cometchat_flutter_sample_app/utils/module_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 class CreateGroupModule extends StatelessWidget {
   const CreateGroupModule({Key? key}) : super(key: key);
@@ -9,12 +9,9 @@ class CreateGroupModule extends StatelessWidget {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Scaffold(
-              body: Center(
-            child: CometChatCreateGroup(
-              onCreateTap: (group) {},
-            ),
-          )),
+          builder: (context) => CometChatCreateGroup(
+            onCreateTap: (group) {},
+          ),
         ));
   }
 

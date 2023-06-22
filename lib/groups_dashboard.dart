@@ -1,7 +1,7 @@
 import 'package:cometchat_flutter_sample_app/utils/module_card.dart';
 import 'package:cometchat_flutter_sample_app/utils/widget_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_flutter_sample_app/add_members/add_members_module.dart';
 import 'package:cometchat_flutter_sample_app/banned_members/banned_members_module.dart';
 import 'package:cometchat_flutter_sample_app/create_group/create_group_module.dart';
@@ -16,7 +16,6 @@ class GroupsDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -58,8 +57,8 @@ class GroupsDashboard extends StatelessWidget {
               const AddMembersModule(),
               const TransferOwnershipModule(),
               const BannedMembersModule(),
-               ModuleCard(
-                title: "CometChatDetails",
+              ModuleCard(
+                title: "Details",
                 leading: Image.asset(
                   'assets/icons/account.png',
                   height: 48,
@@ -69,29 +68,29 @@ class GroupsDashboard extends StatelessWidget {
                     'This component can be used to view information about a group'
                     "To learn more about this component tap here",
                 onTap: () {
-          Group _group = Group(
-              guid: "supergroup",
-              owner: "superhero1",
-              name: "Comic Hero's Hangout",
-              icon:
-                  "https://data-us.cometchat.io/assets/images/avatars/supergroup.png",
-              description: "null",
-              hasJoined: true,
-              membersCount: 4,
-              createdAt: DateTime.now(),
-              joinedAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-              type: "private");
+                  Group _group = Group(
+                      guid: "supergroup",
+                      owner: "superhero1",
+                      name: "Comic Hero's Hangout",
+                      icon:
+                          "https://data-us.cometchat.io/assets/images/avatars/supergroup.png",
+                      description: "null",
+                      hasJoined: true,
+                      membersCount: 4,
+                      createdAt: DateTime.now(),
+                      joinedAt: DateTime.now(),
+                      updatedAt: DateTime.now(),
+                      type: "private");
 
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Scaffold(
-                    body: Center(
-                  child: CometChatDetails(group: _group),
-                )),
-              ));
-        },
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Scaffold(
+                            body: Center(
+                          child: CometChatDetails(group: _group),
+                        )),
+                      ));
+                },
               ),
             ],
           ),

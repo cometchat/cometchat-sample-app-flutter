@@ -2,8 +2,8 @@ import 'package:cometchat_flutter_sample_app/dashboard.dart';
 import 'package:cometchat_flutter_sample_app/utils/alert.dart';
 import 'package:cometchat_flutter_sample_app/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
-import 'package:toast/toast.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+//import 'package:toast/toast.dart';
 
 class LoginWithUID extends StatefulWidget {
   const LoginWithUID({Key? key}) : super(key: key);
@@ -88,22 +88,21 @@ class _LoginWithUIDState extends State<LoginWithUID> {
   //Login User function must pass userid and authkey should be used only while developing
   loginUser(String userId, BuildContext context) async {
     Alert.showLoadingIndicatorDialog(context);
-    ToastContext().init(context); //Replace with name and uid of user
+    // ToastContext().init(context); //Replace with name and uid of user
     User? _user = await CometChat.getLoggedInUser();
     try {
       if (_user != null) {
-        await CometChat.logout(onSuccess: (_) {}, onError: (_) {});
+        await CometChatUIKit.logout();
       }
     } catch (_) {}
 
-    await CometChat.login(userId, CometChatConstants.authKey,
-        onSuccess: (User loggedInUser) {
+    await CometChatUIKit.login(userId, onSuccess: (User loggedInUser) {
       debugPrint("Login Successful : $loggedInUser");
       _user = loggedInUser;
     }, onError: (CometChatException e) {
       debugPrint("Login failed with exception:  ${e.message}");
-      Toast.show("Login failed",
-          duration: Toast.lengthShort, gravity: Toast.bottom);
+      // Toast.show("Login failed",
+      //     duration: Toast.lengthShort, gravity: Toast.bottom);
     });
 
     Navigator.of(context).pop();

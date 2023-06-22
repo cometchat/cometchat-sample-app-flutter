@@ -1,4 +1,3 @@
-
 import 'package:cometchat_flutter_sample_app/conversations_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/groups_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/messages_dashboard.dart';
@@ -7,8 +6,7 @@ import 'package:cometchat_flutter_sample_app/users_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/utils/alert.dart';
 import 'package:cometchat_flutter_sample_app/utils/module_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
-
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -47,7 +45,8 @@ class _DashboardState extends State<Dashboard> {
                           Navigator.of(context).pop();
                           Navigator.of(context).pop();
                         },
-                        icon: const Icon(Icons.power_settings_new_rounded))
+                        icon: Icon(Icons.power_settings_new_rounded,
+                            color: cometChatTheme.palette.getAccent()))
                   ],
                 ),
               ),
@@ -106,7 +105,6 @@ class _DashboardState extends State<Dashboard> {
                   );
                 },
               ),
-              
               ModuleCard(
                 leading: Image.asset(
                   'assets/icons/group-chat.png',
@@ -133,7 +131,7 @@ class _DashboardState extends State<Dashboard> {
                   width: 48,
                 ),
                 description:
-                    "Shared module contains several reusable components that are divided into Resources and Views.\n" 
+                    "Shared module contains several reusable components that are divided into Resources and Views.\n"
                     "Resources are components that enhance some visual and functional aspect of a component  "
                     "and Views are core UI components which can collectively form a larger UI component\n"
                     "To explore the available components tap here\n",
@@ -153,6 +151,6 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> logout() async {
-    await CometChat.logout(onSuccess: (onSuccess) {}, onError: (_) {});
+    await CometChatUIKit.logout();
   }
 }

@@ -1,9 +1,11 @@
 import 'package:cometchat/cometchat_sdk.dart';
+import 'package:cometchat_flutter_sample_app/dashboard.dart';
 import 'package:cometchat_flutter_sample_app/login.dart';
 import 'package:cometchat_flutter_sample_app/utils/alert.dart';
 import 'package:cometchat_flutter_sample_app/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:toast/toast.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+//import 'package:toast/toast.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -161,23 +163,26 @@ class _SignUpState extends State<SignUp> {
   registerUser(BuildContext context) async {
     Alert.showLoadingIndicatorDialog(context);
 
-    String authKey =
-        CometChatConstants.authKey; //Replace with the auth key of app
     User user = User(uid: uid!, name: name!);
 
-    ToastContext().init(context); //Replace with name and uid of user
+    //ToastContext().init(context); //Replace with name and uid of user
 
-    await CometChat.createUser(user, authKey, onSuccess: (User user) {
+    await CometChatUIKit.createUser(user, onSuccess: (User user) async {
       debugPrint("User Created Successfully");
-      Toast.show("User Created Successfully",
-          duration: Toast.lengthShort, gravity: Toast.bottom);
+      // Toast.show("User Created Successfully",
+      //     duration: Toast.lengthShort, gravity: Toast.bottom);
+      await CometChatUIKit.login(user.uid, onSuccess: (User user) {
+        Navigator.of(context).pop();
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const Dashboard()));
+      });
     }, onError: (CometChatException e) {
-      debugPrint("User Created Successfully");
-      Toast.show("Error in user creation",
-          duration: Toast.lengthShort, gravity: Toast.bottom);
+      debugPrint("User could not be created");
+      // Toast.show("Error in user creation",
+      //     duration: Toast.lengthShort, gravity: Toast.bottom);
     });
 
-    Navigator.of(context).pop();
+    // Navigator.of(context).pop();
 
     //Or u can do it like this
     //User? retUser = await CometChat.createUser(user,  authKey, onSuccess: (_){}, onError: (_){});

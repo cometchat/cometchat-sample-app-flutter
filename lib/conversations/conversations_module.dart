@@ -1,6 +1,6 @@
 import 'package:cometchat_flutter_sample_app/utils/module_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 class ConversationModule extends StatelessWidget {
   const ConversationModule({Key? key}) : super(key: key);
@@ -15,7 +15,7 @@ class ConversationModule extends StatelessWidget {
       ),
       title: "Conversations",
       description:
-          "Messages module helps you to send and receive in a conversation between a user and a group . To learn more about this component tap here",
+          "Conversations module helps you to view list of conversations that the logged in user is part of. To learn more about this component, tap here.",
       onTap: () {
         Navigator.push(
           context,

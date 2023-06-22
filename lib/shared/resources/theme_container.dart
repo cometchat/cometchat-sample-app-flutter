@@ -1,8 +1,8 @@
 import 'package:cometchat_flutter_sample_app/utils/animated_toggle.dart';
 import 'package:cometchat_flutter_sample_app/utils/background_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart' as cc;
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 
 class ThemeContainer extends StatelessWidget {
   const ThemeContainer({Key? key}) : super(key: key);

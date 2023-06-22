@@ -1,6 +1,6 @@
 import 'package:cometchat_flutter_sample_app/utils/widget_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 WidgetProps getDeleteMessageBubbleContainer(BuildContext context) {
   return WidgetProps(
@@ -14,20 +14,25 @@ WidgetProps getDeleteMessageBubbleContainer(BuildContext context) {
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
+                appBar: AppBar(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  elevation: 0.5,
+                ),
                 body: Center(
                     child: DecoratedBox(
-              decoration: const BoxDecoration(color: Colors.white),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CometChatDeleteMessageBubble(),
+                  decoration: const BoxDecoration(color: Colors.white),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: CometChatDeleteMessageBubble(),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ))),
+                ))),
           ));
     },
   );

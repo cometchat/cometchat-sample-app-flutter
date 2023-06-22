@@ -8,9 +8,9 @@
 
 # Flutter Chat App
 
-[![Platform](https://img.shields.io/badge/Platform-Flutter-brightgreen.svg)](#)
-[![Platform](https://img.shields.io/badge/Language-dart-yellowgreen.svg)](#)
-![Version](https://shields.io/badge/version-v3.0.3--pluto.beta.1-orange)
+[![Platform](https://img.shields.io/badge/Platform-Flutter-violet.svg)](#)
+[![Platform](https://img.shields.io/badge/Language-dart-blue.svg)](#)
+![Version](https://shields.io/badge/version-4.0.0--beta.1-orange)
 ![Twitter Follow](https://img.shields.io/twitter/follow/cometchat?style=social)
 
 <br>
@@ -24,7 +24,7 @@ Before you begin, ensure you have met the following requirements:<br/>
 ✅ &nbsp; You have `Android Studio` or  `Xcode` installed in your machine.<br/>
 ✅ &nbsp; You have a `Android Device or Emulator` with Android Version 5.0 or above.<br/>
 ✅ &nbsp; You have a `IOS Device or Emulator` with IOS 11.0 or above.<br/>
-✅ &nbsp; You have read [CometChat Key Concepts](https://www.cometchat.com/docs/flutter-uikit-beta/key-concepts).<br/>
+✅ &nbsp; You have read [CometChat Key Concepts](https://www.cometchat.com/docs/flutter-v4-uikit/key-concepts).<br/>
 
 <hr/>
 
@@ -53,13 +53,13 @@ Build and run the Sample App.
 
 # Learn more about UI Kit
 
-Learn more about how to integrate [Flutter UI Kit](https://www.cometchat.com/docs/flutter-uikit-beta/integration) inside your app.
+Learn more about how to integrate [Flutter UI Kit](https://www.cometchat.com/docs/flutter-v4-uikit/integration#getting-started) inside your app.
 <br/>
 <hr/>
 
 ## Troubleshooting
 
-- To read the full documentation on UI Kit integration visit our [Documentation](https://www.cometchat.com/docs/flutter-uikit-beta/overview)  .
+- To read the full documentation on UI Kit integration visit our [Documentation](https://www.cometchat.com/docs/flutter-v4-uikit/overview)  .
 
 - Facing any issues while integrating or installing the UI Kit please <a href="https://app.cometchat.com/"> connect with us via real time support present in CometChat Dashboard.</a>.
 
@@ -80,4 +80,3 @@ Thanks to the following people who have contributed to this project:
 Contact us via real time support present in [CometChat Dashboard.](https://app.cometchat.io/)
 
 ---
-

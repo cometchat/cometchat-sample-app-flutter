@@ -1,6 +1,6 @@
 import 'package:cometchat_flutter_sample_app/utils/module_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 class MessageComposerModule extends StatelessWidget {
   const MessageComposerModule({Key? key}) : super(key: key);
@@ -29,6 +29,11 @@ class MessageComposerModule extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => Scaffold(
+                  appBar: AppBar(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    elevation: 0.5,
+                  ),
                   body: Center(
                       child: SizedBox(
                           height: 400,

@@ -1,6 +1,6 @@
 import 'package:cometchat_flutter_sample_app/utils/module_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 class BannedMembersModule extends StatelessWidget {
   const BannedMembersModule({Key? key}) : super(key: key);
@@ -40,7 +40,7 @@ class BannedMembersModule extends StatelessWidget {
       ),
       title: "Banned members",
       description: 'This component is used to add users to a group. '
-          "To learn more about this component tap here",
+          "To learn more about this component, tap here.",
       onTap: () => navigateToBannedMembers(context),
     );
   }

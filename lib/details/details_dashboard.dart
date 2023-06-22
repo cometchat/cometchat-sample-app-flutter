@@ -1,6 +1,6 @@
 import 'package:cometchat_flutter_sample_app/utils/widget_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 class DetailsDashboard extends StatelessWidget {
   const DetailsDashboard({Key? key}) : super(key: key);
@@ -12,8 +12,8 @@ class DetailsDashboard extends StatelessWidget {
         leadingImageURL: "assets/icons/user.png",
         leadingImageDimensions: 36,
         title: "User",
-        description: "CometChatDetails component for a user "
-            "To learn more about this component tap here",
+        description:
+            "CometChatDetails component displays details of a user. The actions that the logged in user can perform on the user are also displayed. To learn more about this component tap here",
         onTap: () {
           User _user = User(
               name: 'Kevin',
@@ -29,7 +29,9 @@ class DetailsDashboard extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => Scaffold(
                     body: Center(
-                  child: CometChatDetails(user: _user),
+                  child: CometChatDetails(
+                    user: _user,
+                  ),
                 )),
               ));
         },
@@ -37,8 +39,8 @@ class DetailsDashboard extends StatelessWidget {
       WidgetProps(
         leadingImageURL: "assets/icons/group.png",
         title: "Group",
-        description: "CometChatDetails component for a group "
-            "To learn more about this component tap here",
+        description:
+            "CometChatDetails component displays details of a user. The actions that the logged in user can perform on the user are also displayed. To learn more about this component tap here",
         onTap: () {
           Group _group = Group(
               guid: "supergroup",
