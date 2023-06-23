@@ -15,37 +15,37 @@
 
 <br>
 
-CometChat Flutter Sample App (built using CometChat UI Kit) is a fully functional messaging app capable of one-on-one (private) and group messaging. This sample app enables users to send text and multimedia messages like images, videos, documents.
+CometChat Flutter Sample App (built using CometChat UI Kit) is a fully functional messaging app capable of one-on-one (private) and group messaging. This sample app enables users to send text and multimedia messages like images, videos, and documents.
 <br/>
 <hr/>
 
 ## Prerequisites :star:
 Before you begin, ensure you have met the following requirements:<br/>
-✅ &nbsp; You have `Android Studio` or  `Xcode` installed in your machine.<br/>
-✅ &nbsp; You have a `Android Device or Emulator` with Android Version 5.0 or above.<br/>
-✅ &nbsp; You have a `IOS Device or Emulator` with IOS 11.0 or above.<br/>
+✅ &nbsp; You have `Android Studio` or  `Xcode` installed on your machine.<br/>
+✅ &nbsp; You have an `Android Device or Emulator` with Android Version 5.0 or above.<br/>
+✅ &nbsp; You have an `iOS Device or Emulator` with IOS 11.0 or above.<br/>
 ✅ &nbsp; You have read [CometChat Key Concepts](https://www.cometchat.com/docs/flutter-v4-uikit/key-concepts).<br/>
 
 <hr/>
 
 ## Installing Flutter Chat App :wrench:
 
-Simply clone the project from [flutter-chat-app](https://github.com/cometchat-pro/flutter-chat-app) repository.
+Clone the project from the [flutter-chat-app](https://github.com/cometchat-pro/flutter-chat-app) repository.
 
 
 ### Running the sample app
 
-To Run to sample app you have to do the following changes by Adding **APP_ID**, **AUTH_KEY** and  **REGION_CODE**
+To Run to sample app you have to make the following changes by Adding **APP_ID**, **AUTH_KEY**, and  **REGION_CODE**
 
-You can obtain your  *APP_ID*, *AUTH_KEY* and *REGION_CODE* from [CometChat Dashboard](https://app.cometchat.io/)
+You can obtain your  *APP_ID*, *AUTH_KEY* and *REGION_CODE* from [CometChat Dashboard](https://app.cometchat.io/).
 
 - Open the project in Android Studio.
 
-- Modify `APP_ID` and `AUTH_KEY` and `REGION` with your own in lib/utility/constants.dart file.
+- Modify `APP_ID` and `AUTH_KEY` and `REGION` with your own in lib/utils/constants.dart file.
 
 -  Select demo users or enter the **UID** at the time of login once the app is launched.
 
-- for running on IOS go to IOS folder of your app in terminal(use rositta for apple chip computers) and run `pod install`
+- for running on iOS go to the ios folder of your app in the terminal(use rositta for Apple chip computers) and run `pod install`
 
 
 Build and run the Sample App.
@@ -59,9 +59,9 @@ Learn more about how to integrate [Flutter UI Kit](https://www.cometchat.com/doc
 
 ## Troubleshooting
 
-- To read the full documentation on UI Kit integration visit our [Documentation](https://www.cometchat.com/docs/flutter-v4-uikit/overview)  .
+- To read the complete documentation on UI Kit integration visit our [Documentation](https://www.cometchat.com/docs/flutter-v4-uikit/overview).
 
-- Facing any issues while integrating or installing the UI Kit please connect with us via real-time support present in <a href="https://app.cometchat.com/">CometChat Dashboard</a>.
+- Facing any issues while integrating or installing the UI Kit please connect with us via real-time support present in [CometChat Dashboard](https://app.cometchat.com/).
 
 ---
 
@@ -77,6 +77,6 @@ Thanks to the following people who have contributed to this project:
 
 ## :mailbox: Contact
 
-Contact us via real time support present in [CometChat Dashboard.](https://app.cometchat.io/)
+Contact us via real-time support present in [CometChat Dashboard](https://app.cometchat.com/).
 
 ---
