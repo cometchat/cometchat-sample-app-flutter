@@ -61,7 +61,7 @@ Learn more about how to integrate [Flutter UI Kit](https://www.cometchat.com/doc
 
 - To read the full documentation on UI Kit integration visit our [Documentation](https://www.cometchat.com/docs/flutter-v4-uikit/overview)  .
 
-- Facing any issues while integrating or installing the UI Kit please <a href="https://app.cometchat.com/"> connect with us via real time support present in CometChat Dashboard.</a>.
+- Facing any issues while integrating or installing the UI Kit please connect with us via real-time support present in <a href="https://app.cometchat.com/">CometChat Dashboard</a>.
 
 ---
 
