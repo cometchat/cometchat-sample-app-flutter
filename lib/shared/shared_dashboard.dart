@@ -1,13 +1,12 @@
 import 'package:cometchat_flutter_sample_app/shared/views/avatar_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/views/badge_container.dart';
-import 'package:cometchat_flutter_sample_app/shared/resources/loacalization_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/resources/localization_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/views/message_receipt_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/resources/sound_manager_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/views/status_indicator_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/resources/theme_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/views/audio_bubble_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/views/cometchat_list_item_container.dart';
-import 'package:cometchat_flutter_sample_app/shared/views/deleted_bubble_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/views/file_bubble_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/views/image_bubble_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/views/text_bubble_container.dart';

@@ -3,7 +3,7 @@ import 'package:cometchat_flutter_sample_app/sign_up.dart';
 import 'package:cometchat_flutter_sample_app/utils/alert.dart';
 import 'package:cometchat_flutter_sample_app/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 import 'dashboard.dart';
 
@@ -23,7 +23,7 @@ class _LoginState extends State<Login> {
     MaterialButtonUserModel(
         "superhero3", "SUPERHERO3", "assets/spiderman_avatar.png"),
     MaterialButtonUserModel(
-        "superhero4", "SUPERHERO5", "assets/cyclops_avatar.png"),
+        "superhero4", "SUPERHERO4", "assets/cyclops_avatar.png"),
   ];
 
   @override
@@ -50,15 +50,15 @@ class _LoginState extends State<Login> {
   }
 
   makeUISettings() {
-    UIKitSettings authSettings = (UIKitSettingsBuilder()
+    UIKitSettings uiKitSettings = (UIKitSettingsBuilder()
           ..subscriptionType = CometChatSubscriptionType.allUsers
           ..region = CometChatConstants.region
           ..autoEstablishSocketConnection = true
           ..appId = CometChatConstants.appId
-          ..apiKey = CometChatConstants.authKey)
+          ..authKey = CometChatConstants.authKey)
         .build();
 
-    CometChatUIKit.init(authSettings: authSettings);
+    CometChatUIKit.init(uiKitSettings: uiKitSettings);
   }
 
   //Login User function must pass userid and authkey should be used only while developing
@@ -155,7 +155,7 @@ class _LoginState extends State<Login> {
                     fontWeight: FontWeight.bold),
               ),
               const Text(
-                "Pluto UI Kit",
+                "Kitchen Sink App",
                 style: TextStyle(
                     color: Colors.blueAccent,
                     fontSize: 30,

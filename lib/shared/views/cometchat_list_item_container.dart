@@ -1,11 +1,11 @@
 import 'package:cometchat_flutter_sample_app/utils/widget_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 WidgetProps getCometChatListItemContainer(BuildContext context) {
   return WidgetProps(
     leadingImageURL: "assets/icons/menu.png",
-    title: "CometChat ListItem",
+    title: "List Item",
     description: "CometChatListItem displays data on a tile "
         "and that tile may contain leading, trailing, title and subtitle widgets. "
         "To learn more about this component tap here",
@@ -54,15 +54,20 @@ class CometChatListItemDashboard extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => Scaffold(
+                    appBar: AppBar(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      elevation: 0.5,
+                    ),
                     body: Center(
-                  child: CometChatListItem(
-                    avatarName: _user.name,
-                    avatarURL: _user.avatar,
-                    title: _user.name,
-                    statusIndicatorColor: backgroundColor,
-                    statusIndicatorIcon: icon,
-                  ),
-                )),
+                      child: CometChatListItem(
+                        avatarName: _user.name,
+                        avatarURL: _user.avatar,
+                        title: _user.name,
+                        statusIndicatorColor: backgroundColor,
+                        statusIndicatorIcon: icon,
+                      ),
+                    )),
               ));
         },
       ),
@@ -98,32 +103,37 @@ class CometChatListItemDashboard extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => Scaffold(
-                    body: Center(
-                  child: CometChatListItem(
-                    avatarName: _group.name,
-                    avatarURL: _group.icon,
-                    title: _group.name,
-                    subtitleView: Text(
-                      "${_group.membersCount} ${Translations.of(context).members}",
-                      style: TextStyle(
-                          fontSize:
-                              cometChatTheme.typography.subtitle1.fontSize,
-                          fontWeight:
-                              cometChatTheme.typography.subtitle1.fontWeight,
-                          fontFamily:
-                              cometChatTheme.typography.subtitle1.fontFamily,
-                          color: cometChatTheme.palette.getAccent600()),
+                    appBar: AppBar(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      elevation: 0.5,
                     ),
-                    statusIndicatorColor: backgroundColor,
-                    statusIndicatorIcon: icon,
-                    options: [
-                      CometChatOption(
-                          id: "dummy",
-                          icon: AssetConstants.delete,
-                          backgroundColor: Colors.red)
-                    ],
-                  ),
-                )),
+                    body: Center(
+                      child: CometChatListItem(
+                        avatarName: _group.name,
+                        avatarURL: _group.icon,
+                        title: _group.name,
+                        subtitleView: Text(
+                          "${_group.membersCount} ${Translations.of(context).members}",
+                          style: TextStyle(
+                              fontSize:
+                                  cometChatTheme.typography.subtitle1.fontSize,
+                              fontWeight: cometChatTheme
+                                  .typography.subtitle1.fontWeight,
+                              fontFamily: cometChatTheme
+                                  .typography.subtitle1.fontFamily,
+                              color: cometChatTheme.palette.getAccent600()),
+                        ),
+                        statusIndicatorColor: backgroundColor,
+                        statusIndicatorIcon: icon,
+                        options: [
+                          CometChatOption(
+                              id: "dummy",
+                              icon: AssetConstants.delete,
+                              backgroundColor: Colors.red)
+                        ],
+                      ),
+                    )),
               ));
         },
       ),
@@ -172,6 +182,11 @@ class CometChatListItemDashboard extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => Scaffold(
+                    appBar: AppBar(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      elevation: 0.5,
+                    ),
                     backgroundColor: const Color(0xffeeeeee),
                     body: Center(
                       child: CometChatListItem(

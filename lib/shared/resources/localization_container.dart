@@ -1,7 +1,7 @@
 import 'package:cometchat_flutter_sample_app/utils/animated_toggle.dart';
 import 'package:cometchat_flutter_sample_app/utils/background_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 class LocalizationContainer extends StatelessWidget {

@@ -34,7 +34,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  flutter_chat_ui_kit: ^3.0.6-pluto.beta.2
+  cometchat_chat_uikit: ^4.0.0-beta.1
   flutter_localizations:
     sdk: flutter
   toast: ^0.3.0

@@ -1,6 +1,6 @@
 import 'package:cometchat_flutter_sample_app/utils/module_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 class MessagesModule extends StatelessWidget {
   const MessagesModule({Key? key}) : super(key: key);

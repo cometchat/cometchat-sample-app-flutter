@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 class MessageReceiptContainer extends StatefulWidget {
   const MessageReceiptContainer({Key? key}) : super(key: key);
@@ -52,34 +52,40 @@ class _MessageReceiptContainerState extends State<MessageReceiptContainer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                "Message Receipt",
-                style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                "CometChatMessageReceipt component renders the receipts such as sending , sent ,"
-                " delivered ,  read and error state indicator of messages .",
-              ),
-            ),
-            getCard(_waiting, "Waiting", scaleFactor: 1.8),
-            getCard(_sentMessage, "Sent"),
-            getCard(_deliveredMessage, "Delivered"),
-            getCard(_readMessage, "Read"),
-            getCard(_errorMessage, "Error")
-          ],
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0.5,
         ),
-      ),
-    ));
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "Message Receipt",
+                    style:
+                        TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "CometChatMessageReceipt component renders the receipts such as sending , sent ,"
+                    " delivered ,  read and error state indicator of messages .",
+                  ),
+                ),
+                getCard(_waiting, "Waiting", scaleFactor: 1.8),
+                getCard(_sentMessage, "Sent"),
+                getCard(_deliveredMessage, "Delivered"),
+                getCard(_readMessage, "Read"),
+                getCard(_errorMessage, "Error")
+              ],
+            ),
+          ),
+        ));
   }
 
   getCard(BaseMessage _message, String title, {double? scaleFactor}) {

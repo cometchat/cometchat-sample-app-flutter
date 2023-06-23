@@ -1,6 +1,6 @@
 import 'package:cometchat_flutter_sample_app/utils/widget_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui_kit/flutter_chat_ui_kit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 WidgetProps getTextBubbleContainer(BuildContext context) {
   return WidgetProps(
@@ -13,41 +13,48 @@ WidgetProps getTextBubbleContainer(BuildContext context) {
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
+                appBar: AppBar(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  elevation: 0.5,
+                ),
                 body: Center(
                     child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: CometChatTextBubble(
-                        text: 'Hi! how are you?',
-                        alignment: BubbleAlignment.left,
-                        theme: cometChatTheme,
-                        style: TextBubbleStyle(
-                            background: cometChatTheme.palette.getAccent100()),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CometChatTextBubble(
+                            text: 'Hi! how are you?',
+                            alignment: BubbleAlignment.left,
+                            theme: cometChatTheme,
+                            style: TextBubbleStyle(
+                                background:
+                                    cometChatTheme.palette.getAccent100()),
+                          ),
+                        ),
+                      ],
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CometChatTextBubble(
+                              text: 'I\'m good, how are you?',
+                              alignment: BubbleAlignment.right,
+                              theme: cometChatTheme,
+                              style: TextBubbleStyle(
+                                  background:
+                                      cometChatTheme.palette.getPrimary()),
+                            )),
+                      ],
+                    )
                   ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CometChatTextBubble(
-                          text: 'I\'m good, how are you?',
-                          alignment: BubbleAlignment.right,
-                          theme: cometChatTheme,
-                          style: TextBubbleStyle(
-                              background: cometChatTheme.palette.getPrimary()),
-                        )),
-                  ],
-                )
-              ],
-            ))),
+                ))),
           ));
     },
   );
