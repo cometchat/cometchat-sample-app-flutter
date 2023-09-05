@@ -1,11 +1,9 @@
-import 'package:cometchat/cometchat_sdk.dart';
 import 'package:cometchat_flutter_sample_app/dashboard.dart';
 import 'package:cometchat_flutter_sample_app/login.dart';
 import 'package:cometchat_flutter_sample_app/utils/alert.dart';
-import 'package:cometchat_flutter_sample_app/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-//import 'package:toast/toast.dart';
+
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);

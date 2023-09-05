@@ -1,3 +1,4 @@
+import 'package:cometchat_flutter_sample_app/calls/calls_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/conversations_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/groups_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/messages_dashboard.dart';
@@ -140,6 +141,24 @@ class _DashboardState extends State<Dashboard> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => const SharedDashboard()),
+                  );
+                },
+              ),
+              ModuleCard(
+                title: "Calls",
+                leading: Image.asset(
+                  'assets/icons/calling.png',
+                  height: 48,
+                  width: 48,
+                ),
+                description:
+                    "Calls module contains all available components involving Call objects\n"
+                    "To explore the available components tap here\n",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CallsDashboard()),
                   );
                 },
               ),

@@ -7,6 +7,7 @@ class ConversationModule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return ModuleCard(
       leading: Image.asset(
         'assets/icons/conversations.png',

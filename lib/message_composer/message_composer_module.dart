@@ -39,7 +39,9 @@ class MessageComposerModule extends StatelessWidget {
                           height: 400,
                           child: CometChatMessageComposer(
                             group: _group,
-                            onSendButtonClick: () {},
+                            onSendButtonTap: (p0, p1, p2) {
+
+                            },
                           )))),
             ));
       },

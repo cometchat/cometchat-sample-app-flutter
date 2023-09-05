@@ -1,3 +1,4 @@
+import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_flutter_sample_app/login_with_uid.dart';
 import 'package:cometchat_flutter_sample_app/sign_up.dart';
 import 'package:cometchat_flutter_sample_app/utils/alert.dart';
@@ -55,7 +56,9 @@ class _LoginState extends State<Login> {
           ..region = CometChatConstants.region
           ..autoEstablishSocketConnection = true
           ..appId = CometChatConstants.appId
-          ..authKey = CometChatConstants.authKey)
+          ..authKey = CometChatConstants.authKey
+      .. callingExtension = CometChatCallingExtension()
+    )
         .build();
 
     CometChatUIKit.init(uiKitSettings: uiKitSettings);

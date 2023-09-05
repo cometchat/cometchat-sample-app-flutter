@@ -1,6 +1,7 @@
-import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_flutter_sample_app/login.dart';
 import 'package:flutter/material.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +19,8 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xffeeeeee),
         primarySwatch: Colors.blue,
       ),
-      home:  const Login(
+      home:   Login(
+        key: CallNavigationContext.navigatorKey,
       ),
     );
   }

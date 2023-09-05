@@ -10,12 +10,12 @@
 
 [![Platform](https://img.shields.io/badge/Platform-Flutter-violet.svg)](#)
 [![Platform](https://img.shields.io/badge/Language-dart-blue.svg)](#)
-![Version](https://shields.io/badge/version-4.0.0--beta.1-orange)
+![Version](https://shields.io/badge/version-4.0.0-orange)
 ![Twitter Follow](https://img.shields.io/twitter/follow/cometchat?style=social)
 
 <br>
 
-CometChat Flutter Sample App (built using CometChat UI Kit) is a fully functional messaging app capable of one-on-one (private) and group messaging. This sample app enables users to send text and multimedia messages like images, videos, and documents.
+The CometChat Flutter Sample App, created with the CometChat UI Kit, is a comprehensive communication platform. It offers both messaging and calling features, supporting one-on-one (private) and group interactions. Users can exchange text and multimedia messages, including images, videos, and documents, as well as initiate audio and video calls. To access all the details, please [click here](https://www.cometchat.com/docs/v4/flutter-uikit/overview).
 <br/>
 <hr/>
 
@@ -24,7 +24,7 @@ Before you begin, ensure you have met the following requirements:<br/>
 ✅ &nbsp; You have `Android Studio` or  `Xcode` installed on your machine.<br/>
 ✅ &nbsp; You have an `Android Device or Emulator` with Android Version 5.0 or above.<br/>
 ✅ &nbsp; You have an `iOS Device or Emulator` with IOS 11.0 or above.<br/>
-✅ &nbsp; You have read [CometChat Key Concepts](https://www.cometchat.com/docs/flutter-v4-uikit/key-concepts).<br/>
+✅ &nbsp; You have read [CometChat Key Concepts](https://www.cometchat.com/docs/v4/flutter-uikit/key-concepts).<br/>
 
 <hr/>
 
@@ -53,13 +53,13 @@ Build and run the Sample App.
 
 # Learn more about UI Kit
 
-Learn more about how to integrate [Flutter UI Kit](https://www.cometchat.com/docs/flutter-v4-uikit/integration#getting-started) inside your app.
+Learn more about how to integrate [Flutter UI Kit](https://www.cometchat.com/docs/v4/flutter-uikit/integration#getting-started) inside your app.
 <br/>
 <hr/>
 
 ## Troubleshooting
 
-- To read the complete documentation on UI Kit integration visit our [Documentation](https://www.cometchat.com/docs/flutter-v4-uikit/overview).
+- To read the complete documentation on UI Kit integration visit our [Documentation](https://www.cometchat.com/docs/v4/flutter-uikit/overview).
 
 - Facing any issues while integrating or installing the UI Kit please connect with us via real-time support present in [CometChat Dashboard](https://app.cometchat.com/).
 
@@ -70,8 +70,10 @@ Learn more about how to integrate [Flutter UI Kit](https://www.cometchat.com/doc
 
 Thanks to the following people who have contributed to this project:
 
+[⚔️ @munikirannarpareddi 🛡](https://github.com/munikiran-cometchat) <br>
 [⚔️ @shantanukhare 🛡](https://github.com/Shantanu-CometChat) <br>
 [⚔️ @nabhodiptagarai 🛡](https://github.com/nabhodiptagarai) <br>
+
 
 ---
 

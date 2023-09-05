@@ -1,5 +1,4 @@
 import 'package:cometchat_flutter_sample_app/utils/module_card.dart';
-import 'package:cometchat_flutter_sample_app/utils/widget_card.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_flutter_sample_app/add_members/add_members_module.dart';
