@@ -35,7 +35,7 @@ class _SoundManagerViewState extends State<SoundManagerView> {
               MaterialButton(
                 color: const Color(0xffbdbdbd),
                 onPressed: () {
-                  SoundManager.play(
+                  CometChatUIKit.soundManager.play(
                     sound: Sound.incomingMessage,
                   );
                 },
@@ -50,7 +50,7 @@ class _SoundManagerViewState extends State<SoundManagerView> {
               MaterialButton(
                 color: const Color(0xffbdbdbd),
                 onPressed: () {
-                  SoundManager.play(sound: Sound.outgoingMessage);
+                  CometChatUIKit.soundManager.play(sound: Sound.outgoingMessage);
                 },
                 child: const Text("Play"),
               )

@@ -1,9 +1,7 @@
 import 'package:cometchat_flutter_sample_app/dashboard.dart';
 import 'package:cometchat_flutter_sample_app/utils/alert.dart';
-import 'package:cometchat_flutter_sample_app/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-//import 'package:toast/toast.dart';
 
 class LoginWithUID extends StatefulWidget {
   const LoginWithUID({Key? key}) : super(key: key);

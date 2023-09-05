@@ -1,3 +1,4 @@
+import 'package:cometchat_flutter_sample_app/contacts/contacts_module.dart';
 import 'package:cometchat_flutter_sample_app/conversations/conversations_module.dart';
 import 'package:cometchat_flutter_sample_app/conversations_with_messages/conversations_with_mesages_module.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +45,7 @@ class ConversationsDashboard extends StatelessWidget {
               // ),
               const ConversationModule(),
               const ConversationsWithMessagesModule(),
+              const ContactsModule(),
             ],
           ),
         ),
