@@ -15,7 +15,7 @@
 
 <br>
 
-CometChat Flutter Sample App (built using CometChat UI Kit) is a fully functional messaging app capable of one-on-one (private) and group messaging. This sample app enables users to send text and multimedia messages like images, videos, and documents. To see all the information, simply [click here](https://www.cometchat.com/docs/v4/flutter-uikit/overview).
+The CometChat Flutter Sample App, created with the CometChat UI Kit, is a comprehensive communication platform. It offers both messaging and calling features, supporting one-on-one (private) and group interactions. Users can exchange text and multimedia messages, including images, videos, and documents, as well as initiate audio and video calls. To access all the details, please [click here](https://www.cometchat.com/docs/v4/flutter-uikit/overview).
 <br/>
 <hr/>
 
