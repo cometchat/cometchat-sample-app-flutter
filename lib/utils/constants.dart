@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class CometChatConstants {
-   static const String appId = "2379614bd4db65dd";
+   static const String appId = "APP_ID";
    static const String authKey =
-       "17878c6da21c8819216796492d3cb3cf41dca215";
-   static const String region = "us";
+       "AUTH_KEY";
+   static const String region = "REGION";
  }
 
 class Helper {
