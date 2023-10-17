@@ -3,6 +3,8 @@ import 'package:cometchat_flutter_sample_app/login_with_uid.dart';
 import 'package:cometchat_flutter_sample_app/sign_up.dart';
 import 'package:cometchat_flutter_sample_app/utils/alert.dart';
 import 'package:cometchat_flutter_sample_app/utils/constants.dart';
+import 'package:cometchat_flutter_sample_app/utils/demo_meta_info_constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
@@ -57,11 +59,33 @@ class _LoginState extends State<Login> {
           ..autoEstablishSocketConnection = true
           ..appId = CometChatConstants.appId
           ..authKey = CometChatConstants.authKey
-      .. callingExtension = CometChatCallingExtension()
-    )
+          ..callingExtension = CometChatCallingExtension()
+          ..aiFeature = AiEnabler(
+            aiFeatureList: [
+              AiSmartReply(),
+              AiConversationStarter(),
+            ],
+          ))
         .build();
 
-    CometChatUIKit.init(uiKitSettings: uiKitSettings);
+    CometChatUIKit.init(
+      uiKitSettings: uiKitSettings,
+      onSuccess: (successMessage) {
+        try {
+          CometChat.setDemoMetaInfo(jsonObject: {
+            "name": DemoMetaInfoConstants.name,
+            "type": DemoMetaInfoConstants.type,
+            "version": DemoMetaInfoConstants.version,
+            "bundle": DemoMetaInfoConstants.bundle,
+            "platform": DemoMetaInfoConstants.platform,
+          });
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint("setDemoMetaInfo ended with error");
+          }
+        }
+      },
+    );
   }
 
   //Login User function must pass userid and authkey should be used only while developing

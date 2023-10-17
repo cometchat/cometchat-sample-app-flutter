@@ -10,7 +10,9 @@
 
 [![Platform](https://img.shields.io/badge/Platform-Flutter-violet.svg)](#)
 [![Platform](https://img.shields.io/badge/Language-dart-blue.svg)](#)
-![Version](https://shields.io/badge/version-4.0.0-orange)
+![Version](https://shields.io/badge/version-1.0.0-orange)
+![cometchat_chat_uikit](https://shields.io/badge/cometchat_chat_uikit-4.0.2-blueviolet)
+![cometchat_calls_uikit](https://shields.io/badge/cometchat_calls_uikit-4.0.1-mint)
 ![Twitter Follow](https://img.shields.io/twitter/follow/cometchat?style=social)
 
 <br>
@@ -23,7 +25,7 @@ The CometChat Flutter Sample App, created with the CometChat UI Kit, is a compre
 Before you begin, ensure you have met the following requirements:<br/>
 ✅ &nbsp; You have `Android Studio` or  `Xcode` installed on your machine.<br/>
 ✅ &nbsp; You have an `Android Device or Emulator` with Android Version 5.0 or above.<br/>
-✅ &nbsp; You have an `iOS Device or Emulator` with IOS 11.0 or above.<br/>
+✅ &nbsp; You have an `iOS Device or Emulator` with IOS 12.0 or above.<br/>
 ✅ &nbsp; You have read [CometChat Key Concepts](https://www.cometchat.com/docs/v4/flutter-uikit/key-concepts).<br/>
 
 <hr/>
