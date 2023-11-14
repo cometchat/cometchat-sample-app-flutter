@@ -60,10 +60,10 @@ class _LoginState extends State<Login> {
           ..appId = CometChatConstants.appId
           ..authKey = CometChatConstants.authKey
           ..callingExtension = CometChatCallingExtension()
-          ..aiFeature = AiEnabler(
+          ..aiFeature = AIEnabler(
             aiFeatureList: [
-              AiSmartReply(),
-              AiConversationStarter(),
+              AISmartRepliesExtension(),
+              AIConversationStarterExtension(),
             ],
           ))
         .build();
