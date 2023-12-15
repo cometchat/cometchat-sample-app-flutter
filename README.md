@@ -10,8 +10,8 @@
 
 [![Platform](https://img.shields.io/badge/Platform-Flutter-violet.svg)](#)
 [![Platform](https://img.shields.io/badge/Language-dart-blue.svg)](#)
-![Version](https://shields.io/badge/version-1.0.0-orange)
-![cometchat_chat_uikit](https://shields.io/badge/cometchat_chat_uikit-4.0.2-blueviolet)
+![Version](https://shields.io/badge/version-1.0.2-orange)
+![cometchat_chat_uikit](https://shields.io/badge/cometchat_chat_uikit-4.0.1-blueviolet)
 ![cometchat_calls_uikit](https://shields.io/badge/cometchat_calls_uikit-4.0.1-mint)
 ![Twitter Follow](https://img.shields.io/twitter/follow/cometchat?style=social)
 
