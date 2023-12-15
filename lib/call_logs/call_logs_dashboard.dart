@@ -72,7 +72,7 @@ class _CallLogsDashboardState extends State<CallLogsDashboard> {
             startTime: 101,
             rid: "Recording",
             recordingUrl:
-                "https://recordings-us.cometchat.io/236497dcc2cd529b/2023-12-15/v1.us.236497dcc2cd529b.1702[…]171d8a5dcb1f82b743fbc2730422263_2023-12-15-11-57-16.mp4",
+                "https://recordings-us.cometchat.io/236497dcc2cd529b/2023-12-15/v1.us.236497dcc2cd529b.170264141733632a2e3171d8a5dcb1f82b743fbc2730422263_2023-12-15-11-57-16.mp4",
             endTime: 101,
             duration: 40,
           ),
@@ -80,7 +80,7 @@ class _CallLogsDashboardState extends State<CallLogsDashboard> {
             startTime: 30,
             rid: "Recordings",
             recordingUrl:
-                "https://recordings-us.cometchat.io/236497dcc2cd529b/2023-12-15/v1.us.236497dcc2cd529b.1702[…]171d8a5dcb1f82b743fbc2730422263_2023-12-15-11-57-16.mp4",
+                "https://recordings-us.cometchat.io/236497dcc2cd529b/2023-12-15/v1.us.236497dcc2cd529b.170264141733632a2e3171d8a5dcb1f82b743fbc2730422263_2023-12-15-11-57-16.mp4",
             endTime: 101,
             duration: 100,
           ),
