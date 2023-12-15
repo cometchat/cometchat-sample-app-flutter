@@ -1,3 +1,4 @@
+import 'package:cometchat_flutter_sample_app/call_logs/call_logs_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/calls/calls_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/conversations_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/groups_dashboard.dart';
@@ -9,6 +10,7 @@ import 'package:cometchat_flutter_sample_app/utils/module_card.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
+
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
 
@@ -16,7 +18,11 @@ class Dashboard extends StatefulWidget {
   _DashboardState createState() => _DashboardState();
 }
 
+
+
 class _DashboardState extends State<Dashboard> {
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -159,6 +165,24 @@ class _DashboardState extends State<Dashboard> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => const CallsDashboard()),
+                  );
+                },
+              ),
+              ModuleCard(
+                title: "Call Logs",
+                leading: Image.asset(
+                  'assets/icons/audio-call.png',
+                  height: 48,
+                  width: 48,
+                ),
+                description:
+                    "Call Logs module contains all available components involving CallLog objects\n"
+                    "To explore the available components tap here\n",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CallLogsDashboard()),
                   );
                 },
               ),
