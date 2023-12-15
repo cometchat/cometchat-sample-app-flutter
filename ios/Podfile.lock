@@ -1,19 +1,19 @@
 PODS:
-  - cometchat_calls_sdk (4.0.1):
-    - CometChatCallsSDK (= 4.0.1)
+  - cometchat_calls_sdk (4.0.2):
+    - CometChatCallsSDK (= 4.0.2)
     - Flutter
-  - cometchat_calls_uikit (4.0.1):
+  - cometchat_calls_uikit (4.1.0):
     - Flutter
-  - cometchat_chat_uikit (4.0.4):
+  - cometchat_chat_uikit (4.1.0):
     - Flutter
-  - cometchat_sdk (4.0.3):
-    - CometChatSDK (= 4.0.3)
+  - cometchat_sdk (4.0.4):
+    - CometChatSDK (= 4.0.4)
     - Flutter
-  - cometchat_uikit_shared (4.0.4):
+  - cometchat_uikit_shared (4.1.0):
     - Flutter
-  - CometChatCallsSDK (4.0.1):
+  - CometChatCallsSDK (4.0.2):
     - CometChatWebRTC (= 1.106.0)
-  - CometChatSDK (4.0.3)
+  - CometChatSDK (4.0.4)
   - CometChatWebRTC (1.106.0)
   - Flutter (1.0.0)
   - image_picker_ios (0.0.1):
@@ -83,23 +83,23 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
 SPEC CHECKSUMS:
-  cometchat_calls_sdk: f9e985a1ee24d86f140f7b91d0b3b532f0f3bf15
-  cometchat_calls_uikit: 44827e3d18aebc3b113e802c12782cc6f2778dd7
-  cometchat_chat_uikit: b50af885a51c7f734b5d9928dd8b19c1f3efcc8d
-  cometchat_sdk: 1cb847c0bda2bca67af44b4c8c7de3d871829055
-  cometchat_uikit_shared: 05512c0a1f390a4e04b5da88bc99d57729ad7892
-  CometChatCallsSDK: a4d93f551fd916c497614fd0666f028723a0869b
-  CometChatSDK: 10b00ab3782cbae0072456460b34863a6a6c84ee
+  cometchat_calls_sdk: 91c8ec94d584ab2788367fd09376eacd31800df5
+  cometchat_calls_uikit: 4d654c64b3417feaff0f0ae01226aa477b48a230
+  cometchat_chat_uikit: 5e5125e30ab47758cb421f496cd6340ac11c72a2
+  cometchat_sdk: bacdd4096c868cfb8b9d518f49e47108ab76abae
+  cometchat_uikit_shared: f7c62bb3b9c5238ec5b100d4065a367be2e673cf
+  CometChatCallsSDK: 2885efa6b31309cd18b895bc67fbc8eb534b6618
+  CometChatSDK: 4ad52224fa0e93634c0fdc0d2425e6cdb0a67485
   CometChatWebRTC: 326af4b838151547e72372e9c1c7cf4b4560a539
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   image_picker_ios: 4a8aadfbb6dc30ad5141a2ce3832af9214a705b5
   package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
-  url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
-  video_player_avfoundation: 8563f13d8fc8b2c29dc2d09e60b660e4e8128837
+  url_launcher_ios: bf5ce03e0e2088bad9cc378ea97fa0ed5b49673b
+  video_player_avfoundation: e9e6f9cae7d7a6d9b43519b0aab382bca60fcfd1
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
   webview_flutter_wkwebview: 2e2d318f21a5e036e2c3f26171342e95908bd60a
 
 PODFILE CHECKSUM: 67597d06c54d9aed16095696d61d14ae5963964f
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.14.2

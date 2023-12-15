@@ -177,13 +177,13 @@ class CallsDashboard extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => Scaffold(
-                          appBar: AppBar(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black,
-                            elevation: 0.5,
-                          ),
-                          body: Center(
-                              child: Column(
+                        appBar: AppBar(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          elevation: 0.5,
+                        ),
+                        body: Center(
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Row(
@@ -217,9 +217,7 @@ class CallsDashboard extends StatelessWidget {
                                                         .getAccent50()
                                                     : cometChatTheme.palette
                                                         .getAccent100(),
-                                          borderRadius: 6.18
-
-                                        )),
+                                            borderRadius: 6.18)),
                                   ),
                                 ],
                               ),
@@ -245,14 +243,15 @@ class CallsDashboard extends StatelessWidget {
                                               .getBackground(),
                                           background: cometChatTheme.palette
                                               .getPrimary(),
-                                            borderRadius: 6.18,
-
+                                          borderRadius: 6.18,
                                         )),
                                   ),
                                 ],
                               )
                             ],
-                          ))),
+                          ),
+                        ),
+                      ),
                     ),
                   );
                 },
