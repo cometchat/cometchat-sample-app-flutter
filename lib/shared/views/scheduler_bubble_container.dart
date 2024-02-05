@@ -25,7 +25,6 @@ WidgetProps getSchedulerBubbleContainer(BuildContext context) {
                 schedulerMessage: SchedulerMessage(
                   title: 'Meeting with Dr. Jacob',
                   avatarUrl: 'https://i.pravatar.cc/200',
-                  // interactiveData: {},
                   receiverUid: 'superhero2',
                   receiverType: 'user',
                   muid: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -41,17 +40,12 @@ WidgetProps getSchedulerBubbleContainer(BuildContext context) {
                     "thursday": [TimeRange(from: "0000", to: "2400")],
                     "friday": [TimeRange(from: "1100", to: "2400")],
                   },
-                  // icsFileUrl: "https://data-us.cometchat.io/23965108c9b89ad2/media/1703674412_720466602_2991dab190899132b5fbdf1d83fadc04.ics",
-                  icsFileUrl:
-                      "https://data-us.cometchat.io/23965108c9b89ad2/media/1704380186_864562419_ab59586ed5ab5f89d2c960457ceee249.ics",
                   sender:
                       User(uid: "Dr. Jacob Twarog", name: "Dr. Jacob Twarog"),
                   receiver: User(name: "Trienke", uid: "Trienke"),
                   dateRangeStart: DateTime.now().toString(),
                   dateRangeEnd:
                       DateTime.now().add(Duration(days: 90)).toString(),
-                  //     meetingDateRangeEnd : DateTime.now().millisecondsSinceEpoch,
-                  // meetingDateRangeStart : DateTime.now().add(Duration(days: 9)).millisecondsSinceEpoch,
                   scheduleElement: ButtonElement(
                     buttonText: "Schedule",
                     action: APIAction(url: "url", method: "method"),

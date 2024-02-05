@@ -9,7 +9,7 @@ PODS:
   - cometchat_sdk (4.0.5):
     - CometChatSDK (= 4.0.41)
     - Flutter
-  - cometchat_uikit_shared (4.2.1):
+  - cometchat_uikit_shared (4.2.2):
     - Flutter
   - CometChatCallsSDK (4.0.2):
     - CometChatWebRTC (= 1.106.0)
@@ -87,18 +87,18 @@ SPEC CHECKSUMS:
   cometchat_calls_uikit: 4d654c64b3417feaff0f0ae01226aa477b48a230
   cometchat_chat_uikit: d99460e79ac2c498e283fb5ac07d24859ecd81e7
   cometchat_sdk: 7ee97b235088203a0d5b7c5c0138e7b5b35bcc3e
-  cometchat_uikit_shared: 39b0c5d6f9c005cbcbdb674d164347ec00330836
+  cometchat_uikit_shared: 9a7ebe729c26daf5d5461796f7244c52e14783e1
   CometChatCallsSDK: 2885efa6b31309cd18b895bc67fbc8eb534b6618
   CometChatSDK: ac3bc03075bb754f65137d2f7c6fad000e6b80c2
   CometChatWebRTC: 326af4b838151547e72372e9c1c7cf4b4560a539
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  image_picker_ios: 4a8aadfbb6dc30ad5141a2ce3832af9214a705b5
+  image_picker_ios: 99dfe1854b4fa34d0364e74a78448a0151025425
   package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
-  path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
-  url_launcher_ios: bf5ce03e0e2088bad9cc378ea97fa0ed5b49673b
+  path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
+  url_launcher_ios: bbd758c6e7f9fd7b5b1d4cde34d2b95fcce5e812
   video_player_avfoundation: e9e6f9cae7d7a6d9b43519b0aab382bca60fcfd1
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
-  webview_flutter_wkwebview: 2e2d318f21a5e036e2c3f26171342e95908bd60a
+  webview_flutter_wkwebview: 4f3e50f7273d31e5500066ed267e3ae4309c5ae4
 
 PODFILE CHECKSUM: 67597d06c54d9aed16095696d61d14ae5963964f
 
