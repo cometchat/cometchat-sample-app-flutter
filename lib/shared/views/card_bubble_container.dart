@@ -14,7 +14,7 @@ WidgetProps getCardBubbleContainer(BuildContext context) {
   
   
   return WidgetProps(
-    leadingImageURL: "assets/icons/card.png",
+    leadingImageURL: "assets/icons/card_bubble.png",
     title: "Card Bubble",
     description:
     "CometChatCardBubble component is used to display a card within a chat bubble."

@@ -6,6 +6,7 @@ import 'package:cometchat_flutter_sample_app/shared/views/form_bubble_conatainer
 import 'package:cometchat_flutter_sample_app/shared/views/media_recorder_modal.dart';
 import 'package:cometchat_flutter_sample_app/shared/views/message_receipt_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/resources/sound_manager_container.dart';
+import 'package:cometchat_flutter_sample_app/shared/views/scheduler_bubble_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/views/status_indicator_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/resources/theme_container.dart';
 import 'package:cometchat_flutter_sample_app/shared/views/audio_bubble_container.dart';
@@ -165,7 +166,8 @@ class SharedDashboard extends StatelessWidget {
         getCometChatListItemContainer(context),
         getMediaRecorderModal(context),
         getFormBubbleContainer(context),
-        getCardBubbleContainer(context)
+        getCardBubbleContainer(context),
+        getSchedulerBubbleContainer(context),
       ];
     }
 

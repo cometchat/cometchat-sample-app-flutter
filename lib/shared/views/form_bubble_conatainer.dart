@@ -4,7 +4,7 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 WidgetProps getFormBubbleContainer(BuildContext context) {
   return WidgetProps(
-    leadingImageURL: "assets/icons/form.png",
+    leadingImageURL: "assets/icons/form_bubble.png",
     title: "Form Bubble",
     description:
     "CometChatFormBubble component is used to render a form within a chat bubble."
@@ -27,7 +27,8 @@ WidgetProps getFormBubbleContainer(BuildContext context) {
         DropdownElement(elementId: "class", label: "Class", options: [
           OptionElement(label: "Class 1", value: "1"),
           OptionElement(label: "Class 2", value: "2")
-        ])
+        ]),
+        DateTimeElement(elementId: "dobInput", label: "Date of Birth", formattedResponse: DateTime.now(),),
 
       ] , submitElement:
       ButtonElement(
@@ -56,10 +57,16 @@ WidgetProps getFormBubbleContainer(BuildContext context) {
                   elevation: 0.5,
                 ),
                 body: Center(
-                    child: CometChatFormBubble(
-                      theme: cometChatTheme,
-                      title: 'Form bubble',
-                      formMessage: formMessage
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: CometChatFormBubble(
+                        theme: cometChatTheme,
+                        title: 'Form bubble',
+                        formMessage: formMessage,
+                        // formBubbleStyle: FormBubbleStyle(
+                        //
+                        // ),
+                      ),
                     ))),
           ));
     },
