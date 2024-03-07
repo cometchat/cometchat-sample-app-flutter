@@ -4,16 +4,16 @@ PODS:
     - Flutter
   - cometchat_calls_uikit (4.1.0):
     - Flutter
-  - cometchat_chat_uikit (4.2.1):
+  - cometchat_chat_uikit (4.2.3):
     - Flutter
-  - cometchat_sdk (4.0.5):
-    - CometChatSDK (= 4.0.41)
+  - cometchat_sdk (4.0.6):
+    - CometChatSDK (= 4.0.42)
     - Flutter
-  - cometchat_uikit_shared (4.2.2):
+  - cometchat_uikit_shared (4.2.3):
     - Flutter
   - CometChatCallsSDK (4.0.2):
     - CometChatWebRTC (= 1.106.0)
-  - CometChatSDK (4.0.41)
+  - CometChatSDK (4.0.42)
   - CometChatWebRTC (1.106.0)
   - Flutter (1.0.0)
   - image_picker_ios (0.0.1):
@@ -85,11 +85,11 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   cometchat_calls_sdk: 91c8ec94d584ab2788367fd09376eacd31800df5
   cometchat_calls_uikit: 4d654c64b3417feaff0f0ae01226aa477b48a230
-  cometchat_chat_uikit: d99460e79ac2c498e283fb5ac07d24859ecd81e7
-  cometchat_sdk: 7ee97b235088203a0d5b7c5c0138e7b5b35bcc3e
-  cometchat_uikit_shared: 9a7ebe729c26daf5d5461796f7244c52e14783e1
+  cometchat_chat_uikit: dd3946cdd042a530537ddc4d188ed1232730fcc3
+  cometchat_sdk: 40a3e6cf5299745b6fa9b480717a4f2871235e00
+  cometchat_uikit_shared: 90d9f005b2022f83bff3aa9e58e16ad018f26e78
   CometChatCallsSDK: 2885efa6b31309cd18b895bc67fbc8eb534b6618
-  CometChatSDK: ac3bc03075bb754f65137d2f7c6fad000e6b80c2
+  CometChatSDK: a364c3d2c31a9b786a8ad24f79e6b8b619f60e97
   CometChatWebRTC: 326af4b838151547e72372e9c1c7cf4b4560a539
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   image_picker_ios: 99dfe1854b4fa34d0364e74a78448a0151025425
