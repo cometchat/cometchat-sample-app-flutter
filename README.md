@@ -1,86 +1,49 @@
-<div style="width:100%">
-	<div style="width:50%; display:inline-block">
-		<p align="center">
-         <img align="center" src="https://avatars2.githubusercontent.com/u/45484907?s=200&v=4"/>
-		</p>
-	</div>
-</div>
+# Flutter Sample App by CometChat
 
-# Flutter Chat App
+This reference application showcases the integration of [**CometChat's Flutter UI Kit**](https://www.cometchat.com/docs/v4/flutter-uikit/overview) within an Flutter framework. It provides developers with examples of implementing real-time messaging and voice and video calling features in their Flutter-based applications.
 
-[![Platform](https://img.shields.io/badge/Platform-Flutter-violet.svg)](#)
-[![Platform](https://img.shields.io/badge/Language-dart-blue.svg)](#)
-![Version](https://shields.io/badge/version-1.0.6-orange)
-![cometchat_chat_uikit](https://shields.io/badge/cometchat_chat_uikit-4.2.2-blueviolet)
-![cometchat_calls_uikit](https://shields.io/badge/cometchat_calls_uikit-4.1.0-mint)
-![Twitter Follow](https://img.shields.io/twitter/follow/cometchat?style=social)
+## Prerequisites
 
-<br>
-
-The CometChat Flutter Sample App, created with the CometChat UI Kit, is a comprehensive communication platform. It offers both messaging and calling features, supporting one-on-one (private) and group interactions. Users can exchange text and multimedia messages, including images, videos, and documents, as well as initiate audio and video calls. To access all the details, please [click here](https://www.cometchat.com/docs/v4/flutter-uikit/overview).
-<br/>
-<hr/>
-
-## Prerequisites :star:
-Before you begin, ensure you have met the following requirements:<br/>
-✅ &nbsp; You have `Android Studio` or  `Xcode` installed on your machine.<br/>
-✅ &nbsp; You have an `Android Device or Emulator` with Android Version 5.0 or above.<br/>
-✅ &nbsp; You have an `iOS Device or Emulator` with IOS 12.0 or above.<br/>
-✅ &nbsp; You have read [CometChat Key Concepts](https://www.cometchat.com/docs/v4/flutter-uikit/key-concepts).<br/>
-
-<hr/>
-
-## Installing Flutter Chat App :wrench:
-
-Clone the project from the [flutter-chat-app](https://github.com/cometchat-pro/flutter-chat-app) repository.
+- XCode for iOS and Android Studio for Android
+- pod (CocoaPods) for iOS
+- Android device or emulator with Android version 5.0 or above.
+- An iOS device or emulator with iOS 12.0 or above.
+- Sign up for a [CometChat](https://app.cometchat.com/) account to get your app credentials: _`App ID`_, _`Region`_, and _`Auth Key`_
 
 
-### Running the sample app
+## Installation
+1. Clone the repository:
+    ```
+    git clone https://github.com/cometchat/cometchat-sample-app-flutter.git
+    ```
 
-To Run to sample app you have to make the following changes by Adding **APP_ID**, **AUTH_KEY**, and  **REGION_CODE**
+2. Navigate to the project directory:
+    ```sh
+      cd cometchat-sample-app-flutter
+    ```
 
-You can obtain your  *APP_ID*, *AUTH_KEY* and *REGION_CODE* from [CometChat Dashboard](https://app.cometchat.io/).
+3. Enter your CometChat _`App ID`_, _`Region`_, and _`Auth Key`_ in the [lib/utils/constants.dart](https://github.com/cometchat/cometchat-sample-app-flutter/blob/v4/lib/utils/constants.dart) file:
+    ```dart
+      class CometChatConstants {
+		static const String appId = "APP_ID";
+		static const String authKey = "AUTH_KEY";
+		static const String region = "REGION";
+	}
+    ```
 
-- Open the project in Android Studio.
+4. For iOS, install dependencies after navigating to ios :
+    ```sh
+	  cd ios
+      pod install
+    ```
 
-- Modify `APP_ID` and `AUTH_KEY` and `REGION` with your own in lib/utils/constants.dart file.
-
--  Select demo users or enter the **UID** at the time of login once the app is launched.
-
-- for running on iOS go to the ios folder of your app in the terminal(use rositta for Apple chip computers) and run `pod install`
-
-
-Build and run the Sample App.
-</hr>
-
-# Learn more about UI Kit
-
-Learn more about how to integrate [Flutter UI Kit](https://www.cometchat.com/docs/v4/flutter-uikit/integration#getting-started) inside your app.
-<br/>
-<hr/>
-
-## Troubleshooting
-
-- To read the complete documentation on UI Kit integration visit our [Documentation](https://www.cometchat.com/docs/v4/flutter-uikit/overview).
-
-- Facing any issues while integrating or installing the UI Kit please connect with us via real-time support present in [CometChat Dashboard](https://app.cometchat.com/).
-
----
-
-
-## Contributors
-
-Thanks to the following people who have contributed to this project:
-
-[⚔️ @munikirannarpareddi 🛡](https://github.com/munikiran-cometchat) <br>
-[⚔️ @shantanukhare 🛡](https://github.com/Shantanu-CometChat) <br>
-[⚔️ @nabhodiptagarai 🛡](https://github.com/nabhodiptagarai) <br>
+6. Run the app on a device or emulator from the repo root.
+	```sh 
+	  flutter run
+	```
+   
+   ![image (4)](https://github.com/cometchat/cometchat-sample-app-flutter/assets/2210730/fcc1bfd6-b987-4d2b-9b42-a07c6024092b)
 
 
----
-
-## :mailbox: Contact
-
-Contact us via real-time support present in [CometChat Dashboard](https://app.cometchat.com/).
-
----
+## Help and Support
+For issues running the project or integrating with our UI Kits, consult our [documentation](https://www.cometchat.com/docs/flutter-uikit/integration) or create a [support ticket](https://help.cometchat.com/hc/en-us) or seek real-time support via the [CometChat Dashboard](http://app.cometchat.com/).
