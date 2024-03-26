@@ -13,33 +13,39 @@ This reference application showcases the integration of [**CometChat's Flutter U
 
 ## Installation
 1. Clone the repository:
-    ```
-    git clone https://github.com/cometchat/cometchat-sample-app-flutter.git
-    ```
+	```
+	git clone https://github.com/cometchat/cometchat-sample-app-flutter.git
+	```
 
 2. Navigate to the project directory:
-    ```sh
-      cd cometchat-sample-app-flutter
-    ```
+	```sh
+	cd cometchat-sample-app-flutter
+	```
 
-3. Enter your CometChat _`App ID`_, _`Region`_, and _`Auth Key`_ in the [lib/app_constants.dart](https://github.com/cometchat/cometchat-sample-app-flutter/blob/v4/lib/app_constants.dart) file:
-    ```dart
-      class AppConstants {
+3. Install flutter dependencies
+	```sh
+	flutter pub get
+	```
+
+4. Enter your CometChat _`App ID`_, _`Region`_, and _`Auth Key`_ in the [lib/app_constants.dart](https://github.com/cometchat/cometchat-sample-app-flutter/blob/v4/lib/app_constants.dart) file:
+	```dart
+	class AppConstants {
 		static const String appId = "APP_ID";
 		static const String authKey = "AUTH_KEY";
 		static const String region = "REGION";
 	}
-    ```
+	```
 
-4. For iOS, install dependencies after navigating to ios :
-    ```sh
-	  cd ios
-      pod install
-    ```
+5. For iOS, install dependencies after navigating to ios :
+	```sh
+  	cd ios
+	pod install
+	```
+6. Open a Simulator or connect a physical device.
 
-6. Run the app on a device or emulator from the repo root.
+7. Run the app on a device or emulator from the repo root.
 	```sh 
-	  flutter run
+	flutter run
 	```
    
    <img style="width: 30%; height: auto; " src="./assets/screenshots/login-screen.png" />
