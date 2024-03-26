@@ -2,7 +2,7 @@ import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_flutter_sample_app/login_with_uid.dart';
 import 'package:cometchat_flutter_sample_app/sign_up.dart';
 import 'package:cometchat_flutter_sample_app/utils/alert.dart';
-import 'package:cometchat_flutter_sample_app/utils/constants.dart';
+import 'package:cometchat_flutter_sample_app/app_constants.dart';
 import 'package:cometchat_flutter_sample_app/utils/demo_meta_info_constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -55,10 +55,10 @@ class _LoginState extends State<Login> {
   makeUISettings() {
     UIKitSettings uiKitSettings = (UIKitSettingsBuilder()
           ..subscriptionType = CometChatSubscriptionType.allUsers
-          ..region = CometChatConstants.region
+          ..region = AppConstants.region
           ..autoEstablishSocketConnection = true
-          ..appId = CometChatConstants.appId
-          ..authKey = CometChatConstants.authKey
+          ..appId = AppConstants.appId
+          ..authKey = AppConstants.authKey
           ..callingExtension = CometChatCallingExtension()
           ..extensions = CometChatUIKitChatExtensions.getDefaultExtensions()
           ..aiFeature = [
@@ -182,13 +182,6 @@ class _LoginState extends State<Login> {
                     fontSize: 30,
                     fontWeight: FontWeight.bold),
               ),
-              const Text(
-                "Kitchen Sink App",
-                style: TextStyle(
-                    color: Colors.blueAccent,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold),
-              ),
               const SizedBox(
                 height: 20.0,
               ),
@@ -272,12 +265,6 @@ class _LoginState extends State<Login> {
                 ],
               ),
 
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text("© 2022 CometChat inc."),
-                )
-              ])
             ],
           )),
         ),

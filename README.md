@@ -22,9 +22,9 @@ This reference application showcases the integration of [**CometChat's Flutter U
       cd cometchat-sample-app-flutter
     ```
 
-3. Enter your CometChat _`App ID`_, _`Region`_, and _`Auth Key`_ in the [lib/utils/constants.dart](https://github.com/cometchat/cometchat-sample-app-flutter/blob/v4/lib/utils/constants.dart) file:
+3. Enter your CometChat _`App ID`_, _`Region`_, and _`Auth Key`_ in the [lib/app_constants.dart](https://github.com/cometchat/cometchat-sample-app-flutter/blob/v4/lib/app_constants.dart) file:
     ```dart
-      class CometChatConstants {
+      class AppConstants {
 		static const String appId = "APP_ID";
 		static const String authKey = "AUTH_KEY";
 		static const String region = "REGION";
@@ -42,8 +42,8 @@ This reference application showcases the integration of [**CometChat's Flutter U
 	  flutter run
 	```
    
-   ![image (4)](https://github.com/cometchat/cometchat-sample-app-flutter/assets/2210730/fcc1bfd6-b987-4d2b-9b42-a07c6024092b)
+   <img style="width: 30%; height: auto; " src="./assets/screenshots/login-screen.png" />
 
 
 ## Help and Support
-For issues running the project or integrating with our UI Kits, consult our [documentation](https://www.cometchat.com/docs/flutter-uikit/integration) or create a [support ticket](https://help.cometchat.com/hc/en-us) or seek real-time support via the [CometChat Dashboard](http://app.cometchat.com/).
+For issues running the project or integrating with our UI Kits, consult our [documentation](https://www.cometchat.com/docs/flutter-uikit/integration) or create a [support ticket](https://help.cometchat.com/hc/en-us) or seek real-time support via the [CometChat Dashboard](https://app.cometchat.com/).

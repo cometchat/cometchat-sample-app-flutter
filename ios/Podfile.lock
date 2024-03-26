@@ -2,18 +2,18 @@ PODS:
   - cometchat_calls_sdk (4.0.2):
     - CometChatCallsSDK (= 4.0.2)
     - Flutter
-  - cometchat_calls_uikit (4.1.0):
+  - cometchat_calls_uikit (4.1.1):
     - Flutter
-  - cometchat_chat_uikit (4.2.2):
+  - cometchat_chat_uikit (4.3.0):
     - Flutter
-  - cometchat_sdk (4.0.6):
-    - CometChatSDK (= 4.0.42)
+  - cometchat_sdk (4.0.7):
+    - CometChatSDK (= 4.0.43)
     - Flutter
-  - cometchat_uikit_shared (4.2.2):
+  - cometchat_uikit_shared (4.2.6):
     - Flutter
   - CometChatCallsSDK (4.0.2):
     - CometChatWebRTC (= 1.106.1)
-  - CometChatSDK (4.0.42)
+  - CometChatSDK (4.0.43)
   - CometChatWebRTC (1.106.1)
   - Flutter (1.0.0)
   - image_picker_ios (0.0.1):
@@ -83,14 +83,14 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   cometchat_calls_sdk: 91c8ec94d584ab2788367fd09376eacd31800df5
-  cometchat_calls_uikit: 4d654c64b3417feaff0f0ae01226aa477b48a230
-  cometchat_chat_uikit: 5232cb17eeb2dfaca3c05cd64e995b30d55c71c7
-  cometchat_sdk: 40a3e6cf5299745b6fa9b480717a4f2871235e00
-  cometchat_uikit_shared: 9a7ebe729c26daf5d5461796f7244c52e14783e1
+  cometchat_calls_uikit: 403c2db8f70785fbe0b5297df90cab25ace91509
+  cometchat_chat_uikit: cdd278dd667265111e8d1292ddcc8600bf4b3d30
+  cometchat_sdk: 0fa3c8e0f0219ed6475bc0e793c81a4077c784a0
+  cometchat_uikit_shared: e5b378ee722e46901c44887e295967e96af16226
   CometChatCallsSDK: 417f2fabb0fc87c48c3bdc6a6381893a5352bc81
-  CometChatSDK: a364c3d2c31a9b786a8ad24f79e6b8b619f60e97
+  CometChatSDK: aef868cd0190b76c2ce352127e9894b7a4f650b4
   CometChatWebRTC: c08f446967168f6de442b48b824623411651dbb5
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   image_picker_ios: 4a8aadfbb6dc30ad5141a2ce3832af9214a705b5
   package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
@@ -99,6 +99,6 @@ SPEC CHECKSUMS:
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
   webview_flutter_wkwebview: 2e2d318f21a5e036e2c3f26171342e95908bd60a
 
-PODFILE CHECKSUM: 67597d06c54d9aed16095696d61d14ae5963964f
+PODFILE CHECKSUM: 0561326e63f4a0377f057d71681d6cb6b146c7b1
 
 COCOAPODS: 1.12.1
