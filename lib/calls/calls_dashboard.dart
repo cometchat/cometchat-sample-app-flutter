@@ -16,13 +16,6 @@ class CallsDashboard extends StatelessWidget {
         status: "online",
         statusMessage: "This is now status");
 
-    Group _group = Group(
-      guid: "supergroup",
-      type: CometChatGroupType.public,
-      name: "Comic Heros' Hangout",
-      icon: "https://data-us.cometchat.io/assets/images/avatars/supergroup.png",
-    );
-
     Call _call = Call(
         receiverUid: "superhero1",
         type: 'audio',

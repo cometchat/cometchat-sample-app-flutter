@@ -19,13 +19,13 @@ WidgetProps getDeleteMessageBubbleContainer(BuildContext context) {
                   foregroundColor: Colors.black,
                   elevation: 0.5,
                 ),
-                body: Center(
+                body: const Center(
                     child: DecoratedBox(
-                  decoration: const BoxDecoration(color: Colors.white),
+                  decoration:  BoxDecoration(color: Colors.white),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children:  [
                       Padding(
                         padding: EdgeInsets.all(8.0),
                         child: CometChatDeleteMessageBubble(),

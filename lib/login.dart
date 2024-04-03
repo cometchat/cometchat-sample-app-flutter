@@ -71,7 +71,7 @@ class _LoginState extends State<Login> {
 
     CometChatUIKit.init(
       uiKitSettings: uiKitSettings,
-      onSuccess: (successMessage) {
+      onSuccess: (successMessage) async {
         try {
           CometChat.setDemoMetaInfo(jsonObject: {
             "name": DemoMetaInfoConstants.name,
@@ -85,6 +85,14 @@ class _LoginState extends State<Login> {
             debugPrint("setDemoMetaInfo ended with error");
           }
         }
+
+        await CometChatUIKit.getLoggedInUser(
+          onSuccess: (user) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const Dashboard()));
+          },onError: (error) {
+          debugPrint("Error getting logged in user: ${error.message}");
+        },
+        );
       },
     );
   }
@@ -185,8 +193,8 @@ class _LoginState extends State<Login> {
               const SizedBox(
                 height: 20.0,
               ),
-              Wrap(
-                children: const [
+              const Wrap(
+                children: [
                   Text(
                     "Login with one of our sample user",
                     style: TextStyle(color: Colors.black38),
@@ -211,8 +219,8 @@ class _LoginState extends State<Login> {
               ),
               const SizedBox(height: 20),
 
-              Wrap(
-                children: const [
+              const Wrap(
+                children: [
                   Text(
                     "or else continue login with",
                     style: TextStyle(color: Colors.black38),

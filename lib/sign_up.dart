@@ -52,8 +52,8 @@ class _SignUpState extends State<SignUp> {
               const SizedBox(
                 height: 20.0,
               ),
-              Wrap(
-                children: const [
+              const Wrap(
+                children:  [
                   Text(
                     "Sign Up",
                     style: TextStyle(color: Colors.black38, fontSize: 30),

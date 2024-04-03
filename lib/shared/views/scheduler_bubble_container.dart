@@ -45,7 +45,7 @@ WidgetProps getSchedulerBubbleContainer(BuildContext context) {
                   receiver: User(name: "Trienke", uid: "Trienke"),
                   dateRangeStart: DateTime.now().toString(),
                   dateRangeEnd:
-                      DateTime.now().add(Duration(days: 90)).toString(),
+                      DateTime.now().add(const Duration(days: 90)).toString(),
                   scheduleElement: ButtonElement(
                     buttonText: "Schedule",
                     action: APIAction(url: "url", method: "method"),
