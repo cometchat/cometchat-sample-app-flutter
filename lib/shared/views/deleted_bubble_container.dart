@@ -21,7 +21,7 @@ WidgetProps getDeleteMessageBubbleContainer(BuildContext context) {
                 ),
                 body: const Center(
                     child: DecoratedBox(
-                  decoration:  BoxDecoration(color: Colors.white),
+                  decoration: BoxDecoration(color: Colors.white),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,

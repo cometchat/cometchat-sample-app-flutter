@@ -2,6 +2,7 @@ import 'package:cometchat_flutter_sample_app/call_logs/call_logs_dashboard.dart'
 import 'package:cometchat_flutter_sample_app/calls/calls_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/conversations_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/groups_dashboard.dart';
+import 'package:cometchat_flutter_sample_app/login.dart';
 import 'package:cometchat_flutter_sample_app/messages_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/shared/shared_dashboard.dart';
 import 'package:cometchat_flutter_sample_app/users_dashboard.dart';
@@ -50,7 +51,8 @@ class _DashboardState extends State<Dashboard> {
                           Alert.showLoadingIndicatorDialog(context);
                           logout();
                           Navigator.of(context).pop();
-                          Navigator.of(context).pop();
+                          Navigator.push(
+                              context, MaterialPageRoute(builder: (context) => const Login()));
                         },
                         icon: Icon(Icons.power_settings_new_rounded,
                             color: cometChatTheme.palette.getAccent()))

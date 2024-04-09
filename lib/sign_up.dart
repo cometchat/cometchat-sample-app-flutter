@@ -53,7 +53,7 @@ class _SignUpState extends State<SignUp> {
                 height: 20.0,
               ),
               const Wrap(
-                children:  [
+                children: [
                   Text(
                     "Sign Up",
                     style: TextStyle(color: Colors.black38, fontSize: 30),

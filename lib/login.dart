@@ -2,9 +2,6 @@ import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_flutter_sample_app/login_with_uid.dart';
 import 'package:cometchat_flutter_sample_app/sign_up.dart';
 import 'package:cometchat_flutter_sample_app/utils/alert.dart';
-import 'package:cometchat_flutter_sample_app/app_constants.dart';
-import 'package:cometchat_flutter_sample_app/utils/demo_meta_info_constants.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
@@ -47,54 +44,7 @@ class _LoginState extends State<Login> {
     //   debugPrint("Initialization failed with exception: ${excep.message}");
     // });
 
-    makeUISettings();
-
     //initialization end
-  }
-
-  makeUISettings() {
-    UIKitSettings uiKitSettings = (UIKitSettingsBuilder()
-          ..subscriptionType = CometChatSubscriptionType.allUsers
-          ..region = AppConstants.region
-          ..autoEstablishSocketConnection = true
-          ..appId = AppConstants.appId
-          ..authKey = AppConstants.authKey
-          ..callingExtension = CometChatCallingExtension()
-          ..extensions = CometChatUIKitChatExtensions.getDefaultExtensions()
-          ..aiFeature = [
-            AISmartRepliesExtension(),
-            AIConversationStarterExtension(),
-            AIAssistBotExtension(),
-            AIConversationSummaryExtension()
-          ])
-        .build();
-
-    CometChatUIKit.init(
-      uiKitSettings: uiKitSettings,
-      onSuccess: (successMessage) async {
-        try {
-          CometChat.setDemoMetaInfo(jsonObject: {
-            "name": DemoMetaInfoConstants.name,
-            "type": DemoMetaInfoConstants.type,
-            "version": DemoMetaInfoConstants.version,
-            "bundle": DemoMetaInfoConstants.bundle,
-            "platform": DemoMetaInfoConstants.platform,
-          });
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint("setDemoMetaInfo ended with error");
-          }
-        }
-
-        await CometChatUIKit.getLoggedInUser(
-          onSuccess: (user) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const Dashboard()));
-          },onError: (error) {
-          debugPrint("Error getting logged in user: ${error.message}");
-        },
-        );
-      },
-    );
   }
 
   //Login User function must pass userid and authkey should be used only while developing
