@@ -31,14 +31,8 @@ This reference application showcases the integration of [**CometChat's Flutter U
 	flutter pub get
 	```
 
-4. Enter your CometChat _`App ID`_, _`Region`_, and _`Auth Key`_ in the [lib/app_constants.dart](https://github.com/cometchat/cometchat-sample-app-flutter/blob/v4/lib/app_constants.dart) file:
-	```dart
-	class AppConstants {
-		static const String appId = "APP_ID";
-		static const String authKey = "AUTH_KEY";
-		static const String region = "REGION";
-	}
-	```
+4. Enter your CometChat _`App ID`_, _`Region`_, and _`Auth Key`_ in the [lib/app_constants.dart](lib/app_constants.dart) file:
+   https://github.com/cometchat/cometchat-sample-app-flutter/blob/b67064409ec5c875aca74fd2eff5e80968c485c7/lib/app_constants.dart#L1-L5
 
 5. For iOS, install dependencies after navigating to ios :
 	```sh
