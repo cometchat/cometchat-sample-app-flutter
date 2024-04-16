@@ -43,8 +43,8 @@ class ConversationsDashboard extends StatelessWidget {
               // WidgetCard(
               //   widgets: moduleList,
               // ),
-              const ConversationModule(),
               const ConversationsWithMessagesModule(),
+              const ConversationModule(),
               const ContactsModule(),
             ],
           ),
