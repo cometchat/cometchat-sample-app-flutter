@@ -134,8 +134,6 @@ class CallsDashboard extends StatelessWidget {
                           actions: [
                             CometChatCallButtons(
                               user: _user,
-                              voiceCallIconURL: AssetConstants.audioCall,
-                              videoCallIconURL: AssetConstants.videoCall,
                               onVoiceCallClick: (context, user, group) {
                                 Navigator.pop(context);
                               },
