@@ -39,6 +39,11 @@ This reference application showcases the integration of [**CometChat's Flutter U
   	cd ios
 	pod install
 	```
+	If you are facing any issue with pod install, you can try running the following command:
+	```sh
+  	pod update
+	```
+ 
 6. Open a Simulator or connect a physical device.
 
 7. Run the app on a device or emulator from the repo root.
