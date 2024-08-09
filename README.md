@@ -32,9 +32,11 @@ This reference application showcases the integration of [**CometChat's Flutter U
 	```
 
 4. Enter your CometChat _`App ID`_, _`Region`_, and _`Auth Key`_ in the [lib/app_constants.dart](lib/app_constants.dart) file:
-   https://github.com/cometchat/cometchat-sample-app-flutter/blob/b67064409ec5c875aca74fd2eff5e80968c485c7/lib/app_constants.dart#L1-L5
+   https://github.com/cometchat/cometchat-sample-app-flutter/blob/68a5a3257ad7cfe3ac06a1c9b7de8f94f8ae4227/lib/app_constants.dart#L1-L5
 
-5. For iOS, install dependencies after navigating to ios :
+5.  If your app is created before August 12th, 2024 then change the sample data URL to `https://assets.cometchat.io/sampleapp/v1/sampledata.json` in the [lib/services/api_services.dart](https://github.com/cometchat/cometchat-sample-app-flutter/blob/v4/lib/services/api_services.dart) file: https://github.com/cometchat/cometchat-sample-app-flutter/blob/68a5a3257ad7cfe3ac06a1c9b7de8f94f8ae4227/lib/services/api_services.dart#L13-L15
+
+6. For iOS, install dependencies after navigating to ios :
 	```sh
   	cd ios
 	pod install
@@ -44,9 +46,9 @@ This reference application showcases the integration of [**CometChat's Flutter U
   	pod update
 	```
  
-6. Open a Simulator or connect a physical device.
+7. Open a Simulator or connect a physical device.
 
-7. Run the app on a device or emulator from the repo root.
+8. Run the app on a device or emulator from the repo root.
 	```sh 
 	flutter run
 	```
