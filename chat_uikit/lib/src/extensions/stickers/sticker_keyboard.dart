@@ -51,7 +51,6 @@ class _CometChatStickerKeyboardState extends State<CometChatStickerKeyboard> {
   late int selectedSet;
   bool isLoading = true;
   bool isError = false;
-  CometChatTheme theme = cometChatTheme;
 
   @override
   void initState() {

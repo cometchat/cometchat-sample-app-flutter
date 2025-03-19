@@ -27,16 +27,16 @@ class CometChatConversationsController
     SelectionMode? mode,
     this.disableSoundForMessages = false,
     this.customSoundForMessages,
-    this.disableUsersPresence = false,
-    this.disableReceipt = false,
-    this.hideReceipt = false,
-    this.disableTyping,
+    this.usersStatusVisibility = true,
+    this.groupTypeVisibility = true,
+    this.receiptsVisibility = true,
     OnError? onError,
+    OnLoad<Conversation>? onLoad,
+    OnEmpty? onEmpty,
     this.textFormatters,
-    this.disableMentions,
     this.mentionsStyle,
     this.conversationsStyle,
-  }) : super(conversationsBuilderProtocol.getRequest(), onError: onError) {
+  }) : super(conversationsBuilderProtocol.getRequest(), onError: onError, onLoad: onLoad, onEmpty: onEmpty) {
     selectionMode = mode ?? SelectionMode.none;
     dateStamp = DateTime.now().microsecondsSinceEpoch.toString();
 
@@ -74,12 +74,8 @@ class CometChatConversationsController
   ///[customSoundForMessages] URL of the audio file to be played upon receiving messages
   final String? customSoundForMessages;
 
-  ///[disableReceipt] controls visibility of read receipts
-  ///and also disables logic executed inside onMessagesRead and onMessagesDelivered listeners
-  final bool? disableReceipt;
-
-  ///[hideReceipt] controls visibility of read receipts
-  final bool? hideReceipt;
+  ///[receiptsVisibility] controls visibility of read receipts
+  final bool? receiptsVisibility;
 
   String loggedInUserId = "";
   String?
@@ -87,16 +83,12 @@ class CometChatConversationsController
 
   CometChatConversationsStyle? style;
 
-  bool? disableUsersPresence;
+  bool? usersStatusVisibility;
 
-  ///[disableTyping] if true stops indicating if a participant in a conversation is typing
-  final bool? disableTyping;
+  bool? groupTypeVisibility;
 
   ///[textFormatters] is a list of [CometChatTextFormatter] which is used to format the text
   List<CometChatTextFormatter>? textFormatters;
-
-  ///[disableMentions] if true will disable mentions in the conversation
-  bool? disableMentions;
 
   ///[mentionsStyle] is a [CometChatMentionsStyle] which is used to style the mentions
   final CometChatMentionsStyle? mentionsStyle;
@@ -110,7 +102,7 @@ class CometChatConversationsController
   void onInit() {
     CometChatMessageEvents.addMessagesListener(messageUIListenerID, this);
     CometChatGroupEvents.addGroupsListener(groupUIListenerID, this);
-    if (!(disableUsersPresence ?? false)) {
+    if (usersStatusVisibility == true) {
       CometChat.addUserListener(userSDKListenerID, this);
     }
     CometChat.addGroupListener(groupSDKListenerID, this);
@@ -130,7 +122,7 @@ class CometChatConversationsController
     CometChatMessageEvents.removeMessagesListener(messageUIListenerID);
     CometChatGroupEvents.removeGroupsListener(groupUIListenerID);
     CometChat.removeMessageListener(messageSDKListenerID);
-    if (!(disableUsersPresence ?? false)) {
+    if (usersStatusVisibility == true) {
       CometChat.removeUserListener(userSDKListenerID);
     }
     //CometChat.removeGroupListener(groupSDKListenerID);
@@ -230,7 +222,7 @@ class CometChatConversationsController
   //-----------Message Listeners------------------------------------------------
 
   _onMessageReceived(BaseMessage message, bool isActionMessage) {
-    if (message.sender!.uid != loggedInUserId && disableReceipt != true) {
+    if (message.sender!.uid != loggedInUserId) {
       CometChat.markAsDelivered(message, onSuccess: (_) {}, onError: (_) {});
     }
 
@@ -268,7 +260,7 @@ class CometChatConversationsController
   @override
   void onMessagesDelivered(MessageReceipt messageReceipt) {
     if (messageReceipt.receiverType == ReceiverTypeConstants.user &&
-        disableReceipt != true) {
+        receiptsVisibility == true) {
       setReceipts(messageReceipt);
     }
   }
@@ -276,7 +268,7 @@ class CometChatConversationsController
   @override
   void onMessagesRead(MessageReceipt messageReceipt) {
     if (messageReceipt.receiverType == ReceiverTypeConstants.user &&
-        disableReceipt != true) {
+        receiptsVisibility == true) {
       setReceipts(messageReceipt);
     }
   }
@@ -288,7 +280,7 @@ class CometChatConversationsController
 
   @override
   void onMessagesDeliveredToAll(MessageReceipt messageReceipt) {
-    if (disableReceipt != true &&
+    if (receiptsVisibility == true &&
         messageReceipt.receiverType == ReceiverTypeConstants.group) {
       setReceipts(messageReceipt);
     }
@@ -296,7 +288,7 @@ class CometChatConversationsController
 
   @override
   void onMessagesReadByAll(MessageReceipt messageReceipt) {
-    if (disableReceipt != true &&
+    if (receiptsVisibility == true &&
         messageReceipt.receiverType == ReceiverTypeConstants.group) {
       setReceipts(messageReceipt);
     }
@@ -304,14 +296,14 @@ class CometChatConversationsController
 
   @override
   void onTypingStarted(TypingIndicator typingIndicator) {
-    if (disableTyping != true && userIsNotBlocked(typingIndicator.sender)) {
+    if (userIsNotBlocked(typingIndicator.sender)) {
       setTypingIndicator(typingIndicator, true);
     }
   }
 
   @override
   void onTypingEnded(TypingIndicator typingIndicator) {
-    if (disableTyping != true && userIsNotBlocked(typingIndicator.sender)) {
+    if (userIsNotBlocked(typingIndicator.sender)) {
       setTypingIndicator(typingIndicator, false);
     }
   }
@@ -939,8 +931,8 @@ class CometChatConversationsController
   }
 
   @override
-  bool getHideReceipt(Conversation conversation, bool? disableReadReceipt) {
-    if (disableReadReceipt == true || conversation.lastMessage == null) {
+  bool getHideReceipt(Conversation conversation, bool? receiptsVisibility) {
+    if (receiptsVisibility == false || conversation.lastMessage == null) {
       return true;
     } else if (conversation.lastMessage!.category ==
         MessageCategoryConstants.call) {
@@ -970,8 +962,7 @@ class CometChatConversationsController
     if ((textFormatters.isEmpty ||
             textFormatters.indexWhere(
                     (element) => element is CometChatMentionsFormatter) ==
-                -1) &&
-        disableMentions != true) {
+                -1)) {
       textFormatters.add(
           CometChatMentionsFormatter(style: ccMentionStyle ?? mentionsStyle));
     }
@@ -1126,7 +1117,17 @@ class CometChatConversationsController
 
   bool hideUserPresence(User? user) {
     return user != null &&
-        (disableUsersPresence == true || !userIsNotBlocked(user));
+        (usersStatusVisibility == false || !userIsNotBlocked(user));
+  }
+
+  bool hideGroupIconVisibility(Group? group) {
+    return group != null &&
+        (groupTypeVisibility != true);
+  }
+
+  void clearSelection() {
+    selectionMap.clear();
+    update();
   }
 
   // Function to show pop-up menu on long press
@@ -1135,7 +1136,10 @@ class CometChatConversationsController
     List<CometChatOption> options,
     GlobalKey widgetKey,
   ) {
-    RelativeRect? position = _getWidgetPosition(context, widgetKey);
+    if(options.isEmpty) {
+      return;
+    }
+    RelativeRect? position = WidgetPositionUtil.getWidgetPosition(context, widgetKey);
     showMenu(
       context: context,
       position: position ?? const RelativeRect.fromLTRB(0, 0, 0, 0),
@@ -1161,42 +1165,5 @@ class CometChatConversationsController
         selectedOption.onClick?.call();
       }
     });
-  }
-
-  static RelativeRect? _getWidgetPosition(
-      BuildContext context, GlobalKey widgetKey) {
-    // Check if widget is mounted
-    if (widgetKey.currentContext == null ||
-        !widgetKey.currentContext!.mounted) {
-      debugPrint("Widget is not mounted, skipping position calculation.");
-      return null;
-    }
-
-    try {
-      final RenderBox? renderBox =
-          widgetKey.currentContext?.findRenderObject() as RenderBox?;
-
-      if (renderBox != null) {
-        final Offset offset = renderBox.localToGlobal(Offset.zero);
-
-        // Optional: Adjustments for alignment
-        double horizontalOffset = MediaQuery.of(context).size.width * 0.65;
-        const double verticalOffset = 30.0;
-
-        return RelativeRect.fromLTRB(
-          offset.dx + horizontalOffset,
-          offset.dy + verticalOffset,
-          offset.dx + renderBox.size.width + horizontalOffset,
-          offset.dy + renderBox.size.height + verticalOffset,
-        );
-      } else {
-        debugPrint("RenderBox is null, position calculation failed.");
-      }
-    } catch (e, stackTrace) {
-      debugPrint("Exception while calculating position: $e");
-      debugPrint("Stack trace: $stackTrace");
-    }
-
-    return null;
   }
 }

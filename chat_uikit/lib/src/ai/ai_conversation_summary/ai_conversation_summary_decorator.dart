@@ -1,5 +1,4 @@
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-import 'package:cometchat_chat_uikit/src/ai/ai_utils.dart';
 import 'package:flutter/material.dart';
 
 ///[AIConversationSummaryDecorator] is a the view model for [AIConversationSummaryExtension] it contains all the relevant business logic
@@ -131,13 +130,23 @@ class AIConversationSummaryDecorator extends DataSourceDecorator
                 height: 24,
                 width: 24,
                 package: UIConstants.packageName,
+                color: aiOptionStyle?.iconColor,
               ),
               onItemClick: (BuildContext context, User? user, Group? group) {
                 if (id?["parentMessageId"] == null ||
                     id?["parentMessageId"] == 0) {
                   showSummary(id, user, group);
                 }
-              });
+              },
+            style: CometChatAttachmentOptionSheetStyle(
+              titleTextStyle: aiOptionStyle?.titleTextStyle,
+              borderRadius: aiOptionStyle?.borderRadius,
+              backgroundColor: aiOptionStyle?.backgroundColor,
+              iconColor: aiOptionStyle?.iconColor,
+              border: aiOptionStyle?.border,
+              titleColor: aiOptionStyle?.titleColor,
+            )
+          );
 
       actionList.add(summaryAction);
     }

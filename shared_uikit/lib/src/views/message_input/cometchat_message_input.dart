@@ -43,7 +43,7 @@ class CometChatMessageInput extends StatefulWidget {
   final String? placeholderText;
 
   ///[onChange] callback to handle change in value of text in the input field
-  final Function(String)? onChange;
+  final Function(String val)? onChange;
 
   ///[style] provides style to this widget
   final CometChatMessageInputStyle? style;

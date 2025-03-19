@@ -233,10 +233,10 @@ class CometChatCallButtonsController extends GetxController
                   builder: (context) => CometChatOutgoingCall(
                     call: returnedCall,
                     user: user,
-                    subtitle: outgoingCallConfiguration?.subtitle,
+                    subtitleView: outgoingCallConfiguration?.subtitleView,
                     declineButtonIcon:
                         outgoingCallConfiguration?.declineButtonIcon,
-                    onDecline: outgoingCallConfiguration?.onDecline,
+                    onCancelled: outgoingCallConfiguration?.onCancelled,
                     disableSoundForCalls:
                         outgoingCallConfiguration?.disableSoundForCalls,
                     customSoundForCalls:
@@ -244,10 +244,13 @@ class CometChatCallButtonsController extends GetxController
                     customSoundForCallsPackage:
                         outgoingCallConfiguration?.customSoundForCallsPackage,
                     onError: outgoingCallConfiguration?.onError,
-                    style: outgoingCallConfiguration?.outgoingCallStyle,
+                    outgoingCallStyle: outgoingCallConfiguration?.outgoingCallStyle,
                     callSettingsBuilder: defaultCallSettingsBuilder,
                     height: outgoingCallConfiguration?.height,
                     width: outgoingCallConfiguration?.width,
+                    avatarView: outgoingCallConfiguration?.avatarView,
+                    titleView: outgoingCallConfiguration?.titleView,
+                    cancelledView: outgoingCallConfiguration?.cancelledView,
                   ),
                 ));
           } else {

@@ -73,6 +73,37 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
                 color: colorPalette.borderLight,
                 height: 1,
               ),
+              if (!value.isUserBlocked)
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: spacing.padding3 ?? 0,
+                    vertical: spacing.padding2 ?? 0,
+                  ),
+                  color: colorPalette.warning?.withValues(alpha: 0.2),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info,
+                        color: colorPalette.warning,
+                      ),
+                      SizedBox(
+                        width: spacing.padding2,
+                      ),
+                      Text(
+                        "You have blocked ${widget.user.name}.",
+                        style: TextStyle(
+                          fontSize: typography.body?.regular?.fontSize,
+                          fontFamily: typography.body?.regular?.fontFamily,
+                          fontWeight: typography.body?.regular?.fontWeight,
+                          color: colorPalette.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              SizedBox(
+                height: spacing.padding5,
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: spacing.padding5 ?? 0,
@@ -98,7 +129,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
                         color: colorPalette.textSecondary,
                       ),
                     ),
-                    _getOptionTiles(value),
+                    if (value.isUserBlocked) _getOptionTiles(value),
                   ],
                 ),
               ),
@@ -257,8 +288,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
       BuildContext context, CometChatUserInfoController controller) {
     return Column(
       children: [
-        listTileOptions(
-            (controller.isUserBlocked) ? "Block" : "Unblock",
+        listTileOptions((controller.isUserBlocked) ? "Block" : "Unblock",
             Icon(Icons.block, color: colorPalette.error), () {
           if (controller.isUserBlocked == true) {
             controller.blockUserDialog(

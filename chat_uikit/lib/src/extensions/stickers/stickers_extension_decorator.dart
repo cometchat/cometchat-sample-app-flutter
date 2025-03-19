@@ -10,26 +10,27 @@ class StickersExtensionDecorator extends DataSourceDecorator {
   StickersExtensionDecorator(super.dataSource, {this.configuration});
 
   @override
-  List<CometChatMessageTemplate> getAllMessageTemplates(
-      {CometChatTheme? theme}) {
-    CometChatTheme theme0 = theme ?? cometChatTheme;
+  List<CometChatMessageTemplate> getAllMessageTemplates() {
 
     List<CometChatMessageTemplate> templateList =
-        super.getAllMessageTemplates(theme: theme0);
-    templateList.add(getTemplate(theme: theme0));
+        super.getAllMessageTemplates();
+    templateList.add(getTemplate());
 
     return templateList;
   }
 
   @override
   Widget getAuxiliaryOptions(User? user, Group? group, BuildContext context,
-      Map<String, dynamic>? id, Color? color) {
+      Map<String, dynamic>? id, Color? color,
+      {AdditionalConfigurations? additionalConfigurations}) {
     List<Widget> auxiliaryButtons = [];
 
     Widget auxiliaryOption =
-        super.getAuxiliaryOptions(user, group, context, id, color);
+        super.getAuxiliaryOptions(user, group, context, id, color, additionalConfigurations: additionalConfigurations);
     auxiliaryButtons.add(auxiliaryOption);
-    auxiliaryButtons.add(getStickerAuxiliaryButton(user, group, context, id,color));
+    if(additionalConfigurations?.hideStickersButton != true) {
+      auxiliaryButtons.add(getStickerAuxiliaryButton(user, group, context, id,color));
+    }
 
     return auxiliaryButtons.isEmpty
         ? const SizedBox()
@@ -68,7 +69,7 @@ class StickersExtensionDecorator extends DataSourceDecorator {
     }
   }
 
-  CometChatMessageTemplate getTemplate({CometChatTheme? theme}) {
+  CometChatMessageTemplate getTemplate() {
     return CometChatMessageTemplate(
         type: stickerTypeConstant,
         category: CometChatMessageCategory.custom,

@@ -95,6 +95,7 @@ class CometChatAddMembersController extends GetxController {
                 type: MessageTypeConstants.groupActions,
                 receiverType: ReceiverTypeConstants.group,
                 parentMessageId: 0,
+                receiver: group,
               ));
             }
           }

@@ -30,16 +30,16 @@ class GetMenuView extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
-            child: Image.asset(
-              option.icon ?? "",
-              package: UIConstants.packageName,
-              color: iconTint ?? option.iconTint ?? colorPalette.error,
-              height: 24,
-              width: 24,
-            ),
-          ),
+              Padding(
+                padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
+                child: option.iconWidget ?? Image.asset(
+                  option.icon ?? "",
+                  package: option.packageName ?? UIConstants.packageName,
+                  color: iconTint ?? option.iconTint ?? colorPalette.error,
+                  height: 24,
+                  width: 24,
+                ),
+              ),
           Expanded(
             child: Text(
               option.title ?? "",
@@ -48,9 +48,7 @@ class GetMenuView extends StatelessWidget {
                 fontSize: typography.body?.regular?.fontSize,
                 fontWeight: typography.body?.regular?.fontWeight,
                 fontFamily: typography.body?.regular?.fontFamily,
-              ).merge(
-                textStyle
-              ),
+              ).merge(textStyle),
             ),
           ),
         ],

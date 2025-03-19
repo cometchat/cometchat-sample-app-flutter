@@ -24,7 +24,6 @@ class CometChatAddMembers extends StatelessWidget {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
 
-    String dateString = DateTime.now().microsecondsSinceEpoch.toString();
     String tag = "add_members_tag_${group.guid}";
 
 
@@ -64,7 +63,7 @@ class CometChatAddMembers extends StatelessWidget {
             children: [
               Expanded(
                 child: CometChatUsers(
-                  hideSectionSeparator: true,
+                  stickyHeaderVisibility: true,
                   controllerTag: tag,
                   hideAppbar: true,
                   title: cc.Translations.of(context).addMembers,

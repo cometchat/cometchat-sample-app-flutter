@@ -2,7 +2,7 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../messages.dart';
+import '../messages/messages.dart';
 
 class PageManager extends GetxController {
   // Private constructor for singleton

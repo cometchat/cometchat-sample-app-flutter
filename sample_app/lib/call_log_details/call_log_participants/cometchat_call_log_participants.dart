@@ -142,7 +142,7 @@ class _CometChatCallLogParticipantsState
   _getSubTitleView(Participants participant, BuildContext context) {
     return CometChatDate(
       pattern: DateTimePattern.dayDateFormat,
-      customDateString: getDate(participant.joinedAt),
+      customDateString: getDate(widget.callLog.initiatedAt),
       padding: EdgeInsets.zero,
       style: CometChatDateStyle(
         backgroundColor: colorPalette.transparent,

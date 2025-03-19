@@ -95,7 +95,7 @@ class CallsDashboard extends StatelessWidget {
                       CometChatOutgoingCall(
                     call: _call,
                     user: _user,
-                    onDecline: (context, call) {
+                    onCancelled: (context, call) {
                       Navigator.pop(context);
                     },
                   );

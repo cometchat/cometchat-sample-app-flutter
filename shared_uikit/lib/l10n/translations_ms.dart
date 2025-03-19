@@ -357,13 +357,13 @@ class TranslationsMs extends Translations {
   String get attachFile => 'Lampirkan fail';
 
   @override
-  String get attachVideo => 'Lampirkan video';
+  String get attachImage => 'Lampirkan Imej';
 
   @override
-  String get attachAudio => 'Lampirkan audio';
+  String get attachAudio => 'Lampirkan Audio';
 
   @override
-  String get attachImage => 'Lampirkan imej';
+  String get attachVideo => 'Lampirkan Video';
 
   @override
   String get collaborateUsingDocument => 'Bekerjasama menggunakan dokumen';
@@ -1142,5 +1142,20 @@ class TranslationsMs extends Translations {
 
   @override
   String get deleteMessageWarning => 'Adakah anda pasti mahu memadam mesej ini? Tindakan ini tidak boleh dibatalkan.';
+
+  @override
+  String get from => 'dari';
+
+  @override
+  String get areYouSureBan => 'Adakah anda pasti mahu melarang';
+
+  @override
+  String get areYouSureRemove => 'Adakah anda pasti mahu membuang';
+
+  @override
+  String get attachDocument => 'Lampirkan Dokumen';
+
+  @override
+  String get camera => 'Kamera';
 
 }

@@ -354,13 +354,13 @@ class TranslationsRu extends Translations {
   String get attachFile => 'Прикрепить файл';
 
   @override
-  String get attachVideo => 'Прикрепите видео';
-
-  @override
-  String get attachAudio => 'Прикрепите аудио';
-
-  @override
   String get attachImage => 'Прикрепить изображение';
+
+  @override
+  String get attachAudio => 'Прикрепить аудио';
+
+  @override
+  String get attachVideo => 'Прикрепить видео';
 
   @override
   String get collaborateUsingDocument => 'Совместная работа с документом';
@@ -1139,5 +1139,20 @@ class TranslationsRu extends Translations {
 
   @override
   String get deleteMessageWarning => 'Вы действительно хотите удалить это сообщение? Это действие нельзя отменить.';
+
+  @override
+  String get from => 'из';
+
+  @override
+  String get areYouSureBan => 'Вы уверены, что хотите заблокировать';
+
+  @override
+  String get areYouSureRemove => 'Вы уверены, что хотите удалить';
+
+  @override
+  String get attachDocument => 'Прикрепить документ';
+
+  @override
+  String get camera => 'Камера';
 
 }

@@ -42,7 +42,6 @@ class CometchatChatUikitPlugin: FlutterPlugin, MethodCallHandler, ActivityAware,
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cometchat_chat_uikit")
 
     channel.setMethodCallHandler(this)
-    initAudio()
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
@@ -97,19 +96,6 @@ class CometchatChatUikitPlugin: FlutterPlugin, MethodCallHandler, ActivityAware,
     channel.setMethodCallHandler(null)
   }
 
-
-  private fun initAudio(){
-    val audioManager: AudioManager? = this.getAudioManager(context)
-    if(audioManager!=null){
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-        audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
-      } else {
-        audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-      }
-
-    }
-
-  }
 
   private fun getAudioManager(context: Context): AudioManager? {
     return context.getSystemService(Context.AUDIO_SERVICE) as AudioManager

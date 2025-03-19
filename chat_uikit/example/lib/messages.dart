@@ -79,7 +79,7 @@ class MessagesSample extends StatelessWidget {
                                     ],
                                   );
                                 },
-                                style: CometChatMessageHeaderStyle(
+                                messageHeaderStyle: CometChatMessageHeaderStyle(
                                   backIconColor: colorPalette.iconPrimary,
                                   backgroundColor: colorPalette.background1,
                                   border: Border(
@@ -126,7 +126,6 @@ class MessagesSample extends StatelessWidget {
                         ),
                       );
                     },
-                    showAvatar: true,
                   ),
                 ),
                 CometChatMessageComposer(

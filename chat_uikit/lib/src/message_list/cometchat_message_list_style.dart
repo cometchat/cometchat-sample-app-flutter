@@ -79,6 +79,8 @@ class CometChatMessageListStyle
     this.actionBubbleStyle,
     this.reactionListStyle,
     this.reactionsStyle,
+    this.aiSmartRepliesStyle,
+    this.aiConversationStarterStyle,
   });
 
   ///[backgroundColor] defines the background color of the message list
@@ -141,6 +143,12 @@ class CometChatMessageListStyle
   ///[reactionsStyle] is a parameter used to set the style for the reactions
   final CometChatReactionsStyle? reactionsStyle;
 
+  ///[aiSmartRepliesStyle] is a parameter used to set the style for the smart replies
+  final CometChatAISmartRepliesStyle? aiSmartRepliesStyle;
+
+  ///[aiConversationStarterStyle] is a parameter used to set the style for the conversation starter
+  final CometChatAIConversationStarterStyle? aiConversationStarterStyle;
+
   /// Copy with some properties replaced
   @override
   CometChatMessageListStyle copyWith({
@@ -167,6 +175,8 @@ class CometChatMessageListStyle
     CometChatActionBubbleStyle? actionBubbleStyle,
     CometChatReactionListStyle? reactionListStyle,
     CometChatReactionsStyle? reactionsStyle,
+    CometChatAISmartRepliesStyle? aiSmartRepliesStyle,
+    CometChatAIConversationStarterStyle? aiConversationStarterStyle,
   }) {
     return CometChatMessageListStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -197,6 +207,8 @@ class CometChatMessageListStyle
       actionBubbleStyle: actionBubbleStyle ?? this.actionBubbleStyle,
       reactionListStyle: reactionListStyle ?? this.reactionListStyle,
       reactionsStyle: reactionsStyle ?? this.reactionsStyle,
+      aiSmartRepliesStyle: aiSmartRepliesStyle ?? this.aiSmartRepliesStyle,
+      aiConversationStarterStyle: aiConversationStarterStyle ?? this.aiConversationStarterStyle,
     );
   }
 
@@ -224,6 +236,8 @@ class CometChatMessageListStyle
       actionBubbleStyle: other.actionBubbleStyle,
       reactionListStyle: other.reactionListStyle,
       reactionsStyle: other.reactionsStyle,
+      aiSmartRepliesStyle: other.aiSmartRepliesStyle,
+      aiConversationStarterStyle: aiConversationStarterStyle,
     );
   }
 
@@ -269,6 +283,10 @@ class CometChatMessageListStyle
       actionBubbleStyle: actionBubbleStyle?.lerp(other.actionBubbleStyle, t),
       reactionListStyle: reactionListStyle?.lerp(other.reactionListStyle, t),
       reactionsStyle: reactionsStyle?.lerp(other.reactionsStyle, t),
+      aiSmartRepliesStyle:
+          aiSmartRepliesStyle?.lerp(other.aiSmartRepliesStyle, t),
+      aiConversationStarterStyle:
+          aiConversationStarterStyle?.lerp(other.aiConversationStarterStyle, t),
     );
   }
 }

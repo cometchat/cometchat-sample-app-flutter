@@ -43,14 +43,12 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
   }
 
   @override
-  List<CometChatMessageTemplate> getAllMessageTemplates(
-      {CometChatTheme? theme}) {
-    CometChatTheme theme0 = theme ?? cometChatTheme;
+  List<CometChatMessageTemplate> getAllMessageTemplates() {
 
     List<CometChatMessageTemplate> templateList =
-        super.getAllMessageTemplates(theme: theme0);
+        super.getAllMessageTemplates();
 
-    templateList.add(getTemplate(theme: theme0));
+    templateList.add(getTemplate());
 
     return templateList;
   }
@@ -91,7 +89,7 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
       id,
       additionalConfigurations,
     );
-    if (isNotThread(id)) {
+    if (additionalConfigurations?.hideCollaborativeDocumentOption != true && isNotThread(id)) {
       actions.add(
         getAttachmentOption(
           context,
@@ -99,6 +97,7 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
         ),
       );
     }
+
     return actions;
   }
 
@@ -115,8 +114,7 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
     }
   }
 
-  CometChatMessageTemplate getTemplate({CometChatTheme? theme}) {
-
+  CometChatMessageTemplate getTemplate() {
     return CometChatMessageTemplate(
         type: collaborativeDocumentExtensionTypeConstant,
         category: CometChatMessageCategory.custom,
@@ -124,17 +122,21 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
             BubbleAlignment alignment,
             {AdditionalConfigurations? additionalConfigurations}) {
           if (message.deletedAt != null) {
-            return super.getDeleteMessageBubble(message, context, additionalConfigurations?.deletedBubbleStyle);
+            return super.getDeleteMessageBubble(
+                message, context, additionalConfigurations?.deletedBubbleStyle);
           }
-          return getContentView(message as CustomMessage, context,alignment,additionalConfigurations?.collaborativeDocumentBubbleStyle);
+          return getContentView(message as CustomMessage, context, alignment,
+              additionalConfigurations?.collaborativeDocumentBubbleStyle);
         },
         options: CometChatUIKit.getDataSource().getCommonOptions,
         bottomView: CometChatUIKit.getDataSource().getBottomView);
   }
 
   Widget getContentView(
-      CustomMessage customMessage, BuildContext context,BubbleAlignment alignment,CometChatCollaborativeBubbleStyle? collaborativeBubbleStyle) {
-
+      CustomMessage customMessage,
+      BuildContext context,
+      BubbleAlignment alignment,
+      CometChatCollaborativeBubbleStyle? collaborativeBubbleStyle) {
     return CometChatCollaborativeBubble(
       url: getWebViewUrl(customMessage),
       title: configuration?.title ??
@@ -146,7 +148,8 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
       icon: configuration?.icon,
       previewImage: AssetConstants.collaborativeDocumentPreview,
       alignment: alignment,
-      style: (configuration?.style ?? const CometChatCollaborativeBubbleStyle()).merge(collaborativeBubbleStyle),
+      style: (configuration?.style ?? const CometChatCollaborativeBubbleStyle())
+          .merge(collaborativeBubbleStyle),
     );
   }
 

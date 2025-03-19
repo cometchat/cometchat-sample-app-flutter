@@ -12,9 +12,9 @@ class MessageExtensionTranslationDecorator extends DataSourceDecorator {
 
   @override
   Widget getTextMessageContentView(TextMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,
+      BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
-    return getContentView(message, context, alignment, theme,
+    return getContentView(message, context, alignment,
         additionalConfigurations: additionalConfigurations);
   }
 
@@ -37,7 +37,7 @@ class MessageExtensionTranslationDecorator extends DataSourceDecorator {
     );
 
     if (messageObject.metadata != null &&
-        messageObject.metadata!.containsKey('translated_message') == false) {
+        messageObject.metadata!.containsKey('translated_message') == false && additionalConfigurations?.hideTranslateMessageOption != true) {
       textTemplateOptions.add(getOption(context));
     }
 
@@ -125,11 +125,11 @@ class MessageExtensionTranslationDecorator extends DataSourceDecorator {
   }
 
   Widget getContentView(TextMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,
+      BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
 
     Widget? child = super.getTextMessageContentView(
-        message, context, alignment, theme,
+        message, context, alignment,
         additionalConfigurations: additionalConfigurations
     );
     if (message.metadata != null &&

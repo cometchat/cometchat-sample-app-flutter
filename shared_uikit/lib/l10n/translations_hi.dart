@@ -356,13 +356,13 @@ class TranslationsHi extends Translations {
   String get attachFile => 'फ़ाइल अटैच करें';
 
   @override
-  String get attachVideo => 'वीडियो अटैच करें';
+  String get attachImage => 'छवि संलग्न करें';
 
   @override
-  String get attachAudio => 'ऑडियो अटैच करें';
+  String get attachAudio => 'ऑडियो संलग्न करें';
 
   @override
-  String get attachImage => 'छवि अटैच करें';
+  String get attachVideo => 'वीडियो संलग्न करें';
 
   @override
   String get collaborateUsingDocument => 'दस्तावेज़ का उपयोग करके सहयोग करें';
@@ -1142,5 +1142,21 @@ class TranslationsHi extends Translations {
 
   @override
   String get deleteMessageWarning => 'क्या आप वाकई इस संदेश को मिटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।';
+
+  @override
+  String get from => 'से';
+
+
+  @override
+  String get areYouSureBan => 'क्या आप वाकई प्रतिबंधित करना चाहते हैं';
+
+  @override
+  String get areYouSureRemove => 'क्या आप वाकई हटाना चाहते हैं';
+
+  @override
+  String get attachDocument => 'दस्तावेज़ संलग्न करें';
+
+  @override
+  String get camera => 'कैमरा';
 
 }

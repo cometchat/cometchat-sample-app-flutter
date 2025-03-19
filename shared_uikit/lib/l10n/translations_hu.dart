@@ -355,13 +355,13 @@ class TranslationsHu extends Translations {
   String get attachFile => 'Fájl csatolása';
 
   @override
-  String get attachVideo => 'Videó csatolása';
+  String get attachImage => 'Kép csatolása';
 
   @override
   String get attachAudio => 'Hang csatolása';
 
   @override
-  String get attachImage => 'Kép csatolása';
+  String get attachVideo => 'Videó csatolása';
 
   @override
   String get collaborateUsingDocument =>
@@ -1143,5 +1143,20 @@ class TranslationsHu extends Translations {
 
   @override
   String get deleteMessageWarning => 'Biztos, hogy törölni szeretné ezt az üzenetet? Ezt a műveletet nem lehet visszavonni.';
+
+  @override
+  String get from => 'tól';
+
+  @override
+  String get areYouSureBan => 'Biztosan tiltani akarod';
+
+  @override
+  String get areYouSureRemove => 'Biztosan el akarod távolítani';
+
+  @override
+  String get attachDocument => 'Dokumentum csatolása';
+
+  @override
+  String get camera => 'Kamera';
 
 }

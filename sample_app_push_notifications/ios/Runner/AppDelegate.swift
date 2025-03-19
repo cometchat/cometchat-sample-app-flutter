@@ -78,7 +78,7 @@ func convertDictionaryToJsonString(dictionary: [String: Any]) -> String? {
         pushRegistry.desiredPushTypes = Set([.voIP])
 
         // CallKit setup (unchanged)
-        let providerConfiguration = CXProviderConfiguration(localizedName: "CometChat Sample App")
+        let providerConfiguration = CXProviderConfiguration(localizedName: "Master App")
         providerConfiguration.supportsVideo = false
         providerConfiguration.supportedHandleTypes = [.phoneNumber]
         let callKitProvider = CXProvider(configuration: providerConfiguration)

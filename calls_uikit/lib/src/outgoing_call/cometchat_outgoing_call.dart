@@ -13,10 +13,9 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 ///  onError: (error) {
 ///  print("Error: $error");
 ///  },
-///  onDecline: (context, call) {
+///  onCancelled: (context, call) {
 ///  print("Decline Call");
 ///  },
-///  subtitle: Text("Calling..."),
 ///  declineButtonIcon: Icon(Icons.call_end),
 ///  style: CometChatOutgoingCallStyle(
 ///  backgroundColor: Colors.white,
@@ -32,14 +31,14 @@ class CometChatOutgoingCall extends StatelessWidget {
   ///[user] is used to define the user for which this widget is rendered and call is initiated.
   final User? user;
 
-  ///[subtitle] is used to define the subtitle for the widget.
-  final Widget? subtitle;
+  ///[subtitleView] is used to define the subtitle for the widget.
+  final Widget? Function(BuildContext context, Call call)? subtitleView;
 
   ///[declineButtonIconUrl] is used to define the decline button icon url for the widget.
   final Widget? declineButtonIcon;
 
   ///[outgoingCallStyle] is used to set a custom outgoing call style
-  final CometChatOutgoingCallStyle? style;
+  final CometChatOutgoingCallStyle? outgoingCallStyle;
 
   ///[callSettingsBuilder] is used to set the call settings
   final CallSettingsBuilder? callSettingsBuilder;
@@ -50,6 +49,15 @@ class CometChatOutgoingCall extends StatelessWidget {
   ///[width] is used to set the width of the widget.
   final double? width;
 
+  ///[avatarView] is used to define the avatar view.
+  final Widget? Function(BuildContext context, Call call)? avatarView;
+
+  ///[titleView] is used to define the title view.
+  final Widget? Function(BuildContext context, Call call)? titleView;
+
+  ///[cancelledView] is used to define the cancelled view.
+  final Widget? Function(BuildContext context, Call call)? cancelledView;
+
   final CometChatOutgoingCallController _outgoingCallController;
 
   CometChatOutgoingCall({
@@ -57,33 +65,35 @@ class CometChatOutgoingCall extends StatelessWidget {
     required Call call,
     this.user,
     OnError? onError,
-    Function(BuildContext, Call call)? onDecline,
-    this.subtitle,
+    Function(BuildContext context, Call call)? onCancelled,
+    this.subtitleView,
     bool? disableSoundForCalls,
     String? customSoundForCalls,
     String? customSoundForCallsPackage,
     this.declineButtonIcon,
-    this.style,
+    this.outgoingCallStyle,
     this.callSettingsBuilder,
     this.width,
     this.height,
+    this.avatarView,
+    this.titleView,
+    this.cancelledView,
   })  : _outgoingCallController = CometChatOutgoingCallController(
           activeCall: call,
           disableSoundForCalls: disableSoundForCalls,
           customSoundForCalls: customSoundForCalls,
           customSoundForCallsPackage: customSoundForCallsPackage,
           onError: onError,
-          onDeclineCallTap: onDecline,
+          onCancelledCallTap: onCancelled,
           callSettingsBuilder: callSettingsBuilder,
         ),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final outgoingCallStyle =
-        CometChatThemeHelper.getTheme<CometChatOutgoingCallStyle>(
-                context: context, defaultTheme: CometChatOutgoingCallStyle.of)
-            .merge(style);
+    final style = CometChatThemeHelper.getTheme<CometChatOutgoingCallStyle>(
+            context: context, defaultTheme: CometChatOutgoingCallStyle.of)
+        .merge(outgoingCallStyle);
     final typography = CometChatThemeHelper.getTypography(context);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
@@ -112,10 +122,9 @@ class CometChatOutgoingCall extends StatelessWidget {
           height: height ?? double.infinity,
           width: width ?? double.infinity,
           decoration: BoxDecoration(
-            color:
-                outgoingCallStyle.backgroundColor ?? colorPalette.background1,
-            border: outgoingCallStyle.border,
-            borderRadius: outgoingCallStyle.borderRadius,
+            color: style.backgroundColor ?? colorPalette.background1,
+            border: style.border,
+            borderRadius: style.borderRadius,
           ),
           child: GetBuilder(
             init: _outgoingCallController,
@@ -133,46 +142,27 @@ class CometChatOutgoingCall extends StatelessWidget {
                   title: user?.name,
                   avatarName: user?.name,
                   avatarUrl: user?.avatar,
+                  titleView: _getTitleView(context, viewModel.activeCall),
                   avatarHeight: 120,
                   avatarWidth: 120,
                   titlePadding: EdgeInsets.only(
                     bottom: spacing.padding2 ?? 0,
                   ),
-                  subtitle: subtitle ??
-                      Padding(
-                        padding: EdgeInsets.only(
-                          bottom: spacing.padding10 ?? 0,
-                        ),
-                        child: Text(
-                          Translations.of(context).calling,
-                          style: TextStyle(
-                            fontSize: typography.body?.regular?.fontSize,
-                            fontWeight: typography.body?.regular?.fontWeight,
-                            fontFamily: typography.body?.regular?.fontFamily,
-                            color: outgoingCallStyle.subtitleColor ??
-                                colorPalette.textSecondary,
-                          )
-                              .merge(
-                                outgoingCallStyle.subtitleTextStyle,
-                              )
-                              .copyWith(
-                                color: outgoingCallStyle.subtitleColor,
-                              ),
-                        ),
-                      ),
+                  subtitleView: _getSubtitleView(context, viewModel.activeCall,
+                      spacing, typography, colorPalette, style),
+                  avatarView: _getAvatarView(context, viewModel.activeCall),
                   cardStyle: CardStyle(
                     titleStyle: TextStyle(
                       fontSize: typography.heading1?.bold?.fontSize,
                       fontWeight: typography.heading1?.bold?.fontWeight,
                       fontFamily: typography.heading1?.bold?.fontFamily,
-                      color: outgoingCallStyle.titleColor ??
-                          colorPalette.textPrimary,
+                      color: style.titleColor ?? colorPalette.textPrimary,
                     )
                         .merge(
-                          outgoingCallStyle.titleTextStyle,
+                          style.titleTextStyle,
                         )
                         .copyWith(
-                          color: outgoingCallStyle.titleColor,
+                          color: style.titleColor,
                         ),
                     avatarStyle: CometChatAvatarStyle(
                       placeHolderTextStyle: TextStyle(
@@ -180,36 +170,23 @@ class CometChatOutgoingCall extends StatelessWidget {
                         fontWeight: typography.heading1?.bold?.fontWeight,
                         fontFamily: typography.heading1?.bold?.fontFamily,
                       ).merge(
-                        outgoingCallStyle.avatarStyle?.placeHolderTextStyle,
+                        style.avatarStyle?.placeHolderTextStyle,
                       ),
-                      backgroundColor:
-                          outgoingCallStyle.avatarStyle?.backgroundColor,
+                      backgroundColor: style.avatarStyle?.backgroundColor,
                       placeHolderTextColor:
-                          outgoingCallStyle.avatarStyle?.placeHolderTextColor,
-                      borderRadius: outgoingCallStyle.avatarStyle?.borderRadius,
-                      border: outgoingCallStyle.avatarStyle?.border,
+                          style.avatarStyle?.placeHolderTextColor,
+                      borderRadius: style.avatarStyle?.borderRadius,
+                      border: style.avatarStyle?.border,
                     ),
                   ),
-                  bottomView: Container(
-                    height: 60,
-                    width: 60,
-                    decoration: BoxDecoration(
-                      color: outgoingCallStyle.declineButtonColor ??
-                          colorPalette.error,
-                      borderRadius: outgoingCallStyle.declineButtonBorderRadius ?? BorderRadius.circular(spacing.radiusMax ?? 0),
-                    ),
-                    child: IconButton(
-                      onPressed: () {
-                        viewModel.rejectCall(context, colorPalette, typography);
-                      },
-                      icon: declineButtonIcon ??
-                          Icon(
-                            Icons.call_end,
-                            size: 32,
-                            color: outgoingCallStyle.iconColor ??
-                                colorPalette.white,
-                          ),
-                    ),
+                  bottomView: _getCancelledView(
+                    context,
+                    viewModel.activeCall,
+                    spacing,
+                    typography,
+                    colorPalette,
+                    style,
+                    viewModel,
                   ),
                 ),
               );
@@ -218,5 +195,89 @@ class CometChatOutgoingCall extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _getSubtitleView(
+      BuildContext context,
+      Call call,
+      CometChatSpacing spacing,
+      CometChatTypography typography,
+      CometChatColorPalette colorPalette,
+      CometChatOutgoingCallStyle outgoingCallStyle) {
+    if (subtitleView != null) {
+      return subtitleView!(context, call)!;
+    } else {
+      return Padding(
+        padding: EdgeInsets.only(
+          bottom: spacing.padding10 ?? 0,
+        ),
+        child: Text(
+          Translations.of(context).calling,
+          style: TextStyle(
+            fontSize: typography.body?.regular?.fontSize,
+            fontWeight: typography.body?.regular?.fontWeight,
+            fontFamily: typography.body?.regular?.fontFamily,
+            color:
+                outgoingCallStyle.subtitleColor ?? colorPalette.textSecondary,
+          )
+              .merge(
+                outgoingCallStyle.subtitleTextStyle,
+              )
+              .copyWith(
+                color: outgoingCallStyle.subtitleColor,
+              ),
+        ),
+      );
+    }
+  }
+
+  Widget? _getAvatarView(BuildContext context, Call call) {
+    if (avatarView != null) {
+      return avatarView!(context, call);
+    } else {
+      return null;
+    }
+  }
+
+  Widget? _getTitleView(BuildContext context, Call call) {
+    if (titleView != null) {
+      return titleView!(context, call);
+    } else {
+      return null;
+    }
+  }
+
+  Widget? _getCancelledView(
+      BuildContext context,
+      Call call,
+      CometChatSpacing spacing,
+      CometChatTypography typography,
+      CometChatColorPalette colorPalette,
+      CometChatOutgoingCallStyle outgoingCallStyle,
+      CometChatOutgoingCallController viewModel) {
+    if (cancelledView != null) {
+      return cancelledView!(context, call);
+    } else {
+      return Container(
+        height: 60,
+        width: 60,
+        decoration: BoxDecoration(
+          color: outgoingCallStyle.declineButtonColor ?? colorPalette.error,
+          borderRadius: outgoingCallStyle.declineButtonBorderRadius ??
+              BorderRadius.circular(spacing.radiusMax ?? 0),
+        ),
+        child: IconButton(
+          onPressed: () {
+            viewModel.rejectCall(context, colorPalette, typography);
+          },
+          icon: declineButtonIcon ??
+              Icon(
+                Icons.call_end,
+                size: 32,
+                color: outgoingCallStyle.iconColor ?? colorPalette.white,
+              ),
+        ),
+      );
+    }
   }
 }

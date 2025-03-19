@@ -25,7 +25,6 @@ class CollaborativeWhiteBoardConfiguration {
     this.icon,
     this.buttonText,
     this.style,
-    this.theme,
     this.optionTitle,
     this.optionIcon,
     this.optionStyle,
@@ -45,9 +44,6 @@ class CollaborativeWhiteBoardConfiguration {
 
   ///[style] whiteboard bubble styling properties
   final CometChatCollaborativeBubbleStyle? style;
-
-  ///[theme] sets custom theme
-  final CometChatTheme? theme;
 
   ///[optionTitle] is the name for the option for this extension
   final String? optionTitle;

@@ -87,8 +87,7 @@ class CallingExtensionDecorator extends DataSourceDecorator
 
   ///[getAllMessageTemplates] method is used to get all the message templates present in [MessagesDataSource]
   @override
-  List<CometChatMessageTemplate> getAllMessageTemplates(
-      {CometChatTheme? theme}) {
+  List<CometChatMessageTemplate> getAllMessageTemplates() {
     List<CometChatMessageTemplate> templates = super.getAllMessageTemplates();
     templates.add(getGroupCallTemplate());
     templates.add(getDefaultVoiceCallTemplate());
@@ -410,10 +409,10 @@ class CallingExtensionDecorator extends DataSourceDecorator
   ///[getAuxiliaryHeaderMenu] method is used to set a custom header menu to be displayed in [CometChatMessageHeader]
   @override
   Widget? getAuxiliaryHeaderMenu(BuildContext context, User? user, Group? group,
-      AdditionalConfigurations? additionalConfigurations) {
+      {AdditionalConfigurations? additionalConfigurations}) {
     //retrieve the contents of the header menu from the data source.
     Widget? currentHeaderMenu = dataSource.getAuxiliaryHeaderMenu(
-        context, user, group, additionalConfigurations);
+        context, user, group, additionalConfigurations:  additionalConfigurations);
 
     //initializing an empty list of widgets.
     List<Widget> menuItems = [];
@@ -422,16 +421,12 @@ class CallingExtensionDecorator extends DataSourceDecorator
     menuItems.add(CometChatCallButtons(
       user: user,
       group: group,
-      style: (configuration?.callButtonsConfiguration?.callButtonsStyle ??
+      callButtonsStyle: (configuration?.callButtonsConfiguration?.callButtonsStyle ??
               const CometChatCallButtonsStyle())
           .merge(additionalConfigurations?.callButtonsStyle),
       onError: configuration?.callButtonsConfiguration?.onError,
-      onVideoCallClick:
-          configuration?.callButtonsConfiguration?.onVideoCallClick,
-      onVoiceCallClick:
-          configuration?.callButtonsConfiguration?.onVoiceCallClick,
-      hideVoiceCall: configuration?.callButtonsConfiguration?.hideVoiceCall,
-      hideVideoCall: configuration?.callButtonsConfiguration?.hideVideoCall,
+      hideVoiceCallButton: additionalConfigurations?.hideVoiceCallButton ?? configuration?.callButtonsConfiguration?.hideVoiceCallButton,
+      hideVideoCallButton: additionalConfigurations?.hideVideoCallButton ?? configuration?.callButtonsConfiguration?.hideVideoCallButton,
       voiceCallIcon: configuration?.callButtonsConfiguration?.voiceCallIcon,
       videoCallIcon: configuration?.callButtonsConfiguration?.videoCallIcon,
       outgoingCallConfiguration:
@@ -474,7 +469,6 @@ class CallingExtensionDecorator extends DataSourceDecorator
             configuration?.incomingCallConfiguration?.customSoundForCalls,
         customSoundForCallsPackage: configuration
             ?.incomingCallConfiguration?.customSoundForCallsPackage,
-        subtitle: configuration?.incomingCallConfiguration?.subtitle,
         onAccept: configuration?.incomingCallConfiguration?.onAccept,
         onDecline: configuration?.incomingCallConfiguration?.onDecline,
         style: configuration?.incomingCallConfiguration?.incomingCallStyle,
@@ -486,6 +480,11 @@ class CallingExtensionDecorator extends DataSourceDecorator
             configuration?.incomingCallConfiguration?.declineButtonText,
         acceptButtonText:
             configuration?.incomingCallConfiguration?.acceptButtonText,
+        titleView: configuration?.incomingCallConfiguration?.titleView,
+        leadingView: configuration?.incomingCallConfiguration?.leadingView,
+        trailingView: configuration?.incomingCallConfiguration?.trailingView,
+        subtitleView: configuration?.incomingCallConfiguration?.subTitleView,
+        itemView: configuration?.incomingCallConfiguration?.itemView,
       );
     }
   }

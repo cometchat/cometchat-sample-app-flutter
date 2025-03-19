@@ -4,8 +4,8 @@ import '../../../cometchat_chat_uikit.dart';
 import '../../../cometchat_chat_uikit.dart' as cc;
 
 ///[CometChatMessageHeader] is a widget which shows [user]/[group] details using [CometChatListItem]
-///if its being shown for an [User] then the name of the user will be in the [title] of [CometChatListItem] and their online/offline status will be in the [subtitle]
-///if its being shown for an [Group] then the name of the group will be in the [title] of [CometChatListItem] and their member count will be in the [subtitle]
+///if its being shown for an [User] then the name of the user will be in the [title] of [CometChatListItem] and their online/offline status will be in the [subtitleView]
+///if its being shown for an [Group] then the name of the group will be in the [title] of [CometChatListItem] and their member count will be in the [subtitleView]
 ///
 /// ```dart
 /// CometChatMessageHeader(
@@ -24,28 +24,29 @@ import '../../../cometchat_chat_uikit.dart' as cc;
 /// ```
 class CometChatMessageHeader extends StatefulWidget
     implements PreferredSizeWidget {
-  const CometChatMessageHeader(
-      {super.key,
-      this.backButton,
-      this.style,
-      this.group,
-      this.user,
-      this.appBarOptions,
-      this.listItemView,
-      this.hideBackButton,
-      this.disableUserPresence,
-      this.subtitleView,
-      this.statusIndicatorStyle,
-      this.listItemStyle,
-      this.disableTyping = false,
-      this.onBack,
-      this.avatarHeight,
-        this.avatarWidth,
-        this.height,
-        this.width,
-        this.padding,
-      })
-      : assert(user != null || group != null,
+  const CometChatMessageHeader({
+    super.key,
+    this.backButton,
+    this.messageHeaderStyle,
+    this.group,
+    this.user,
+    this.trailingView,
+    this.listItemView,
+    this.showBackButton = true,
+    this.subtitleView,
+    this.listItemStyle,
+    this.onBack,
+    this.avatarHeight,
+    this.avatarWidth,
+    this.height,
+    this.padding,
+    this.hideVideoCallButton,
+    this.hideVoiceCallButton,
+    this.titleView,
+    this.leadingStateView,
+    this.auxiliaryButtonView,
+    this.usersStatusVisibility = true,
+  })  : assert(user != null || group != null,
             "One of user or group should be passed"),
         assert(user == null || group == null,
             "Only one of user or group should be passed");
@@ -75,9 +76,6 @@ class CometChatMessageHeader extends StatefulWidget
   final Widget Function(Group? group, User? user, BuildContext context)?
       listItemView;
 
-  ///[disableUserPresence] toggle functionality to show user's presence
-  final bool? disableUserPresence;
-
   ///[CometChatMessageHeaderStyle] set styling props for message header
   ///
   /// ```dart
@@ -89,18 +87,15 @@ class CometChatMessageHeader extends StatefulWidget
   ///       },
   /// ),
   /// ```
-  final CometChatMessageHeaderStyle? style;
+  final CometChatMessageHeaderStyle? messageHeaderStyle;
 
-  ///[hideBackButton] toggle visibility for back button
-  final bool? hideBackButton;
+  ///[showBackButton] toggle visibility for back button
+  final bool? showBackButton;
 
   ///[listItemStyle] style for every list item
   final ListItemStyle? listItemStyle;
 
-  ///[statusIndicatorStyle] set style for status indicator
-  final CometChatStatusIndicatorStyle? statusIndicatorStyle;
-
-  ///[appBarOptions] set appbar options
+  ///[trailingView] set appbar options
   ///
   /// ```dart
   ///CometChatMessageHeader(
@@ -118,10 +113,7 @@ class CometChatMessageHeader extends StatefulWidget
   ///  ),
   ///  ```
   final List<Widget>? Function(User? user, Group? group, BuildContext context)?
-      appBarOptions;
-
-  ///[disableTyping] flag to disable typing indicators, default false
-  final bool disableTyping;
+      trailingView;
 
   ///[onBack] callback triggered on closing this screen
   final VoidCallback? onBack;
@@ -135,11 +127,29 @@ class CometChatMessageHeader extends StatefulWidget
   ///[height] set height for message header
   final double? height;
 
-  ///[width] set width for message header
-  final double? width;
-
   ///[padding] set padding for message header
   final EdgeInsetsGeometry? padding;
+
+  ///[hideVideoCallButton] is a [bool] that can be used to hide/display video call button
+  final bool? hideVideoCallButton;
+
+  ///[hideVoiceCallButton] is a [bool] that can be used to hide/display voice call button
+  final bool? hideVoiceCallButton;
+
+  ///[leadingStateView] to set leading View
+  final Widget? Function(Group? group, User? user, BuildContext context)?
+      leadingStateView;
+
+  ///[titleView] to set to set titleView view
+  final Widget? Function(Group? group, User? user, BuildContext context)?
+      titleView;
+
+  ///[auxiliaryButtonView] to set auxiliary view
+  final Widget? Function(Group? group, User? user, BuildContext context)?
+      auxiliaryButtonView;
+
+  ///[usersStatusVisibility] controls visibility of status indicator shown if a user is online
+  final bool? usersStatusVisibility;
 
   @override
   State<CometChatMessageHeader> createState() => _CometChatMessageHeaderState();
@@ -152,15 +162,68 @@ class CometChatMessageHeader extends StatefulWidget
 }
 
 class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
-
   late CometChatMessageHeaderController controller;
-  late CometChatMessageHeaderStyle messageHeaderStyle;
+  late CometChatMessageHeaderStyle headerStyle;
   late CometChatColorPalette colorPalette;
   late CometChatTypography typography;
   late CometChatSpacing spacing;
+  late CometChatStatusIndicatorStyle statusIndicatorStyle;
 
-  Widget getBackButton(BuildContext context,CometChatMessageHeaderStyle style, CometChatColorPalette colorPalette) {
-    if (widget.hideBackButton != true) {
+  @override
+  void didChangeDependencies() {
+    controller = CometChatMessageHeaderController(
+      userObject: widget.user,
+      groupObject: widget.group,
+      usersStatusVisibility: widget.usersStatusVisibility,
+    );
+    headerStyle =
+        CometChatThemeHelper.getTheme<CometChatMessageHeaderStyle>(
+                context: context, defaultTheme: CometChatMessageHeaderStyle.of)
+            .merge(widget.messageHeaderStyle);
+    statusIndicatorStyle = CometChatThemeHelper.getTheme<CometChatStatusIndicatorStyle>(
+        context: context, defaultTheme: CometChatStatusIndicatorStyle.of)
+        .merge(headerStyle.statusIndicatorStyle);
+    typography = CometChatThemeHelper.getTypography(context);
+    colorPalette = CometChatThemeHelper.getColorPalette(context);
+    spacing = CometChatThemeHelper.getSpacing(context);
+
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        height: widget.height,
+        width: MediaQuery.of(context).size.width,
+        padding: widget.padding ?? EdgeInsets.only(left: spacing.padding4 ?? 0),
+        decoration: BoxDecoration(
+            color:
+                headerStyle.backgroundColor ?? colorPalette.background1,
+            border: headerStyle.border,
+            borderRadius:
+                headerStyle.borderRadius ?? BorderRadius.circular(0)),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            getBackButton(context, headerStyle, colorPalette),
+            Flexible(
+              child: Padding(
+                padding: EdgeInsets.only(left: spacing.padding4 ?? 0),
+                child: _getBody(controller, context, headerStyle,
+                    colorPalette, typography, spacing),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  // back button view
+  Widget getBackButton(BuildContext context, CometChatMessageHeaderStyle style,
+      CometChatColorPalette colorPalette) {
+    if (widget.showBackButton == true) {
       if (widget.backButton != null) {
         return widget.backButton!(context);
       }
@@ -170,12 +233,12 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
             () {
               Navigator.pop(context);
             },
-        child: style.backIcon ?? Image.asset(
-          AssetConstants.back,
-          package: UIConstants.packageName,
-          color: style.backIconColor ??
-              colorPalette.iconPrimary,
-        ),
+        child: style.backIcon ??
+            Image.asset(
+              AssetConstants.back,
+              package: UIConstants.packageName,
+              color: style.backIconColor ?? colorPalette.iconPrimary,
+            ),
       );
 
       return backIcon;
@@ -187,8 +250,13 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
     }
   }
 
-  Widget _getTypingIndicator(BuildContext context,
-      CometChatMessageHeaderController controller, TextStyle? typingIndicatorTextStyle, CometChatTypography typography, Color? color) {
+  // typing indicator view
+  Widget _getTypingIndicator(
+      BuildContext context,
+      CometChatMessageHeaderController controller,
+      TextStyle? typingIndicatorTextStyle,
+      CometChatTypography typography,
+      Color? color) {
     String text;
     if (controller.userObject != null) {
       text = cc.Translations.of(context).typing;
@@ -199,34 +267,46 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
     return Text(
       text,
       overflow: TextOverflow.ellipsis,
-      style:
-          TextStyle(
-            fontSize: typography.caption1?.regular?.fontSize,
-            color: color,
-            fontWeight: typography.caption1?.regular?.fontWeight,
-          ).merge(typingIndicatorTextStyle),
+      style: TextStyle(
+        fontSize: typography.caption1?.regular?.fontSize,
+        color: color,
+        fontWeight: typography.caption1?.regular?.fontWeight,
+      ).merge(typingIndicatorTextStyle),
     );
   }
 
-  Widget? _getSubtitleView(BuildContext context,
-      CometChatMessageHeaderController controller,CometChatMessageHeaderStyle style,CometChatColorPalette colorPalette, CometChatTypography typography) {
+  // subtitle view
+  Widget? _getSubtitleView(
+      BuildContext context,
+      CometChatMessageHeaderController controller,
+      CometChatMessageHeaderStyle style,
+      CometChatColorPalette colorPalette,
+      CometChatTypography typography) {
     Widget? subtitle;
     final subtitleStyle = TextStyle(
-      color: style.subtitleTextColor ?? style.subtitleTextStyle?.color ?? colorPalette.textSecondary,
-      fontSize: style.subtitleTextStyle?.fontSize ?? typography.caption1?.regular?.fontSize,
-      fontFamily: style.subtitleTextStyle?.fontFamily ?? typography.caption1?.regular?.fontFamily,
-      fontWeight: style.subtitleTextStyle?.fontWeight ?? typography.caption1?.regular?.fontWeight,
+      color: style.subtitleTextColor ??
+          style.subtitleTextStyle?.color ??
+          colorPalette.textSecondary,
+      fontSize: style.subtitleTextStyle?.fontSize ??
+          typography.caption1?.regular?.fontSize,
+      fontFamily: style.subtitleTextStyle?.fontFamily ??
+          typography.caption1?.regular?.fontFamily,
+      fontWeight: style.subtitleTextStyle?.fontWeight ??
+          typography.caption1?.regular?.fontWeight,
     );
 
     if (controller.isTyping == true) {
-      subtitle = _getTypingIndicator(context, controller, style.typingIndicatorTextStyle,typography, colorPalette.primary);
+      subtitle = _getTypingIndicator(context, controller,
+          style.typingIndicatorTextStyle, typography, colorPalette.primary);
     } else if (widget.subtitleView != null) {
-      subtitle =
-          widget.subtitleView!(controller.groupObject, controller.userObject, context);
+      subtitle = widget.subtitleView!(
+          controller.groupObject, controller.userObject, context);
     } else if (controller.userObject != null) {
-      if(controller.userIsNotBlocked(controller.userObject!)){
+      if (controller.usersStatusVisibility == true || !controller.userIsNotBlocked(controller.userObject!)) {
         subtitle = Text(
-          controller.userObject?.status==UserStatusConstants.online? cc.Translations.of(context).online : controller.getUserActivityStatus(context),
+          controller.userObject?.status == UserStatusConstants.online
+              ? cc.Translations.of(context).online
+              : controller.getUserActivityStatus(context),
           overflow: TextOverflow.ellipsis,
           style: subtitleStyle,
         );
@@ -242,7 +322,78 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
     return subtitle;
   }
 
-  _getBody(CometChatMessageHeaderController controller, BuildContext context, CometChatMessageHeaderStyle style,CometChatColorPalette colorPalette,CometChatTypography typography,CometChatSpacing spacing) {
+  // title view
+  Widget? _getTitleView(
+      BuildContext context, CometChatMessageHeaderController controller) {
+    if (widget.titleView != null) {
+      return widget.titleView!(
+          controller.groupObject, controller.userObject, context);
+    }
+    return null;
+  }
+
+  // leading view
+  Widget? _getLeadingView(
+      BuildContext context, CometChatMessageHeaderController controller) {
+    if (widget.leadingStateView != null) {
+      return widget.leadingStateView!(
+          controller.groupObject, controller.userObject, context);
+    }
+    return null;
+  }
+
+  // auxiliary header view
+  Widget? _getAuxiliaryButtonView(
+      BuildContext context,
+      CometChatMessageHeaderController controller,
+      CometChatMessageHeaderStyle style,
+      CometChatColorPalette colorPalette,
+      CometChatTypography typography,
+      CometChatSpacing spacing) {
+    if (widget.auxiliaryButtonView != null) {
+      return widget.auxiliaryButtonView!(
+        controller.groupObject,
+        controller.userObject,
+        context,
+      );
+    } else {
+      return CometChatUIKit.getDataSource().getAuxiliaryHeaderMenu(
+        context,
+        widget.user,
+        widget.group,
+        additionalConfigurations: AdditionalConfigurations(
+          callButtonsStyle: style.callButtonsStyle,
+          hideVideoCallButton: widget.hideVideoCallButton,
+          hideVoiceCallButton: widget.hideVoiceCallButton,
+        ),
+      );
+    }
+  }
+
+  // trailing view
+  List<Widget>? _getTrailingView(
+    BuildContext context,
+    CometChatMessageHeaderController controller,
+    CometChatMessageHeaderStyle style,
+  ) {
+    if (widget.trailingView != null) {
+      return widget.trailingView!(
+        controller.userObject,
+        controller.groupObject,
+        context,
+      );
+    }
+    return null;
+  }
+
+  // body view
+  _getBody(
+      CometChatMessageHeaderController controller,
+      BuildContext context,
+      CometChatMessageHeaderStyle style,
+      CometChatColorPalette colorPalette,
+      CometChatTypography typography,
+      CometChatSpacing spacing) {
     return GetBuilder(
         init: controller,
         tag: controller.tag,
@@ -250,12 +401,18 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
             Get.delete<CometChatMessageHeaderController>(
                 tag: state.controller?.tag),
         builder: (CometChatMessageHeaderController value) {
-          return _getListItem(value,context,style,colorPalette,typography,spacing);
+          return _getListItem(
+              value, context, style, colorPalette, typography, spacing);
         });
   }
 
-  Widget _getListItem(CometChatMessageHeaderController controller,
-    BuildContext context, CometChatMessageHeaderStyle style,CometChatColorPalette colorPalette, CometChatTypography typography,CometChatSpacing spacing) {
+  Widget _getListItem(
+      CometChatMessageHeaderController controller,
+      BuildContext context,
+      CometChatMessageHeaderStyle style,
+      CometChatColorPalette colorPalette,
+      CometChatTypography typography,
+      CometChatSpacing spacing) {
     if (widget.listItemView != null) {
       return widget.listItemView!(widget.group, widget.user, context);
     }
@@ -263,9 +420,12 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
     String? avatarName;
     String? avatarUrl;
     String? title;
-    Widget? subtitleView;
     Color? statusIndicatorColor;
     Widget? icon;
+    Widget? leadingStateView;
+    Widget? titleView;
+    Widget? subtitleView;
+    Widget? auxiliaryHeaderMenu;
     Widget? tailView;
 
     if (widget.user != null) {
@@ -284,26 +444,35 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
             group: controller.groupObject,
             privateGroupIcon: style.privateGroupBadgeIcon,
             protectedGroupIcon: style.passwordProtectedGroupBadgeIcon,
-            onlineStatusIndicatorColor: style.onlineStatusColor ?? colorPalette.success,
-            disableUsersPresence: controller.hideUserPresence(),
+            onlineStatusIndicatorColor:
+                statusIndicatorStyle.backgroundColor ?? style.onlineStatusColor ?? colorPalette.success,
+            usersStatusVisibility: controller.hideUserPresence(),
             privateGroupIconBackground: style.privateGroupBadgeIconColor,
-            protectedGroupIconBackground: style.passwordProtectedGroupBadgeIconColor
-        );
+            protectedGroupIconBackground:
+                style.passwordProtectedGroupBadgeIconColor);
 
     statusIndicatorColor = util.statusIndicatorColor;
-    icon = util.icon;
-    subtitleView = _getSubtitleView(context, controller, style,colorPalette,typography);
     List<Widget>? tailWidgetList = [];
+    icon = util.icon;
+    leadingStateView = _getLeadingView(context, controller);
+    titleView = _getTitleView(context, controller);
+    subtitleView =
+        _getSubtitleView(context, controller, style, colorPalette, typography);
 
-    Widget? auxiliaryHeaderMenu = CometChatUIKit.getDataSource()
-        .getAuxiliaryHeaderMenu(context, widget.user, widget.group, AdditionalConfigurations(callButtonsStyle: style.callButtonsStyle));
+    auxiliaryHeaderMenu = _getAuxiliaryButtonView(
+      context,
+      controller,
+      style,
+      colorPalette,
+      typography,
+      spacing,
+    );
     if (auxiliaryHeaderMenu != null) {
       tailWidgetList.add(auxiliaryHeaderMenu);
     }
 
-    if (widget.appBarOptions != null) {
-      var temp = widget.appBarOptions!(
-          controller.userObject, controller.groupObject, context);
+    if (widget.trailingView != null) {
+      var temp = _getTrailingView(context, controller, style);
 
       if (temp != null) {
         tailWidgetList.addAll(temp);
@@ -312,7 +481,10 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
 
     if (tailWidgetList.isNotEmpty) {
       tailView = Padding(
-        padding: EdgeInsets.only(left: spacing.padding3 ?? 0,top: spacing.padding2 ?? 0,bottom: spacing.padding2 ?? 0),
+        padding: EdgeInsets.only(
+            left: spacing.padding3 ?? 0,
+            top: spacing.padding2 ?? 0,
+            bottom: spacing.padding2 ?? 0),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.end,
@@ -330,75 +502,40 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
         avatarHeight: widget.avatarHeight ?? 40,
         title: title,
         subtitleView: subtitleView,
-        titlePadding: EdgeInsets.only(left: spacing.padding2 ??0),
+        titlePadding: EdgeInsets.only(left: spacing.padding2 ?? 0),
         avatarStyle: CometChatAvatarStyle(
-          backgroundColor: widget.group!=null? style.groupIconBackgroundColor:null,
+          backgroundColor:
+              widget.group != null ? style.groupIconBackgroundColor : null,
         ).merge(style.avatarStyle),
         statusIndicatorColor: statusIndicatorColor,
         statusIndicatorIcon: icon,
-        statusIndicatorStyle:
-             CometChatStatusIndicatorStyle(
-              border: Border.all(
-                    width: spacing.spacing ?? 0,
-                    color: colorPalette.background1 ?? Colors.white,
-                  ),
-              backgroundColor: colorPalette.success,
-            ).merge(widget.statusIndicatorStyle),
+        statusIndicatorStyle: CometChatStatusIndicatorStyle(
+          border: Border.all(
+            width: spacing.spacing ?? 0,
+            color: colorPalette.background1 ?? Colors.white,
+          ),
+          backgroundColor: colorPalette.success,
+        ).merge(statusIndicatorStyle),
         hideSeparator: true,
         tailView: tailView,
+        titleView: titleView,
+        leadingStateView: leadingStateView,
         style: widget.listItemStyle ??
             ListItemStyle(
                 background: Colors.transparent,
                 height: 56,
                 titleStyle: TextStyle(
-                  fontSize: style.titleTextStyle?.fontSize ?? typography.heading4?.medium?.fontSize,
-                  fontWeight: style.titleTextStyle?.fontWeight ?? typography.heading4?.medium?.fontWeight,
-                  fontFamily: style.titleTextStyle?.fontFamily ?? typography.heading4?.medium?.fontFamily,
-                  color: style.titleTextColor ?? style.titleTextStyle?.color ?? colorPalette.textPrimary,
+                  fontSize: style.titleTextStyle?.fontSize ??
+                      typography.heading4?.medium?.fontSize,
+                  fontWeight: style.titleTextStyle?.fontWeight ??
+                      typography.heading4?.medium?.fontWeight,
+                  fontFamily: style.titleTextStyle?.fontFamily ??
+                      typography.heading4?.medium?.fontFamily,
+                  color: style.titleTextColor ??
+                      style.titleTextStyle?.color ??
+                      colorPalette.textPrimary,
                   overflow: TextOverflow.ellipsis,
                 )),
-      ),
-    );
-  }
-
-  @override
-  void didChangeDependencies() {
-    controller =
-    CometChatMessageHeaderController(
-        userObject: widget.user, groupObject: widget.group, disableTyping: widget.disableTyping, disableUserPresence: widget.disableUserPresence);
-     messageHeaderStyle =
-    CometChatThemeHelper.getTheme<CometChatMessageHeaderStyle>(context: context,defaultTheme: CometChatMessageHeaderStyle.of)
-        .merge(widget.style);
-     typography = CometChatThemeHelper.getTypography(context);
-     colorPalette = CometChatThemeHelper.getColorPalette(context);
-     spacing = CometChatThemeHelper.getSpacing(context);
-
-    super.didChangeDependencies();
-  }
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        height: widget.height,
-        width: widget.width ?? MediaQuery.of(context).size.width,
-        padding: widget.padding ?? EdgeInsets.only(left: spacing.padding4 ?? 0),
-        decoration: BoxDecoration(
-            color: messageHeaderStyle.backgroundColor ?? colorPalette.background1,
-            border: messageHeaderStyle.border,
-            borderRadius:
-            messageHeaderStyle.borderRadius ?? BorderRadius.circular(0)),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            getBackButton(context, messageHeaderStyle, colorPalette),
-            Flexible(
-              child: Padding(
-                padding: EdgeInsets.only(left: spacing.padding4 ?? 0),
-                            child: _getBody(controller, context, messageHeaderStyle, colorPalette,typography,spacing),
-                          ),
-            )
-          ],
-        ),
       ),
     );
   }

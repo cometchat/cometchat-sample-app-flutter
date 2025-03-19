@@ -30,7 +30,6 @@ class CometChatGroupInfoController extends GetxController
 
   Group? group;
 
-  late CometChatTheme theme;
   late String _dateString;
   late String _userListener;
   late String _groupListener;
@@ -298,11 +297,6 @@ class CometChatGroupInfoController extends GetxController
         debugPrint("Error Leaving Group: $excep");
       },
     );
-  }
-
-  _onTransferOwnershipConfirmed() {
-    if (group == null) return;
-    Navigator.of(context).pop();
   }
 
   _onDeleteGroupConfirmed() {

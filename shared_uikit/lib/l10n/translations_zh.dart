@@ -353,13 +353,13 @@ class TranslationsZh extends Translations {
   String get attachFile => '附加文件';
 
   @override
-  String get attachVideo => '附加视频';
+  String get attachImage => '附加图片';
 
   @override
   String get attachAudio => '附加音频';
 
   @override
-  String get attachImage => '附上图片';
+  String get attachVideo => '附加视频';
 
   @override
   String get collaborateUsingDocument => '使用文档进行协作';
@@ -1123,6 +1123,20 @@ class TranslationsZh extends Translations {
   @override
   String get deleteMessageWarning => '您确定要删除此消息吗？此操作无法撤消。';
 
+  @override
+  String get from => '来自';
+
+  @override
+  String get areYouSureBan => '您确定要禁止吗';
+
+  @override
+  String get areYouSureRemove => '您确定要移除吗';
+
+  @override
+  String get attachDocument => '附加文档';
+
+  @override
+  String get camera => '相机';
 
 }
 
@@ -1479,13 +1493,13 @@ class TranslationsZhTw extends TranslationsZh {
   String get attachFile => '附加檔案';
 
   @override
-  String get attachVideo => '附加影片';
+  String get attachImage => '附加圖片';
 
   @override
   String get attachAudio => '附加音訊';
 
   @override
-  String get attachImage => '附加圖片';
+  String get attachVideo => '附加影片';
 
   @override
   String get collaborateUsingDocument => '使用文件共同作業';
@@ -2221,5 +2235,20 @@ class TranslationsZhTw extends TranslationsZh {
 
   @override
   String get deleteMessageWarning => '您確定要刪除此消息嗎？此動作無法復原。';
+
+  @override
+  String get from => '來自';
+
+  @override
+  String get areYouSureBan => '您確定要禁止嗎';
+
+  @override
+  String get areYouSureRemove => '您確定要移除嗎';
+
+  @override
+  String get attachDocument => '附加文件';
+
+  @override
+  String get camera => '相機';
 
 }

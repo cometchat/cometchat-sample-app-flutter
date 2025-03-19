@@ -38,7 +38,7 @@ abstract class CometChatTextFormatter implements Formatter {
 
   ///[messageBubbleTextStyle] is a function which is used to style the message bubble text with formatting
   TextStyle Function(BuildContext context, BubbleAlignment? alignment,
-      {bool forConversation})? messageBubbleTextStyle;
+      {bool? forConversation})? messageBubbleTextStyle;
 
   ///[messageBubbleTextStyle] is a function which is used to style the message composer input text with formatting
   TextStyle Function(BuildContext context)? messageInputTextStyle;
@@ -181,7 +181,7 @@ abstract class CometChatTextFormatter implements Formatter {
       TextEditingController textEditingController, String previousText);
 
   ///[getLoadingIndicator] is a widget which is used to show the loading indicator
-  Widget getLoadingIndicator(BuildContext context, CometChatTheme theme) {
+  Widget getLoadingIndicator(BuildContext context) {
     if (showLoadingIndicator != false) {
       return Container(
         alignment: Alignment.center,
@@ -189,7 +189,6 @@ abstract class CometChatTextFormatter implements Formatter {
         child: Image.asset(
           AssetConstants.spinner,
           package: UIConstants.packageName,
-          color: theme.palette.getAccent600(),
         ),
       );
     } else {

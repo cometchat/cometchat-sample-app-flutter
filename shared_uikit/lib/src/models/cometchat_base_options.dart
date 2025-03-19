@@ -37,6 +37,9 @@ class CometChatBaseOptions {
   ///[iconTint] tint color for icon
   Color? iconTint;
 
+  /// [iconWidget] widget for icon
+  Widget? iconWidget;
+
   // ///[action] should not be used by developer
   // Function(String optionID, String elementID)? action;
 
@@ -48,6 +51,6 @@ class CometChatBaseOptions {
     this.titleStyle,
     this.backgroundColor,
     this.iconTint,
-    //this.action
+    this.iconWidget,
   });
 }

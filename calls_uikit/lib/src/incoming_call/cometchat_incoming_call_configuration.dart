@@ -28,7 +28,6 @@ class CometChatIncomingCallConfiguration {
   CometChatIncomingCallConfiguration({
     this.onError,
     this.disableSoundForCalls,
-    this.subtitle,
     this.customSoundForCalls,
     this.customSoundForCallsPackage,
     this.onDecline,
@@ -39,13 +38,15 @@ class CometChatIncomingCallConfiguration {
     this.declineButtonText,
     this.height,
     this.width,
+    this.titleView,
+    this.subTitleView,
+    this.leadingView,
+    this.itemView,
+    this.trailingView,
   });
 
   ///[onError] is called when some error occurs
   final OnError? onError;
-
-  ///[subtitle] is used to set a custom subtitle
-  final Widget? subtitle;
 
   ///[disableSoundForCalls] is used to disable sound for call
   final bool? disableSoundForCalls;
@@ -79,4 +80,19 @@ class CometChatIncomingCallConfiguration {
 
   ///[width] is used to set the width of the widget.
   final double? width;
+
+  ///[titleView] is used to define the title view.
+  final Widget? Function(BuildContext, Call)? titleView;
+
+  ///[subTitleView] is used to define the subtitle view.
+  final Widget? Function(BuildContext, Call)? subTitleView;
+
+  ///[leadingView] is used to define the leading view.
+  final Widget? Function(BuildContext, Call)? leadingView;
+
+  ///[itemView] is used to define the item view.
+  final Widget? Function(BuildContext, Call)? itemView;
+
+  ///[trailingView] is used to define the trailing view.
+  final Widget? Function(BuildContext, Call)? trailingView;
 }

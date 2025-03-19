@@ -20,7 +20,6 @@ class CometChatCardBubble extends StatefulWidget {
       {super.key,
       this.cardBubbleStyle,
       required this.cardMessage,
-      this.theme,
       this.onActionTap,
       this.loggedInUser});
 
@@ -29,9 +28,6 @@ class CometChatCardBubble extends StatefulWidget {
 
   ///[cardMessage] sets the message object for the card
   final CardMessage cardMessage;
-
-  ///[theme] sets the theme for the card
-  final CometChatTheme? theme;
 
   ///[onActionTap] overrides the on tap functionality
   final Function(BaseInteractiveElement interactiveElement)? onActionTap;
@@ -44,14 +40,12 @@ class CometChatCardBubble extends StatefulWidget {
 }
 
 class _CometChatCardState extends State<CometChatCardBubble> {
-  late CometChatTheme theme;
   Map<String, bool?> interactionMap = {};
   bool isSentByMe = false;
   late ButtonElementStyle defaultButtonStyle;
 
   @override
   void initState() {
-    theme = widget.theme ?? cometChatTheme;
     _populateMap();
     populateStyles();
     isSentByMe = InteractiveMessageUtils.checkIsSentByMe(
@@ -69,16 +63,11 @@ class _CometChatCardState extends State<CometChatCardBubble> {
   }
 
   populateStyles() {
-    TextStyle defaultButtonTextStyle = TextStyle(
-        fontSize: theme.typography.title2.fontSize,
-        fontWeight: theme.typography.title2.fontWeight,
-        fontFamily: theme.typography.title2.fontFamily,
-        color: theme.palette.getPrimary());
+
 
     defaultButtonStyle = ButtonElementStyle(
       height: 35,
       borderRadius: BorderRadius.circular(6),
-      buttonTextStyle: defaultButtonTextStyle,
     );
   }
 
@@ -86,11 +75,9 @@ class _CometChatCardState extends State<CometChatCardBubble> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: theme.palette.getBackground(),
         shape: BoxShape.rectangle,
         borderRadius: const BorderRadius.all(Radius.circular(4.0)),
         border: Border.all(
-          color: theme.palette.getSecondary(),
           width: 4,
         ),
       ),
@@ -110,12 +97,7 @@ class _CometChatCardState extends State<CometChatCardBubble> {
               padding: const EdgeInsets.all(2.0),
               child: Text(
                 widget.cardMessage.text,
-                style: TextStyle(
-                        fontWeight: theme.typography.subtitle1.fontWeight,
-                        fontSize: theme.typography.subtitle1.fontSize,
-                        fontFamily: theme.typography.subtitle1.fontFamily,
-                        color: theme.palette.getAccent())
-                    .merge(widget.cardBubbleStyle?.textStyle),
+                style: widget.cardBubbleStyle?.textStyle,
               ),
             ),
           if (widget.cardMessage.cardActions.isNotEmpty)
@@ -152,7 +134,6 @@ class _CometChatCardState extends State<CometChatCardBubble> {
                   element: buttonElement,
                   messageId: widget.cardMessage.id,
                   context: context,
-                  theme: theme,
                 );
 
                 if (status == true) {
@@ -165,10 +146,9 @@ class _CometChatCardState extends State<CometChatCardBubble> {
             child: Container(
               height: buttonElementStyle.height,
               width: buttonElementStyle.width,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   border: Border(
                 top: BorderSide(
-                  color: theme.palette.getSecondary(), // Border color
                   width: 4.0, // Border width
                 ),
               )),
@@ -176,7 +156,7 @@ class _CometChatCardState extends State<CometChatCardBubble> {
                 child: Text(buttonElement.buttonText,
                     style: isDisabled == true
                         ? buttonElementStyle.buttonTextStyle?.merge(
-                            TextStyle(color: theme.palette.getAccent500()))
+                            const TextStyle())
                         : buttonElementStyle.buttonTextStyle),
               ),
             ),

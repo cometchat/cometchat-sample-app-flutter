@@ -48,13 +48,18 @@ class CometChatOption {
   ///[onClick] callback function for option
   Function()? onClick;
 
-  CometChatOption(
-      {required this.id,
-      this.title,
-      this.icon,
-      this.packageName,
-      this.titleStyle,
-      this.backgroundColor,
-      this.iconTint,
-      this.onClick});
+  /// [iconWidget] widget for icon
+  Widget? iconWidget;
+
+  CometChatOption({
+    required this.id,
+    this.title,
+    this.icon,
+    this.packageName,
+    this.titleStyle,
+    this.backgroundColor,
+    this.iconTint,
+    this.onClick,
+    this.iconWidget,
+  });
 }

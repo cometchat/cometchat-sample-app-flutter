@@ -2,19 +2,13 @@ import 'package:master_app/shared/views/avatar_container.dart';
 import 'package:master_app/shared/views/badge_container.dart';
 import 'package:master_app/shared/resources/localization_container.dart';
 import 'package:master_app/shared/views/card_bubble_container.dart';
-import 'package:master_app/shared/views/form_bubble_conatainer.dart';
 import 'package:master_app/shared/views/media_recorder_modal.dart';
 import 'package:master_app/shared/views/message_receipt_container.dart';
 import 'package:master_app/shared/resources/sound_manager_container.dart';
-import 'package:master_app/shared/views/scheduler_bubble_container.dart';
 import 'package:master_app/shared/views/status_indicator_container.dart';
-import 'package:master_app/shared/resources/theme_container.dart';
 import 'package:master_app/shared/views/audio_bubble_container.dart';
-import 'package:master_app/shared/views/cometchat_list_item_container.dart';
 import 'package:master_app/shared/views/file_bubble_container.dart';
-import 'package:master_app/shared/views/image_bubble_container.dart';
 import 'package:master_app/shared/views/text_bubble_container.dart';
-import 'package:master_app/shared/views/video_bubble_container.dart';
 import 'package:master_app/utils/label.dart';
 import 'package:master_app/utils/widget_card.dart';
 import 'package:flutter/material.dart';
@@ -35,20 +29,6 @@ class SharedDashboard extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => const SoundManagerContainer(),
-              ));
-        },
-      ),
-      WidgetProps(
-        leadingImageURL: "assets/icons/colors.png",
-        title: "Theme",
-        description:
-            "CometChatTheme is a style applied to every component and every view in the activity or component in the UI kit"
-            ". To learn more about this component tap here",
-        onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ThemeContainer(),
               ));
         },
       ),
@@ -158,16 +138,10 @@ class SharedDashboard extends StatelessWidget {
           },
         ),
         getTextBubbleContainer(context),
-        getImageBubbleContainer(context),
-        getVideoBubbleContainer(context),
         getAudioBubbleContainer(context),
         getFileBubbleContainer(context),
-        //getDeleteMessageBubbleContainer(context),
-        getCometChatListItemContainer(context),
         getMediaRecorderModal(context),
-        getFormBubbleContainer(context),
         getCardBubbleContainer(context),
-        getSchedulerBubbleContainer(context),
       ];
     }
 

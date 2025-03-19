@@ -165,7 +165,6 @@ class CometChatCollaborativeBubble extends StatelessWidget {
           GestureDetector(
             onTap: () {
               if (url != null) {
-                CometChatTheme theme = cometChatTheme;
                 Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -173,18 +172,10 @@ class CometChatCollaborativeBubble extends StatelessWidget {
                             title: title ??
                                 Translations.of(context).collaborativeDocument,
                             webViewUrl: url!,
-                            appBarColor: style.webViewAppBarColor ??
-                                theme.palette.getBackground(),
+                            appBarColor: style.webViewAppBarColor,
                             webViewStyle: WebViewStyle(
-                              backIconColor: style.webViewBackIconColor ??
-                                  theme.palette.getPrimary(),
-                              titleStyle: style.webViewTitleStyle ??
-                                  TextStyle(
-                                      color: theme.palette.getAccent(),
-                                      fontSize:
-                                      theme.typography.heading.fontSize,
-                                      fontWeight:
-                                      theme.typography.heading.fontWeight),
+                              backIconColor: style.webViewBackIconColor,
+                              titleStyle: style.webViewTitleStyle,
                             ))));
               }
             },

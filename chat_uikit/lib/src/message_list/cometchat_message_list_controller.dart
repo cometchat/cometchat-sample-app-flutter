@@ -35,17 +35,23 @@ class CometChatMessageListController
     ScrollController? scrollController,
     this.stateCallBack,
     super.onError,
+    super.onEmpty,
+    super.onLoad,
     this.messageTypes,
-    this.disableReceipt,
-    this.hideReceipt,
+    this.receiptsVisibility,
     this.messageListStyle,
     this.disableReactions,
     this.textFormatters,
     this.disableMentions,
     this.mentionsStyle,
-    this.messageOptionSheetStyle,
     this.headerView,
     this.footerView,
+    this.onReactionClick,
+    this.smartRepliesDelayDuration,
+    this.enableConversationStarters,
+    this.enableSmartReplies,
+    this.smartRepliesKeywords,
+    this.addTemplate,
   }) : super(
             builderProtocol: user != null
                 ? (messagesBuilderProtocol
@@ -133,6 +139,9 @@ class CometChatMessageListController
   late String _uiMessageListener;
   late BuildContext context;
 
+  /// [addTemplate] Add Custom message templates on the existing templated.
+  final List<CometChatMessageTemplate>? addTemplate;
+
   late Map<String, dynamic> messageListId;
 
   ///[messageListStyle] that can be used to style message list
@@ -140,12 +149,11 @@ class CometChatMessageListController
 
   bool inInitialized = false;
 
-  ///[disableReceipt] controls visibility of read receipts
-  ///and also disables logic executed inside onMessagesRead and onMessagesDelivered listeners
-  final bool? disableReceipt;
+  ///[receiptsVisibility] controls visibility of read receipts
+  final bool? receiptsVisibility;
 
-  ///[hideReceipt] controls visibility of read receipts
-  final bool? hideReceipt;
+  ///[onReactionClick] This is to override the click of a reaction pill.
+  final Function(String? emoji, BaseMessage message)? onReactionClick;
 
   late String _uiEventListener;
   late String _uiCallListener;
@@ -161,6 +169,18 @@ class CometChatMessageListController
 
   final bool? disableReactions;
 
+  /// [smartRepliesDelayDuration] The number of milliseconds after which Smart Replies will be triggered.  If set to `0` smart replies will be fetched instantly without any delay.
+  final int? smartRepliesDelayDuration;
+
+  ///[enableConversationStarters] This will not generate conversation starter in new conversations.
+  final bool? enableConversationStarters;
+
+  ///[enableSmartReplies] This will not generate smart replies in the chat.
+  final bool? enableSmartReplies;
+
+  /// [smartRepliesKeywords] The keywords present in the incoming message that will trigger Smart Replies. If set to `[]` smart replies will be fetched for all messages.
+  final List<String>? smartRepliesKeywords;
+
   bool isScrolled = false;
 
   Widget? header;
@@ -174,9 +194,6 @@ class CometChatMessageListController
   bool? disableMentions;
 
   final CometChatMentionsStyle? mentionsStyle;
-
-  ///[messageOptionSheetStyle] that can be used to style message option sheet
-  final CometChatMessageOptionSheetStyle? messageOptionSheetStyle;
 
   void _scrollControllerListener() {
     double offset = messageListScrollController.offset;
@@ -198,6 +215,9 @@ class CometChatMessageListController
     List<CometChatMessageTemplate> localTypes =
         CometChatUIKit.getDataSource().getAllMessageTemplates();
 
+    if (addTemplate != null && addTemplate!.isNotEmpty) {
+      localTypes.addAll(addTemplate!);
+    }
     messageTypes?.forEach((element) {
       templateMap["${element.category}_${element.type}"] = element;
     });
@@ -349,13 +369,9 @@ class CometChatMessageListController
         }
         update();
       }, onError: (CometChatException e) {
-        if (onError != null) {
-          onError!(e);
-        } else {
+        onError?.call(e);
           error = e;
           hasError = true;
-        }
-
         update();
       });
     } catch (e, s) {
@@ -370,6 +386,11 @@ class CometChatMessageListController
       inInitialized = true;
       CometChatUIEvents.ccActiveChatChanged(
           messageListId, lastMessage, user, group, initialUnreadCount ?? 0);
+      if (list.isEmpty &&
+          enableConversationStarters == true &&
+          messageListId["parentMessageId"] == null) {
+        getConversationStarter(user, group);
+      }
     }
   }
 
@@ -377,6 +398,9 @@ class CometChatMessageListController
 
   @override
   void onTextMessageReceived(TextMessage textMessage) async {
+    if (enableSmartReplies == true) {
+      _checkForSmartReplies(textMessage: textMessage);
+    }
     if (_messageCategoryTypeCheck(textMessage)) {
       _onMessageReceived(textMessage);
     }
@@ -384,6 +408,7 @@ class CometChatMessageListController
 
   @override
   void onMediaMessageReceived(MediaMessage mediaMessage) {
+    hidePanelReceivedMessage(mediaMessage);
     if (_messageCategoryTypeCheck(mediaMessage)) {
       _onMessageReceived(mediaMessage);
     }
@@ -391,6 +416,7 @@ class CometChatMessageListController
 
   @override
   void onCustomMessageReceived(CustomMessage customMessage) {
+    hidePanelReceivedMessage(customMessage);
     if (_messageCategoryTypeCheck(customMessage)) {
       _onMessageReceived(customMessage);
     }
@@ -398,6 +424,7 @@ class CometChatMessageListController
 
   @override
   void onSchedulerMessageReceived(SchedulerMessage schedulerMessage) {
+    hidePanelReceivedMessage(schedulerMessage);
     if (_messageCategoryTypeCheck(schedulerMessage)) {
       _onMessageReceived(schedulerMessage);
     }
@@ -405,7 +432,7 @@ class CometChatMessageListController
 
   @override
   void onMessagesDelivered(MessageReceipt messageReceipt) {
-    if (disableReceipt != true && user != null) {
+    if (user != null) {
       for (int i = 0; i < list.length; i++) {
         if (messageReceipt.receiptType == ReceiptTypeConstants.delivered &&
             list[i].sender?.uid == loggedInUser?.uid) {
@@ -422,7 +449,7 @@ class CometChatMessageListController
 
   @override
   void onMessagesRead(MessageReceipt messageReceipt) {
-    if (disableReceipt != true && user != null) {
+    if (user != null) {
       for (int i = 0; i < list.length; i++) {
         if (messageReceipt.receiptType == ReceiptTypeConstants.read &&
             list[i].sender?.uid == loggedInUser?.uid) {
@@ -440,8 +467,7 @@ class CometChatMessageListController
 
   @override
   void onMessagesDeliveredToAll(MessageReceipt messageReceipt) {
-    if (disableReceipt != true &&
-        messageReceipt.receiverType == ReceiverTypeConstants.group) {
+    if (messageReceipt.receiverType == ReceiverTypeConstants.group) {
       for (int i = 0; i < list.length; i++) {
         if (list[i].id == messageReceipt.messageId &&
             messageReceipt.receiptType == ReceiptTypeConstants.deliveredToAll) {
@@ -458,8 +484,7 @@ class CometChatMessageListController
 
   @override
   void onMessagesReadByAll(MessageReceipt messageReceipt) {
-    if (disableReceipt != true &&
-        messageReceipt.receiverType == ReceiverTypeConstants.group) {
+    if (messageReceipt.receiverType == ReceiverTypeConstants.group) {
       for (int i = 0; i < list.length; i++) {
         if (list[i].sender?.uid == loggedInUser?.uid &&
             messageReceipt.receiptType == ReceiptTypeConstants.readByAll) {
@@ -496,6 +521,7 @@ class CometChatMessageListController
 
   @override
   void onFormMessageReceived(FormMessage formMessage) {
+    hidePanelReceivedMessage(formMessage);
     if (_messageCategoryTypeCheck(formMessage)) {
       _onMessageReceived(formMessage);
     }
@@ -503,6 +529,7 @@ class CometChatMessageListController
 
   @override
   void onCardMessageReceived(CardMessage cardMessage) {
+    hidePanelReceivedMessage(cardMessage);
     if (_messageCategoryTypeCheck(cardMessage)) {
       _onMessageReceived(cardMessage);
     }
@@ -511,6 +538,7 @@ class CometChatMessageListController
   @override
   void onCustomInteractiveMessageReceived(
       CustomInteractiveMessage customInteractiveMessage) {
+    hidePanelReceivedMessage(customInteractiveMessage);
     if (_messageCategoryTypeCheck(customInteractiveMessage)) {
       _onMessageReceived(customInteractiveMessage);
     }
@@ -662,6 +690,7 @@ class CometChatMessageListController
   ccMessageSent(BaseMessage message, MessageStatus messageStatus) {
     //checking if same conversation
     if (_checkIfSameConversationForSenderMessage(message)) {
+      hidePanelSentMessage(message);
       //checking if same thread
       if (message.parentMessageId == threadMessageParentId) {
         //adding the message to list for optimistic ui
@@ -758,8 +787,7 @@ class CometChatMessageListController
   }
 
   markAsRead(BaseMessage message) {
-    if (disableReceipt != true &&
-        message.sender?.uid != loggedInUser?.uid &&
+    if (message.sender?.uid != loggedInUser?.uid &&
         message.readAt == null) {
       CometChat.markAsRead(message, onSuccess: (String res) {
         CometChatMessageEvents.ccMessageRead(message);
@@ -881,7 +909,7 @@ class CometChatMessageListController
         cc.Translations.of(context).deleteMessage,
         textAlign: TextAlign.center,
       ),
-      messageText:  Text(
+      messageText: Text(
         cc.Translations.of(context).deleteMessageWarning,
         textAlign: TextAlign.center,
       ),
@@ -1177,7 +1205,7 @@ class CometChatMessageListController
       }
       //-----if message received in user conversation-----
       else if (user != null) {
-        thumbnail = true;
+        thumbnail = false;
         name = false;
         readReceipt = false;
         alignment0 = BubbleAlignment.left;
@@ -1223,7 +1251,7 @@ class CometChatMessageListController
       }
     }
 
-    if (disableReceipt == true || hideReceipt == true) {
+    if (receiptsVisibility == false) {
       readReceipt = false;
     }
 
@@ -1614,8 +1642,12 @@ class CometChatMessageListController
       colorPalette: colorPalette,
     );
 
-    if (reaction != null) {
-      handleReactionPress(message, reaction, message.reactions);
+    if (onReactionClick != null) {
+      onReactionClick!(reaction, message);
+    } else {
+      if (reaction != null) {
+        handleReactionPress(message, reaction, message.reactions);
+      }
     }
   }
 
@@ -1707,6 +1739,127 @@ class CometChatMessageListController
 
   AlignmentGeometry getRandomAlignment() {
     return Random().nextBool() ? Alignment.centerLeft : Alignment.centerRight;
+  }
+
+  checkAndShowReplies(User? user, Group? group) async {
+    Map<String, dynamic>? apiMap;
+
+    Map<String, dynamic> id = {};
+    String receiverId = "";
+    id[AIUtils.extensionKey] = AIFeatureConstants.aiSmartReplies;
+    if (user != null) {
+      receiverId = user.uid;
+      id['uid'] = receiverId;
+    } else if (group != null) {
+      receiverId = group.guid;
+      id['guid'] = receiverId;
+    }
+
+    final listStyle = CometChatThemeHelper.getTheme<CometChatMessageListStyle>(
+            context: context, defaultTheme: CometChatMessageListStyle.of)
+        .merge(messageListStyle);
+
+    CometChatUIEvents.showPanel(
+      id,
+      CustomUIPosition.messageListBottom,
+      (context) => CometChatAISmartRepliesView(
+        user: user,
+        group: group,
+        apiConfiguration: apiMap,
+        style: listStyle.aiSmartRepliesStyle,
+      ),
+    );
+  }
+
+  _checkForSmartReplies({
+    TextMessage? textMessage,
+  }) {
+    User? user;
+    Group? group;
+    if (textMessage != null) {
+      if (textMessage.receiverType == ReceiverTypeConstants.user) {
+        user = textMessage.sender as User;
+      } else {
+        group = textMessage.receiver as Group;
+      }
+
+      Debouncer debounce =
+          Debouncer(milliseconds: smartRepliesDelayDuration ?? 10000);
+
+      debounce.run(
+        () {
+          if (smartRepliesKeywords != null &&
+              smartRepliesKeywords!.isNotEmpty) {
+            for (String keyword in smartRepliesKeywords!) {
+              if (textMessage.text
+                  .toLowerCase()
+                  .contains(keyword.toLowerCase())) {
+                checkAndShowReplies(user, group);
+                break;
+              }
+            }
+          } else {
+            checkAndShowReplies(user, group);
+          }
+        },
+      );
+    }
+  }
+
+  hideSummaryPanel(Map<String, dynamic>? id) {
+    CometChatUIEvents.hidePanel(id, CustomUIPosition.messageListBottom);
+  }
+
+  void hidePanelSentMessage(BaseMessage message) {
+    String? uid;
+    String? guid;
+    if (message.receiverType == ReceiverTypeConstants.user) {
+      uid = message.receiverUid;
+    } else {
+      guid = message.receiverUid;
+    }
+    Map<String, dynamic> idMap = UIEventUtils.createMap(uid, guid, 0);
+    hidePanel(idMap, CustomUIPosition.messageListBottom);
+  }
+
+  void hidePanelReceivedMessage(BaseMessage message) {
+    String? uid;
+    String? guid;
+    if (message.receiverType == ReceiverTypeConstants.user) {
+      uid = message.sender!.uid;
+    } else {
+      guid = message.receiverUid;
+    }
+    Map<String, dynamic> idMap = UIEventUtils.createMap(uid, guid, 0);
+    hidePanel(idMap, CustomUIPosition.messageListBottom);
+  }
+
+  getConversationStarter(User? user, Group? group) async {
+    final listStyle = CometChatThemeHelper.getTheme<CometChatMessageListStyle>(
+            context: context, defaultTheme: CometChatMessageListStyle.of)
+        .merge(messageListStyle);
+    Map<String, dynamic>? apiMap;
+
+    Map<String, dynamic> id = {};
+    String receiverId = "";
+    if (user != null) {
+      receiverId = user.uid;
+      id['uid'] = receiverId;
+    } else if (group != null) {
+      receiverId = group.guid;
+      id['guid'] = receiverId;
+    }
+
+    CometChatUIEvents.showPanel(
+      id,
+      CustomUIPosition.messageListBottom,
+      (context) => CometChatAIConversationStarterView(
+        style: listStyle.aiConversationStarterStyle,
+        user: user,
+        group: group,
+        apiConfiguration: apiMap,
+      ),
+    );
   }
 }
 

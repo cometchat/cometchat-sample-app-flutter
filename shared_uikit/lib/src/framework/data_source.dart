@@ -50,17 +50,17 @@ abstract class DataSource {
 
   ///override this to change content view for messages of type [MessageTypeConstants.text]
   Widget getTextMessageContentView(TextMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,
+      BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to change content view for messages of type [MessageTypeConstants.image]
   Widget getImageMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,
+      BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to change content view for messages of type [MessageTypeConstants.video]
   Widget getVideoMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,
+      BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to change content view for messages of type [MessageTypeConstants.file]
@@ -75,55 +75,53 @@ abstract class DataSource {
 
   ///override this to change content view for messages of type [MessageTypeConstants.form]
   Widget getFormMessageContentView(FormMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme);
+      BubbleAlignment alignment);
 
   ///override this to change content view for messages of type [MessageTypeConstants.form]
   Widget getCardMessageContentView(CardMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme);
+      BubbleAlignment alignment);
 
   ///override this to change content view for messages of type [MessageTypeConstants.scheduler]
   Widget getSchedulerMessageContentView(SchedulerMessage message,
-      BuildContext context, BubbleAlignment alignment, CometChatTheme theme);
+      BuildContext context, BubbleAlignment alignment);
 
   ///override this to alter template for messages of type [MessageTypeConstants.text]
-  CometChatMessageTemplate getTextMessageTemplate(CometChatTheme theme);
+  CometChatMessageTemplate getTextMessageTemplate();
 
   ///override this to alter template for messages of type [MessageTypeConstants.audio]
   CometChatMessageTemplate getAudioMessageTemplate();
 
   ///override this to alter template for messages of type [MessageTypeConstants.video]
-  CometChatMessageTemplate getVideoMessageTemplate(CometChatTheme theme);
+  CometChatMessageTemplate getVideoMessageTemplate();
 
   ///override this to alter template for messages of type [MessageTypeConstants.image]
-  CometChatMessageTemplate getImageMessageTemplate(CometChatTheme theme);
+  CometChatMessageTemplate getImageMessageTemplate();
 
   ///override this to alter template for messages of category action
   CometChatMessageTemplate getGroupActionTemplate();
 
   ///override this to alter template for messages of type [MessageTypeConstants.file]
-  CometChatMessageTemplate getFileMessageTemplate(CometChatTheme theme);
+  CometChatMessageTemplate getFileMessageTemplate();
 
   ///override this to alter template for messages of type [MessageTypeConstants.form]
-  CometChatMessageTemplate getFormMessageTemplate(CometChatTheme theme);
+  CometChatMessageTemplate getFormMessageTemplate();
 
   ///override this to alter template for messages of type [MessageTypeConstants.card]
-  CometChatMessageTemplate getCardMessageTemplate(CometChatTheme theme);
+  CometChatMessageTemplate getCardMessageTemplate();
 
   ///override this to alter template for messages of type [MessageTypeConstants.scheduler]
-  CometChatMessageTemplate getSchedulerMessageTemplate(CometChatTheme theme);
+  CometChatMessageTemplate getSchedulerMessageTemplate();
 
   ///override this to alter template of all type
   ///
   /// by default it uses method [getTextMessageTemplate] , [getAudioMessageTemplate] ,[getVideoMessageTemplate],
   /// [getImageMessageTemplate],[getGroupActionTemplate] and [getFileMessageTemplate]
-  List<CometChatMessageTemplate> getAllMessageTemplates(
-      {CometChatTheme? theme});
+  List<CometChatMessageTemplate> getAllMessageTemplates();
 
   ///override this to get messages of different template
   CometChatMessageTemplate? getMessageTemplate(
       {required String messageType,
-      required String messageCategory,
-      CometChatTheme? theme});
+      required String messageCategory});
 
   ///override this to alter options for messages of given type in [messageObject]
   List<CometChatMessageOption> getMessageOptions(
@@ -158,7 +156,8 @@ abstract class DataSource {
 
   ///override this to alter default auxiliary options in `CometChatMessageComposer`
   Widget getAuxiliaryOptions(User? user, Group? group, BuildContext context,
-      Map<String, dynamic>? id, Color? color);
+      Map<String, dynamic>? id, Color? color,
+      {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to set id for different extensions, used when enabling extensions
   String getId();
@@ -174,7 +173,6 @@ abstract class DataSource {
       MediaMessage message,
       Function()? onClick,
       BuildContext context,
-      CometChatTheme theme,
       CometChatVideoBubbleStyle? style);
 
   ///override this to change view inside content view of message type [MessageTypeConstants.text]
@@ -183,7 +181,6 @@ abstract class DataSource {
       TextMessage message,
       BuildContext context,
       BubbleAlignment alignment,
-      CometChatTheme theme,
       CometChatTextBubbleStyle? style,
       List<CometChatTextFormatter>? formatters);
 
@@ -195,8 +192,7 @@ abstract class DataSource {
       CometChatImageBubbleStyle? style,
       MediaMessage message,
       Function()? onClick,
-      BuildContext context,
-      CometChatTheme theme);
+      BuildContext context);
 
   ///override this to change view inside content view of message type [MessageTypeConstants.audio]
   Widget getAudioMessageBubble(
@@ -220,23 +216,18 @@ abstract class DataSource {
   ///override this to change view inside content view of message type [MessageTypeConstants.file]
   Widget getFormMessageBubble({
     String? title,
-    FormBubbleStyle? formBubbleStyle,
     required FormMessage message,
-    required CometChatTheme theme,
   });
 
   ///override this to change view inside content view of message type [MessageTypeConstants.file]
   Widget getCardMessageBubble({
     CardBubbleStyle? cardBubbleStyle,
     required CardMessage message,
-    required CometChatTheme theme,
   });
 
   ///override this to change view inside content view of message type [MessageTypeConstants.scheduler]
   Widget getSchedulerMessageBubble({
-    SchedulerBubbleStyle? schedulerBubbleStyle,
     required SchedulerMessage message,
-    required CometChatTheme theme,
   });
 
   ///override this to change last message fetched in conversations
@@ -257,7 +248,8 @@ abstract class DataSource {
 
   /// Returns the auxiliary header menu view for the user or group.
   Widget? getAuxiliaryHeaderMenu(
-      BuildContext context, User? user, Group? group, AdditionalConfigurations? additionalConfigurations);
+      BuildContext context, User? user, Group? group,
+      {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to show options for messages of type [MessageTypeConstants.form]
   List<CometChatMessageOption> getFormMessageOptions(
@@ -265,7 +257,7 @@ abstract class DataSource {
       BaseMessage messageObject,
       BuildContext context,
       Group? group,
-      AdditionalConfigurations? additionalConfigurations);
+      {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to show options for messages of type [MessageTypeConstants.card]
   List<CometChatMessageOption> getCardMessageOptions(

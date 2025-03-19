@@ -17,12 +17,14 @@ class CometChatMessageHeaderController extends GetxController
   Group? groupObject;
   bool? isTyping;
   User? typingUser;
+
+  ///[usersStatusVisibility] controls visibility of status indicator shown if a user is online
+  final bool? usersStatusVisibility;
+
   late String dateStamp;
   late String messageListenerId;
   late String groupListenerId;
   late String userListenerId;
-  bool? disableTyping;
-  bool? disableUserPresence;
   static int counter = 0;
   late String tag;
   late String _uiGroupListener;
@@ -30,17 +32,17 @@ class CometChatMessageHeaderController extends GetxController
 
   int? membersCount;
 
+  User? loggedInUser;
+
   CometChatMessageHeaderController(
       {this.userObject,
       this.groupObject,
-      bool? disableTyping,
-      bool? disableUserPresence}) {
+        this.usersStatusVisibility = true,
+      }) {
     dateStamp = DateTime.now().microsecondsSinceEpoch.toString();
     messageListenerId = "${dateStamp}_message_listener";
     groupListenerId = "${dateStamp}_group_listener";
     userListenerId = "${dateStamp}_user_listener";
-    this.disableTyping = disableTyping ?? false;
-    this.disableUserPresence = disableUserPresence ?? false;
     if (groupObject != null) {
       membersCount = groupObject?.membersCount;
     }
@@ -53,10 +55,8 @@ class CometChatMessageHeaderController extends GetxController
   void onInit() {
     _dateString = DateTime.now().millisecondsSinceEpoch.toString();
     _uiGroupListener = "${_dateString}UIGroupListener";
-    if (disableTyping != true) {
       CometChatMessageEvents.addMessagesListener(messageListenerId, this);
-    }
-    if (userObject != null && disableUserPresence != true) {
+    if (userObject != null) {
       CometChat.addUserListener(groupListenerId, this);
       CometChatUserEvents.addUsersListener(groupListenerId, this);
     } else if (groupObject != null) {
@@ -74,6 +74,13 @@ class CometChatMessageHeaderController extends GetxController
     CometChat.removeGroupListener(groupListenerId);
     CometChatGroupEvents.removeGroupsListener(_uiGroupListener);
     super.onClose();
+  }
+
+  initializeLoggedInUser() async {
+    if (loggedInUser == null) {
+      loggedInUser = await CometChat.getLoggedInUser();
+      update();
+    }
   }
 
   @override
@@ -164,6 +171,21 @@ class CometChatMessageHeaderController extends GetxController
       User unbannedBy, Group unbannedFrom) {}
 
   @override
+  void onGroupMemberScopeChanged(
+      cc.Action action,
+      User updatedBy,
+      User updatedUser,
+      String scopeChangedTo,
+      String scopeChangedFrom,
+      Group group) {
+    if (group.guid == groupObject?.guid &&
+        updatedUser.uid == loggedInUser?.uid) {
+      groupObject?.scope = scopeChangedTo;
+      update();
+    }
+  }
+
+  @override
   void onMemberAddedToGroup(
       cc.Action action, User addedby, User userAdded, Group addedTo) {
     updateMemberCount(addedTo);
@@ -198,7 +220,7 @@ class CometChatMessageHeaderController extends GetxController
   }
 
   bool hideUserPresence() {
-    return userObject!=null && (disableUserPresence == true || !userIsNotBlocked(userObject!));
+    return userObject!=null && (usersStatusVisibility == false || !userIsNotBlocked(userObject!));
   }
 
   bool userIsNotBlocked(User user){

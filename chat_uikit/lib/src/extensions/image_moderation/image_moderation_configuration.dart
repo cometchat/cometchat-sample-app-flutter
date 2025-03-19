@@ -10,10 +10,7 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 ///  );
 /// ```
 class ImageModerationConfiguration {
-  ImageModerationConfiguration({this.theme, this.warningText, this.style});
-
-  ///[theme] sets custom theme
-  final CometChatTheme? theme;
+  ImageModerationConfiguration({this.warningText, this.style});
 
   ///[warningText] text shown if image has sensitive/graphic content
   final String? warningText;

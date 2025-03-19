@@ -35,7 +35,7 @@ class _AvatarViewState extends State<AvatarView> {
   Color? selectedColor;
   bool _showImage = true;
   List<String> options = ["image", "Name"];
-  double _cornerRadius = 5;
+  double cornerRadius = 5;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,7 @@ class _AvatarViewState extends State<AvatarView> {
           onChanged: (String val) {
             try {
               setState(() {
-                _cornerRadius = double.parse(val.trim());
+                cornerRadius = double.parse(val.trim());
               });
             } catch (_) {}
           },

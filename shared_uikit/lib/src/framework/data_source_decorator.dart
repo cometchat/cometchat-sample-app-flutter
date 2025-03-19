@@ -20,8 +20,9 @@ abstract class DataSourceDecorator implements DataSource {
 
   @override
   Widget getAuxiliaryOptions(User? user, Group? group, BuildContext context,
-      Map<String, dynamic>? id, Color? color) {
-    return dataSource.getAuxiliaryOptions(user, group, context, id, color);
+      Map<String, dynamic>? id, Color? color,
+      {AdditionalConfigurations? additionalConfigurations}) {
+    return dataSource.getAuxiliaryOptions(user, group, context, id, color, additionalConfigurations: additionalConfigurations);
   }
 
   @override
@@ -60,8 +61,8 @@ abstract class DataSourceDecorator implements DataSource {
   }
 
   @override
-  CometChatMessageTemplate getFileMessageTemplate(CometChatTheme theme) {
-    return dataSource.getFileMessageTemplate(theme);
+  CometChatMessageTemplate getFileMessageTemplate() {
+    return dataSource.getFileMessageTemplate();
   }
 
   @override
@@ -70,8 +71,8 @@ abstract class DataSourceDecorator implements DataSource {
   }
 
   @override
-  CometChatMessageTemplate getImageMessageTemplate(CometChatTheme theme) {
-    return dataSource.getImageMessageTemplate(theme);
+  CometChatMessageTemplate getImageMessageTemplate() {
+    return dataSource.getImageMessageTemplate();
   }
 
   @override
@@ -80,9 +81,8 @@ abstract class DataSourceDecorator implements DataSource {
   }
 
   @override
-  List<CometChatMessageTemplate> getAllMessageTemplates(
-      {CometChatTheme? theme}) {
-    return dataSource.getAllMessageTemplates(theme: theme);
+  List<CometChatMessageTemplate> getAllMessageTemplates() {
+    return dataSource.getAllMessageTemplates();
   }
 
   @override
@@ -91,8 +91,8 @@ abstract class DataSourceDecorator implements DataSource {
   }
 
   @override
-  CometChatMessageTemplate getVideoMessageTemplate(CometChatTheme theme) {
-    return dataSource.getVideoMessageTemplate(theme);
+  CometChatMessageTemplate getVideoMessageTemplate() {
+    return dataSource.getVideoMessageTemplate();
   }
 
   @override
@@ -131,8 +131,7 @@ abstract class DataSourceDecorator implements DataSource {
   @override
   CometChatMessageTemplate? getMessageTemplate(
       {required String messageType,
-      required String messageCategory,
-      CometChatTheme? theme}) {
+      required String messageCategory}) {
     return dataSource.getMessageTemplate(
         messageType: messageType, messageCategory: messageCategory);
   }
@@ -143,16 +142,16 @@ abstract class DataSourceDecorator implements DataSource {
   }
 
   @override
-  CometChatMessageTemplate getTextMessageTemplate(CometChatTheme theme) {
-    return dataSource.getTextMessageTemplate(theme);
+  CometChatMessageTemplate getTextMessageTemplate() {
+    return dataSource.getTextMessageTemplate();
   }
 
   @override
   Widget getTextMessageContentView(TextMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,
+      BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
     return dataSource.getTextMessageContentView(
-        message, context, alignment, theme,
+        message, context, alignment,
         additionalConfigurations: additionalConfigurations);
   }
 
@@ -196,19 +195,19 @@ abstract class DataSourceDecorator implements DataSource {
 
   @override
   Widget getImageMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,
+      BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
     return dataSource.getImageMessageContentView(
-        message, context, alignment, theme,
+        message, context, alignment,
         additionalConfigurations: additionalConfigurations);
   }
 
   @override
   Widget getVideoMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,
+      BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
     return dataSource.getVideoMessageContentView(
-        message, context, alignment, theme,
+        message, context, alignment,
         additionalConfigurations: additionalConfigurations);
   }
 
@@ -225,10 +224,9 @@ abstract class DataSourceDecorator implements DataSource {
       MediaMessage message,
       Function()? onClick,
       BuildContext context,
-      CometChatTheme theme,
       CometChatVideoBubbleStyle? style) {
     return dataSource.getVideoMessageBubble(
-        videoUrl, thumbnailUrl, message, onClick, context, theme, style);
+        videoUrl, thumbnailUrl, message, onClick, context, style);
   }
 
   @override
@@ -237,11 +235,10 @@ abstract class DataSourceDecorator implements DataSource {
       TextMessage message,
       BuildContext context,
       BubbleAlignment alignment,
-      CometChatTheme theme,
       CometChatTextBubbleStyle? style,
       List<CometChatTextFormatter>? formatters) {
     return dataSource.getTextMessageBubble(
-        messageText, message, context, alignment, theme, style, formatters);
+        messageText, message, context, alignment, style, formatters);
   }
 
   @override
@@ -253,9 +250,9 @@ abstract class DataSourceDecorator implements DataSource {
       MediaMessage message,
       Function()? onClick,
       BuildContext context,
-      CometChatTheme theme) {
+      ) {
     return dataSource.getImageMessageBubble(imageUrl, placeholderImage, caption,
-        style, message, onClick, context, theme);
+        style, message, onClick, context);
   }
 
   @override
@@ -314,80 +311,72 @@ abstract class DataSourceDecorator implements DataSource {
 
   @override
   Widget? getAuxiliaryHeaderMenu(
-      BuildContext context, User? user, Group? group, AdditionalConfigurations? additionalConfigurations) {
-    return dataSource.getAuxiliaryHeaderMenu(context, user, group, additionalConfigurations);
+      BuildContext context, User? user, Group? group,
+      {AdditionalConfigurations? additionalConfigurations}) {
+    return dataSource.getAuxiliaryHeaderMenu(context, user, group, additionalConfigurations: additionalConfigurations);
   }
 
   @override
   Widget getFormMessageBubble({
     String? title,
-    FormBubbleStyle? formBubbleStyle,
     required FormMessage message,
-    required CometChatTheme theme,
   }) {
     return dataSource.getFormMessageBubble(
         title: title,
-        formBubbleStyle: formBubbleStyle,
-        message: message,
-        theme: theme);
+        message: message);
   }
 
   @override
   Widget getFormMessageContentView(FormMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme) {
+      BubbleAlignment alignment) {
     return dataSource.getFormMessageContentView(
-        message, context, alignment, theme);
+        message, context, alignment);
   }
 
   @override
-  CometChatMessageTemplate getFormMessageTemplate(CometChatTheme theme) {
-    return dataSource.getFormMessageTemplate(theme);
+  CometChatMessageTemplate getFormMessageTemplate() {
+    return dataSource.getFormMessageTemplate();
   }
 
   @override
-  CometChatMessageTemplate getSchedulerMessageTemplate(CometChatTheme theme) {
-    return dataSource.getSchedulerMessageTemplate(theme);
+  CometChatMessageTemplate getSchedulerMessageTemplate() {
+    return dataSource.getSchedulerMessageTemplate();
   }
 
   @override
-  CometChatMessageTemplate getCardMessageTemplate(CometChatTheme theme) {
-    return dataSource.getCardMessageTemplate(theme);
+  CometChatMessageTemplate getCardMessageTemplate() {
+    return dataSource.getCardMessageTemplate();
   }
 
   @override
   Widget getCardMessageContentView(CardMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme) {
+      BubbleAlignment alignment) {
     return dataSource.getCardMessageContentView(
-        message, context, alignment, theme);
+        message, context, alignment);
   }
 
   @override
   Widget getSchedulerMessageContentView(SchedulerMessage message,
-      BuildContext context, BubbleAlignment alignment, CometChatTheme theme) {
+      BuildContext context, BubbleAlignment alignment) {
     return dataSource.getSchedulerMessageContentView(
-        message, context, alignment, theme);
+        message, context, alignment);
   }
 
   @override
   Widget getCardMessageBubble({
     CardBubbleStyle? cardBubbleStyle,
     required CardMessage message,
-    required CometChatTheme theme,
   }) {
     return dataSource.getCardMessageBubble(
-        message: message, theme: theme, cardBubbleStyle: cardBubbleStyle);
+        message: message, cardBubbleStyle: cardBubbleStyle);
   }
 
   @override
   Widget getSchedulerMessageBubble({
-    SchedulerBubbleStyle? schedulerBubbleStyle,
     required SchedulerMessage message,
-    required CometChatTheme theme,
   }) {
     return dataSource.getSchedulerMessageBubble(
-        message: message,
-        theme: theme,
-        schedulerBubbleStyle: schedulerBubbleStyle);
+        message: message);
   }
 
   @override
@@ -396,9 +385,9 @@ abstract class DataSourceDecorator implements DataSource {
       BaseMessage messageObject,
       BuildContext context,
       Group? group,
-      AdditionalConfigurations? additionalConfigurations) {
+      {AdditionalConfigurations? additionalConfigurations}) {
     return dataSource.getFormMessageOptions(
-        loggedInUser, messageObject, context, group, additionalConfigurations);
+        loggedInUser, messageObject, context, group, additionalConfigurations: additionalConfigurations);
   }
 
   @override

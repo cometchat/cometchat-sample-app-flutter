@@ -13,7 +13,7 @@ class CometChatSingleSelect extends StatefulWidget {
       this.optionTextStyle,
       this.selectedOptionsTextStyle,
       this.decoration,
-      this.theme});
+      });
 
   /// A list of options to display for selection.
   final List<OptionElement> options;
@@ -39,9 +39,6 @@ class CometChatSingleSelect extends StatefulWidget {
   /// Custom decoration for the widget.
   final Decoration? decoration;
 
-  /// Set the theme for this widget.
-  final CometChatTheme? theme;
-
   @override
   State<CometChatSingleSelect> createState() => _CometChatSingleSelectState();
 }
@@ -49,12 +46,10 @@ class CometChatSingleSelect extends StatefulWidget {
 class _CometChatSingleSelectState extends State<CometChatSingleSelect> {
   late String? selectedValue;
 
-  late CometChatTheme theme;
 
   @override
   void initState() {
     super.initState();
-    theme = widget.theme ?? cometChatTheme;
     selectedValue = widget.selectedValue;
   }
 
@@ -73,9 +68,9 @@ class _CometChatSingleSelectState extends State<CometChatSingleSelect> {
                 child: DecoratedBox(
               decoration: BoxDecoration(
                   border: index > 0
-                      ? Border(
+                      ? const Border(
                           left: BorderSide(
-                              width: 1, color: theme.palette.getAccent200()))
+                              width: 1))
                       : null),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
@@ -113,9 +108,9 @@ class _CometChatSingleSelectState extends State<CometChatSingleSelect> {
             return DecoratedBox(
               decoration: BoxDecoration(
                   border: index > 0
-                      ? Border(
+                      ? const Border(
                           left: BorderSide(
-                              width: 1, color: theme.palette.getAccent200()))
+                              width: 1))
                       : null),
               child: CometChatSingleSelectButton(
                 selected: selectedValue == option.value,

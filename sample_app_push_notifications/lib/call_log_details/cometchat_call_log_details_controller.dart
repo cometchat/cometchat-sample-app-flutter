@@ -57,7 +57,6 @@ class CometChatCallLogDetailsController  {
     // Parse hours, minutes, and seconds
     int hours = int.parse(parts[0].trim());
     int minutes = int.parse(parts[1].trim());
-    int seconds = int.parse(parts[2].trim());
 
     // Convert hours and minutes to a string format
     // Only include hours if they are greater than 0

@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
 
-    Overlay.of(context)?.insert(_overlayEntry!);
+    Overlay.of(context).insert(_overlayEntry!);
   }
 
   // Method to hide the notification card

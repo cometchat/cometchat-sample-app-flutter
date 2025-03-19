@@ -12,7 +12,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorPalette = CometChatThemeHelper.getColorPalette(context);
 
     return MaterialApp(
       title: 'CometChat sample app',

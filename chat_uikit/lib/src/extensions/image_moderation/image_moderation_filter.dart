@@ -17,7 +17,6 @@ import '../../../../../cometchat_chat_uikit.dart';
 class ImageModerationFilter extends StatefulWidget {
   const ImageModerationFilter(
       {required this.message,
-      this.theme,
       required this.child,
       super.key,
       this.warningText,
@@ -25,9 +24,6 @@ class ImageModerationFilter extends StatefulWidget {
 
   ///[message] the object containing the image
   final MediaMessage message;
-
-  ///[theme] sets custom theme
-  final CometChatTheme? theme;
 
   ///[child] the image to be shown behind filter
   final Widget child;
@@ -44,7 +40,6 @@ class ImageModerationFilter extends StatefulWidget {
 
 class _ImageModerationFilterState extends State<ImageModerationFilter> {
   bool imageModerated = false;
-  late CometChatTheme _theme;
 
   static bool checkImageModeration(MediaMessage mediaMessage) {
     Map<String, Map>? extensions =
@@ -95,7 +90,7 @@ class _ImageModerationFilterState extends State<ImageModerationFilter> {
             alignment: Alignment.center,
             constraints: const BoxConstraints(
                 minWidth: double.infinity, minHeight: double.infinity),
-            color: widget.style?.filterColor ?? _theme.palette.getAccent(),
+            color: widget.style?.filterColor,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -104,19 +99,14 @@ class _ImageModerationFilterState extends State<ImageModerationFilter> {
                       AssetConstants.messagesUnsafe,
                   package: widget.style?.warningImagePackageName ??
                       UIConstants.packageName,
-                  color: widget.style?.warningImageColor ??
-                      _theme.palette.getBackground(),
+                  color: widget.style?.warningImageColor,
                 ),
                 const SizedBox(
                   height: 12,
                 ),
                 Text(
                   widget.warningText ?? Translations.of(context).unsafeContent,
-                  style: widget.style?.warningTextStyle ??
-                      TextStyle(
-                          fontSize: _theme.typography.subtitle2.fontSize,
-                          fontWeight: _theme.typography.subtitle2.fontWeight,
-                          color: _theme.palette.getBackground()),
+                  style: widget.style?.warningTextStyle
                 )
               ],
             ),
@@ -133,7 +123,6 @@ class _ImageModerationFilterState extends State<ImageModerationFilter> {
   @override
   void initState() {
     super.initState();
-    _theme = widget.theme ?? cometChatTheme;
     imageModerated = checkImageModeration(widget.message);
   }
 

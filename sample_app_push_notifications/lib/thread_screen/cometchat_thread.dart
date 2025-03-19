@@ -53,7 +53,7 @@ class CometChatThread extends StatelessWidget {
             ],
           );
         },
-        style: CometChatMessageHeaderStyle(
+        messageHeaderStyle: CometChatMessageHeaderStyle(
           backIconColor: ccColor.iconPrimary,
           backgroundColor: ccColor.background1,
           border: Border(

@@ -25,8 +25,8 @@ import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 ///
 class CometChatOutgoingCallConfiguration {
   CometChatOutgoingCallConfiguration({
-    this.subtitle,
-    this.onDecline,
+    this.subtitleView,
+    this.onCancelled,
     this.disableSoundForCalls,
     this.customSoundForCalls,
     this.customSoundForCallsPackage,
@@ -36,13 +36,16 @@ class CometChatOutgoingCallConfiguration {
     this.width,
     this.height,
     this.declineButtonIcon,
+    this.avatarView,
+    this.titleView,
+    this.cancelledView,
   });
 
-  ///[subtitle] is used to define the subtitle for the widget.
-  final Widget? subtitle;
+  ///[subtitleView] is used to define the subtitle for the widget.
+  final Widget? Function(BuildContext, Call)? subtitleView;
 
-  ///[onDecline] is used to define the callback for the widget when decline call button is tapped.
-  final Function(BuildContext, Call)? onDecline;
+  ///[onCancelled] is used to define the callback for the widget when decline call button is tapped.
+  final Function(BuildContext, Call)? onCancelled;
 
   ///[disableSoundForCalls] is used to define whether to disable sound for call or not.
   final bool? disableSoundForCalls;
@@ -70,4 +73,13 @@ class CometChatOutgoingCallConfiguration {
 
   ///[declineButtonIcon] is used to define the decline button icon for the widget.
   final Widget? declineButtonIcon;
+
+  ///[avatarView] is used to define the avatar view.
+  final Widget? Function(BuildContext, Call)? avatarView;
+
+  ///[titleView] is used to define the avatar view.
+  final Widget? Function(BuildContext, Call)? titleView;
+
+  ///[cancelledView] is used to define the cancelled view.
+  final Widget? Function(BuildContext, Call)? cancelledView;
 }

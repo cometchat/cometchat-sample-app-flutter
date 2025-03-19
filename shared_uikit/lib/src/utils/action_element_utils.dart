@@ -13,7 +13,6 @@ class ActionElementUtils {
     required BaseInteractiveElement element,
     Map<String, dynamic>? body,
     WebViewStyle? style,
-    CometChatTheme? theme,
     required int messageId,
   }) async {
     if (element.action?.actionType == ActionTypeConstants.apiAction) {
@@ -68,13 +67,7 @@ class ActionElementUtils {
                 builder: (context) => CometChatWebView(
                     title: "WEB",
                     webViewUrl: apiNavigationAction.url,
-                    appBarColor: theme?.palette.getAccent200(),
-                    webViewStyle: WebViewStyle(
-                      backIconColor: theme?.palette.getPrimary(),
-                      titleStyle: TextStyle(
-                          color: theme?.palette.getAccent(),
-                          fontSize: 20,
-                          fontWeight: theme?.typography.heading.fontWeight),
+                    webViewStyle: const WebViewStyle(
                     ))));
       }
 

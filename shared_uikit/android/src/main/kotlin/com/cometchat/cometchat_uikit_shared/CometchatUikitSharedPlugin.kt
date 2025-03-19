@@ -23,7 +23,6 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.*
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.File
 import java.lang.Exception
 import java.util.ArrayList
@@ -70,7 +69,6 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cometchat_uikit_shared")
     EventChannel(flutterPluginBinding.binaryMessenger,"cometchat_uikit_shared_audio_intensity").setStreamHandler(AudioRecorderEventHandler)
     channel.setMethodCallHandler(this)
-    initAudio()
   }
 
   @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -136,6 +134,7 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
       "image" -> "image/*"
       "video" -> "video/*"
       "media" -> "image/*,video/*"
+      "file" -> "application/*"
       "any", "custom" -> "*/*"
       "dir" -> "dir"
       else -> null
@@ -145,35 +144,12 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
 
   private fun setup(
           activity: Activity,
-          registrar: Registrar?,
           activityBinding: ActivityPluginBinding) {
     this.activity = activity
-    //this.application = application
     delegate = CometChatFilePickerDelegate(activity)
-//    channel = MethodChannel(messenger, FilePickerPlugin.CHANNEL)
-//    channel.setMethodCallHandler(this)
-//    EventChannel(messenger, FilePickerPlugin.EVENT_CHANNEL).setStreamHandler(object : EventChannel.StreamHandler {
-//      override fun onListen(arguments: Any, events: EventSink) {
-//        delegate.setEventHandler(events)
-//      }
-//
-//      override fun onCancel(arguments: Any) {
-//        delegate.setEventHandler(null)
-//      }
-//    })
-    //this.observer = FilePickerPlugin.LifeCycleObserver(activity)
-    if (registrar != null) {
-      // V1 embedding setup for activity listeners.
-      //application.registerActivityLifecycleCallbacks(this.observer)
-      registrar.addActivityResultListener(delegate!!)
-      registrar.addRequestPermissionsResultListener(delegate!!)
-    } else {
       // V2 embedding setup for activity listeners.
       activityBinding.addActivityResultListener(delegate!!)
       activityBinding.addRequestPermissionsResultListener(delegate!!)
-//      this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding)
-//      this.lifecycle.addObserver(this.observer)
-    }
   }
 
 
@@ -194,7 +170,6 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
     activityBinding = binding
     setup(
             activity,
-            null,
             activityBinding!!
 
     )
@@ -263,19 +238,6 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
     channel.setMethodCallHandler(null)
   }
 
-
-  private fun initAudio(){
-    val audioManager: AudioManager? = this.getAudioManager(context)
-    if(audioManager!=null){
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-        audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
-      } else {
-        audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-      }
-
-    }
-
-  }
 
   fun getAudioManager(context: Context): AudioManager? {
     return context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -529,28 +491,19 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
 
   private var audioRecordResult: Result? = null
 
-///[startRecordingAudio] is used to start the recording audio
+  ///[startRecordingAudio] is used to start the recording audio
   private fun startRecordingAudio(call: MethodCall, result: Result){
-    val isRecording: Boolean?
-    audioRecordResult = result
-    if (AudioRecorderEventHandler.audioRecorder == null) {
-      AudioRecorderEventHandler.audioRecorder = AudioRecorder(context,activity)
-      isRecording = AudioRecorderEventHandler.audioRecorder?.startRecording()
-    } else{
-      isRecording = AudioRecorderEventHandler.audioRecorder?.resumeRecording()
-    }
-    if(isRecording==true){
-      result.success(isRecording)
-    }
+    AudioRecorderEventHandler.audioRecorder = AudioRecorder(context,activity)
+    val isRecording = AudioRecorderEventHandler.audioRecorder?.startRecording()
+    result.success(isRecording)
   }
 
   ///[stopRecordingAudio] is used to stop the recording audio
   private fun stopRecordingAudio(call: MethodCall, result: Result){
     if (AudioRecorderEventHandler.audioRecorder != null ){
-      val filePath : String? = AudioRecorderEventHandler.audioRecorder?.stopRecording()
+      val filePath : String? = AudioRecorderEventHandler.audioRecorder?.pauseRecording()
+//      AudioRecorderEventHandler.audioRecorder = null
       AudioRecorderEventHandler.onCancel(null)
-      AudioRecorderEventHandler.audioRecorder = null
-      audioRecordResult=null
       result.success(filePath)
     }
 

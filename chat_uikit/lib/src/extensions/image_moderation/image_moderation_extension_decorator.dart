@@ -17,21 +17,20 @@ class ImageModerationExtensionDecorator extends DataSourceDecorator {
 
   @override
   Widget getImageMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,{AdditionalConfigurations? additionalConfigurations}) {
+      BubbleAlignment alignment,{AdditionalConfigurations? additionalConfigurations}) {
     Widget child =
-        super.getImageMessageContentView(message, context, alignment, theme,additionalConfigurations: additionalConfigurations);
+        super.getImageMessageContentView(message, context, alignment,additionalConfigurations: additionalConfigurations);
     if (message.sender?.uid == loggedInUser?.uid) {
       return child;
     }
 
-    return getImageContent(message, child, theme);
+    return getImageContent(message, child);
   }
 
-  getImageContent(MediaMessage message, Widget child, CometChatTheme theme) {
+  getImageContent(MediaMessage message, Widget child) {
     return ImageModerationFilter(
       key: UniqueKey(),
       message: message,
-      theme: theme,
       warningText: configuration?.warningText,
       style: configuration?.style,
       child: child,

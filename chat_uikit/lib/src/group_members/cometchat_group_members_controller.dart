@@ -21,27 +21,40 @@ class CometChatGroupMembersController
   late String userSDKListenerID;
   late String groupUIListenerID;
   final Group group;
-  CometChatTheme? theme;
-  bool hideUserPresence = true;
+  bool usersStatusVisibility = true;
   User? loggedInUser;
   bool? isOwner;
   Conversation? _conversation;
+
+  ///[hideAppbar] This prop defines whether a member can be kicked or not.
+  final bool? hideKickMemberOption;
+
+  ///[hideAppbar] This prop defines whether a member can be banned or not.
+  final bool? hideBanMemberOption;
+
+  ///[hideAppbar] This prop defines whether a member's scope can be changed or not.
+  final bool? hideScopeChangeOption;
 
   String? _conversationId;
   CometChatConfirmDialogStyle? confirmDialogStyle;
   CometChatChangeScopeStyle? changeScopeStyle;
 
   //Constructor
-  CometChatGroupMembersController(
-      {required this.groupMembersBuilderProtocol,
-      required this.group,
-      SelectionMode? mode,
-      bool? hideUserPresence,
-        this.confirmDialogStyle,
-        this.changeScopeStyle,
-      super.onError})
-      : super(builderProtocol: groupMembersBuilderProtocol) {
-    this.hideUserPresence = hideUserPresence ?? true;
+  CometChatGroupMembersController({
+    required this.groupMembersBuilderProtocol,
+    required this.group,
+    SelectionMode? mode,
+    bool? userStatusVisibility,
+    this.confirmDialogStyle,
+    this.changeScopeStyle,
+    super.onError,
+    super.onEmpty,
+    super.onLoad,
+    this.hideBanMemberOption,
+    this.hideKickMemberOption,
+    this.hideScopeChangeOption,
+  }) : super(builderProtocol: groupMembersBuilderProtocol) {
+    this.usersStatusVisibility = userStatusVisibility ?? true;
     selectionMode = mode ?? SelectionMode.none;
     dateStamp = DateTime.now().microsecondsSinceEpoch.toString();
     groupSDKListenerID = "${dateStamp}groupMembers_listener";
@@ -55,7 +68,7 @@ class CometChatGroupMembersController
     CometChat.addGroupListener(groupSDKListenerID, this);
     CometChatGroupEvents.addGroupsListener(groupUIListenerID, this);
 
-    if (hideUserPresence == false) {
+    if (usersStatusVisibility == true) {
       //Adding listener when presence is needed
       CometChat.addUserListener(userSDKListenerID, this);
     }
@@ -75,7 +88,7 @@ class CometChatGroupMembersController
   void onClose() {
     CometChat.removeGroupListener(groupSDKListenerID);
     CometChatGroupEvents.removeGroupsListener(groupUIListenerID);
-    if (hideUserPresence == false) {
+    if (usersStatusVisibility == true) {
       CometChat.removeUserListener(userSDKListenerID);
     }
 
@@ -250,56 +263,73 @@ class CometChatGroupMembersController
 
   //default functions
   @override
-  List<CometChatOption> defaultFunction(Group group, GroupMember member, BuildContext context,
-      CometChatColorPalette colorPalette,
-      CometChatTypography typography,
-      CometChatSpacing spacing,
-      ) {
+  List<CometChatOption> defaultFunction(
+    Group group,
+    GroupMember member,
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatSpacing spacing,
+  ) {
     List<CometChatOption> optionList = [];
     List<CometChatGroupMemberOption> groupMemberOptions = [];
 
     groupMemberOptions = DetailUtils.getDefaultGroupMemberOptions(
-        loggedInUser: loggedInUser, group: group, member: member,context: context);
+      loggedInUser: loggedInUser,
+      group: group,
+      member: member,
+      context: context,
+      hideBanMemberOption: hideBanMemberOption,
+      hideKickMemberOption: hideKickMemberOption,
+      hideScopeChangeOption: hideScopeChangeOption,
+    );
 
     for (CometChatGroupMemberOption option in groupMemberOptions) {
       optionList.add(CometChatOption(
-          id: option.id,
-          title: option.title,
-          packageName: option.packageName,
-          backgroundColor: option.backgroundColor,
-          icon: option.icon,
-          iconTint: colorPalette.iconSecondary,
-          onClick: () {
-            final operations = _getOptionFunctionality(option.id, group, member,context, colorPalette, typography, spacing);
-            if(operations!=null){
-              operations();
-            }
-          },));
+        id: option.id,
+        title: option.title,
+        packageName: option.packageName,
+        backgroundColor: option.backgroundColor,
+        icon: option.icon,
+        iconTint: colorPalette.iconSecondary,
+        onClick: () {
+          final operations = _getOptionFunctionality(option.id, group, member,
+              context, colorPalette, typography, spacing);
+          if (operations != null) {
+            operations();
+          }
+        },
+        iconWidget: option.iconWidget,
+      ));
     }
 
     return optionList;
   }
 
-  var isActionRunning=false.obs;
+  var isActionRunning = false.obs;
   dynamic Function()? _getOptionFunctionality(
-      String optionId, Group group, GroupMember member,BuildContext context,
-      CometChatColorPalette colorPalette,
-      CometChatTypography typography,
-      CometChatSpacing spacing,
-      ) {
+    String optionId,
+    Group group,
+    GroupMember member,
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatSpacing spacing,
+  ) {
     switch (optionId) {
       case GroupMemberOptionConstants.ban:
         return () async {
           showConfirmDialog(context, colorPalette, typography, spacing,
-          title: "Ban ${member.name}?",
-          icon: Icon(
-            Icons.not_interested,
-            size: 48,
-            color: confirmDialogStyle?.iconColor ?? colorPalette.error,
-          ),
-          messageText: "Are you sure you want to ban ${member.name} from ${group.name}?",
+              title: "Ban ${member.name}?",
+              icon: Icon(
+                Icons.not_interested,
+                size: 48,
+                color: confirmDialogStyle?.iconColor ?? colorPalette.error,
+              ),
+              messageText:
+                  "${cc.Translations.of(context).areYouSureBan} ${member.name} ${cc.Translations.of(context).from} ${group.name}?",
               onConfirm: () {
-            isActionRunning.value=true;
+            isActionRunning.value = true;
             CometChat.banGroupMember(
               guid: group.guid,
               uid: member.uid,
@@ -323,19 +353,18 @@ class CometChatGroupMembersController
                     loggedInUser!,
                     group);
                 removeElement(member);
-                isActionRunning.value=false;
+                isActionRunning.value = false;
                 Navigator.of(context).pop();
               },
               onError: (excep) {
-                if(onError!=null){
+                if (onError != null) {
                   onError!(excep);
                 }
-                isActionRunning.value=false;
+                isActionRunning.value = false;
                 Navigator.of(context).pop();
-              },);
-          },
-            confirmButtonText: cc.Translations.of(context).ban.toUpperCase()
-          );
+              },
+            );
+          }, confirmButtonText: cc.Translations.of(context).ban.toUpperCase());
         };
       case GroupMemberOptionConstants.kick:
         return () async {
@@ -346,50 +375,52 @@ class CometChatGroupMembersController
                 size: 48,
                 color: confirmDialogStyle?.iconColor ?? colorPalette.error,
               ),
-              messageText: "Are you sure you want to remove ${member.name} from ${group.name}?",
+              messageText:
+                  "${cc.Translations.of(context).areYouSureRemove} ${member.name} ${cc.Translations.of(context).from} ${group.name}?",
               onConfirm: () {
-                isActionRunning.value=true;
-                CometChat.kickGroupMember(
-                  guid: group.guid,
-                  uid: member.uid,
-                  onSuccess: (String result) async {
-                    group.membersCount--;
-                    CometChatGroupEvents.ccGroupMemberKicked(
-                        cc.Action(
-                          conversationId: _conversationId!,
-                          message: '${loggedInUser?.name} kicked ${member.name}',
-                          oldScope: GroupMemberScope.participant,
-                          newScope: '',
-                          muid: DateTime.now().microsecondsSinceEpoch.toString(),
-                          sender: loggedInUser!,
-                          receiver: group,
-                          receiverUid: group.guid,
-                          type: MessageTypeConstants.groupActions,
-                          receiverType: ReceiverTypeConstants.group,
-                          parentMessageId: 0,
-                        ),
-                        member,
-                        loggedInUser!,
-                        group);
-                    removeElement(member);
-                    isActionRunning.value=false;
-                    Navigator.of(context).pop();
-                  },
-                  onError: (excep) {
-                    if(onError!=null){
-                      onError!(excep);
-                    }
-                    isActionRunning.value=false;
-                    Navigator.of(context).pop();
-                  },);
+            isActionRunning.value = true;
+            CometChat.kickGroupMember(
+              guid: group.guid,
+              uid: member.uid,
+              onSuccess: (String result) async {
+                group.membersCount--;
+                CometChatGroupEvents.ccGroupMemberKicked(
+                    cc.Action(
+                      conversationId: _conversationId!,
+                      message: '${loggedInUser?.name} kicked ${member.name}',
+                      oldScope: GroupMemberScope.participant,
+                      newScope: '',
+                      muid: DateTime.now().microsecondsSinceEpoch.toString(),
+                      sender: loggedInUser!,
+                      receiver: group,
+                      receiverUid: group.guid,
+                      type: MessageTypeConstants.groupActions,
+                      receiverType: ReceiverTypeConstants.group,
+                      parentMessageId: 0,
+                    ),
+                    member,
+                    loggedInUser!,
+                    group);
+                removeElement(member);
+                isActionRunning.value = false;
+                Navigator.of(context).pop();
               },
-              confirmButtonText: cc.Translations.of(context).remove.toUpperCase()
-          );
+              onError: (excep) {
+                if (onError != null) {
+                  onError!(excep);
+                }
+                isActionRunning.value = false;
+                Navigator.of(context).pop();
+              },
+            );
+          },
+              confirmButtonText:
+                  cc.Translations.of(context).remove.toUpperCase());
         };
       case GroupMemberOptionConstants.changeScope:
         showModalBottomSheet(
           context: context,
-          barrierColor: Color(0xff141414).withOpacity(0.8),
+          barrierColor: const Color(0xff141414).withOpacity(0.8),
           builder: (context) => SingleChildScrollView(
             child: CometChatChangeScope(
               group: group,
@@ -403,7 +434,9 @@ class CometChatGroupMembersController
       default:
         return null;
     }
+    return null;
   }
+
   void clearSelection() {
     selectionMap.clear();
     update();
@@ -411,7 +444,11 @@ class CometChatGroupMembersController
 
   showConfirmDialog(BuildContext context, CometChatColorPalette colorPalette,
       CometChatTypography typography, CometChatSpacing spacing,
-      {Function()? onConfirm,Widget? icon, String? title, String? messageText,String? confirmButtonText}) {
+      {Function()? onConfirm,
+      Widget? icon,
+      String? title,
+      String? messageText,
+      String? confirmButtonText}) {
     CometChatConfirmDialog(
       context: context,
       confirmButtonText: cc.Translations.of(context).deleteCapital,
@@ -426,7 +463,7 @@ class CometChatGroupMembersController
         textAlign: TextAlign.center,
       ),
       onCancel: () {
-        isActionRunning.value=false;
+        isActionRunning.value = false;
         Navigator.pop(context);
       },
       style: CometChatConfirmDialogStyle(
@@ -439,24 +476,23 @@ class CometChatGroupMembersController
         cancelButtonBackground: confirmDialogStyle?.cancelButtonBackground ??
             colorPalette.borderLight,
         confirmButtonBackground:
-        confirmDialogStyle?.confirmButtonBackground ?? colorPalette.error,
+            confirmDialogStyle?.confirmButtonBackground ?? colorPalette.error,
         cancelButtonTextColor: confirmDialogStyle?.cancelButtonTextColor,
         confirmButtonTextColor: confirmDialogStyle?.confirmButtonTextColor,
         messageTextColor: confirmDialogStyle?.messageTextColor,
         titleTextColor: confirmDialogStyle?.titleTextColor,
         titleTextStyle: TextStyle(
-          color:
-          confirmDialogStyle?.titleTextColor ?? colorPalette.textPrimary,
+          color: confirmDialogStyle?.titleTextColor ?? colorPalette.textPrimary,
           fontSize: typography.heading2?.medium?.fontSize,
           fontWeight: typography.heading2?.medium?.fontWeight,
           fontFamily: typography.heading2?.medium?.fontFamily,
         )
             .merge(
-          confirmDialogStyle?.titleTextStyle,
-        )
+              confirmDialogStyle?.titleTextStyle,
+            )
             .copyWith(
-          color: confirmDialogStyle?.titleTextColor,
-        ),
+              color: confirmDialogStyle?.titleTextColor,
+            ),
         messageTextStyle: TextStyle(
           color: confirmDialogStyle?.messageTextColor ??
               colorPalette.textSecondary,
@@ -465,24 +501,24 @@ class CometChatGroupMembersController
           fontFamily: typography.body?.regular?.fontFamily,
         )
             .merge(
-          confirmDialogStyle?.messageTextStyle,
-        )
+              confirmDialogStyle?.messageTextStyle,
+            )
             .copyWith(
-          color: confirmDialogStyle?.messageTextColor,
-        ),
+              color: confirmDialogStyle?.messageTextColor,
+            ),
         confirmButtonTextStyle: TextStyle(
           color:
-          confirmDialogStyle?.confirmButtonTextColor ?? colorPalette.white,
+              confirmDialogStyle?.confirmButtonTextColor ?? colorPalette.white,
           fontSize: typography.button?.medium?.fontSize,
           fontWeight: typography.button?.medium?.fontWeight,
           fontFamily: typography.button?.medium?.fontFamily,
         )
             .merge(
-          confirmDialogStyle?.confirmButtonTextStyle,
-        )
+              confirmDialogStyle?.confirmButtonTextStyle,
+            )
             .copyWith(
-          color: confirmDialogStyle?.confirmButtonTextColor,
-        ),
+              color: confirmDialogStyle?.confirmButtonTextColor,
+            ),
         cancelButtonTextStyle: TextStyle(
           color: confirmDialogStyle?.cancelButtonTextColor ??
               colorPalette.textPrimary,
@@ -491,41 +527,39 @@ class CometChatGroupMembersController
           fontFamily: typography.button?.medium?.fontFamily,
         )
             .merge(
-          confirmDialogStyle?.cancelButtonTextStyle,
-        )
+              confirmDialogStyle?.cancelButtonTextStyle,
+            )
             .copyWith(
-          color: confirmDialogStyle?.cancelButtonTextColor,
-        ),
+              color: confirmDialogStyle?.cancelButtonTextColor,
+            ),
       ),
       onConfirm: onConfirm,
       confirmButtonTextWidget: Obx(
-            () => isActionRunning.value
+        () => isActionRunning.value
             ? SizedBox(
-          height: 25,
-          width: 25,
-          child: CircularProgressIndicator(
-            color: colorPalette.white,
-          ),
-        )
+                height: 25,
+                width: 25,
+                child: CircularProgressIndicator(
+                  color: colorPalette.white,
+                ),
+              )
             : Text(
-          confirmButtonText ?? "",
-          style: TextStyle(
-            color: confirmDialogStyle?.confirmButtonTextColor ??
-                colorPalette.white,
-            fontSize: typography.button?.medium?.fontSize,
-            fontWeight: typography.button?.medium?.fontWeight,
-            fontFamily: typography.button?.medium?.fontFamily,
-          )
-              .merge(
-            confirmDialogStyle?.confirmButtonTextStyle,
-          )
-              .copyWith(
-            color: confirmDialogStyle?.confirmButtonTextColor,
-          ),
-        ),
+                confirmButtonText ?? "",
+                style: TextStyle(
+                  color: confirmDialogStyle?.confirmButtonTextColor ??
+                      colorPalette.white,
+                  fontSize: typography.button?.medium?.fontSize,
+                  fontWeight: typography.button?.medium?.fontWeight,
+                  fontFamily: typography.button?.medium?.fontFamily,
+                )
+                    .merge(
+                      confirmDialogStyle?.confirmButtonTextStyle,
+                    )
+                    .copyWith(
+                      color: confirmDialogStyle?.confirmButtonTextColor,
+                    ),
+              ),
       ),
-
     ).show();
   }
-
 }

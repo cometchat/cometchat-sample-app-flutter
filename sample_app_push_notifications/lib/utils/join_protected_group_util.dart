@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:sample_app_push_notifications/utils/page_manager.dart';
 
 import '../join_protected_group/cometchat_join_protected_group.dart';
-import '../messages.dart';
 
 class JoinProtectedGroupUtils {
   static void navigateToJoinProtectedGroupScreen({

@@ -50,6 +50,26 @@ class AdditionalConfigurations {
     this.voiceCallBubbleStyle,
     this.videoCallBubbleStyle,
     this.callButtonsStyle,
+    this.hideVideoCallButton,
+    this.hideVoiceCallButton,
+    this.hideImageAttachmentOption,
+    this.hideVideoAttachmentOption,
+    this.hideAudioAttachmentOption,
+    this.hideFileAttachmentOption,
+    this.hidePollsOption,
+    this.hideCollaborativeDocumentOption,
+    this.hideCollaborativeWhiteboardOption,
+    this.hideStickersButton,
+    this.hideTakPhotoOption,
+    this.hideCopyMessageOption,
+    this.hideDeleteMessageOption,
+    this.hideEditMessageOption,
+    this.hideReactionOption,
+    this.hideMessagePrivatelyOption,
+    this.hideMessageInfoOption,
+    this.hideTranslateMessageOption,
+    this.hideReplyInThreadOption,
+    this.hideShareMessageOption,
   });
 
 
@@ -109,4 +129,64 @@ class AdditionalConfigurations {
 
   ///[callButtonsStyle] is a [CometChatCallButtonsStyle] that can be used to style call buttons
   final CometChatCallButtonsStyle? callButtonsStyle;
+
+  ///[hideVideoCallButton] is a [bool] that can be used to hide/display video call button
+  final bool? hideVideoCallButton;
+
+  ///[hideVoiceCallButton] is a [bool] that can be used to hide/display voice call button
+  final bool? hideVoiceCallButton;
+
+  ///[hideImageAttachmentOption] is a [bool] that can be used to hide/display image attachment option
+  final bool? hideImageAttachmentOption;
+
+  ///[hideVideoAttachmentOption] is a [bool] that can be used to hide/display video attachment option
+  final bool? hideVideoAttachmentOption;
+
+  ///[hideAudioAttachmentOption] is a [bool] that can be used to hide/display audio attachment option
+  final bool? hideAudioAttachmentOption;
+
+  ///[hideFileAttachmentOption] is a [bool] that can be used to hide/display file attachment option
+  final bool? hideFileAttachmentOption;
+
+  ///[hidePollsOption] is a [bool] that can be used to hide/display poll option
+  final bool? hidePollsOption;
+
+  ///[hideCollaborativeDocumentOption] is a [bool] that can be used to hide/display collaborative document option
+  final bool? hideCollaborativeDocumentOption;
+
+  ///[hideCollaborativeWhiteboardOption] is a [bool] that can be used to hide/display collaborative whiteboard option
+  final bool? hideCollaborativeWhiteboardOption;
+
+  ///[hideStickersButton] is a [bool] that can be used to hide/display sticker button
+  final bool? hideStickersButton;
+
+  ///[hideTakPhotoOption] is a [bool] that can be used to hide/display take photo option
+  final bool? hideTakPhotoOption;
+
+  ///[hideReplyInThreadOption] This prop defines whether Reply In Thread option should be visible or not.
+  final bool? hideReplyInThreadOption;
+
+  ///[hideTranslateMessageOption] This prop defines whether Reply In Thread option should be visible or not.
+  final bool? hideTranslateMessageOption;
+
+  ///[hideEditMessageOption] This prop defines whether Edit Message option should be visible or not.
+  final bool? hideEditMessageOption;
+
+  ///[hideDeleteMessageOption] This prop defines whether Delete Message option should be visible or not.
+  final bool? hideDeleteMessageOption;
+
+  ///[hideReactionOption] This prop defines whether Reaction option should be visible or not.
+  final bool? hideReactionOption;
+
+  ///[hideMessagePrivatelyOption] This prop defines whether a user can privately message other member of the group or not.
+  final bool? hideMessagePrivatelyOption;
+
+  ///[hideCopyMessageOption] This prop defines whether a user can copy message or not.
+  final bool? hideCopyMessageOption;
+
+  ///[hideMessageInfoOption] This prop defines whether a user can fetch information about the message whether it's received or not.
+  final bool? hideMessageInfoOption;
+
+  ///[hideShareMessageOption] This prop defines whether share option should be visible or not.
+  final bool? hideShareMessageOption;
 }

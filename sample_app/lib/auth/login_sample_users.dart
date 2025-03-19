@@ -291,8 +291,7 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                                                   ),
                                                   Expanded(
                                                     child: Text(
-                                                      users[index].username ??
-                                                          "",
+                                                      users[index].username,
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: TextStyle(
@@ -320,8 +319,7 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                                                             4,
                                                       ),
                                                       child: Text(
-                                                        users[index].userId ??
-                                                            "",
+                                                        users[index].userId,
                                                         textAlign:
                                                             TextAlign.start,
                                                         style: TextStyle(

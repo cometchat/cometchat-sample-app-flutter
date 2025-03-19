@@ -356,13 +356,13 @@ class TranslationsEn extends Translations {
   String get attachFile => 'Attach file';
 
   @override
-  String get attachVideo => 'Attach video';
+  String get attachImage => 'Attach Image';
 
   @override
-  String get attachAudio => 'Attach audio';
+  String get attachAudio => 'Attach Audio';
 
   @override
-  String get attachImage => 'Attach image';
+  String get attachVideo => 'Attach Video';
 
   @override
   String get collaborateUsingDocument => 'Collaborate using a document';
@@ -1140,4 +1140,18 @@ class TranslationsEn extends Translations {
   @override
   String get deleteMessageWarning => 'Are you sure you want to delete this message? This action cannot be undone.';
 
+  @override
+  String get from => 'from';
+
+  @override
+  String get areYouSureBan => 'Are you sure you want to ban';
+
+  @override
+  String get areYouSureRemove => 'Are you sure you want to remove';
+
+  @override
+  String get attachDocument => 'Attach Document';
+
+  @override
+  String get camera => 'Camera';
 }

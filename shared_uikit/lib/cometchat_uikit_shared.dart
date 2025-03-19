@@ -59,9 +59,6 @@ export 'src/models/cometchat_user_option.dart';
 
 //---resources---
 export 'src/resources/sound_manager.dart';
-export 'src/resources/themes/cometchat_theme.dart';
-export 'src/resources/themes/palette.dart';
-export 'src/resources/themes/typography.dart';
 
 //---utils---
 export 'src/utils/message_receipt_utils.dart';
@@ -72,6 +69,9 @@ export 'src/utils/ui_event_utils.dart';
 export 'src/framework/messages_data_source.dart';
 export 'src/utils/file_utils.dart';
 export 'src/utils/string_utils.dart';
+export 'src/utils/widget_position_util.dart';
+export 'src/utils/ai_constants.dart';
+export 'src/utils/ai_utils.dart';
 
 //---views---
 //cometchat badge
@@ -146,6 +146,14 @@ export 'src/views/confirm_dialog/cometchat_confirm_dialog_style.dart';
 export 'src/views/ai_option_sheet/cometchat_ai_option_sheet.dart';
 export 'src/views/ai_option_sheet/cometchat_ai_option_sheet_style.dart';
 
+//ai smart replies
+export 'src/views/ai_smart_replies/cometchat_ai_smart_replies_style.dart';
+export 'src/views/ai_smart_replies/cometchat_ai_smart_replies_view.dart';
+
+//ai conversation starter
+export 'src/views/ai_conversation_starter/cometchat_ai_conversation_starter_style.dart';
+export 'src/views/ai_conversation_starter/cometchat_ai_conversation_starter_view.dart';
+
 //quickView
 export 'src/views/quick_view/quick_view_style.dart';
 export 'src/views/quick_view/cometchat_quick_view.dart';
@@ -218,7 +226,6 @@ export 'src/views/media_recorder/cometchat_media_recorder_style.dart';
 export 'src/framework/ai_extension.dart';
 export 'src/events/utils/chat_sdk_event_initializer.dart';
 
-export 'src/views/form_bubble/cometchat_form_bubble.dart';
 export 'src/models/interactive_message/form_message.dart';
 export 'src/models/interactive_message/card_message.dart';
 export 'src/models/interactive_message/custom_interactive_message.dart';
@@ -249,17 +256,13 @@ export 'src/models/interactive_element_styles/radio_button_element_style.dart';
 export 'src/models/interactive_element_styles/text_input_element_style.dart';
 export 'src/models/ai_option_style.dart';
 
-export 'src/views/form_bubble/form_bubble_style.dart';
 export 'src/models/interactive_element_styles/date_time_element_style.dart';
 
 export 'src/models/interactive_message/scheduler_message.dart';
-export 'src/views/scheduler_bubble/cometchat_scheduler_bubble.dart';
-export 'src/views/scheduler_bubble/scheduler_bubble_style.dart';
 export 'src/views/time_slot_selector/cometchat_time_slot_selector.dart';
 export 'src/views/time_slot_selector/time_slot_selector_style.dart';
 export 'src/utils/scheduler_utils.dart';
 
-export 'src/views/date_time_form_field/cometchat_date_time_form_field.dart';
 export 'src/views/typing_indicator/cometchat_typing_indicator_style.dart';
 
 //reactions

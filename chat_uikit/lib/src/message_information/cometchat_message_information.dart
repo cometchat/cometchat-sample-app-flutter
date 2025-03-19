@@ -207,6 +207,7 @@ class _CometChatMessageInformationState
                                       bubbleAlignment: BubbleAlignment.right,
                                       message: value.parentMessage,
                                       template: _messageTemplate,
+                                      textFormatters: CometChatUIKit.getDataSource().getDefaultTextFormatters(),
                                     ),
                                   ),
                                 ),

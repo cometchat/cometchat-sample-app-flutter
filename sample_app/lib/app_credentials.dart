@@ -29,7 +29,6 @@ class AppCredentials {
 
   }
 
-
   // Setters
   static Future<void> setAppId(String value) async {
     await SharedPreferencesClass.setString(TextConstants.appId, value);

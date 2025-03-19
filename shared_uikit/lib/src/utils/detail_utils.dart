@@ -10,11 +10,15 @@ class DetailUtils {
       {User? loggedInUser,
       Group? group,
       GroupMember? member,
-      required BuildContext context,}) {
+      required BuildContext context,
+        bool? hideKickMemberOption,
+        bool? hideBanMemberOption,
+        bool? hideScopeChangeOption,
+      }) {
     return [
-      getScopeChangeOption(context),
-      getBanOption(context),
-      getKickOption(context),
+      if(hideScopeChangeOption != true) getScopeChangeOption(context),
+      if(hideBanMemberOption != true) getBanOption(context),
+      if(hideKickMemberOption != true) getKickOption(context),
     ]
         .where((option) {
           final result =validateGroupMemberOptions(
@@ -64,99 +68,89 @@ class DetailUtils {
     );
   }
 
-  static CometChatDetailsOption getViewMemberOption(BuildContext context,
-      {CometChatTheme? theme}) {
+  static CometChatDetailsOption getViewMemberOption(BuildContext context) {
     return CometChatDetailsOption(
         id: GroupOptionConstants.viewMembers,
         title: Translations.of(context).viewMembers,
         packageName: UIConstants.packageName,
         tail: const Icon(Icons.navigate_next),
-        titleStyle: _getPrimaryGroupOptionTextStyle(theme));
+        titleStyle: _getPrimaryGroupOptionTextStyle());
   }
 
-  static CometChatDetailsOption getBannedMemberOption(BuildContext context,
-      {CometChatTheme? theme}) {
+  static CometChatDetailsOption getBannedMemberOption(BuildContext context) {
     return CometChatDetailsOption(
         id: GroupOptionConstants.bannedMembers,
         title: Translations.of(context).bannedMembers,
         packageName: UIConstants.packageName,
         tail: const Icon(Icons.navigate_next),
-        titleStyle: _getPrimaryGroupOptionTextStyle(theme));
+        titleStyle: _getPrimaryGroupOptionTextStyle());
   }
 
-  static CometChatDetailsOption getAddMembersOption(BuildContext context,
-      {CometChatTheme? theme}) {
+  static CometChatDetailsOption getAddMembersOption(BuildContext context) {
     return CometChatDetailsOption(
         id: GroupOptionConstants.addMembers,
         title: Translations.of(context).addMembers,
         packageName: UIConstants.packageName,
         tail: const Icon(Icons.navigate_next),
-        titleStyle: _getPrimaryGroupOptionTextStyle(theme));
+        titleStyle: _getPrimaryGroupOptionTextStyle());
   }
 
-  static CometChatDetailsOption getLeaveGroupOption(BuildContext context,
-      {CometChatTheme? theme}) {
+  static CometChatDetailsOption getLeaveGroupOption(BuildContext context) {
     return CometChatDetailsOption(
         id: GroupOptionConstants.leave,
         title: Translations.of(context).leaveGroup,
         packageName: UIConstants.packageName,
-        titleStyle: _getSecondaryGroupOptionTextStyle(theme));
+        titleStyle: _getSecondaryGroupOptionTextStyle());
   }
 
-  static CometChatDetailsOption getDeleteGroupOption(BuildContext context,
-      {CometChatTheme? theme}) {
+  static CometChatDetailsOption getDeleteGroupOption(BuildContext context) {
     return CometChatDetailsOption(
         id: GroupOptionConstants.delete,
         title: Translations.of(context).deleteAndExit,
         packageName: UIConstants.packageName,
-        titleStyle: _getSecondaryGroupOptionTextStyle(theme));
+        titleStyle: _getSecondaryGroupOptionTextStyle());
   }
 
-  static CometChatDetailsOption getBlockUserOption(BuildContext context,
-      {CometChatTheme? theme}) {
+  static CometChatDetailsOption getBlockUserOption(BuildContext context) {
     return CometChatDetailsOption(
       id: UserOptionConstants.blockUser,
       title: Translations.of(context).blockUser,
       packageName: UIConstants.packageName,
-      titleStyle: _getSecondaryGroupOptionTextStyle(theme),
+      titleStyle: _getSecondaryGroupOptionTextStyle(),
     );
   }
 
-  static CometChatDetailsOption getUnBlockUserOption(BuildContext context,
-      {CometChatTheme? theme}) {
+  static CometChatDetailsOption getUnBlockUserOption(BuildContext context) {
     return CometChatDetailsOption(
       id: UserOptionConstants.unblockUser,
       title: Translations.of(context).unblockUser,
       packageName: UIConstants.packageName,
-      titleStyle: _getSecondaryGroupOptionTextStyle(theme),
+      titleStyle: _getSecondaryGroupOptionTextStyle(),
     );
   }
 
-  static CometChatDetailsOption getViewProfileOption(BuildContext context,
-      {CometChatTheme? theme}) {
+  static CometChatDetailsOption getViewProfileOption(BuildContext context) {
     return CometChatDetailsOption(
         id: UserOptionConstants.viewProfile,
         title: Translations.of(context).viewProfile,
         packageName: UIConstants.packageName,
-        titleStyle: _getPrimaryOptionTextStyle(theme));
+        titleStyle: _getPrimaryOptionTextStyle());
   }
 
-  static CometChatDetailsOption getLeaveOption(BuildContext context,
-      {CometChatTheme? theme}) {
+  static CometChatDetailsOption getLeaveOption(BuildContext context) {
     return CometChatDetailsOption(
       id: GroupOptionConstants.leave,
       title: Translations.of(context).leaveGroup,
-      titleStyle: _getSecondaryGroupOptionTextStyle(theme),
+      titleStyle: _getSecondaryGroupOptionTextStyle(),
     );
   }
 
-  static CometChatDetailsOption getDeleteOption(BuildContext context,
-      {CometChatTheme? theme}) {
+  static CometChatDetailsOption getDeleteOption(BuildContext context) {
     return CometChatDetailsOption(
       id: GroupOptionConstants.delete,
       title: Translations.of(context).deleteAndExit,
       packageName: UIConstants.packageName,
-      titleStyle: _getSecondaryGroupOptionTextStyle(theme),
+      titleStyle: _getSecondaryGroupOptionTextStyle(),
     );
   }
 
@@ -164,19 +158,17 @@ class DetailUtils {
     BuildContext context,
     User? loggedInUser,
     User? user,
-    Group? group, {
-    CometChatTheme? theme,
-  }) {
+    Group? group) {
     return CometChatDetailsTemplate(
       id: DetailsTemplateConstants.primaryActions,
       hideItemSeparator: true,
       hideSectionSeparator: false,
-      options: (user, group, context, theme) => user != null
+      options: (user, group, context) => user != null
           ? []
           : [
-              getViewMemberOption(context!, theme: theme),
-              getAddMembersOption(context, theme: theme),
-              getBannedMemberOption(context, theme: theme)
+              getViewMemberOption(context!),
+              getAddMembersOption(context),
+              getBannedMemberOption(context)
             ]
               .where((option) => validateDetailOptions(
                   loggedInUserScope: loggedInUser?.uid == group?.owner
@@ -188,17 +180,16 @@ class DetailUtils {
   }
 
   static CometChatDetailsTemplate? getSecondaryDetailsTemplate(
-      BuildContext context, User? loggedInUser, User? user, Group? group,
-      {CometChatTheme? theme}) {
+      BuildContext context, User? loggedInUser, User? user, Group? group) {
     if (user != null) {
       return CometChatDetailsTemplate(
           id: DetailsTemplateConstants.secondaryActions,
           title: Translations.of(context).privacyAndSecurity,
           hideItemSeparator: true,
           hideSectionSeparator: false,
-          options: (user, group, context, theme) => [
-                getBlockUserOption(context!, theme: theme),
-                getUnBlockUserOption(context, theme: theme)
+          options: (user, group, context) => [
+                getBlockUserOption(context!),
+                getUnBlockUserOption(context)
               ]
                   .where((option) =>
                       validateUserOptions(loggedInUser, user, option.id))
@@ -209,9 +200,9 @@ class DetailUtils {
           title: Translations.of(context).more,
           hideItemSeparator: true,
           hideSectionSeparator: false,
-          options: (user, group, context, theme) => [
-                getLeaveGroupOption(context!, theme: theme),
-                getDeleteGroupOption(context, theme: theme)
+          options: (user, group, context) => [
+                getLeaveGroupOption(context!),
+                getDeleteGroupOption(context)
               ]
                   .where((option) => validateDetailOptions(
                       loggedInUserScope: loggedInUser?.uid == group?.owner
@@ -240,25 +231,18 @@ class DetailUtils {
     }
   }
 
-  static TextStyle _getPrimaryGroupOptionTextStyle(CometChatTheme? theme) {
-    return TextStyle(
-        fontFamily: theme?.typography.name.fontFamily,
-        fontWeight: theme?.typography.name.fontWeight ?? FontWeight.w500,
-        color: theme?.palette.getAccent800() ?? const Color(0xff000000));
+  static TextStyle _getPrimaryGroupOptionTextStyle() {
+    return const TextStyle(color: Color(0xff000000));
   }
 
-  static TextStyle _getSecondaryGroupOptionTextStyle(CometChatTheme? theme) {
-    return TextStyle(
-        fontFamily: theme?.typography.name.fontFamily,
-        fontWeight: theme?.typography.name.fontWeight ?? FontWeight.w500,
-        color: theme?.palette.getError() ?? const Color(0xffFF3B30));
+  static TextStyle _getSecondaryGroupOptionTextStyle() {
+    return const TextStyle(
+        color:  Color(0xffFF3B30));
   }
 
-  static TextStyle _getPrimaryOptionTextStyle(CometChatTheme? theme) {
-    return TextStyle(
-        fontFamily: theme?.typography.name.fontFamily,
-        fontWeight: theme?.typography.name.fontWeight ?? FontWeight.w500,
-        color: theme?.palette.getPrimary() ?? const Color(0xff3399FF));
+  static TextStyle _getPrimaryOptionTextStyle() {
+    return const TextStyle(
+        color:  Color(0xff3399FF));
   }
 
   static dynamic validateDetailOptions(
@@ -270,7 +254,6 @@ class DetailUtils {
       {required String loggedInUserScope,
       String memberScope = GroupMemberScope.participant,
       required String optionId}) {
-    print("277=> ${loggedInUserScope + memberScope}");
     return _allowedGroupMemberOptions[loggedInUserScope + memberScope]
         ?[optionId];
   }

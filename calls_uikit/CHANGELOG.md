@@ -1,3 +1,43 @@
+## 5.0.0
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.0.0`.
+- Updated properties for all components to improve flexibility, customization, and overall usability.
+- Enhanced the **Call Logs Component** with refined properties for better filtering and call log management.
+- Improved the **Incoming Call Component** by introducing configurable properties for handling call notifications.
+- Optimized the **Call Buttons Component**, allowing better control over button actions and styles.
+- Upgraded the **Outgoing Call Component** with new properties to support call customization.
+
+## 5.0.0-beta.2
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.0.0-beta.2`.
+- Updated properties for all components to improve flexibility, customization, and overall usability.
+- Enhanced the **Call Logs Component** with refined properties for better filtering and call log management.
+- Improved the **Incoming Call Component** by introducing configurable properties for handling call notifications.
+- Optimized the **Call Buttons Component**, allowing better control over button actions and styles.
+- Upgraded the **Outgoing Call Component** with new properties to support call customization.
+
+## Fixes
+- **Call Icon Behavior**: Fixed an issue where tapping the call icon displayed call details instead of initiating a call.
+
+## 5.0.0-beta.1
+
+## New
+- **Revamped UI**: Experience a fresh, modern design for improved visual appeal and consistency. The updated look enhances usability and engagement.
+- **Restructured Components**: Enjoy a redesigned component architecture that improves scalability, making it easier to build and maintain modular designs.
+
+## Enhancements
+- **Optimized User Experience**: Interactions have been streamlined to provide a smoother, more intuitive experience, reducing friction during use.
+- **Advanced Styling and Theming**: Gain greater flexibility with enhanced customization options, allowing you to tailor appearances to suit your brand effortlessly.
+- **Simplified Integration**: Set up faster and with ease thanks to a more intuitive, streamlined integration process.
+
+## Fixes
+- None
+
+## Removals
+- **Style Props Removed**: Style-specific props have been deprecated to encourage the use of modern theming practices, which offer more robust and scalable customization options.
+
 ## 5.0.0-alpha.1
 
 ## New

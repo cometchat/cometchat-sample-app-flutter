@@ -88,7 +88,6 @@ class _CometChatButtonElementState extends State<CometChatButtonElement> {
                     child: Image.asset(
                       AssetConstants.spinner,
                       package: UIConstants.packageName,
-                      color: cometChatTheme.palette.getBackground(),
                     ),
                   )
                 : Center(

@@ -146,7 +146,7 @@ import io.flutter.plugin.common.PluginRegistry
              intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
          } else {
              if (type == "image/*") {
-                 intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                 intent = Intent(Intent.ACTION_GET_CONTENT)
              } else {
                  intent = Intent(Intent.ACTION_GET_CONTENT)
                  intent.addCategory(Intent.CATEGORY_OPENABLE)

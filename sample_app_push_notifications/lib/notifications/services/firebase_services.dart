@@ -12,9 +12,10 @@ import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:sample_app_push_notifications/notifications/models/notification_date_model.dart';
 import 'package:sample_app_push_notifications/prefs/shared_preferences.dart';
+
 import '../../app_credentials.dart';
 import '../../demo_meta_info_constants.dart';
-import '../../messages.dart';
+import '../../messages/messages.dart';
 import '../models/call_action.dart';
 import '../models/call_type.dart';
 import '../models/notification_message_type.dart';
@@ -88,7 +89,7 @@ void handleNotificationTap(NotificationResponse response) async {
     Group? sendGroup;
 
     if (notificationDataModel.receiverType == "user") {
-      final uid = notificationDataModel.sender ?? '';
+      final uid = notificationDataModel.sender;
 
       await CometChat.getUser(
         uid,
@@ -103,7 +104,7 @@ void handleNotificationTap(NotificationResponse response) async {
         },
       );
     } else if (notificationDataModel.receiverType == "group") {
-      final guid = notificationDataModel.receiver ?? '';
+      final guid = notificationDataModel.receiver;
 
       await CometChat.getGroup(
         guid,
@@ -202,12 +203,11 @@ Future<void> displayIncomingCall(RemoteMessage rMessage) async {
         textDecline: 'Decline',
         duration: 40000,
         android: const AndroidParams(
-            isCustomNotification: true,
-            isShowLogo: false,
-            backgroundColor: '#0955fa',
-            actionColor: '#4CAF50',
-            incomingCallNotificationChannelName: "Incoming Call",
-            isShowFullLockedScreen: false),
+          isCustomNotification: true,
+          isShowLogo: true,
+          incomingCallNotificationChannelName: "Incoming Call",
+          isShowFullLockedScreen: false,
+        ),
         ios: const IOSParams(
           handleType: 'generic',
           supportsVideo: true,
@@ -227,6 +227,8 @@ Future<void> displayIncomingCall(RemoteMessage rMessage) async {
 
       FlutterCallkitIncoming.onEvent.listen(
         (CallEvent? callEvent) async {
+          debugPrint(
+              "Received CallKit Event: ${callEvent?.event.name} - ${callEvent?.body}");
           switch (callEvent?.event) {
             case Event.actionCallIncoming:
               SharedPreferencesClass.init();
@@ -293,8 +295,14 @@ Future<void> displayIncomingCall(RemoteMessage rMessage) async {
               });
 
               break;
-            case Event.actionCallEnded:
+            case Event.actionCallTimeout:
               await FlutterCallkitIncoming.endCall(callEvent?.body['id']);
+              break;
+            case Event.actionCallEnded:
+              debugPrint("Call Ended Event Triggered: ${callEvent?.body}");
+              await FlutterCallkitIncoming.endCall(callEvent?.body['id']);
+              await Future.delayed(const Duration(seconds: 2));
+              FlutterCallkitIncoming.endAllCalls();
               break;
             default:
               break;
@@ -316,15 +324,18 @@ Future<void> displayIncomingCall(RemoteMessage rMessage) async {
         callAction == CallAction.unanswered) {
       if (callPayload.sessionId != null) {
         await FlutterCallkitIncoming.endCall(callPayload.sessionId ?? "");
+        await FlutterCallkitIncoming.endAllCalls();
         activeCallSession = null;
       }
+    } else {
     }
   }
 }
 
 // This class provides functions to interact and manage Firebase Messaging services such as requesting permissions, initializing listeners, managing notifications, and handling tokens.
 
-class FirebaseService with CometChatUIEventListener {
+class FirebaseService
+    with CometChatUIEventListener, CometChatCallEventListener, CallListener{
   late final FirebaseMessaging _firebaseMessaging;
   late final NotificationSettings _settings;
   late final Function registerToServer;
@@ -352,6 +363,8 @@ class FirebaseService with CometChatUIEventListener {
       }
       _listenerId = "NotificationListener";
       CometChatUIEvents.addUiListener(_listenerId, this);
+      CometChatCallEvents.addCallEventsListener(_listenerId, this);
+      CometChat.addCallListener(_listenerId, this);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Firebase initialization error: $e');
@@ -445,6 +458,16 @@ class FirebaseService with CometChatUIEventListener {
       User? user, Group? group, int unreadMessageCount) {
     if (lastMessage != null) {
       conversationId = lastMessage.conversationId;
+    }
+  }
+
+  @override
+  void onIncomingCallCancelled(Call call) {
+    if (kDebugMode) {
+      debugPrint("Incoming call cancelled");
+    }
+    if(call.sessionId != null) {
+      FlutterCallkitIncoming.endCall(call.sessionId!);
     }
   }
 
@@ -650,7 +673,11 @@ class FirebaseService with CometChatUIEventListener {
                   "Unable to end call from incoming call screen ${e.details}");
             });
             break;
+          case Event.actionCallTimeout:
+            await FlutterCallkitIncoming.endCall(callEvent?.body['id']);
+            break;
           case Event.actionCallEnded:
+            await FlutterCallkitIncoming.endCall(callEvent?.body['id']);
             break;
           default:
             break;

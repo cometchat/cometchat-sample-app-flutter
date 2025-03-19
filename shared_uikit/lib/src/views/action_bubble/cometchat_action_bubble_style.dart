@@ -1,4 +1,3 @@
-import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
 import 'package:flutter/material.dart';
 
 

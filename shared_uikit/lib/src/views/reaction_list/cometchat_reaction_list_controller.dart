@@ -66,7 +66,6 @@ class CometChatReactionListController extends GetxController
     if (reaction != ReactionConstants.allReactions) {
       requestBuilder.reaction = reaction;
     }
-    requestBuilder.limit = 10;
     reactionsRequests[reaction] = requestBuilder.build();
     hasMoreReactions[reaction] = true;
   }

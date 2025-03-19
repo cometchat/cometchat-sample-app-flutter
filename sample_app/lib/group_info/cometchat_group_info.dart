@@ -24,6 +24,12 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
   late CometChatGroupInfoController groupInfoController;
 
   @override
+  void initState() {
+    getGroup();
+    super.initState();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     typography = CometChatThemeHelper.getTypography(context);
@@ -31,6 +37,19 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
     spacing = CometChatThemeHelper.getSpacing(context);
     groupInfoController = CometChatGroupInfoController(
         widget.user, widget.group, colorPalette, typography, spacing);
+  }
+
+  getGroup() async {
+    await CometChat.getGroup(
+      widget.group.guid,
+      onSuccess: (grp) {
+        groupInfoController.group = grp;
+        setState(() {});
+      },
+      onError: (e) {
+        print("Group Info: Group fetching failed with exception: ${e.message}");
+      },
+    );
   }
 
   @override
@@ -126,7 +145,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
           StatusIndicatorUtils.getStatusIndicatorFromParams(
         isSelected: false,
         group: group,
-        disableUsersPresence: groupInfoController.hideUserPresence(),
+        usersStatusVisibility: groupInfoController.hideUserPresence(),
         context: context,
       );
       if (group.type == GroupTypeConstants.password ||
@@ -277,10 +296,13 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
               "View Members",
               () {
                 if (controller.group != null) {
-                  Navigator.of(context).push(MaterialPageRoute(
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
                       builder: (context) => CometChatGroupMembers(
-                            group: controller.group!,
-                          )));
+                        group: controller.group!,
+                      ),
+                    ),
+                  );
                 }
               },
             ),
@@ -353,17 +375,19 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
   }
 
   Widget getLeaveOption(context, CometChatGroupInfoController controller) {
-    if(controller.membersCount <= 1 && controller.group?.owner == controller.loggedInUser?.uid) {
+    if (controller.membersCount <= 1 &&
+        controller.group?.owner == controller.loggedInUser?.uid) {
       return const SizedBox();
     }
     return listTileOptions(
       "Leave",
       Icon(Icons.exit_to_app, color: colorPalette.error),
-          () {
-        if (controller.membersCount > 1 && controller.group?.owner == controller.loggedInUser?.uid) {
+      () {
+        if (controller.membersCount > 1 &&
+            controller.group?.owner == controller.loggedInUser?.uid) {
           //transfer ownership of group
-          controller.transferOwnershipDialog(context, controller.group!,
-              colorPalette, typography, spacing);
+          controller.transferOwnershipDialog(
+              context, controller.group!, colorPalette, typography, spacing);
         } else {
           controller.leaveGroupDialog(
             context: context,

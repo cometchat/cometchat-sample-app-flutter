@@ -1,12 +1,10 @@
 import 'package:master_app/login.dart';
 import 'package:master_app/messages.dart';
-import 'package:master_app/scroll_test.dart';
 import 'package:master_app/utils/alert.dart';
 import 'package:master_app/utils/module_card.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
-import 'main.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);

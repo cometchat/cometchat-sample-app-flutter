@@ -21,8 +21,7 @@ class CometChatGroups extends StatefulWidget {
     this.subtitleView,
     this.listItemView,
     this.groupsStyle,
-    this.controller,
-    this.theme,
+    this.scrollController,
     this.searchPlaceholder,
     this.backButton,
     this.showBackButton = true,
@@ -31,17 +30,12 @@ class CometChatGroups extends StatefulWidget {
     this.selectionMode,
     this.onSelection,
     this.title,
-    this.errorStateText,
-    this.emptyStateText,
     this.stateCallBack,
     this.groupsRequestBuilder,
     this.hideError,
     this.loadingStateView,
     this.emptyStateView,
     this.errorStateView,
-    this.listItemStyle,
-    this.options,
-    this.hideSeparator = false,
     this.appBarOptions,
     this.passwordGroupIcon,
     this.privateGroupIcon,
@@ -51,11 +45,19 @@ class CometChatGroups extends StatefulWidget {
     this.onItemLongPress,
     this.onError,
     this.submitIcon,
-    this.selectionIcon,
     this.hideAppbar = false,
     this.controllerTag,
     this.height,
     this.width,
+    this.searchKeyword,
+    this.onLoad,
+    this.onEmpty,
+    this.groupTypeVisibility = true,
+    this.setOptions,
+    this.addOptions,
+    this.titleView,
+    this.leadingView,
+    this.trailingView,
   });
 
   ///[groupsProtocol] set custom groups request builder protocol
@@ -65,20 +67,16 @@ class CometChatGroups extends StatefulWidget {
   final GroupsRequestBuilder? groupsRequestBuilder;
 
   ///[subtitleView] to set subtitle for each group
-  final Widget? Function(BuildContext, Group)? subtitleView;
+  final Widget? Function(BuildContext context, Group group)? subtitleView;
 
   ///[listItemView] set custom view for each group
-  final Widget Function(Group)? listItemView;
+  final Widget Function(Group group)? listItemView;
 
   ///[groupsStyle] sets style
   final CometChatGroupsStyle? groupsStyle;
 
-  ///[controller] sets controller for the list
-  final ScrollController? controller;
-
-  ///[options]  set options which will be visible at slide of each banned member
-  final List<CometChatOption>? Function(Group group,
-      CometChatGroupsController controller, BuildContext context)? options;
+  ///[scrollController] sets controller for the list
+  final ScrollController? scrollController;
 
   ///[searchPlaceholder] placeholder text of search input
   final String? searchPlaceholder;
@@ -95,9 +93,6 @@ class CometChatGroups extends StatefulWidget {
   ///[hideSearch] switch on/ff search input
   final bool hideSearch;
 
-  ///[theme] can pass custom theme
-  final CometChatTheme? theme;
-
   ///[selectionMode] specifies mode groups module is opening in
   final SelectionMode? selectionMode;
 
@@ -106,12 +101,6 @@ class CometChatGroups extends StatefulWidget {
 
   ///[title] sets title for the list
   final String? title;
-
-  ///[emptyStateText] text to be displayed when the list is empty
-  final String? emptyStateText;
-
-  ///[errorStateText] text to be displayed when error occur
-  final String? errorStateText;
 
   ///[loadingStateView] returns view for loading state
   final WidgetBuilder? loadingStateView;
@@ -128,14 +117,8 @@ class CometChatGroups extends StatefulWidget {
   ///[stateCallBack] to access controller functions  from parent pass empty reference of  CometChatGroupsController object
   final Function(CometChatGroupsController controller)? stateCallBack;
 
-  ///[listItemStyle] style for every list item
-  final ListItemStyle? listItemStyle;
-
   ///[appBarOptions] list of options to be visible in app bar
   final List<Widget> Function(BuildContext context)? appBarOptions;
-
-  ///[hideSeparator]
-  final bool hideSeparator;
 
   ///[passwordGroupIcon] sets icon in status indicator for password group
   final Widget? passwordGroupIcon;
@@ -150,13 +133,10 @@ class CometChatGroups extends StatefulWidget {
   final VoidCallback? onBack;
 
   ///[onItemTap] callback triggered on tapping a group item
-  final Function(BuildContext, Group)? onItemTap;
+  final Function(BuildContext context, Group group)? onItemTap;
 
   ///[onItemLongPress] callback triggered on pressing for long on a group item
-  final Function(BuildContext, Group)? onItemLongPress;
-
-  ///[selectionIcon] will change selection icon
-  final Widget? selectionIcon;
+  final Function(BuildContext context, Group group)? onItemLongPress;
 
   ///[submitIcon] will override the default submit icon
   final Widget? submitIcon;
@@ -175,6 +155,35 @@ class CometChatGroups extends StatefulWidget {
 
   ///[width] provides width to the widget
   final double? width;
+
+  ///[searchKeyword] Used to set searchKeyword to fetch initial list with
+  final String? searchKeyword;
+
+  ///[onLoad] callback triggered when list is fetched and load
+  final OnLoad<Group>? onLoad;
+
+  ///[onEmpty] callback triggered when the list is empty
+  final OnEmpty? onEmpty;
+
+  ///[groupTypeVisibility] Hide the group type icon which is visible on the group icon.
+  final bool? groupTypeVisibility;
+
+  ///[setOptions] sets List of actions available on the long press of list item
+  final List<CometChatOption>? Function(Group group,
+      CometChatGroupsController controller, BuildContext context)? setOptions;
+
+  ///[addOptions] adds into the current List of actions available on the long press of list item
+  final List<CometChatOption>? Function(Group group,
+      CometChatGroupsController controller, BuildContext context)? addOptions;
+
+  ///[trailingView] to set tailView for each group
+  final Widget? Function(BuildContext context, Group group)? trailingView;
+
+  ///[leadingView] to set leading view for each group
+  final Widget? Function(BuildContext context, Group group)? leadingView;
+
+  ///[titleView] to set title view for each group
+  final Widget? Function(BuildContext context, Group group)? titleView;
 
   @override
   State<CometChatGroups> createState() => _CometChatGroupsState();
@@ -208,12 +217,18 @@ class _CometChatGroupsState extends State<CometChatGroups> {
     } else {
       groupsController = Get.put<CometChatGroupsController>(
           CometChatGroupsController(
-              groupsBuilderProtocol: widget.groupsProtocol ??
-                  UIGroupsBuilder(
-                    widget.groupsRequestBuilder ?? GroupsRequestBuilder(),
-                  ),
-              mode: widget.selectionMode,
-              onError: widget.onError),
+            groupsBuilderProtocol: widget.groupsProtocol ??
+                UIGroupsBuilder(
+                  widget.groupsRequestBuilder ??
+                      RequestBuilderConstants.getDefaultGroupsRequestBuilder()
+                    ..searchKeyword = widget.searchKeyword,
+                ),
+            mode: widget.selectionMode,
+            onError: widget.onError,
+            onEmpty: widget.onEmpty,
+            onLoad: widget.onLoad,
+            groupTypeVisibility: widget.groupTypeVisibility
+          ),
           tag: widget.controllerTag ??
               "default_tag_for_groups_$_currentDateTime");
     }
@@ -273,6 +288,9 @@ class _CometChatGroupsState extends State<CometChatGroups> {
                   "default_tag_for_groups_$_currentDateTime",
               builder: (CometChatGroupsController value) {
                 value.context = context;
+                value.colorPalette = colorPalette;
+                value.spacing = spacing;
+                value.typography = typography;
                 return Text(
                   value.selectionMap.isNotEmpty
                       ? "${value.selectionMap.length}"
@@ -293,6 +311,9 @@ class _CometChatGroupsState extends State<CometChatGroups> {
                   "default_tag_for_groups_$_currentDateTime",
               builder: (CometChatGroupsController value) {
                 value.context = context;
+                value.colorPalette = colorPalette;
+                value.spacing = spacing;
+                value.typography = typography;
                 return value.selectionMap.isNotEmpty
                     ? IconButton(
                         onPressed: () {
@@ -308,9 +329,7 @@ class _CometChatGroupsState extends State<CometChatGroups> {
                       )
                     : (widget.backButton ??
                         IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: widget.onBack,
                           icon: Icon(
                             Icons.arrow_back,
                             color: colorPalette.iconPrimary,
@@ -325,7 +344,7 @@ class _CometChatGroupsState extends State<CometChatGroups> {
           searchBoxIcon: widget.searchBoxIcon,
           onSearch: groupsController.onSearch,
           hideAppBar: widget.hideAppbar,
-          searchText: widget.searchPlaceholder,
+          searchText: widget.searchKeyword,
           searchPadding: EdgeInsets.symmetric(
             horizontal: spacing.padding4 ?? 0,
             vertical: spacing.padding3 ?? 0,
@@ -395,6 +414,9 @@ class _CometChatGroupsState extends State<CometChatGroups> {
                 "default_tag_for_groups_$_currentDateTime",
             builder: (CometChatGroupsController value) {
               value.context = context;
+              value.colorPalette = colorPalette;
+              value.spacing = spacing;
+              value.typography = typography;
               return _getList(context, value);
             },
           ),
@@ -402,20 +424,22 @@ class _CometChatGroupsState extends State<CometChatGroups> {
   }
 
   Widget getDefaultItem(Group group, CometChatGroupsController controller,
-      int index, BuildContext context) {
+      int index, BuildContext context, GlobalKey key) {
     Widget? subtitle;
+    Widget? leadingView;
+    Widget? titleView;
+    Widget? tail;
 
     StatusIndicatorUtils statusIndicatorUtils =
         StatusIndicatorUtils.getStatusIndicatorFromParams(
       context: context,
       group: group,
-      // privateGroupIconBackground: widget.groupsStyle.privateGroupIconBackground,
-      // protectedGroupIconBackground:
-      //     widget.groupsStyle.passwordGroupIconBackground,
+      privateGroupIconBackground: style.privateGroupIconBackground,
+      protectedGroupIconBackground: style.protectedGroupIconBackground,
       privateGroupIcon: widget.privateGroupIcon,
       protectedGroupIcon: widget.passwordGroupIcon,
       isSelected: false,
-      selectIcon: widget.selectionIcon,
+      groupTypeVisibility: controller.hideGroupIconVisibility(group),
     );
 
     if (widget.subtitleView != null) {
@@ -436,6 +460,18 @@ class _CometChatGroupsState extends State<CometChatGroups> {
               color: style.itemSubtitleTextColor,
             ),
       );
+    }
+
+    if (widget.trailingView != null) {
+      tail = widget.trailingView!(context, group);
+    }
+
+    if (widget.titleView != null) {
+      titleView = widget.titleView!(context, group);
+    }
+
+    if (widget.leadingView != null) {
+      leadingView = widget.leadingView!(context, group);
     }
 
     Color? backgroundColor = statusIndicatorUtils.statusIndicatorColor;
@@ -459,6 +495,29 @@ class _CometChatGroupsState extends State<CometChatGroups> {
             _isSelectionOn.value = true;
           } else if (widget.onItemLongPress != null) {
             widget.onItemLongPress!(context, group);
+          } else {
+            List<CometChatOption>? options;
+
+            if (widget.setOptions != null) {
+              options = widget.setOptions!(
+                group,
+                controller,
+                context,
+              );
+            } else {
+              if (widget.addOptions != null) {
+                options = widget.addOptions!(
+                  group,
+                  controller,
+                  context,
+                );
+              }
+            }
+            controller.showPopupMenu(
+              context,
+              options ?? [],
+              key,
+            );
           }
         },
         onTap: () {
@@ -476,7 +535,7 @@ class _CometChatGroupsState extends State<CometChatGroups> {
               _isSelectionOn.value = true;
             }
           }
-          if (widget.onItemTap != null) {
+          else if (widget.onItemTap != null) {
             widget.onItemTap!(context, group);
           }
         },
@@ -545,9 +604,6 @@ class _CometChatGroupsState extends State<CometChatGroups> {
                 statusIndicatorColor: backgroundColor,
                 statusIndicatorIcon: icon,
                 statusIndicatorStyle: statusIndicatorStyle,
-                options: widget.options != null
-                    ? widget.options!(group, controller, context)
-                    : null,
                 style: ListItemStyle(
                   background: (controller.selectionMap[group.guid] != null)
                       ? (style.listItemSelectedBackgroundColor ??
@@ -576,6 +632,9 @@ class _CometChatGroupsState extends State<CometChatGroups> {
                   ),
                 ),
                 hideSeparator: true,
+                leadingStateView: leadingView,
+                titleView: titleView,
+                tailView: tail,
               ),
             ),
           ],
@@ -585,11 +644,11 @@ class _CometChatGroupsState extends State<CometChatGroups> {
   }
 
   Widget getListItem(Group group, CometChatGroupsController controller,
-      int index, BuildContext context) {
+      int index, BuildContext context, GlobalKey key) {
     if (widget.listItemView != null) {
       return widget.listItemView!(group);
     } else {
-      return getDefaultItem(group, controller, index, context);
+      return getDefaultItem(group, controller, index, context, key);
     }
   }
 
@@ -753,8 +812,10 @@ class _CometChatGroupsState extends State<CometChatGroups> {
       //----------- empty list widget-----------
       return _getNoGroupIndicator(context);
     } else {
+      List<GlobalKey> tileKeys =
+          List.generate(value.list.length, (index) => GlobalKey());
       return ListView.builder(
-        controller: widget.controller,
+        controller: widget.scrollController,
         itemCount:
             value.hasMoreItems ? value.list.length + 1 : value.list.length,
         itemBuilder: (context, index) {
@@ -763,7 +824,16 @@ class _CometChatGroupsState extends State<CometChatGroups> {
             return _getLoadingIndicator(context);
           }
 
-          return getListItem(value.list[index], value, index, context);
+          return SizedBox(
+            key: tileKeys[index],
+            child: getListItem(
+              value.list[index],
+              value,
+              index,
+              context,
+              tileKeys[index],
+            ),
+          );
         },
       );
     }

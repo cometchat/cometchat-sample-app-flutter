@@ -35,6 +35,8 @@ class MessageTypeConstants {
   static const String customInteractive = "customInteractive";
   static const String scheduler = "scheduler";
   static const String meeting = "meeting";
+  static const String attachPhoto = "attachPhoto";
+  static const String attachVideo = "attachVideo";
 }
 
 ///[ReceiverTypeConstants] is a utility class that stores String constants of the types of [AppEntity] that can receive a [BaseMessage]
@@ -154,6 +156,12 @@ class CallStatusConstants {
 
 ///[OnError] defines the structure of error handler used by the components in the ui kit
 typedef OnError = Function(Exception e);
+
+///[OnLoad] defines the structure of loading handler used by the components in the ui kit
+typedef OnLoad<T> = Function(List<T> list);
+
+///[OnEmpty] defines the structure of empty handler used by the components in the ui kit
+typedef OnEmpty = void Function();
 
 typedef ComposerWidgetBuilder = Widget Function(
     BuildContext context, User? user, Group? group, Map<String, dynamic>? id);

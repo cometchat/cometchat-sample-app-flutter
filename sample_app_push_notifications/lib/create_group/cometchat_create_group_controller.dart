@@ -2,7 +2,7 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sample_app_push_notifications/messages.dart';
+import 'package:sample_app_push_notifications/messages/messages.dart';
 
 class CometChatCreateGroupController extends GetxController {
   BuildContext? context;

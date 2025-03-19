@@ -11,7 +11,7 @@ class CometChatWebView extends StatefulWidget {
       this.backIcon,
       this.appBarColor,
       this.webViewStyle,
-      this.theme});
+      });
 
   ///[title] of the page
   final String title;
@@ -27,9 +27,6 @@ class CometChatWebView extends StatefulWidget {
 
   ///[webViewStyle] , web view styling properties
   final WebViewStyle? webViewStyle;
-
-  ///[theme] , default is cometchatTheme
-  final CometChatTheme? theme;
 
   @override
   State<CometChatWebView> createState() => _CometChatWebViewState();

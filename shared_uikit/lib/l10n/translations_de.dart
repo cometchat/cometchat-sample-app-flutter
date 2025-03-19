@@ -357,13 +357,13 @@ class TranslationsDe extends Translations {
   String get attachFile => 'Datei anhängen';
 
   @override
-  String get attachVideo => 'Video anhängen';
+  String get attachImage => 'Bild anhängen';
 
   @override
   String get attachAudio => 'Audio anhängen';
 
   @override
-  String get attachImage => 'Bild anhängen';
+  String get attachVideo => 'Video anhängen';
 
   @override
   String get collaborateUsingDocument =>
@@ -1148,4 +1148,20 @@ class TranslationsDe extends Translations {
 
   @override
   String get deleteMessageWarning => 'Bist du sicher, dass du diese Nachricht löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get from => 'von';
+
+  @override
+  String get areYouSureBan => 'Sind Sie sicher, dass Sie sperren möchten';
+
+  @override
+  String get areYouSureRemove => 'Sind Sie sicher, dass Sie entfernen möchten';
+
+  @override
+  String get attachDocument => 'Dokument anhängen';
+
+  @override
+  String get camera => 'Kamera';
+
 }

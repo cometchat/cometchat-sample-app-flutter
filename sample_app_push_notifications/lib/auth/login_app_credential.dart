@@ -2,9 +2,9 @@ import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:sample_app_push_notifications/app_credentials.dart';
 import 'package:sample_app_push_notifications/auth/login_sample_users.dart';
 
-import '../app_credentials.dart';
 import '../demo_meta_info_constants.dart';
 import '../models/region_model.dart';
 import '../prefs/shared_preferences.dart';

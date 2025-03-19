@@ -10,7 +10,6 @@ class CometChatQuickView extends StatelessWidget {
       {super.key,
       required this.title,
       this.subtitle,
-      this.theme,
       this.quickViewStyle});
 
   /// The main title displayed in the quick view.
@@ -19,17 +18,12 @@ class CometChatQuickView extends StatelessWidget {
   /// An optional subtitle displayed below the title.
   final String? subtitle;
 
-  /// Set the theme for cometchat
-  final CometChatTheme? theme;
-
   ///Sets the style for quick view
   final QuickViewStyle? quickViewStyle;
 
   @override
   Widget build(BuildContext context) {
-    CometChatTheme theme;
 
-    theme = this.theme ?? cometChatTheme;
 
     return Row(
       children: [
@@ -37,7 +31,7 @@ class CometChatQuickView extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color:
-                  quickViewStyle?.background ?? theme.palette.getBackground(),
+                  quickViewStyle?.background,
               shape: BoxShape.rectangle,
               border: quickViewStyle?.border,
               borderRadius: const BorderRadius.all(
@@ -50,8 +44,7 @@ class CometChatQuickView extends StatelessWidget {
                     shape: BoxShape.rectangle,
                     border: Border(
                       left: BorderSide(
-                        color: quickViewStyle?.leadingBarTint ??
-                            theme.palette.getPrimary(), // Border color
+                        color: quickViewStyle?.leadingBarTint ?? Colors.transparent, // Border color
                         width: quickViewStyle?.leadingBarWidth ??
                             4.0, // Border width
                       ),
@@ -60,25 +53,13 @@ class CometChatQuickView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(title,
-                        style: TextStyle(
-                          fontSize: theme.typography.text2.fontSize,
-                          fontWeight: theme.typography.text2.fontWeight,
-                          fontFamily: theme.typography.text2.fontFamily,
-                          color: theme.palette.getPrimary(),
-                        ).merge(quickViewStyle?.titleStyle)),
+                        style: quickViewStyle?.titleStyle),
                     const SizedBox(
                       height: 4.0,
                     ),
                     if (subtitle != null)
                       Text(subtitle!,
-                          style: TextStyle(
-                                  fontSize: theme.typography.subtitle2.fontSize,
-                                  fontWeight:
-                                      theme.typography.subtitle2.fontWeight,
-                                  fontFamily:
-                                      theme.typography.subtitle2.fontFamily,
-                                  color: theme.palette.getAccent())
-                              .merge(quickViewStyle?.subtitleStyle))
+                          style:quickViewStyle?.subtitleStyle)
                   ],
                 )),
           ),

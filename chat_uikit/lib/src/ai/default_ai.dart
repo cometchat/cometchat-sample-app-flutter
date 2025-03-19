@@ -4,10 +4,7 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 class CometChatUIKitChatAIFeatures {
   static List<AIExtension> getDefaultAiFeatures() {
     return [
-      AISmartRepliesExtension(),
-      AIConversationStarterExtension(),
       AIConversationSummaryExtension(),
-      // AIAssistBotExtension()
     ];
   }
 }

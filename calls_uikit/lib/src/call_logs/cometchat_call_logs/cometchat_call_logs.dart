@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 ///callLogs are fetched using [CallLogsBuilderProtocol] and [CallLogRequestBuilder]
 ///```dart
 /// CometChatCallLogs(
-///  title: 'Call Logs',
 ///  listItemView: (CallLog callLog, BuildContext context) {
 ///  return ListTile(
 ///  title: Text(callLog.receiver.name),
@@ -22,18 +21,16 @@ import 'package:get/get.dart';
 class CometChatCallLogs extends StatefulWidget {
   const CometChatCallLogs({
     Key? key,
-    this.title,
     this.listItemView,
     this.subTitleView,
     this.backButton,
-    this.showBackButton,
     this.emptyStateView,
     this.errorStateView,
     this.loadingStateView,
     this.onItemClick,
     this.onError,
     this.onBack,
-    this.tailView,
+    this.trailingView,
     this.callLogsBuilderProtocol,
     this.datePattern,
     this.dateSeparatorPattern,
@@ -48,10 +45,15 @@ class CometChatCallLogs extends StatefulWidget {
     this.hideAppbar = false,
     this.appBarOptions,
     this.onCallLogIconClicked,
+    this.onItemLongPress,
+    this.addOptions,
+    this.setOptions,
+    this.onEmpty,
+    this.onLoad,
+    this.leadingStateView,
+    this.titleView,
+    this.showBackButton,
   }) : super(key: key);
-
-  ///[title] Title of the callLog list component
-  final String? title;
 
   ///[listItemView] set custom view for each callLog
   final Widget? Function(CallLog callLog, BuildContext context)? listItemView;
@@ -61,9 +63,6 @@ class CometChatCallLogs extends StatefulWidget {
 
   ///[backButton] returns back button
   final Widget? backButton;
-
-  ///[showBackButton] switch on/off back button
-  final bool? showBackButton;
 
   ///[emptyStateView]  returns view fow empty state
   final WidgetBuilder? emptyStateView;
@@ -83,8 +82,8 @@ class CometChatCallLogs extends StatefulWidget {
   ///[onBack] callback triggered on closing this screen
   final VoidCallback? onBack;
 
-  ///[tailView] a custom widget for the tail section of the callLog list item
-  final Function(BuildContext context, CallLog callLog)? tailView;
+  ///[trailingView] a custom widget for the tail section of the callLog list item
+  final Function(BuildContext context, CallLog callLog)? trailingView;
 
   ///[callLogsBuilderProtocol] set custom call Log request builder protocol
   final CallLogsBuilderProtocol? callLogsBuilderProtocol;
@@ -125,8 +124,34 @@ class CometChatCallLogs extends StatefulWidget {
   ///[appBarOptions] list of options to be visible in app bar
   final List<Widget>? appBarOptions;
 
-  ///[onItemClick] callback triggered on clicking of the callLog icon audio/video icon
+  ///[onCallLogIconClicked] callback triggered on clicking of the callLog icon audio/video icon
   final Function(CallLog callLog)? onCallLogIconClicked;
+
+  ///[onItemLongPress] callback triggered on long pressing of the callLog item
+  final Function(CallLog callLog)? onItemLongPress;
+
+  ///[onLoad] callback triggered when list is fetched and load
+  final OnLoad<CallLog>? onLoad;
+
+  ///[onEmpty] callback triggered when the list is empty
+  final OnEmpty? onEmpty;
+
+  ///[setOptions] sets List of actions available on the long press of list item
+  final List<CometChatOption>? Function(CallLog callLog,
+      CometChatCallLogsController controller, BuildContext context)? setOptions;
+
+  ///[addOptions] adds into the current List of actions available on the long press of list item
+  final List<CometChatOption>? Function(CallLog callLog,
+      CometChatCallLogsController controller, BuildContext context)? addOptions;
+
+  ///[leadingStateView] to set leading view for each callLog
+  final Widget? Function(BuildContext, CallLog)? leadingStateView;
+
+  ///[titleView] to set title view for each callLog
+  final Widget? Function(BuildContext, CallLog)? titleView;
+
+  ///[showBackButton] switch on/off back button
+  final bool? showBackButton;
 
   @override
   State<CometChatCallLogs> createState() => _CometChatCallLogsState();
@@ -159,6 +184,8 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
                 ..callCategory = CometChatCallsConstants.callCategoryCall),
       onError: widget.onError,
       outgoingCallConfiguration: widget.outgoingCallConfiguration,
+      onEmpty: widget.onEmpty,
+      onLoad: widget.onLoad,
     );
     setState(() {});
   }
@@ -190,12 +217,12 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
             backgroundColor: colorPalette.background1,
           )
         : CometChatListBase(
-            title: widget.title ?? cc.Translations.of(context).calls,
+            title: cc.Translations.of(context).calls,
             hideSearch: true,
             backIcon: widget.backButton,
-            showBackButton: widget.showBackButton,
             onBack: widget.onBack,
             hideAppBar: widget.hideAppbar,
+            showBackButton: widget.showBackButton,
             menuOptions: [
               if (widget.appBarOptions != null &&
                   widget.appBarOptions!.isNotEmpty)
@@ -229,6 +256,9 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
                   child: GetBuilder(
                     init: _callLogsController,
                     builder: (CometChatCallLogsController value) {
+                      value.colorPalette = colorPalette;
+                      value.spacing = spacing;
+                      value.typography = typography;
                       if (value.hasError == true) {
                         if (widget.errorStateView != null) {
                           return widget.errorStateView!(context);
@@ -240,6 +270,8 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
                       } else if (value.list.isEmpty) {
                         return _emptyView(context);
                       } else {
+                        List<GlobalKey> tileKeys = List.generate(
+                            value.list.length, (index) => GlobalKey());
                         return ListView.builder(
                           itemCount: value.hasMoreItems
                               ? value.list.length + 1
@@ -256,11 +288,38 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
                               return widget.listItemView!(log, context);
                             } else {
                               return GestureDetector(
+                                key: tileKeys[index],
                                 onTap: () {
                                   if (widget.onItemClick != null) {
                                     widget.onItemClick!(log);
+                                  }
+                                },
+                                onLongPress: () {
+                                  if (widget.onItemLongPress != null) {
+                                    widget.onItemLongPress!(log);
                                   } else {
-                                    // TODO: Implement call initiation
+                                    List<CometChatOption>? options;
+
+                                    if (widget.setOptions != null) {
+                                      options = widget.setOptions!(
+                                        log,
+                                        value,
+                                        context,
+                                      );
+                                    } else {
+                                      if (widget.addOptions != null) {
+                                        options = widget.addOptions!(
+                                          log,
+                                          value,
+                                          context,
+                                        );
+                                      }
+                                    }
+                                    value.showPopupMenu(
+                                      context,
+                                      options ?? [],
+                                      tileKeys[index],
+                                    );
                                   }
                                 },
                                 child: CometChatListItem(
@@ -318,6 +377,9 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
                                     log,
                                   ),
                                   avatarStyle: avatarStyle,
+                                  leadingStateView:
+                                      _getLeadingView(value, log, context),
+                                  titleView: _getTitleView(value, log, context),
                                 ),
                               );
                             }
@@ -335,8 +397,8 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
   // tail widget
   Widget _getTailView(BuildContext context, CometChatCallLogsController value,
       CallLog callLog) {
-    if (widget.tailView != null) {
-      return widget.tailView!(context, callLog);
+    if (widget.trailingView != null) {
+      return widget.trailingView!(context, callLog);
     } else {
       IconData iconData = (callLog.type == CallTypeConstants.audioCall)
           ? Icons.call_outlined
@@ -353,8 +415,9 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
       return SizedBox(
         width: 24,
         height: 24,
-        child: GestureDetector(
-          onTap: () {
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          onPressed: () {
             if (widget.onCallLogIconClicked != null) {
               widget.onCallLogIconClicked!(callLog);
             } else if (CallLogsUtils.isUser(callLog)) {
@@ -364,7 +427,7 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
               );
             }
           },
-          child: icon ??
+          icon: icon ??
               Icon(
                 iconData,
                 size: 24,
@@ -414,6 +477,22 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
           ),
         ],
       );
+    }
+  }
+
+  // leading view widget
+  _getLeadingView(CometChatCallLogsController value, CallLog callLog,
+      BuildContext context) {
+    if (widget.leadingStateView != null) {
+      return widget.leadingStateView!(context, callLog);
+    }
+  }
+
+  // title view widget
+  _getTitleView(CometChatCallLogsController value, CallLog callLog,
+      BuildContext context) {
+    if (widget.titleView != null) {
+      return widget.titleView!(context, callLog);
     }
   }
 

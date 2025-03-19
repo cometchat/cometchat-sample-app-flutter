@@ -11,7 +11,6 @@ class AIConversationSummaryConfiguration {
       this.title,
       this.apiConfiguration,
       this.unreadMessageThreshold = 30,
-      this.theme,
       this.loadingStateText,
       this.errorStateText,
       this.emptyStateText,
@@ -28,9 +27,6 @@ class AIConversationSummaryConfiguration {
 
   ///[conversationStarterStyle] provides styling to the reply view
   final CometChatAIConversationSummaryStyle? conversationSummaryStyle;
-
-  ///[theme] sets custom theme
-  final CometChatTheme? theme;
 
   ///[emptyStateText] text to be displayed when the replies are empty
   final String? emptyStateText;
@@ -87,7 +83,6 @@ class AIConversationSummaryConfiguration {
   /// Copies current [AIConversationSummaryConfiguration] with some changes
   AIConversationSummaryConfiguration copyWith(
       {CometChatAIConversationSummaryStyle? conversationSummaryStyle,
-      CometChatTheme? theme,
       String? emptyStateText,
       String? loadingStateText,
       String? errorStateText,
@@ -108,7 +103,6 @@ class AIConversationSummaryConfiguration {
     return AIConversationSummaryConfiguration(
       conversationSummaryStyle:
           conversationSummaryStyle ?? this.conversationSummaryStyle,
-      theme: theme ?? this.theme,
       emptyStateText: emptyStateText ?? this.emptyStateText,
       loadingStateText: loadingStateText ?? this.loadingStateText,
       errorStateText: errorStateText ?? this.errorStateText,
@@ -132,7 +126,6 @@ class AIConversationSummaryConfiguration {
     if (other == null) return this;
     return copyWith(
       conversationSummaryStyle: other.conversationSummaryStyle,
-      theme: other.theme,
       emptyStateText: other.emptyStateText,
       loadingStateText: other.loadingStateText,
       errorStateText: other.errorStateText,

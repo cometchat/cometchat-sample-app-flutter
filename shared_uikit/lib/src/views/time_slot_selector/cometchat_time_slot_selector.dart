@@ -11,7 +11,6 @@ class CometChatTimeSlotSelector extends StatefulWidget {
       required this.duration,
       this.onSelection,
       this.buffer,
-      this.theme,
       this.style,
       this.blockedTime,
       this.timeFormat = TimeFormat.twelveHour,
@@ -34,9 +33,6 @@ class CometChatTimeSlotSelector extends StatefulWidget {
 
   ///[buffer] is a Duration which sets the buffer time for the time slot selector
   final Duration? buffer;
-
-  ///[theme] is a object of [CometChatTheme] which is used to set the theme for the time slot selector
-  final CometChatTheme? theme;
 
   ///[style] is a object of [TimeSlotSelectorStyle] which is used to set the style for the time slot selector
   final TimeSlotSelectorStyle? style;
@@ -69,11 +65,9 @@ class _CometChatTimeSlotSelectorState extends State<CometChatTimeSlotSelector> {
 
   late DateTime selectedTime;
 
-  late CometChatTheme theme;
 
   @override
   void initState() {
-    theme = widget.theme ?? cometChatTheme;
     selectedTime = widget.selectedDay;
     if (widget.availableSlots != null && widget.availableSlots!.isNotEmpty) {
       timeList = SchedulerUtils.generateTimeStamps(
@@ -122,17 +116,12 @@ class _CometChatTimeSlotSelectorState extends State<CometChatTimeSlotSelector> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: selectedTime == time
-                ? widget.style?.selectedSlotBackgroundColor ??
-                    theme.palette.getPrimary()
-                : widget.style?.slotBackgroundColor ??
-                    theme.palette.getBackground(),
+                ? widget.style?.selectedSlotBackgroundColor
+                : widget.style?.slotBackgroundColor,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(SchedulerUtils.getFormattedTime(time, widget.timeFormat),
-              style: TextStyle(
-                color: selectedTime == time
-                    ? theme.palette.backGroundColor.light
-                    : theme.palette.getAccent700(),
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
               ).merge(selectedTime == time

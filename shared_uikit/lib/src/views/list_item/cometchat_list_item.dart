@@ -36,6 +36,8 @@ class CometChatListItem extends StatelessWidget {
     this.statusIndicatorBorderRadius,
     this.id,
     this.titlePadding,
+    this.titleView,
+    this.leadingStateView,
   }) : assert(avatarURL != null || avatarName != null);
 
   ///[avatarURL] sets image url to be shown in avatar
@@ -96,27 +98,37 @@ class CometChatListItem extends StatelessWidget {
   final double? statusIndicatorHeight;
 
   ///[statusIndicatorBorderRadius] provides borderRadius to the status indicator
-  final double? statusIndicatorBorderRadius;
+  final BorderRadiusGeometry? statusIndicatorBorderRadius;
 
   ///[titlePadding] set title padding
   final EdgeInsetsGeometry? titlePadding;
 
-  Widget getAvatar() {
-    return CometChatAvatar(
-      image: avatarURL,
-      name: avatarName,
-      height: avatarHeight,
-      width: avatarWidth,
-      margin: avatarMargin,
-      padding: avatarPadding,
-      style: CometChatAvatarStyle(
-        placeHolderTextStyle: avatarStyle.placeHolderTextStyle,
-        placeHolderTextColor: avatarStyle.placeHolderTextColor,
-        backgroundColor: avatarStyle.backgroundColor,
-        border: avatarStyle.border,
-        borderRadius: avatarStyle.borderRadius,
-      ),
-    );
+  ///[leadingStateView] to set leading view
+  final Widget? leadingStateView;
+
+  ///[titleView] to set title view
+  final Widget? titleView;
+
+  Widget getLeadingView() {
+    if (leadingStateView != null) {
+      return leadingStateView ?? const SizedBox();
+    } else {
+      return CometChatAvatar(
+        image: avatarURL,
+        name: avatarName,
+        height: avatarHeight,
+        width: avatarWidth,
+        margin: avatarMargin,
+        padding: avatarPadding,
+        style: CometChatAvatarStyle(
+          placeHolderTextStyle: avatarStyle.placeHolderTextStyle,
+          placeHolderTextColor: avatarStyle.placeHolderTextColor,
+          backgroundColor: avatarStyle.backgroundColor,
+          border: avatarStyle.border,
+          borderRadius: avatarStyle.borderRadius,
+        ),
+      );
+    }
   }
 
   Widget getStatus() {
@@ -127,24 +139,29 @@ class CometChatListItem extends StatelessWidget {
       style: CometChatStatusIndicatorStyle(
         border: statusIndicatorStyle.border,
         backgroundColor: statusIndicatorColor,
+        borderRadius: statusIndicatorBorderRadius,
       ),
     );
   }
 
-  Widget? getTitle(context) {
-    return Text(
-      title ?? "",
-      maxLines: 1,
-      style: TextStyle(
-        overflow: TextOverflow.ellipsis,
-        fontSize: style.titleStyle?.fontSize,
-        fontWeight: style.titleStyle?.fontWeight,
-        fontFamily: style.titleStyle?.fontFamily,
-        color: style.titleStyle?.color,
-      ).merge(
-        style.titleStyle,
-      ),
-    );
+  Widget getTitle(context) {
+    if (titleView != null) {
+      return titleView ?? const SizedBox();
+    } else {
+      return Text(
+        title ?? "",
+        maxLines: 1,
+        style: TextStyle(
+          overflow: TextOverflow.ellipsis,
+          fontSize: style.titleStyle?.fontSize,
+          fontWeight: style.titleStyle?.fontWeight,
+          fontFamily: style.titleStyle?.fontFamily,
+          color: style.titleStyle?.color,
+        ).merge(
+          style.titleStyle,
+        ),
+      );
+    }
   }
 
   Widget? getSubtitle() {
@@ -169,9 +186,8 @@ class CometChatListItem extends StatelessWidget {
             height: style.height,
             leading: Stack(
               children: [
-                getAvatar(),
-                if (statusIndicatorColor != null ||
-                    statusIndicatorIcon != null)
+                getLeadingView(),
+                if (statusIndicatorColor != null || statusIndicatorIcon != null)
                   Positioned(
                     height: statusIndicatorHeight ?? 14,
                     width: statusIndicatorWidth ?? 14,

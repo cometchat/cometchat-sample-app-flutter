@@ -15,21 +15,19 @@ import 'package:get/get_state_manager/src/simple/get_state.dart';
 /// declineButtonIconUrlPackage: 'assets',
 /// acceptButtonText: 'Accept',
 /// acceptButtonTextStyle: TextStyle(color: Colors.white),
-/// acceptButtonIconUrl: 'assets/images/accept.png',
-/// acceptButtonIconUrlPackage: 'assets',
 /// );
 /// ```
 ///
 //ignore: must_be_immutable
 class CometChatIncomingCall extends StatelessWidget {
+  ///[call] active Call object
+  final Call call;
+
   ///[user] is used to set a custom user for the widget
   final User? user;
 
-  ///[subtitle] is used to set a custom subtitle
-  final Widget? subtitle;
-
-  ///[style] is used to set a custom incoming call style
-  final CometChatIncomingCallStyle? style;
+  ///[incomingCallStyle] is used to set a custom incoming call style
+  final CometChatIncomingCallStyle? incomingCallStyle;
 
   ///[_incomingCallController] contains view model for [CometChatIncomingCall] widget
   final CometChatIncomingCallController _incomingCallController;
@@ -52,24 +50,43 @@ class CometChatIncomingCall extends StatelessWidget {
   ///[callIcon] is used to set a custom call icon
   final Widget? callIcon;
 
+  ///[titleView] is used to define the title view.
+  final Widget? Function(BuildContext context, Call call)? titleView;
+
+  ///[subTitleView] is used to define the subtitle view.
+  final Widget? Function(BuildContext context, Call call)? subTitleView;
+
+  ///[leadingView] is used to define the leading view.
+  final Widget? Function(BuildContext context, Call call)? leadingView;
+
+  ///[itemView] is used to define the item view.
+  final Widget? Function(BuildContext context, Call call)? itemView;
+
+  ///[trailingView] is used to define the trailing view.
+  final Widget? Function(BuildContext context, Call call)? trailingView;
+
   CometChatIncomingCall({
     Key? key,
-    required Call call,
+    required this.call,
     this.user,
     OnError? onError,
-    this.subtitle,
     Function(BuildContext, Call)? onDecline,
     Function(BuildContext, Call)? onAccept,
     bool? disableSoundForCalls,
     String? customSoundForCalls,
     String? customSoundForCallsPackage,
-    this.style,
+    this.incomingCallStyle,
     this.callSettingsBuilder,
     this.height,
     this.width,
     this.declineButtonText,
     this.acceptButtonText,
-    this.callIcon
+    this.callIcon,
+    this.titleView,
+    this.subTitleView,
+    this.leadingView,
+    this.itemView,
+    this.trailingView,
   })  : _incomingCallController = CometChatIncomingCallController(
           onAccept: onAccept,
           onDecline: onDecline,
@@ -84,10 +101,9 @@ class CometChatIncomingCall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final incomingCallStyle =
-        CometChatThemeHelper.getTheme<CometChatIncomingCallStyle>(
-                context: context, defaultTheme: CometChatIncomingCallStyle.of)
-            .merge(style);
+    final style = CometChatThemeHelper.getTheme<CometChatIncomingCallStyle>(
+            context: context, defaultTheme: CometChatIncomingCallStyle.of)
+        .merge(incomingCallStyle);
     final typography = CometChatThemeHelper.getTypography(context);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
@@ -110,7 +126,24 @@ class CometChatIncomingCall extends StatelessWidget {
         );
         return false;
       },
-      child: Container(
+      child: _getItemView(context, _incomingCallController, style, colorPalette,
+          typography, spacing, call),
+    );
+  }
+
+  // Item View
+  Widget _getItemView(
+      context,
+      CometChatIncomingCallController controller,
+      CometChatIncomingCallStyle incomingCallStyle,
+      CometChatColorPalette colorPalette,
+      CometChatTypography typography,
+      CometChatSpacing spacing,
+      Call call) {
+    if (itemView != null) {
+      return itemView!(context, call)!;
+    } else {
+      return Container(
         height: height,
         width: width,
         padding: EdgeInsets.all(spacing.padding5 ?? 0),
@@ -159,77 +192,29 @@ class CometChatIncomingCall extends StatelessWidget {
                     minLeadingWidth: 0,
                     minVerticalPadding: 0,
                     minTileHeight: 0,
-                    trailing: CometChatAvatar(
-                      height: 48,
-                      width: 48,
-                      image: user?.avatar,
-                      name: user?.name,
-                      style: CometChatAvatarStyle(
-                        placeHolderTextStyle: TextStyle(
-                          fontSize: typography.heading1?.bold?.fontSize,
-                          fontWeight: typography.heading1?.bold?.fontWeight,
-                          fontFamily: typography.heading1?.bold?.fontFamily,
-                        ).merge(
-                          incomingCallStyle.avatarStyle?.placeHolderTextStyle,
-                        ),
-                        backgroundColor:
-                            incomingCallStyle.avatarStyle?.backgroundColor,
-                        placeHolderTextColor:
-                            incomingCallStyle.avatarStyle?.placeHolderTextColor,
-                        borderRadius:
-                            incomingCallStyle.avatarStyle?.borderRadius,
-                        border: incomingCallStyle.avatarStyle?.border,
-                      ),
+                    leading: _getLeadingView(context, controller),
+                    title: _getTitleView(
+                      context,
+                      controller,
+                      incomingCallStyle,
+                      colorPalette,
+                      typography,
                     ),
-                    title: Text(
-                      user?.name ?? '',
-                      style: TextStyle(
-                        fontSize: typography.heading1?.bold?.fontSize,
-                        fontWeight: typography.heading1?.bold?.fontWeight,
-                        fontFamily: typography.heading1?.bold?.fontFamily,
-                        color: incomingCallStyle.titleColor ??
-                            colorPalette.textPrimary,
-                      )
-                          .merge(
-                            incomingCallStyle.titleTextStyle,
-                          )
-                          .copyWith(
-                            color: incomingCallStyle.titleColor,
-                          ),
+                    subtitle: _getSubTitleView(
+                      context,
+                      controller,
+                      incomingCallStyle,
+                      colorPalette,
+                      typography,
+                      spacing,
                     ),
-                    subtitle: subtitle ??
-                        Row(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                right: spacing.padding ?? 0,
-                              ),
-                              child: callIcon ?? Icon(
-                                Icons.call,
-                                color: incomingCallStyle.callIconColor ?? colorPalette.iconSecondary,
-                                size: 16,
-                              ),
-                            ),
-                            Text(
-                              viewModel.getSubtitle(context),
-                              style: TextStyle(
-                                fontSize: typography.body?.regular?.fontSize,
-                                fontWeight:
-                                    typography.body?.regular?.fontWeight,
-                                fontFamily:
-                                    typography.body?.regular?.fontFamily,
-                                color: incomingCallStyle.subtitleColor ??
-                                    colorPalette.textSecondary,
-                              )
-                                  .merge(
-                                    incomingCallStyle.subtitleTextStyle,
-                                  )
-                                  .copyWith(
-                                    color: incomingCallStyle.subtitleColor,
-                                  ),
-                            ),
-                          ],
-                        ),
+                    trailing: _getTrailingView(
+                      context,
+                      controller,
+                      incomingCallStyle,
+                      colorPalette,
+                      typography,
+                    ),
                   ),
                 ),
                 Row(
@@ -351,7 +336,126 @@ class CometChatIncomingCall extends StatelessWidget {
             );
           },
         ),
-      ),
-    );
+      );
+    }
+  }
+
+  // leading view
+  Widget? _getLeadingView(context, CometChatIncomingCallController controller) {
+    if (leadingView != null) {
+      return leadingView!(context, controller.activeCall)!;
+    } else {
+      return null;
+    }
+  }
+
+  // Title view
+  Widget _getTitleView(
+    context,
+    CometChatIncomingCallController controller,
+    CometChatIncomingCallStyle incomingCallStyle,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+  ) {
+    if (titleView != null) {
+      return titleView!(context, controller.activeCall)!;
+    } else {
+      return Text(
+        user?.name ?? '',
+        style: TextStyle(
+          fontSize: typography.heading1?.bold?.fontSize,
+          fontWeight: typography.heading1?.bold?.fontWeight,
+          fontFamily: typography.heading1?.bold?.fontFamily,
+          color: incomingCallStyle.titleColor ?? colorPalette.textPrimary,
+        )
+            .merge(
+              incomingCallStyle.titleTextStyle,
+            )
+            .copyWith(
+              color: incomingCallStyle.titleColor,
+            ),
+      );
+    }
+  }
+
+  // subtitle view
+  Widget _getSubTitleView(
+    context,
+    CometChatIncomingCallController controller,
+    CometChatIncomingCallStyle incomingCallStyle,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatSpacing spacing,
+  ) {
+    if (subTitleView != null) {
+      return subTitleView!(context, controller.activeCall)!;
+    } else {
+      return Row(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(
+              right: spacing.padding ?? 0,
+            ),
+            child: callIcon ??
+                Icon(
+                  Icons.call,
+                  color: incomingCallStyle.callIconColor ??
+                      colorPalette.iconSecondary,
+                  size: 16,
+                ),
+          ),
+          Text(
+            controller.getSubtitle(context),
+            style: TextStyle(
+              fontSize: typography.body?.regular?.fontSize,
+              fontWeight: typography.body?.regular?.fontWeight,
+              fontFamily: typography.body?.regular?.fontFamily,
+              color:
+                  incomingCallStyle.subtitleColor ?? colorPalette.textSecondary,
+            )
+                .merge(
+                  incomingCallStyle.subtitleTextStyle,
+                )
+                .copyWith(
+                  color: incomingCallStyle.subtitleColor,
+                ),
+          ),
+        ],
+      );
+    }
+  }
+
+  // Trailing view
+  Widget _getTrailingView(
+    context,
+    CometChatIncomingCallController controller,
+    CometChatIncomingCallStyle incomingCallStyle,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+  ) {
+    if (trailingView != null) {
+      return trailingView!(context, controller.activeCall)!;
+    } else {
+      return CometChatAvatar(
+        height: 48,
+        width: 48,
+        image: user?.avatar,
+        name: user?.name,
+        style: CometChatAvatarStyle(
+          placeHolderTextStyle: TextStyle(
+            fontSize: typography.heading1?.bold?.fontSize,
+            fontWeight: typography.heading1?.bold?.fontWeight,
+            fontFamily: typography.heading1?.bold?.fontFamily,
+          ).merge(
+            incomingCallStyle.avatarStyle?.placeHolderTextStyle,
+          ),
+          backgroundColor: incomingCallStyle.avatarStyle?.backgroundColor,
+          placeHolderTextColor:
+              incomingCallStyle.avatarStyle?.placeHolderTextColor,
+          borderRadius: incomingCallStyle.avatarStyle?.borderRadius,
+          border: incomingCallStyle.avatarStyle?.border,
+        ),
+      );
+    }
   }
 }

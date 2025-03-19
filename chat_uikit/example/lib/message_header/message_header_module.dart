@@ -18,13 +18,6 @@ class MessageHeaderModule extends StatelessWidget {
           "CometChatMessageHeader is an independent component that displays the User or Group information using SDK's User or Group object "
           ". To learn more about this component tap here",
       onTap: () {
-        Group _group = Group(
-            name: "Avengers",
-            hasJoined: true,
-            membersCount: 8,
-            guid: "supergroup",
-            type: GroupTypeConstants.public);
-
         Navigator.push(
             context,
             MaterialPageRoute(

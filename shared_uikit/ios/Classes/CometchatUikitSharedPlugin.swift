@@ -224,27 +224,43 @@ public class CometchatUikitSharedPlugin: NSObject, FlutterPlugin, QLPreviewContr
     }
     
     
-    private func presentImagePicker() {
-        
-        
-        DispatchQueue.main.async { [weak self] in
-            
-            guard let this = self else{
-                return
-            }
-            
-            if let controller = CometchatUikitSharedPlugin.uiViewController {
-                this.imagePicker.modalPresentationStyle = UIModalPresentationStyle.fullScreen
-                if #available(iOS 11.0, *) {
-                    this.imagePicker.videoExportPreset = AVAssetExportPresetPassthrough
-                } else {
-                    // Fallback on earlier versions
-                }
-                
-                controller.present(this.imagePicker, animated: true, completion: nil)
-            }
+private func presentImagePicker(mediaType: String) {
+    DispatchQueue.main.async { [weak self] in
+        guard let this = self else { return }
+
+        guard let controller = CometchatUikitSharedPlugin.uiViewController else {
+            print("Error: Unable to access UI View Controller")
+            return
+        }
+
+        guard this.imagePicker != nil else {
+            print("Error: Image Picker is not initialized")
+            return
+        }
+
+        this.imagePicker.modalPresentationStyle = .fullScreen
+
+        if #available(iOS 11.0, *) {
+            this.imagePicker.videoExportPreset = AVAssetExportPresetPassthrough
+        }
+
+        if mediaType == "image" {
+            this.imagePicker.mediaTypes = ["public.image"]
+        } else if mediaType == "video" {
+            this.imagePicker.mediaTypes = ["public.movie"]
+        } else {
+            print("Warning: Invalid mediaType \(mediaType), defaulting to images only")
+            this.imagePicker.mediaTypes = ["public.image"]
+        }
+
+        if controller.presentedViewController == nil {
+            controller.present(this.imagePicker, animated: true, completion: nil)
+        } else {
+            print("Warning: A view controller is already presented")
         }
     }
+}
+
     
     
     private func cleanResult(){
@@ -335,9 +351,12 @@ public class CometchatUikitSharedPlugin: NSObject, FlutterPlugin, QLPreviewContr
         }
         self.filePickerResult = result
         
-        if(type ==  "imagevideo"){
-            presentImagePicker()
+        if(type ==  "image"){
+            presentImagePicker(mediaType: type)
             return
+        } else if(type ==  "video") {
+         presentImagePicker(mediaType: type)
+         return
         }else{
             presentDocumentPicker()
             return

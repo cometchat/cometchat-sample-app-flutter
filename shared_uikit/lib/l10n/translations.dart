@@ -819,19 +819,19 @@ abstract class Translations {
   /// No description provided for @attach_video.
   ///
   /// In en, this message translates to:
-  /// **'Attach video'**
+  /// **'Attach Video'**
   String get attachVideo;
 
   /// No description provided for @attach_audio.
   ///
   /// In en, this message translates to:
-  /// **'Attach audio'**
+  /// **'Attach Audio'**
   String get attachAudio;
 
   /// No description provided for @attach_image.
   ///
   /// In en, this message translates to:
-  /// **'Attach image'**
+  /// **'Attach Image'**
   String get attachImage;
 
   /// No description provided for @collaborate_using_document.
@@ -2309,6 +2309,29 @@ abstract class Translations {
   ///In en, this translates to :
   ///**'Are you sure you want to delete this message? This action cannot be undone.'
   String get deleteMessageWarning;
+
+  ///No description provided for @deleteMessageWarning.
+
+  ///In en, this translates to :
+  ///**'from'
+  String get from;
+
+  ///In en, this translates to :
+  ///**'Are you sure you want to ban'
+  String get areYouSureBan;
+
+  ///In en, this translates to :
+  ///**'Are you sure you want to remove'
+  String get areYouSureRemove;
+
+  ///In en, this translates to :
+  ///**'Attach Document'
+  String get attachDocument;
+
+  ///In en, this translates to :
+  ///**'Camera'
+  String get camera;
+
 }
 
 class _TranslationsDelegate extends LocalizationsDelegate<Translations> {

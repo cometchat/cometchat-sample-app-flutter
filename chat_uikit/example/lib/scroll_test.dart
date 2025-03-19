@@ -9,13 +9,13 @@ class MyScrollTestWidget extends StatefulWidget {
 class _MyWidgetState extends State<MyScrollTestWidget>  with SingleTickerProviderStateMixin
 {
 final _focusNode = FocusNode();
-late Animation<double> _paddingAnimation;
+late Animation<double> paddingAnimation;
 
 @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _paddingAnimation = Tween<double>(begin: 0.0, end: 100.0).animate(CurvedAnimation(
+    paddingAnimation = Tween<double>(begin: 0.0, end: 100.0).animate(CurvedAnimation(
       parent: AnimationController(
         duration: const Duration(milliseconds: 250),
         vsync: this,

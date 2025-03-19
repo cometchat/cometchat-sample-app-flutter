@@ -4,7 +4,6 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 class CometChatUIKitChatExtensions {
   static List<ExtensionsDataSource> getDefaultExtensions() {
     return [
-      TextModerationExtension(),
       StickersExtension(),
       CollaborativeDocumentExtension(),
       CollaborativeWhiteBoardExtension(),

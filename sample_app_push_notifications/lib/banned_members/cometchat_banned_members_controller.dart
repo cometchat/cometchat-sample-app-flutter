@@ -18,7 +18,6 @@ class CometChatBannedMembersController
   late String groupSDKListenerID;
   late String userSDKListenerID;
   late String groupUIListenerID;
-  CometChatTheme? theme;
   bool disableUsersPresence;
   bool? isOwner;
   late Group group;
@@ -200,6 +199,7 @@ class CometChatBannedMembersController
                     type: MessageTypeConstants.groupActions,
                     receiverType: ReceiverTypeConstants.group,
                     parentMessageId: 0,
+                    receiver: group,
                   ),
                   member,
                   loggedInUser!,

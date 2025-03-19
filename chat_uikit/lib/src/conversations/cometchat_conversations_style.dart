@@ -13,36 +13,49 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 /// ```
 class CometChatConversationsStyle
     extends ThemeExtension<CometChatConversationsStyle> {
-  const CometChatConversationsStyle(
-      {this.backgroundColor,
-        this.border,
-        this.borderRadius,
-        this.backIconColor,
-        this.titleTextStyle,
-        this.titleTextColor,
-        this.emptyStateTextStyle,
-        this.emptyStateTextColor,
-        this.errorStateTextStyle,
-        this.errorStateTextColor,
-        this.emptyStateSubTitleTextStyle,
-        this.emptyStateSubTitleTextColor,
-        this.errorStateSubTitleTextStyle,
-        this.errorStateSubTitleTextColor,
-        this.itemTitleTextStyle,
-        this.itemTitleTextColor,
-        this.itemSubtitleTextStyle,
-        this.itemSubtitleTextColor,
-        this.messageTypeIconColor,
-        this.separatorColor,
-        this.separatorHeight,
-        this.typingIndicatorStyle,
-        this.avatarStyle,
-        this.statusIndicatorStyle,
-        this.badgeStyle,
-        this.receiptStyle,
-        this.mentionsStyle,
-        this.dateStyle,
-        this.deleteConversationDialogStyle});
+  const CometChatConversationsStyle({
+    this.backgroundColor,
+    this.border,
+    this.borderRadius,
+    this.backIconColor,
+    this.titleTextStyle,
+    this.titleTextColor,
+    this.emptyStateTextStyle,
+    this.emptyStateTextColor,
+    this.errorStateTextStyle,
+    this.errorStateTextColor,
+    this.emptyStateSubTitleTextStyle,
+    this.emptyStateSubTitleTextColor,
+    this.errorStateSubTitleTextStyle,
+    this.errorStateSubTitleTextColor,
+    this.itemTitleTextStyle,
+    this.itemTitleTextColor,
+    this.itemSubtitleTextStyle,
+    this.itemSubtitleTextColor,
+    this.messageTypeIconColor,
+    this.separatorColor,
+    this.separatorHeight,
+    this.typingIndicatorStyle,
+    this.avatarStyle,
+    this.statusIndicatorStyle,
+    this.badgeStyle,
+    this.receiptStyle,
+    this.mentionsStyle,
+    this.dateStyle,
+    this.deleteConversationDialogStyle,
+    this.privateGroupIconBackground,
+    this.protectedGroupIconBackground,
+    this.checkBoxBackgroundColor,
+    this.checkBoxBorder,
+    this.checkBoxBorderRadius,
+    this.checkBoxCheckedBackgroundColor,
+    this.listItemSelectedBackgroundColor,
+    this.checkboxSelectedIconColor,
+    this.submitIconColor,
+  });
+
+  ///[submitIconColor] provides color for submit icon
+  final Color? submitIconColor;
 
   ///[backgroundColor] provides background color for the widget
   final Color? backgroundColor;
@@ -85,6 +98,7 @@ class CometChatConversationsStyle
 
   ///[errorStateSubTitleTextColor] provides sub-title text color for error state
   final Color? errorStateSubTitleTextColor;
+
 
   ///[itemTitleTextStyle] provides text style for item tile title
   final TextStyle? itemTitleTextStyle;
@@ -131,6 +145,30 @@ class CometChatConversationsStyle
   ///[deleteConversationDialogStyle] sets the style for the dialog for deleting conversation
   final CometChatConfirmDialogStyle? deleteConversationDialogStyle;
 
+  ///[privateGroupIconBackground] provides background color for private group icon
+  final Color? privateGroupIconBackground;
+
+  ///[protectedGroupIconBackground] provides background color for protected group icon
+  final Color? protectedGroupIconBackground;
+
+  ///[checkBoxBackgroundColor] provides background color for selected item
+  final Color? checkBoxBackgroundColor;
+
+  ///[checkBoxCheckedBackgroundColor] provides check color for selected item
+  final Color? checkBoxCheckedBackgroundColor;
+
+  ///[checkBoxBorderRadius] provides border radius for selected item
+  final BorderRadiusGeometry? checkBoxBorderRadius;
+
+  ///[listItemSelectedBackgroundColor] provides background color for selected item
+  final Color? listItemSelectedBackgroundColor;
+
+  ///[checkboxSelectedIconColor] provides color for selected item
+  final Color? checkboxSelectedIconColor;
+
+  ///[checkBoxBorder] provides border for selected item
+  final BorderSide? checkBoxBorder;
+
   static CometChatConversationsStyle of(BuildContext context) =>
       const CometChatConversationsStyle();
 
@@ -152,6 +190,7 @@ class CometChatConversationsStyle
     Color? errorStateSubTitleTextColor,
     TextStyle? itemTitleTextStyle,
     Color? itemTitleTextColor,
+    Color? submitIconColor,
     TextStyle? itemSubtitleTextStyle,
     Color? itemSubtitleTextColor,
     Color? messageTypeIconColor,
@@ -165,6 +204,14 @@ class CometChatConversationsStyle
     CometChatDateStyle? dateStyle,
     CometChatTypingIndicatorStyle? typingIndicatorStyle,
     CometChatConfirmDialogStyle? deleteConversationDialogStyle,
+    Color? privateGroupIconBackground,
+    Color? protectedGroupIconBackground,
+    BorderSide? checkBoxBorder,
+    Color? checkBoxBackgroundColor,
+    Color? checkBoxCheckedBackgroundColor,
+    BorderRadiusGeometry? checkBoxBorderRadius,
+    Color? listItemSelectedBackgroundColor,
+    Color? checkboxSelectedIconColor,
   }) {
     return CometChatConversationsStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -178,19 +225,19 @@ class CometChatConversationsStyle
       errorStateTextStyle: errorStateTextStyle ?? this.errorStateTextStyle,
       errorStateTextColor: errorStateTextColor ?? this.errorStateTextColor,
       emptyStateSubTitleTextStyle:
-      emptyStateSubtitleTextStyle ?? this.emptyStateSubTitleTextStyle,
+          emptyStateSubtitleTextStyle ?? this.emptyStateSubTitleTextStyle,
       emptyStateSubTitleTextColor:
-      emptyStateSubtitleTextColor ?? this.emptyStateSubTitleTextColor,
+          emptyStateSubtitleTextColor ?? this.emptyStateSubTitleTextColor,
       errorStateSubTitleTextStyle:
-      errorStateSubTitleTextStyle ?? this.errorStateSubTitleTextStyle,
+          errorStateSubTitleTextStyle ?? this.errorStateSubTitleTextStyle,
       errorStateSubTitleTextColor:
-      errorStateSubTitleTextColor ?? this.errorStateSubTitleTextColor,
+          errorStateSubTitleTextColor ?? this.errorStateSubTitleTextColor,
       itemTitleTextStyle: itemTitleTextStyle ?? this.itemTitleTextStyle,
       itemTitleTextColor: itemTitleTextColor ?? this.itemTitleTextColor,
       itemSubtitleTextStyle:
-      itemSubtitleTextStyle ?? this.itemSubtitleTextStyle,
+          itemSubtitleTextStyle ?? this.itemSubtitleTextStyle,
       itemSubtitleTextColor:
-      itemSubtitleTextColor ?? this.itemSubtitleTextColor,
+          itemSubtitleTextColor ?? this.itemSubtitleTextColor,
       messageTypeIconColor: messageTypeIconColor ?? this.messageTypeIconColor,
       separatorHeight: separatorHeight ?? this.separatorHeight,
       separatorColor: separatorColor ?? this.separatorColor,
@@ -202,7 +249,23 @@ class CometChatConversationsStyle
       dateStyle: dateStyle ?? this.dateStyle,
       typingIndicatorStyle: typingIndicatorStyle ?? this.typingIndicatorStyle,
       deleteConversationDialogStyle:
-      deleteConversationDialogStyle ?? this.deleteConversationDialogStyle,
+          deleteConversationDialogStyle ?? this.deleteConversationDialogStyle,
+      privateGroupIconBackground:
+          privateGroupIconBackground ?? this.privateGroupIconBackground,
+      protectedGroupIconBackground:
+          protectedGroupIconBackground ?? this.protectedGroupIconBackground,
+      checkBoxBorder: checkBoxBorder ?? this.checkBoxBorder,
+      checkBoxBackgroundColor:
+      checkBoxBackgroundColor ?? this.checkBoxBackgroundColor,
+      checkBoxCheckedBackgroundColor:
+      checkBoxCheckedBackgroundColor ?? this.checkBoxCheckedBackgroundColor,
+      checkBoxBorderRadius: checkBoxBorderRadius ?? this.checkBoxBorderRadius,
+      listItemSelectedBackgroundColor: listItemSelectedBackgroundColor ??
+          this.listItemSelectedBackgroundColor,
+      checkboxSelectedIconColor:
+      checkboxSelectedIconColor ?? this.checkboxSelectedIconColor,
+      submitIconColor:
+      submitIconColor ?? this.submitIconColor,
     );
   }
 
@@ -238,6 +301,15 @@ class CometChatConversationsStyle
       emptyStateTextStyle: style.emptyStateTextStyle,
       emptyStateTextColor: style.emptyStateTextColor,
       errorStateTextStyle: style.errorStateTextStyle,
+      privateGroupIconBackground: style.privateGroupIconBackground,
+      protectedGroupIconBackground: style.protectedGroupIconBackground,
+      checkBoxBorder: style.checkBoxBorder,
+      checkBoxBackgroundColor: style.checkBoxBackgroundColor,
+      checkBoxCheckedBackgroundColor: style.checkBoxCheckedBackgroundColor,
+      checkBoxBorderRadius: style.checkBoxBorderRadius,
+      listItemSelectedBackgroundColor: style.listItemSelectedBackgroundColor,
+      checkboxSelectedIconColor: style.checkboxSelectedIconColor,
+      submitIconColor: style.submitIconColor,
     );
   }
 
@@ -250,18 +322,19 @@ class CometChatConversationsStyle
     return CometChatConversationsStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: Border.lerp(border, other.border, t),
-      borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius:
+          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
       backIconColor: Color.lerp(backIconColor, other.backIconColor, t),
       titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
       titleTextColor: Color.lerp(titleTextColor, other.titleTextColor, t),
       emptyStateTextStyle:
-      TextStyle.lerp(emptyStateTextStyle, other.emptyStateTextStyle, t),
+          TextStyle.lerp(emptyStateTextStyle, other.emptyStateTextStyle, t),
       emptyStateTextColor:
-      Color.lerp(emptyStateTextColor, other.emptyStateTextColor, t),
+          Color.lerp(emptyStateTextColor, other.emptyStateTextColor, t),
       errorStateTextStyle:
-      TextStyle.lerp(errorStateTextStyle, other.errorStateTextStyle, t),
+          TextStyle.lerp(errorStateTextStyle, other.errorStateTextStyle, t),
       errorStateTextColor:
-      Color.lerp(errorStateTextColor, other.errorStateTextColor, t),
+          Color.lerp(errorStateTextColor, other.errorStateTextColor, t),
       emptyStateSubTitleTextStyle: TextStyle.lerp(
           emptyStateSubTitleTextStyle, other.emptyStateSubTitleTextStyle, t),
       emptyStateSubTitleTextColor: Color.lerp(
@@ -271,28 +344,48 @@ class CometChatConversationsStyle
       errorStateSubTitleTextColor: Color.lerp(
           errorStateSubTitleTextColor, other.errorStateSubTitleTextColor, t),
       itemTitleTextStyle:
-      TextStyle.lerp(itemTitleTextStyle, other.itemTitleTextStyle, t),
+          TextStyle.lerp(itemTitleTextStyle, other.itemTitleTextStyle, t),
       itemTitleTextColor:
-      Color.lerp(itemTitleTextColor, other.itemTitleTextColor, t),
+          Color.lerp(itemTitleTextColor, other.itemTitleTextColor, t),
       itemSubtitleTextStyle:
-      TextStyle.lerp(itemSubtitleTextStyle, other.itemSubtitleTextStyle, t),
+          TextStyle.lerp(itemSubtitleTextStyle, other.itemSubtitleTextStyle, t),
       itemSubtitleTextColor:
-      Color.lerp(itemSubtitleTextColor, other.itemSubtitleTextColor, t),
+          Color.lerp(itemSubtitleTextColor, other.itemSubtitleTextColor, t),
       messageTypeIconColor:
-      Color.lerp(messageTypeIconColor, other.messageTypeIconColor, t),
+          Color.lerp(messageTypeIconColor, other.messageTypeIconColor, t),
       separatorHeight: lerpDouble(separatorHeight, other.separatorHeight, t),
       separatorColor: Color.lerp(separatorColor, other.separatorColor, t),
       avatarStyle: avatarStyle?.lerp(other.avatarStyle, t),
       typingIndicatorStyle:
-      typingIndicatorStyle?.lerp(other.typingIndicatorStyle, t),
+          typingIndicatorStyle?.lerp(other.typingIndicatorStyle, t),
       badgeStyle: badgeStyle?.lerp(other.badgeStyle, t),
       dateStyle: dateStyle?.lerp(other.dateStyle, t),
       mentionsStyle: mentionsStyle?.lerp(other.mentionsStyle, t),
       receiptStyle: receiptStyle?.lerp(other.receiptStyle, t),
       statusIndicatorStyle:
-      statusIndicatorStyle?.lerp(other.statusIndicatorStyle, t),
+          statusIndicatorStyle?.lerp(other.statusIndicatorStyle, t),
       deleteConversationDialogStyle: deleteConversationDialogStyle?.lerp(
           other.deleteConversationDialogStyle, t),
+      privateGroupIconBackground: Color.lerp(
+          privateGroupIconBackground, other.privateGroupIconBackground, t),
+      protectedGroupIconBackground: Color.lerp(
+          protectedGroupIconBackground, other.protectedGroupIconBackground, t),
+      checkBoxBorder: BorderSide.lerp(checkBoxBorder ?? BorderSide.none,
+          other.checkBoxBorder ?? BorderSide.none, t),
+      checkBoxBackgroundColor:
+      Color.lerp(checkBoxBackgroundColor, other.checkBoxBackgroundColor, t),
+      checkBoxCheckedBackgroundColor: Color.lerp(checkBoxCheckedBackgroundColor,
+          other.checkBoxCheckedBackgroundColor, t),
+      checkBoxBorderRadius: BorderRadiusGeometry.lerp(
+          checkBoxBorderRadius, other.checkBoxBorderRadius, t),
+      listItemSelectedBackgroundColor: Color.lerp(
+          listItemSelectedBackgroundColor,
+          other.listItemSelectedBackgroundColor,
+          t),
+      checkboxSelectedIconColor: Color.lerp(
+          checkboxSelectedIconColor, other.checkboxSelectedIconColor, t),
+      submitIconColor: Color.lerp(
+          submitIconColor, other.submitIconColor, t),
     );
   }
 }

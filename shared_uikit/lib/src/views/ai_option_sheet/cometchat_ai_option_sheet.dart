@@ -11,6 +11,7 @@ Future<CometChatMessageComposerAction?>? showCometChatAiOptionSheet(
     final CometChatTypography? typography,
     final CometChatSpacing? spacing,
       final CometChatAiOptionSheetStyle? style,
+      final AIOptionsStyle? aiOptionStyle,
     }) {
   final aiOptionSheetStyle = CometChatThemeHelper.getTheme<CometChatAiOptionSheetStyle>(
     context: context,
@@ -37,33 +38,42 @@ Future<CometChatMessageComposerAction?>? showCometChatAiOptionSheet(
           bottom: spacing?.padding5 ?? 0,
         ),
         itemBuilder: (_, int index) {
-          return GestureDetector(
-            onTap: () {
-              FocusManager.instance.primaryFocus?.unfocus();
-              Navigator.of(context).pop();
-              if (actionItems[index].onItemClick != null) {
-                actionItems[index].onItemClick!(context, user, group);
-              }
-            },
-            child: ListTile(
-              contentPadding: EdgeInsets.all(
-                spacing?.padding4 ?? 0,
-              ),
-              minVerticalPadding: 0,
-              minLeadingWidth: 0,
-              minTileHeight: 0,
-              leading: actionItems[index].icon,
-              iconColor: aiOptionSheetStyle.iconColor ?? actionItems[index].style?.iconColor ??
-                  colorPalette?.iconHighlight ?? Colors.transparent,
-              title: Text(
-                actionItems[index].title,
-                style: TextStyle(
-                    fontSize: typography?.body?.regular?.fontSize,
-                    fontWeight: typography?.body?.regular?.fontWeight,
-                    color: colorPalette?.textPrimary,
-                    fontFamily: typography?.body?.regular?.fontFamily)
-                    .merge(
-                  actionItems[index].style?.titleTextStyle ?? aiOptionSheetStyle.textStyle,
+          return Container(
+            decoration: BoxDecoration(
+              border: actionItems[index].style?.border,
+              borderRadius: actionItems[index].style?.borderRadius,
+              color: actionItems[index].style?.backgroundColor,
+            ),
+            child: GestureDetector(
+              onTap: () {
+                FocusManager.instance.primaryFocus?.unfocus();
+                Navigator.of(context).pop();
+                if (actionItems[index].onItemClick != null) {
+                  actionItems[index].onItemClick!(context, user, group);
+                }
+              },
+              child: ListTile(
+                contentPadding: EdgeInsets.all(
+                  spacing?.padding4 ?? 0,
+                ),
+                minVerticalPadding: 0,
+                minLeadingWidth: 0,
+                minTileHeight: 0,
+                leading: actionItems[index].icon,
+                iconColor: actionItems[index].style?.iconColor ?? aiOptionSheetStyle.iconColor ??
+                    colorPalette?.iconHighlight ?? Colors.transparent,
+                title: Text(
+                  actionItems[index].title,
+                  style: TextStyle(
+                      fontSize: typography?.body?.regular?.fontSize,
+                      fontWeight: typography?.body?.regular?.fontWeight,
+                      color: actionItems[index].style?.titleColor ?? colorPalette?.textPrimary,
+                      fontFamily: typography?.body?.regular?.fontFamily)
+                      .merge(
+                    actionItems[index].style?.titleTextStyle ?? aiOptionSheetStyle.textStyle,
+                  ).copyWith(
+                    color: actionItems[index].style?.titleColor ?? colorPalette?.textPrimary,
+                  ),
                 ),
               ),
             ),

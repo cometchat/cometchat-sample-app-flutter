@@ -39,7 +39,6 @@ class CometChatIncomingCallController extends GetxController with CallListener {
       this.onAccept,
       required this.activeCall,
       this.onError,
-      CometChatTheme? theme,
       this.disableSoundForCalls,
       this.customSoundForCalls,
       this.customSoundForCallsPackage,

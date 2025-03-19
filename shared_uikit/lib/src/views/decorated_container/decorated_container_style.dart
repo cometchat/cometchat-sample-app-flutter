@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../cometchat_uikit_shared.dart';
 
 class DecoratedContainerStyle {
   const DecoratedContainerStyle({

@@ -22,8 +22,7 @@ class MessagesDataSource implements DataSource {
       ),
       messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
         titleTextStyle: TextStyle(
-          color:
-              messageOptionSheetStyle?.titleColor,
+          color: messageOptionSheetStyle?.titleColor,
           fontFamily: typography.body?.regular?.fontFamily,
           fontWeight: typography.body?.regular?.fontWeight,
           fontSize: typography.body?.regular?.fontSize,
@@ -85,8 +84,7 @@ class MessagesDataSource implements DataSource {
       ),
       messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
         titleTextStyle: TextStyle(
-          color:
-              messageOptionSheetStyle?.titleColor,
+          color: messageOptionSheetStyle?.titleColor,
           fontFamily: typography.body?.regular?.fontFamily,
           fontWeight: typography.body?.regular?.fontWeight,
           fontSize: typography.body?.regular?.fontSize,
@@ -118,8 +116,7 @@ class MessagesDataSource implements DataSource {
       ),
       messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
         titleTextStyle: TextStyle(
-          color:
-              messageOptionSheetStyle?.titleColor,
+          color: messageOptionSheetStyle?.titleColor,
           fontFamily: typography.body?.regular?.fontFamily,
           fontWeight: typography.body?.regular?.fontWeight,
           fontSize: typography.body?.regular?.fontSize,
@@ -149,8 +146,7 @@ class MessagesDataSource implements DataSource {
       ),
       messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
         titleTextStyle: TextStyle(
-          color:
-              messageOptionSheetStyle?.titleColor,
+          color: messageOptionSheetStyle?.titleColor,
           fontFamily: typography.body?.regular?.fontFamily,
           fontWeight: typography.body?.regular?.fontWeight,
           fontSize: typography.body?.regular?.fontSize,
@@ -180,8 +176,7 @@ class MessagesDataSource implements DataSource {
       ),
       messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
         titleTextStyle: TextStyle(
-          color:
-              messageOptionSheetStyle?.titleColor,
+          color: messageOptionSheetStyle?.titleColor,
           fontFamily: typography.body?.regular?.fontFamily,
           fontWeight: typography.body?.regular?.fontWeight,
           fontSize: typography.body?.regular?.fontSize,
@@ -221,8 +216,7 @@ class MessagesDataSource implements DataSource {
       ),
       messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
         titleTextStyle: TextStyle(
-          color:
-              messageOptionSheetStyle?.titleColor,
+          color: messageOptionSheetStyle?.titleColor,
           fontFamily: typography.body?.regular?.fontFamily,
           fontWeight: typography.body?.regular?.fontWeight,
           fontSize: typography.body?.regular?.fontSize,
@@ -252,40 +246,48 @@ class MessagesDataSource implements DataSource {
     final typography = CometChatThemeHelper.getTypography(context);
     final style = additionalConfigurations?.messageOptionSheetStyle;
 
-    if (_validateOption(loggedInUser, messageObject, context, group,
-        MessageOptionConstants.replyInThreadMessage)) {
+    if (additionalConfigurations?.hideReplyInThreadOption != true &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.replyInThreadMessage)) {
       messageOptionList.add(
           getReplyInThreadOption(context, colorPalette, typography, style));
     }
-    if (_validateOption(loggedInUser, messageObject, context, group,
-        MessageOptionConstants.shareMessage)) {
+    if (additionalConfigurations?.hideShareMessageOption != true &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.shareMessage)) {
       messageOptionList
           .add(getShareOption(context, colorPalette, typography, style));
     }
 
-    messageOptionList
-        .add(getCopyOption(context, colorPalette, typography, style));
+    if (additionalConfigurations?.hideCopyMessageOption != true) {
+      messageOptionList
+          .add(getCopyOption(context, colorPalette, typography, style));
+    }
 
-    if (_validateOption(loggedInUser, messageObject, context, group,
-        MessageOptionConstants.editMessage)) {
+    if (additionalConfigurations?.hideEditMessageOption != true &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.editMessage)) {
       messageOptionList
           .add(getEditOption(context, colorPalette, typography, style));
     }
 
-    if (_validateOption(loggedInUser, messageObject, context, group,
-        MessageOptionConstants.messageInformation)) {
+    if (additionalConfigurations?.hideMessageInfoOption != true &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.messageInformation)) {
       messageOptionList
           .add(getMessageInfo(context, colorPalette, typography, style));
     }
 
-    if (_validateOption(loggedInUser, messageObject, context, group,
-        MessageOptionConstants.deleteMessage)) {
+    if (additionalConfigurations?.hideDeleteMessageOption != true &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.deleteMessage)) {
       messageOptionList
           .add(getDeleteOption(context, colorPalette, typography, style));
     }
 
-    if (_validateOption(loggedInUser, messageObject, context, group,
-        MessageOptionConstants.sendMessagePrivately)) {
+    if (additionalConfigurations?.hideMessagePrivatelyOption != true &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.sendMessagePrivately)) {
       messageOptionList.add(
           getSendMessagePrivately(context, colorPalette, typography, style));
     }
@@ -347,24 +349,29 @@ class MessagesDataSource implements DataSource {
   }
 
   @override
-  Widget getDeleteMessageBubble(
-      BaseMessage messageObject, BuildContext context, CometChatDeletedBubbleStyle? style) {
+  Widget getDeleteMessageBubble(BaseMessage messageObject, BuildContext context,
+      CometChatDeletedBubbleStyle? style) {
     CometChatColorPalette colorPalette =
         CometChatThemeHelper.getColorPalette(context);
-    final style0 = CometChatThemeHelper.getTheme<CometChatDeletedBubbleStyle>(context: context,defaultTheme: CometChatDeletedBubbleStyle.of).merge(style);
+    final style0 = CometChatThemeHelper.getTheme<CometChatDeletedBubbleStyle>(
+            context: context, defaultTheme: CometChatDeletedBubbleStyle.of)
+        .merge(style);
     return CometChatDeletedBubble(
       style: CometChatDeletedBubbleStyle(
-        iconColor: style0.iconColor ??( messageObject.sender?.uid == CometChatUIKit.loggedInUser?.uid
-            ? colorPalette.white
-            : colorPalette.neutral600),
-        textColor: style0.textColor ?? (messageObject.sender?.uid == CometChatUIKit.loggedInUser?.uid
-            ? colorPalette.white
-            : colorPalette.neutral600),
+        iconColor: style0.iconColor ??
+            (messageObject.sender?.uid == CometChatUIKit.loggedInUser?.uid
+                ? colorPalette.white
+                : colorPalette.neutral600),
+        textColor: style0.textColor ??
+            (messageObject.sender?.uid == CometChatUIKit.loggedInUser?.uid
+                ? colorPalette.white
+                : colorPalette.neutral600),
       ).merge(style0),
     );
   }
 
-  Widget getGroupActionBubble(BaseMessage messageObject,CometChatActionBubbleStyle? style) {
+  Widget getGroupActionBubble(
+      BaseMessage messageObject, CometChatActionBubbleStyle? style) {
     cc.Action actionMessage = messageObject as cc.Action;
 
     return CometChatActionBubble(
@@ -380,7 +387,7 @@ class MessagesDataSource implements DataSource {
   }
 
   @override
-  CometChatMessageTemplate getTextMessageTemplate(CometChatTheme theme) {
+  CometChatMessageTemplate getTextMessageTemplate() {
     return CometChatMessageTemplate(
       // name: MessageTypeConstants.text,
       type: MessageTypeConstants.text,
@@ -390,11 +397,12 @@ class MessagesDataSource implements DataSource {
               {AdditionalConfigurations? additionalConfigurations}) {
         TextMessage textMessage = message as TextMessage;
         if (message.deletedAt != null) {
-          return getDeleteMessageBubble(message, context,additionalConfigurations?.deletedBubbleStyle);
+          return getDeleteMessageBubble(
+              message, context, additionalConfigurations?.deletedBubbleStyle);
         }
 
         return CometChatUIKit.getDataSource().getTextMessageContentView(
-            textMessage, context, alignment, theme,
+            textMessage, context, alignment,
             additionalConfigurations: additionalConfigurations);
       },
       options: CometChatUIKit.getDataSource().getMessageOptions,
@@ -404,23 +412,22 @@ class MessagesDataSource implements DataSource {
 
   @override
   Widget getTextMessageContentView(TextMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,
+      BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
     return CometChatUIKit.getDataSource().getTextMessageBubble(
         message.text,
         message,
         context,
         alignment,
-        theme,
         additionalConfigurations?.textBubbleStyle,
         additionalConfigurations?.textFormatters);
   }
 
   @override
   Widget getFormMessageContentView(FormMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme) {
+      BubbleAlignment alignment) {
     return CometChatUIKit.getDataSource()
-        .getFormMessageBubble(message: message, theme: theme);
+        .getFormMessageBubble(message: message);
   }
 
   @override
@@ -433,18 +440,23 @@ class MessagesDataSource implements DataSource {
             {AdditionalConfigurations? additionalConfigurations}) {
           MediaMessage audioMessage = message as MediaMessage;
           if (message.deletedAt != null) {
-            return getDeleteMessageBubble(message, context,additionalConfigurations?.deletedBubbleStyle);
+            return getDeleteMessageBubble(
+                message, context, additionalConfigurations?.deletedBubbleStyle);
           }
 
-          return CometChatUIKit.getDataSource()
-              .getAudioMessageContentView(audioMessage, context, alignment,additionalConfigurations: additionalConfigurations,);
+          return CometChatUIKit.getDataSource().getAudioMessageContentView(
+            audioMessage,
+            context,
+            alignment,
+            additionalConfigurations: additionalConfigurations,
+          );
         },
         options: CometChatUIKit.getDataSource().getMessageOptions,
         bottomView: CometChatUIKit.getDataSource().getBottomView);
   }
 
   @override
-  CometChatMessageTemplate getVideoMessageTemplate(CometChatTheme theme) {
+  CometChatMessageTemplate getVideoMessageTemplate() {
     return CometChatMessageTemplate(
         type: MessageTypeConstants.video,
         category: MessageCategoryConstants.message,
@@ -452,18 +464,20 @@ class MessagesDataSource implements DataSource {
             BubbleAlignment alignment,
             {AdditionalConfigurations? additionalConfigurations}) {
           if (message.deletedAt != null) {
-            return getDeleteMessageBubble(message, context,additionalConfigurations?.deletedBubbleStyle);
+            return getDeleteMessageBubble(
+                message, context, additionalConfigurations?.deletedBubbleStyle);
           }
 
           return CometChatUIKit.getDataSource().getVideoMessageContentView(
-              message as MediaMessage, context, alignment, theme,additionalConfigurations: additionalConfigurations);
+              message as MediaMessage, context, alignment,
+              additionalConfigurations: additionalConfigurations);
         },
         options: CometChatUIKit.getDataSource().getMessageOptions,
         bottomView: CometChatUIKit.getDataSource().getBottomView);
   }
 
   @override
-  CometChatMessageTemplate getImageMessageTemplate(CometChatTheme theme) {
+  CometChatMessageTemplate getImageMessageTemplate() {
     return CometChatMessageTemplate(
         type: MessageTypeConstants.image,
         category: MessageCategoryConstants.message,
@@ -471,11 +485,13 @@ class MessagesDataSource implements DataSource {
             BubbleAlignment alignment,
             {AdditionalConfigurations? additionalConfigurations}) {
           if (message.deletedAt != null) {
-            return getDeleteMessageBubble(message, context,additionalConfigurations?.deletedBubbleStyle);
+            return getDeleteMessageBubble(
+                message, context, additionalConfigurations?.deletedBubbleStyle);
           }
 
           return CometChatUIKit.getDataSource().getImageMessageContentView(
-              message as MediaMessage, context, alignment, theme,additionalConfigurations: additionalConfigurations);
+              message as MediaMessage, context, alignment,
+              additionalConfigurations: additionalConfigurations);
         },
         options: CometChatUIKit.getDataSource().getMessageOptions,
         bottomView: CometChatUIKit.getDataSource().getBottomView);
@@ -489,12 +505,12 @@ class MessagesDataSource implements DataSource {
         contentView: (BaseMessage message, BuildContext context,
             BubbleAlignment alignment,
             {AdditionalConfigurations? additionalConfigurations}) {
-          return getGroupActionBubble(message,additionalConfigurations?.actionBubbleStyle);
+          return getGroupActionBubble(
+              message, additionalConfigurations?.actionBubbleStyle);
         });
   }
 
-  CometChatMessageTemplate getDefaultMessageActionsTemplate(
-      CometChatTheme theme) {
+  CometChatMessageTemplate getDefaultMessageActionsTemplate() {
     return CometChatMessageTemplate(
       type: MessageTypeConstants.message,
       category: MessageCategoryConstants.action,
@@ -502,7 +518,7 @@ class MessagesDataSource implements DataSource {
   }
 
   @override
-  CometChatMessageTemplate getFileMessageTemplate(CometChatTheme theme) {
+  CometChatMessageTemplate getFileMessageTemplate() {
     return CometChatMessageTemplate(
         type: MessageTypeConstants.file,
         category: MessageCategoryConstants.message,
@@ -510,18 +526,20 @@ class MessagesDataSource implements DataSource {
             BubbleAlignment alignment,
             {AdditionalConfigurations? additionalConfigurations}) {
           if (message.deletedAt != null) {
-            return getDeleteMessageBubble(message, context,additionalConfigurations?.deletedBubbleStyle);
+            return getDeleteMessageBubble(
+                message, context, additionalConfigurations?.deletedBubbleStyle);
           }
 
           return CometChatUIKit.getDataSource().getFileMessageContentView(
-              message as MediaMessage, context, alignment,additionalConfigurations: additionalConfigurations);
+              message as MediaMessage, context, alignment,
+              additionalConfigurations: additionalConfigurations);
         },
         options: CometChatUIKit.getDataSource().getMessageOptions,
         bottomView: CometChatUIKit.getDataSource().getBottomView);
   }
 
   @override
-  CometChatMessageTemplate getFormMessageTemplate(CometChatTheme theme) {
+  CometChatMessageTemplate getFormMessageTemplate() {
     return CometChatMessageTemplate(
         // name: MessageTypeConstants.text,
         type: MessageTypeConstants.form,
@@ -530,7 +548,8 @@ class MessagesDataSource implements DataSource {
             BubbleAlignment alignment,
             {AdditionalConfigurations? additionalConfigurations}) {
           if (message.deletedAt != null) {
-            return getDeleteMessageBubble(message, context,additionalConfigurations?.deletedBubbleStyle);
+            return getDeleteMessageBubble(
+                message, context, additionalConfigurations?.deletedBubbleStyle);
           }
           //TODO: Implement FormMessage ContentView
           // FormMessage formMessage = message as FormMessage;
@@ -540,12 +559,14 @@ class MessagesDataSource implements DataSource {
         },
         //TODO: Implement FormMessage Options
         // options: CometChatUIKit.getDataSource().getFormMessageOptions,
-        options: (loggedInUser, messageObject, context, group, additionalConfigurations) => [],
+        options: (loggedInUser, messageObject, context, group,
+                additionalConfigurations) =>
+            [],
         bottomView: CometChatUIKit.getDataSource().getBottomView);
   }
 
   @override
-  CometChatMessageTemplate getSchedulerMessageTemplate(CometChatTheme theme) {
+  CometChatMessageTemplate getSchedulerMessageTemplate() {
     return CometChatMessageTemplate(
         type: MessageTypeConstants.scheduler,
         category: MessageCategoryConstants.interactive,
@@ -553,7 +574,8 @@ class MessagesDataSource implements DataSource {
             BubbleAlignment alignment,
             {AdditionalConfigurations? additionalConfigurations}) {
           if (message.deletedAt != null) {
-            return getDeleteMessageBubble(message, context,additionalConfigurations?.deletedBubbleStyle);
+            return getDeleteMessageBubble(
+                message, context, additionalConfigurations?.deletedBubbleStyle);
           }
           //TODO: Implement SchedulerMessage ContentView
           // SchedulerMessage meetingMessage = message as SchedulerMessage;
@@ -563,33 +585,31 @@ class MessagesDataSource implements DataSource {
         },
         //TODO: Implement SchedulerMessage Options
         // options: CometChatUIKit.getDataSource().getSchedulerMessageOptions,
-        options: (loggedInUser, messageObject, context, group, additionalConfigurations) => [],
+        options: (loggedInUser, messageObject, context, group,
+                additionalConfigurations) =>
+            [],
         bottomView: CometChatUIKit.getDataSource().getBottomView);
   }
 
   @override
-  List<CometChatMessageTemplate> getAllMessageTemplates(
-      {CometChatTheme? theme}) {
-    CometChatTheme theme0 = theme ?? cometChatTheme;
+  List<CometChatMessageTemplate> getAllMessageTemplates() {
     return [
-      CometChatUIKit.getDataSource().getTextMessageTemplate(theme0),
-      CometChatUIKit.getDataSource().getImageMessageTemplate(theme0),
-      CometChatUIKit.getDataSource().getVideoMessageTemplate(theme0),
+      CometChatUIKit.getDataSource().getTextMessageTemplate(),
+      CometChatUIKit.getDataSource().getImageMessageTemplate(),
+      CometChatUIKit.getDataSource().getVideoMessageTemplate(),
       CometChatUIKit.getDataSource().getAudioMessageTemplate(),
-      CometChatUIKit.getDataSource().getFileMessageTemplate(theme0),
+      CometChatUIKit.getDataSource().getFileMessageTemplate(),
       CometChatUIKit.getDataSource().getGroupActionTemplate(),
-      CometChatUIKit.getDataSource().getFormMessageTemplate(theme0),
-      CometChatUIKit.getDataSource().getCardMessageTemplate(theme0),
-      CometChatUIKit.getDataSource().getSchedulerMessageTemplate(theme0),
+      CometChatUIKit.getDataSource().getFormMessageTemplate(),
+      CometChatUIKit.getDataSource().getCardMessageTemplate(),
+      CometChatUIKit.getDataSource().getSchedulerMessageTemplate(),
     ];
   }
 
   @override
   CometChatMessageTemplate? getMessageTemplate(
       {required String messageType,
-      required String messageCategory,
-      CometChatTheme? theme}) {
-    CometChatTheme theme0 = theme ?? cometChatTheme;
+      required String messageCategory}) {
 
     CometChatMessageTemplate? template;
     if (messageCategory != MessageCategoryConstants.call) {
@@ -597,33 +617,33 @@ class MessagesDataSource implements DataSource {
         switch (messageType) {
           case MessageTypeConstants.card:
             template =
-                CometChatUIKit.getDataSource().getCardMessageTemplate(theme0);
+                CometChatUIKit.getDataSource().getCardMessageTemplate();
             break;
           case MessageTypeConstants.form:
             template =
-                CometChatUIKit.getDataSource().getFormMessageTemplate(theme0);
+                CometChatUIKit.getDataSource().getFormMessageTemplate();
             break;
         }
       } else {
         switch (messageType) {
           case MessageTypeConstants.text:
             template =
-                CometChatUIKit.getDataSource().getTextMessageTemplate(theme0);
+                CometChatUIKit.getDataSource().getTextMessageTemplate();
             break;
           case MessageTypeConstants.image:
             template =
-                CometChatUIKit.getDataSource().getImageMessageTemplate(theme0);
+                CometChatUIKit.getDataSource().getImageMessageTemplate();
             break;
           case MessageTypeConstants.video:
             template =
-                CometChatUIKit.getDataSource().getVideoMessageTemplate(theme0);
+                CometChatUIKit.getDataSource().getVideoMessageTemplate();
             break;
           case MessageTypeConstants.groupActions:
             template = CometChatUIKit.getDataSource().getGroupActionTemplate();
             break;
           case MessageTypeConstants.file:
             template =
-                CometChatUIKit.getDataSource().getFileMessageTemplate(theme0);
+                CometChatUIKit.getDataSource().getFileMessageTemplate();
             break;
           case MessageTypeConstants.audio:
             template = CometChatUIKit.getDataSource().getAudioMessageTemplate();
@@ -643,7 +663,6 @@ class MessagesDataSource implements DataSource {
       Group? group,
       AdditionalConfigurations? additionalConfigurations) {
     List<CometChatMessageOption> optionList = [];
-
     if (messageObject.category == MessageCategoryConstants.message) {
       switch (messageObject.type) {
         case MessageTypeConstants.text:
@@ -761,31 +780,31 @@ class MessagesDataSource implements DataSource {
     final typography = CometChatThemeHelper.getTypography(context);
     final style = additionalConfigurations?.messageOptionSheetStyle;
 
-    if (_validateOption(loggedInUser, messageObject, context, group,
+    if (additionalConfigurations?.hideReplyInThreadOption != true && _validateOption(loggedInUser, messageObject, context, group,
         MessageOptionConstants.replyInThreadMessage)) {
       messageOptionList.add(
           getReplyInThreadOption(context, colorPalette, typography, style));
     }
 
-    if (_validateOption(loggedInUser, messageObject, context, group,
+    if (additionalConfigurations?.hideShareMessageOption != true && _validateOption(loggedInUser, messageObject, context, group,
         MessageOptionConstants.shareMessage)) {
       messageOptionList
           .add(getShareOption(context, colorPalette, typography, style));
     }
 
-    if (_validateOption(loggedInUser, messageObject, context, group,
+    if (additionalConfigurations?.hideMessageInfoOption != true && _validateOption(loggedInUser, messageObject, context, group,
         MessageOptionConstants.messageInformation)) {
       messageOptionList
           .add(getMessageInfo(context, colorPalette, typography, style));
     }
 
-    if (_validateOption(loggedInUser, messageObject, context, group,
+    if (additionalConfigurations?.hideDeleteMessageOption != true && _validateOption(loggedInUser, messageObject, context, group,
         MessageOptionConstants.deleteMessage)) {
       messageOptionList
           .add(getDeleteOption(context, colorPalette, typography, style));
     }
 
-    if (_validateOption(loggedInUser, messageObject, context, group,
+    if (additionalConfigurations?.hideMessagePrivatelyOption != true && _validateOption(loggedInUser, messageObject, context, group,
         MessageOptionConstants.sendMessagePrivately)) {
       messageOptionList.add(
           getSendMessagePrivately(context, colorPalette, typography, style));
@@ -903,8 +922,13 @@ class MessagesDataSource implements DataSource {
   }
 
   @override
-  Widget getAuxiliaryOptions(User? user, Group? group, BuildContext context,
-      Map<String, dynamic>? id, Color? color) {
+  Widget getAuxiliaryOptions(
+      User? user,
+      Group? group,
+      BuildContext context,
+      Map<String, dynamic>? id,
+      Color? color,
+      {AdditionalConfigurations? additionalConfigurations}) {
     return const SizedBox();
   }
 
@@ -942,7 +966,7 @@ class MessagesDataSource implements DataSource {
 
   @override
   Widget getImageMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,
+      BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
     return CometChatUIKit.getDataSource().getImageMessageBubble(
         message.attachment?.fileUrl,
@@ -951,8 +975,7 @@ class MessagesDataSource implements DataSource {
         additionalConfigurations?.imageBubbleStyle,
         message,
         null,
-        context,
-        theme);
+        context,);
   }
 
   @override
@@ -962,7 +985,6 @@ class MessagesDataSource implements DataSource {
       MediaMessage message,
       Function()? onClick,
       BuildContext context,
-      CometChatTheme theme,
       CometChatVideoBubbleStyle? style) {
     return CometChatVideoBubble(
       videoUrl: videoUrl,
@@ -974,7 +996,7 @@ class MessagesDataSource implements DataSource {
 
   @override
   Widget getVideoMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme,
+      BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
     return CometChatUIKit.getDataSource().getVideoMessageBubble(
         message.attachment?.fileUrl,
@@ -982,7 +1004,6 @@ class MessagesDataSource implements DataSource {
         message,
         null,
         context,
-        theme,
         additionalConfigurations?.videoBubbleStyle);
   }
 
@@ -994,7 +1015,7 @@ class MessagesDataSource implements DataSource {
   ) {
     return CometChatMessageComposerAction(
       id: MessageTypeConstants.takePhoto,
-      title: Translations.of(context).takePhoto,
+      title: Translations.of(context).camera,
       icon: Icon(
         Icons.photo_camera,
         color: style?.iconColor ?? colorPalette.iconHighlight,
@@ -1018,17 +1039,49 @@ class MessagesDataSource implements DataSource {
     );
   }
 
-  CometChatMessageComposerAction photoAndVideoLibraryOption(
+  CometChatMessageComposerAction attachPhoto(
     BuildContext context,
     CometChatColorPalette colorPalette,
     CometChatTypography typography,
     CometChatAttachmentOptionSheetStyle? style,
   ) {
     return CometChatMessageComposerAction(
-      id: MessageTypeConstants.photoAndVideo,
-      title: Translations.of(context).photoAndVideoLibrary,
+      id: MessageTypeConstants.attachPhoto,
+      title: Translations.of(context).attachImage,
       icon: Icon(
         Icons.image,
+        color: style?.iconColor ?? colorPalette.iconHighlight,
+        size: 24,
+      ),
+      style: CometChatAttachmentOptionSheetStyle(
+        titleTextStyle: TextStyle(
+          color: style?.titleColor,
+          fontSize: typography.heading4?.regular?.fontSize,
+          fontWeight: typography.heading4?.regular?.fontWeight,
+          fontFamily: typography.heading4?.regular?.fontFamily,
+        ).merge(
+          style?.titleTextStyle,
+        ),
+        backgroundColor: style?.backgroundColor,
+        borderRadius: style?.borderRadius,
+        border: style?.border,
+        titleColor: style?.titleColor,
+        iconColor: style?.iconColor,
+      ),
+    );
+  }
+
+  CometChatMessageComposerAction attachVideo(
+      BuildContext context,
+      CometChatColorPalette colorPalette,
+      CometChatTypography typography,
+      CometChatAttachmentOptionSheetStyle? style,
+      ) {
+    return CometChatMessageComposerAction(
+      id: MessageTypeConstants.attachVideo,
+      title: Translations.of(context).attachVideo,
+      icon: Icon(
+        Icons.videocam_rounded,
         color: style?.iconColor ?? colorPalette.iconHighlight,
         size: 24,
       ),
@@ -1058,7 +1111,7 @@ class MessagesDataSource implements DataSource {
   ) {
     return CometChatMessageComposerAction(
       id: MessageTypeConstants.audio,
-      title: Translations.of(context).audio,
+      title: Translations.of(context).attachAudio,
       icon: Icon(
         Icons.play_circle,
         color: style?.iconColor ?? colorPalette.iconHighlight,
@@ -1090,7 +1143,7 @@ class MessagesDataSource implements DataSource {
   ) {
     return CometChatMessageComposerAction(
       id: MessageTypeConstants.file,
-      title: Translations.of(context).file,
+      title: Translations.of(context).attachDocument,
       icon: Icon(
         Icons.description,
         color: style?.iconColor ?? colorPalette.iconHighlight,
@@ -1122,12 +1175,33 @@ class MessagesDataSource implements DataSource {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
     final style = additionalConfigurations?.attachmentOptionSheetStyle;
-    List<CometChatMessageComposerAction> actions = [
-      takePhotoOption(context, colorPalette, typography, style),
-      photoAndVideoLibraryOption(context, colorPalette, typography, style),
-      audioAttachmentOption(context, colorPalette, typography, style),
-      fileAttachmentOption(context, colorPalette, typography, style)
-    ];
+    List<CometChatMessageComposerAction> actions = [];
+
+    if (additionalConfigurations?.hideTakPhotoOption != true) {
+      actions.add(
+        takePhotoOption(context, colorPalette, typography, style),
+      );
+    }
+    if (additionalConfigurations?.hideImageAttachmentOption != true) {
+      actions.add(
+        attachPhoto(context, colorPalette, typography, style),
+      );
+    }
+    if (additionalConfigurations?.hideVideoAttachmentOption != true) {
+      actions.add(
+        attachVideo(context, colorPalette, typography, style),
+      );
+    }
+    if (additionalConfigurations?.hideAudioAttachmentOption != true) {
+      actions.add(
+        audioAttachmentOption(context, colorPalette, typography, style),
+      );
+    }
+    if (additionalConfigurations?.hideFileAttachmentOption != true) {
+      actions.add(
+        fileAttachmentOption(context, colorPalette, typography, style),
+      );
+    }
     return actions;
   }
 
@@ -1137,13 +1211,11 @@ class MessagesDataSource implements DataSource {
       TextMessage message,
       BuildContext context,
       BubbleAlignment alignment,
-      CometChatTheme theme,
       CometChatTextBubbleStyle? style,
       List<CometChatTextFormatter>? formatters) {
     return CometChatTextBubble(
       text: messageText,
       alignment: alignment,
-      // theme: theme,
       formatters: formatters,
       style: style,
     );
@@ -1158,14 +1230,14 @@ class MessagesDataSource implements DataSource {
       BuildContext context,
       BubbleAlignment alignment) {
     return CometChatAudioBubble(
-        style: style,
-        audioUrl: audioUrl,
-        title: title,
-        key: ValueKey<int>(message.id),
-        fileMimeType: message.attachment?.fileMimeType,
-        alignment: alignment,
-        id: message.id,
-        metadata:message.metadata,
+      style: style,
+      audioUrl: audioUrl,
+      title: title,
+      key: ValueKey<int>(message.id),
+      fileMimeType: message.attachment?.fileMimeType,
+      alignment: alignment,
+      id: message.id,
+      metadata: message.metadata,
     );
   }
 
@@ -1195,7 +1267,7 @@ class MessagesDataSource implements DataSource {
       fileSize: message.attachment?.fileSize,
       fileExtension: message.attachment?.fileExtension,
       dateTime: message.sentAt,
-      metadata:message.metadata,
+      metadata: message.metadata,
     );
   }
 
@@ -1207,30 +1279,22 @@ class MessagesDataSource implements DataSource {
       CometChatImageBubbleStyle? style,
       MediaMessage message,
       Function()? onClick,
-      BuildContext context,
-      CometChatTheme theme) {
+      BuildContext context,) {
     return CometChatImageBubble(
-      key: UniqueKey(),
-      imageUrl: imageUrl,
-      placeholderImage: placeholderImage,
-      style: style ?? const CometChatImageBubbleStyle(),
-      onClick: onClick,
-        metadata:message.metadata
-    );
+        key: UniqueKey(),
+        imageUrl: imageUrl,
+        placeholderImage: placeholderImage,
+        style: style ?? const CometChatImageBubbleStyle(),
+        onClick: onClick,
+        metadata: message.metadata);
   }
 
   @override
   Widget getFormMessageBubble({
     String? title,
-    FormBubbleStyle? formBubbleStyle,
     required FormMessage message,
-    required CometChatTheme theme,
   }) {
-    return CometChatFormBubble(
-        key: ValueKey(message.muid),
-        formMessage: message,
-        loggedInUser: CometChatUIKit.loggedInUser,
-        theme: theme);
+    return const SizedBox();
   }
 
   @override
@@ -1256,13 +1320,13 @@ class MessagesDataSource implements DataSource {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
     TextStyle subtitleStyle0 = TextStyle(
-      overflow: TextOverflow.ellipsis,
-      color: colorPalette.textSecondary,
-      fontSize: typography.body?.regular?.fontSize,
-      fontWeight: typography.body?.regular?.fontWeight,
-      fontFamily: typography.body?.regular?.fontFamily,
-      letterSpacing: 0
-    ).merge(
+            overflow: TextOverflow.ellipsis,
+            color: colorPalette.textSecondary,
+            fontSize: typography.body?.regular?.fontSize,
+            fontWeight: typography.body?.regular?.fontWeight,
+            fontFamily: typography.body?.regular?.fontFamily,
+            letterSpacing: 0)
+        .merge(
       subtitleStyle,
     );
 
@@ -1303,9 +1367,13 @@ class MessagesDataSource implements DataSource {
     } else {
       String? prefix;
       if (conversation.conversationWith is Group) {
-        if((lastMessage.category == MessageCategoryConstants.action && lastMessage.type == MessageTypeConstants.groupActions) || (lastMessage.category == MessageCategoryConstants.custom && lastMessage.type == MessageTypeConstants.meeting)) {
+        if ((lastMessage.category == MessageCategoryConstants.action &&
+                lastMessage.type == MessageTypeConstants.groupActions) ||
+            (lastMessage.category == MessageCategoryConstants.custom &&
+                lastMessage.type == MessageTypeConstants.meeting)) {
           prefix = "";
-        } else if (lastMessage.sender?.uid != CometChatUIKit.loggedInUser?.uid) {
+        } else if (lastMessage.sender?.uid !=
+            CometChatUIKit.loggedInUser?.uid) {
           prefix = "${lastMessage.sender?.name}: ";
         } else {
           prefix = "${cc.Translations.of(context).you}: ";
@@ -1392,25 +1460,23 @@ class MessagesDataSource implements DataSource {
   }
 
   @override
-  Widget? getAuxiliaryHeaderMenu(
-      BuildContext context, User? user, Group? group, AdditionalConfigurations? additionalConfigurations) {
+  Widget? getAuxiliaryHeaderMenu(BuildContext context, User? user, Group? group,
+      {AdditionalConfigurations? additionalConfigurations}) {
     return null;
   }
 
   @override
   Widget getCardMessageBubble(
       {CardBubbleStyle? cardBubbleStyle,
-      required CardMessage message,
-      required CometChatTheme theme}) {
+      required CardMessage message}) {
     return CometChatCardBubble(
       cardMessage: message,
       loggedInUser: CometChatUIKit.loggedInUser,
-      theme: theme,
     );
   }
 
   @override
-  CometChatMessageTemplate getCardMessageTemplate(CometChatTheme theme) {
+  CometChatMessageTemplate getCardMessageTemplate() {
     return CometChatMessageTemplate(
         // name: MessageTypeConstants.text,
         type: MessageTypeConstants.card,
@@ -1418,9 +1484,9 @@ class MessagesDataSource implements DataSource {
         contentView: (BaseMessage message, BuildContext context,
             BubbleAlignment alignment,
             {AdditionalConfigurations? additionalConfigurations}) {
-
           if (message.deletedAt != null) {
-            return getDeleteMessageBubble(message, context,additionalConfigurations?.deletedBubbleStyle);
+            return getDeleteMessageBubble(
+                message, context, additionalConfigurations?.deletedBubbleStyle);
           }
           //TODO: Implement CardMessage ContentView
           // CardMessage cardMessage = message as CardMessage;
@@ -1430,16 +1496,17 @@ class MessagesDataSource implements DataSource {
         },
         //TODO: Implement CardMessage Options
         // options: CometChatUIKit.getDataSource().getCardMessageOptions,
-        options: (loggedInUser, messageObject, context, group, additionalConfigurations) => [],
+        options: (loggedInUser, messageObject, context, group,
+                additionalConfigurations) =>
+            [],
         bottomView: CometChatUIKit.getDataSource().getBottomView);
   }
 
   @override
   Widget getCardMessageContentView(CardMessage message, BuildContext context,
-      BubbleAlignment alignment, CometChatTheme theme) {
+      BubbleAlignment alignment) {
     return CometChatUIKit.getDataSource().getCardMessageBubble(
       message: message,
-      theme: theme,
     );
   }
 
@@ -1449,7 +1516,7 @@ class MessagesDataSource implements DataSource {
       BaseMessage messageObject,
       BuildContext context,
       Group? group,
-      AdditionalConfigurations? additionalConfigurations) {
+      {AdditionalConfigurations? additionalConfigurations}) {
     List<CometChatMessageOption> messageOptionList = [];
 
     messageOptionList.addAll(CometChatUIKit.getDataSource().getCommonOptions(
@@ -1475,12 +1542,12 @@ class MessagesDataSource implements DataSource {
 
   @override
   List<CometChatMessageComposerAction> getAIOptions(
-      User? user,
-      Group? group,
-      BuildContext context,
-      Map<String, dynamic>? id,
-      AIOptionsStyle? aiOptionStyle,
-      ) {
+    User? user,
+    Group? group,
+    BuildContext context,
+    Map<String, dynamic>? id,
+    AIOptionsStyle? aiOptionStyle,
+  ) {
     return [];
   }
 
@@ -1489,20 +1556,15 @@ class MessagesDataSource implements DataSource {
       {String? title,
       schedulerBubbleStyle,
       required SchedulerMessage message,
-      required CometChatTheme theme}) {
-    return CometChatSchedulerBubble(
-      key: ValueKey(message.muid),
-      schedulerMessage: message,
-      schedulerBubbleStyle: schedulerBubbleStyle,
-      theme: theme,
-    );
+      }) {
+    return const SizedBox();
   }
 
   @override
   Widget getSchedulerMessageContentView(SchedulerMessage message,
-      BuildContext context, BubbleAlignment alignment, CometChatTheme theme) {
+      BuildContext context, BubbleAlignment alignment) {
     return CometChatUIKit.getDataSource()
-        .getSchedulerMessageBubble(message: message, theme: theme);
+        .getSchedulerMessageBubble(message: message);
   }
 
   @override
@@ -1531,23 +1593,28 @@ class MessagesDataSource implements DataSource {
   }
 
   Widget getMessageNotSupportedWidget(
-      BaseMessage message, BuildContext context, ) {
+    BaseMessage message,
+    BuildContext context,
+  ) {
     CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
-    CometChatTypography typography = CometChatThemeHelper.getTypography(context);
-    CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
+    CometChatTypography typography =
+        CometChatThemeHelper.getTypography(context);
+    CometChatColorPalette colorPalette =
+        CometChatThemeHelper.getColorPalette(context);
     return Container(
-      padding: EdgeInsets.fromLTRB(spacing.padding2 ?? 0, spacing.padding2 ?? 0, spacing.padding2 ?? 0, 0),
+      padding: EdgeInsets.fromLTRB(spacing.padding2 ?? 0, spacing.padding2 ?? 0,
+          spacing.padding2 ?? 0, 0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Padding(
-            padding:  EdgeInsets.only(right: spacing.padding1 ?? 0),
+            padding: EdgeInsets.only(right: spacing.padding1 ?? 0),
             child: Icon(
               Icons.block,
-              color:  message.sender?.uid == CometChatUIKit.loggedInUser?.uid
-    ? colorPalette.white
-        : colorPalette.neutral600,
+              color: message.sender?.uid == CometChatUIKit.loggedInUser?.uid
+                  ? colorPalette.white
+                  : colorPalette.neutral600,
               size: 16,
             ),
           ),

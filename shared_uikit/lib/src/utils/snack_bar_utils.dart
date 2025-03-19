@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 
 class SnackBarUtils {
   static show(String text, BuildContext context,
-      {SnackBarConfiguration? snackBarConfiguration, CometChatTheme? theme}) {
+      {SnackBarConfiguration? snackBarConfiguration}) {
     SnackBar snackBar = SnackBar(
-      backgroundColor: snackBarConfiguration?.backgroundColor ??
-          theme?.palette.getAccent() ??
-          cometChatTheme.palette.getAccent(),
+      backgroundColor: snackBarConfiguration?.backgroundColor,
       elevation: snackBarConfiguration?.elevation,
       margin: snackBarConfiguration?.margin,
       padding: snackBarConfiguration?.padding,
@@ -15,14 +13,7 @@ class SnackBarUtils {
       content: Center(
         child: Text(
           text,
-          style: snackBarConfiguration?.contentTextStyle ??
-              TextStyle(
-                color: theme?.palette.getBackground() ??
-                    cometChatTheme.palette.getBackground(),
-                fontSize: theme?.typography.caption1.fontSize,
-                fontFamily: theme?.typography.caption1.fontFamily,
-                fontWeight: theme?.typography.caption1.fontWeight,
-              ),
+          style: snackBarConfiguration?.contentTextStyle,
         ),
       ),
     );

@@ -40,7 +40,7 @@ class CometChatDetailsTemplate {
 
   ///[options] is a function which returns list of [CometChatDetailsOption] for every [CometChatDetailsTemplate]
   final List<CometChatDetailsOption> Function(User? user, Group? group,
-      BuildContext? context, CometChatTheme? theme)? options;
+      BuildContext? context)? options;
 
   ///[title] is the title of [CometChatDetailsTemplate]
   final String? title;

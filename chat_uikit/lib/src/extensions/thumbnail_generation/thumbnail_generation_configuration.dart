@@ -12,10 +12,7 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 /// ```
 ///
 class ThumbnailGenerationConfiguration {
-  const ThumbnailGenerationConfiguration({this.theme, this.style});
-
-  ///[theme] sets custom theme
-  final CometChatTheme? theme;
+  const ThumbnailGenerationConfiguration({this.style});
 
   ///[style] use this to alter the default video bubble style
   final CometChatVideoBubbleStyle? style;

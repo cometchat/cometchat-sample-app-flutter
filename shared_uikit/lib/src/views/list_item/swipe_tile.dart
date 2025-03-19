@@ -12,7 +12,7 @@ class SwipeTile extends StatefulWidget {
       this.state,
       this.onTap,
       this.id,
-      this.theme});
+      });
 
   final Widget child;
 
@@ -24,9 +24,6 @@ class SwipeTile extends StatefulWidget {
 
   final String? id;
 
-  ///[theme] can pass custom theme class or dark theme defaultDarkTheme object from CometChatTheme class, by default light theme
-  final CometChatTheme? theme;
-
   @override
   State<SwipeTile> createState() => _SwipeTileState();
 }
@@ -35,15 +32,11 @@ class _SwipeTileState extends State<SwipeTile>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
-  ///[theme] can pass custom theme class or dark theme defaultDarkTheme object from CometChatTheme class, by default light theme
-  late CometChatTheme? _theme;
-
   @override
   initState() {
     super.initState();
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200));
-    _theme = widget.theme ?? cometChatTheme;
   }
 
   @override
@@ -100,15 +93,7 @@ class _SwipeTileState extends State<SwipeTile>
                           child: SwipeTileOptions(
                             menuItems: widget.menuItems,
                             id: widget.id,
-                            theme: _theme,
                           ),
-
-                          // Row(
-                          //     children: widget.menuItems.map((child) {
-                          //   return Expanded(
-                          //     child: child,
-                          //   );
-                          // }).toList()),
                         ),
                       ],
                     );
@@ -126,15 +111,12 @@ class _SwipeTileState extends State<SwipeTile>
 class SwipeTileOptions extends StatelessWidget {
   ///Default CometChat menu widget shows
   const SwipeTileOptions(
-      {super.key, required this.menuItems, this.id, this.theme});
+      {super.key, required this.menuItems, this.id});
 
   /// List of menu items
   final List<CometChatOption> menuItems;
 
   final String? id;
-
-  ///[theme] can pass custom theme class or dark theme defaultDarkTheme object from CometChatTheme class, by default light theme
-  final CometChatTheme? theme;
 
   getFirstWidget(CometChatOption item) {
     return GestureDetector(
@@ -171,28 +153,22 @@ class SwipeTileOptions extends StatelessWidget {
     );
   }
 
-  getPopUpMenuButtons(List<CometChatOption> menuItems, CometChatTheme theme) {
+  getPopUpMenuButtons(List<CometChatOption> menuItems) {
     return PopupMenuButton<CometChatOption>(
       itemBuilder: (context) => menuItems
           .map((item) => PopupMenuItem<CometChatOption>(
                 value: item,
                 child: Text(
                   item.title ?? "",
-                  style: TextStyle(color: theme.palette.getAccent())
-                      .merge(item.titleStyle),
+                  style:item.titleStyle,
                 ),
               ))
           .toList(),
       onSelected: (CometChatOption option) {
         performOnClick(option);
       },
-      color: theme.palette.mode == PaletteThemeModes.light
-          ? theme.palette.getBackground()
-          : Color.alphaBlend(
-              theme.palette.getAccent200(), theme.palette.getBackground()),
       icon: Icon(
         Icons.adaptive.more,
-        color: theme.palette.getAccent(),
       ),
     );
   }
@@ -202,7 +178,6 @@ class SwipeTileOptions extends StatelessWidget {
     Widget? firstWidget;
     Widget? secondWidget;
     Widget? moreOptions;
-    CometChatTheme theme = this.theme ?? cometChatTheme;
     List<CometChatOption>? hiddenMenuItems;
     if (menuItems.isNotEmpty) {
       firstWidget = getFirstWidget(menuItems.first);
@@ -213,7 +188,7 @@ class SwipeTileOptions extends StatelessWidget {
     if (menuItems.length > 2) {
       hiddenMenuItems ??= [];
       hiddenMenuItems.addAll(menuItems.sublist(2));
-      moreOptions = getPopUpMenuButtons(hiddenMenuItems, theme);
+      moreOptions = getPopUpMenuButtons(hiddenMenuItems);
     }
 
     return Row(children: [

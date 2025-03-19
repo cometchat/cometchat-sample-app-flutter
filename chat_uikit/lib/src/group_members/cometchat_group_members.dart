@@ -16,47 +16,54 @@ import '../../../cometchat_chat_uikit.dart' as cc;
 /// ```
 ///
 class CometChatGroupMembers extends StatelessWidget {
-  CometChatGroupMembers(
-      {super.key,
-      this.groupMembersProtocol,
-      this.subtitleView,
-      this.hideSeparator,
-      this.listItemView,
-      this.style,
-      this.controller,
-      this.searchPlaceholder,
-      this.backButton,
-      this.showBackButton = true,
-      this.searchBoxIcon,
-      this.hideSearch = false,
-      this.selectionMode,
-      this.onSelection,
-      this.title,
-      this.errorStateText,
-      this.emptyStateText,
-      this.stateCallBack,
-      this.groupMembersRequestBuilder,
-      this.hideError,
-      this.loadingStateView,
-      this.emptyStateView,
-      this.errorStateView,
-      this.appBarOptions,
-      this.options,
-      required this.group,
-      this.tailView,
-      this.selectIcon,
-      this.submitIcon,
-      this.disableUsersPresence = false,
-      this.onError,
-      this.onBack,
-      this.onItemTap,
-      this.onItemLongPress,
-      this.activateSelection,
-      this.height,
-      this.width,
-      this.emptyStateSubtitleText,
-      this.controllerTag,
-      this.hideAppbar});
+  CometChatGroupMembers({
+    super.key,
+    this.groupMembersProtocol,
+    this.subtitleView,
+    this.hideSeparator,
+    this.listItemView,
+    this.style,
+    this.controller,
+    this.searchPlaceholder,
+    this.backButton,
+    this.showBackButton = true,
+    this.searchBoxIcon,
+    this.hideSearch = false,
+    this.selectionMode,
+    this.onSelection,
+    this.stateCallBack,
+    this.groupMembersRequestBuilder,
+    this.hideError,
+    this.loadingStateView,
+    this.emptyStateView,
+    this.errorStateView,
+    this.appBarOptions,
+    this.options,
+    required this.group,
+    this.trailingView,
+    this.selectIcon,
+    this.submitIcon,
+    this.onError,
+    this.onBack,
+    this.onItemTap,
+    this.onItemLongPress,
+    this.activateSelection,
+    this.height,
+    this.width,
+    this.controllerTag,
+    this.hideAppbar,
+    this.searchKeyword,
+    this.onLoad,
+    this.onEmpty,
+    this.setOptions,
+    this.addOptions,
+    this.leadingView,
+    this.titleView,
+    this.hideBanMemberOption,
+    this.hideKickMemberOption,
+    this.hideScopeChangeOption,
+    this.usersStatusVisibility = true,
+  });
 
   ///property to be set internally by using passed parameters [groupMembersProtocol] ,[selectionMode] ,[options]
   ///these are passed to the [CometChatGroupMembersController] which is responsible for the business logic
@@ -68,13 +75,13 @@ class CometChatGroupMembers extends StatelessWidget {
   final GroupMembersRequestBuilder? groupMembersRequestBuilder;
 
   ///[subtitleView] to set subtitle for each groupMember
-  final Widget? Function(BuildContext, GroupMember)? subtitleView;
+  final Widget? Function(BuildContext context, GroupMember groupMember)? subtitleView;
 
   ///[hideSeparator] toggle visibility of separator
   final bool? hideSeparator;
 
   ///[listItemView] set custom view for each groupMember
-  final Widget Function(GroupMember)? listItemView;
+  final Widget Function(GroupMember groupMember)? listItemView;
 
   ///[style] sets style for [CometChatGroupMembers]
   final CometChatGroupMembersStyle? style;
@@ -110,18 +117,6 @@ class CometChatGroupMembers extends StatelessWidget {
   ///[onSelection] function will be performed
   final Function(List<GroupMember>?)? onSelection;
 
-  ///[title] sets title for the list
-  final String? title;
-
-  ///[emptyStateText] text to be displayed when the list is empty
-  final String? emptyStateText;
-
-  ///[emptyStateSubtitleText] text to be displayed when the list is empty
-  final String? emptyStateSubtitleText;
-
-  ///[errorStateText] text to be displayed when error occur
-  final String? errorStateText;
-
   ///[loadingStateView] returns view fow loading state
   final WidgetBuilder? loadingStateView;
 
@@ -143,8 +138,8 @@ class CometChatGroupMembers extends StatelessWidget {
   ///object to passed across to fetch members of
   final Group group;
 
-  ///[tailView] a custom widget for the tail section of the group member list item
-  final Function(BuildContext, GroupMember)? tailView;
+  ///[trailingView] a custom widget for the tail section of the group member list item
+  final Function(BuildContext context, GroupMember groupMember)? trailingView;
 
   ///[submitIcon] will override the default selection complete icon
   final Widget? submitIcon;
@@ -152,17 +147,14 @@ class CometChatGroupMembers extends StatelessWidget {
   ///[selectIcon] will override the default selection icon
   final Widget? selectIcon;
 
-  ///[disableUsersPresence] controls visibility of user online status indicator
-  final bool disableUsersPresence;
-
   ///[onBack] callback triggered on closing this screen
   final VoidCallback? onBack;
 
   ///[onItemTap] callback triggered on tapping a user item
-  final Function(GroupMember)? onItemTap;
+  final Function(GroupMember groupMember)? onItemTap;
 
   ///[onItemLongPress] callback triggered on pressing for long on a user item
-  final Function(GroupMember)? onItemLongPress;
+  final Function(GroupMember groupMember)? onItemLongPress;
 
   ///[activateSelection] lets the widget know if groups are allowed to be selected
   final ActivateSelection? activateSelection;
@@ -184,6 +176,47 @@ class CometChatGroupMembers extends StatelessWidget {
   ///[hideAppbar] hides the appbar
   final bool? hideAppbar;
 
+  ///[searchKeyword] Used to set searchKeyword to fetch initial list with
+  final String? searchKeyword;
+
+  ///[onLoad] callback triggered when list is fetched and load
+  final OnLoad<GroupMember>? onLoad;
+
+  ///[onEmpty] callback triggered when the list is empty
+  final OnEmpty? onEmpty;
+
+  ///[leadingView] to set leading view for each GroupMember
+  final Widget? Function(BuildContext context, GroupMember groupMember)? leadingView;
+
+  ///[titleView] to set title view for each GroupMember
+  final Widget? Function(BuildContext context, GroupMember groupMember)? titleView;
+
+  ///[usersStatusVisibility] Hide status indicator of user which is visible on user avatar
+  final bool? usersStatusVisibility;
+
+  ///[hideAppbar] This prop defines whether a member can be kicked or not.
+  final bool? hideKickMemberOption;
+
+  ///[hideAppbar] This prop defines whether a member can be banned or not.
+  final bool? hideBanMemberOption;
+
+  ///[hideAppbar] This prop defines whether a member's scope can be changed or not.
+  final bool? hideScopeChangeOption;
+
+  ///[setOptions] sets List of actions available on the long press of list item
+  final List<CometChatOption>? Function(
+      Group group,
+      GroupMember groupMember,
+      CometChatGroupMembersController controller,
+      BuildContext context)? setOptions;
+
+  ///[addOptions] adds into the current List of actions available on the long press of list item
+  final List<CometChatOption>? Function(
+      Group group,
+      GroupMember groupMember,
+      CometChatGroupMembersController controller,
+      BuildContext context)? addOptions;
+
   Widget getDefaultItem(
       GroupMember member,
       CometChatGroupMembersController controller,
@@ -197,13 +230,23 @@ class CometChatGroupMembers extends StatelessWidget {
     Widget? tail;
     Color? backgroundColor;
     Widget? icon;
+    Widget? title;
+    Widget? leading;
+
+    if (titleView != null) {
+      title = titleView!(context, member);
+    }
+
+    if (leadingView != null) {
+      leading = leadingView!(context, member);
+    }
 
     if (subtitleView != null) {
       subtitle = subtitleView!(context, member);
     }
 
-    if (tailView != null) {
-      tail = tailView!(context, member);
+    if (trailingView != null) {
+      tail = trailingView!(context, member);
     } else {
       tail = _getTail(member, controller, groupMemberStyle, colorPalette,
           typography, spacing);
@@ -215,7 +258,7 @@ class CometChatGroupMembers extends StatelessWidget {
       groupMember: member,
       onlineStatusIndicatorColor:
           groupMemberStyle.onlineStatusColor ?? colorPalette.success,
-      disableUsersPresence: disableUsersPresence,
+      usersStatusVisibility: usersStatusVisibility,
       selectIcon: selectIcon,
     );
 
@@ -249,31 +292,42 @@ class CometChatGroupMembers extends StatelessWidget {
           } else if (onItemLongPress != null) {
             onItemLongPress!(member);
           } else {
-            List<CometChatOption>? options = (this.options != null)
-                ? this.options!(
-                    group,
-                    member,
-                    controller,
-                    context,
-                  )
-                : controller.defaultFunction(
-                    group, member, context, colorPalette, typography, spacing);
-            if (options != null && options.isNotEmpty) {
-              if (group.owner != CometChatUIKit.loggedInUser?.uid &&
-                  member.scope == GroupMemberScope.admin) {
-                return;
-              }
-              showPopupMenu(
-                context,
-                options,
-                groupMemberStyle,
-                colorPalette,
-                typography,
-                spacing,
-                key,
+            List<CometChatOption>? options;
+
+            if (setOptions != null) {
+              options = setOptions!(
+                group,
                 member,
+                controller,
+                context,
               );
+            } else {
+              options = (addOptions != null)
+                  ? addOptions!(
+                      group,
+                      member,
+                      controller,
+                      context,
+                    )
+                  : controller.defaultFunction(group, member, context,
+                      colorPalette, typography, spacing);
+              if (addOptions != null) {
+                if (group.owner != CometChatUIKit.loggedInUser?.uid &&
+                    member.scope == GroupMemberScope.admin) {
+                  return;
+                }
+              }
             }
+            showPopupMenu(
+              context,
+              options ?? [],
+              groupMemberStyle,
+              colorPalette,
+              typography,
+              spacing,
+              key,
+              member,
+            );
           }
         },
         onTap: () {
@@ -348,7 +402,7 @@ class CometChatGroupMembers extends StatelessWidget {
                   id: member.uid,
                   avatarName: member.name,
                   avatarURL: member.avatar,
-                  title: member.name,
+                  title: (controller.loggedInUser != null && controller.loggedInUser!.uid == member.uid) ? cc.Translations.of(context).you : member.name,
                   key: UniqueKey(),
                   subtitleView: subtitle,
                   tailView: tail,
@@ -361,6 +415,8 @@ class CometChatGroupMembers extends StatelessWidget {
                   statusIndicatorStyle: groupMemberStyle.statusIndicatorStyle ??
                       const CometChatStatusIndicatorStyle(),
                   hideSeparator: hideSeparator ?? true,
+                  titleView: title,
+                  leadingStateView: leading,
                   style: ListItemStyle(
                     background: colorPalette.transparent,
                     titleStyle: TextStyle(
@@ -636,13 +692,20 @@ class CometChatGroupMembers extends StatelessWidget {
           groupMembersBuilderProtocol: groupMembersProtocol ??
               UIGroupMembersBuilder(
                 groupMembersRequestBuilder ??
-                    GroupMembersRequestBuilder(group.guid),
+                    GroupMembersRequestBuilder(group.guid)
+                  ..searchKeyword = searchKeyword,
               ),
           mode: selectionMode,
           group: group,
           onError: onError,
+          onEmpty: onEmpty,
+          onLoad: onLoad,
           confirmDialogStyle: confirmDialogStyle,
           changeScopeStyle: changeScopeStyle,
+          userStatusVisibility: usersStatusVisibility,
+          hideBanMemberOption: hideBanMemberOption,
+          hideKickMemberOption: hideKickMemberOption,
+          hideScopeChangeOption: hideScopeChangeOption,
         ),
         tag: controllerTag);
 
@@ -660,7 +723,7 @@ class CometChatGroupMembers extends StatelessWidget {
             builder: (CometChatGroupMembersController value) => Text(
                   value.selectionMap.isNotEmpty
                       ? "${value.selectionMap.length}"
-                      : title ?? cc.Translations.of(context).members,
+                      : cc.Translations.of(context).members,
                   style: TextStyle(
                     color: colorPalette.textPrimary,
                     fontSize: typography.heading1?.bold?.fontSize,
@@ -703,6 +766,7 @@ class CometChatGroupMembers extends StatelessWidget {
         ),
         onBack: onBack,
         placeholder: searchPlaceholder,
+        searchText: searchKeyword,
         showBackButton: showBackButton,
         searchBoxIcon: searchBoxIcon,
         onSearch: groupMembersController.onSearch,
@@ -780,7 +844,11 @@ class CometChatGroupMembers extends StatelessWidget {
     GlobalKey widgetKey,
     GroupMember member,
   ) {
-    RelativeRect? position = _getWidgetPosition(context, widgetKey);
+    if (options.isEmpty) {
+      return;
+    }
+    RelativeRect? position =
+        WidgetPositionUtil.getWidgetPosition(context, widgetKey);
     showMenu(
       context: context,
       position: position ?? const RelativeRect.fromLTRB(0, 0, 0, 0),
@@ -813,43 +881,6 @@ class CometChatGroupMembers extends StatelessWidget {
     });
   }
 
-  static RelativeRect? _getWidgetPosition(
-      BuildContext context, GlobalKey widgetKey) {
-    // Check if widget is mounted
-    if (widgetKey.currentContext == null ||
-        !widgetKey.currentContext!.mounted) {
-      debugPrint("Widget is not mounted, skipping position calculation.");
-      return null;
-    }
-
-    try {
-      final RenderBox? renderBox =
-          widgetKey.currentContext?.findRenderObject() as RenderBox?;
-
-      if (renderBox != null) {
-        final Offset offset = renderBox.localToGlobal(Offset.zero);
-
-        // Optional: Adjustments for alignment
-        double horizontalOffset = MediaQuery.of(context).size.width * .8;
-        const double verticalOffset = 10.0;
-
-        return RelativeRect.fromLTRB(
-          offset.dx + horizontalOffset,
-          offset.dy + verticalOffset,
-          offset.dx + renderBox.size.width + horizontalOffset,
-          offset.dy + renderBox.size.height + verticalOffset,
-        );
-      } else {
-        debugPrint("RenderBox is null, position calculation failed.");
-      }
-    } catch (e, stackTrace) {
-      debugPrint("Exception while calculating position: $e");
-      debugPrint("Stack trace: $stackTrace");
-    }
-
-    return null;
-  }
-
   Widget _getNoUserIndicator(
       BuildContext context,
       CometChatGroupMembersStyle style,
@@ -871,12 +902,10 @@ class CometChatGroupMembers extends StatelessWidget {
           width: 120,
           height: 120,
         ),
-        emptyStateText:
-            emptyStateText ?? cc.Translations.of(context).usersUnavailable,
+        emptyStateText: cc.Translations.of(context).usersUnavailable,
         emptyStateTextStyle: style.emptyStateTextStyle,
         emptyStateTextColor: style.emptyStateTextColor,
-        emptyStateSubtitle: emptyStateSubtitleText ??
-            cc.Translations.of(context).usersUnavailableMessage,
+        emptyStateSubtitle: cc.Translations.of(context).usersUnavailableMessage,
         emptyStateSubtitleStyle: style.emptyStateSubtitleTextStyle,
         emptyStateSubtitleColor: style.emptyStateSubtitleTextColor,
       );

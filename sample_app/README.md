@@ -5,7 +5,7 @@
 
 # Flutter Sample App by CometChat
 
-This is a reference application showcasing the integration of [CometChat's Flutter UI Kit](https://www.cometchat.com/docs/ui-kit/flutter/5.0/overview) in a Flutter project. It demonstrates how to implement real-time messaging and voice/video calling features with ease.
+This is a reference application showcasing the integration of [CometChat's Flutter UI Kit](https://www.cometchat.com/docs/ui-kit/flutter/overview) in a Flutter project. It demonstrates how to implement real-time messaging and voice/video calling features with ease.
 
 <div style="display: flex; align-items: center; justify-content: center">
    <img src="../screenshots/overview_cometchat_screens.png" />
@@ -43,7 +43,15 @@ Sign up for a [CometChat](https://app.cometchat.com/) account to obtain your app
 
 4. Run `flutter pub get` to fetch all dependencies.
 
-5. `[Optional]` Enter your CometChat _`App ID`_, _`Region`_, and _`Auth Key`_ in the [sample_app/lib/app_credentials.dart](https://github.com/cometchat/cometchat-uikit-flutter/sample_app/lib/app_credentials.dart) file:https://github.com/cometchat/cometchat-uikit-flutter/blob/e1dfd619a25572345d2746d7c9f8ce173ba08139/sample_app/lib/app_credentials.dart#L4-L8
+5. `[Optional]` Configure CometChat credentials:
+    - Open the `app_credentials.dart` file located at `sample_app/lib/app_credentials.dart` and enter your CometChat _`App ID`_, _`Region`_, and _`Auth Key`_:
+      ```dart
+      AppCredentials {
+         static String _appId = "YOUR_APP_ID";
+         static String _authKey = "YOUR_AUTH_KEY";
+         static String _region = "REGION";
+      }
+      ```
 
 6. In the Run/Debug Configurations dropdown (on the top toolbar), select the preconfigured `sample_app` run configuration. Connect a `physical device` or select an `emulator` from the Device Selector dropdown. Click the Run ▶ button to launch the app.
 
@@ -52,4 +60,4 @@ Sign up for a [CometChat](https://app.cometchat.com/) account to obtain your app
 
 ## Help and Support
 
-For issues running the project or integrating with our UI Kits, consult our [documentation](https://www.cometchat.com/docs/ui-kit/flutter/5.0/getting-started) or create a [support ticket](https://help.cometchat.com/hc/en-us). You can also access real-time support via the [CometChat Dashboard](http://app.cometchat.com/).
+For issues running the project or integrating with our UI Kits, consult our [documentation](https://www.cometchat.com/docs/ui-kit/flutter/getting-started) or create a [support ticket](https://help.cometchat.com/hc/en-us). You can also access real-time support via the [CometChat Dashboard](http://app.cometchat.com/).

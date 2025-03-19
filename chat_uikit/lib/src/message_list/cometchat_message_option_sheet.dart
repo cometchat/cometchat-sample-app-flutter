@@ -17,6 +17,7 @@ class CometchatMessageOptionSheet extends StatefulWidget {
     this.onAddReactionIconTap,
     this.addReactionIcon,
     this.messageOptionStyle,
+    this.hideReactionOption,
   });
 
   ///[actionItems] is a list of [ActionItem] which is used to set the actions
@@ -51,6 +52,9 @@ class CometchatMessageOptionSheet extends StatefulWidget {
 
   ///[messageOptionStyle] sets the style for the message option bottom sheet
   final CometChatMessageOptionSheetStyle? messageOptionStyle;
+
+  ///[hideReactionOption] This prop defines whether Reaction option should be visible or not.
+  final bool? hideReactionOption;
 
   @override
   State<CometchatMessageOptionSheet> createState() =>
@@ -126,7 +130,7 @@ class _CometchatMessageOptionSheetState
                   ),
                 ),
               ),
-              if (!(widget.hideReactions ?? false))
+              if ((widget.hideReactionOption != true) && !(widget.hideReactions ?? false))
                 Container(
                   decoration: BoxDecoration(
                     color:
@@ -186,7 +190,7 @@ class _CometchatMessageOptionSheetState
                                       widget.messageObject);
                                 }
                               },
-                              icon: Icon(
+                              icon: widget.addReactionIcon ?? Icon(
                                 Icons.add_reaction_outlined,
                                 size: 24,
                                 color: colorPalette.iconSecondary,
@@ -198,7 +202,7 @@ class _CometchatMessageOptionSheetState
                     ),
                   ),
                 ),
-              if (!(widget.hideReactions ?? false))
+              if ((widget.hideReactionOption != true) && !(widget.hideReactions ?? false))
                 Divider(
                   height: 1,
                   thickness: 1,
@@ -282,12 +286,13 @@ Future<ActionItem?> showMessageOptionSheet({
   final String? title,
   required final dynamic message,
   required final CometChatMessageListController state,
-  final Function(BaseMessage, String?)? onReactionTap,
+  final Function(BaseMessage message, String? reaction)? onReactionTap,
   final Widget? addReactionIcon,
-  final Function(BaseMessage)? addReactionIconTap,
+  final Function(BaseMessage message)? addReactionIconTap,
   bool hideReactions = false,
   List<String>? favoriteReactions,
   CometChatMessageOptionSheetStyle? style,
+  bool? hideReactionOption,
 }) {
   return showModalBottomSheet<ActionItem>(
     backgroundColor: colorPalette.background1,
@@ -306,6 +311,7 @@ Future<ActionItem?> showMessageOptionSheet({
       favoriteReactions: favoriteReactions,
       onReactionTap: onReactionTap,
       messageOptionStyle: style,
+      hideReactionOption: hideReactionOption,
     ),
   );
 }

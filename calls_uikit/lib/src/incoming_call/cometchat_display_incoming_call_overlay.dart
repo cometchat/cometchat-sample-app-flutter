@@ -22,8 +22,12 @@ class IncomingCallOverlay {
     double? width,
     String? declineButtonText,
     String? acceptButtonText,
+    Widget? Function(BuildContext, Call)? titleView,
+    Widget? Function(BuildContext, Call)? leadingView,
+    Widget? Function(BuildContext, Call)? trailingView,
+    Widget? Function(BuildContext, Call)? subtitleView,
+    Widget? Function(BuildContext, Call)? itemView,
   }) {
-
     _overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         top: 40.0,
@@ -35,26 +39,31 @@ class IncomingCallOverlay {
             call: call,
             user: user,
             onError: onError,
-            subtitle: subtitle,
             onDecline: onDecline,
             onAccept: onAccept,
             disableSoundForCalls: disableSoundForCalls,
             customSoundForCalls: customSoundForCalls,
             customSoundForCallsPackage: customSoundForCallsPackage,
-            style: style,
+            incomingCallStyle: style,
             callSettingsBuilder: callSettingsBuilder,
             height: height,
             width: width,
             declineButtonText: declineButtonText,
             acceptButtonText: acceptButtonText,
+            titleView: titleView,
+            leadingView: leadingView,
+            trailingView: trailingView,
+            subTitleView: subtitleView,
+            itemView: itemView,
           ),
         ),
       ),
     );
 
-
-    if (CallNavigationContext.navigatorKey.currentState?.overlay != null && _overlayEntry != null) {
-      CallNavigationContext.navigatorKey.currentState!.overlay!.insert(_overlayEntry!);
+    if (CallNavigationContext.navigatorKey.currentState?.overlay != null &&
+        _overlayEntry != null) {
+      CallNavigationContext.navigatorKey.currentState!.overlay!
+          .insert(_overlayEntry!);
     } else {
       debugPrint("Overlay is null, cannot insert entry.");
     }

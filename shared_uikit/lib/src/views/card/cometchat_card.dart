@@ -16,7 +16,7 @@ class CometChatCard extends StatelessWidget {
   const CometChatCard({
     super.key,
     this.title,
-    this.subtitle,
+    this.subtitleView,
     this.cardStyle,
     this.avatarName,
     this.avatarUrl,
@@ -26,13 +26,15 @@ class CometChatCard extends StatelessWidget {
     this.avatarPadding,
     this.avatarMargin,
     this.titlePadding,
+    this.avatarView,
+    this.titleView,
   });
 
   ///[title] sets title for card
   final String? title;
 
-  ///[subtitle] sets subtitle for card
-  final Widget? subtitle;
+  ///[subtitleView] sets subtitle for card
+  final Widget? subtitleView;
 
   ///[cardStyle] sets style for card
   final CardStyle? cardStyle;
@@ -61,6 +63,12 @@ class CometChatCard extends StatelessWidget {
   ///[titlePadding] sets titlePadding for title
   final EdgeInsetsGeometry? titlePadding;
 
+  ///[avatarView] sets avatar View
+  final Widget? avatarView;
+
+  ///[titleView] sets title view
+  final Widget? titleView;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -68,31 +76,31 @@ class CometChatCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (title != null || subtitle != null)
-          Wrap(
-            direction: Axis.vertical,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              if (title != null)
+        Wrap(
+          direction: Axis.vertical,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            titleView ??
                 Padding(
                   padding: titlePadding ?? EdgeInsets.zero,
                   child: Text(
-                    title!,
+                    title ?? "",
                     style: cardStyle?.titleStyle,
                   ),
                 ),
-              if (subtitle != null) subtitle!,
-              CometChatAvatar(
-                image: avatarUrl,
-                name: avatarName,
-                height: avatarHeight ?? 120,
-                width: avatarWidth ?? 120,
-                padding: avatarPadding,
-                margin: avatarMargin,
-                style: cardStyle?.avatarStyle,
-              ),
-            ],
-          ),
+            if (subtitleView != null) subtitleView!,
+            avatarView ??
+                CometChatAvatar(
+                  image: avatarUrl,
+                  name: avatarName,
+                  height: avatarHeight ?? 120,
+                  width: avatarWidth ?? 120,
+                  padding: avatarPadding,
+                  margin: avatarMargin,
+                  style: cardStyle?.avatarStyle,
+                ),
+          ],
+        ),
         if (bottomView != null) bottomView!
       ],
     );

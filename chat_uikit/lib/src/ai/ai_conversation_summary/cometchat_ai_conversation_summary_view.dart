@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
-import '../ai_utils.dart';
 
 ///[CometChatAIConversationSummaryView] is a widget that is rendered as the content view for [CometChatAIConversationSummaryView]
 ///```dart
@@ -24,7 +23,6 @@ class CometChatAIConversationSummaryView extends StatefulWidget {
       this.title,
       this.customView,
       this.errorIconUrl,
-      this.theme,
       this.loadingStateText,
       this.loadingIconUrl,
       this.loadingStateView,
@@ -49,9 +47,6 @@ class CometChatAIConversationSummaryView extends StatefulWidget {
 
   ///[aiConversationSummaryStyle] provides styling to the reply chips/bubbles
   final CometChatAIConversationSummaryStyle? aiConversationSummaryStyle;
-
-  ///[theme] sets custom theme
-  final CometChatTheme? theme;
 
   ///[loadingStateText] text to be displayed when loading occur
   final String? loadingStateText;
@@ -206,11 +201,11 @@ class _CometChatAIConversationSummaryViewState extends State<CometChatAIConversa
     }
   }
 
-  Widget _getEmptyView(BuildContext context, CometChatTheme theme) {
+  Widget _getEmptyView(BuildContext context) {
     if (widget.emptyStateView != null) {
       return widget.emptyStateView!(context);
     } else {
-      return AIUtils.getEmptyView(context, theme,
+      return AIUtils.getEmptyView(context,
           backgroundColor: style.backgroundColor,
           shadowColor: style.shadowColor,
           emptyIconUrl: widget.emptyIconUrl,

@@ -9,12 +9,6 @@ import 'package:get/get.dart';
 /// CometChatCallButtons(
 ///   user: User(),
 ///   group: Group(),
-///   onVoiceCallClick: (context, user, group) {
-///     // Handle voice call click
-///   },
-///   onVideoCallClick: (context, user, group) {
-///     // Handle video call click
-///   },
 /// );
 /// ```
 class CometChatCallButtons extends StatelessWidget {
@@ -22,12 +16,10 @@ class CometChatCallButtons extends StatelessWidget {
     Key? key,
     this.user,
     this.group,
-    this.onVoiceCallClick,
-    this.onVideoCallClick,
-    this.style,
+    this.callButtonsStyle,
     OnError? onError,
-    this.hideVideoCall,
-    this.hideVoiceCall,
+    this.hideVideoCallButton,
+    this.hideVoiceCallButton,
     this.voiceCallIcon,
     this.videoCallIcon,
     this.outgoingCallConfiguration,
@@ -46,20 +38,14 @@ class CometChatCallButtons extends StatelessWidget {
   ///[group] is a object of [Group] for which call is to be initiated
   final Group? group;
 
-  ///[onVoiceCallClick] is a callback which gets called when voice call icon is clicked
-  final Function(BuildContext, User?, Group?)? onVoiceCallClick;
+  ///[callButtonsStyle] is a object of [CometChatCallButtonsStyle] which sets the style for the call buttons
+  final CometChatCallButtonsStyle? callButtonsStyle;
 
-  ///[onVideoCallClick] is a callback which gets called when video call icon is clicked
-  final Function(BuildContext, User?, Group?)? onVideoCallClick;
+  ///[hideVoiceCallButton] is a bool which hides the voice call icon
+  final bool? hideVoiceCallButton;
 
-  ///[style] is a object of [CometChatCallButtonsStyle] which sets the style for the call buttons
-  final CometChatCallButtonsStyle? style;
-
-  ///[hideVoiceCall] is a bool which hides the voice call icon
-  final bool? hideVoiceCall;
-
-  ///[hideVideoCall] is a bool which hides the video call icon
-  final bool? hideVideoCall;
+  ///[hideVideoCallButton] is a bool which hides the video call icon
+  final bool? hideVideoCallButton;
 
   ///[voiceCallIcon] is a Widget which sets the icon for the voice call
   final Widget? voiceCallIcon;
@@ -79,10 +65,10 @@ class CometChatCallButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final callButtonsStyle =
+    final style =
         CometChatThemeHelper.getTheme<CometChatCallButtonsStyle>(
                 context: context, defaultTheme: CometChatCallButtonsStyle.of)
-            .merge(style);
+            .merge(callButtonsStyle);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     return Material(
       color: colorPalette.transparent ?? Colors.transparent,
@@ -96,59 +82,59 @@ class CometChatCallButtons extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (hideVoiceCall != true)
+              if (hideVoiceCallButton != true)
                 IconButton(
                   style: IconButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                      borderRadius: callButtonsStyle.voiceCallButtonBorderRadius ?? BorderRadius.circular(0),
-                      side: callButtonsStyle.voiceCallButtonBorder ?? BorderSide.none,
+                      borderRadius:
+                          style.voiceCallButtonBorderRadius ??
+                              BorderRadius.circular(0),
+                      side: style.voiceCallButtonBorder ??
+                          BorderSide.none,
                     ),
-                    backgroundColor: callButtonsStyle.voiceCallButtonColor,
+                    backgroundColor: style.voiceCallButtonColor,
                   ),
                   onPressed: () {
                     if (!viewModel.disabled) {
-                      if (onVoiceCallClick != null) {
-                        onVoiceCallClick!(context, user, group);
-                      } else {
-                        viewModel.initiateCall(CallTypeConstants.audioCall, context);
-                      }
+                      viewModel.initiateCall(
+                          CallTypeConstants.audioCall, context);
                     }
                   },
                   icon: voiceCallIcon ??
                       Icon(
                         Icons.call_outlined,
                         size: 24,
-                        color: callButtonsStyle.voiceCallIconColor ??
+                        color: style.voiceCallIconColor ??
                             colorPalette.iconPrimary,
                       ),
                 ),
-              if (hideVideoCall != true)
+              if (hideVideoCallButton != true)
                 IconButton(
                   style: IconButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                      borderRadius: callButtonsStyle.videoCallButtonBorderRadius ?? BorderRadius.circular(0),
-                      side: callButtonsStyle.videoCallButtonBorder ?? BorderSide.none,
+                      borderRadius:
+                          style.videoCallButtonBorderRadius ??
+                              BorderRadius.circular(0),
+                      side: style.videoCallButtonBorder ??
+                          BorderSide.none,
                     ),
-                    backgroundColor: callButtonsStyle.videoCallButtonColor,
+                    backgroundColor: style.videoCallButtonColor,
                   ),
                   onPressed: () {
                     if (viewModel.disabled == false) {
-                      if (onVideoCallClick != null) {
-                        onVideoCallClick!(context, user, group);
-                      } else {
-                        viewModel.initiateCall(CallTypeConstants.videoCall, context);
-                      }
+                      viewModel.initiateCall(
+                          CallTypeConstants.videoCall, context);
                     }
                   },
                   icon: videoCallIcon ??
-                  SvgPicture.asset(
-                     SvgAssetConstants.videoCall,
-                      height: 24,
-                      width: 24,
-                      color: callButtonsStyle.videoCallIconColor ??
-                          colorPalette.iconPrimary,
-                    package: UIConstants.packageName,
-                  ),
+                      SvgPicture.asset(
+                        SvgAssetConstants.videoCall,
+                        height: 24,
+                        width: 24,
+                        color: style.videoCallIconColor ??
+                            colorPalette.iconPrimary,
+                        package: UIConstants.packageName,
+                      ),
                 ),
             ],
           );

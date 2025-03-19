@@ -14,8 +14,14 @@ abstract class CometChatListController<T1, T2> extends GetxController
   Function(Exception)? onError;
   bool isFetchNext = true;
 
+  /// Callback when data is successfully loaded
+  OnLoad<T1>? onLoad;
+
+  /// Callback when the list is empty
+  OnEmpty? onEmpty;
+
   CometChatListController(this.request,
-      {this.onError, this.isFetchNext = true});
+      {this.onError, this.isFetchNext = true, this.onLoad, this.onEmpty});
 
   @override
   List<T1> getList() {
@@ -44,6 +50,7 @@ abstract class CometChatListController<T1, T2> extends GetxController
     if (fetchedList.isEmpty) {
       isLoading = false;
       hasMoreItems = false;
+      onEmpty?.call();
       update();
     } else {
       isLoading = false;
@@ -59,6 +66,7 @@ abstract class CometChatListController<T1, T2> extends GetxController
         }
       }
 
+      onLoad?.call(list);
       update();
     }
   }
@@ -75,23 +83,80 @@ abstract class CometChatListController<T1, T2> extends GetxController
   @override
   loadMoreElements({bool Function(T1 element)? isIncluded}) async {
     isLoading = true;
+
     try {
       if (isFetchNext) {
         await request.fetchNext(
-            onSuccess: (List<T1> fetchedList) {
-              _onSuccess(fetchedList, isIncluded);
-            },
-            onError: onError ?? _onError);
+          onSuccess: (List<T1> fetchedList) {
+            if (fetchedList.isEmpty) {
+              isLoading = false;
+              hasMoreItems = false;
+
+              /// Call `onEmpty` when no data is found
+              onEmpty?.call();
+            } else {
+              isLoading = false;
+              hasMoreItems = true;
+
+              if (isIncluded == null) {
+                list.addAll(fetchedList);
+              } else {
+                for (var element in fetchedList) {
+                  if (isIncluded(element) == true) {
+                    list.add(element);
+                  }
+                }
+              }
+
+              /// Call `onLoad` when data is successfully loaded
+              onLoad?.call(list);
+            }
+
+            update();
+          },
+          onError: (e) {
+            _onError(e);
+            onError?.call(e);
+          },
+        );
       } else {
         await request.fetchPrevious(
-            onSuccess: (List<T1> fetchedList) {
-              _onSuccess(fetchedList, isIncluded);
-            },
-            onError: onError ?? _onError);
+          onSuccess: (List<T1> fetchedList) {
+            if (fetchedList.isEmpty) {
+              isLoading = false;
+              hasMoreItems = false;
+
+              /// Call `onEmpty` when no data is found
+              onEmpty?.call();
+            } else {
+              isLoading = false;
+              hasMoreItems = true;
+
+              if (isIncluded == null) {
+                list.addAll(fetchedList);
+              } else {
+                for (var element in fetchedList) {
+                  if (isIncluded(element) == true) {
+                    list.add(element);
+                  }
+                }
+              }
+
+              /// Call `onLoad` when data is successfully loaded
+              onLoad?.call(list);
+            }
+
+            update();
+          },
+          onError: (e) {
+            _onError(e);
+            onError?.call(e);
+          },
+        );
       }
     } catch (e, s) {
       if (kDebugMode) {
-        print("Error in Catch$e}");
+        print("Error in Catch: $e");
       }
       error = CometChatException("ERR", s.toString(), "Error");
       hasError = true;
@@ -100,6 +165,7 @@ abstract class CometChatListController<T1, T2> extends GetxController
       update();
     }
   }
+
 
   @override
   updateElement(T1 element, {int? index}) {

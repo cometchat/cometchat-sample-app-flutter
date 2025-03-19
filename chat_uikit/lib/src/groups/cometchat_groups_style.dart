@@ -49,6 +49,8 @@ class CometChatGroupsStyle extends ThemeExtension<CometChatGroupsStyle> {
     this.retryButtonBorderRadius,
     this.retryButtonTextColor,
     this.retryButtonTextStyle,
+    this.protectedGroupIconBackground,
+    this.privateGroupIconBackground,
   });
 
   ///[backgroundColor] provides background color for the widget
@@ -177,6 +179,13 @@ class CometChatGroupsStyle extends ThemeExtension<CometChatGroupsStyle> {
   ///[retryButtonBorderRadius] provides border radius for retry button
   final BorderRadiusGeometry? retryButtonBorderRadius;
 
+  ///[privateGroupIconBackground] provides background color for private group icon
+  final Color? privateGroupIconBackground;
+
+  ///[protectedGroupIconBackground] provides background color for protected group icon
+  final Color? protectedGroupIconBackground;
+
+
   static CometChatGroupsStyle of(BuildContext context) =>
       const CometChatGroupsStyle();
 
@@ -224,6 +233,8 @@ class CometChatGroupsStyle extends ThemeExtension<CometChatGroupsStyle> {
     TextStyle? retryButtonTextStyle,
     BorderSide? retryButtonBorder,
     BorderRadiusGeometry? retryButtonBorderRadius,
+    Color? privateGroupIconBackground,
+    Color? protectedGroupIconBackground,
   }) {
     return CometChatGroupsStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -283,6 +294,10 @@ class CometChatGroupsStyle extends ThemeExtension<CometChatGroupsStyle> {
       retryButtonBorder: retryButtonBorder ?? this.retryButtonBorder,
       retryButtonBorderRadius:
           retryButtonBorderRadius ?? this.retryButtonBorderRadius,
+      privateGroupIconBackground:
+          privateGroupIconBackground ?? this.privateGroupIconBackground,
+      protectedGroupIconBackground:
+          protectedGroupIconBackground ?? this.protectedGroupIconBackground,
     );
   }
 
@@ -331,6 +346,8 @@ class CometChatGroupsStyle extends ThemeExtension<CometChatGroupsStyle> {
       emptyStateTextStyle: style.emptyStateTextStyle,
       emptyStateTextColor: style.emptyStateTextColor,
       errorStateTextStyle: style.errorStateTextStyle,
+      privateGroupIconBackground: style.privateGroupIconBackground,
+      protectedGroupIconBackground: style.protectedGroupIconBackground,
     );
   }
 
@@ -419,6 +436,10 @@ class CometChatGroupsStyle extends ThemeExtension<CometChatGroupsStyle> {
           t),
       retryButtonBorderRadius: BorderRadiusGeometry.lerp(
           retryButtonBorderRadius, other.retryButtonBorderRadius, t),
+      privateGroupIconBackground: Color.lerp(
+          privateGroupIconBackground, other.privateGroupIconBackground, t),
+      protectedGroupIconBackground: Color.lerp(
+          protectedGroupIconBackground, other.protectedGroupIconBackground, t),
     );
   }
 }

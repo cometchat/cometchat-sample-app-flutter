@@ -355,13 +355,13 @@ class TranslationsSv extends Translations {
   String get attachFile => 'Bifoga fil';
 
   @override
-  String get attachVideo => 'Bifoga video';
+  String get attachImage => 'Bifoga bild';
 
   @override
   String get attachAudio => 'Bifoga ljud';
 
   @override
-  String get attachImage => 'Bifoga bild';
+  String get attachVideo => 'Bifoga video';
 
   @override
   String get collaborateUsingDocument => 'Samarbeta med ett dokument';
@@ -1136,5 +1136,20 @@ class TranslationsSv extends Translations {
 
   @override
   String get deleteMessageWarning => 'Är du säker på att du vill ta bort det här meddelandet? Denna åtgärd kan inte ångras.';
+
+  @override
+  String get from => 'från';
+
+  @override
+  String get areYouSureBan => 'Är du säker på att du vill blockera';
+
+  @override
+  String get areYouSureRemove => 'Är du säker på att du vill ta bort';
+
+  @override
+  String get attachDocument => 'Bifoga dokument';
+
+  @override
+  String get camera => 'Kamera';
 
 }

@@ -37,6 +37,7 @@ class CometChatReactionList extends StatefulWidget {
     this.height,
     this.width,
     this.padding,
+    this.onReactionListItemClick,
   });
 
   ///[reactionRequestBuilder] is a parameter used to fetch the reactions of a particular message
@@ -86,6 +87,9 @@ class CometChatReactionList extends StatefulWidget {
 
   ///[padding] provides padding to the widget
   final EdgeInsetsGeometry? padding;
+
+  ///[onReactionListItemClick] This is to override when a reaction list item is clicked.
+  final Function(String? reaction, BaseMessage? message)? onReactionListItemClick;
 
 
   @override
@@ -340,7 +344,12 @@ class _CometChatReactionListState extends State<CometChatReactionList> {
 
           return GestureDetector(
             onTap: () {
-              value.onReactionTap(reactions[index]);
+              if(widget.onReactionListItemClick != null) {
+                widget.onReactionListItemClick!(
+                    reactions[index].reaction, widget.message);
+              } else {
+                value.onReactionTap(reactions[index]);
+              }
             },
             child: getReactionListItem(reactions[index], value,reactionListStyle, colorPalette, typography,spacing),
           );

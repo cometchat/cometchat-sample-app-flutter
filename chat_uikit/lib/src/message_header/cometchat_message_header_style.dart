@@ -25,7 +25,8 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
     this.passwordProtectedGroupBadgeIconColor,
     this.groupIconBackgroundColor,
     this.avatarStyle,
-    this.callButtonsStyle
+    this.callButtonsStyle,
+    this.statusIndicatorStyle,
   });
 
   ///[typingIndicatorTextStyle] is text style for setting typing indicator text
@@ -82,6 +83,9 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
   ///[callButtonsStyle] set style for call buttons
   final CometChatCallButtonsStyle? callButtonsStyle;
 
+  ///[statusIndicatorStyle] set style for status indicator
+  final CometChatStatusIndicatorStyle? statusIndicatorStyle;
+
   static CometChatMessageHeaderStyle of(BuildContext context) =>
       const CometChatMessageHeaderStyle();
 
@@ -106,6 +110,7 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
     Color? groupIconBackgroundColor,
     CometChatAvatarStyle? avatarStyle,
     CometChatCallButtonsStyle? callButtonsStyle,
+    CometChatStatusIndicatorStyle? statusIndicatorStyle,
   }) {
     return CometChatMessageHeaderStyle(
       typingIndicatorTextStyle:
@@ -126,6 +131,7 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
       groupIconBackgroundColor: groupIconBackgroundColor ?? this.groupIconBackgroundColor,
       avatarStyle: avatarStyle ?? this.avatarStyle,
       callButtonsStyle: callButtonsStyle ?? this.callButtonsStyle,
+      statusIndicatorStyle: statusIndicatorStyle ?? this.statusIndicatorStyle,
     );
   }
 
@@ -149,6 +155,7 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
       groupIconBackgroundColor: style.groupIconBackgroundColor,
       avatarStyle: style.avatarStyle,
       callButtonsStyle: style.callButtonsStyle,
+      statusIndicatorStyle: style.statusIndicatorStyle,
     );
   }
 
@@ -173,6 +180,7 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
       privateGroupBadgeIconColor: Color.lerp(privateGroupBadgeIconColor, other?.privateGroupBadgeIconColor, t),
       avatarStyle: avatarStyle?.lerp(other?.avatarStyle, t),
       callButtonsStyle: callButtonsStyle?.lerp(other?.callButtonsStyle, t),
+      statusIndicatorStyle: statusIndicatorStyle?.lerp(other?.statusIndicatorStyle, t),
     );
   }
 }

@@ -356,13 +356,13 @@ class TranslationsPt extends Translations {
   String get attachFile => 'Anexar arquivo';
 
   @override
-  String get attachVideo => 'Anexar vídeo';
+  String get attachImage => 'Anexar imagem';
 
   @override
   String get attachAudio => 'Anexar áudio';
 
   @override
-  String get attachImage => 'Anexar imagem';
+  String get attachVideo => 'Anexar vídeo';
 
   @override
   String get collaborateUsingDocument => 'Colabore usando um documento';
@@ -1141,5 +1141,20 @@ class TranslationsPt extends Translations {
 
   @override
   String get deleteMessageWarning => 'Tem certeza de que deseja excluir esta mensagem? Essa ação não pode ser desfeita.';
+
+  @override
+  String get from => 'de';
+
+  @override
+  String get areYouSureBan => 'Tem certeza de que deseja banir';
+
+  @override
+  String get areYouSureRemove => 'Tem certeza de que deseja remover';
+
+  @override
+  String get attachDocument => 'Anexar documento';
+
+  @override
+  String get camera => 'Câmera';
 
 }

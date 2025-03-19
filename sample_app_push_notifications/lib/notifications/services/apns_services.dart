@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_apns_x/flutter_apns/src/apns_connector.dart';
 
-import '../../messages.dart';
+import '../../messages/messages.dart';
 import '../models/call_action.dart';
 import '../models/call_type.dart';
 import '../models/notification_date_model.dart';
@@ -88,7 +88,7 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
       Group? sendGroup;
 
       if (notificationDataModel.receiverType == "user") {
-        final uid = notificationDataModel.sender ?? '';
+        final uid = notificationDataModel.sender;
 
         await CometChat.getUser(
           uid,
@@ -103,7 +103,7 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
           },
         );
       } else if (notificationDataModel.receiverType == "group") {
-        final guid = notificationDataModel.receiver ?? '';
+        final guid = notificationDataModel.receiver;
 
         await CometChat.getGroup(
           guid,

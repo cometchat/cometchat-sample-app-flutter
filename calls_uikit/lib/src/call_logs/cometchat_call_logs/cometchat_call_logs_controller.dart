@@ -8,7 +8,9 @@ class CometChatCallLogsController
     required this.callLogsBuilderProtocol,
     this.outgoingCallConfiguration,
     OnError? onError,
-  }) : super(callLogsBuilderProtocol.getRequest(), onError: onError);
+    OnLoad<CallLog>? onLoad,
+    OnEmpty? onEmpty,
+  }) : super(callLogsBuilderProtocol.getRequest(), onError: onError, onLoad: onLoad, onEmpty: onEmpty,);
 
   late CallLogsBuilderProtocol callLogsBuilderProtocol;
 
@@ -20,6 +22,10 @@ class CometChatCallLogsController
   CallLog? lastElement;
 
   Map<String, List<CallLog>> groupedEntries = {};
+
+  CometChatColorPalette? colorPalette;
+  CometChatSpacing? spacing;
+  CometChatTypography? typography;
 
   // TODO: Implement the retry logic later.
   // Retry configuration
@@ -111,6 +117,7 @@ class CometChatCallLogsController
     User receiverUser = User(
       uid: CallLogsUtils.returnReceiverId(loggedInUser, callLog),
       name: CallLogsUtils.receiverName(loggedInUser, callLog),
+      avatar: CallLogsUtils.receiverAvatar(loggedInUser, callLog),
     );
 
     CometChatUIKitCalls.initiateCall(call, onSuccess: (Call returnedCall) {
@@ -122,9 +129,9 @@ class CometChatCallLogsController
             builder: (context) => CometChatOutgoingCall(
               user: receiverUser,
               call: returnedCall,
-              subtitle: outgoingCallConfiguration?.subtitle,
+              subtitleView: outgoingCallConfiguration?.subtitleView,
               declineButtonIcon: outgoingCallConfiguration?.declineButtonIcon,
-              onDecline: outgoingCallConfiguration?.onDecline,
+              onCancelled: outgoingCallConfiguration?.onCancelled,
               disableSoundForCalls:
               outgoingCallConfiguration?.disableSoundForCalls,
               customSoundForCalls:
@@ -132,11 +139,14 @@ class CometChatCallLogsController
               customSoundForCallsPackage:
               outgoingCallConfiguration?.customSoundForCallsPackage,
               onError: outgoingCallConfiguration?.onError,
-              style: outgoingCallConfiguration?.outgoingCallStyle,
+              outgoingCallStyle: outgoingCallConfiguration?.outgoingCallStyle,
               callSettingsBuilder:
               outgoingCallConfiguration?.callSettingsBuilder,
               height: outgoingCallConfiguration?.height,
               width: outgoingCallConfiguration?.width,
+              titleView: outgoingCallConfiguration?.titleView,
+              avatarView: outgoingCallConfiguration?.avatarView,
+              cancelledView: outgoingCallConfiguration?.cancelledView,
             ),
           ));
     }, onError: (CometChatException e) {
@@ -186,5 +196,42 @@ class CometChatCallLogsController
         onError!(error);
       }
     }
+  }
+
+  // Function to show pop-up menu on long press
+  void showPopupMenu(
+      BuildContext context,
+      List<CometChatOption> options,
+      GlobalKey widgetKey,
+      ) {
+    if(options.isEmpty) {
+      return;
+    }
+    RelativeRect? position = WidgetPositionUtil.getWidgetPosition(context, widgetKey);
+    showMenu(
+      context: context,
+      position: position ?? const RelativeRect.fromLTRB(0, 0, 0, 0),
+      shadowColor: colorPalette?.background1 ?? Colors.transparent,
+      color: colorPalette?.transparent ?? Colors.transparent,
+      menuPadding: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(spacing?.radius2 ?? 0),
+        side: BorderSide(
+          color: colorPalette?.borderLight ?? Colors.transparent,
+          width: 1,
+        ),
+      ),
+      items: options.map((CometChatOption option) {
+        return CustomPopupMenuItem<CometChatOption>(
+            value: option,
+            child: GetMenuView(
+              option: option,
+            ));
+      }).toList(),
+    ).then((selectedOption) {
+      if (selectedOption != null) {
+        selectedOption.onClick?.call();
+      }
+    });
   }
 }

@@ -12,13 +12,10 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 ///  );
 /// ```
 class LinkPreviewConfiguration {
-  LinkPreviewConfiguration({this.defaultImage, this.theme, this.style});
+  LinkPreviewConfiguration({this.defaultImage, this.style});
 
   ///[defaultImage] is shown unable to generate image from link
   final Widget? defaultImage;
-
-  ///[theme] sets custom theme
-  final CometChatTheme? theme;
 
   ///[style] provides style to the link preview bubble
   final CometChatLinkPreviewBubbleStyle? style;

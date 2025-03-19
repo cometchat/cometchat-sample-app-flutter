@@ -22,7 +22,6 @@ class CometChatUserInfoController extends GetxController
 
   Group? group;
 
-  late CometChatTheme theme;
   late String _dateString;
   late String _userListener;
   late BuildContext context;

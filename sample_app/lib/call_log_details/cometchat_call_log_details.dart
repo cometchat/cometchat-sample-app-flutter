@@ -147,12 +147,10 @@ class _CometChatCallLogDetailsState extends State<CometChatCallLogDetails> {
             ) :
             CometChatMessageHeader(
               user: userObj,
-              hideBackButton: true,
+              showBackButton: false,
               avatarHeight: 48,
               avatarWidth: 48,
               padding: EdgeInsets.zero,
-              disableTyping: false,
-              disableUserPresence: false,
             ),
           ),
           Container(

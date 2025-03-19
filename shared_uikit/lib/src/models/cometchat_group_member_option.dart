@@ -22,12 +22,14 @@ class CometChatGroupMemberOption extends CometChatBaseOptions {
   Function(Group group, GroupMember member,
       CometChatGroupMembersControllerProtocol state)? onClick;
 
-  CometChatGroupMemberOption(
-      {this.onClick,
-      required super.id,
-      super.title,
-      super.icon,
-      super.packageName,
-      super.backgroundColor,
-      super.titleStyle});
+  CometChatGroupMemberOption({
+    this.onClick,
+    required super.id,
+    super.title,
+    super.icon,
+    super.packageName,
+    super.backgroundColor,
+    super.titleStyle,
+    super.iconWidget,
+  });
 }

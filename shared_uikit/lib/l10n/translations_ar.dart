@@ -353,13 +353,13 @@ class TranslationsAr extends Translations {
   String get attachFile => 'إرفاق ملف';
 
   @override
-  String get attachVideo => 'إرفاق فيديو';
-
-  @override
-  String get attachAudio => 'إرفاق الصوت';
-
-  @override
   String get attachImage => 'إرفاق صورة';
+
+  @override
+  String get attachAudio => 'إرفاق صوت';
+  
+  @override
+  String get attachVideo => 'إرفاق فيديو';
 
   @override
   String get collaborateUsingDocument => 'التعاون باستخدام مستند';
@@ -1135,5 +1135,20 @@ class TranslationsAr extends Translations {
 
   @override
   String get deleteMessageWarning => 'هل تريد بالتأكيد حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.';
+
+  @override
+  String get from => 'من';
+
+  @override
+  String get areYouSureBan => 'هل أنت متأكد أنك تريد الحظر';
+
+  @override
+  String get areYouSureRemove => 'هل أنت متأكد أنك تريد الإزالة';
+
+  @override
+  String get attachDocument => 'إرفاق مستند';
+
+  @override
+  String get camera => 'كاميرا';
 
 }

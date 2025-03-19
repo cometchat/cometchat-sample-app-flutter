@@ -11,7 +11,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferencesClass.init();
   Get.put(PageManager());
-  
 
   runApp(const MyApp());
 }

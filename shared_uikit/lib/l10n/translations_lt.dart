@@ -355,13 +355,13 @@ class TranslationsLt extends Translations {
   String get attachFile => 'Prisegti failą';
 
   @override
-  String get attachVideo => 'Prisegti vaizdo';
+  String get attachImage => 'Pridėti vaizdą';
 
   @override
-  String get attachAudio => 'Prisegti garso';
+  String get attachAudio => 'Pridėti garsą';
 
   @override
-  String get attachImage => 'Prisegti vaizdą';
+  String get attachVideo => 'Pridėti vaizdo įrašą';
 
   @override
   String get collaborateUsingDocument =>
@@ -1143,5 +1143,20 @@ class TranslationsLt extends Translations {
 
   @override
   String get deleteMessageWarning => 'Ar tikrai norite ištrinti šį pranešimą? Šio veiksmo negalima atšaukti.';
+
+  @override
+  String get from => 'iš';
+
+  @override
+  String get areYouSureBan => 'Ar tikrai norite uždrausti';
+
+  @override
+  String get areYouSureRemove => 'Ar tikrai norite pašalinti';
+
+  @override
+  String get attachDocument => 'Pridėti dokumentą';
+
+  @override
+  String get camera => 'Kamera';
 
 }

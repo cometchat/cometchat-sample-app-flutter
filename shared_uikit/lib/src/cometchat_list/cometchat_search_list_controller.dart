@@ -8,17 +8,22 @@ abstract class CometChatSearchListController<T1, T2>
   final _deBouncer = Debouncer(milliseconds: 500);
   BuilderProtocol builderProtocol;
 
-  CometChatSearchListController(
-      {required this.builderProtocol,
-      String? searchKeyword,
-      Function(Exception)? onError,
-      bool isFetchNext = true})
-      : super(
-            searchKeyword != null && searchKeyword != ''
-                ? builderProtocol.getSearchRequest(searchKeyword)
-                : builderProtocol.getRequest(),
-            onError: onError,
-            isFetchNext: isFetchNext);
+  CometChatSearchListController({
+    required this.builderProtocol,
+    String? searchKeyword,
+    Function(Exception)? onError,
+    bool isFetchNext = true,
+    OnLoad<T1>? onLoad,
+    OnEmpty? onEmpty,
+  }) : super(
+          searchKeyword != null && searchKeyword != ''
+              ? builderProtocol.getSearchRequest(searchKeyword)
+              : builderProtocol.getRequest(),
+          onError: onError,
+          isFetchNext: isFetchNext,
+          onEmpty: onEmpty,
+          onLoad: onLoad,
+        );
 
   @override
   onSearch(String val) {

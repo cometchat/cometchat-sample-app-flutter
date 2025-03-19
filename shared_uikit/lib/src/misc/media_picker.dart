@@ -62,11 +62,21 @@ class MediaPicker {
   // }
 
   static Future<PickedFile?> pickImage() async {
-    return _getFilesFromMethodChannel(type: "image");
+    if(Platform.isAndroid) {
+      return _getFilesFromMethodChannel(type: "image");
+    }
+    return await _getFilesFromMethodChannel(
+        type: Platform.isIOS ? "image" : "custom",
+        allowedExtensions: imageExtensions + videoExtensions);
   }
 
   static Future<PickedFile?> pickVideo() async {
-    return _getFilesFromMethodChannel(type: "video");
+    if(Platform.isAndroid) {
+      return _getFilesFromMethodChannel(type: "video");
+    }
+    return await _getFilesFromMethodChannel(
+        type: Platform.isIOS ? "video" : "custom",
+        allowedExtensions: imageExtensions + videoExtensions);
   }
 
   static Future<PickedFile?> pickAudio() async {

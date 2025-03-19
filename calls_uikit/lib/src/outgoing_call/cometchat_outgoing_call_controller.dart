@@ -15,8 +15,8 @@ class CometChatOutgoingCallController extends GetxController
   final Call activeCall;
   late BuildContext context;
 
-  ///[onDeclineCallTap] is used to define the callback for the widget when decline call button is tapped.
-  final Function(BuildContext, Call)? onDeclineCallTap;
+  ///[onCancelledCallTap] is used to define the callback for the widget when decline call button is tapped.
+  final Function(BuildContext, Call)? onCancelledCallTap;
 
   ///[disableSoundForCalls] is used to define whether to disable sound for call or not.
   final bool? disableSoundForCalls;
@@ -34,8 +34,7 @@ class CometChatOutgoingCallController extends GetxController
   CometChatOutgoingCallController({
     this.onError,
     required this.activeCall,
-    this.onDeclineCallTap,
-    CometChatTheme? theme,
+    this.onCancelledCallTap,
     this.disableSoundForCalls,
     this.customSoundForCalls,
     this.customSoundForCallsPackage,
@@ -92,8 +91,8 @@ class CometChatOutgoingCallController extends GetxController
 
   void rejectCall(BuildContext context, CometChatColorPalette colorPalette,
       CometChatTypography typography) {
-    if (onDeclineCallTap != null) {
-      onDeclineCallTap!(context, activeCall);
+    if (onCancelledCallTap != null) {
+      onCancelledCallTap!(context, activeCall);
     } else {
       if (activeCall.sessionId != null) {
         CometChatUIKitCalls.rejectCall(

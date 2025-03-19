@@ -17,11 +17,10 @@ class ThumbnailGenerationExtensionDecorator extends DataSourceDecorator {
       MediaMessage message,
       Function()? onClick,
       BuildContext context,
-      CometChatTheme theme,
       CometChatVideoBubbleStyle? style) {
     String? thumbnailUrl0 = checkForThumbnail(message);
     return super.getVideoMessageBubble(videoUrl, thumbnailUrl0, message, null,
-        context, configuration?.theme ?? theme, configuration?.style ?? style);
+        context, configuration?.style ?? style);
   }
 
   @override
@@ -32,8 +31,7 @@ class ThumbnailGenerationExtensionDecorator extends DataSourceDecorator {
       CometChatImageBubbleStyle? style,
       MediaMessage message,
       Function()? onClick,
-      BuildContext context,
-      CometChatTheme theme) {
+      BuildContext context,) {
     String? thumbnailUrl = checkForThumbnail(message);
     return super.getImageMessageBubble(
         thumbnailUrl,
@@ -41,9 +39,9 @@ class ThumbnailGenerationExtensionDecorator extends DataSourceDecorator {
         caption,
         style,
         message,
-        () => openImageInFullScreenMode(imageUrl, theme, context),
+        () => openImageInFullScreenMode(imageUrl, context),
         context,
-        theme);
+        );
   }
 
   @override
@@ -86,7 +84,7 @@ class ThumbnailGenerationExtensionDecorator extends DataSourceDecorator {
   }
 
   openImageInFullScreenMode(
-      String? imageUrl, CometChatTheme theme, BuildContext context) {
+      String? imageUrl, BuildContext context) {
     if (imageUrl != null || imageUrl!.isNotEmpty) {
       Navigator.push(
         context,

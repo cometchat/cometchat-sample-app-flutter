@@ -8,7 +8,6 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 class CometChatMessageComposerStyle
     extends ThemeExtension<CometChatMessageComposerStyle> {
   const CometChatMessageComposerStyle({
-    this.sendButtonIcon,
     this.closeIconTint,
     this.backgroundColor,
     this.border,
@@ -31,10 +30,10 @@ class CometChatMessageComposerStyle
     this.attachmentOptionSheetStyle,
     this.mentionsStyle,
     this.aiOptionSheetStyle,
+    this.aiOptionStyle,
+    this.suggestionListStyle,
+    this.mediaRecorderStyle,
   });
-
-  ///[sendButtonIcon] custom send button icon
-  final Widget? sendButtonIcon;
 
   ///[closeIconTint] provides color to the close Icon/widget
   final Color? closeIconTint;
@@ -102,9 +101,17 @@ class CometChatMessageComposerStyle
   ///[aiOptionSheetStyle] provides style to the option sheet that generates a collaborative document
   final CometChatAiOptionSheetStyle? aiOptionSheetStyle;
 
+  ///set the style for ai options
+  final AIOptionsStyle? aiOptionStyle;
+
+  ///[suggestionListStyle] provides style to the mentions
+  final CometChatSuggestionListStyle? suggestionListStyle;
+
+  ///[mediaRecorderStyle] provides style to the media recorder
+  final CometChatMediaRecorderStyle? mediaRecorderStyle;
+
   @override
   CometChatMessageComposerStyle copyWith({
-    Widget? sendButtonIcon,
     Color? closeIconTint,
     Color? backgroundColor,
     BoxBorder? border,
@@ -127,9 +134,11 @@ class CometChatMessageComposerStyle
     CometChatAttachmentOptionSheetStyle? attachmentOptionSheetStyle,
     CometChatMentionsStyle? mentionsStyle,
     CometChatAiOptionSheetStyle? aiOptionSheetStyle,
+    AIOptionsStyle? aiOptionStyle,
+    CometChatSuggestionListStyle? suggestionListStyle,
+    CometChatMediaRecorderStyle? mediaRecorderStyle
   }) {
     return CometChatMessageComposerStyle(
-      sendButtonIcon: sendButtonIcon ?? this.sendButtonIcon,
       closeIconTint: closeIconTint ?? this.closeIconTint,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       border: border ?? this.border,
@@ -161,6 +170,9 @@ class CometChatMessageComposerStyle
           attachmentOptionSheetStyle ?? this.attachmentOptionSheetStyle,
       mentionsStyle: mentionsStyle ?? this.mentionsStyle,
       aiOptionSheetStyle: aiOptionSheetStyle ?? this.aiOptionSheetStyle,
+      aiOptionStyle: aiOptionStyle ?? this.aiOptionStyle,
+      suggestionListStyle: suggestionListStyle ?? this.suggestionListStyle,
+      mediaRecorderStyle: mediaRecorderStyle ?? this.mediaRecorderStyle
     );
   }
 
@@ -170,7 +182,6 @@ class CometChatMessageComposerStyle
   CometChatMessageComposerStyle merge(CometChatMessageComposerStyle? style) {
     if (style == null) return this;
     return copyWith(
-      sendButtonIcon: style.sendButtonIcon,
       closeIconTint: style.closeIconTint,
       backgroundColor: style.backgroundColor,
       border: style.border,
@@ -195,6 +206,9 @@ class CometChatMessageComposerStyle
       attachmentOptionSheetStyle: style.attachmentOptionSheetStyle,
       mentionsStyle: style.mentionsStyle,
       aiOptionSheetStyle: style.aiOptionSheetStyle,
+      aiOptionStyle: style.aiOptionStyle,
+      suggestionListStyle: style.suggestionListStyle,
+      mediaRecorderStyle: style.mediaRecorderStyle
     );
   }
 
@@ -202,7 +216,6 @@ class CometChatMessageComposerStyle
   CometChatMessageComposerStyle lerp(
       CometChatMessageComposerStyle? other, double t) {
     return CometChatMessageComposerStyle(
-      sendButtonIcon: sendButtonIcon ?? other?.sendButtonIcon,
       closeIconTint: Color.lerp(closeIconTint, other?.closeIconTint, t),
       backgroundColor: Color.lerp(backgroundColor, other?.backgroundColor, t),
       border: BoxBorder.lerp(border, other?.border, t),
@@ -242,6 +255,9 @@ class CometChatMessageComposerStyle
           other?.attachmentOptionSheetStyle, t),
       mentionsStyle: mentionsStyle?.lerp(other?.mentionsStyle, t),
       aiOptionSheetStyle: aiOptionSheetStyle?.lerp(other?.aiOptionSheetStyle, t),
+      aiOptionStyle: aiOptionStyle?.lerp(other?.aiOptionStyle, t),
+      suggestionListStyle: suggestionListStyle?.lerp(other?.suggestionListStyle, t),
+      mediaRecorderStyle: mediaRecorderStyle?.lerp(other?.mediaRecorderStyle, t)
     );
   }
 }

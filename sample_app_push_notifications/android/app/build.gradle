@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.cometchat.sampleapp.flutter.android"
     compileSdk = 34
-    ndkVersion = "27.0.12077973"
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         coreLibraryDesugaringEnabled true
@@ -18,7 +18,6 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
-        freeCompilerArgs += ["-Xlint:-options"] // Suppress warnings
     }
 
     buildFeatures {

@@ -356,13 +356,13 @@ class TranslationsEs extends Translations {
   String get attachFile => 'Adjuntar archivo';
 
   @override
-  String get attachVideo => 'Adjuntar vídeo';
+  String get attachImage => 'Adjuntar imagen';
 
   @override
   String get attachAudio => 'Adjuntar audio';
 
   @override
-  String get attachImage => 'Adjuntar imagen';
+  String get attachVideo => 'Adjuntar video';
 
   @override
   String get collaborateUsingDocument => 'Colaborar mediante un documento';
@@ -1145,5 +1145,20 @@ class TranslationsEs extends Translations {
 
   @override
   String get deleteMessageWarning => '¿Estás seguro de que deseas eliminar este mensaje? Esta acción no se puede deshacer.';
+
+  @override
+  String get from => 'de';
+
+  @override
+  String get areYouSureBan => '¿Estás seguro de que quieres prohibir';
+
+  @override
+  String get areYouSureRemove => '¿Estás seguro de que quieres eliminar';
+
+  @override
+  String get attachDocument => 'Adjuntar documento';
+
+  @override
+  String get camera => 'Cámara';
 
 }

@@ -42,14 +42,12 @@ class PollsExtensionDecorator extends DataSourceDecorator {
   }
 
   @override
-  List<CometChatMessageTemplate> getAllMessageTemplates(
-      {CometChatTheme? theme}) {
-    CometChatTheme theme0 = theme ?? cometChatTheme;
+  List<CometChatMessageTemplate> getAllMessageTemplates() {
 
     List<CometChatMessageTemplate> templateList =
-        super.getAllMessageTemplates(theme: theme0);
+        super.getAllMessageTemplates();
 
-    templateList.add(getTemplate(theme: theme0));
+    templateList.add(getTemplate());
 
     return templateList;
   }
@@ -83,7 +81,7 @@ class PollsExtensionDecorator extends DataSourceDecorator {
     List<CometChatMessageComposerAction> actions =
         super.getAttachmentOptions(context, id, additionalConfigurations);
 
-    if (isNotThread(id)) {
+    if (additionalConfigurations?.hidePollsOption != true && isNotThread(id)) {
       actions.add(getAttachmentOption(context, id, additionalConfigurations));
     }
 
@@ -103,7 +101,7 @@ class PollsExtensionDecorator extends DataSourceDecorator {
     }
   }
 
-  CometChatMessageTemplate getTemplate({CometChatTheme? theme}) {
+  CometChatMessageTemplate getTemplate() {
 
     return CometChatMessageTemplate(
         type: pollsTypeConstant,

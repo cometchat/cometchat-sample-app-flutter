@@ -20,7 +20,7 @@ class CometChatUsers extends StatefulWidget {
     this.subtitleView,
     this.listItemView,
     this.usersStyle = const CometChatUsersStyle(),
-    this.controller,
+    this.scrollController,
     this.searchPlaceholder,
     this.backButton,
     this.showBackButton = true,
@@ -29,26 +29,31 @@ class CometChatUsers extends StatefulWidget {
     this.selectionMode,
     this.onSelection,
     this.title,
-    this.stateCallBack,
     this.usersRequestBuilder,
     this.loadingStateView,
     this.emptyStateView,
     this.errorStateView,
-    this.options,
     this.appBarOptions,
-    this.disableUsersPresence,
+    this.usersStatusVisibility = true,
     this.activateSelection,
     this.onError,
     this.onBack,
     this.onItemTap,
     this.onItemLongPress,
-    this.selectionIcon,
     this.submitIcon,
     this.hideAppbar = false,
     this.controllerTag,
     this.height,
     this.width,
-    this.hideSectionSeparator = false,
+    this.stickyHeaderVisibility = false,
+    this.searchKeyword,
+    this.onLoad,
+    this.onEmpty,
+    this.addOptions,
+    this.setOptions,
+    this.titleView,
+    this.leadingView,
+    this.trailingView,
   });
 
   ///property to be set internally by using passed parameters [usersProtocol] ,[selectionMode] ,[options]
@@ -69,11 +74,8 @@ class CometChatUsers extends StatefulWidget {
   ///[usersStyle] sets style
   final CometChatUsersStyle usersStyle;
 
-  ///[controller] sets controller for the list
-  final ScrollController? controller;
-
-  final List<CometChatOption>? Function(
-      User, CometChatUsersController controller)? options;
+  ///[scrollController] sets controller for the list
+  final ScrollController? scrollController;
 
   ///[searchPlaceholder] placeholder text of search input
   final String? searchPlaceholder;
@@ -108,14 +110,11 @@ class CometChatUsers extends StatefulWidget {
   ///[errorStateView] returns view fow error state behind the dialog
   final WidgetBuilder? errorStateView;
 
-  ///[stateCallBack] to access controller functions  from parent pass empty reference of  CometChatUsersController object
-  final Function(CometChatUsersController controller)? stateCallBack;
-
   ///[appBarOptions] list of options to be visible in app bar
   final List<Widget> Function(BuildContext context)? appBarOptions;
 
-  ///[disableUsersPresence] controls visibility of status indicator shown if user is online
-  final bool? disableUsersPresence;
+  ///[usersStatusVisibility] Hide status indicator of user which is visible on user avatar
+  final bool? usersStatusVisibility;
 
   ///[activateSelection] lets the widget know if users are allowed to be selected
   final ActivateSelection? activateSelection;
@@ -132,9 +131,6 @@ class CometChatUsers extends StatefulWidget {
   ///[onItemLongPress] callback triggered on pressing for long on a user item
   final Function(BuildContext context, User)? onItemLongPress;
 
-  ///[selectionIcon] will change selection icon
-  final Widget? selectionIcon;
-
   ///[submitIcon] will override the default submit icon
   final Widget? submitIcon;
 
@@ -150,8 +146,36 @@ class CometChatUsers extends StatefulWidget {
   ///[width] provides width to the widget
   final double? width;
 
-  ///[hideSectionSeparator] hides the section separator
-  final bool? hideSectionSeparator;
+  ///[stickyHeaderVisibility] hide alphabets used to separate users
+  final bool? stickyHeaderVisibility;
+
+  ///[searchKeyword] Used to set searchKeyword to fetch initial list with
+  final String? searchKeyword;
+
+  ///[onLoad] callback triggered when list is fetched and load
+  final OnLoad<User>? onLoad;
+
+  ///[onEmpty] callback triggered when the list is empty
+  final OnEmpty? onEmpty;
+
+  ///[setOptions] sets List of actions available on the long press of list item
+  final List<CometChatOption>? Function(
+          User user, CometChatUsersController controller, BuildContext context)?
+      setOptions;
+
+  ///[addOptions] adds into the current List of actions available on the long press of list item
+  final List<CometChatOption>? Function(
+          User user, CometChatUsersController controller, BuildContext context)?
+      addOptions;
+
+  ///[trailingView] to set tailView for each user
+  final Widget? Function(BuildContext context, User user)? trailingView;
+
+  ///[leadingView] to set leading view for each user
+  final Widget? Function(BuildContext context, User user)? leadingView;
+
+  ///[titleView] to set title view for each user
+  final Widget? Function(BuildContext context, User user)? titleView;
 
   @override
   State<CometChatUsers> createState() => _CometChatUsersState();
@@ -189,8 +213,7 @@ class _CometChatUsersState extends State<CometChatUsers> {
     tag = widget.controllerTag ?? "default_tag_for_users_$dateString";
 
     if (widget.controllerTag != null &&
-        Get.isRegistered<CometChatGroupsController>(
-            tag: widget.controllerTag)) {
+        Get.isRegistered<CometChatUsersController>(tag: widget.controllerTag)) {
       usersController =
           Get.find<CometChatUsersController>(tag: widget.controllerTag);
     } else {
@@ -199,11 +222,14 @@ class _CometChatUsersState extends State<CometChatUsers> {
               usersBuilderProtocol: widget.usersProtocol ??
                   UIUsersBuilder(
                     widget.usersRequestBuilder ??
-                        RequestBuilderConstants.getDefaultUsersRequestBuilder(),
+                        RequestBuilderConstants.getDefaultUsersRequestBuilder()
+                      ..searchKeyword = widget.searchKeyword,
                   ),
               mode: widget.selectionMode,
               onError: widget.onError,
-              disableUsersPresence: widget.disableUsersPresence),
+              onEmpty: widget.onEmpty,
+              onLoad: widget.onLoad,
+              usersStatusVisibility: widget.usersStatusVisibility),
           tag: tag);
     }
   }
@@ -273,9 +299,7 @@ class _CometChatUsersState extends State<CometChatUsers> {
                       )
                     : (widget.backButton ??
                         IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: widget.onBack,
                           icon: Icon(
                             Icons.arrow_back,
                             color: colorPalette.iconPrimary,
@@ -288,7 +312,7 @@ class _CometChatUsersState extends State<CometChatUsers> {
         searchBoxIcon: widget.searchBoxIcon,
         onSearch: usersController.onSearch,
         hideAppBar: widget.hideAppbar,
-        searchText: widget.searchPlaceholder,
+        searchText: widget.searchKeyword,
         searchPadding: EdgeInsets.symmetric(
           horizontal: spacing.padding4 ?? 0,
           vertical: spacing.padding3 ?? 0,
@@ -353,11 +377,17 @@ class _CometChatUsersState extends State<CometChatUsers> {
           ),
         ),
         container: GetBuilder(
-            tag: tag,
-            builder: (CometChatUsersController value) => _getList(
-                  context,
-                  value,
-                )),
+          tag: tag,
+          builder: (CometChatUsersController value) {
+            value.colorPalette = colorPalette;
+            value.spacing = spacing;
+            value.typography = typography;
+            return _getList(
+              context,
+              value,
+            );
+          },
+        ),
       ),
     );
   }
@@ -375,8 +405,10 @@ class _CometChatUsersState extends State<CometChatUsers> {
       //----------- empty list widget-----------
       return _getNoUserIndicator(context);
     } else {
+      List<GlobalKey> tileKeys =
+          List.generate(value.list.length, (index) => GlobalKey());
       return ListView.builder(
-        controller: widget.controller,
+        controller: widget.scrollController,
         itemCount:
             value.hasMoreItems ? value.list.length + 1 : value.list.length,
         itemBuilder: (context, index) {
@@ -387,9 +419,16 @@ class _CometChatUsersState extends State<CometChatUsers> {
 
           return Column(
             children: [
-              if (widget.hideSectionSeparator != true)
+              if (widget.stickyHeaderVisibility != true)
                 _getUserListDivider(value, index, context),
-              getListItem(value.list[index], value, context),
+              SizedBox(
+                  key: tileKeys[index],
+                  child: getListItem(
+                    value.list[index],
+                    value,
+                    context,
+                    tileKeys[index],
+                  )),
             ],
           );
         },
@@ -398,34 +437,56 @@ class _CometChatUsersState extends State<CometChatUsers> {
   }
 
   Widget getListItem(
-      User user, CometChatUsersController controller, BuildContext context) {
+    User user,
+    CometChatUsersController controller,
+    BuildContext context,
+    GlobalKey key,
+  ) {
     if (widget.listItemView != null) {
       return widget.listItemView!(user);
     } else {
-      return getDefaultItem(user, controller, context);
+      return getDefaultItem(
+        user,
+        controller,
+        context,
+        key,
+      );
     }
   }
 
-  Widget getDefaultItem(
-      User user, CometChatUsersController controller, BuildContext context) {
+  Widget getDefaultItem(User user, CometChatUsersController controller,
+      BuildContext context, GlobalKey key) {
     Widget? subtitle;
     Widget? tail;
     Color? backgroundColor;
     Widget? icon;
+    Widget? leadingView;
+    Widget? titleView;
 
     if (widget.subtitleView != null) {
       subtitle = widget.subtitleView!(context, user);
+    }
+
+    if (widget.trailingView != null) {
+      tail = widget.trailingView!(context, user);
+    }
+
+    if (widget.titleView != null) {
+      titleView = widget.titleView!(context, user);
+    }
+
+    if (widget.leadingView != null) {
+      leadingView = widget.leadingView!(context, user);
     }
 
     StatusIndicatorUtils statusIndicatorUtils =
         StatusIndicatorUtils.getStatusIndicatorFromParams(
       context: context,
       user: user,
-      disableUsersPresence: controller.hideUserPresence(user),
+      usersStatusVisibility: controller.hideUserPresence(user),
       onlineStatusIndicatorColor:
           statusIndicatorStyle.backgroundColor ?? colorPalette.success,
       isSelected: false,
-      selectIcon: widget.selectionIcon,
     );
 
     backgroundColor = statusIndicatorUtils.statusIndicatorColor;
@@ -449,12 +510,35 @@ class _CometChatUsersState extends State<CometChatUsers> {
             _isSelectionOn.value = true;
           } else if (widget.onItemLongPress != null) {
             widget.onItemLongPress!(context, user);
+          } else {
+            List<CometChatOption>? options;
+
+            if (widget.setOptions != null) {
+              options = widget.setOptions!(
+                user,
+                controller,
+                context,
+              );
+            } else {
+              if (widget.addOptions != null) {
+                options = widget.addOptions!(
+                  user,
+                  controller,
+                  context,
+                );
+              }
+            }
+            controller.showPopupMenu(
+              context,
+              options ?? [],
+              key,
+            );
           }
         },
         onTap: () {
           if (widget.activateSelection == ActivateSelection.onClick ||
               (widget.activateSelection == ActivateSelection.onLongClick &&
-                      controller.selectionMap.isNotEmpty) &&
+                  controller.selectionMap.isNotEmpty) &&
                   !(widget.selectionMode == null ||
                       widget.selectionMode == SelectionMode.none)) {
             controller.onTap(user);
@@ -465,8 +549,7 @@ class _CometChatUsersState extends State<CometChatUsers> {
                 _isSelectionOn.value == false) {
               _isSelectionOn.value = true;
             }
-          }
-          if (widget.onItemTap != null) {
+          } else if  (widget.onItemTap != null) {
             widget.onItemTap!(context, user);
           }
         },
@@ -545,9 +628,6 @@ class _CometChatUsersState extends State<CometChatUsers> {
                       colorPalette.success,
                 ),
                 hideSeparator: true,
-                options: widget.options != null
-                    ? widget.options!(user, controller)
-                    : [],
                 style: ListItemStyle(
                   background: (controller.selectionMap[user.uid] != null)
                       ? (style.listItemSelectedBackgroundColor ??
@@ -576,6 +656,8 @@ class _CometChatUsersState extends State<CometChatUsers> {
                   ),
                   border: style.itemBorder,
                 ),
+                leadingStateView: leadingView,
+                titleView: titleView,
               ),
             ),
           ],

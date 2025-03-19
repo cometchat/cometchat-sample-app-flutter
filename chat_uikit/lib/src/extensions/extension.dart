@@ -3,11 +3,6 @@
 export 'extension_moderator.dart';
 export 'extension_constants.dart';
 
-//Data masking profanity
-export 'text_moderation/text_moderation_extension_decorator.dart';
-export 'text_moderation/text_moderation_configuration.dart';
-export 'text_moderation/text_moderation_extension.dart';
-
 //Sticker
 export 'stickers/stickers_extension.dart';
 export 'stickers/sticker_keyboard.dart';

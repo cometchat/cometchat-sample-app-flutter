@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cometchat_chat_uikit/src/ai/ai_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
@@ -46,6 +45,15 @@ class CometChatMessageComposerController extends GetxController
     required this.context,
     this.suggestionListStyle,
     this.auxiliaryButtonIconColor,
+    this.hideStickersButton,
+    this.hideAudioAttachmentOption,
+    this.hideCollaborativeDocumentOption,
+    this.hideCollaborativeWhiteboardOption,
+    this.hideFileAttachmentOption,
+    this.hideImageAttachmentOption,
+    this.hidePollsOption,
+    this.hideVideoAttachmentOption,
+    this.hideTakePhotoOption,
   }) {
     tag = "tag$counter";
     counter++;
@@ -74,6 +82,9 @@ class CometChatMessageComposerController extends GetxController
 
   ///[textEditingController] controls the state of the text field
   TextEditingController? textEditingController;
+
+  ///[hideStickersButton] is a [bool] that can be used to hide/display sticker button
+  final bool? hideStickersButton;
 
   ///[loggedInUser] is the user the message is being sent from
   User loggedInUser = User(name: '', uid: '');
@@ -136,6 +147,30 @@ class CometChatMessageComposerController extends GetxController
 
   ///[getAttachmentOptionsCalled] is used to call attachment options only once
   bool getAttachmentOptionsCalled = false;
+
+  ///[hideImageAttachmentOption] is a [bool] that can be used to hide/display image attachment option
+  final bool? hideImageAttachmentOption;
+
+  ///[hideVideoAttachmentOption] is a [bool] that can be used to hide/display video attachment option
+  final bool? hideVideoAttachmentOption;
+
+  ///[hideAudioAttachmentOption] is a [bool] that can be used to hide/display audio attachment option
+  final bool? hideAudioAttachmentOption;
+
+  ///[hideFileAttachmentOption] is a [bool] that can be used to hide/display file attachment option
+  final bool? hideFileAttachmentOption;
+
+  ///[hidePollsOption] is a [bool] that can be used to hide/display poll option
+  final bool? hidePollsOption;
+
+  ///[hideCollaborativeDocumentOption] is a [bool] that can be used to hide/display collaborative document option
+  final bool? hideCollaborativeDocumentOption;
+
+  ///[hideCollaborativeWhiteboardOption] is a [bool] that can be used to hide/display collaborative whiteboard option
+  final bool? hideCollaborativeWhiteboardOption;
+
+  ///[hideTakePhotoOption] is a [bool] that can be used to hide/display take photo option
+  final bool? hideTakePhotoOption;
 
   late BuildContext context;
 
@@ -304,15 +339,24 @@ class CometChatMessageComposerController extends GetxController
     }
     initializeHeaderAndFooterView();
 
-    auxiliaryOptions = CometChatUIKit.getDataSource()
-        .getAuxiliaryOptions(
-        user,
-        group,
-        context,
-        composerId,
-        auxiliaryButtonIconColor);
+    auxiliaryOptions = initAuxiliaryOption();
 
     super.onInit();
+  }
+
+  initAuxiliaryOption() {
+    AdditionalConfigurations additionalConfigurations = AdditionalConfigurations(
+      hideStickersButton: hideStickersButton,
+    );
+    return CometChatUIKit.getDataSource()
+        .getAuxiliaryOptions(
+      user,
+      group,
+      context,
+      composerId,
+      auxiliaryButtonIconColor,
+        additionalConfigurations: additionalConfigurations,
+    );
   }
 
   void initializeFormatters() {
@@ -632,6 +676,14 @@ class CometChatMessageComposerController extends GetxController
       AdditionalConfigurations additionalConfigurations =
           AdditionalConfigurations(
         attachmentOptionSheetStyle: attachmentOptionSheetStyle,
+            hideAudioAttachmentOption: hideAudioAttachmentOption,
+            hideCollaborativeDocumentOption: hideCollaborativeDocumentOption,
+            hideCollaborativeWhiteboardOption: hideCollaborativeWhiteboardOption,
+            hideFileAttachmentOption: hideFileAttachmentOption,
+            hideImageAttachmentOption: hideImageAttachmentOption,
+            hidePollsOption: hidePollsOption,
+            hideVideoAttachmentOption: hideVideoAttachmentOption,
+            hideTakPhotoOption: hideTakePhotoOption,
       );
       final defaultOptions =
           CometChatUIKit.getDataSource().getAttachmentOptions(
@@ -1046,8 +1098,11 @@ class CometChatMessageComposerController extends GetxController
       PickedFile? pickedFile;
       String? type;
 
-      if (item.id == 'photoAndVideo') {
-        pickedFile = await MediaPicker.pickImageVideo();
+      if (item.id == MessageTypeConstants.attachPhoto) {
+        pickedFile = await MediaPicker.pickImage();
+        type = pickedFile?.fileType;
+      } else if(item.id == MessageTypeConstants.attachVideo) {
+        pickedFile = await MediaPicker.pickVideo();
         type = pickedFile?.fileType;
       } else if (item.id == 'takePhoto') {
         pickedFile = await MediaPicker.takePhoto();
@@ -1078,7 +1133,7 @@ class CometChatMessageComposerController extends GetxController
   }
 
   //shows CometChat's emoji keyboard
-  useEmojis(BuildContext context, CometChatTheme theme) async {
+  useEmojis(BuildContext context) async {
     String? emoji = await showCometChatEmojiKeyboard(
       context: context,
       colorPalette: colorPalette ?? CometChatThemeHelper.getColorPalette(context),
@@ -1244,17 +1299,12 @@ class CometChatMessageComposerController extends GetxController
             title: aiFeatureList[i].title,
             icon: aiFeatureList[i].icon,
             style: CometChatAttachmentOptionSheetStyle(
-              titleTextStyle: aiFeatureList[i].style?.titleTextStyle ??
-                  aiOptionStyle?.titleTextStyle,
-              backgroundColor: aiFeatureList[i].style?.backgroundColor ??
-                  aiOptionStyle?.backgroundColor,
-              borderRadius: aiFeatureList[i].style?.borderRadius ??
-                  aiOptionStyle?.borderRadius,
-              iconColor: aiFeatureList[i].style?.iconColor ??
-                  aiOptionStyle?.iconColor,
+              titleTextStyle: aiFeatureList[i].style?.titleTextStyle,
+              backgroundColor: aiFeatureList[i].style?.backgroundColor,
+              borderRadius: aiFeatureList[i].style?.borderRadius,
+              iconColor: aiFeatureList[i].style?.iconColor,
               border: aiFeatureList[i].style?.border ?? aiOptionStyle?.border,
-              titleColor: aiFeatureList[i].style?.titleColor ??
-                  aiOptionStyle?.titleColor,
+              titleColor: aiFeatureList[i].style?.titleColor,
             ),
             onItemClick: (BuildContext context, User? user, Group? group) {
               if (aiFeatureList[i].onItemClick != null) {
@@ -1272,6 +1322,7 @@ class CometChatMessageComposerController extends GetxController
         typography: typography,
         spacing: spacing,
         style: aiOptionSheetStyle,
+        aiOptionStyle: aiOptionStyle
       );
 
       return;
