@@ -28,6 +28,7 @@ class CometChatMessageInputStyle extends ThemeExtension<CometChatMessageInputSty
     this.backgroundColor,
     this.border,
     this.borderRadius,
+    this.filledColor,
   });
 
   ///[textStyle] provides style to the input field
@@ -57,6 +58,9 @@ class CometChatMessageInputStyle extends ThemeExtension<CometChatMessageInputSty
   ///[placeholderColor] color of the placeholder text
   final Color? textColor;
 
+  ///[filledColor] specifies the color used to fill the background of the message input
+  final Color? filledColor;
+
   @override
   CometChatMessageInputStyle copyWith({
     TextStyle? textStyle,
@@ -68,6 +72,7 @@ class CometChatMessageInputStyle extends ThemeExtension<CometChatMessageInputSty
     Color? backgroundColor,
     BoxBorder? border,
     BorderRadiusGeometry? borderRadius,
+    Color? filledColor,
   }) {
     return CometChatMessageInputStyle(
       textStyle: textStyle ?? this.textStyle,
@@ -79,6 +84,7 @@ class CometChatMessageInputStyle extends ThemeExtension<CometChatMessageInputSty
       backgroundColor: backgroundColor ?? this.backgroundColor,
       border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
+      filledColor: filledColor ?? this.filledColor,
     );
   }
 
@@ -94,6 +100,7 @@ class CometChatMessageInputStyle extends ThemeExtension<CometChatMessageInputSty
       backgroundColor: other.backgroundColor,
       border: other.border,
       borderRadius: other.borderRadius,
+      filledColor: other.filledColor,
     );
   }
 
@@ -113,6 +120,7 @@ class CometChatMessageInputStyle extends ThemeExtension<CometChatMessageInputSty
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
       borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      filledColor: Color.lerp(filledColor, other.filledColor, t),
     );
   }
 }

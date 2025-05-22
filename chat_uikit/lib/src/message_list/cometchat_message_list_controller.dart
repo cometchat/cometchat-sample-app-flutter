@@ -271,6 +271,11 @@ class CometChatMessageListController
     super.onInit();
   }
 
+  String? stickyDateString;
+  DateTime? stickyDateTime;
+  int currentIndex = 0;
+
+
   @override
   void onClose() {
     //  CometChat.removeMessageListener(_messageListenerId);
@@ -1861,6 +1866,31 @@ class CometChatMessageListController
       ),
     );
   }
+
+  void updateStickyDateFromIndex(
+      int index,
+      String Function(DateTime)? dateSeparatorPattern,
+      ) {
+    currentIndex = index;
+    if (index >= 0 && index < list.length) {
+      DateTime? date = list[index].sentAt;
+
+      stickyDateTime = date;
+
+      String? formattedDate;
+
+      if (dateSeparatorPattern != null && date != null) {
+        formattedDate = dateSeparatorPattern(date);
+        update();
+      }
+
+      if (formattedDate != null && stickyDateString != formattedDate) {
+        stickyDateString = formattedDate;
+        update();
+      }
+    }
+  }
+
 }
 
 class BubbleContentVerifier {

@@ -13,7 +13,7 @@ import 'notifications/services/firebase_services.dart';
 import 'notifications/services/globals.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
-
+import 'package:sample_app_push_notifications/utils/bool_singleton.dart';
 import '../guard_screen.dart';
 import '../notifications/services/cometchat_services.dart';
 
@@ -54,6 +54,7 @@ class _MyPageViewState extends State<MyPageView>
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
+    BoolSingleton().loadFromPrefs();
     _pageController = Get.find<PageManager>();
 
     _dateString = DateTime.now().millisecondsSinceEpoch.toString();
@@ -73,6 +74,10 @@ class _MyPageViewState extends State<MyPageView>
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
+      if(BoolSingleton().value == true) {
+        IncomingCallOverlay.dismiss();
+        BoolSingleton().value = false;
+      }
       if (useFcm && Platform.isAndroid) {
         notificationService.resumeCallListeners(context);
       }
@@ -174,6 +179,7 @@ class _MyPageViewState extends State<MyPageView>
       });
     }
   }
+
 
 
   openCreateConversation(context) {
@@ -356,7 +362,7 @@ class _MyPageViewState extends State<MyPageView>
                           child: Padding(
                             padding: EdgeInsets.all(spacing.padding4 ?? 0),
                             child: Text(
-                              "v5.0.0",
+                              "v5.0.1",
                               style: TextStyle(
                                 fontSize: typography.body?.regular?.fontSize,
                                 fontFamily:

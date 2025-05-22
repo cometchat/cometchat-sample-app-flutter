@@ -80,6 +80,9 @@ class TranslationsHu extends Translations {
   String get members => 'Tagok';
 
   @override
+  String get member => "membe";
+
+  @override
   String get today => 'Ma';
 
   @override
@@ -632,7 +635,7 @@ class TranslationsHu extends Translations {
   String get leave => 'Távozzon';
 
   @override
-  String get clickToStartConversation =>
+  String get tapToStartConversation =>
       'Kattintson a beszélgetés megkezdéséhez';
 
   @override
@@ -1158,5 +1161,8 @@ class TranslationsHu extends Translations {
 
   @override
   String get camera => 'Kamera';
+
+  @override
+  String get areYouSureKick => 'Biztosan ki akarod rúgni';
 
 }

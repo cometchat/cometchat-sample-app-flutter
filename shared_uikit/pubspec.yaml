@@ -1,6 +1,6 @@
 name: cometchat_uikit_shared
 description: Shared Components and Resources for CometChat's chat and calls UI Kits
-version: 5.0.0
+version: 5.0.1
 homepage: https://www.cometchat.com/
 
 environment:
@@ -22,7 +22,7 @@ dependencies:
   image_picker: ^1.0.5
   path_provider: ^2.1.2
   webview_flutter: ^4.4.3
-  cometchat_sdk: ^4.0.17
+  cometchat_sdk: ^4.0.22
   flutter_svg: ^2.0.17
 
 dev_dependencies:

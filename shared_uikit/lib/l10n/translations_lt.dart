@@ -80,6 +80,9 @@ class TranslationsLt extends Translations {
   String get members => 'Nariai';
 
   @override
+  String get member => "Membro";
+
+  @override
   String get today => 'Šiandien';
 
   @override
@@ -632,7 +635,7 @@ class TranslationsLt extends Translations {
   String get leave => 'Palikite';
 
   @override
-  String get clickToStartConversation =>
+  String get tapToStartConversation =>
       'Spustelėkite, jei norite pradėti pokalbį';
 
   @override
@@ -1158,5 +1161,8 @@ class TranslationsLt extends Translations {
 
   @override
   String get camera => 'Kamera';
+
+  @override
+  String get areYouSureKick => 'Ar tikrai norite išmesti';
 
 }

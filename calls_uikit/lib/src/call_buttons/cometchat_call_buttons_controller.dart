@@ -220,6 +220,8 @@ class CometChatCallButtonsController extends GetxController
     }
 
     CometChatUIKitCalls.initiateCall(call, onSuccess: (Call returnedCall) {
+      disabled = false;
+      update();
       returnedCall.category = MessageCategoryConstants.call;
       CometChatCallEvents.ccOutgoingCall(returnedCall);
       FocusManager.instance.primaryFocus?.unfocus();

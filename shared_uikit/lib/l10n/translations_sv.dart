@@ -80,6 +80,9 @@ class TranslationsSv extends Translations {
   String get members => 'Medlemmar';
 
   @override
+  String get member => "Member";
+
+  @override
   String get today => 'Idag';
 
   @override
@@ -631,7 +634,7 @@ class TranslationsSv extends Translations {
   String get leave => 'Lämna';
 
   @override
-  String get clickToStartConversation => 'Klicka för att starta konversationen';
+  String get tapToStartConversation => 'Klicka för att starta konversationen';
 
   @override
   String get customMessageLocation => '📍 Plats';
@@ -1151,5 +1154,8 @@ class TranslationsSv extends Translations {
 
   @override
   String get camera => 'Kamera';
+
+  @override
+  String get areYouSureKick => 'Är du säker på att du vill sparka ut';
 
 }

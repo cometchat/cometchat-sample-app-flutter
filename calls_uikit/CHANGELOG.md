@@ -1,3 +1,14 @@
+## 5.0.1
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.22`.
+- Updated `cometchat_uikit_shared` to version `5.0.1`.
+- Updated `cometchat_calls_sdk` to version `4.1.0`.
+
+## Fixes
+- Addressed an issue preventing call initiation after the app was force-closed during an ongoing call.
+- Fixed a bug where the call screen remained visible after the device screen was turned off.
+
 ## 5.0.0
 
 ## Enhancements

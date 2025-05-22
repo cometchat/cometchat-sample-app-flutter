@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:sample_app_push_notifications/guard_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sample_app_push_notifications/utils/page_manager.dart';
-import 'firebase_options.dart';
 import 'notifications/services/firebase_services.dart';
 import 'prefs/shared_preferences.dart';
 
@@ -31,12 +30,12 @@ Future<void> main() async {
   try {
     print('Firebase initialized. BEFORE TRY');
     await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
     );
     print('Firebase initialized successfully.');
   } catch (e) {
     print('Firebase initialization failed: $e');
   }
+
 
   runApp(const MyApp());
 }

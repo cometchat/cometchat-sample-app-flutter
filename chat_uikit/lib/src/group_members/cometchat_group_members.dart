@@ -75,7 +75,8 @@ class CometChatGroupMembers extends StatelessWidget {
   final GroupMembersRequestBuilder? groupMembersRequestBuilder;
 
   ///[subtitleView] to set subtitle for each groupMember
-  final Widget? Function(BuildContext context, GroupMember groupMember)? subtitleView;
+  final Widget? Function(BuildContext context, GroupMember groupMember)?
+      subtitleView;
 
   ///[hideSeparator] toggle visibility of separator
   final bool? hideSeparator;
@@ -186,10 +187,12 @@ class CometChatGroupMembers extends StatelessWidget {
   final OnEmpty? onEmpty;
 
   ///[leadingView] to set leading view for each GroupMember
-  final Widget? Function(BuildContext context, GroupMember groupMember)? leadingView;
+  final Widget? Function(BuildContext context, GroupMember groupMember)?
+      leadingView;
 
   ///[titleView] to set title view for each GroupMember
-  final Widget? Function(BuildContext context, GroupMember groupMember)? titleView;
+  final Widget? Function(BuildContext context, GroupMember groupMember)?
+      titleView;
 
   ///[usersStatusVisibility] Hide status indicator of user which is visible on user avatar
   final bool? usersStatusVisibility;
@@ -292,7 +295,7 @@ class CometChatGroupMembers extends StatelessWidget {
           } else if (onItemLongPress != null) {
             onItemLongPress!(member);
           } else {
-            List<CometChatOption>? options;
+            List<CometChatOption>? options = [];
 
             if (setOptions != null) {
               options = setOptions!(
@@ -302,15 +305,21 @@ class CometChatGroupMembers extends StatelessWidget {
                 context,
               );
             } else {
-              options = (addOptions != null)
-                  ? addOptions!(
-                      group,
-                      member,
-                      controller,
-                      context,
-                    )
-                  : controller.defaultFunction(group, member, context,
-                      colorPalette, typography, spacing);
+              if (addOptions != null) {
+                options.addAll(
+                  addOptions!(
+                        group,
+                        member,
+                        controller,
+                        context,
+                      ) ??
+                      [],
+                );
+              }
+              options.addAll(
+                controller.defaultFunction(
+                    group, member, context, colorPalette, typography, spacing),
+              );
               if (addOptions != null) {
                 if (group.owner != CometChatUIKit.loggedInUser?.uid &&
                     member.scope == GroupMemberScope.admin) {
@@ -402,7 +411,10 @@ class CometChatGroupMembers extends StatelessWidget {
                   id: member.uid,
                   avatarName: member.name,
                   avatarURL: member.avatar,
-                  title: (controller.loggedInUser != null && controller.loggedInUser!.uid == member.uid) ? cc.Translations.of(context).you : member.name,
+                  title: (controller.loggedInUser != null &&
+                          controller.loggedInUser!.uid == member.uid)
+                      ? cc.Translations.of(context).you
+                      : member.name,
                   key: UniqueKey(),
                   subtitleView: subtitle,
                   tailView: tail,

@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_apns_x/flutter_apns/src/apns_connector.dart';
-
+import 'package:sample_app_push_notifications/utils/bool_singleton.dart';
 import '../../messages/messages.dart';
 import '../models/call_action.dart';
 import '../models/call_type.dart';
@@ -52,6 +52,13 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
     NotificationDetails(android: androidPlatformChannelSpecifics, iOS: const DarwinNotificationDetails());
 
     String jsonPayload = jsonEncode(msg.data);
+
+    if (data["type"] != null && data["type"] == "call") {
+      if(data["callAction"] == "cancelled") {
+        await BoolSingleton().setValue(true);
+        return;
+      }
+    }
 
     if (conversationId != null &&
         conversationId.isNotEmpty &&

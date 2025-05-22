@@ -944,7 +944,7 @@ class _CometChatConversationsState extends State<CometChatConversations> {
                     [],
               );
 
-              if (widget.deleteConversationOptionVisibility == true) {
+              if (widget.deleteConversationOptionVisibility == false) {
                 for (int i = 0; i < options.length; i++) {
                   if (options[i].id == ConversationOptionConstants.delete) {
                     options.removeAt(i);

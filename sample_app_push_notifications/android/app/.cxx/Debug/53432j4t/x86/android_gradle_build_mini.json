@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/admin/development/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/admin/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/admin/github/GitHub/chat-uikit-flutter/master_app/android/app/.cxx/Debug/53432j4t/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/admin/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/admin/github/GitHub/chat-uikit-flutter/master_app/android/app/.cxx/Debug/53432j4t/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

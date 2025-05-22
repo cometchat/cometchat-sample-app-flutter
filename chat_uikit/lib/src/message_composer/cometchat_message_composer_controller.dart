@@ -479,6 +479,9 @@ class CometChatMessageComposerController extends GetxController
         controller: _controller,
         itemCount: hasMore ? suggestions.length + 1 : suggestions.length,
         itemBuilder: (context, index) {
+          if (index >= suggestions.length) {
+            hasMore = true;
+          }
           if (hasMore && index >= suggestions.length) {
             for (var element in _formatters) {
               if (_currentSearchKeyword != null &&
@@ -748,7 +751,10 @@ class CometChatMessageComposerController extends GetxController
   _onTyping() {
     if (textEditingController == null) return;
     if ((_previousText.isEmpty && textEditingController!.text.isNotEmpty) ||
-        (_previousText.isNotEmpty && textEditingController!.text.isEmpty)) {
+        (_previousText.isNotEmpty && textEditingController!.text.isEmpty) ||
+        ((oldMessage != null) && _previousText == (oldMessage as TextMessage).text && textEditingController!.text != (oldMessage as TextMessage).text) ||
+        ((oldMessage != null) && _previousText != (oldMessage as TextMessage).text && textEditingController!.text == (oldMessage as TextMessage).text)
+    ) {
       update();
     }
     if (_previousText.length > textEditingController!.text.length) {
@@ -923,6 +929,7 @@ class CometChatMessageComposerController extends GetxController
 
   editTextMessage() {
     if (textEditingController == null) return;
+    if (textEditingController!.text == (oldMessage as TextMessage).text) return;
     TextMessage editedMessage = oldMessage as TextMessage;
     editedMessage.text = textEditingController!.text;
     handlePreMessageSend(editedMessage);

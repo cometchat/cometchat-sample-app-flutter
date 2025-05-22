@@ -32,27 +32,12 @@ android {
         versionName = flutter.versionName
     }
 
-    signingConfigs {
-        release {
-            keyAlias 'cometchat'
-            keyPassword 'cometchat'
-            storeFile file('cometchat_team_messanger.jks')
-            storePassword 'cometchat'
-        }
-    }
 
     buildTypes {
         release {
-            minifyEnabled false
-            shrinkResources false
-            signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-
-        debug {
-            minifyEnabled false
-            shrinkResources false
-            signingConfig signingConfigs.release
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 }
@@ -62,6 +47,5 @@ flutter {
 }
 
 dependencies {
-    implementation 'com.google.firebase:firebase-analytics:21.0.0' // Firebase Analytics
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }

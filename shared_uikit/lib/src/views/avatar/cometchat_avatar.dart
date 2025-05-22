@@ -45,6 +45,29 @@ class CometChatAvatar extends StatelessWidget {
   /// [padding] provides margin to the widget
   final EdgeInsetsGeometry? margin;
 
+  // Helper to safely extract initials (handles emojis & multi-byte chars)
+  String _getInitials(String name) {
+    List<String> parts = name.trim().split(RegExp(r'\s+'));
+
+    String getFirstCharacter(String input) {
+      Runes runes = input.runes;
+      return runes.isNotEmpty ? String.fromCharCode(runes.first) : "";
+    }
+
+    if (parts.length >= 2) {
+      return (getFirstCharacter(parts[0]) + getFirstCharacter(parts[1])).toUpperCase();
+    } else if (parts.isNotEmpty && parts[0].isNotEmpty) {
+      Runes runes = parts[0].runes;
+      if (runes.length >= 2) {
+        return String.fromCharCodes(runes.take(2)).toUpperCase();
+      } else {
+        return getFirstCharacter(parts[0]).toUpperCase();
+      }
+    } else {
+      return "";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String url = "";
@@ -62,14 +85,7 @@ class CometChatAvatar extends StatelessWidget {
       url = image!;
     }
     if (name != null && name!.trim().isNotEmpty) {
-      List<String> parts = name!.trim().split(RegExp(r'\s+'));
-      if (parts.length >= 2) {
-        text = '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-      } else if (parts.isNotEmpty) {
-        text = parts[0].length >= 2
-            ? parts[0].substring(0, 2).toUpperCase()
-            : parts[0][0].toUpperCase();
-      }
+      text = _getInitials(name ?? "");
     }
 
     return Container(

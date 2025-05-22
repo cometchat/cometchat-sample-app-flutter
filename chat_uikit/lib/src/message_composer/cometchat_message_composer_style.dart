@@ -33,6 +33,7 @@ class CometChatMessageComposerStyle
     this.aiOptionStyle,
     this.suggestionListStyle,
     this.mediaRecorderStyle,
+    this.filledColor,
   });
 
   ///[closeIconTint] provides color to the close Icon/widget
@@ -110,6 +111,9 @@ class CometChatMessageComposerStyle
   ///[mediaRecorderStyle] provides style to the media recorder
   final CometChatMediaRecorderStyle? mediaRecorderStyle;
 
+  ///[filledColor] sets the background color of the text input
+  final Color? filledColor;
+
   @override
   CometChatMessageComposerStyle copyWith({
     Color? closeIconTint,
@@ -136,7 +140,8 @@ class CometChatMessageComposerStyle
     CometChatAiOptionSheetStyle? aiOptionSheetStyle,
     AIOptionsStyle? aiOptionStyle,
     CometChatSuggestionListStyle? suggestionListStyle,
-    CometChatMediaRecorderStyle? mediaRecorderStyle
+    CometChatMediaRecorderStyle? mediaRecorderStyle,
+    Color? filledColor,
   }) {
     return CometChatMessageComposerStyle(
       closeIconTint: closeIconTint ?? this.closeIconTint,
@@ -172,7 +177,8 @@ class CometChatMessageComposerStyle
       aiOptionSheetStyle: aiOptionSheetStyle ?? this.aiOptionSheetStyle,
       aiOptionStyle: aiOptionStyle ?? this.aiOptionStyle,
       suggestionListStyle: suggestionListStyle ?? this.suggestionListStyle,
-      mediaRecorderStyle: mediaRecorderStyle ?? this.mediaRecorderStyle
+      mediaRecorderStyle: mediaRecorderStyle ?? this.mediaRecorderStyle,
+      filledColor: filledColor ?? this.filledColor,
     );
   }
 
@@ -208,7 +214,8 @@ class CometChatMessageComposerStyle
       aiOptionSheetStyle: style.aiOptionSheetStyle,
       aiOptionStyle: style.aiOptionStyle,
       suggestionListStyle: style.suggestionListStyle,
-      mediaRecorderStyle: style.mediaRecorderStyle
+      mediaRecorderStyle: style.mediaRecorderStyle,
+      filledColor: style.filledColor,
     );
   }
 
@@ -257,7 +264,8 @@ class CometChatMessageComposerStyle
       aiOptionSheetStyle: aiOptionSheetStyle?.lerp(other?.aiOptionSheetStyle, t),
       aiOptionStyle: aiOptionStyle?.lerp(other?.aiOptionStyle, t),
       suggestionListStyle: suggestionListStyle?.lerp(other?.suggestionListStyle, t),
-      mediaRecorderStyle: mediaRecorderStyle?.lerp(other?.mediaRecorderStyle, t)
+      mediaRecorderStyle: mediaRecorderStyle?.lerp(other?.mediaRecorderStyle, t),
+      filledColor: Color.lerp(filledColor, other?.filledColor, t),
     );
   }
 }

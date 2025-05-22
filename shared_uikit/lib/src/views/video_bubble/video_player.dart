@@ -57,7 +57,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
             vp.VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
       }
       await _controller!.initialize()
-.then((_) {
+.then((_)  {
+    _controller!.play();
     setState(() {}); // Refresh to display the video
     });
     _controller?.addListener(() {

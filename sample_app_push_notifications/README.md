@@ -22,6 +22,7 @@ Sign up for a [CometChat](https://app.cometchat.com/) account to obtain your app
 - Pod (CocoaPods) for iOS
 - An iOS device or emulator with iOS 12.0 or above.
 - Ensure that you have configured the provisioning profile in Xcode to run the app on a physical device.
+- Please make sure Java 17 is installed on your machine, as it is required by the flutter_callkit_incoming package used in our push notification sample app.
 
 **Android**
 - Android Studio

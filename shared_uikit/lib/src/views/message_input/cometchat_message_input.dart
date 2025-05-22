@@ -154,7 +154,7 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
               padding: EdgeInsets.only(
                   left: spacing.padding3 ?? 0, right: spacing.padding3 ?? 0),
               decoration: BoxDecoration(
-                color: messageInputStyle.backgroundColor,
+                color: messageInputStyle.filledColor ?? messageInputStyle.backgroundColor,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(spacing.radius2 ?? 0),
                   topRight: Radius.circular(spacing.radius2 ?? 0),
@@ -176,6 +176,8 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
                 minLines: 1,
                 maxLines: widget.maxLine ?? 4,
                 decoration: InputDecoration(
+                  filled: messageInputStyle.filledColor != null,
+                  fillColor: messageInputStyle.filledColor,
                   hintText: widget.placeholderText ??
                       Translations.of(context).typeYourMessage,
                   hintStyle: TextStyle(

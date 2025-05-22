@@ -75,7 +75,7 @@ class CometChatAddMembers extends StatelessWidget {
                     }
                   },
                   submitIcon: const SizedBox(),
-                  activateSelection: ActivateSelection.onLongClick,
+                  activateSelection: ActivateSelection.onClick,
                 ),
               ),
               Container(

@@ -66,7 +66,7 @@ class CometChatTransferOwnership extends StatelessWidget {
                   submitIcon: const SizedBox(),
                   activateSelection: ActivateSelection.onClick,
                   group: group,
-                  options:(group, member, controller, context) => const [],
+                  setOptions: (group, groupMember, controller, context) => const [],
                 ),
               ),
               Container(

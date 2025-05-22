@@ -10,7 +10,7 @@ import 'package:sample_app/utils/page_manager.dart';
 import 'call_log_details/cometchat_call_log_details.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
-
+import 'package:sample_app/utils/bool_singleton.dart';
 import '../guard_screen.dart';
 
 class MyHomePage extends StatelessWidget {
@@ -48,6 +48,7 @@ class _MyPageViewState extends State<MyPageView>
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
+    BoolSingleton().loadFromPrefs();
     _pageController = Get.find<PageManager>();
 
     _dateString = DateTime.now().millisecondsSinceEpoch.toString();
@@ -154,6 +155,7 @@ class _MyPageViewState extends State<MyPageView>
       });
     }
   }
+
 
 
   openCreateConversation(context) {
@@ -336,7 +338,7 @@ class _MyPageViewState extends State<MyPageView>
                           child: Padding(
                             padding: EdgeInsets.all(spacing.padding4 ?? 0),
                             child: Text(
-                              "v5.0.0",
+                              "v5.0.1",
                               style: TextStyle(
                                 fontSize: typography.body?.regular?.fontSize,
                                 fontFamily:

@@ -99,7 +99,6 @@ class CometChatOngoingCallController extends GetxController
     update();
   }
 
-
   @override
   void onAudioModeChanged(List<AudioMode> devices) {}
 
@@ -114,6 +113,11 @@ class CometChatOngoingCallController extends GetxController
       isCallEndedByMe = true;
       update();
     }
+  }
+
+  @override
+  void onSessionTimeout() {
+    _endSession();
   }
 
   @override

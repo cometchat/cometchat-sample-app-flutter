@@ -41,6 +41,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
           state.controller?.onClose(),
       builder: (CometChatUserInfoController value) {
         value.context = context;
+        userInfoController.updateUserStatue(widget.user);
         return Scaffold(
           backgroundColor: colorPalette.background1,
           appBar: AppBar(
@@ -73,7 +74,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
                 color: colorPalette.borderLight,
                 height: 1,
               ),
-              if (!value.isUserBlocked)
+              if (value.getBlockedByMe())
                 Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: spacing.padding3 ?? 0,
@@ -288,9 +289,9 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
       BuildContext context, CometChatUserInfoController controller) {
     return Column(
       children: [
-        listTileOptions((controller.isUserBlocked) ? "Block" : "Unblock",
+        listTileOptions((controller.user != null && controller.user?.blockedByMe != null && !controller.user!.blockedByMe!) ? "Block" : "Unblock",
             Icon(Icons.block, color: colorPalette.error), () {
-          if (controller.isUserBlocked == true) {
+          if ((controller.user != null && controller.user?.blockedByMe != null && !controller.user!.blockedByMe!)) {
             controller.blockUserDialog(
               context: context,
               colorPalette: colorPalette,

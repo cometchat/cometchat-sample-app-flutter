@@ -80,6 +80,9 @@ class TranslationsAr extends Translations {
   String get members => 'الأعضاء';
 
   @override
+  String get member => "عضو";
+
+  @override
   String get today => 'اليوم';
 
   @override
@@ -629,7 +632,7 @@ class TranslationsAr extends Translations {
   String get leave => 'ترك';
 
   @override
-  String get clickToStartConversation => 'انقر لبدء المحادثة';
+  String get tapToStartConversation => 'انقر لبدء المحادثة';
 
   @override
   String get customMessageLocation => '📍 الموقع';
@@ -1150,5 +1153,8 @@ class TranslationsAr extends Translations {
 
   @override
   String get camera => 'كاميرا';
+
+  @override
+  String get areYouSureKick => 'هل أنت متأكد أنك تريد الطرد';
 
 }

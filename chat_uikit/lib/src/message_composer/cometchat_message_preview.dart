@@ -35,10 +35,11 @@ class CometChatMessagePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
+    CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
     return Container(
-      padding: EdgeInsets.all(spacing.padding1 ?? 0),
+      padding: EdgeInsets.all(spacing.padding ?? 0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorPalette.borderDefault,
         borderRadius:BorderRadius.only(topLeft: Radius.circular(spacing.radius2 ?? 0),topRight: Radius.circular(spacing.radius2 ?? 0)),
       ),
 

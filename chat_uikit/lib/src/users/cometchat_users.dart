@@ -538,7 +538,7 @@ class _CometChatUsersState extends State<CometChatUsers> {
         onTap: () {
           if (widget.activateSelection == ActivateSelection.onClick ||
               (widget.activateSelection == ActivateSelection.onLongClick &&
-                  controller.selectionMap.isNotEmpty) &&
+                      controller.selectionMap.isNotEmpty) &&
                   !(widget.selectionMode == null ||
                       widget.selectionMode == SelectionMode.none)) {
             controller.onTap(user);
@@ -549,14 +549,16 @@ class _CometChatUsersState extends State<CometChatUsers> {
                 _isSelectionOn.value == false) {
               _isSelectionOn.value = true;
             }
-          } else if  (widget.onItemTap != null) {
+          } else if (widget.onItemTap != null) {
             widget.onItemTap!(context, user);
           }
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            (controller.selectionMap.isNotEmpty)
+            ((widget.selectionMode != null &&
+                        widget.selectionMode != SelectionMode.none) ||
+                    controller.selectionMap.isNotEmpty)
                 ? Checkbox(
                     fillColor: (controller.selectionMap[user.uid] != null)
                         ? WidgetStateProperty.all(
@@ -647,7 +649,9 @@ class _CometChatUsersState extends State<CometChatUsers> {
                         color: style.itemTitleTextColor,
                       ),
                   padding: EdgeInsets.only(
-                    left: (controller.selectionMap.isNotEmpty)
+                    left: ((widget.selectionMode != null &&
+                                widget.selectionMode != SelectionMode.none) ||
+                            controller.selectionMap.isNotEmpty)
                         ? 0
                         : spacing.padding4 ?? 0,
                     right: spacing.padding4 ?? 0,

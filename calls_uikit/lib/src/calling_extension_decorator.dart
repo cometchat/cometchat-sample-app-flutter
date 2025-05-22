@@ -147,7 +147,7 @@ class CallingExtensionDecorator extends DataSourceDecorator
     String receiver = message.receiverUid;
     String? subtitle;
     if (message.sentAt != null) {
-      subtitle = DateFormat('d MMM, HH:mm a').format(message.sentAt!);
+      subtitle = DateFormat('d MMM, hh:mm a').format(message.sentAt!);
     }
     return CometChatCallBubble(
       title: title,

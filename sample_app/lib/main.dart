@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

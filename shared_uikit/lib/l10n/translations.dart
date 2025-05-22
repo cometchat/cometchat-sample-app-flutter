@@ -270,6 +270,12 @@ abstract class Translations {
   /// **'Members'**
   String get members;
 
+  /// No description provided for @members.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get member;
+
   /// No description provided for @today.
   ///
   /// In en, this message translates to:
@@ -1354,7 +1360,7 @@ abstract class Translations {
   ///
   /// In en, this message translates to:
   /// **'Click to start conversation'**
-  String get clickToStartConversation;
+  String get tapToStartConversation;
 
   /// No description provided for @custom_message_location.
   ///
@@ -2331,6 +2337,10 @@ abstract class Translations {
   ///In en, this translates to :
   ///**'Camera'
   String get camera;
+
+  ///In en, this translates to :
+  ///**'Are you sure you want to kick'
+  String get areYouSureKick;
 
 }
 

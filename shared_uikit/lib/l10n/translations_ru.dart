@@ -80,6 +80,9 @@ class TranslationsRu extends Translations {
   String get members => 'Члены';
 
   @override
+  String get member => "Член";
+
+  @override
   String get today => 'Сегодня';
 
   @override
@@ -631,7 +634,7 @@ class TranslationsRu extends Translations {
   String get leave => 'Оставьте';
 
   @override
-  String get clickToStartConversation => 'Нажмите, чтобы начать разговор';
+  String get tapToStartConversation => 'Нажмите, чтобы начать разговор';
 
   @override
   String get customMessageLocation => 'Местоположение';
@@ -1154,5 +1157,8 @@ class TranslationsRu extends Translations {
 
   @override
   String get camera => 'Камера';
+
+  @override
+  String get areYouSureKick => 'Вы уверены, что хотите выгнать';
 
 }

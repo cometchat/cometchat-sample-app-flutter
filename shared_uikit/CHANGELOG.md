@@ -1,3 +1,23 @@
+## 5.0.1
+
+## New
+- Introduced the `filledColor` property in `CometChatMessageInputStyle` to allow customization of the text input field's background color.
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.22`.
+
+## Fixes
+- Fixed an issue where users had to click twice to play a video after navigating from a video thumbnail.
+- Corrected group avatar display to properly show group name or emoji instead of a question mark.
+- Corrected inconsistent timestamp formats by standardizing to 24-hour format.
+- Fixed flickering of the voice recording UI for a few seconds after recording ended.
+- Corrected timestamp section display issues in dark mode.
+- Resolved an issue where voice recording UI displayed incorrectly when selecting a non-audio attachment.
+- Resolved an inconsistency where mentioning a single user in the composer did not behave as expected compared to multiple mentions.
+- Fixed an issue where partially deleting a mention by clicking between characters and using the remove button left behind a fragment instead of removing the entire mention.
+- Corrected the backspace behavior to ensure mentions are removed as a complete block instead of character by character.
+- Fixed a bug where mentioning five or more users in a group caused the send button to become unresponsive, preventing the message from being sent.
+
 ## 5.0.0
 
 ## Enhancements

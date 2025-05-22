@@ -315,7 +315,7 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
       }
     } else {
       subtitle = Text(
-        '${controller.membersCount ?? 0} ${cc.Translations.of(context).members}',
+        '${controller.membersCount ?? 0} ${ controller.membersCount == 1 ? cc.Translations.of(context).member : cc.Translations.of(context).members }',
         style: subtitleStyle,
       );
     }

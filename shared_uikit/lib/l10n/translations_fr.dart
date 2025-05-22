@@ -80,6 +80,9 @@ class TranslationsFr extends Translations {
   String get members => 'Membres';
 
   @override
+  String get member => 'Membre';
+
+  @override
   String get today => 'Aujourd\'hui';
 
   @override
@@ -634,7 +637,7 @@ class TranslationsFr extends Translations {
   String get leave => 'Quitter';
 
   @override
-  String get clickToStartConversation =>
+  String get tapToStartConversation =>
       'Cliquez pour démarrer la conversation';
 
   @override
@@ -1162,5 +1165,8 @@ class TranslationsFr extends Translations {
 
   @override
   String get camera => 'Caméra';
+
+  @override
+  String get areYouSureKick => 'Êtes-vous sûr de vouloir expulser';
 
 }

@@ -110,7 +110,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
                       ),
                     ),
                     Text(
-                      "${widget.group.membersCount} Members",
+                      "${widget.group.membersCount} ${widget.group.membersCount == 1 ? "Member" : "Members"}",
                       style: TextStyle(
                         fontSize: typography.caption1?.regular?.fontSize,
                         fontFamily: typography.caption1?.regular?.fontFamily,
@@ -148,33 +148,6 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
         usersStatusVisibility: groupInfoController.hideUserPresence(),
         context: context,
       );
-      if (group.type == GroupTypeConstants.password ||
-          group.type == GroupTypeConstants.private) {
-        status = CometChatStatusIndicator(
-          height: 20,
-          width: 20,
-          backgroundImage: (group.type == GroupTypeConstants.password)
-              ? Icon(
-                  Icons.lock,
-                  color: colorPalette.background1,
-                  size: 10,
-                )
-              : (group.type == GroupTypeConstants.private)
-                  ? Icon(
-                      Icons.shield,
-                      color: colorPalette.background1,
-                      size: 10,
-                    )
-                  : const SizedBox(),
-          style: CometChatStatusIndicatorStyle(
-            backgroundColor: statusIndicatorUtils.statusIndicatorColor,
-            border: Border.all(
-              color: colorPalette.background1 ?? Colors.transparent,
-              width: 2,
-            ),
-          ),
-        );
-      }
     } else {
       status = const SizedBox();
     }
@@ -356,7 +329,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (controller.canAccessOption(GroupOptionConstants.leave))
+        if ((widget.group.membersCount > 1) && controller.canAccessOption(GroupOptionConstants.leave))
           getLeaveOption(context, controller),
         if (controller.canAccessOption(GroupOptionConstants.delete))
           listTileOptions(

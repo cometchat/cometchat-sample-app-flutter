@@ -80,6 +80,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   int mentionStartIndex = 0;
   int mentionEndIndex = 0;
   int lastCursorPos = 0;
+  int mentionsLimit = 10;
 
   @override
   void init() {
@@ -115,6 +116,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       int end = messagesText.length;
 
       for (int i = 0; i < matches.length; i++) {
+        if (i >= mentionedUsers.length) break;
         if (mentionedUsers[i] != null) {
           newMessageText +=
               messagesText.substring(start, matches.elementAt(i).start);
@@ -305,8 +307,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   ///[cursorPosition] is an [int] which is used to store the cursor position
   void onMessageEdit(TextEditingController textEditingController,
       {List<User> mentionedUsers = const []}) {
-    if (mentionCount.length == 10 || listItems.isNotEmpty) {
-      CometChatUIEvents.hidePanel(composerId, CustomUIPosition.composerPreview);
+    if (mentionCount.length == mentionsLimit || listItems.isNotEmpty) {
+      CometChatUIEvents.hidePanel(composerId, CustomUIPosition.composerTop);
     }
     mentionCount.clear();
     mentionedUsersMap.clear();
@@ -370,95 +372,64 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
 
   void cursorInMentionTracker(int cursorPosition,
       TextEditingController textEditingController, String previousText) {
-    //first i am making a copy of the mentionedUsersMap
-    var mentionedUsersMapCopy = mentionedUsersMap;
+    // Make a copy of the mentionedUsersMap
+    var mentionedUsersMapCopy = Map<String, List<User?>>.from(mentionedUsersMap);
 
-    //then i am iterating over the mentionedUsersMap
-
-    int changes = 0;
     bool cursorAtEndOfMention = false;
-    for (String mentionId in mentionedUsersMap.keys) {
-      //i am finding the matches of the mentionId in the previous text
-      var matches = RegExp(mentionId).allMatches(previousText);
 
-      // i am making a copy of the users list
-      var usersCopy = mentionedUsersMap[mentionId] ?? [];
-      //then i am iterating over the matches
+    mentionedUsersMap.forEach((mention, users) {
+      final matches = RegExp(mention).allMatches(previousText).toList();
+
       for (int i = 0; i < matches.length; i++) {
-        //checking if the cursor position is between the start and end of the match
+        final match = matches[i];
 
+        // Check if we're deleting at the end of a mention
         if (previousText.length > textEditingController.text.length &&
-            matches.elementAt(i).end == cursorPosition) {
+            match.end == cursorPosition) {
           cursorAtEndOfMention = true;
-          mentionTracker = textEditingController.text
-              .substring(matches.elementAt(i).start, cursorPosition);
+          mentionTracker = textEditingController.text.substring(match.start, cursorPosition);
           searchOnActiveMention = true;
-          break;
-        } else if (previousText.length < textEditingController.text.length &&
-            matches.elementAt(i).start == cursorPosition) {
-          changes++;
-          break;
-        } else if (matches.elementAt(i).start <= cursorPosition &&
-            matches.elementAt(i).end > cursorPosition &&
-            i < usersCopy.length) {
-          if (searchOnActiveMention) {
-            searchOnActiveMention = false;
-          }
-          //if yes then i am removing the user from the list
-          String uidToRemove = usersCopy[i]?.uid ?? "";
-          // mentionedUsersMapCopy[mentionId] = usersCopy..removeAt(i);
-          usersCopy.removeAt(i);
+          return; // Use return instead of break to exit the forEach
+        }
+        // Check if cursor is inside a mention
+        else if (match.start <= cursorPosition && match.end > cursorPosition) {
+          if (i < users.length) {
+            // Remove this specific mention occurrence
+            final uidToRemove = users[i]?.uid;
+            mentionedUsersMapCopy[mention]!.removeAt(i);
 
-          //decrementing the mention count
-          changes++;
-          //if the list is empty then i am removing the mentionId from the map
-          if (usersCopy.isEmpty) {
-            mentionedUsersMapCopy.remove(mentionId);
-            if (uidToRemove.isNotEmpty) {
+            if (uidToRemove != null) {
               mentionCount.remove(uidToRemove);
             }
-          } else {
-            // usersCopy.insert(i,null);
-            mentionedUsersMapCopy[mentionId] = usersCopy;
-            if (!(textEditingController.text.length > previousText.length &&
-                textEditingController.text[cursorPosition - 1] ==
-                    trackingCharacter)) {
-              interceptedMention = mentionId;
-            }
-          }
 
-          //i am setting the mentionTracker to the text between the start of the match and the cursor position
-          if (!(textEditingController.text.length > previousText.length &&
-              textEditingController.text[cursorPosition - 1] ==
-                  trackingCharacter)) {
-            mentionTracker = textEditingController.text
-                .substring(matches.elementAt(i).start, cursorPosition);
-            mentionStartIndex = matches.elementAt(i).start;
+            if (mentionedUsersMapCopy[mention]!.isEmpty) {
+              mentionedUsersMapCopy.remove(mention);
+            }
+
+            mentionTracker = textEditingController.text.substring(match.start, cursorPosition);
+            mentionStartIndex = match.start;
             mentionEndIndex = cursorPosition - 1;
           }
-
-          break;
+          return;
         }
       }
-      if (cursorAtEndOfMention || changes > 0) {
-        break;
-      }
-    }
-    if (cursorAtEndOfMention) {
-      return;
-    }
+    });
 
-    //finally i am replacing the original the mentionedUsersMap to the copy
-    if (changes > 0) {
-      mentionedUsersMap = mentionedUsersMapCopy;
-    } else {
+    mentionedUsersMap = mentionedUsersMapCopy;
+
+    if (!cursorAtEndOfMention) {
+      // Existing logic for tracking new mentions
       int lastIndexOfTrackingChar = textEditingController.text
           .substring(0, cursorPosition)
           .lastIndexOf(trackingCharacter!);
-      if (lastIndexOfTrackingChar != -1) {
+      if (lastIndexOfTrackingChar != -1 &&
+          (lastIndexOfTrackingChar == 0 ||
+              (lastIndexOfTrackingChar > 1 &&
+                  textEditingController.text[lastIndexOfTrackingChar - 1] == " "))) {
         String tempTracker = textEditingController.text
             .substring(lastIndexOfTrackingChar, cursorPosition);
-        if ((!tempTracker.contains("\n") || !tempTracker.contains("    "))) {
+
+        if (!tempTracker.contains("\n") && !tempTracker.contains("    ")) {
           mentionTracker = tempTracker;
           mentionStartIndex = lastIndexOfTrackingChar;
           mentionEndIndex = cursorPosition - 1;
@@ -500,6 +471,10 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
 
     _removeMentionIfDeleted(textEditingController);
     //first we check if the current text has any part matching the regex pattern
+    if (mentionCount.length < mentionsLimit) {
+      // Add this condition to hide the panel when mentions drop below limit
+      CometChatUIEvents.hidePanel(composerId, CustomUIPosition.composerTop);
+    }
 
     //the following logic is for when copy paste is involved
     if (mentionedUsersMap.isNotEmpty &&
@@ -748,31 +723,41 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       CometChatUIEvents.hidePanel(composerId, CustomUIPosition.composerPreview);
     } else if (mentionTracker.isNotEmpty) {
       //if 10 users have been mentioned then we will show a message to the user
-      //that the maximum limit of mentions has been reached
-      if (mentionCount.length == 10) {
+      //that the maximum limit of mentions has been reached'
+
+      if (mentionCount.length >= mentionsLimit) {
         CometChatUIEvents.showPanel(
-            composerId,
-            CustomUIPosition.composerPreview,
-                (context) => Container(
-              height: 40,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    AssetConstants.info,
-                    package: UIConstants.packageName,
-                    height: 16.18,
+            composerId, CustomUIPosition.composerTop, (context) {
+          final colorPalette = CometChatThemeHelper.getColorPalette(context);
+          final spacing = CometChatThemeHelper.getSpacing(context);
+          final typography = CometChatThemeHelper.getTypography(context);
+          return Container(
+            height: 40,
+            color: colorPalette.error,
+            padding: EdgeInsets.symmetric(horizontal: spacing.padding4 ?? 16),
+            child: Row(
+              children: [
+                Image.asset(
+                  AssetConstants.info,
+                  package: UIConstants.packageName,
+                  height: 16.18,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: spacing.padding2 ?? 8),
+                  child: Text(
+                    cc.Translations.of(context).mentionsMaxLimitHit,
+                    style: TextStyle(
+                      color: colorPalette.white,
+                      fontSize: typography.button?.medium?.fontSize,
+                      fontWeight: typography.button?.medium?.fontWeight,
+                      fontFamily: typography.button?.medium?.fontFamily,
+                    ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                        cc.Translations.of(context).mentionsMaxLimitHit),
-                  ),
-                ],
-              ),
-            ));
+                ),
+              ],
+            ),
+          );
+        });
       } else {
         String searchKeyword = mentionTracker.substring(1);
 
@@ -874,6 +859,7 @@ CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
       List<AttributedText> currentAttributedTexts = [];
 
       for (int i = 0; i < matches.length; i++) {
+        if (i >= userObjects.length) break;
         bool isLoggedInUser = userObjects[i]?.uid ==
             CometChatUIKit.loggedInUser?.uid;
         try {
@@ -1039,16 +1025,40 @@ CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
     String newText = textEditingController.text;
     int cursorPosition = textEditingController.selection.baseOffset;
 
-    mentionedUsersMap.forEach((mention, users) {
-      Iterable<RegExpMatch> matches = RegExp(mention).allMatches(newText);
-      for (var match in matches) {
+    // Create a copy to avoid modification during iteration
+    final mentionsCopy = Map<String, List<User?>>.from(mentionedUsersMap);
+
+    mentionsCopy.forEach((mention, users) {
+      final matches = RegExp(mention).allMatches(newText).toList();
+
+      // Check each match from right to left
+      for (int i = matches.length - 1; i >= 0; i--) {
+        final match = matches[i];
         int spanStart = match.start;
         int spanEnd = match.end;
 
-        // Check if the cursor is right after a mention (like in Android code)
+        // Check if cursor is at the end of this mention
         if (cursorPosition == spanEnd) {
+          // Remove this specific mention occurrence
           textEditingController.text = newText.replaceRange(spanStart, spanEnd, "");
-          mentionedUsersMap.remove(mention);
+          textEditingController.selection = TextSelection.collapsed(offset: spanStart);
+
+          // Update the mentionedUsersMap
+          if (mentionedUsersMap.containsKey(mention)) {
+            if (i < mentionedUsersMap[mention]!.length) {
+              // Remove the corresponding user from the list
+              final removedUser = mentionedUsersMap[mention]!.removeAt(i);
+              if (removedUser != null) {
+                mentionCount.remove(removedUser.uid);
+              }
+            }
+
+            // If no more mentions of this type, remove the entry
+            if (mentionedUsersMap[mention]!.isEmpty) {
+              mentionedUsersMap.remove(mention);
+            }
+          }
+
           return;
         }
       }

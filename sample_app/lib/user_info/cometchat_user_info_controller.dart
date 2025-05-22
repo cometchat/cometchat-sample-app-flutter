@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CometChatUserInfoController extends GetxController
     with UserListener, CometChatUserEventListener {
@@ -92,6 +93,35 @@ class CometChatUserInfoController extends GetxController
     CometChatUserEvents.removeUsersListener(_userListener);
   }
 
+  updateUserStatue(User user) {
+    if (user.status == CometChatUserStatus.online) {
+      presence = "Online";
+    } else {
+      presence = getLastSeenText(user.lastActiveAt);
+    }
+  }
+
+  String getLastSeenText(DateTime? lastActiveAt) {
+    if(lastActiveAt == null) {
+      return "";
+    }
+    final DateTime now = DateTime.now();
+    final Duration difference = now.difference(lastActiveAt);
+
+    if (difference.inMinutes <= 1) {
+      // Less than or equal to a minute ago
+      return "${cc.Translations.of(context).lastSeen} 1 ${cc.Translations.of(context).minuteAgo}";
+    } else if (difference.inMinutes < 60) {
+      // Less than an hour ago
+      return "${cc.Translations.of(context).lastSeen} ${difference.inMinutes} ${cc.Translations.of(context).minuteAgo}";
+    } else {
+      // More than an hour ago
+      String formattedDate = DateFormat.MMMd().format(lastActiveAt);
+      String formattedTime = DateFormat.jm().format(lastActiveAt);
+      return "${cc.Translations.of(context).lastSeen} $formattedDate ${cc.Translations.of(context).at} $formattedTime";
+    }
+  }
+
   //initialization methods end--------------
 
   //--------SDK User Listeners
@@ -108,7 +138,7 @@ class CometChatUserInfoController extends GetxController
   @override
   void onUserOffline(User user) {
     if (this.user != null && user.uid == this.user?.uid) {
-      presence = "";
+      presence = getLastSeenText(user.lastActiveAt!);
       this.user?.status = CometChatUserStatus.offline;
       update();
     }
@@ -355,7 +385,7 @@ class CometChatUserInfoController extends GetxController
         size: 48,
       ),
       title: Text(
-        "Un Block this contact?",
+        "Unblock this contact?",
         style: TextStyle(
           fontSize: typography.heading2?.medium?.fontSize,
           fontFamily: typography.heading2?.medium?.fontFamily,
@@ -364,7 +394,7 @@ class CometChatUserInfoController extends GetxController
         ),
       ),
       messageText: Text(
-        "Are you sure you want to un-block this contact?",
+        "Are you sure you want to unblock this contact?",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: typography.body?.regular?.fontSize,
@@ -492,5 +522,9 @@ class CometChatUserInfoController extends GetxController
         debugPrint('Error in initiating call: ${e.message}');
       },
     );
+  }
+
+  bool getBlockedByMe() {
+    return user?.blockedByMe != null && user?.blockedByMe! == true;
   }
 }

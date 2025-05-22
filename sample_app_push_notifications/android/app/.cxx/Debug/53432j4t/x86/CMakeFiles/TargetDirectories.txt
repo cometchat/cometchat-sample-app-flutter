@@ -1,0 +1,2 @@
+/Users/admin/github/GitHub/chat-uikit-flutter/master_app/android/app/.cxx/Debug/53432j4t/x86/CMakeFiles/edit_cache.dir
+/Users/admin/github/GitHub/chat-uikit-flutter/master_app/android/app/.cxx/Debug/53432j4t/x86/CMakeFiles/rebuild_cache.dir

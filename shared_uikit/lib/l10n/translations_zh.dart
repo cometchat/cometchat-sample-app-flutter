@@ -80,6 +80,9 @@ class TranslationsZh extends Translations {
   String get members => '成员';
 
   @override
+  String get member => "会员";
+
+  @override
   String get today => '今天';
 
   @override
@@ -620,7 +623,7 @@ class TranslationsZh extends Translations {
   String get leave => '离开';
 
   @override
-  String get clickToStartConversation => '点击开始对话';
+  String get tapToStartConversation => '点击开始对话';
 
   @override
   String get customMessageLocation => '📍 地点';
@@ -1138,6 +1141,8 @@ class TranslationsZh extends Translations {
   @override
   String get camera => '相机';
 
+  @override
+  String get areYouSureKick => '您确定要踢出';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1760,7 +1765,7 @@ class TranslationsZhTw extends TranslationsZh {
   String get leave => '離開';
 
   @override
-  String get clickToStartConversation => '按一下以開始對話';
+  String get tapToStartConversation => '按一下以開始對話';
 
   @override
   String get customMessageLocation => '📍 地理位置';
@@ -2251,4 +2256,6 @@ class TranslationsZhTw extends TranslationsZh {
   @override
   String get camera => '相機';
 
+  @override
+  String get areYouSureKick => '您確定要踢出';
 }

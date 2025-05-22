@@ -1233,7 +1233,7 @@ class MessagesDataSource implements DataSource {
       style: style,
       audioUrl: audioUrl,
       title: title,
-      key: ValueKey<int>(message.id),
+      key: ValueKey(message.muid),
       fileMimeType: message.attachment?.fileMimeType,
       alignment: alignment,
       id: message.id,
@@ -1337,7 +1337,7 @@ class MessagesDataSource implements DataSource {
 
     if (messageCategory == null || lastMessage == null) {
       return Text(
-        "",
+        Translations.of(context).tapToStartConversation,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: subtitleStyle0,

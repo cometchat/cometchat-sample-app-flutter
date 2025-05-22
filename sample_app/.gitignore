@@ -43,5 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/app/.cxx/
+/android/app/src/debug/google-services.json
+/android/app/src/google-services.json
 
 pubspec.lock
+
+android/app/.cxx/
+ios/Podfile.lock
+ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme

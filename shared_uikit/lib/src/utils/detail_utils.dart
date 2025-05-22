@@ -42,7 +42,7 @@ class DetailUtils {
   static CometChatGroupMemberOption getKickOption(BuildContext context) {
     return CometChatGroupMemberOption(
       id: GroupMemberOptionConstants.kick,
-      title: Translations.of(context).remove,
+      title: Translations.of(context).kick,
       icon: AssetConstants.cancel,
       packageName: UIConstants.packageName,
       // backgroundColor: theme?.palette.getError() ?? Colors.red,

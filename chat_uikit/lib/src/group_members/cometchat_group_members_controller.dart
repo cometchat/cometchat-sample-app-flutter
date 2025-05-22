@@ -369,7 +369,7 @@ class CometChatGroupMembersController
       case GroupMemberOptionConstants.kick:
         return () async {
           showConfirmDialog(context, colorPalette, typography, spacing,
-              title: "${cc.Translations.of(context).remove} ${member.name}?",
+              title: "${cc.Translations.of(context).kick} ${member.name}?",
               icon: Icon(
                 Icons.delete_outline_rounded,
                 size: 48,
@@ -415,7 +415,7 @@ class CometChatGroupMembersController
             );
           },
               confirmButtonText:
-                  cc.Translations.of(context).remove.toUpperCase());
+                  cc.Translations.of(context).kick.toUpperCase());
         };
       case GroupMemberOptionConstants.changeScope:
         showModalBottomSheet(
