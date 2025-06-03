@@ -43,6 +43,8 @@ class CometChatOutgoingCallController extends GetxController
 
   CallStateController? _callStateController;
 
+  bool callRejected = false;
+
   @override
   void onInit() {
     _callStateController = CallStateController.instance;
@@ -94,6 +96,9 @@ class CometChatOutgoingCallController extends GetxController
     if (onCancelledCallTap != null) {
       onCancelledCallTap!(context, activeCall);
     } else {
+      if (callRejected) return;
+      callRejected = true;
+      update();
       if (activeCall.sessionId != null) {
         CometChatUIKitCalls.rejectCall(
             activeCall.sessionId!, CallStatusConstants.cancelled,
@@ -102,6 +107,8 @@ class CometChatOutgoingCallController extends GetxController
           CometChatCallEvents.ccCallRejected(call);
 
           developer.log('call was cancelled');
+          callRejected = false;
+          update();
           Navigator.pop(context);
         }, onError: (e) {
           try {
@@ -116,8 +123,14 @@ class CometChatOutgoingCallController extends GetxController
             if (kDebugMode) {
               debugPrint('Error in rejecting call: ${e.message}');
             }
+          } finally {
+            callRejected = false;
+            update();
           }
         });
+      } else {
+        callRejected = false;
+        update();
       }
     }
   }

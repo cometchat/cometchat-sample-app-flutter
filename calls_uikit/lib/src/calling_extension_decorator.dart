@@ -166,7 +166,7 @@ class CallingExtensionDecorator extends DataSourceDecorator
 
   ///[initiateDirectCall] will initiate a direct call
   void initiateDirectCall(
-      BuildContext context, String sessionId, CustomMessage message,
+      BuildContext context, String sessionID, CustomMessage message,
       {Call? call}) async {
     CallSettingsBuilder defaultCallSettingsBuilder;
     if (configuration != null &&
@@ -177,9 +177,14 @@ class CallingExtensionDecorator extends DataSourceDecorator
           (CallSettingsBuilder()..enableDefaultLayout = true);
     }
     String? callType;
+    String? sessionId;
     if (message.customData != null &&
         message.customData?.containsKey('callType') == true) {
       callType = message.customData?['callType'];
+    }
+    if (message.customData != null &&
+        message.customData?.containsKey('sessionID') == true) {
+      sessionId = message.customData?['sessionID'];
     }
     if (callType == CallTypeConstants.audioCall) {
       defaultCallSettingsBuilder.setAudioOnlyCall = true;
@@ -189,7 +194,7 @@ class CallingExtensionDecorator extends DataSourceDecorator
         MaterialPageRoute(
           builder: (context) => CometChatOngoingCall(
             callSettingsBuilder: defaultCallSettingsBuilder,
-            sessionId: sessionId,
+            sessionId: sessionId ?? sessionID,
             callWorkFlow: CallWorkFlow.directCalling,
           ),
         ));

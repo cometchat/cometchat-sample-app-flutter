@@ -1,3 +1,9 @@
+## 5.0.2
+
+## Fixes
+- Fixed an issue where audio playback for voice messages was routed through the earpiece instead of the speaker after an audio call, improving user experience during message playback.
+- Resolved a bug where the `titleTextStyle` and `subtitleTextStyle` properties of `CometChatFileBubbleStyle` were not applying as expected, ensuring consistent styling.
+
 ## 5.0.1
 
 ## New

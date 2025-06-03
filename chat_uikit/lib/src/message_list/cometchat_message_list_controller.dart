@@ -345,38 +345,39 @@ class CometChatMessageListController
 
     try {
       await request.fetchPrevious(onSuccess: (List<BaseMessage> fetchedList) {
-        if (fetchedList.isEmpty) {
-          isLoading = false;
-          hasMoreItems = false;
-        } else {
-          isLoading = false;
-          hasMoreItems = true;
-          for (var element in fetchedList.reversed) {
-            if (element is InteractiveMessage) {
-              element = InteractiveMessageUtils
-                  .getSpecificMessageFromInteractiveMessage(element);
-            }
-            if (isIncluded != null && isIncluded(element) == true) {
-              list.add(element);
+            if (fetchedList.isEmpty) {
+              isLoading = false;
+              hasMoreItems = false;
+              onEmpty?.call();
+              update();
             } else {
-              list.add(element);
-            }
-            if (lastParticipantMessage == null) {
-              if (element.sender?.uid != loggedInUser?.uid) {
-                lastParticipantMessage = element;
-                markAsRead(element);
+              isLoading = false;
+              hasMoreItems = true;
+              for (var element in fetchedList.reversed) {
+                if (element is InteractiveMessage) {
+                  element = InteractiveMessageUtils
+                      .getSpecificMessageFromInteractiveMessage(element);
+                }
+
+                list.add(element);
+
+                if (lastParticipantMessage == null) {
+                  if (element.sender?.uid != loggedInUser?.uid) {
+                    lastParticipantMessage = element;
+                    markAsRead(element);
+                  }
+                }
               }
+              if (inInitialized == false && list.isNotEmpty) {
+                lastMessage = list[0];
+              }
+              onLoad?.call(list);
             }
-          }
-          if (inInitialized == false && list.isNotEmpty) {
-            lastMessage = list[0];
-          }
-        }
-        update();
-      }, onError: (CometChatException e) {
+            update();
+          }, onError: (CometChatException e) {
         onError?.call(e);
-          error = e;
-          hasError = true;
+        error = e;
+        hasError = true;
         update();
       });
     } catch (e, s) {

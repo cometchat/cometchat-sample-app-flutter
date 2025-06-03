@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -7,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:sample_app_push_notifications/guard_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sample_app_push_notifications/utils/page_manager.dart';
-import 'notifications/services/firebase_services.dart';
+import 'notifications/services/android_notification_service/local_notification_handler.dart';
 import 'prefs/shared_preferences.dart';
 
 Future<void> main() async {
@@ -22,10 +21,28 @@ Future<void> main() async {
       android: initializationSettingsAndroid,
       iOS: DarwinInitializationSettings());
 
-  await flutterLocalNotificationsPlugin.initialize(
+  await LocalNotificationService.flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
-    onDidReceiveNotificationResponse: handleNotificationTap,
+    onDidReceiveNotificationResponse:
+        LocalNotificationService.handleNotificationTap,
   );
+
+  // Check for notification launch in terminated state
+  final NotificationAppLaunchDetails? notificationAppLaunchDetails =
+      await LocalNotificationService.flutterLocalNotificationsPlugin
+          .getNotificationAppLaunchDetails();
+
+  final didNotificationLaunchApp =
+      notificationAppLaunchDetails?.didNotificationLaunchApp ?? false;
+
+  if (didNotificationLaunchApp &&
+      notificationAppLaunchDetails?.notificationResponse != null) {
+    // Manually trigger tap handler
+    LocalNotificationService.handleNotificationTap(
+      notificationAppLaunchDetails?.notificationResponse,
+      isTerminatedState: true,
+    );
+  }
 
   try {
     print('Firebase initialized. BEFORE TRY');
@@ -35,7 +52,6 @@ Future<void> main() async {
   } catch (e) {
     print('Firebase initialization failed: $e');
   }
-
 
   runApp(const MyApp());
 }

@@ -157,7 +157,6 @@ class _MyPageViewState extends State<MyPageView>
   }
 
 
-
   openCreateConversation(context) {
     Navigator.push(
       context,
@@ -338,7 +337,7 @@ class _MyPageViewState extends State<MyPageView>
                           child: Padding(
                             padding: EdgeInsets.all(spacing.padding4 ?? 0),
                             child: Text(
-                              "v5.0.1",
+                              "v5.0.2",
                               style: TextStyle(
                                 fontSize: typography.body?.regular?.fontSize,
                                 fontFamily:

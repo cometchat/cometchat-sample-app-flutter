@@ -12,7 +12,6 @@ import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:sample_app_push_notifications/notifications/models/notification_date_model.dart';
 import 'package:sample_app_push_notifications/prefs/shared_preferences.dart';
-import 'package:sample_app_push_notifications/utils/bool_singleton.dart';
 
 import '../../app_credentials.dart';
 import '../../demo_meta_info_constants.dart';
@@ -53,9 +52,6 @@ void _showNotification(Map<String, dynamic> data, RemoteMessage msg,
   String jsonPayload = jsonEncode(msg.data);
 
   if (msg.data["type"] != null && msg.data["type"] == "call") {
-    if(msg.data["callAction"] == "cancelled") {
-      await BoolSingleton().setValue(true);
-    }
     return;
   }
 

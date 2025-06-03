@@ -1,3 +1,15 @@
+## 5.0.2
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.0.2`.
+
+## Fixes
+- Fixed an issue in CometChatMessageList where the `onLoad` callback was not triggered after messages were visually loaded.
+- Fixed an issue where two identical stickers appeared in the message composer when opening a chat or replying in a thread.
+- Fixed an issue where the search bar text for banned members did not appear in the default color on both Android and iOS, reducing visibility.
+- Resolved a crash in the Push Notification Sample App that occurred when accepting a call while the app was closed (killed).
+- Fixed an issue where the app froze or became unresponsive when accepting a call from the background.
+
 ## 5.0.1
 
 ## Enhancements

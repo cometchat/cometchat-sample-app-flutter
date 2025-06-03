@@ -342,6 +342,10 @@ private func presentImagePicker(mediaType: String) {
             self.download(args: args, result:result)
         case "pauseRecordingAudio":
             self.pauseRecordingAudio(args: args, result: result)
+        case "setAudioSessionToSpeaker":
+            self.setAudioSessionToSpeaker(args: args, result:result)
+        case "resetAudioSession":
+            self.resetAudioSession(args: args, result:result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -691,6 +695,34 @@ private func presentImagePicker(mediaType: String) {
                     self.copyMedia(fileLocation)
                 }
             })
+        }
+    }
+
+    // MARK: - Audio Session Management (Speaker/Earpiece Control)
+    private func setAudioSessionToSpeaker(args: [String: Any], result: @escaping FlutterResult) {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(
+                .playAndRecord,
+                mode: .default,
+                options: [.defaultToSpeaker, .allowBluetooth]
+            )
+            try AVAudioSession.sharedInstance().setActive(true)
+            result(true)
+        } catch {
+            result(FlutterError(code: "AUDIO_SESSION_ERROR",
+                                message: "Failed to set audio session: \(error.localizedDescription)",
+                                details: nil))
+        }
+    }
+
+    private func resetAudioSession(args: [String: Any], result: @escaping FlutterResult) {
+        do {
+            try AVAudioSession.sharedInstance().setActive(false)
+            result(true)
+        } catch {
+            result(FlutterError(code: "AUDIO_SESSION_RESET_ERROR",
+                                message: "Failed to reset audio session: \(error.localizedDescription)",
+                                details: nil))
         }
     }
     

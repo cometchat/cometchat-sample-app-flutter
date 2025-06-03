@@ -137,10 +137,16 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
         }
 
         if (localPath != null && localPath?.isNotEmpty == true) {
+          if(Platform.isIOS) {
+            await setAudioSessionToSpeaker();
+          }
           _controller = VideoPlayerController.file(File(localPath!),
               videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true));
         } else if (widget.audioUrl != null &&
             widget.audioUrl?.isNotEmpty == true) {
+          if(Platform.isIOS) {
+            await resetAudioSession();
+          }
           _controller = VideoPlayerController.networkUrl(
             Uri.parse(widget.audioUrl!),
             videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
@@ -279,6 +285,8 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
 
   @override
   void dispose() {
+    _cleanUpAsync();
+
     if (_controller != null) {
       _controller!.dispose();
       _controller = null;
@@ -304,6 +312,12 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     }
     closeEventStream();
     super.dispose();
+  }
+
+  void _cleanUpAsync() async {
+    if (localPath != null && Platform.isIOS) {
+      await resetAudioSession();
+    }
   }
 
   void playAudio() {
@@ -596,5 +610,23 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
 
   void closeEventStream() {
     streamSubscription.cancel();
+  }
+
+  Future<void> setAudioSessionToSpeaker() async {
+    MethodChannel channel = const MethodChannel('cometchat_uikit_shared');
+    try {
+      await channel.invokeMethod('setAudioSessionToSpeaker');
+    } catch (e) {
+      debugPrint('$e');
+    }
+  }
+
+  Future<void> resetAudioSession() async {
+    MethodChannel channel = const MethodChannel('cometchat_uikit_shared');
+    try {
+      await channel.invokeMethod('resetAudioSession');
+    } catch (e) {
+      debugPrint('$e');
+    }
   }
 }

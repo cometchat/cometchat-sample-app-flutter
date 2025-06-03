@@ -1,3 +1,11 @@
+## 5.0.2
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.0.2`.
+
+## Fixes
+- Resolved a crash that occurred when users double-tapped the "End Call" button and then immediately initiated a new call.
+
 ## 5.0.1
 
 ## Enhancements

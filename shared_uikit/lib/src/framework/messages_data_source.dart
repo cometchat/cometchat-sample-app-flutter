@@ -1256,12 +1256,7 @@ class MessagesDataSource implements DataSource {
       fileUrl: fileUrl,
       fileMimeType: fileMimeType,
       alignment: alignment,
-      style: CometChatFileBubbleStyle(
-        backgroundColor: style?.backgroundColor,
-        border: style?.border,
-        borderRadius: style?.borderRadius,
-        downloadIconTint: style?.downloadIconTint,
-      ),
+      style: style ?? const CometChatFileBubbleStyle(),
       title: title ?? "",
       id: id,
       fileSize: message.attachment?.fileSize,

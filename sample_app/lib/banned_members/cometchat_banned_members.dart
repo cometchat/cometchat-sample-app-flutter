@@ -56,7 +56,7 @@ class CometChatBannedMembers extends StatelessWidget {
           backIconTint: colorPalette.iconPrimary,
           searchIconTint: colorPalette.iconSecondary,
           searchTextStyle: TextStyle(
-            color: colorPalette.textTertiary,
+            color: colorPalette.textPrimary,
             fontSize: typography.heading4?.regular?.fontSize,
             fontWeight: typography.heading4?.regular?.fontWeight,
             fontFamily: typography.heading4?.regular?.fontFamily,
