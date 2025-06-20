@@ -1072,10 +1072,12 @@ class TranslationsDe extends Translations {
   String get oops => 'Hoppla!';
 
   @override
-  String get looksLikeSomethingWrong => 'Sieht aus, als ob etwas schief gelaufen ist.';
+  String get looksLikeSomethingWrong =>
+      'Sieht aus, als ob etwas schief gelaufen ist.';
 
   @override
-  String get startNewChatOrInvite => 'Starten Sie einen neuen Chat oder laden Sie andere ein, an der Unterhaltung teilzunehmen.';
+  String get startNewChatOrInvite =>
+      'Starten Sie einen neuen Chat oder laden Sie andere ein, an der Unterhaltung teilzunehmen.';
 
   @override
   String get noConversationsYet => "Noch keine Unterhaltungen.";
@@ -1099,19 +1101,22 @@ class TranslationsDe extends Translations {
   String get retry => 'Erneut versuchen';
 
   @override
-  String get popScreenDisabled => 'Pop-Bildschirm deaktiviert. Tippen Sie auf die Anruftaste abbrechen.';
+  String get popScreenDisabled =>
+      'Pop-Bildschirm deaktiviert. Tippen Sie auf die Anruftaste abbrechen.';
 
   @override
   String get usersUnavailable => 'Keine Benutzer verfügbar';
 
   @override
-  String get usersUnavailableMessage => 'Wir konnten keine Benutzer finden, die Ihrer Suche entsprechen. Versuchen Sie, Ihre Suche anzupassen.';
+  String get usersUnavailableMessage =>
+      'Wir konnten keine Benutzer finden, die Ihrer Suche entsprechen. Versuchen Sie, Ihre Suche anzupassen.';
 
   @override
   String get save => 'Speichern';
 
   @override
-  String get changeScopeSubtitle => 'Sie können Rollen ändern, um Gruppenberechtigungen und Verantwortlichkeiten zu verwalten.';
+  String get changeScopeSubtitle =>
+      'Sie können Rollen ändern, um Gruppenberechtigungen und Verantwortlichkeiten zu verwalten.';
 
   @override
   String get remove => 'entfernen';
@@ -1120,13 +1125,15 @@ class TranslationsDe extends Translations {
   String get admin => 'Admin';
 
   @override
-  String get unsupportedMessageType => 'Dieser Nachrichtentyp wird nicht unterstützt';
+  String get unsupportedMessageType =>
+      'Dieser Nachrichtentyp wird nicht unterstützt';
 
   @override
   String get addOption => 'Option hinzufügen';
 
   @override
-  String get pollEmptyString => 'Bitte füllen Sie alle erforderlichen Felder aus, bevor Sie eine Umfrage erstellen.';
+  String get pollEmptyString =>
+      'Bitte füllen Sie alle erforderlichen Felder aus, bevor Sie eine Umfrage erstellen.';
 
   @override
   String get askQuestion => 'Frage stellen';
@@ -1150,7 +1157,8 @@ class TranslationsDe extends Translations {
   String get edited => 'Bearbeitet';
 
   @override
-  String get deleteMessageWarning => 'Bist du sicher, dass du diese Nachricht löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.';
+  String get deleteMessageWarning =>
+      'Bist du sicher, dass du diese Nachricht löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.';
 
   @override
   String get from => 'von';
@@ -1168,6 +1176,95 @@ class TranslationsDe extends Translations {
   String get camera => 'Kamera';
 
   @override
+  String get hourAgo => 'hace una hora';
+
+  @override
+  String get hoursAgo => 'hace horas';
+
+  @override
   String get areYouSureKick => 'Sind Sie sicher, dass Sie rauswerfen möchten';
 
+  @override
+  String get noCallLogsYet => 'Noch keine Anrufprotokolle';
+
+  @override
+  String get makeOrReceiveCalls =>
+      'Führen Sie Anrufe durch oder empfangen Sie welche, um Ihre Anrufliste hier zu sehen';
+
+  @override
+  String get blockContact => 'Diesen Kontakt blockieren?';
+
+  @override
+  String get confirmBlockContact =>
+      'Sind Sie sicher, dass Sie diesen Kontakt blockieren möchten? Sie erhalten keine Nachrichten mehr von ihm.';
+
+  @override
+  String get deleteChat => 'Diesen Chat löschen?';
+
+  @override
+  String get confirmDeleteChat =>
+      'Sind Sie sicher, dass Sie diesen Chat löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get errorBlockUser => 'Fehler, kann Benutzer nicht blockieren';
+
+  @override
+  String get unblockContact => 'Diesen Kontakt entsperren?';
+
+  @override
+  String get confirmUnblockContact =>
+      'Sind Sie sicher, dass Sie diesen Kontakt entsperren möchten?';
+
+  @override
+  String get groupInfo => 'Gruppeninfo';
+
+  @override
+  String get errorLeaveGroup => 'Fehler, konnte Gruppe nicht verlassen';
+
+  @override
+  String get errorDeleteGroup => 'Fehler, konnte Gruppe nicht löschen';
+
+  @override
+  String get leaveThisGroup => 'Diese Gruppe verlassen?';
+
+  @override
+  String get confirmLeaveGroup =>
+      'Sind Sie sicher, dass Sie diese Gruppe verlassen möchten? Sie erhalten keine Nachrichten mehr aus diesem Chat.';
+
+  @override
+  String get confirmDeleteAndExit =>
+      'Sind Sie sicher, dass Sie diesen Chat löschen und die Gruppe verlassen möchten? Diese Aktion kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get continueText => 'Fortfahren';
+
+  @override
+  String get confirmTransferOwnership =>
+      'Sind Sie sicher, dass Sie die Eigentümerschaft übertragen möchten? Dies kann nicht rückgängig gemacht werden, und der neue Eigentümer erhält volle Kontrolle.';
+
+  @override
+  String get ownerShipTransfer => 'Eigentümer übertragen';
+
+  @override
+  String get errorDeleteUser => 'Fehler, Benutzer konnte nicht gelöscht werden';
+  @override
+  String get createGroupEmptyString =>
+      'Bitte füllen Sie alle erforderlichen Felder aus, bevor Sie eine Gruppe erstellen.';
+
+  @override
+  String get userInfo => 'Benutzerinfo';
+  @override
+  String get voice => 'Sprache';
+  @override
+  String get deleteTheChat => 'Chat löschen';
+  @override
+  String get block => 'Blockieren';
+  @override
+  String get unBlock => 'Entblocken';
+  @override
+  String get enterTheGroupName => 'Geben Sie den Gruppennamen ein';
+  @override
+  String get enterTheGroupPassword => 'Geben Sie das Gruppenpasswort ein';
+  @override
+  String get type => 'Eingabetyp';
 }

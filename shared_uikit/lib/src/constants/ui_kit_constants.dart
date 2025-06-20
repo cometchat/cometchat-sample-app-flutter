@@ -344,3 +344,8 @@ class AudioBubbleConstants{
   static const String localPath = "localPath";
   static const String usedByMediaRecorder = 'usedByMediaRecorder';
 }
+
+class SetSourceConstant {
+  static const String uiKitVersion = "uikit-v5";
+  static const String platform = "flutter";
+}

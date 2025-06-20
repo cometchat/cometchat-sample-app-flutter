@@ -1,5 +1,6 @@
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'cometchat_user_info_controller.dart';
@@ -41,7 +42,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
           state.controller?.onClose(),
       builder: (CometChatUserInfoController value) {
         value.context = context;
-        userInfoController.updateUserStatue(widget.user);
+        value.updateUserStatue(widget.user);
         return Scaffold(
           backgroundColor: colorPalette.background1,
           appBar: AppBar(
@@ -59,7 +60,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
               ),
             ),
             title: Text(
-              "User Info",
+              cc.Translations.of(context).userInfo,
               style: TextStyle(
                 fontSize: typography.heading2?.bold?.fontSize,
                 fontFamily: typography.heading2?.bold?.fontFamily,
@@ -91,7 +92,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
                         width: spacing.padding2,
                       ),
                       Text(
-                        "You have blocked ${widget.user.name}.",
+                        "${cc.Translations.of(context).youHaveBlocked} ${widget.user.name}.",
                         style: TextStyle(
                           fontSize: typography.body?.regular?.fontSize,
                           fontFamily: typography.body?.regular?.fontFamily,
@@ -255,7 +256,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
               color: colorPalette.iconHighlight,
               size: 24,
             ),
-            "Voice",
+            cc.Translations.of(context).voice,
             () {
               controller.initiateCallWorkflow(
                 CallTypeConstants.audioCall,
@@ -272,7 +273,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
               color: colorPalette.iconHighlight,
               size: 24,
             ),
-            "Video",
+            cc.Translations.of(context).video,
             () {
               controller.initiateCallWorkflow(
                 CallTypeConstants.audioCall,
@@ -289,7 +290,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
       BuildContext context, CometChatUserInfoController controller) {
     return Column(
       children: [
-        listTileOptions((controller.user != null && controller.user?.blockedByMe != null && !controller.user!.blockedByMe!) ? "Block" : "Unblock",
+        listTileOptions((controller.user != null && controller.user?.blockedByMe != null && !controller.user!.blockedByMe!) ? cc.Translations.of(context).block : cc.Translations.of(context).unBlock,
             Icon(Icons.block, color: colorPalette.error), () {
           if ((controller.user != null && controller.user?.blockedByMe != null && !controller.user!.blockedByMe!)) {
             controller.blockUserDialog(
@@ -306,7 +307,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
           }
         }),
         listTileOptions(
-          "Delete Chat",
+          cc.Translations.of(context).deleteTheChat,
           Image.asset(
             AssetConstants.delete,
             color: colorPalette.error,

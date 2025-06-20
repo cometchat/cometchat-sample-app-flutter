@@ -1069,7 +1069,8 @@ class TranslationsHi extends Translations {
   String get looksLikeSomethingWrong => 'ऐसा लगता है कि कुछ गड़बड़ हो गई।';
 
   @override
-  String get startNewChatOrInvite => ' नई चैट शुरू करें या दूसरों को बातचीत में शामिल होने के लिए आमंत्रित करें।';
+  String get startNewChatOrInvite =>
+      ' नई चैट शुरू करें या दूसरों को बातचीत में शामिल होने के लिए आमंत्रित करें।';
 
   @override
   String get noConversationsYet => "अभी तक कोई बातचीत नहीं।";
@@ -1093,19 +1094,22 @@ class TranslationsHi extends Translations {
   String get retry => 'फिर से कोशिश करें';
 
   @override
-  String get popScreenDisabled => 'पॉप स्क्रीन अक्षम। कॉल रद्द करने के बटन पर टैप करें।';
+  String get popScreenDisabled =>
+      'पॉप स्क्रीन अक्षम। कॉल रद्द करने के बटन पर टैप करें।';
 
   @override
   String get usersUnavailable => 'कोई यूज़र उपलब्ध नहीं';
 
   @override
-  String get usersUnavailableMessage => 'हमें आपकी खोज से मेल खाने वाला कोई भी यूज़र नहीं मिला। अपनी खोज में बदलाव करने की कोशिश करें।';
+  String get usersUnavailableMessage =>
+      'हमें आपकी खोज से मेल खाने वाला कोई भी यूज़र नहीं मिला। अपनी खोज में बदलाव करने की कोशिश करें।';
 
   @override
   String get save => 'सेव करें';
 
   @override
-  String get changeScopeSubtitle => 'आप समूह की अनुमतियों और जिम्मेदारियों को प्रबंधित करने के लिए भूमिकाएँ बदल सकते हैं।';
+  String get changeScopeSubtitle =>
+      'आप समूह की अनुमतियों और जिम्मेदारियों को प्रबंधित करने के लिए भूमिकाएँ बदल सकते हैं।';
 
   @override
   String get remove => 'हटाएँ';
@@ -1120,7 +1124,8 @@ class TranslationsHi extends Translations {
   String get addOption => 'विकल्प जोड़ें';
 
   @override
-  String get pollEmptyString => 'कृपया सर्वेक्षण बनाने से पहले सभी आवश्यक फ़ील्ड भरें।';
+  String get pollEmptyString =>
+      'कृपया सर्वेक्षण बनाने से पहले सभी आवश्यक फ़ील्ड भरें।';
 
   @override
   String get askQuestion => 'प्रश्न पूछें';
@@ -1144,11 +1149,11 @@ class TranslationsHi extends Translations {
   String get edited => 'संपादित किया गया';
 
   @override
-  String get deleteMessageWarning => 'क्या आप वाकई इस संदेश को मिटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।';
+  String get deleteMessageWarning =>
+      'क्या आप वाकई इस संदेश को मिटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।';
 
   @override
   String get from => 'से';
-
 
   @override
   String get areYouSureBan => 'क्या आप वाकई प्रतिबंधित करना चाहते हैं';
@@ -1163,6 +1168,94 @@ class TranslationsHi extends Translations {
   String get camera => 'कैमरा';
 
   @override
+  String get hourAgo => 'एक घंटा पहले';
+
+  @override
+  String get hoursAgo => 'घंटों पहले';
+
+  @override
   String get areYouSureKick => 'क्या आप वाकई निकालना चाहते हैं';
 
+  @override
+  String get noCallLogsYet => 'अभी तक कोई कॉल रिकॉर्ड नहीं';
+
+  @override
+  String get makeOrReceiveCalls =>
+      'यहाँ अपनी कॉल इतिहास देखने के लिए कॉल करें या प्राप्त करें';
+
+  @override
+  String get blockContact => 'क्या आप इस संपर्क को ब्लॉक करना चाहते हैं?';
+
+  @override
+  String get confirmBlockContact =>
+      'क्या आप इस संपर्क को ब्लॉक करना चाहते हैं? अब आप उनसे कोई संदेश प्राप्त नहीं करेंगे।';
+
+  @override
+  String get deleteChat => 'क्या आप इस चैट को हटाना चाहते हैं?';
+
+  @override
+  String get confirmDeleteChat =>
+      'क्या आप इस चैट को हटाने के लिए सुनिश्चित हैं? यह कार्रवाई वापस नहीं की जा सकती।';
+
+  @override
+  String get errorBlockUser => 'त्रुटि, उपयोगकर्ता को ब्लॉक करने में असमर्थ';
+
+  @override
+  String get unblockContact => 'क्या आप इस संपर्क का अनब्लॉक करना चाहते हैं?';
+
+  @override
+  String get confirmUnblockContact =>
+      'क्या आप इस संपर्क को अनब्लॉक करना चाहते हैं?';
+
+  @override
+  String get groupInfo => 'समूह जानकारी';
+
+  @override
+  String get errorLeaveGroup => 'त्रुटि, समूह छोड़ने में असमर्थ';
+
+  @override
+  String get errorDeleteGroup => 'त्रुटि, समूह हटाने में असमर्थ';
+
+  @override
+  String get leaveThisGroup => 'क्या आप इस समूह को छोड़ना चाहते हैं?';
+
+  @override
+  String get confirmLeaveGroup =>
+      'क्या आप इस समूह को छोड़ना चाहते हैं? अब आपको इस चैट से कोई और संदेश नहीं मिलेगा।';
+
+  @override
+  String get confirmDeleteAndExit =>
+      'क्या आप निश्चित रूप से इस चैट को हटाना और समूह छोड़ना चाहते हैं? यह कार्रवाई वापस नहीं की जा सकती।';
+  @override
+  String get continueText => 'जारी रखें';
+
+  @override
+  String get confirmTransferOwnership =>
+      'क्या आप सुनिश्चित हैं कि आप स्वामित्व हस्तांतरित करना चाहते हैं? इसे वापस नहीं लिया जा सकता, और नया मालिक पूर्ण नियंत्रण लेगा।';
+
+  @override
+  String get ownerShipTransfer => 'स्वामित्व हस्तांतरण';
+
+  @override
+  String get errorDeleteUser => 'त्रुटि, उपयोगकर्ता को हटाया नहीं जा सका';
+  @override
+  String get createGroupEmptyString =>
+      'समूह बनाने से पहले सभी आवश्यक फ़ील्ड भरें।';
+
+  @override
+  String get userInfo => 'उपयोगकर्ता जानकारी';
+  @override
+  String get voice => 'वॉइस';
+  @override
+  String get deleteTheChat => 'चैट हटाएँ';
+  @override
+  String get block => 'ब्लॉक करें';
+  @override
+  String get unBlock => 'ब्लॉक हटाएँ';
+  @override
+  String get enterTheGroupName => 'समूह का नाम दर्ज करें';
+  @override
+  String get enterTheGroupPassword => 'समूह का पासवर्ड दर्ज करें';
+  @override
+  String get type => 'टाइप';
 }

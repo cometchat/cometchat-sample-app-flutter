@@ -136,7 +136,7 @@ class CometChatAddMembers extends StatelessWidget {
                                 color: colorPalette.white,
                               )
                             : Text(
-                                "Add Members",
+                            cc.Translations.of(context).addMembers,
                                 style: TextStyle(
                                   color: colorPalette.buttonIconColor,
                                   fontSize: typography.button?.medium?.fontSize,

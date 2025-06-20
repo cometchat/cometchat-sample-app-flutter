@@ -1109,16 +1109,13 @@ class TranslationsZh extends Translations {
   String get deleteConversation => '删除此对话？';
 
   @override
-  String get confirmDeleteConversation =>
-      '您确定要删除此对话吗？此操作无法撤销。';
+  String get confirmDeleteConversation => '您确定要删除此对话吗？此操作无法撤销。';
 
   @override
-  String get errorUnableToDeleteConversation =>
-      '错误，无法删除对话';
+  String get errorUnableToDeleteConversation => '错误，无法删除对话';
 
   @override
-  String get addContactsToStartConversations =>
-      '添加联系人以开始对话，并在此处查看列表。';
+  String get addContactsToStartConversations => '添加联系人以开始对话，并在此处查看列表。';
 
   @override
   String get edited => '已编辑';
@@ -1142,7 +1139,91 @@ class TranslationsZh extends Translations {
   String get camera => '相机';
 
   @override
+  String get hourAgo => '一小时前';
+
+  @override
+  String get hoursAgo => '几小时前';
+
+  @override
   String get areYouSureKick => '您确定要踢出';
+
+  @override
+  String get noCallLogsYet => '尚无通话记录';
+
+  @override
+  String get makeOrReceiveCalls => '拨打或接听电话以在此查看您的通话历史';
+
+  @override
+  String get confirmDeleteAndExit => '您确定要删除此聊天并退出群组吗？此操作无法撤销。';
+
+  @override
+  String get blockContact => '屏蔽此联系人？';
+
+  @override
+  String get confirmBlockContact => '您确定要屏蔽此联系人吗？您将不再收到他们的消息。';
+
+  @override
+  String get deleteChat => '删除此聊天？';
+
+  @override
+  String get confirmDeleteChat => '您确定要删除此聊天吗？此操作无法撤销。';
+
+  @override
+  String get errorBlockUser => '错误，无法屏蔽用户';
+
+  @override
+  String get unblockContact => '取消屏蔽此联系人？';
+
+  @override
+  String get confirmUnblockContact => '您确定要取消屏蔽此联系人吗？';
+
+  @override
+  String get groupInfo => '群组信息';
+
+  @override
+  String get errorLeaveGroup => '错误，无法退出群组';
+
+  @override
+  String get errorDeleteGroup => '错误，无法删除群组';
+
+  @override
+  String get leaveThisGroup => '退出此群组？';
+
+  @override
+  String get confirmLeaveGroup => '您确定要退出此群组吗？您将不再收到此聊天的消息。';
+
+  @override
+  String get continueText => '继续';
+
+  @override
+  String get confirmTransferOwnership => '您确定要转移所有权吗？此操作无法撤销，新所有者将获得完全控制权。';
+
+  @override
+  String get ownerShipTransfer => '所有权转移';
+
+  @override
+  String get errorDeleteUser => '错误，无法删除用户';
+
+  @override
+  String get userInfo => '用户信息';
+  @override
+  String get voice => '语音';
+  @override
+  String get deleteTheChat => '删除聊天';
+  @override
+  String get block => '屏蔽';
+  @override
+  String get unBlock => '取消屏蔽';
+  @override
+  String get enterTheGroupName => '输入群组名称';
+  @override
+  String get enterTheGroupPassword => '输入群组密码';
+  @override
+  String get type => '输入';
+  @override
+  String get createGroupEmptyString =>
+      '请在创建群组前填写所有必填字段。';
+
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2224,16 +2305,13 @@ class TranslationsZhTw extends TranslationsZh {
   String get deleteConversation => '删除此对话？';
 
   @override
-  String get confirmDeleteConversation =>
-      '您确定要删除此对话吗？此操作无法撤销。';
+  String get confirmDeleteConversation => '您确定要删除此对话吗？此操作无法撤销。';
 
   @override
-  String get errorUnableToDeleteConversation =>
-      '错误，无法删除对话';
+  String get errorUnableToDeleteConversation => '错误，无法删除对话';
 
   @override
-  String get addContactsToStartConversations =>
-      '新增聯絡人以開始對話，並在此處查看列表。';
+  String get addContactsToStartConversations => '新增聯絡人以開始對話，並在此處查看列表。';
 
   @override
   String get edited => '編輯';
@@ -2257,5 +2335,89 @@ class TranslationsZhTw extends TranslationsZh {
   String get camera => '相機';
 
   @override
+  String get hourAgo => '一小时前';
+
+  @override
+  String get hoursAgo => '几小时前';
+
+  @override
   String get areYouSureKick => '您確定要踢出';
+
+  @override
+  String get noCallLogsYet => '尚無通話記錄';
+
+  @override
+  String get makeOrReceiveCalls => '撥打或接聽電話即可在此查看您的通話記錄';
+
+  @override
+  String get confirmDeleteAndExit => '您確定要刪除此聊天並退出群組嗎？此操作無法還原。';
+
+  @override
+  String get blockContact => '封鎖此聯絡人？';
+
+  @override
+  String get confirmBlockContact => '您確定要封鎖此聯絡人嗎？您將不會再收到他們的訊息。';
+
+  @override
+  String get deleteChat => '刪除此聊天？';
+
+  @override
+  String get confirmDeleteChat => '您確定要刪除此聊天嗎？此操作無法還原。';
+
+  @override
+  String get errorBlockUser => '錯誤，無法封鎖使用者';
+
+  @override
+  String get unblockContact => '解除封鎖此聯絡人？';
+
+  @override
+  String get confirmUnblockContact => '您確定要解除封鎖此聯絡人嗎？';
+
+  @override
+  String get groupInfo => '群組資訊';
+
+  @override
+  String get errorLeaveGroup => '錯誤，無法離開群組';
+
+  @override
+  String get errorDeleteGroup => '錯誤，無法刪除群組';
+
+  @override
+  String get leaveThisGroup => '離開此群組？';
+
+  @override
+  String get confirmLeaveGroup => '您確定要離開此群組嗎？您將不再收到此聊天的訊息。';
+
+  @override
+  String get continueText => '繼續';
+
+  @override
+  String get confirmTransferOwnership => '您確定要轉移擁有權嗎？此操作無法還原，新擁有者將擁有完全控制權。';
+
+  @override
+  String get ownerShipTransfer => '擁有權轉移';
+
+  @override
+  String get errorDeleteUser => '錯誤，無法刪除使用者';
+
+  @override
+  String get userInfo => '使用者資訊';
+  @override
+  String get voice => '語音';
+  @override
+  String get deleteTheChat => '刪除聊天';
+  @override
+  String get block => '封鎖';
+  @override
+  String get unBlock => '解除封鎖';
+  @override
+  String get enterTheGroupName => '輸入群組名稱';
+  @override
+  String get enterTheGroupPassword => '輸入群組密碼';
+  @override
+  String get type => '輸入';
+  @override
+  String get createGroupEmptyString =>
+      '請在創建群組前填寫所有必填欄位。';
+
 }

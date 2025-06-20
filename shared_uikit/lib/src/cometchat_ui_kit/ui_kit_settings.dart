@@ -13,6 +13,7 @@ class UIKitSettings {
   final String? clientHost;
   final List<String>? roles;
   final List<AIExtension>? aiFeature;
+  final DateTimeFormatterCallback? dateTimeFormatterCallback;
 
   UIKitSettings._builder(UIKitSettingsBuilder builder)
       : appId = builder.appId,
@@ -26,7 +27,8 @@ class UIKitSettings {
         adminHost = builder.adminHost,
         clientHost = builder.clientHost,
         roles = builder.roles,
-        aiFeature = builder.aiFeature;
+        aiFeature = builder.aiFeature,
+        dateTimeFormatterCallback = builder.dateTimeFormatterCallback;
 }
 
 ///Builder class for [UIKitSettings]
@@ -42,6 +44,7 @@ class UIKitSettingsBuilder {
   String? adminHost;
   String? clientHost;
   List<AIExtension>? aiFeature;
+  DateTimeFormatterCallback? dateTimeFormatterCallback;
 
   UIKitSettingsBuilder();
 

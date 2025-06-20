@@ -23,6 +23,7 @@ class CometChatDate extends StatelessWidget {
     this.padding,
     this.width,
     this.isTransparentBackground,
+    this.dateTimeFormatterCallback,
   });
 
   ///[date] is the date to be shown
@@ -49,6 +50,9 @@ class CometChatDate extends StatelessWidget {
   /// [isTransparentBackground] if true, the background will be transparent
   final bool? isTransparentBackground;
 
+  /// [dateTimeFormatterCallback] is a callback that can be used to format the date and time
+  final DateTimeFormatterCallback? dateTimeFormatterCallback;
+
   bool _isSameDate(DateTime dt1, DateTime dt2) {
     return dt1.year == dt2.year && dt1.month == dt2.month && dt1.day == dt2.day;
   }
@@ -59,37 +63,101 @@ class CometChatDate extends StatelessWidget {
             dt2.add(Duration(days: -dt2.weekday)).day);
   }
 
-  String _getDateLogic1(DateTime date, {required String timeFormatter}) {
-    return DateFormat(timeFormatter).format(date);
-  }
-
-  String _getDateLogic2(DateTime date, BuildContext context,
-      {required String dateFormatter, required String weekFormatter}) {
-    DateTime todayDate = DateTime.now();
-    if (_isSameDate(todayDate, date)) {
-      return Translations.of(context).today;
-    } else if (_isSameDate(todayDate, date.add(const Duration(days: 1)))) {
-      return Translations.of(context).yesterday;
-    } else if (_isSameWeek(todayDate, date)) {
-      return DateFormat(weekFormatter).format(date);
+  String _getTime(DateTime date, String timeFormatter) {
+    if (dateTimeFormatterCallback?.time(date.millisecondsSinceEpoch) != null) {
+      return dateTimeFormatterCallback?.time(date.millisecondsSinceEpoch) ??
+          DateFormat(timeFormatter).format(date);
     } else {
-      return DateFormat(dateFormatter).format(date);
+      return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
+              ?.time(date.millisecondsSinceEpoch) ??
+          DateFormat(timeFormatter).format(date);
     }
   }
 
-  String _getDateLogic3(DateTime date, BuildContext context,
+  String _getToday(DateTime date, BuildContext context) {
+    if (dateTimeFormatterCallback?.today(date.millisecondsSinceEpoch) != null) {
+      return dateTimeFormatterCallback?.today(date.millisecondsSinceEpoch) ??
+          Translations.of(context).today;
+    } else {
+      return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
+              ?.today(date.millisecondsSinceEpoch) ??
+          Translations.of(context).today;
+    }
+  }
+
+  String _getYesterday(DateTime date, BuildContext context) {
+    if (dateTimeFormatterCallback?.yesterday(date.millisecondsSinceEpoch) !=
+        null) {
+      return dateTimeFormatterCallback
+              ?.yesterday(date.millisecondsSinceEpoch) ??
+          Translations.of(context).yesterday;
+    } else {
+      return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
+              ?.yesterday(date.millisecondsSinceEpoch) ??
+          Translations.of(context).yesterday;
+    }
+  }
+
+  String _getLastWeek(DateTime date, String weekFormatter) {
+    if (dateTimeFormatterCallback?.lastWeek(date.millisecondsSinceEpoch) !=
+        null) {
+      return dateTimeFormatterCallback?.lastWeek(date.millisecondsSinceEpoch) ??
+          DateFormat(weekFormatter).format(date);
+    } else {
+      return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
+              ?.lastWeek(date.millisecondsSinceEpoch) ??
+          DateFormat(weekFormatter).format(date);
+    }
+  }
+
+  String _getOtherDays(DateTime date, String dateFormatter) {
+    if (dateTimeFormatterCallback?.otherDays(date.millisecondsSinceEpoch) !=
+        null) {
+      return dateTimeFormatterCallback
+              ?.otherDays(date.millisecondsSinceEpoch) ??
+          DateFormat(dateFormatter).format(date);
+    } else {
+      return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
+              ?.otherDays(date.millisecondsSinceEpoch) ??
+          DateFormat(dateFormatter).format(date);
+    }
+  }
+
+  String _getDateLogic1(DateTime date, {required String timeFormatter}) {
+    return _getTime(date, timeFormatter);
+  }
+
+  String _getDateLogic2(DateTime date, BuildContext context,
       {required String timeFormatter,
+      required String dateFormatter,
       required String dateFormatter2,
       required String weekFormatter}) {
     DateTime todayDate = DateTime.now();
     if (_isSameDate(todayDate, date)) {
-      return DateFormat(timeFormatter).format(date);
+      return _getToday(date, context);
     } else if (_isSameDate(todayDate, date.add(const Duration(days: 1)))) {
-      return Translations.of(context).yesterday;
+      return _getYesterday(date, context);
     } else if (_isSameWeek(todayDate, date)) {
-      return DateFormat(weekFormatter).format(date);
+      return _getLastWeek(date, weekFormatter);
     } else {
-      return DateFormat(dateFormatter2).format(date);
+      return _getOtherDays(date, dateFormatter);
+    }
+  }
+
+  String _getDateLogic3(DateTime date, BuildContext context,
+      {required String dateFormatter,
+      required String timeFormatter,
+      required String dateFormatter2,
+      required String weekFormatter}) {
+    DateTime todayDate = DateTime.now();
+    if (_isSameDate(todayDate, date)) {
+      return _getTime(date, timeFormatter);
+    } else if (_isSameDate(todayDate, date.add(const Duration(days: 1)))) {
+      return _getYesterday(date, context);
+    } else if (_isSameWeek(todayDate, date)) {
+      return _getLastWeek(date, weekFormatter);
+    } else {
+      return _getOtherDays(date, dateFormatter);
     }
   }
 
@@ -107,9 +175,13 @@ class CometChatDate extends StatelessWidget {
         return _getDateLogic1(date, timeFormatter: timeFormatter);
       case DateTimePattern.dayDateFormat:
         return _getDateLogic2(date, context,
-            dateFormatter: dateFormatter, weekFormatter: weekFormatter);
+            timeFormatter: timeFormatter,
+            dateFormatter: dateFormatter,
+            weekFormatter: weekFormatter,
+            dateFormatter2: dateFormatter2);
       case DateTimePattern.dayDateTimeFormat:
         return _getDateLogic3(date, context,
+            dateFormatter: dateFormatter,
             weekFormatter: weekFormatter,
             timeFormatter: timeFormatter,
             dateFormatter2: dateFormatter2);
@@ -127,12 +199,12 @@ class CometChatDate extends StatelessWidget {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
 
+    String date;
+
     String timeFormatter = "hh:mm a";
     String weekFormatter = "EEE";
     String dateFormatter = "d MMM, yyyy";
     String dateFormatter2 = "dd/MM/yy";
-
-    String date;
 
     if (customDateString != null) {
       date = customDateString!;
@@ -176,11 +248,13 @@ class CometChatDate extends StatelessWidget {
           fontSize: typography.caption1?.regular?.fontSize,
           fontWeight: typography.caption1?.regular?.fontWeight,
           fontFamily: typography.caption1?.regular?.fontFamily,
-        ).merge(
-          dateStyle.textStyle,
-        ).copyWith(
-          color: dateStyle.textColor,
-        ),
+        )
+            .merge(
+              dateStyle.textStyle,
+            )
+            .copyWith(
+              color: dateStyle.textColor,
+            ),
       ),
     );
   }

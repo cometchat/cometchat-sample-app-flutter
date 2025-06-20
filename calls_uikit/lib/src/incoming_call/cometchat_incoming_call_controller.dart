@@ -75,7 +75,9 @@ class CometChatIncomingCallController extends GetxController with CallListener {
       CometChatUIKit.soundManager.play(
           sound: Sound.incomingCall,
           packageName: customSoundForCallsPackage ?? UIConstants.packageName,
-          customSound: customSoundForCalls);
+          customSound: customSoundForCalls,
+          isLooping: true
+      );
       developer.log('sound playing');
     } catch (_) {
       developer.log("Sound not played");

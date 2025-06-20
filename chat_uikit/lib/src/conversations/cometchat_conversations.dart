@@ -88,6 +88,7 @@ class CometChatConversations extends StatefulWidget {
     this.customSoundForMessages,
     this.disableSoundForMessages = false,
     this.submitIcon,
+    this.dateTimeFormatterCallback,
   });
 
   ///[conversationsProtocol] Request builder protocol to fetch conversations.
@@ -279,6 +280,9 @@ class CometChatConversations extends StatefulWidget {
 
   ///[disableSoundForMessages] disable sound for messages
   final bool? disableSoundForMessages;
+
+  /// [dateTimeFormatterCallback] is a callback that can be used to format the date and time
+  final DateTimeFormatterCallback? dateTimeFormatterCallback;
 
   @override
   State<CometChatConversations> createState() => _CometChatConversationsState();
@@ -1323,6 +1327,7 @@ class _CometChatConversationsState extends State<CometChatConversations> {
       ),
       customDateString: customDateString,
       pattern: DateTimePattern.dayDateTimeFormat,
+      dateTimeFormatterCallback: widget.dateTimeFormatterCallback,
     );
   }
 

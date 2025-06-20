@@ -1,4 +1,5 @@
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -101,7 +102,7 @@ class _CometChatCreateGroupState extends State<CometChatCreateGroup>
                               padding: EdgeInsets.only(
                                 bottom: spacing.padding1 ?? 0,
                               ),
-                              child: titleText("Type"),
+                              child: titleText(cc.Translations.of(context).type),
                             ),
                             buildTabs(value),
                             buildInputs(value),
@@ -139,20 +140,22 @@ class _CometChatCreateGroupState extends State<CometChatCreateGroup>
                                                 size: 16,
                                               ),
                                             ),
-                                            Text(
-                                              (value.isEmpty)
-                                                  ? "Please fill in all required fields before creating a group."
-                                                  : (value.isError)
-                                                      ? "Something went wrong. Please try again."
-                                                      : "",
-                                              style: TextStyle(
-                                                color: colorPalette.error,
-                                                fontSize: typography.caption1
-                                                    ?.regular?.fontSize,
-                                                fontFamily: typography.caption1
-                                                    ?.regular?.fontFamily,
-                                                fontWeight: typography.caption1
-                                                    ?.regular?.fontWeight,
+                                            Expanded(
+                                              child: Text(
+                                                (value.isEmpty)
+                                                    ? cc.Translations.of(context).createGroupEmptyString
+                                                    : (value.isError)
+                                                        ? cc.Translations.of(context).somethingWrong
+                                                        : "",
+                                                style: TextStyle(
+                                                  color: colorPalette.error,
+                                                  fontSize: typography.caption1
+                                                      ?.regular?.fontSize,
+                                                  fontFamily: typography.caption1
+                                                      ?.regular?.fontFamily,
+                                                  fontWeight: typography.caption1
+                                                      ?.regular?.fontWeight,
+                                                ),
                                               ),
                                             ),
                                           ],
@@ -196,7 +199,7 @@ class _CometChatCreateGroupState extends State<CometChatCreateGroup>
                                         color: colorPalette.white,
                                       )
                                     : Text(
-                                        "Create Group",
+                                        cc.Translations.of(context).createGroup,
                                         style: TextStyle(
                                           color: colorPalette.buttonIconColor,
                                           fontSize: typography
@@ -278,7 +281,7 @@ class _CometChatCreateGroupState extends State<CometChatCreateGroup>
               top: spacing.padding2 ?? 0,
             ),
             child: Text(
-              "New Group",
+                cc.Translations.of(context).newGroup,
               style: TextStyle(
                 fontFamily: typography.heading2?.medium?.fontFamily,
                 fontSize: typography.heading2?.medium?.fontSize,
@@ -343,20 +346,20 @@ class _CometChatCreateGroupState extends State<CometChatCreateGroup>
             ),
             labelColor: colorPalette.textHighlight,
             unselectedLabelColor: colorPalette.textSecondary,
-            tabs: const [
+            tabs: [
               Tab(
                 child: Text(
-                  "Public",
+                    cc.Translations.of(context).public,
                 ),
               ),
               Tab(
                 child: Text(
-                  "Private",
+                    cc.Translations.of(context).private,
                 ),
               ),
               Tab(
                 child: Text(
-                  "Password",
+                  cc.Translations.of(context).password,
                 ),
               ),
             ],
@@ -372,14 +375,14 @@ class _CometChatCreateGroupState extends State<CometChatCreateGroup>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          titleText("Name"),
+          titleText(cc.Translations.of(context).name,),
           Padding(
             padding: EdgeInsets.only(
               bottom: spacing.padding5 ?? 0,
             ),
             child: textInput(
               nameController,
-              "Enter the group name",
+              cc.Translations.of(context).enterTheGroupName,
               value.onNameChange,
               false,
             ),
@@ -392,7 +395,7 @@ class _CometChatCreateGroupState extends State<CometChatCreateGroup>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  titleText("Password"),
+                  titleText(cc.Translations.of(context).password),
                   // Question TextField
                   Padding(
                     padding: EdgeInsets.only(
@@ -400,7 +403,7 @@ class _CometChatCreateGroupState extends State<CometChatCreateGroup>
                     ),
                     child: textInput(
                       passwordController,
-                      "Enter the group password",
+                      cc.Translations.of(context).enterTheGroupPassword,
                       value.onPasswordChange,
                       true,
                     ),

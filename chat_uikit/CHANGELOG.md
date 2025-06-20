@@ -1,3 +1,19 @@
+## 5.0.3
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.23`.
+- Updated `cometchat_uikit_shared` to version `5.0.3`.
+
+## Fixes
+- Fixed an issue where the dateSeparatorPattern in CometChatMessageList was not functioning as expected.
+- Resolved a problem where the FooterView would close unexpectedly when interacting with the MessageComposer in the Flutter UI Kit.
+- Fixed a bug causing the app to open twice when accepting a VOIP call from the background.
+- Addressed the appearance of duplicate date separators in message threads after sending a new message.
+- Resolved an issue where the reply compose box would disappear when replying to sticker messages.
+- Fixed a UI issue where the send button was misaligned and other buttons became unusable when replying to video, sticker, or poll messages.
+- Corrected the display of translated messages to prevent the original word from appearing below the translation.
+- Fixed a visual glitch where a dark screen briefly flashed when reopening a deleted chat from the search view.
+
 ## 5.0.2
 
 ## Enhancements

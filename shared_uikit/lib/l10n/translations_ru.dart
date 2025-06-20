@@ -1066,7 +1066,8 @@ class TranslationsRu extends Translations {
   String get looksLikeSomethingWrong => 'Похоже, что-то пошло не так.';
 
   @override
-  String get startNewChatOrInvite => 'Начните новый чат или пригласите других присоединиться к разговору.';
+  String get startNewChatOrInvite =>
+      'Начните новый чат или пригласите других присоединиться к разговору.';
 
   @override
   String get noConversationsYet => "Пока нет разговоров.";
@@ -1090,19 +1091,22 @@ class TranslationsRu extends Translations {
   String get retry => 'Повторите попытку';
 
   @override
-  String get popScreenDisabled => 'Всплывающее окно отключено. Нажмите кнопку отмены вызова.';
+  String get popScreenDisabled =>
+      'Всплывающее окно отключено. Нажмите кнопку отмены вызова.';
 
   @override
   String get usersUnavailable => 'Нет доступных пользователей';
 
   @override
-  String get usersUnavailableMessage => 'Нам не удалось найти пользователей, соответствующих вашему запросу. Попробуйте настроить поиск.';
+  String get usersUnavailableMessage =>
+      'Нам не удалось найти пользователей, соответствующих вашему запросу. Попробуйте настроить поиск.';
 
   @override
   String get save => 'Сохранить';
 
   @override
-  String get changeScopeSubtitle => 'Вы можете менять роли для управления групповыми разрешениями и обязанностями.';
+  String get changeScopeSubtitle =>
+      'Вы можете менять роли для управления групповыми разрешениями и обязанностями.';
 
   @override
   String get remove => 'Удалить';
@@ -1117,7 +1121,8 @@ class TranslationsRu extends Translations {
   String get addOption => 'Добавить вариант';
 
   @override
-  String get pollEmptyString => 'Пожалуйста, заполните все обязательные поля перед созданием опроса.';
+  String get pollEmptyString =>
+      'Пожалуйста, заполните все обязательные поля перед созданием опроса.';
 
   @override
   String get askQuestion => 'Задать вопрос';
@@ -1141,7 +1146,8 @@ class TranslationsRu extends Translations {
   String get edited => 'Редактировано';
 
   @override
-  String get deleteMessageWarning => 'Вы действительно хотите удалить это сообщение? Это действие нельзя отменить.';
+  String get deleteMessageWarning =>
+      'Вы действительно хотите удалить это сообщение? Это действие нельзя отменить.';
 
   @override
   String get from => 'из';
@@ -1159,6 +1165,82 @@ class TranslationsRu extends Translations {
   String get camera => 'Камера';
 
   @override
+  String get hourAgo => 'час назад';
+
+  @override
+  String get hoursAgo => 'часов назад';
+
+  @override
   String get areYouSureKick => 'Вы уверены, что хотите выгнать';
+
+  @override
+  String get noCallLogsYet => 'Пока нет истории звонков';
+
+  @override
+  String get makeOrReceiveCalls =>
+      'Совершайте или принимайте звонки, чтобы здесь увидеть историю вызовов';
+
+  @override
+  String get confirmDeleteAndExit =>
+      'Вы уверены, что хотите удалить этот чат и выйти из группы? Это действие нельзя отменить.';
+
+  @override
+  String get blockContact => 'Заблокировать этот контакт?';
+  @override
+  String get confirmBlockContact =>
+      'Вы уверены, что хотите заблокировать этот контакт? Вы больше не будете получать от него сообщения.';
+  @override
+  String get deleteChat => 'Удалить этот чат?';
+  @override
+  String get confirmDeleteChat =>
+      'Вы уверены, что хотите удалить этот чат? Это действие нельзя отменить.';
+  @override
+  String get errorBlockUser => 'Ошибка, не удалось заблокировать пользователя';
+  @override
+  String get unblockContact => 'Разблокировать этот контакт?';
+  @override
+  String get confirmUnblockContact =>
+      'Вы уверены, что хотите разблокировать этот контакт?';
+  @override
+  String get groupInfo => 'Информация о группе';
+  @override
+  String get errorLeaveGroup => 'Ошибка, не удалось покинуть группу';
+  @override
+  String get errorDeleteGroup => 'Ошибка, не удалось удалить группу';
+  @override
+  String get leaveThisGroup => 'Покинуть эту группу?';
+  @override
+  String get confirmLeaveGroup =>
+      'Вы уверены, что хотите покинуть эту группу? Вы больше не будете получать сообщения из этого чата.';
+  @override
+  String get continueText => 'Продолжить';
+  @override
+  String get confirmTransferOwnership =>
+      'Вы уверены, что хотите передать право собственности? Это нельзя отменить, и новый владелец получит полный контроль.';
+  @override
+  String get ownerShipTransfer => 'Передача права собственности';
+
+  @override
+  String get errorDeleteUser => 'Ошибка, не удалось удалить пользователя';
+
+  @override
+  String get userInfo => 'Информация о пользователе';
+  @override
+  String get voice => 'Голос';
+  @override
+  String get deleteTheChat => 'Удалить чат';
+  @override
+  String get block => 'Заблокировать';
+  @override
+  String get unBlock => 'Разблокировать';
+  @override
+  String get enterTheGroupName => 'Введите название группы';
+  @override
+  String get enterTheGroupPassword => 'Введите пароль группы';
+  @override
+  String get type => 'Ввод';
+  @override
+  String get createGroupEmptyString =>
+      'Пожалуйста, заполните все обязательные поля перед созданием группы.';
 
 }

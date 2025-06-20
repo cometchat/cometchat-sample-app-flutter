@@ -360,7 +360,7 @@ class TranslationsAr extends Translations {
 
   @override
   String get attachAudio => 'إرفاق صوت';
-  
+
   @override
   String get attachVideo => 'إرفاق فيديو';
 
@@ -1062,7 +1062,8 @@ class TranslationsAr extends Translations {
   String get looksLikeSomethingWrong => 'يبدو أن هناك خطأ ما.';
 
   @override
-  String get startNewChatOrInvite => 'ابدأ محادثة جديدة أو قم بدعوة الآخرين للانضمام إلى المحادثة';
+  String get startNewChatOrInvite =>
+      'ابدأ محادثة جديدة أو قم بدعوة الآخرين للانضمام إلى المحادثة';
 
   @override
   String get noConversationsYet => "لا توجد محادثات حتى الآن.";
@@ -1086,19 +1087,22 @@ class TranslationsAr extends Translations {
   String get retry => 'أعد المحاولة';
 
   @override
-  String get popScreenDisabled => 'تم تعطيل شاشة البوب. اضغط على زر إلغاء المكالمة.';
+  String get popScreenDisabled =>
+      'تم تعطيل شاشة البوب. اضغط على زر إلغاء المكالمة.';
 
   @override
   String get usersUnavailable => 'لا يوجد مستخدمون متاحون';
 
   @override
-  String get usersUnavailableMessage => 'لم نتمكن من العثور على أي مستخدم يطابق بحثك. حاول تعديل البحث.';
+  String get usersUnavailableMessage =>
+      'لم نتمكن من العثور على أي مستخدم يطابق بحثك. حاول تعديل البحث.';
 
   @override
   String get save => 'وفر';
 
   @override
-  String get changeScopeSubtitle => 'يمكنك تغيير الأدوار لإدارة أذونات المجموعة ومسؤولياتها.';
+  String get changeScopeSubtitle =>
+      'يمكنك تغيير الأدوار لإدارة أذونات المجموعة ومسؤولياتها.';
 
   @override
   String get remove => 'إزالة';
@@ -1113,7 +1117,8 @@ class TranslationsAr extends Translations {
   String get addOption => 'إضافة خيار';
 
   @override
-  String get pollEmptyString => 'يرجى ملء جميع الحقول المطلوبة قبل إنشاء استطلاع.';
+  String get pollEmptyString =>
+      'يرجى ملء جميع الحقول المطلوبة قبل إنشاء استطلاع.';
 
   @override
   String get askQuestion => 'اطرح سؤالاً';
@@ -1126,8 +1131,7 @@ class TranslationsAr extends Translations {
       'هل أنت متأكد أنك تريد حذف هذه المحادثة؟ لا يمكن التراجع عن هذا الإجراء.';
 
   @override
-  String get errorUnableToDeleteConversation =>
-      'خطأ، لا يمكن حذف المحادثة';
+  String get errorUnableToDeleteConversation => 'خطأ، لا يمكن حذف المحادثة';
 
   @override
   String get addContactsToStartConversations =>
@@ -1137,7 +1141,8 @@ class TranslationsAr extends Translations {
   String get edited => 'تم تحريره';
 
   @override
-  String get deleteMessageWarning => 'هل تريد بالتأكيد حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.';
+  String get deleteMessageWarning =>
+      'هل تريد بالتأكيد حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.';
 
   @override
   String get from => 'من';
@@ -1155,6 +1160,99 @@ class TranslationsAr extends Translations {
   String get camera => 'كاميرا';
 
   @override
+  String get hourAgo => 'قبل ساعة';
+
+  @override
+  String get hoursAgo => 'قبل ساعات';
+
+  @override
   String get areYouSureKick => 'هل أنت متأكد أنك تريد الطرد';
+
+  @override
+  String get noCallLogsYet => 'لا توجد سجلات مكالمات حتى الآن';
+
+  @override
+  String get makeOrReceiveCalls =>
+      'قم بإجراء مكالمات أو استلامها لرؤية سجل المكالمات هنا';
+
+  @override
+  String get blockContact => 'حظر هذا المتصل؟';
+
+  @override
+  String get confirmBlockContact =>
+      'هل أنت متأكد أنك تريد حظر هذا المتصل؟ لن تتلقى رسائل منهم بعد الآن.';
+
+  @override
+  String get deleteChat => 'حذف هذه المحادثة؟';
+
+  @override
+  String get confirmDeleteChat =>
+      'هل أنت متأكد أنك تريد حذف هذه المحادثة؟ لا يمكن التراجع عن هذا الإجراء.';
+
+  @override
+  String get errorBlockUser => 'خطأ، التعذر في حظر المستخدم';
+
+  @override
+  String get unblockContact => 'إلغاء حظر هذا المتصل؟';
+
+  @override
+  String get confirmUnblockContact =>
+      'هل أنت متأكد أنك تريد إلغاء حظر هذا المتصل؟';
+
+  @override
+  String get groupInfo => 'معلومات المجموعة';
+
+  @override
+  String get errorLeaveGroup => 'خطأ، التعذر في مغادرة المجموعة';
+
+  @override
+  String get errorDeleteGroup => 'خطأ، التعذر في حذف المجموعة';
+
+  @override
+  String get leaveThisGroup => 'مغادرة هذه المجموعة؟';
+
+  @override
+  String get confirmLeaveGroup =>
+      'هل أنت متأكد أنك تريد مغادرة هذه المجموعة؟ لن تتلقى رسائل من هذه الدردشة بعد الآن.';
+
+  @override
+  String get continueText => 'متابعة';
+
+  @override
+  String get confirmTransferOwnership =>
+      'هل أنت متأكد أنك تريد نقل الملكية؟ لا يمكن التراجع عن هذا، وسيتمكن المالك الجديد من التحكم الكامل.';
+
+  @override
+  String get ownerShipTransfer => 'نقل الملكية';
+
+  @override
+  String get confirmDeleteAndExit =>
+      'هل أنت متأكد أنك تريد حذف هذه المحادثة والخروج من المجموعة؟ لا يمكن التراجع عن هذا الإجراء.';
+
+  @override
+  String get errorDeleteUser => 'خطأ، لا يمكن حذف المستخدم';
+
+  @override
+  String get userInfo => 'معلومات المستخدم';
+
+  @override
+  String get voice => 'صوت';
+
+  @override
+  String get deleteTheChat => 'حذف المحادثة';
+
+  @override
+  String get block => 'حظر';
+  @override
+  String get unBlock => 'إلغاء الحظر';
+  @override
+  String get enterTheGroupName => 'أدخل اسم المجموعة';
+  @override
+  String get enterTheGroupPassword => 'أدخل كلمة مرور المجموعة';
+  @override
+  String get type => 'اكتب';
+  @override
+  String get createGroupEmptyString =>
+      'يرجى ملء جميع الحقول المطلوبة قبل إنشاء مجموعة.';
 
 }

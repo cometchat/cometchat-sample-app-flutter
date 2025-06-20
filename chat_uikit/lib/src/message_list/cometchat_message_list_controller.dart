@@ -52,6 +52,7 @@ class CometChatMessageListController
     this.enableSmartReplies,
     this.smartRepliesKeywords,
     this.addTemplate,
+    this.dateSeparatorPattern,
   }) : super(
             builderProtocol: user != null
                 ? (messagesBuilderProtocol
@@ -141,6 +142,9 @@ class CometChatMessageListController
 
   /// [addTemplate] Add Custom message templates on the existing templated.
   final List<CometChatMessageTemplate>? addTemplate;
+
+  ///[dateSeparatorPattern] pattern for  date separator
+  final String Function(DateTime dateTime)? dateSeparatorPattern;
 
   late Map<String, dynamic> messageListId;
 
@@ -271,8 +275,9 @@ class CometChatMessageListController
     super.onInit();
   }
 
+  final ValueNotifier<DateTime?> stickyDateNotifier = ValueNotifier<DateTime?>(null);
+
   String? stickyDateString;
-  DateTime? stickyDateTime;
   int currentIndex = 0;
 
 
@@ -1870,26 +1875,21 @@ class CometChatMessageListController
 
   void updateStickyDateFromIndex(
       int index,
-      String Function(DateTime)? dateSeparatorPattern,
+      DateTime? date,
       ) {
-    currentIndex = index;
-    if (index >= 0 && index < list.length) {
-      DateTime? date = list[index].sentAt;
-
-      stickyDateTime = date;
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      stickyDateNotifier.value = date;
+      currentIndex = index;
       String? formattedDate;
 
       if (dateSeparatorPattern != null && date != null) {
-        formattedDate = dateSeparatorPattern(date);
-        update();
+        formattedDate = dateSeparatorPattern!(date);
       }
 
       if (formattedDate != null && stickyDateString != formattedDate) {
         stickyDateString = formattedDate;
-        update();
       }
-    }
+    });
   }
 
 }

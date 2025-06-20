@@ -60,7 +60,6 @@ class _MyPageViewState extends State<MyPageView>
     super.initState();
   }
 
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -155,7 +154,6 @@ class _MyPageViewState extends State<MyPageView>
       });
     }
   }
-
 
   openCreateConversation(context) {
     Navigator.push(
@@ -337,7 +335,7 @@ class _MyPageViewState extends State<MyPageView>
                           child: Padding(
                             padding: EdgeInsets.all(spacing.padding4 ?? 0),
                             child: Text(
-                              "v5.0.2",
+                              "v5.0.3",
                               style: TextStyle(
                                 fontSize: typography.body?.regular?.fontSize,
                                 fontFamily:

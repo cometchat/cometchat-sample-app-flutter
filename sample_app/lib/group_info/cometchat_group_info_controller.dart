@@ -252,7 +252,7 @@ class CometChatGroupInfoController extends GetxController
         CometChatGroupEvents.ccGroupLeft(
             cc.Action(
               conversationId: _conversationId!,
-              message: '${loggedInUser?.name} left',
+              message: '${loggedInUser?.name} ${cc.Translations.of(context).left}',
               oldScope: group!.scope ?? GroupMemberScope.participant,
               newScope: '',
               muid: DateTime.now().microsecondsSinceEpoch.toString(),
@@ -279,7 +279,7 @@ class CometChatGroupInfoController extends GetxController
           var snackBar = SnackBar(
             backgroundColor: colorPalette.error,
             content: Text(
-              "Error, Unable to leave group",
+              cc.Translations.of(context).errorLeaveGroup,
               style: TextStyle(
                 color: colorPalette.white,
                 fontSize: typography.button?.medium?.fontSize,
@@ -318,7 +318,7 @@ class CometChatGroupInfoController extends GetxController
           var snackBar = SnackBar(
             backgroundColor: colorPalette.error,
             content: Text(
-              "Error, Unable to delete group",
+              cc.Translations.of(context).errorDeleteGroup,
               style: TextStyle(
                 color: colorPalette.white,
                 fontSize: typography.button?.medium?.fontSize,
@@ -375,7 +375,7 @@ class CometChatGroupInfoController extends GetxController
         size: 48,
       ),
       title: Text(
-        "Leave this group?",
+        cc.Translations.of(context).leaveThisGroup,
         style: TextStyle(
           fontSize: typography.heading2?.medium?.fontSize,
           fontFamily: typography.heading2?.medium?.fontFamily,
@@ -384,7 +384,7 @@ class CometChatGroupInfoController extends GetxController
         ),
       ),
       messageText: Text(
-        "Are you sure you want to leave this group? You won't receive any more messages from this chat.",
+        cc.Translations.of(context).confirmLeaveGroup,
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: typography.body?.regular?.fontSize,
@@ -440,7 +440,7 @@ class CometChatGroupInfoController extends GetxController
         ),
       ),
       title: Text(
-        "Delete and Exit?",
+        "${cc.Translations.of(context).deleteAndExit}?",
         style: TextStyle(
           fontSize: typography.heading2?.medium?.fontSize,
           fontFamily: typography.heading2?.medium?.fontFamily,
@@ -528,14 +528,14 @@ class CometChatGroupInfoController extends GetxController
       ) {
     CometChatConfirmDialog(
       context: context,
-      confirmButtonText: "Continue",
-      cancelButtonText: "Cancel",
-      title: const Text(
-        "Ownership Transfer",
+      confirmButtonText: cc.Translations.of(context).continueText,
+      cancelButtonText: cc.Translations.of(context).cancel,
+      title: Text(
+        cc.Translations.of(context).ownerShipTransfer,
         textAlign: TextAlign.center,
       ),
-      messageText: const Text(
-        "Are you sure you want to transfer ownership? This can't be undone, and the new owner will take full control.",
+      messageText: Text(
+        cc.Translations.of(context).confirmTransferOwnership,
         textAlign: TextAlign.center,
       ),
       onCancel: () {
@@ -593,7 +593,7 @@ class CometChatGroupInfoController extends GetxController
         ),
       ),
       confirmButtonTextWidget: Text(
-          "Continue",
+        cc.Translations.of(context).continueText,
           style: TextStyle(
             color:  colorPalette.white,
             fontSize: typography.button?.medium?.fontSize,

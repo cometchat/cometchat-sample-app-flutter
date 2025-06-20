@@ -635,8 +635,7 @@ class TranslationsHu extends Translations {
   String get leave => 'Távozzon';
 
   @override
-  String get tapToStartConversation =>
-      'Kattintson a beszélgetés megkezdéséhez';
+  String get tapToStartConversation => 'Kattintson a beszélgetés megkezdéséhez';
 
   @override
   String get customMessageLocation => '📍 Elhelyezkedés';
@@ -1070,7 +1069,8 @@ class TranslationsHu extends Translations {
   String get looksLikeSomethingWrong => 'Úgy tűnik, valami rosszul ment.';
 
   @override
-  String get startNewChatOrInvite => 'Indítson egy új csevegést, vagy hívjon meg másokat a beszélgetéshez.';
+  String get startNewChatOrInvite =>
+      'Indítson egy új csevegést, vagy hívjon meg másokat a beszélgetéshez.';
 
   @override
   String get noConversationsYet => "Még nincsenek beszélgetések.";
@@ -1094,19 +1094,22 @@ class TranslationsHu extends Translations {
   String get retry => 'Próbáld újra';
 
   @override
-  String get popScreenDisabled => 'Felugró képernyő letiltva. Érintse meg a hívás megszakítása gombot.';
+  String get popScreenDisabled =>
+      'Felugró képernyő letiltva. Érintse meg a hívás megszakítása gombot.';
 
   @override
   String get usersUnavailable => 'Nincs elérhető felhasználó';
 
   @override
-  String get usersUnavailableMessage => 'A keresésnek megfelelő felhasználót nem találtunk. Próbálja meg módosítani a keresést.';
+  String get usersUnavailableMessage =>
+      'A keresésnek megfelelő felhasználót nem találtunk. Próbálja meg módosítani a keresést.';
 
   @override
   String get save => 'Mentés';
 
   @override
-  String get changeScopeSubtitle => 'A szerepköröket módosíthatja a csoportjogosultságok és felelősségek kezeléséhez.';
+  String get changeScopeSubtitle =>
+      'A szerepköröket módosíthatja a csoportjogosultságok és felelősségek kezeléséhez.';
 
   @override
   String get remove => 'Távolítsa el';
@@ -1121,7 +1124,8 @@ class TranslationsHu extends Translations {
   String get addOption => 'Opció hozzáadása';
 
   @override
-  String get pollEmptyString => 'Kérjük, töltse ki az összes kötelező mezőt a szavazás létrehozása előtt.';
+  String get pollEmptyString =>
+      'Kérjük, töltse ki az összes kötelező mezőt a szavazás létrehozása előtt.';
 
   @override
   String get askQuestion => 'Tegyen fel kérdést';
@@ -1145,7 +1149,8 @@ class TranslationsHu extends Translations {
   String get edited => 'Szerkesztett';
 
   @override
-  String get deleteMessageWarning => 'Biztos, hogy törölni szeretné ezt az üzenetet? Ezt a műveletet nem lehet visszavonni.';
+  String get deleteMessageWarning =>
+      'Biztos, hogy törölni szeretné ezt az üzenetet? Ezt a műveletet nem lehet visszavonni.';
 
   @override
   String get from => 'tól';
@@ -1163,6 +1168,82 @@ class TranslationsHu extends Translations {
   String get camera => 'Kamera';
 
   @override
+  String get hourAgo => 'egy órája';
+
+  @override
+  String get hoursAgo => 'órákkal ezelőtt';
+
+  @override
   String get areYouSureKick => 'Biztosan ki akarod rúgni';
 
+  @override
+  String get noCallLogsYet => 'Még nincsenek hívásnaplók';
+
+  @override
+  String get makeOrReceiveCalls =>
+      'Kezdeményezzen vagy fogadjon hívásokat a hívásnaplójának megtekintéséhez';
+
+  @override
+  String get blockContact => 'Blokkolja ezt a kontaktot?';
+  @override
+  String get confirmBlockContact =>
+      'Biztosan blokkolni szeretné ezt a kontaktot? Több üzenetet nem fog tőlük kapni.';
+  @override
+  String get deleteChat => 'Törli ezt a csevegést?';
+  @override
+  String get confirmDeleteChat =>
+      'Biztosan törölni szeretné ezt a csevegést? Ez a művelet nem vonható vissza.';
+  @override
+  String get errorBlockUser => 'Hiba, nem lehet blokkolni a felhasználót';
+  @override
+  String get unblockContact => 'Feloldja ennek a kontaktnek a blokkolását?';
+  @override
+  String get confirmUnblockContact =>
+      'Biztosan fel szeretné oldani a kontakt blokkolását?';
+  @override
+  String get groupInfo => 'Csoport információ';
+  @override
+  String get errorLeaveGroup => 'Hiba, nem lehet elhagyni a csoportot';
+  @override
+  String get errorDeleteGroup => 'Hiba, nem lehet törölni a csoportot';
+  @override
+  String get leaveThisGroup => 'Elhagyja ezt a csoportot?';
+  @override
+  String get confirmLeaveGroup =>
+      'Biztos, hogy el akarja hagyni ezt a csoportot? Több üzenetet nem fog kapni ettől a csevegéstől.';
+  @override
+  String get continueText => 'Folytatás';
+  @override
+  String get confirmTransferOwnership =>
+      'Biztosan át szeretné adni a tulajdonjogot? Ezt nem lehet visszavonni, és az új tulajdonos teljes ellenőrzést kap.';
+  @override
+  String get ownerShipTransfer => 'Tulajdonjog átruházása';
+
+  @override
+  String get confirmDeleteAndExit =>
+      'Biztosan törölni szeretné ezt a csevegést és kilépni a csoportból? Ez a művelet nem visszavonható.';
+
+  @override
+  String get errorDeleteUser => 'Hiba, a felhasználó nem törölhető';
+
+  @override
+  String get createGroupEmptyString =>
+      'Kérjük, töltse ki az összes kötelező mezőt a csoport létrehozása előtt.';
+
+  @override
+  String get userInfo => 'Felhasználói információ';
+  @override
+  String get voice => 'Hang';
+  @override
+  String get deleteTheChat => 'Chat törlése';
+  @override
+  String get block => 'Letiltás';
+  @override
+  String get unBlock => 'Tiltás feloldása';
+  @override
+  String get enterTheGroupName => 'Adja meg a csoport nevét';
+  @override
+  String get enterTheGroupPassword => 'Adja meg a csoport jelszavát';
+  @override
+  String get type => 'Írja be';
 }

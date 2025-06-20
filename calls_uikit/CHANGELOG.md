@@ -1,3 +1,12 @@
+## 5.0.3
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.23`.
+- Updated `cometchat_uikit_shared` to version `5.0.3`.
+
+## Fixes
+- Fixed an issue where the ringtone continued ringing even after the call had ended following a single ring.
+
 ## 5.0.2
 
 ## Enhancements

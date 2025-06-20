@@ -245,7 +245,7 @@ Widget _getNoBannedMemberIndicator(
           height: 120,
         ),
         Text(
-          "No Banned Members",
+          cc.Translations.of(context).noBannedMembersFound,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: colorPalette.textPrimary,

@@ -360,6 +360,7 @@ private func presentImagePicker(mediaType: String) {
         }
 
         let packageName = args["package"] as? String
+        let isLooping = args["isLooping"] as? Bool ?? false
         var assetKey: String?
 
 
@@ -384,7 +385,7 @@ private func presentImagePicker(mediaType: String) {
 
         let assetURL = URL(fileURLWithPath: assetPath)
 
-        playSound(url: assetURL, result: result)
+        playSound(url: assetURL, isLooping: isLooping, result: result)
     }
 
     
@@ -419,7 +420,7 @@ private func presentImagePicker(mediaType: String) {
     
     
     
-    private func playSound(url:URL, result: @escaping FlutterResult)  {
+    private func playSound(url:URL,isLooping: Bool, result: @escaping FlutterResult)  {
         
         let otherAudioPlaying = AVAudioSession.sharedInstance().secondaryAudioShouldBeSilencedHint
         if otherAudioPlaying {
@@ -448,7 +449,8 @@ private func presentImagePicker(mediaType: String) {
             try AVAudioSession.sharedInstance().setActive(true)
             
             audioPlayer = try AVAudioPlayer(contentsOf: url)
-            
+
+            audioPlayer?.numberOfLoops = isLooping ? -1 : 0
             audioPlayer?.prepareToPlay()
             audioPlayer?.play()
             
@@ -494,7 +496,7 @@ private func presentImagePicker(mediaType: String) {
         let newUrl: URL = URL(fileURLWithPath: audioURL ?? "")
         
         
-        playSound(url: newUrl, result: result)
+        playSound(url: newUrl,isLooping: false, result: result)
         
         
     }

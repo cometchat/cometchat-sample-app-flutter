@@ -15,7 +15,8 @@ class SoundManager {
   void play(
       {required Sound sound,
         String? customSound,
-        String? packageName // Use it only when using other plugin
+        String? packageName, // Use it only when using other plugin
+        bool? isLooping = false,
       }) async {
     String soundPath = "";
 
@@ -33,7 +34,7 @@ class SoundManager {
       }
     }
     await UIConstants.channel.invokeMethod("playCustomSound",
-        {'assetAudioPath': soundPath, 'package': packageName});
+        {'assetAudioPath': soundPath, 'package': packageName, 'isLooping': isLooping});
   }
 
   void stop() async {

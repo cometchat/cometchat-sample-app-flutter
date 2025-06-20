@@ -595,7 +595,7 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
                 bottom: spacing.padding ?? 2,
               ),
               child: Text(
-                "No Call Logs Yet",
+                cc.Translations.of(context).noCallLogsYet,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: style.emptyStateTextColor ?? colorPalette.textPrimary,
@@ -608,7 +608,7 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
               ),
             ),
             Text(
-              "Make or receive calls to see your call history\nlisted here.",
+              cc.Translations.of(context).makeOrReceiveCalls,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: style.emptyStateSubTitleTextColor ??

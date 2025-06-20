@@ -72,33 +72,47 @@ class CometChatThread extends StatelessWidget {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          CometChatThreadedHeader(
-            parentMessage: message,
-            loggedInUser: CometChatUIKit.loggedInUser!,
-            template: template,
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                FocusScope.of(context)
-                    .unfocus(); // Close the keyboard when tapping outside
-              },
-              child: getMessageList(
-                user,
-                group,
-                context,
-                message,
-              ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+          final totalHeight = constraints.maxHeight;
+
+          final composerHeight = 60.0;
+          final initialHeaderHeight = totalHeight * 0.3;
+
+          // Adjust the height if keyboard is open
+          final availableHeaderHeight = keyboardHeight > 0
+              ? totalHeight - composerHeight - keyboardHeight - 16
+              : initialHeaderHeight;
+
+          return Container(
+            color: ccColor.background3,
+            child: Column(
+              children: [
+                SizedBox(
+                  height: availableHeaderHeight,
+                  child: CometChatThreadedHeader(
+                    height: availableHeaderHeight,
+                    parentMessage: message,
+                    loggedInUser: CometChatUIKit.loggedInUser!,
+                    template: template,
+                  ),
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => FocusScope.of(context).unfocus(),
+                    child: getMessageList(user, group, context, message),
+                  ),
+                ),
+                CometChatMessageComposer(
+                    user: user,
+                    group: group,
+                    parentMessageId: message.id,
+                  ),
+              ],
             ),
-          ),
-          CometChatMessageComposer(
-            user: user,
-            group: group,
-            parentMessageId: message.id,
-          ),
-        ],
+          );
+        },
       ),
     );
   }

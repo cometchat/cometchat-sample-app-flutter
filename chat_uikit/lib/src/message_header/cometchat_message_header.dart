@@ -46,6 +46,7 @@ class CometChatMessageHeader extends StatefulWidget
     this.leadingStateView,
     this.auxiliaryButtonView,
     this.usersStatusVisibility = true,
+    this.dateTimeFormatterCallback,
   })  : assert(user != null || group != null,
             "One of user or group should be passed"),
         assert(user == null || group == null,
@@ -151,6 +152,9 @@ class CometChatMessageHeader extends StatefulWidget
   ///[usersStatusVisibility] controls visibility of status indicator shown if a user is online
   final bool? usersStatusVisibility;
 
+  /// [dateTimeFormatterCallback] is a callback that can be used to format the date and time
+  final DateTimeFormatterCallback? dateTimeFormatterCallback;
+
   @override
   State<CometChatMessageHeader> createState() => _CometChatMessageHeaderState();
 
@@ -175,6 +179,7 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
       userObject: widget.user,
       groupObject: widget.group,
       usersStatusVisibility: widget.usersStatusVisibility,
+      dateTimeFormatterCallback: widget.dateTimeFormatterCallback,
     );
     headerStyle =
         CometChatThemeHelper.getTheme<CometChatMessageHeaderStyle>(

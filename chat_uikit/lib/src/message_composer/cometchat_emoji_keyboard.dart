@@ -34,39 +34,33 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
   ScrollController emojiScrollController = ScrollController();
 
   void scrollControllerListener() {
-    double offset = emojiScrollController.offset;
-    if (offset.clamp(0, 100) == offset || offset.clamp(2000, 2300) == offset) {
-      currentCategory = 0;
-      setState(() {});
-    } else if (offset.clamp(2300, 2530) == offset ||
-        offset.clamp(3500, 3700) == offset) {
-      currentCategory = 1;
-      setState(() {});
-    } else if (offset.clamp(3700, 3900) == offset ||
-        offset.clamp(4200, 4400) == offset) {
-      currentCategory = 2;
-      setState(() {});
-    } else if (offset.clamp(4400, 4600) == offset ||
-        offset.clamp(5000, 5200) == offset) {
-      currentCategory = 3;
-      setState(() {});
-    } else if (offset.clamp(5100, 5300) == offset ||
-        offset.clamp(5900, 6100) == offset) {
-      currentCategory = 4;
-      setState(() {});
-    } else if (offset.clamp(6000, 6200) == offset ||
-        offset.clamp(7300, 7500) == offset) {
-      currentCategory = 5;
-      setState(() {});
-    } else if (offset.clamp(7440, 7640) == offset ||
-        offset.clamp(9300, 9500) == offset) {
-      currentCategory = 6;
-      setState(() {});
-    } else if (offset.clamp(9450, 9650) == offset) {
-      currentCategory = 7;
-      setState(() {});
+    final ancestorBox = context.findRenderObject();
+    if (ancestorBox == null || !mounted) return;
+
+    for (int i = 0; i < emojiData.length; i++) {
+      final keyContext = emojiData[i].key.currentContext;
+      if (keyContext == null) continue;
+
+      final box = keyContext.findRenderObject();
+      if (box is! RenderBox || !box.hasSize) continue;
+
+      try {
+        final position = box.localToGlobal(Offset.zero, ancestor: ancestorBox);
+        // Adjust this range based on your UI's spacing
+        if (position.dy >= 0 && position.dy <= 100) {
+          if (currentCategory != emojiData[i].id) {
+            setState(() {
+              currentCategory = emojiData[i].id;
+            });
+          }
+          break;
+        }
+      } catch (e, stack) {
+        debugPrint('Scroll detection error: $e\n$stack');
+      }
     }
   }
+
 
   @override
   void initState() {

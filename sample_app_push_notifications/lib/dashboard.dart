@@ -13,11 +13,9 @@ import 'notifications/services/android_notification_service/firebase_services.da
 import 'notifications/services/globals.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sample_app_push_notifications/utils/bool_singleton.dart';
 import '../guard_screen.dart';
 import 'notifications/services/cometchat_service/cometchat_services.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb;
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
@@ -161,8 +159,6 @@ class _MyPageViewState extends State<MyPageView>
     });
 
     try {
-      await fb.FirebaseAuth.instance.signOut();
-      await GoogleSignIn().signOut();
       PNRegistry.unregisterPNService();
       await CometChatUIKit.logout(
         onSuccess: (p0) {
@@ -365,7 +361,7 @@ class _MyPageViewState extends State<MyPageView>
                           child: Padding(
                             padding: EdgeInsets.all(spacing.padding4 ?? 0),
                             child: Text(
-                              "v5.0.2",
+                              "v5.0.3",
                               style: TextStyle(
                                 fontSize: typography.body?.regular?.fontSize,
                                 fontFamily:

@@ -100,14 +100,11 @@ class CometChatMessageList extends StatefulWidget {
       '?',
     ],
     this.addTemplate,
-  }) : assert(
-         user != null || group != null,
-         "One of user or group should be passed",
-       ),
-       assert(
-         user == null || group == null,
-         "Only one of user or group should be passed",
-       );
+    this.dateTimeFormatterCallback,
+  })  : assert(user != null || group != null,
+            "One of user or group should be passed"),
+        assert(user == null || group == null,
+            "Only one of user or group should be passed");
 
   ///[user] user object  for user message list
   final User? user;
@@ -200,7 +197,7 @@ class CometChatMessageList extends StatefulWidget {
   footerView;
 
   ///[dateSeparatorPattern] pattern for  date separator
-  final String Function(DateTime)? dateSeparatorPattern;
+  final String Function(DateTime dateTime)? dateSeparatorPattern;
 
   ///[onError] callback triggered in case any error happens when fetching users
   final OnError? onError;
@@ -308,6 +305,9 @@ class CometChatMessageList extends StatefulWidget {
   /// [addTemplate] Add Custom message templates on the existing templated.
   final List<CometChatMessageTemplate>? addTemplate;
 
+  /// [dateTimeFormatterCallback] is a callback that can be used to format the date and time
+  final DateTimeFormatterCallback? dateTimeFormatterCallback;
+
   @override
   State<CometChatMessageList> createState() => _CometChatMessageListState();
 }
@@ -389,6 +389,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       enableSmartReplies: widget.enableSmartReplies,
       smartRepliesKeywords: widget.smartRepliesKeywords,
       addTemplate: widget.addTemplate,
+      dateSeparatorPattern: widget.dateSeparatorPattern,
     );
 
     super.initState();
@@ -725,6 +726,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
     if (widget.hideStickyDate == true) {
       return const SizedBox.shrink();
     }
+
     String? customDateString;
     if (widget.dateSeparatorPattern != null &&
         controller.list[index].sentAt != null) {
@@ -743,6 +745,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
           date: controller.list[index].sentAt,
           pattern: DateTimePattern.dayDateFormat,
           customDateString: customDateString,
+          dateTimeFormatterCallback: widget.dateTimeFormatterCallback,
           style: CometChatDateStyle(
             backgroundColor: colorPalette.background2,
             border: Border.all(
@@ -1446,10 +1449,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
                           );
                         }
 
-                        value.updateStickyDateFromIndex(
-                          index,
-                          widget.dateSeparatorPattern,
-                        );
+                        controller.updateStickyDateFromIndex(index, controller.list[index].sentAt);
 
                         return Column(
                           children: [
@@ -1483,27 +1483,16 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
                 top: 10,
                 left: 0,
                 right: 0,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (
-                    Widget child,
-                    Animation<double> animation,
-                  ) {
-                    return FadeTransition(opacity: animation, child: child);
-                  },
-                  child:
-                      value.stickyDateTime != null
-                          ? KeyedSubtree(
-                            key: ValueKey(value.stickyDateTime),
-                            child: _buildStickyDateHeader(
-                              value,
-                              colorPalette,
-                              typography,
-                              spacing,
-                            ),
-                          )
-                          : const SizedBox.shrink(),
-                ),
+                child: value.stickyDateNotifier.value != null
+                    ? Center(
+                  child: _buildStickyDateHeader(
+                    value,
+                    colorPalette,
+                    typography,
+                    spacing,
+                  ),
+                )
+                    : const SizedBox.shrink(),
               ),
 
               _getNewMessageBanner(controller, context, colorPalette, spacing),
@@ -1524,36 +1513,44 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       return const SizedBox.shrink();
     }
 
-    if ((controller.currentIndex == controller.list.length - 1) ||
-        (_isSameDate(
+    if(controller.currentIndex == controller.list.length - 1) {
+        return const SizedBox.shrink();
+    }
+
+    if (_isSameDate(
           dt1: controller.list[controller.currentIndex].sentAt,
           dt2: controller.list[controller.currentIndex + 1].sentAt,
-        ))) {
-      return Padding(
-        padding: EdgeInsets.fromLTRB(0, spacing.padding2 ?? 0, 0, 0),
-        child: CometChatDate(
-          date: controller.stickyDateTime,
-          pattern: DateTimePattern.dayDateFormat,
-          customDateString: controller.stickyDateString,
-          style: CometChatDateStyle(
-            backgroundColor: colorPalette.background2,
-            border: Border.all(
-              color:
-              colorPalette.borderDark ??
-                  colorPalette.transparent ??
-                  Colors.transparent,
-              width: 1,
+        )) {
+      return ValueListenableBuilder<DateTime?>(
+          valueListenable: controller.stickyDateNotifier,
+        builder: (context, stickyDate, child) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(0, spacing.padding2 ?? 0, 0, 0),
+            child: CometChatDate(
+              date: stickyDate,
+              pattern: DateTimePattern.dayDateFormat,
+              customDateString: controller.stickyDateString,
+              style: CometChatDateStyle(
+                backgroundColor: colorPalette.background2,
+                border: Border.all(
+                  color:
+                  colorPalette.borderDark ??
+                      colorPalette.transparent ??
+                      Colors.transparent,
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(spacing.radius1 ?? 0),
+                textStyle: TextStyle(
+                  fontSize: typography.caption2?.medium?.fontSize,
+                  fontWeight: typography.caption2?.medium?.fontWeight,
+                  fontFamily: typography.caption2?.medium?.fontFamily,
+                  letterSpacing: 0,
+                  color: colorPalette.textPrimary,
+                ),
+              ).merge(widget.dateSeparatorStyle),
             ),
-            borderRadius: BorderRadius.circular(spacing.radius1 ?? 0),
-            textStyle: TextStyle(
-              fontSize: typography.caption2?.medium?.fontSize,
-              fontWeight: typography.caption2?.medium?.fontWeight,
-              fontFamily: typography.caption2?.medium?.fontFamily,
-              letterSpacing: 0,
-              color: colorPalette.textPrimary,
-            ),
-          ).merge(widget.dateSeparatorStyle),
-        ),
+          );
+        }
       );
     } else {
       return const SizedBox();

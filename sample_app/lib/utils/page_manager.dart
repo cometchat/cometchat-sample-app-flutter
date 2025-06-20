@@ -54,21 +54,25 @@ class PageManager extends GetxController {
     required BuildContext context,
     User? user,
     Group? group,
-  }) {
-    FocusManager.instance.primaryFocus?.unfocus();
+  }) async {
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+    FocusScope.of(context).unfocus();
+    if (isKeyboardOpen) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
     setNavigateToMessageScreen(true);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return MessagesSample(
-            user: user,
-            group: group,
-          );
-        },
-      ),
-    ).then((value) {
-      setNavigateToMessageScreen(false);
-    });
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return MessagesSample(
+              user: user,
+              group: group,
+            );
+          },
+        ),
+      ).then((value) {
+        setNavigateToMessageScreen(false);
+      });
   }
 }

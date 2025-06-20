@@ -58,7 +58,7 @@ class CometChatUIKit {
         }
       }
 
-      CometChat.setSource("uikit-v4", Platform.operatingSystem, "flutter");
+      CometChat.setSource(SetSourceConstant.uiKitVersion, Platform.operatingSystem, SetSourceConstant.platform);
     }, onError: (CometChatException exception) {
       //executing custom onError handler when CometChat SDK could not be initialized
       if (onError != null) {

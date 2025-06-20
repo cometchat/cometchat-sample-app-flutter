@@ -1,3 +1,24 @@
+## 5.0.3
+
+## New
+- Introduced the `DateTimeFormatterCallback`, enabling developers to customize the display format for date and time elements within the CometChat UI Kit. This feature supports tailoring formats like "today," "yesterday," and specific time expressions to match the application's locale or specific design requirements.
+- Added localization support for additional languages and regions:
+  - English (United Kingdom) – `en_GB`
+  - Japanese – `ja`
+  - Korean – `ko`
+  - Dutch – `nl`
+  - Turkish – `tr`
+- Enabled the ability to override existing localizations and add support for new languages, giving developers more control over language customization in the UI.
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.23`.
+- Enabled default image zoom functionality when tapping a ImageBubbleView in Flutter, enhancing media interaction.
+
+## Fixes
+- Resolved a bug causing the voice recording animation to become scrollable after tapping the stop button.
+- Fixed an issue where the ringtone continued ringing even after the call had ended following a single ring.
+- Addressed a UI bug where the previously selected emoji category would flash instead of remaining on the final selected category.
+
 ## 5.0.2
 
 ## Fixes

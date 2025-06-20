@@ -169,7 +169,7 @@ class CometChatUserInfoController extends GetxController
           var snackBar = SnackBar(
             backgroundColor: colorPalette.error,
             content: Text(
-              "Error, Unable to block user",
+             cc.Translations.of(context).errorBlockUser,
               style: TextStyle(
                 color: colorPalette.white,
                 fontSize: typography.button?.medium?.fontSize,
@@ -212,7 +212,7 @@ class CometChatUserInfoController extends GetxController
           var snackBar = SnackBar(
             backgroundColor: colorPalette.error,
             content: Text(
-              "Error, Unable to block user",
+              cc.Translations.of(context).errorBlockUser,
               style: TextStyle(
                 color: colorPalette.white,
                 fontSize: typography.button?.medium?.fontSize,
@@ -253,7 +253,7 @@ class CometChatUserInfoController extends GetxController
           var snackBar = SnackBar(
             backgroundColor: colorPalette.error,
             content: Text(
-              "Error, Unable to delete group",
+              cc.Translations.of(context).errorDeleteUser,
               style: TextStyle(
                 color: colorPalette.white,
                 fontSize: typography.button?.medium?.fontSize,
@@ -325,7 +325,7 @@ class CometChatUserInfoController extends GetxController
         size: 48,
       ),
       title: Text(
-        "Block this contact?",
+        cc.Translations.of(context).blockContact,
         style: TextStyle(
           fontSize: typography.heading2?.medium?.fontSize,
           fontFamily: typography.heading2?.medium?.fontFamily,
@@ -334,7 +334,7 @@ class CometChatUserInfoController extends GetxController
         ),
       ),
       messageText: Text(
-        "Are you sure you want to block this contact? You won’t receive messages from them anymore.",
+        cc.Translations.of(context).confirmBlockContact,
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: typography.body?.regular?.fontSize,
@@ -385,7 +385,7 @@ class CometChatUserInfoController extends GetxController
         size: 48,
       ),
       title: Text(
-        "Unblock this contact?",
+        cc.Translations.of(context).unblockContact,
         style: TextStyle(
           fontSize: typography.heading2?.medium?.fontSize,
           fontFamily: typography.heading2?.medium?.fontFamily,
@@ -394,7 +394,7 @@ class CometChatUserInfoController extends GetxController
         ),
       ),
       messageText: Text(
-        "Are you sure you want to unblock this contact?",
+        cc.Translations.of(context).confirmUnblockContact,
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: typography.body?.regular?.fontSize,
@@ -447,7 +447,7 @@ class CometChatUserInfoController extends GetxController
         height: 48,
       ),
       title: Text(
-        "Delete this chat?",
+        cc.Translations.of(context).deleteChat,
         style: TextStyle(
           fontSize: typography.heading2?.medium?.fontSize,
           fontFamily: typography.heading2?.medium?.fontFamily,
@@ -456,7 +456,7 @@ class CometChatUserInfoController extends GetxController
         ),
       ),
       messageText: Text(
-        "Are you sure you want to delete this chat? This action cannot be undone.",
+        cc.Translations.of(context).confirmDeleteChat,
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: typography.body?.regular?.fontSize,

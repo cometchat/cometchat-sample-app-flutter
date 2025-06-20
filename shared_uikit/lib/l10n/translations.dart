@@ -8,15 +8,20 @@ import 'package:intl/intl.dart' as intl;
 import 'translations_ar.dart';
 import 'translations_de.dart';
 import 'translations_en.dart';
+import 'translations_en_GB.dart';
 import 'translations_es.dart';
 import 'translations_fr.dart';
 import 'translations_hi.dart';
 import 'translations_hu.dart';
+import 'translations_ja.dart';
+import 'translations_ko.dart';
 import 'translations_lt.dart';
 import 'translations_ms.dart';
+import 'translations_nl.dart';
 import 'translations_pt.dart';
 import 'translations_ru.dart';
 import 'translations_sv.dart';
+import 'translations_tr.dart';
 import 'translations_zh.dart';
 
 /// Callers can lookup localized strings with an instance of Translations
@@ -70,6 +75,27 @@ import 'translations_zh.dart';
 /// you wish to add from the pop-up menu in the Value field. This list should
 /// be consistent with the languages listed in the Translations.supportedLocales
 /// property.
+
+const kCometChatSupportedLanguage = {
+  'ar',
+  'de',
+  'en',
+  'es',
+  'fr',
+  'hi',
+  'hu',
+  'ja',
+  'ko',
+  'lt',
+  'ms',
+  'nl',
+  'pt',
+  'ru',
+  'sv',
+  'tr',
+  'zh'
+};
+
 abstract class Translations {
   Translations(String locale)
       : localeName = intl.Intl.canonicalizedLocale(locale.toString());
@@ -96,28 +122,10 @@ abstract class Translations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
+    Translations.delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
     GlobalWidgetsLocalizations.delegate,
-  ];
-
-  /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[
-    Locale('ar'),
-    Locale('de'),
-    Locale('en'),
-    Locale('es'),
-    Locale('fr'),
-    Locale('hi'),
-    Locale('hu'),
-    Locale('lt'),
-    Locale('ms'),
-    Locale('pt'),
-    Locale('ru'),
-    Locale('sv'),
-    Locale('zh'),
-    Locale('zh', 'TW')
   ];
 
   /// No description provided for @users.
@@ -2206,7 +2214,6 @@ abstract class Translations {
   ///**'Start a new chat or invite others to join the conversation.'
   String get startNewChatOrInvite;
 
-
   ///In en, this translates to :
   ///**'No Conversations Yet.'
   String get noConversationsYet;
@@ -2303,7 +2310,6 @@ abstract class Translations {
   ///**'Add contacts to start conversations and see them listed here.'
   String get addContactsToStartConversations;
 
-
   ///No description provided for @edited.
 
   ///In en, this translates to :
@@ -2339,35 +2345,149 @@ abstract class Translations {
   String get camera;
 
   ///In en, this translates to :
+  ///**'hour age'
+  String get hourAgo;
+
+  ///In en, this translates to :
+  ///**'hours age'
+  String get hoursAgo;
+
+  ///In en, this translates to :
   ///**'Are you sure you want to kick'
   String get areYouSureKick;
 
+  ///In en, this translates to :
+  ///**'No Call Logs Yet'
+  String get noCallLogsYet;
+
+  ///In en, this translates to :
+  ///**'Make or receive calls to see your call history listed here'
+  String get makeOrReceiveCalls;
+
+  ///In en, this translates to :
+  ///**'Block this contact?'
+  String get blockContact;
+
+  ///In en, this translates to :
+  ///**'Are you sure you want to block this contact? You won’t receive messages from them anymore.'
+  String get confirmBlockContact;
+
+  ///In en, this translates to :
+  ///**'Delete this chat?'
+  String get deleteChat;
+
+  ///In en, this translates to :
+  ///**'Are you sure you want to delete this chat? This action cannot be undone.'
+  String get confirmDeleteChat;
+
+  ///In en, this translates to :
+  ///**'Error, Unable to block user.'
+  String get errorBlockUser;
+
+  ///In en, this translates to :
+  ///**'Unblock this contact?'
+  String get unblockContact;
+
+  ///In en, this translates to :
+  ///**'Are you sure you want to unblock this contact?.'
+  String get confirmUnblockContact;
+
+  ///In en, this translates to :
+  ///**'Group Info'
+  String get groupInfo;
+
+  ///In en, this translates to :
+  ///**'Error, Unable to leave group'
+  String get errorLeaveGroup;
+
+  ///In en, this translates to :
+  ///**'Error, Unable to delete group'
+  String get errorDeleteGroup;
+
+  ///In en, this translates to :
+  ///**'Leave this group?''
+  String get leaveThisGroup;
+
+  ///In en, this translates to :
+  ///**'Are you sure you want to leave this group? You won’t receive any more messages from this chat.'
+  String get confirmLeaveGroup;
+
+  ///In en, this translates to :
+  ///**'Are you sure you want to delete this chat and exit the group? This action cannot be undone.'
+  String get confirmDeleteAndExit;
+
+  ///In en, this translates to :
+  ///**'Continue'
+  String get continueText;
+
+  ///In en, this translates to :
+  ///**'Are you sure you want to transfer ownership? This can\'t be undone, and the new owner will take full control.'
+  String get confirmTransferOwnership;
+
+  ///In en, this translates to :
+  ///**'Ownership Transfer'
+  String get ownerShipTransfer;
+
+  ///In en, this translates to :
+  ///**'Error, Unable to delete user'
+  String get errorDeleteUser;
+
+  ///In en, this translates to :
+  ///**'User Info'
+  String get userInfo;
+
+  ///In en, this translates to :
+  ///**'Voice'
+  String get voice;
+
+  ///In en, this translates to :
+  ///**'Delete Chat'
+  String get deleteTheChat;
+
+  ///In en, this translates to :
+  ///**'Block'
+  String get block;
+
+  ///In en, this translates to :
+  ///**'Unblock'
+  String get unBlock;
+
+  ///In en, this translates to :
+  ///**'Enter the group name'
+  String get enterTheGroupName;
+
+  ///In en, this translates to :
+  ///**'Enter the group password'
+  String get enterTheGroupPassword;
+
+  ///In en, this translates to :
+  ///**'Type'
+  String get type;
+
+  ///In en, this translates to :
+  ///**'Please fill in all required fields before creating a poll.'
+  String get createGroupEmptyString;
 }
 
 class _TranslationsDelegate extends LocalizationsDelegate<Translations> {
   const _TranslationsDelegate();
 
   @override
-  Future<Translations> load(Locale locale) {
-    return SynchronousFuture<Translations>(lookupTranslations(locale));
-  }
+  bool isSupported(Locale locale) =>
+      kCometChatSupportedLanguage.contains(locale.languageCode);
+
+  static final _loadedTranslations = <Locale, Future<Translations>>{};
 
   @override
-  bool isSupported(Locale locale) => <String>[
-        'ar',
-        'de',
-        'en',
-        'es',
-        'fr',
-        'hi',
-        'hu',
-        'lt',
-        'ms',
-        'pt',
-        'ru',
-        'sv',
-        'zh'
-      ].contains(locale.languageCode);
+  Future<Translations> load(Locale locale) {
+    assert(isSupported(locale), '');
+    return _loadedTranslations.putIfAbsent(
+      locale,
+      () => SynchronousFuture<Translations>(
+        lookupTranslations(locale),
+      ),
+    );
+  }
 
   @override
   bool shouldReload(_TranslationsDelegate old) => false;
@@ -2375,12 +2495,29 @@ class _TranslationsDelegate extends LocalizationsDelegate<Translations> {
 
 Translations lookupTranslations(Locale locale) {
   // Lookup logic when language+country codes are specified.
+  final languageCode = locale.languageCode;
+  assert(
+    kCometChatSupportedLanguage.contains(languageCode),
+    'lookupTranslations() called for unsupported locale "$locale"',
+  );
+
   switch (locale.languageCode) {
     case 'zh':
       {
         switch (locale.countryCode) {
           case 'TW':
             return TranslationsZhTw();
+        }
+        break;
+      }
+  }
+
+  switch (locale.languageCode) {
+    case 'en':
+      {
+        switch (locale.countryCode) {
+          case 'GB':
+            return TranslationsEnGb();
         }
         break;
       }
@@ -2402,16 +2539,24 @@ Translations lookupTranslations(Locale locale) {
       return TranslationsHi();
     case 'hu':
       return TranslationsHu();
+    case 'ja':
+      return TranslationsJa();
+    case 'ko':
+      return TranslationsKo();
     case 'lt':
       return TranslationsLt();
     case 'ms':
       return TranslationsMs();
+    case 'nl':
+      return TranslationsNl();
     case 'pt':
       return TranslationsPt();
     case 'ru':
       return TranslationsRu();
     case 'sv':
       return TranslationsSv();
+    case 'tr':
+      return TranslationsTr();
     case 'zh':
       return TranslationsZh();
   }

@@ -337,7 +337,8 @@ class CometChatMessageComposerController extends GetxController
       getAttachmentOptions(
           context, colorPalette!, typography!);
     }
-    initializeHeaderAndFooterView();
+    initializeHeaderView();
+    initializeFooterView();
 
     auxiliaryOptions = initAuxiliaryOption();
 
@@ -607,11 +608,13 @@ class CometChatMessageComposerController extends GetxController
 
 
   //-----------------------Internal Dependency Initialization-------------------------
-  initializeHeaderAndFooterView() {
+  initializeHeaderView() {
     if (headerView != null) {
       header = headerView!(context, user, group, composerId);
     }
+  }
 
+  initializeFooterView() {
     if (footerView != null) {
       footer = footerView!(context, user, group, composerId);
     }
@@ -1249,6 +1252,8 @@ class CometChatMessageComposerController extends GetxController
   void _onFocusChange() {
     if (focusNode.hasFocus) {
       CometChatUIEvents.hidePanel(composerId, CustomUIPosition.composerBottom);
+    } else if(!focusNode.hasFocus) {
+      initializeFooterView();
     }
   }
 

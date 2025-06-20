@@ -1068,7 +1068,8 @@ class TranslationsPt extends Translations {
   String get looksLikeSomethingWrong => 'Parece que algo deu errado.';
 
   @override
-  String get startNewChatOrInvite => 'Inicie um novo chat ou convide outros para se juntarem à conversa.';
+  String get startNewChatOrInvite =>
+      'Inicie um novo chat ou convide outros para se juntarem à conversa.';
 
   @override
   String get noConversationsYet => "Ainda não há conversas.";
@@ -1092,19 +1093,22 @@ class TranslationsPt extends Translations {
   String get retry => 'Tente novamente';
 
   @override
-  String get popScreenDisabled => 'Tela pop desativada. Toque no botão cancelar chamada.';
+  String get popScreenDisabled =>
+      'Tela pop desativada. Toque no botão cancelar chamada.';
 
   @override
   String get usersUnavailable => 'Nenhum usuário disponível';
 
   @override
-  String get usersUnavailableMessage => 'Não encontramos nenhum usuário que corresponda à sua pesquisa. Tente ajustar sua pesquisa.';
+  String get usersUnavailableMessage =>
+      'Não encontramos nenhum usuário que corresponda à sua pesquisa. Tente ajustar sua pesquisa.';
 
   @override
   String get save => 'Salvar';
 
   @override
-  String get changeScopeSubtitle => 'Você pode alterar as funções para gerenciar as permissões e responsabilidades do grupo.';
+  String get changeScopeSubtitle =>
+      'Você pode alterar as funções para gerenciar as permissões e responsabilidades do grupo.';
 
   @override
   String get remove => 'Remover';
@@ -1119,7 +1123,8 @@ class TranslationsPt extends Translations {
   String get addOption => 'Adicionar opção';
 
   @override
-  String get pollEmptyString => 'Por favor, preencha todos os campos obrigatórios antes de criar uma enquete.';
+  String get pollEmptyString =>
+      'Por favor, preencha todos os campos obrigatórios antes de criar uma enquete.';
 
   @override
   String get askQuestion => 'Fazer uma pergunta';
@@ -1143,7 +1148,8 @@ class TranslationsPt extends Translations {
   String get edited => 'Editado';
 
   @override
-  String get deleteMessageWarning => 'Tem certeza de que deseja excluir esta mensagem? Essa ação não pode ser desfeita.';
+  String get deleteMessageWarning =>
+      'Tem certeza de que deseja excluir esta mensagem? Essa ação não pode ser desfeita.';
 
   @override
   String get from => 'de';
@@ -1161,6 +1167,83 @@ class TranslationsPt extends Translations {
   String get camera => 'Câmera';
 
   @override
+  String get hourAgo => 'há uma hora';
+
+  @override
+  String get hoursAgo => 'há horas';
+
+  @override
   String get areYouSureKick => 'Tem certeza de que deseja expulsar';
+
+  @override
+  String get noCallLogsYet => 'Ainda sem registros de chamadas';
+
+  @override
+  String get makeOrReceiveCalls =>
+      'Faça ou receba chamadas para ver seu histórico de chamadas aqui';
+
+  @override
+  String get confirmDeleteAndExit =>
+      'Tem certeza de que deseja excluir este chat e sair do grupo? Esta ação não pode ser desfeita.';
+
+  @override
+  String get blockContact => 'Bloquear este contato?';
+  @override
+  String get confirmBlockContact =>
+      'Tem certeza de que deseja bloquear este contato? Você não receberá mais mensagens dele.';
+  @override
+  String get deleteChat => 'Excluir este chat?';
+  @override
+  String get confirmDeleteChat =>
+      'Tem certeza de que deseja excluir este chat? Esta ação não pode ser desfeita.';
+  @override
+  String get errorBlockUser => 'Erro, não foi possível bloquear o usuário';
+  @override
+  String get unblockContact => 'Desbloquear este contato?';
+  @override
+  String get confirmUnblockContact =>
+      'Tem certeza de que deseja desbloquear este contato?';
+  @override
+  String get groupInfo => 'Informações do grupo';
+  @override
+  String get errorLeaveGroup => 'Erro, não foi possível sair do grupo';
+  @override
+  String get errorDeleteGroup => 'Erro, não foi possível excluir o grupo';
+  @override
+  String get leaveThisGroup => 'Sair deste grupo?';
+  @override
+  String get confirmLeaveGroup =>
+      'Tem certeza de que deseja sair deste grupo? Você não receberá mais mensagens deste chat.';
+  @override
+  String get continueText => 'Continuar';
+  @override
+  String get confirmTransferOwnership =>
+      'Tem certeza de que deseja transferir a propriedade? Isso não pode ser desfeito, e o novo proprietário terá controle total.';
+  @override
+  String get ownerShipTransfer => 'Transferência de propriedade';
+
+  @override
+  String get errorDeleteUser => 'Erro, não foi possível excluir o usuário';
+
+  @override
+  String get userInfo => 'Informações do usuário';
+  @override
+  String get voice => 'Voz';
+  @override
+  String get deleteTheChat => 'Excluir chat';
+
+  @override
+  String get block => 'Bloquear';
+  @override
+  String get unBlock => 'Desbloquear';
+  @override
+  String get enterTheGroupName => 'Digite o nome do grupo';
+  @override
+  String get enterTheGroupPassword => 'Digite a senha do grupo';
+  @override
+  String get type => 'Digite';
+  @override
+  String get createGroupEmptyString =>
+      'Por favor, preencha todos os campos obrigatórios antes de criar um grupo.';
 
 }

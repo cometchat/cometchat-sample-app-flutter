@@ -1070,7 +1070,8 @@ class TranslationsLt extends Translations {
   String get looksLikeSomethingWrong => 'Panašu, kad kažkas nutiko.';
 
   @override
-  String get startNewChatOrInvite => 'Inizia una nuova chat o invita altri a unirsi alla conversazione.';
+  String get startNewChatOrInvite =>
+      'Inizia una nuova chat o invita altri a unirsi alla conversazione.';
 
   @override
   String get noConversationsYet => "Nessuna conversazione ancora.";
@@ -1094,19 +1095,22 @@ class TranslationsLt extends Translations {
   String get retry => 'Pabandykite iš naujo';
 
   @override
-  String get popScreenDisabled => 'Iššokantis ekranas išjungtas. Bakstelėkite atšaukti skambutį mygtuką.';
+  String get popScreenDisabled =>
+      'Iššokantis ekranas išjungtas. Bakstelėkite atšaukti skambutį mygtuką.';
 
   @override
   String get usersUnavailable => 'Nėra naudotojų';
 
   @override
-  String get usersUnavailableMessage => 'Neradome vartotojų, atitinkančių jūsų paiešką. Pabandykite koreguoti paiešką.';
+  String get usersUnavailableMessage =>
+      'Neradome vartotojų, atitinkančių jūsų paiešką. Pabandykite koreguoti paiešką.';
 
   @override
   String get save => 'Išsaugoti';
 
   @override
-  String get changeScopeSubtitle => 'Galite keisti vaidmenis, kad galėtumėte valdyti grupės leidimus ir atsakomybę.';
+  String get changeScopeSubtitle =>
+      'Galite keisti vaidmenis, kad galėtumėte valdyti grupės leidimus ir atsakomybę.';
 
   @override
   String get remove => 'Pašalinti';
@@ -1121,7 +1125,8 @@ class TranslationsLt extends Translations {
   String get addOption => 'Pridėti parinktį';
 
   @override
-  String get pollEmptyString => 'Prašome užpildyti visus privalomus laukus prieš kuriant apklausą.';
+  String get pollEmptyString =>
+      'Prašome užpildyti visus privalomus laukus prieš kuriant apklausą.';
 
   @override
   String get askQuestion => 'Užduoti klausimą';
@@ -1145,7 +1150,8 @@ class TranslationsLt extends Translations {
   String get edited => 'Redaguota';
 
   @override
-  String get deleteMessageWarning => 'Ar tikrai norite ištrinti šį pranešimą? Šio veiksmo negalima atšaukti.';
+  String get deleteMessageWarning =>
+      'Ar tikrai norite ištrinti šį pranešimą? Šio veiksmo negalima atšaukti.';
 
   @override
   String get from => 'iš';
@@ -1163,6 +1169,82 @@ class TranslationsLt extends Translations {
   String get camera => 'Kamera';
 
   @override
+  String get hourAgo => 'un\'ora fa';
+
+  @override
+  String get hoursAgo => 'ore fa';
+
+  @override
   String get areYouSureKick => 'Ar tikrai norite išmesti';
+
+  @override
+  String get noCallLogsYet => 'Kol dar nėra skambučių įrašų';
+
+  @override
+  String get makeOrReceiveCalls =>
+      'Atlikite arba priimkite skambučius, kad čia matytumėte skambučių istoriją';
+
+  @override
+  String get confirmDeleteAndExit =>
+      'Ar tikrai norite ištrinti šį pokalbį ir išeiti iš grupės? Šio veiksmo atšaukti negalima.';
+
+  @override
+  String get blockContact => 'Blokuoti šį kontaktą?';
+  @override
+  String get confirmBlockContact =>
+      'Ar tikrai norite blokuoti šį kontaktą? Nuo šiol negausite jokių pranešimų.';
+  @override
+  String get deleteChat => 'Ištrinti šį pokalbį?';
+  @override
+  String get confirmDeleteChat =>
+      'Ar tikrai norite ištrinti šį pokalbį? Šio veiksmo negalima atšaukti.';
+  @override
+  String get errorBlockUser => 'Klaida, nepavyko blokuoti vartotojo';
+  @override
+  String get unblockContact => 'Atblokuoti šį kontaktą?';
+  @override
+  String get confirmUnblockContact =>
+      'Ar tikrai norite atblokuoti šį kontaktą?';
+  @override
+  String get groupInfo => 'Grupės informacija';
+  @override
+  String get errorLeaveGroup => 'Klaida, nepavyko palikti grupės';
+  @override
+  String get errorDeleteGroup => 'Klaida, nepavyko ištrinti grupės';
+  @override
+  String get leaveThisGroup => 'Palikti šią grupę?';
+  @override
+  String get confirmLeaveGroup =>
+      'Ar tikrai norite palikti šią grupę? Nuo šiol negausite daugiau žinučių iš šio pokalbio.';
+  @override
+  String get continueText => 'Tęsti';
+  @override
+  String get confirmTransferOwnership =>
+      'Ar tikrai norite perleisti nuosavybės teisę? Tai neįmanoma atšaukti, o naujasis savininkas gaus visą kontrolę.';
+  @override
+  String get ownerShipTransfer => 'Nuosavybės teisės perdavimas';
+
+  @override
+  String get errorDeleteUser => 'Klaida, nepavyko ištrinti naudotojo';
+
+  @override
+  String get userInfo => 'Naudotojo informacija';
+  @override
+  String get voice => 'Balsas';
+  @override
+  String get deleteTheChat => 'Ištrinti pokalbį';
+  @override
+  String get block => 'Blokuoti';
+  @override
+  String get unBlock => 'Atblokuoti';
+  @override
+  String get enterTheGroupName => 'Įveskite grupės pavadinimą';
+  @override
+  String get enterTheGroupPassword => 'Įveskite grupės slaptažodį';
+  @override
+  String get type => 'Tipas';
+  @override
+  String get createGroupEmptyString =>
+      'Prašome užpildyti visus privalomus laukus prieš kuriant grupę.';
 
 }

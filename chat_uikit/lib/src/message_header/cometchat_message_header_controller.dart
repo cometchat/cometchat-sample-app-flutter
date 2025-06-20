@@ -12,7 +12,7 @@ class CometChatMessageHeaderController extends GetxController
         UserListener,
         GroupListener,
         CometChatGroupEventListener,
-        CometChatUserEventListener{
+        CometChatUserEventListener {
   User? userObject;
   Group? groupObject;
   bool? isTyping;
@@ -20,6 +20,9 @@ class CometChatMessageHeaderController extends GetxController
 
   ///[usersStatusVisibility] controls visibility of status indicator shown if a user is online
   final bool? usersStatusVisibility;
+
+  /// [dateTimeFormatterCallback] is a callback that can be used to format the date and time
+  final DateTimeFormatterCallback? dateTimeFormatterCallback;
 
   late String dateStamp;
   late String messageListenerId;
@@ -34,11 +37,12 @@ class CometChatMessageHeaderController extends GetxController
 
   User? loggedInUser;
 
-  CometChatMessageHeaderController(
-      {this.userObject,
-      this.groupObject,
-        this.usersStatusVisibility = true,
-      }) {
+  CometChatMessageHeaderController({
+    this.userObject,
+    this.groupObject,
+    this.usersStatusVisibility = true,
+    this.dateTimeFormatterCallback,
+  }) {
     dateStamp = DateTime.now().microsecondsSinceEpoch.toString();
     messageListenerId = "${dateStamp}_message_listener";
     groupListenerId = "${dateStamp}_group_listener";
@@ -55,7 +59,7 @@ class CometChatMessageHeaderController extends GetxController
   void onInit() {
     _dateString = DateTime.now().millisecondsSinceEpoch.toString();
     _uiGroupListener = "${_dateString}UIGroupListener";
-      CometChatMessageEvents.addMessagesListener(messageListenerId, this);
+    CometChatMessageEvents.addMessagesListener(messageListenerId, this);
     if (userObject != null) {
       CometChat.addUserListener(groupListenerId, this);
       CometChatUserEvents.addUsersListener(groupListenerId, this);
@@ -85,7 +89,9 @@ class CometChatMessageHeaderController extends GetxController
 
   @override
   void onUserOnline(User user) {
-    if (userObject != null && userObject!.uid == user.uid && userIsNotBlocked(userObject!)) {
+    if (userObject != null &&
+        userObject!.uid == user.uid &&
+        userIsNotBlocked(userObject!)) {
       userObject!.status = UserStatusConstants.online;
       update();
     }
@@ -93,7 +99,9 @@ class CometChatMessageHeaderController extends GetxController
 
   @override
   void onUserOffline(User user) {
-    if (userObject != null && userObject!.uid == user.uid && userIsNotBlocked(userObject!)) {
+    if (userObject != null &&
+        userObject!.uid == user.uid &&
+        userIsNotBlocked(userObject!)) {
       userObject!.status = UserStatusConstants.offline;
       userObject!.lastActiveAt = user.lastActiveAt;
       update();
@@ -102,16 +110,17 @@ class CometChatMessageHeaderController extends GetxController
 
   @override
   void onTypingStarted(TypingIndicator typingIndicator) {
-    print("typing started by ${typingIndicator.sender.uid}");
     if (userObject != null &&
         typingIndicator.receiverType == ReceiverTypeConstants.user &&
-        typingIndicator.sender.uid == userObject!.uid && userIsNotBlocked(userObject!)) {
+        typingIndicator.sender.uid == userObject!.uid &&
+        userIsNotBlocked(userObject!)) {
       isTyping = true;
       typingUser = typingIndicator.sender;
       update();
     } else if (groupObject != null &&
         typingIndicator.receiverType == ReceiverTypeConstants.group &&
-        typingIndicator.receiverId == groupObject!.guid && userIsNotBlocked(typingIndicator.sender)) {
+        typingIndicator.receiverId == groupObject!.guid &&
+        userIsNotBlocked(typingIndicator.sender)) {
       isTyping = true;
       typingUser = typingIndicator.sender;
       update();
@@ -220,16 +229,17 @@ class CometChatMessageHeaderController extends GetxController
   }
 
   bool hideUserPresence() {
-    return userObject!=null && (usersStatusVisibility == false || !userIsNotBlocked(userObject!));
+    return userObject != null &&
+        (usersStatusVisibility == false || !userIsNotBlocked(userObject!));
   }
 
-  bool userIsNotBlocked(User user){
-    return user.blockedByMe!=true && user.hasBlockedMe!=true;
+  bool userIsNotBlocked(User user) {
+    return user.blockedByMe != true && user.hasBlockedMe != true;
   }
 
   @override
   void ccUserBlocked(User user) {
-    if (user.uid == userObject?.uid){
+    if (user.uid == userObject?.uid) {
       userObject?.blockedByMe = true;
       update();
     }
@@ -237,34 +247,112 @@ class CometChatMessageHeaderController extends GetxController
 
   @override
   void ccUserUnblocked(User user) {
-    if (user.uid == userObject?.uid){
+    if (user.uid == userObject?.uid) {
       userObject?.blockedByMe = false;
       update();
     }
   }
 
-  String getUserActivityStatus(BuildContext context){
+  String getUserActivityStatus(BuildContext context) {
     if (userObject == null || userObject?.lastActiveAt == null) {
       return "";
     }
-    return _getLastSeenText(userObject!.lastActiveAt!,context);
+    return _getLastSeenText(userObject!.lastActiveAt!, context);
   }
 
-  String _getLastSeenText(DateTime lastActiveAt,BuildContext context) {
+  String _getLastSeenText(DateTime lastActiveAt, BuildContext context) {
     final DateTime now = DateTime.now();
     final Duration difference = now.difference(lastActiveAt);
 
     if (difference.inMinutes <= 1) {
       // Less than or equal to a minute ago
-      return "${cc.Translations.of(context).lastSeen} 1 ${cc.Translations.of(context).minuteAgo}";
+      return getMinute(lastActiveAt, context);
     } else if (difference.inMinutes < 60) {
       // Less than an hour ago
-      return "${cc.Translations.of(context).lastSeen} ${difference.inMinutes} ${cc.Translations.of(context).minuteAgo}";
-    } else {
+      return getMinutes(difference, lastActiveAt, context);
+    } else if (difference.inHours < 2) {
       // More than an hour ago
-      String formattedDate = DateFormat.MMMd().format(lastActiveAt);
-      String formattedTime = DateFormat.jm().format(lastActiveAt);
-      return "${cc.Translations.of(context).lastSeen} $formattedDate ${cc.Translations.of(context).at} $formattedTime";
+      return getHour(difference, lastActiveAt, context);
+    } else if (difference.inHours < 24) {
+      // More than an hour ago
+      int diffInHours = difference.inHours;
+      return getHours(difference, diffInHours, lastActiveAt, context);
+    } else {
+      return getFormattedDateWithTime(lastActiveAt, context);
+    }
+  }
+
+  String getMinute(DateTime date, BuildContext context) {
+    if (dateTimeFormatterCallback?.minute(date.millisecondsSinceEpoch) !=
+        null) {
+      return dateTimeFormatterCallback?.minute(date.millisecondsSinceEpoch) ??
+          "${cc.Translations.of(context).lastSeen} 1 ${cc.Translations.of(context).minuteAgo}";
+    } else {
+      return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
+              ?.minute(date.millisecondsSinceEpoch) ??
+          "${cc.Translations.of(context).lastSeen} 1 ${cc.Translations.of(context).minuteAgo}";
+    }
+  }
+
+  String getMinutes(Duration difference, DateTime date, BuildContext context) {
+    int diffInMinutes = difference.inMinutes;
+    if (dateTimeFormatterCallback?.minutes(
+            diffInMinutes, date.millisecondsSinceEpoch) !=
+        null) {
+      return dateTimeFormatterCallback?.minutes(
+              diffInMinutes, date.millisecondsSinceEpoch) ??
+          "${cc.Translations.of(context).lastSeen} ${difference.inMinutes} ${cc.Translations.of(context).minutesAgo}";
+    } else {
+      return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
+              ?.minutes(diffInMinutes, date.millisecondsSinceEpoch) ??
+          "${cc.Translations.of(context).lastSeen} ${difference.inMinutes} ${cc.Translations.of(context).minutesAgo}";
+    }
+  }
+
+  String getHour(Duration difference, DateTime date, BuildContext context) {
+    if (dateTimeFormatterCallback?.hour(date.millisecondsSinceEpoch) != null) {
+      return dateTimeFormatterCallback?.hour(date.millisecondsSinceEpoch) ??
+          "${cc.Translations.of(context).lastSeen} ${difference.inHours} ${cc.Translations.of(context).hourAgo}";
+    } else {
+      return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
+              ?.hour(date.millisecondsSinceEpoch) ??
+          "${cc.Translations.of(context).lastSeen} ${difference.inHours} ${cc.Translations.of(context).hourAgo}";
+    }
+  }
+
+  String getHours(Duration difference, int diffInHours, DateTime date,
+      BuildContext context) {
+    if (dateTimeFormatterCallback?.hours(
+            diffInHours, date.millisecondsSinceEpoch) !=
+        null) {
+      return dateTimeFormatterCallback?.hours(
+              diffInHours, date.millisecondsSinceEpoch) ??
+          "${cc.Translations.of(context).lastSeen} ${difference.inHours} ${cc.Translations.of(context).hoursAgo}";
+    } else {
+      return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
+              ?.hours(diffInHours, date.millisecondsSinceEpoch) ??
+          "${cc.Translations.of(context).lastSeen} ${difference.inHours} ${cc.Translations.of(context).hoursAgo}";
+    }
+  }
+
+  String getFormattedDateWithTime(DateTime lastActiveAt, BuildContext context) {
+    final now = DateTime.now();
+    final isSameYear = now.year == lastActiveAt.year;
+
+    String datePattern = isSameYear ? 'dd MMM' : 'dd MMM yyyy';
+    String formattedDate = DateFormat(datePattern).format(lastActiveAt);
+    String formattedTime = DateFormat.jm().format(lastActiveAt);
+
+    if (dateTimeFormatterCallback
+            ?.otherDays(lastActiveAt.millisecondsSinceEpoch) !=
+        null) {
+      return dateTimeFormatterCallback
+              ?.otherDays(lastActiveAt.millisecondsSinceEpoch) ??
+          "${cc.Translations.of(context).lastSeen} $formattedDate ${cc.Translations.of(context).at} $formattedTime";
+    } else {
+      return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
+              ?.otherDays(lastActiveAt.millisecondsSinceEpoch) ??
+          "${cc.Translations.of(context).lastSeen} $formattedDate ${cc.Translations.of(context).at} $formattedTime";
     }
   }
 }

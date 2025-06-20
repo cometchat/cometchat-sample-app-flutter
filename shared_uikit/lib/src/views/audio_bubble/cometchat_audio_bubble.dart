@@ -441,6 +441,7 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                     width: getBarSpace(),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
+                      physics: const NeverScrollableScrollPhysics(),
                       child: Row(
                         children: playerStatus == PlayStates.playing
                             ? List.generate(

@@ -1,4 +1,5 @@
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sample_app/group_info/cometchat_group_info_controller.dart';
@@ -78,7 +79,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
               ),
             ),
             title: Text(
-              "Group Info",
+              cc.Translations.of(context).groupInfo,
               style: TextStyle(
                 fontSize: typography.heading2?.bold?.fontSize,
                 fontFamily: typography.heading2?.bold?.fontFamily,
@@ -110,7 +111,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
                       ),
                     ),
                     Text(
-                      "${widget.group.membersCount} ${widget.group.membersCount == 1 ? "Member" : "Members"}",
+                      "${widget.group.membersCount} ${widget.group.membersCount == 1 ?  cc.Translations.of(context).member : cc.Translations.of(context).members}",
                       style: TextStyle(
                         fontSize: typography.caption1?.regular?.fontSize,
                         fontFamily: typography.caption1?.regular?.fontFamily,
@@ -266,7 +267,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
                 color: colorPalette.iconHighlight,
                 size: 24,
               ),
-              "View Members",
+              cc.Translations.of(context).viewMembers,
               () {
                 if (controller.group != null) {
                   Navigator.of(context).push(
@@ -290,7 +291,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
                 color: colorPalette.iconHighlight,
                 size: 24,
               ),
-              "Add Members",
+              cc.Translations.of(context).addMembers,
               () {
                 if (controller.group != null) {
                   controller.onAddMemberClicked(
@@ -310,7 +311,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
                 color: colorPalette.iconHighlight,
                 size: 24,
               ),
-              "Banned Members",
+              cc.Translations.of(context).bannedMembers,
               () {
                 if (controller.group != null) {
                   controller.onBannedMembersClicked(
@@ -333,7 +334,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
           getLeaveOption(context, controller),
         if (controller.canAccessOption(GroupOptionConstants.delete))
           listTileOptions(
-            "Delete and Exit",
+            cc.Translations.of(context).deleteAndExit,
             Icon(Icons.delete, color: colorPalette.error),
             () {
               controller.deleteGroupDialog(
@@ -353,7 +354,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
       return const SizedBox();
     }
     return listTileOptions(
-      "Leave",
+        cc.Translations.of(context).leave,
       Icon(Icons.exit_to_app, color: colorPalette.error),
       () {
         if (controller.membersCount > 1 &&

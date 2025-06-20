@@ -1,8 +1,8 @@
 import 'translations.dart';
 
-/// The translations for English-us (`en`).
-class TranslationsEn extends Translations {
-  TranslationsEn([super.locale = 'en']);
+/// The translations for English-uk(`en_GB`).
+class TranslationsEnGb extends Translations {
+  TranslationsEnGb([super.locale = 'en_GB']);
 
   @override
   String get users => 'Users';

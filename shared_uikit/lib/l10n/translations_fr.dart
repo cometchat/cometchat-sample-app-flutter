@@ -637,8 +637,7 @@ class TranslationsFr extends Translations {
   String get leave => 'Quitter';
 
   @override
-  String get tapToStartConversation =>
-      'Cliquez pour démarrer la conversation';
+  String get tapToStartConversation => 'Cliquez pour démarrer la conversation';
 
   @override
   String get customMessageLocation => '📍 Emplacement';
@@ -1071,10 +1070,12 @@ class TranslationsFr extends Translations {
   String get oops => 'Oups!';
 
   @override
-  String get looksLikeSomethingWrong => "Il semblerait que quelque chose s'est mal passé.";
+  String get looksLikeSomethingWrong =>
+      "Il semblerait que quelque chose s'est mal passé.";
 
   @override
-  String get startNewChatOrInvite => "Démarrez une nouvelle discussion ou invitez d'autres à rejoindre la conversation.";
+  String get startNewChatOrInvite =>
+      "Démarrez une nouvelle discussion ou invitez d'autres à rejoindre la conversation.";
 
   @override
   String get noConversationsYet => "Pas encore de conversations.";
@@ -1098,19 +1099,22 @@ class TranslationsFr extends Translations {
   String get retry => 'Réessayez';
 
   @override
-  String get popScreenDisabled => 'Écran pop désactivé. Appuyez sur le bouton d’annulation de l’appel.';
+  String get popScreenDisabled =>
+      'Écran pop désactivé. Appuyez sur le bouton d’annulation de l’appel.';
 
   @override
   String get usersUnavailable => 'Aucun utilisateur disponible';
 
   @override
-  String get usersUnavailableMessage => "Nous n'avons trouvé aucun utilisateur correspondant à votre recherche. Essayez d'ajuster votre recherche.";
+  String get usersUnavailableMessage =>
+      "Nous n'avons trouvé aucun utilisateur correspondant à votre recherche. Essayez d'ajuster votre recherche.";
 
   @override
   String get save => 'Enregistrer';
 
   @override
-  String get changeScopeSubtitle => 'Vous pouvez modifier les rôles pour gérer les autorisations et les responsabilités des groupes.';
+  String get changeScopeSubtitle =>
+      'Vous pouvez modifier les rôles pour gérer les autorisations et les responsabilités des groupes.';
 
   @override
   String get remove => 'Supprimer';
@@ -1119,13 +1123,15 @@ class TranslationsFr extends Translations {
   String get admin => 'Administrateur';
 
   @override
-  String get unsupportedMessageType => "Ce type de message n'est pas pris en charge";
+  String get unsupportedMessageType =>
+      "Ce type de message n'est pas pris en charge";
 
   @override
   String get addOption => 'Ajouter une option';
 
   @override
-  String get pollEmptyString => 'Veuillez remplir tous les champs obligatoires avant de créer un sondage.';
+  String get pollEmptyString =>
+      'Veuillez remplir tous les champs obligatoires avant de créer un sondage.';
 
   @override
   String get askQuestion => 'Poser une question';
@@ -1149,7 +1155,8 @@ class TranslationsFr extends Translations {
   String get edited => 'Edité';
 
   @override
-  String get deleteMessageWarning => 'Êtes-vous sûr de vouloir supprimer ce message ? Cette action ne peut pas être annulée.';
+  String get deleteMessageWarning =>
+      'Êtes-vous sûr de vouloir supprimer ce message ? Cette action ne peut pas être annulée.';
 
   @override
   String get from => 'de';
@@ -1167,6 +1174,95 @@ class TranslationsFr extends Translations {
   String get camera => 'Caméra';
 
   @override
+  String get hourAgo => 'il y a une heure';
+
+  @override
+  String get hoursAgo => 'il y a des heures';
+
+  @override
   String get areYouSureKick => 'Êtes-vous sûr de vouloir expulser';
 
+  @override
+  String get noCallLogsYet => 'Aucun journal d’appels pour le moment';
+
+  @override
+  String get makeOrReceiveCalls =>
+      'Passez ou recevez des appels pour voir votre historique ici';
+
+  @override
+  String get blockContact => 'Bloquer ce contact?';
+
+  @override
+  String get confirmBlockContact =>
+      'Êtes-vous sûr de vouloir bloquer ce contact? Vous ne recevrez plus de messages de sa part.';
+
+  @override
+  String get deleteChat => 'Supprimer cette discussion?';
+
+  @override
+  String get confirmDeleteChat =>
+      'Êtes-vous sûr de vouloir supprimer cette discussion? Cette action est irréversible.';
+
+  @override
+  String get errorBlockUser => 'Erreur, impossible de bloquer l’utilisateur';
+
+  @override
+  String get unblockContact => 'Débloquer ce contact?';
+
+  @override
+  String get confirmUnblockContact =>
+      'Êtes-vous sûr de vouloir débloquer ce contact?';
+
+  @override
+  String get groupInfo => 'Infos du groupe';
+
+  @override
+  String get errorLeaveGroup => 'Erreur, impossible de quitter le groupe';
+
+  @override
+  String get errorDeleteGroup => 'Erreur, impossible de supprimer le groupe';
+
+  @override
+  String get leaveThisGroup => 'Quitter ce groupe?';
+
+  @override
+  String get confirmLeaveGroup =>
+      'Êtes-vous sûr de vouloir quitter ce groupe? Vous ne recevrez plus de messages de cette discussion.';
+
+  @override
+  String get confirmDeleteAndExit =>
+      'Êtes-vous sûr de vouloir supprimer cette discussion et quitter le groupe? Cette action est irréversible.';
+
+  @override
+  String get continueText => 'Continuer';
+
+  @override
+  String get confirmTransferOwnership =>
+      'Êtes-vous sûr de vouloir transférer la propriété? Cela est irréversible, et le nouveau propriétaire aura le plein contrôle.';
+
+  @override
+  String get ownerShipTransfer => 'Transfert de propriété';
+
+  @override
+  String get errorDeleteUser => 'Erreur, impossible de supprimer l’utilisateur';
+  @override
+  String get createGroupEmptyString =>
+      'Veuillez remplir tous les champs requis avant de créer un groupe.';
+
+  @override
+  String get userInfo => 'Infos utilisateur';
+  @override
+  String get voice => 'Voix';
+  @override
+  String get deleteTheChat => 'Supprimer la discussion';
+  @override
+  String get block => 'Bloquer';
+  @override
+  String get unBlock => 'Débloquer';
+  @override
+  String get enterTheGroupName => 'Entrez le nom du groupe';
+  @override
+  String get enterTheGroupPassword => 'Entrez le mot de passe du groupe';
+  @override
+  String get type => 'Tapez';
 }

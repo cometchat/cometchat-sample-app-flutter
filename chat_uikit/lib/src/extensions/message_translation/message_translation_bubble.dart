@@ -41,44 +41,55 @@ class MessageTranslationBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final style =
         CometChatThemeHelper.getTheme<CometChatMessageTranslationBubbleStyle>(
-            defaultTheme: CometChatMessageTranslationBubbleStyle.of,context: context).merge(this.style);
+                defaultTheme: CometChatMessageTranslationBubbleStyle.of,
+                context: context)
+            .merge(this.style);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
     final typography = CometChatThemeHelper.getTypography(context);
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-          maxWidth: 232),
+      constraints: const BoxConstraints(maxWidth: 232),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: spacing.padding2 ?? 0, vertical: spacing.padding2 ?? 0),
-            child: DecoratedBox(
+          if (child != null)
+            DecoratedBox(
               decoration: BoxDecoration(
-                border:Border(bottom: BorderSide(color:style.dividerColor ?? (alignment == BubbleAlignment.right
-                    ? colorPalette.extendedPrimary800
-                    : colorPalette.neutral400) ?? Colors.transparent, width: 1)),
+                border: Border(
+                    bottom: BorderSide(
+                        color: style.dividerColor ??
+                            (alignment == BubbleAlignment.right
+                                ? colorPalette.extendedPrimary800
+                                : colorPalette.neutral400) ??
+                            Colors.transparent,
+                        width: 1)),
               ),
               child: Padding(
-                padding: EdgeInsets.only(bottom: spacing.padding3 ?? 0),
-                child: Text(
-                  translatedText,
-                  style: style.translatedTextStyle ??
-                      TextStyle(
-                          color: alignment == BubbleAlignment.right
-                              ? colorPalette.white
-                              : colorPalette.neutral900,
-                          fontWeight: typography.body?.regular?.fontWeight,
-                          fontSize: typography.body?.regular?.fontSize,
-                          fontFamily: typography.body?.regular?.fontFamily),
-                ),
+                padding: EdgeInsets.only(
+                    bottom: spacing.padding2 ?? 0),
+                child: child!,
               ),
             ),
-          ),
-          if (child != null) child!,
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: spacing.padding2 ?? 0, vertical: spacing.padding2 ?? 0),
+            padding: EdgeInsets.only(
+                left: spacing.padding2 ?? 0, right: spacing.padding2 ?? 0, top: spacing.padding2 ?? 0),
+            child: Text(
+              translatedText,
+              style: style.translatedTextStyle ??
+                  TextStyle(
+                      color: alignment == BubbleAlignment.right
+                          ? colorPalette.white
+                          : colorPalette.neutral900,
+                      fontWeight: typography.body?.regular?.fontWeight,
+                      fontSize: typography.body?.regular?.fontSize,
+                      fontFamily: typography.body?.regular?.fontFamily),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: spacing.padding2 ?? 0,
+                vertical: spacing.padding ?? 0),
             child: Text(
               Translations.of(context).textTranslated,
               style: style.infoTextStyle ??
@@ -88,7 +99,7 @@ class MessageTranslationBubble extends StatelessWidget {
                           : colorPalette.neutral900,
                       fontWeight: FontWeight.w400,
                       fontSize: typography.caption2?.regular?.fontSize,
-                      fontFamily:typography.caption2?.regular?.fontFamily),
+                      fontFamily: typography.caption2?.regular?.fontFamily),
             ),
           ),
         ],

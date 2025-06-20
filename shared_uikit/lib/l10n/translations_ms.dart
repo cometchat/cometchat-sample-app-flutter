@@ -1069,7 +1069,8 @@ class TranslationsMs extends Translations {
   String get looksLikeSomethingWrong => 'Nampaknya ada yang salah.';
 
   @override
-  String get startNewChatOrInvite => 'Mulakan sembang baru atau jemput orang lain menyertai perbualan.';
+  String get startNewChatOrInvite =>
+      'Mulakan sembang baru atau jemput orang lain menyertai perbualan.';
 
   @override
   String get noConversationsYet => "Belum ada perbualan lagi.";
@@ -1093,19 +1094,22 @@ class TranslationsMs extends Translations {
   String get retry => 'Cuba semula';
 
   @override
-  String get popScreenDisabled => 'Paparan Pop Dinonaktifkan. Ketik pada butang batal panggilan.';
+  String get popScreenDisabled =>
+      'Paparan Pop Dinonaktifkan. Ketik pada butang batal panggilan.';
 
   @override
   String get usersUnavailable => 'Tiada Pengguna Tersedia';
 
   @override
-  String get usersUnavailableMessage => 'Kami tidak menemui pengguna yang sepadan dengan carian anda. Cuba laraskan carian anda.';
+  String get usersUnavailableMessage =>
+      'Kami tidak menemui pengguna yang sepadan dengan carian anda. Cuba laraskan carian anda.';
 
   @override
   String get save => 'Simpan';
 
   @override
-  String get changeScopeSubtitle => 'Anda boleh menukar peranan untuk menguruskan keizinan dan tanggungjawab kumpulan.';
+  String get changeScopeSubtitle =>
+      'Anda boleh menukar peranan untuk menguruskan keizinan dan tanggungjawab kumpulan.';
 
   @override
   String get remove => 'Keluarkan';
@@ -1120,7 +1124,8 @@ class TranslationsMs extends Translations {
   String get addOption => 'Tambah Pilihan';
 
   @override
-  String get pollEmptyString => 'Sila isi semua medan yang diperlukan sebelum membuat tinjauan.';
+  String get pollEmptyString =>
+      'Sila isi semua medan yang diperlukan sebelum membuat tinjauan.';
 
   @override
   String get askQuestion => 'Tanya Soalan';
@@ -1144,7 +1149,8 @@ class TranslationsMs extends Translations {
   String get edited => 'Disunting';
 
   @override
-  String get deleteMessageWarning => 'Adakah anda pasti mahu memadam mesej ini? Tindakan ini tidak boleh dibatalkan.';
+  String get deleteMessageWarning =>
+      'Adakah anda pasti mahu memadam mesej ini? Tindakan ini tidak boleh dibatalkan.';
 
   @override
   String get from => 'dari';
@@ -1162,6 +1168,83 @@ class TranslationsMs extends Translations {
   String get camera => 'Kamera';
 
   @override
+  String get hourAgo => 'sejam yang lalu';
+
+  @override
+  String get hoursAgo => 'jam yang lalu';
+
+  @override
   String get areYouSureKick => 'Adakah anda pasti mahu tendang';
 
+  @override
+  String get noCallLogsYet => 'Belum ada rekod panggilan';
+
+  @override
+  String get makeOrReceiveCalls =>
+      'Buat atau terima panggilan untuk melihat sejarah panggilan anda di sini';
+
+  @override
+  String get confirmDeleteAndExit =>
+      'Adakah anda pasti mahu memadam sembang ini dan keluar dari kumpulan? Tindakan ini tidak boleh dibatalkan.';
+
+  @override
+  String get blockContact => 'Blok kenalan ini?';
+  @override
+  String get confirmBlockContact =>
+      'Adakah anda pasti mahu menyekat kenalan ini? Anda tidak akan menerima mesej dari mereka lagi.';
+  @override
+  String get deleteChat => 'Padam sembang ini?';
+  @override
+  String get confirmDeleteChat =>
+      'Adakah anda pasti mahu memadam sembang ini? Tindakan ini tidak boleh dibatalkan.';
+  @override
+  String get errorBlockUser => 'Ralat, gagal menyekat pengguna';
+  @override
+  String get unblockContact => 'Nyahsekat kenalan ini?';
+  @override
+  String get confirmUnblockContact =>
+      'Adakah anda pasti mahu nyahsekat kenalan ini?';
+  @override
+  String get groupInfo => 'Maklumat Kumpulan';
+  @override
+  String get errorLeaveGroup => 'Ralat, gagal meninggalkan kumpulan';
+  @override
+  String get errorDeleteGroup => 'Ralat, gagal memadam kumpulan';
+  @override
+  String get leaveThisGroup => 'Tinggalkan kumpulan ini?';
+  @override
+  String get confirmLeaveGroup =>
+      'Adakah anda pasti mahu meninggalkan kumpulan ini? Anda tidak akan menerima mesej lagi dari sembang ini.';
+  @override
+  String get continueText => 'Teruskan';
+  @override
+  String get confirmTransferOwnership =>
+      'Adakah anda pasti mahu memindahkan hak milik? Ia tidak boleh dibatalkan, dan pemilik baru akan mendapat kawalan penuh.';
+  @override
+  String get ownerShipTransfer => 'Pemindahan Pemilikan';
+
+  @override
+  String get errorDeleteUser => 'Ralat, tidak dapat memadam pengguna';
+
+  @override
+  String get userInfo => 'Maklumat Pengguna';
+  @override
+  String get voice => 'Suara';
+  @override
+  String get deleteTheChat => 'Padam Sembang';
+  @override
+  String get block => 'Sekat';
+  @override
+  String get unBlock => 'Nyahsekat';
+  @override
+  String get enterTheGroupName => 'Masukkan nama kumpulan';
+  @override
+  String get enterTheGroupPassword => 'Masukkan kata laluan kumpulan';
+  @override
+  String get type => 'Taipkan';
+  @override
+  String get createGroupEmptyString =>
+      'Sila isikan semua medan yang diperlukan sebelum membuat kumpulan.';
+
 }
+
