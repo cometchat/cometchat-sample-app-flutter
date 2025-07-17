@@ -1,3 +1,13 @@
+## 5.0.4
+
+## Enhancements
+- Optimized mentions functionality to improve tagging accuracy and performance during message composition.
+
+## Fixes
+- Fixed an issue where CometChatSDK.framework was missing a dSYM file during iOS build uploads, causing upload failures.
+- Fixed the behavior where deleting a mention would remove it character by character instead of as a complete tag.
+- Resolved an issue where the app was rejected due to the use of deprecated media permissions. The permissions have been updated to comply with current platform requirements.
+
 ## 5.0.3
 
 ## New

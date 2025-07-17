@@ -3,7 +3,7 @@ description: "CometChat Flutter Sample App"
 publish_to: 'none'
 
 
-version: 5.0.3
+version: 5.0.4
 
 environment:
   sdk: ^3.5.0
@@ -28,7 +28,7 @@ dependencies:
   get: ^4.6.5
   permission_handler: ^11.3.1
   shared_preferences: ^2.2.1
-
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
@@ -101,3 +101,12 @@ flutter:
   assets:
     - assets/
     - assets/sample_app/
+
+flutter_native_splash:
+    color: "#FFFFFF"
+    color_dark: "#121212"
+    image: assets/cometchat_logo.png
+    android: true
+    ios: true
+    android_gravity: center
+    ios_content_mode: center

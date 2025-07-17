@@ -41,8 +41,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       this.mentionsType,
       this.onMentionTap,
       this.visibleIn,
-        this.style
-      })
+      this.style})
       : super(
           trackingCharacter: trackingCharacter ?? "@",
           pattern: pattern ?? RegExp(RegexConstants.mentionRegexPattern),
@@ -69,7 +68,6 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
 
   ///[visibleIn] is a [MentionsVisibility] object which is used to store the mentions visibility
   MentionsVisibility? visibleIn;
-
 
   ///[style] is a [CometChatMentionsStyle] object which is used to store the mentions style
   CometChatMentionsStyle? style;
@@ -373,7 +371,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   void cursorInMentionTracker(int cursorPosition,
       TextEditingController textEditingController, String previousText) {
     // Make a copy of the mentionedUsersMap
-    var mentionedUsersMapCopy = Map<String, List<User?>>.from(mentionedUsersMap);
+    var mentionedUsersMapCopy =
+        Map<String, List<User?>>.from(mentionedUsersMap);
 
     bool cursorAtEndOfMention = false;
 
@@ -387,7 +386,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
         if (previousText.length > textEditingController.text.length &&
             match.end == cursorPosition) {
           cursorAtEndOfMention = true;
-          mentionTracker = textEditingController.text.substring(match.start, cursorPosition);
+          mentionTracker =
+              textEditingController.text.substring(match.start, cursorPosition);
           searchOnActiveMention = true;
           return; // Use return instead of break to exit the forEach
         }
@@ -406,7 +406,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
               mentionedUsersMapCopy.remove(mention);
             }
 
-            mentionTracker = textEditingController.text.substring(match.start, cursorPosition);
+            mentionTracker = textEditingController.text
+                .substring(match.start, cursorPosition);
             mentionStartIndex = match.start;
             mentionEndIndex = cursorPosition - 1;
           }
@@ -425,7 +426,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       if (lastIndexOfTrackingChar != -1 &&
           (lastIndexOfTrackingChar == 0 ||
               (lastIndexOfTrackingChar > 1 &&
-                  textEditingController.text[lastIndexOfTrackingChar - 1] == " "))) {
+                  textEditingController.text[lastIndexOfTrackingChar - 1] ==
+                      " "))) {
         String tempTracker = textEditingController.text
             .substring(lastIndexOfTrackingChar, cursorPosition);
 
@@ -443,13 +445,15 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   @override
   void onChange(
       TextEditingController textEditingController, String previousText) {
-    if((visibleIn == MentionsVisibility.usersConversationOnly && group != null)|| (visibleIn == MentionsVisibility.groupConversationOnly && group == null)){
+    if ((visibleIn == MentionsVisibility.usersConversationOnly &&
+            group != null) ||
+        (visibleIn == MentionsVisibility.groupConversationOnly &&
+            group == null)) {
       return;
     } else {
       _onChange(textEditingController, previousText);
     }
   }
-
 
   void _onChange(
       TextEditingController textEditingController, String previousText) {
@@ -469,7 +473,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       return;
     }
 
-    _removeMentionIfDeleted(textEditingController);
+    _removeMentionIfDeleted(textEditingController, previousText);
     //first we check if the current text has any part matching the regex pattern
     if (mentionCount.length < mentionsLimit) {
       // Add this condition to hide the panel when mentions drop below limit
@@ -495,7 +499,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
         String prev = previousText.substring(0, extraCharactersStartIndex);
         Map<String, List<User?>> mentionedUsersMapCopy = mentionedUsersMap;
         mentionedUsersMap.forEach(
-              (key, value) {
+          (key, value) {
             RegExp currentPattern = RegExp(key);
             if (currentPattern.hasMatch(newText)) {
               //@john @harry @john
@@ -569,7 +573,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
                 .substring(lastIndexOfTrackingChar, cursorPosition);
 
             if ((!tempTracker.contains("\n") &&
-                !tempTracker.contains("    ")) &&
+                    !tempTracker.contains("    ")) &&
                 mentionedUsersMap.containsKey(tempTracker.trim())) {
               if (mentionedUsersMap.containsKey(tempTracker)) {
                 cursorInMentionTracker(
@@ -600,7 +604,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
 
       bool isSpace = (cursorPosition == 1
           // &&( textEditingController.text.length<2  || ( textEditingController.text[1]==" " ))
-      ) ||
+          ) ||
           (textEditingController.text.length > 1 &&
               cursorPosition > 1 &&
               (textEditingController.text[cursorPosition - 2] == " " ||
@@ -697,7 +701,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
 
     /// if the mention tracker has four consecutive spaces then we will stop tracking the mention
     if ((mentionTracker.length > 1 &&
-        mentionTracker[mentionTracker.length - 1] == "\n") ||
+            mentionTracker[mentionTracker.length - 1] == "\n") ||
         mentionTracker.length > 4 &&
             mentionTracker
                 .substring(mentionTracker.length - 4)
@@ -726,8 +730,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       //that the maximum limit of mentions has been reached'
 
       if (mentionCount.length >= mentionsLimit) {
-        CometChatUIEvents.showPanel(
-            composerId, CustomUIPosition.composerTop, (context) {
+        CometChatUIEvents.showPanel(composerId, CustomUIPosition.composerTop,
+            (context) {
           final colorPalette = CometChatThemeHelper.getColorPalette(context);
           final spacing = CometChatThemeHelper.getSpacing(context);
           final typography = CometChatThemeHelper.getTypography(context);
@@ -762,26 +766,26 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
         String searchKeyword = mentionTracker.substring(1);
 
         if ((mentionedUsersMap.containsKey(mentionTracker) &&
-            !searchOnActiveMention) ||
+                !searchOnActiveMention) ||
             (interceptedMention != null &&
                 (cursorPosition < textEditingController.text.length &&
                     mentionTracker.length < interceptedMention!.length) &&
                 ((cursorPosition +
-                    interceptedMention!.length -
-                    mentionTracker.length <
-                    textEditingController.text.length) &&
+                            interceptedMention!.length -
+                            mentionTracker.length <
+                        textEditingController.text.length) &&
                     mentionTracker +
-                        textEditingController.text.substring(
-                            cursorPosition,
-                            cursorPosition +
-                                interceptedMention!.length -
-                                mentionTracker.length) ==
+                            textEditingController.text.substring(
+                                cursorPosition,
+                                cursorPosition +
+                                    interceptedMention!.length -
+                                    mentionTracker.length) ==
                         interceptedMention))) {
           String key = interceptedMention ?? mentionTracker;
 
           int leftSideMatches = RegExp(key)
               .allMatches(textEditingController.text
-              .substring(0, cursorPosition - mentionTracker.length))
+                  .substring(0, cursorPosition - mentionTracker.length))
               .length;
 
           mentionedUsersMap[key]!.insert(leftSideMatches, null);
@@ -791,7 +795,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
           CometChatUIEvents.showPanel(
               composerId,
               CustomUIPosition.composerPreview,
-                  (context) => getLoadingIndicator(context));
+              (context) => getLoadingIndicator(context));
         }
 
         if (onSearch != null) {
@@ -850,9 +854,12 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       required String text,
       List<AttributedText>? existingAttributes}) {
     List<AttributedText> attributedTexts = [];
-    final mentionsStyle = CometChatThemeHelper.getTheme<CometChatMentionsStyle>(context: context, defaultTheme: CometChatMentionsStyle.of).merge(this.style);
-    CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
-CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
+    final mentionsStyle = CometChatThemeHelper.getTheme<CometChatMentionsStyle>(
+            context: context, defaultTheme: CometChatMentionsStyle.of)
+        .merge(this.style);
+    CometChatColorPalette colorPalette =
+        CometChatThemeHelper.getColorPalette(context);
+    CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
     mentionedUsersMap.forEach((username, userObjects) {
       final matches = RegExp(username).allMatches(text);
 
@@ -860,19 +867,26 @@ CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
 
       for (int i = 0; i < matches.length; i++) {
         if (i >= userObjects.length) break;
-        bool isLoggedInUser = userObjects[i]?.uid ==
-            CometChatUIKit.loggedInUser?.uid;
+        bool isLoggedInUser =
+            userObjects[i]?.uid == CometChatUIKit.loggedInUser?.uid;
         try {
           if (userObjects[i] != null) {
             currentAttributedTexts.add(AttributedText(
-                start: matches.elementAt(i).start,
-                end: matches.elementAt(i).end,
-                underlyingText: username,
-              backgroundColor:( isLoggedInUser? mentionsStyle.mentionSelfTextBackgroundColor : mentionsStyle.mentionTextBackgroundColor) ?? (isLoggedInUser? colorPalette.warning:colorPalette.primary)?.withOpacity(.2) ?? Colors.transparent,
+              start: matches.elementAt(i).start,
+              end: matches.elementAt(i).end,
+              underlyingText: username,
+              backgroundColor: (isLoggedInUser
+                      ? mentionsStyle.mentionSelfTextBackgroundColor
+                      : mentionsStyle.mentionTextBackgroundColor) ??
+                  (isLoggedInUser ? colorPalette.warning : colorPalette.primary)
+                      ?.withOpacity(.2) ??
+                  Colors.transparent,
               borderRadius: mentionsStyle.borderRadius ?? spacing.radius ?? 0,
-              padding: EdgeInsets.symmetric(horizontal: spacing.padding ?? 0 , vertical: 0),
+              padding: EdgeInsets.symmetric(
+                  horizontal: spacing.padding ?? 0, vertical: 0),
               style: getMessageInputTextStyle(context,
-                    isLoggedInUser: isLoggedInUser),));
+                  isLoggedInUser: isLoggedInUser),
+            ));
           }
         } catch (error) {
           if (kDebugMode) {
@@ -917,22 +931,39 @@ CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
       return messageBubbleTextStyle!(context, alignment,
           forConversation: forConversation);
     } else {
-      final mentionsStyle = CometChatThemeHelper.getTheme<CometChatMentionsStyle>(context: context, defaultTheme: CometChatMentionsStyle.of).merge(style);
-      CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
-      CometChatTypography typography = CometChatThemeHelper.getTypography(context);
+      final mentionsStyle =
+          CometChatThemeHelper.getTheme<CometChatMentionsStyle>(
+                  context: context, defaultTheme: CometChatMentionsStyle.of)
+              .merge(style);
+      CometChatColorPalette colorPalette =
+          CometChatThemeHelper.getColorPalette(context);
+      CometChatTypography typography =
+          CometChatThemeHelper.getTypography(context);
 
       //if user is logged in user then we will show the text in bold
       //if the message is for conversation then we will show the text in subtitle1 font size
       return TextStyle(
-          color: (isLoggedInUser? mentionsStyle.mentionSelfTextColor : mentionsStyle.mentionTextColor )?? ( alignment == BubbleAlignment.right
-              ?( isLoggedInUser? colorPalette.warning:colorPalette.white)
-              :(isLoggedInUser? colorPalette.warning:colorPalette.primary)),
-
-          fontWeight: typography.body?.regular?.fontWeight,
-          fontSize: typography.body?.regular?.fontSize,
-          fontFamily: typography.body?.regular?.fontFamily,
-          decoration: TextDecoration.none).merge(isLoggedInUser? mentionsStyle.mentionSelfTextStyle : mentionsStyle.mentionTextStyle )
-      .copyWith(color: isLoggedInUser? mentionsStyle.mentionSelfTextColor : mentionsStyle.mentionTextColor);
+              color: (isLoggedInUser
+                      ? mentionsStyle.mentionSelfTextColor
+                      : mentionsStyle.mentionTextColor) ??
+                  (alignment == BubbleAlignment.right
+                      ? (isLoggedInUser
+                          ? colorPalette.warning
+                          : colorPalette.white)
+                      : (isLoggedInUser
+                          ? colorPalette.warning
+                          : colorPalette.primary)),
+              fontWeight: typography.body?.regular?.fontWeight,
+              fontSize: typography.body?.regular?.fontSize,
+              fontFamily: typography.body?.regular?.fontFamily,
+              decoration: TextDecoration.none)
+          .merge(isLoggedInUser
+              ? mentionsStyle.mentionSelfTextStyle
+              : mentionsStyle.mentionTextStyle)
+          .copyWith(
+              color: isLoggedInUser
+                  ? mentionsStyle.mentionSelfTextColor
+                  : mentionsStyle.mentionTextColor);
     }
   }
 
@@ -942,21 +973,31 @@ CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
     if (messageInputTextStyle != null) {
       return messageInputTextStyle!(context);
     } else {
-      final mentionsStyle = CometChatThemeHelper.getTheme<CometChatMentionsStyle>(context: context, defaultTheme: CometChatMentionsStyle.of).merge(style);
-      CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
-      CometChatTypography typography = CometChatThemeHelper.getTypography(context);
+      final mentionsStyle =
+          CometChatThemeHelper.getTheme<CometChatMentionsStyle>(
+                  context: context, defaultTheme: CometChatMentionsStyle.of)
+              .merge(style);
+      CometChatColorPalette colorPalette =
+          CometChatThemeHelper.getColorPalette(context);
+      CometChatTypography typography =
+          CometChatThemeHelper.getTypography(context);
       // if user is logged in user then we will show the text in bold
       return TextStyle(
-          color: isLoggedInUser?  colorPalette.warning : colorPalette.primary,
-
-          fontWeight: isLoggedInUser
-              ? typography.body?.regular?.fontWeight
-              : typography.body?.regular?.fontWeight,
-          fontSize: typography.body?.regular?.fontSize,
-          fontFamily: typography.body?.regular?.fontFamily,
-          decoration: TextDecoration.none).merge(isLoggedInUser?mentionsStyle.mentionSelfTextStyle:mentionsStyle.mentionTextStyle)
-      .copyWith(color: isLoggedInUser? mentionsStyle.mentionSelfTextColor : mentionsStyle.mentionTextColor)
-      ;
+              color:
+                  isLoggedInUser ? colorPalette.warning : colorPalette.primary,
+              fontWeight: isLoggedInUser
+                  ? typography.body?.regular?.fontWeight
+                  : typography.body?.regular?.fontWeight,
+              fontSize: typography.body?.regular?.fontSize,
+              fontFamily: typography.body?.regular?.fontFamily,
+              decoration: TextDecoration.none)
+          .merge(isLoggedInUser
+              ? mentionsStyle.mentionSelfTextStyle
+              : mentionsStyle.mentionTextStyle)
+          .copyWith(
+              color: isLoggedInUser
+                  ? mentionsStyle.mentionSelfTextColor
+                  : mentionsStyle.mentionTextColor);
     }
   }
 
@@ -989,10 +1030,13 @@ CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
       bool isLoggedInUser = userIndex != -1 &&
           mentionedUsers[userIndex].uid == CometChatUIKit.loggedInUser?.uid;
 
-      final mentionsStyle = CometChatThemeHelper.getTheme<CometChatMentionsStyle>(context: context, defaultTheme: CometChatMentionsStyle.of).merge(style);
-      CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
+      final mentionsStyle =
+          CometChatThemeHelper.getTheme<CometChatMentionsStyle>(
+                  context: context, defaultTheme: CometChatMentionsStyle.of)
+              .merge(style);
+      CometChatColorPalette colorPalette =
+          CometChatThemeHelper.getColorPalette(context);
       CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
-
 
       return AttributedText(
           start: start,
@@ -1000,11 +1044,21 @@ CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
           underlyingText: underlyingText,
           style: getMessageBubbleTextStyle(context, alignment,
               isLoggedInUser: isLoggedInUser, forConversation: forConversation),
-          backgroundColor: (isLoggedInUser? mentionsStyle.mentionSelfTextBackgroundColor : mentionsStyle.mentionTextBackgroundColor) ??  (alignment == BubbleAlignment.right
-          ?( isLoggedInUser? colorPalette.warning:colorPalette.white)
-          :(isLoggedInUser? colorPalette.warning:colorPalette.primary))?.withOpacity(.2) ?? Colors.transparent,
+          backgroundColor: (isLoggedInUser
+                  ? mentionsStyle.mentionSelfTextBackgroundColor
+                  : mentionsStyle.mentionTextBackgroundColor) ??
+              (alignment == BubbleAlignment.right
+                      ? (isLoggedInUser
+                          ? colorPalette.warning
+                          : colorPalette.white)
+                      : (isLoggedInUser
+                          ? colorPalette.warning
+                          : colorPalette.primary))
+                  ?.withOpacity(.2) ??
+              Colors.transparent,
           borderRadius: mentionsStyle.borderRadius ?? spacing.radius ?? 0,
-          padding: EdgeInsets.symmetric(horizontal: spacing.padding ?? 0 ,vertical: 0),
+          padding: EdgeInsets.symmetric(
+              horizontal: spacing.padding ?? 0, vertical: 0),
           onTap: (text) {
             if (onMentionTap != null) {
               onMentionTap!(text, mentionedUsers[userIndex], message: message);
@@ -1019,49 +1073,83 @@ CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
     }
   }
 
-  void _removeMentionIfDeleted(TextEditingController? textEditingController) {
-    if (textEditingController == null || textEditingController.text.isEmpty) return;
+  void _removeMentionIfDeleted(TextEditingController? controller, String previousText) {
+    if (controller == null || controller.text.isEmpty) return;
 
-    String newText = textEditingController.text;
-    int cursorPosition = textEditingController.selection.baseOffset;
+    String currentText = controller.text;
+    int cursorPosition = controller.selection.baseOffset;
 
-    // Create a copy to avoid modification during iteration
+    // Create the mentions copy once
     final mentionsCopy = Map<String, List<User?>>.from(mentionedUsersMap);
 
-    mentionsCopy.forEach((mention, users) {
-      final matches = RegExp(mention).allMatches(newText).toList();
+    // Check backspace (text shortened by 1)
+    if (previousText.length - currentText.length == 1) {
+      final diffIndex = _findDiffIndex(previousText, currentText);
+      if (diffIndex == null) return;
 
-      // Check each match from right to left
+      for (final mention in mentionsCopy.keys) {
+        final safeMention = RegExp.escape(mention);
+        final matches = RegExp(safeMention).allMatches(previousText).toList();
+
+        for (final match in matches) {
+          final start = match.start;
+          final end = match.end;
+
+          if (diffIndex > start && diffIndex <= end) {
+            // Replace full mention with ''
+            final updated = previousText.replaceRange(start, end, '');
+            controller.text = updated;
+            controller.selection = TextSelection.collapsed(offset: start);
+
+            // Remove user from map based on match index
+            final users = mentionedUsersMap[mention];
+            if (users != null && users.isNotEmpty) {
+              final matchIndex = matches.indexOf(match);
+              if (matchIndex < users.length) {
+                users.removeAt(matchIndex);
+              }
+              if (users.isEmpty) mentionedUsersMap.remove(mention);
+            }
+
+            return;
+          }
+        }
+      }
+    }
+
+    // Also handle when user moves cursor inside mention and deletes
+    for (final mention in mentionsCopy.keys) {
+      final safeMention = RegExp.escape(mention);
+      final matches = RegExp(safeMention).allMatches(currentText).toList();
+
       for (int i = matches.length - 1; i >= 0; i--) {
         final match = matches[i];
-        int spanStart = match.start;
-        int spanEnd = match.end;
+        final start = match.start;
+        final end = match.end;
 
-        // Check if cursor is at the end of this mention
-        if (cursorPosition == spanEnd) {
-          // Remove this specific mention occurrence
-          textEditingController.text = newText.replaceRange(spanStart, spanEnd, "");
-          textEditingController.selection = TextSelection.collapsed(offset: spanStart);
+        if (cursorPosition > start && cursorPosition <= end) {
+          final newText = currentText.replaceRange(start, end, '');
+          controller.text = newText;
+          controller.selection = TextSelection.collapsed(offset: start);
 
-          // Update the mentionedUsersMap
-          if (mentionedUsersMap.containsKey(mention)) {
-            if (i < mentionedUsersMap[mention]!.length) {
-              // Remove the corresponding user from the list
-              final removedUser = mentionedUsersMap[mention]!.removeAt(i);
-              if (removedUser != null) {
-                mentionCount.remove(removedUser.uid);
-              }
-            }
-
-            // If no more mentions of this type, remove the entry
-            if (mentionedUsersMap[mention]!.isEmpty) {
-              mentionedUsersMap.remove(mention);
-            }
+          final users = mentionedUsersMap[mention];
+          if (users != null && i < users.length) {
+            users.removeAt(i);
+            if (users.isEmpty) mentionedUsersMap.remove(mention);
           }
 
           return;
         }
       }
-    });
+    }
+  }
+
+  int? _findDiffIndex(String oldText, String newText) {
+    for (int i = 0; i < oldText.length; i++) {
+      if (i >= newText.length || oldText[i] != newText[i]) {
+        return i;
+      }
+    }
+    return oldText.length == newText.length ? null : oldText.length - 1;
   }
 }

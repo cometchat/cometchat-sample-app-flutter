@@ -55,19 +55,32 @@ class PageManager extends GetxController {
     User? user,
     Group? group,
   }) async {
+    final ccColor = CometChatThemeHelper.getColorPalette(context);
     final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-    FocusScope.of(context).unfocus();
+
     if (isKeyboardOpen) {
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 50));
+      // Close the keyboard
+      FocusScope.of(context).unfocus();
+
+      // Wait for the keyboard to close and layout to settle
+      await Future.delayed(const Duration(milliseconds: 400));
+      await WidgetsBinding.instance.endOfFrame;
+
+      // Optional: wait slightly longer for Android keyboards
+      await Future.delayed(const Duration(milliseconds: 50));
     }
     setNavigateToMessageScreen(true);
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) {
-            return MessagesSample(
-              user: user,
-              group: group,
+            return Scaffold(
+              backgroundColor: ccColor.background1,
+              body: MessagesSample(
+                user: user,
+                group: group,
+              ),
             );
           },
         ),

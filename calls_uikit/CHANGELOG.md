@@ -1,3 +1,12 @@
+## 5.0.4
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.0.4`.
+
+## Fixes
+- Updated call icons in the Call tab to distinguish between incoming and missed calls more clearly.
+- Resolved an issue where the app was rejected due to the use of deprecated media permissions. The permissions have been updated to comply with current platform requirements.
+
 ## 5.0.3
 
 ## Enhancements

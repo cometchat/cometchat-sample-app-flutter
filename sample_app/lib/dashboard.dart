@@ -127,12 +127,45 @@ class _MyPageViewState extends State<MyPageView>
     }
   }
 
-  bool isLoading = false;
+  bool isLogoutLoading = false;
+
+  Future<bool> isConnectedToNetwork() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
 
   Future<void> logout() async {
     setState(() {
-      isLoading = true;
+      isLogoutLoading = true;
     });
+
+    final connected = await isConnectedToNetwork();
+
+    if (!connected) {
+      setState(() {
+        isLogoutLoading = false;
+      });
+      var snackBar = SnackBar(
+        backgroundColor: colorPalette.error,
+        content: Text(
+          "No internet connection",
+          style: TextStyle(
+            color: colorPalette.white,
+            fontSize: typography.button?.medium?.fontSize,
+            fontWeight: typography.button?.medium?.fontWeight,
+            fontFamily: typography.button?.medium?.fontFamily,
+          ),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return;
+    }
+
 
     try {
       await CometChatUIKit.logout(
@@ -148,12 +181,26 @@ class _MyPageViewState extends State<MyPageView>
     } catch (e) {
       // Handle any errors here
       print("Logout failed: $e");
+      var snackBar = SnackBar(
+        backgroundColor: colorPalette.error,
+        content: Text(
+          "Logout failed. Try again.",
+          style: TextStyle(
+            color: colorPalette.white,
+            fontSize: typography.button?.medium?.fontSize,
+            fontWeight: typography.button?.medium?.fontWeight,
+            fontFamily: typography.button?.medium?.fontFamily,
+          ),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     } finally {
       setState(() {
-        isLoading = false;
+        isLogoutLoading = false;
       });
     }
   }
+
 
   openCreateConversation(context) {
     Navigator.push(
@@ -290,6 +337,7 @@ class _MyPageViewState extends State<MyPageView>
                         height: 44,
                         padding: EdgeInsets.all(spacing.padding4 ?? 0),
                         value: '/logout',
+                        enabled: !isLogoutLoading,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -335,7 +383,7 @@ class _MyPageViewState extends State<MyPageView>
                           child: Padding(
                             padding: EdgeInsets.all(spacing.padding4 ?? 0),
                             child: Text(
-                              "v5.0.3",
+                              "v5.0.4",
                               style: TextStyle(
                                 fontSize: typography.body?.regular?.fontSize,
                                 fontFamily:

@@ -1,3 +1,21 @@
+## 5.0.4
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.0.4`.
+
+## Fixes
+- Fixed an issue where CometChatSDK.framework was missing a dSYM file during iOS build uploads, causing upload failures.
+- Resolved a bug causing all screens to suddenly disconnect, improving stability.
+- Corrected the group member count display in the Group Info page to accurately reflect member additions and removals.
+- Eliminated a brief black screen flicker that appeared when opening a user or group from the search screen.
+- Prevented users from submitting edited messages that only include space characters, avoiding unnecessary "edited" status.
+- Removed flicker when reopening the app from the background or recent apps list.
+- Removed the unnecessary online presence badge on the chat header avatar in one-on-one chats for a cleaner UI.
+- Disabled logout functionality when the user has no internet connection, ensuring network-dependent actions behave correctly.
+- Adjusted the spacing between the CometChat logo and "Login" text on the login screen to align with design standards.
+- Prevented the poll creation page from becoming scrollable, ensuring a stable and consistent user experience during poll creation.
+- Resolved an issue where the app was rejected due to the use of deprecated media permissions. The permissions have been updated to comply with current platform requirements.
+
 ## 5.0.3
 
 ## Enhancements

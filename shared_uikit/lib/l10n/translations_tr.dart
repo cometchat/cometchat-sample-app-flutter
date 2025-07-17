@@ -632,9 +632,6 @@ class TranslationsTr extends Translations {
   String get leave => 'Çık';
 
   @override
-  String get clickToStartConversation => 'Konuşmaya başlamak için tıklayın';
-
-  @override
   String get customMessageLocation => '📍Konum';
 
   @override

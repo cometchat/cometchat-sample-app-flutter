@@ -930,9 +930,18 @@ class CometChatMessageComposerController extends GetxController
             });
   }
 
+  bool hasMeaningfulChange(String original, String edited) {
+    return original.trim() != edited.trim();
+  }
+
   editTextMessage() {
     if (textEditingController == null) return;
-    if (textEditingController!.text == (oldMessage as TextMessage).text) return;
+    final newText = textEditingController!.text;
+    final oldText = (oldMessage as TextMessage).text;
+
+    // Check if there's any meaningful difference
+    if (!hasMeaningfulChange(oldText, newText)) return;
+
     TextMessage editedMessage = oldMessage as TextMessage;
     editedMessage.text = textEditingController!.text;
     handlePreMessageSend(editedMessage);

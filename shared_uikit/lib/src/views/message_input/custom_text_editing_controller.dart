@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class CustomTextEditingController extends TextEditingController {
@@ -108,13 +109,21 @@ class CustomTextEditingController extends TextEditingController {
   }
 
   InlineSpan _buildAttributedSpan(AttributedText attr, TextStyle defaultStyle) {
-      return TextSpan(
-        text: attr.underlyingText ?? text.substring(attr.start, attr.end),
-        style: (attr.style ?? defaultStyle).copyWith(
-          backgroundColor: attr.backgroundColor,
-        ),
-      );
+    final onTap = attr.onTap;
+
+    return TextSpan(
+      text: attr.underlyingText ?? text.substring(attr.start, attr.end),
+      style: (attr.style ?? defaultStyle).copyWith(
+        backgroundColor: attr.backgroundColor,
+      ),
+      recognizer: TapGestureRecognizer()
+        ..onTap = () {
+          final tappedText = attr.underlyingText ?? text.substring(attr.start, attr.end);
+          if (onTap != null) onTap(tappedText);
+        },
+    );
   }
+
 
   String _mergeUnderlyingText(AttributedText a, AttributedText b) {
     final start = math.min(a.start, b.start);

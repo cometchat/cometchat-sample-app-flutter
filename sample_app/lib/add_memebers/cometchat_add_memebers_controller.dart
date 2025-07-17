@@ -5,7 +5,12 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 
-class CometChatAddMembersController extends GetxController {
+class CometChatAddMembersController extends GetxController
+    with
+        UserListener,
+        GroupListener,
+        CometChatGroupEventListener,
+        CometChatUserEventListener{
   CometChatAddMembersController({required this.group});
 
   ///[group] provide group to add members to
@@ -17,9 +22,16 @@ class CometChatAddMembersController extends GetxController {
 
   String? _conversationId;
 
+  late String _dateString;
+  late String _userListener;
+  late String _groupListener;
+  late String _uiGroupListener;
+
   final RxList<User> selectedUsers = <User>[].obs;
 
   bool isLoading = false;
+
+  int membersCount = 1;
 
   // Update the list of selected users
   void updateSelectedUsers(List<User> users) {
@@ -29,8 +41,14 @@ class CometChatAddMembersController extends GetxController {
 
   @override
   void onInit() {
+    _dateString = DateTime.now().millisecondsSinceEpoch.toString();
+    _userListener = "${_dateString}UsersListener";
+    _groupListener = "${_dateString}GroupsListener";
+    _uiGroupListener = "${_dateString}UIGroupListener";
+    _addListeners();
     initializeLoggedInUser();
-    super.onInit();
+    membersCount = group.membersCount;
+      super.onInit();
   }
 
   initializeLoggedInUser() async {
@@ -40,6 +58,129 @@ class CometChatAddMembersController extends GetxController {
       if (conversation.lastMessage != null) {}
     }, onError: (_) {}));
     _conversationId ??= _conversation?.conversationId;
+  }
+
+
+  @override
+  void onClose() {
+    _removeListeners();
+    super.onClose();
+  }
+
+  _addListeners() {
+    CometChat.addUserListener(_userListener, this);
+    CometChatUserEvents.addUsersListener(_userListener, this);
+    CometChat.addGroupListener(_groupListener, this);
+    CometChatGroupEvents.addGroupsListener(_uiGroupListener, this);
+  }
+
+  _removeListeners() {
+    CometChat.removeUserListener(_userListener);
+    CometChat.removeGroupListener(_groupListener);
+    CometChatGroupEvents.removeGroupsListener(_uiGroupListener);
+    CometChatUserEvents.removeUsersListener(_userListener);
+  }
+
+
+  //------------------SDK user listeners end---------
+
+  //-----------Group SDK listeners---------------------------------
+  @override
+  void onGroupMemberScopeChanged(
+      cc.Action action,
+      User updatedBy,
+      User updatedUser,
+      String scopeChangedTo,
+      String scopeChangedFrom,
+      Group group) {
+    if (group.guid == this.group?.guid &&
+        updatedUser.uid == _loggedInUser?.uid) {
+      this.group?.scope = scopeChangedTo;
+      update();
+    }
+  }
+
+  @override
+  void onGroupMemberKicked(
+      cc.Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    if (kickedFrom.guid == group?.guid) {
+      membersCount = kickedFrom.membersCount;
+      update();
+    }
+  }
+
+  @override
+  void onGroupMemberBanned(
+      cc.Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    if (bannedFrom.guid == group?.guid) {
+      membersCount = bannedFrom.membersCount;
+      update();
+    }
+  }
+
+  @override
+  void onGroupMemberLeft(cc.Action action, User leftUser, Group leftGroup) {
+    if (leftGroup.guid == group?.guid) {
+      membersCount = leftGroup.membersCount;
+      update();
+    }
+  }
+
+  @override
+  void onMemberAddedToGroup(
+      cc.Action action, User addedby, User userAdded, Group addedTo) {
+    if (addedTo.guid == group?.guid) {
+      membersCount = addedTo.membersCount;
+      update();
+    }
+  }
+
+  @override
+  void onGroupMemberJoined(
+      cc.Action action, User joinedUser, Group joinedGroup) {
+    if (joinedGroup.guid == group?.guid) {
+      membersCount = joinedGroup.membersCount;
+      update();
+    }
+  }
+
+  @override
+  void ccOwnershipChanged(Group group, GroupMember newOwner) {
+    if (group.guid == this.group?.guid) {
+      this.group?.owner = newOwner.uid;
+      update();
+    }
+  }
+
+  //-------------Group SDK listeners end---------------
+
+  //From UI listeners
+
+  @override
+  void ccGroupMemberBanned(
+      cc.Action message, User bannedUser, User bannedBy, Group bannedFrom) {
+    if (group?.guid == bannedFrom.guid) {
+      membersCount = bannedFrom.membersCount;
+      update();
+    }
+  }
+
+  @override
+  void ccGroupMemberKicked(
+      cc.Action message, User kickedUser, User kickedBy, Group kickedFrom) {
+    if (group?.guid == kickedFrom.guid) {
+      membersCount = kickedFrom.membersCount;
+      update();
+    }
+  }
+
+  @override
+  void ccGroupMemberAdded(List<cc.Action> messages, List<User> usersAdded,
+      Group groupAddedIn, User addedBy) {
+    if (groupAddedIn.guid == group?.guid) {
+      membersCount = groupAddedIn.membersCount;
+      update();
+    }
   }
 
   addMember(
@@ -116,6 +257,7 @@ class CometChatAddMembersController extends GetxController {
             isLoading = false;
             update();
           }else{
+            group.membersCount = membersCount;
             group.membersCount += addedMembers.length;
             CometChatGroupEvents.ccGroupMemberAdded(
                 messages, addedMembers, group, _loggedInUser!);

@@ -111,7 +111,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
                       ),
                     ),
                     Text(
-                      "${widget.group.membersCount} ${widget.group.membersCount == 1 ?  cc.Translations.of(context).member : cc.Translations.of(context).members}",
+                      "${value.membersCount} ${value.membersCount == 1 ?  cc.Translations.of(context).member : cc.Translations.of(context).members}",
                       style: TextStyle(
                         fontSize: typography.caption1?.regular?.fontSize,
                         fontFamily: typography.caption1?.regular?.fontFamily,
@@ -330,7 +330,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if ((widget.group.membersCount > 1) && controller.canAccessOption(GroupOptionConstants.leave))
+        if ((controller.membersCount > 1) && controller.canAccessOption(GroupOptionConstants.leave))
           getLeaveOption(context, controller),
         if (controller.canAccessOption(GroupOptionConstants.delete))
           listTileOptions(

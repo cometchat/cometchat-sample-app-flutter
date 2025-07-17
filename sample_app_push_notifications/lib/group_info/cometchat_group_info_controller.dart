@@ -149,6 +149,7 @@ class CometChatGroupInfoController extends GetxController
       cc.Action action, User kickedUser, User kickedBy, Group kickedFrom) {
     if (kickedFrom.guid == group?.guid) {
       membersCount = kickedFrom.membersCount;
+      group?.membersCount = membersCount;
       update();
     }
   }
@@ -158,6 +159,7 @@ class CometChatGroupInfoController extends GetxController
       cc.Action action, User bannedUser, User bannedBy, Group bannedFrom) {
     if (bannedFrom.guid == group?.guid) {
       membersCount = bannedFrom.membersCount;
+      group?.membersCount = membersCount;
       update();
     }
   }
@@ -166,6 +168,7 @@ class CometChatGroupInfoController extends GetxController
   void onGroupMemberLeft(cc.Action action, User leftUser, Group leftGroup) {
     if (leftGroup.guid == group?.guid) {
       membersCount = leftGroup.membersCount;
+      group?.membersCount = membersCount;
       update();
     }
   }
@@ -175,6 +178,7 @@ class CometChatGroupInfoController extends GetxController
       cc.Action action, User addedby, User userAdded, Group addedTo) {
     if (addedTo.guid == group?.guid) {
       membersCount = addedTo.membersCount;
+      group?.membersCount = membersCount;
       update();
     }
   }
@@ -184,6 +188,7 @@ class CometChatGroupInfoController extends GetxController
       cc.Action action, User joinedUser, Group joinedGroup) {
     if (joinedGroup.guid == group?.guid) {
       membersCount = joinedGroup.membersCount;
+      group?.membersCount = membersCount;
       update();
     }
   }
@@ -205,6 +210,7 @@ class CometChatGroupInfoController extends GetxController
       cc.Action message, User bannedUser, User bannedBy, Group bannedFrom) {
     if (group?.guid == bannedFrom.guid) {
       membersCount = bannedFrom.membersCount;
+      group?.membersCount = membersCount;
       update();
     }
   }
@@ -214,6 +220,7 @@ class CometChatGroupInfoController extends GetxController
       cc.Action message, User kickedUser, User kickedBy, Group kickedFrom) {
     if (group?.guid == kickedFrom.guid) {
       membersCount = kickedFrom.membersCount;
+      group?.membersCount = membersCount;
       update();
     }
   }
@@ -223,6 +230,7 @@ class CometChatGroupInfoController extends GetxController
       Group groupAddedIn, User addedBy) {
     if (groupAddedIn.guid == group?.guid) {
       membersCount = groupAddedIn.membersCount;
+      group?.membersCount = membersCount;
       update();
     }
   }

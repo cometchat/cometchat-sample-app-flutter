@@ -203,7 +203,7 @@ class CallUtils {
     Widget incoming = incomingCallIcon ??
         Icon(
           Icons.call_received_outlined,
-          color: style.incomingCallIconColor ?? colorPalette.error,
+          color: style.incomingCallIconColor ?? colorPalette.success,
           size: 16,
         );
 
@@ -216,7 +216,7 @@ class CallUtils {
 
     Widget missed = missedCallIcon ??
         Icon(
-          Icons.call_received_outlined,
+          Icons.call_missed_outgoing_rounded,
           color: style.missedCallIconColor ?? colorPalette.error,
           size: 16,
         );

@@ -620,9 +620,6 @@ class TranslationsKo extends Translations {
   String get leave => '떠나다';
 
   @override
-  String get clickToStartConversation => '대화를 시작하려면 클릭';
-
-  @override
   String get customMessageLocation => '📍위치';
 
   @override

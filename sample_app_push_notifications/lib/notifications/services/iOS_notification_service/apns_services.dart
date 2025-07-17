@@ -149,6 +149,8 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
   // This method handles displaying incoming calls, accepting, declining, or ending calls using the FlutterCallkitIncoming and CometChat.
   Future<void> displayIncomingCall(rMessage) async {
 
+    debugPrint("displayIncomingCall called with message: ${rMessage.toString()}");
+
     PayloadData payloadData = PayloadData.fromJson(rMessage.data);
     String messageCategory = payloadData.type ?? "";
     if (messageCategory == 'call') {
@@ -195,18 +197,21 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
     _connector.configure(
       // onLaunch gets called, when you tap on notification on a closed app
       onLaunch: (message) async {
-        debugPrint('onResume APNS MKAP: ${message.toString()}');
+        debugPrint('onLaunch APNS MKAP: ${message.toString()}');
+        debugPrint('onLaunch APNS MKAP: ${message.data.toString()}');
         openNotification(message,context, "");
       },
 
       // onResume gets called, when you tap on notification with app in background
       onResume: (message) async {
         debugPrint('onResume APNS MKAP: ${message.toString()}');
+        debugPrint('onResume APNS MKAP: ${message.data.toString()}');
         openNotification(message,context, conversationId);
       },
 
       onMessage: (message) async{
         debugPrint('onMessage APNS MKAP: ${message.toString()}');
+        debugPrint('onMessage APNS MKAP: ${message.data.toString()}');
         _showNotification(message.data,message, conversationId);
       },
     );

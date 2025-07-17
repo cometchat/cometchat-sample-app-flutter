@@ -32,6 +32,15 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        release {
+            keyAlias 'cometchat'
+            keyPassword 'cometchat'
+            storeFile file('cometchat_team_messanger.jks')
+            storePassword 'cometchat'
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

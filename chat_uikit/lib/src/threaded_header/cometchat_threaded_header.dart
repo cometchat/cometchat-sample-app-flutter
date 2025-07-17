@@ -190,8 +190,8 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
                       ),
                       child: SingleChildScrollView(
                         child: Padding(
-                          padding: EdgeInsets.all(
-                            spacing.padding4 ?? 0,
+                          padding: EdgeInsets.only(
+                            top: spacing.padding4 ?? 0,
                           ),
                           child: IgnorePointer(
                             child: bubble,

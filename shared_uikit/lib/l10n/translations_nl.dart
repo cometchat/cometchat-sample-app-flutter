@@ -633,9 +633,6 @@ class TranslationsNl extends Translations {
   String get leave => 'Verlaten';
 
   @override
-  String get clickToStartConversation => 'Klik om een gesprek te starten';
-
-  @override
   String get customMessageLocation => '📍Locatie';
 
   @override

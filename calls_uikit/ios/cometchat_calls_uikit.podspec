@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'cometchat_calls_uikit'
-  s.version          = '5.0.3'
+  s.version          = '5.0.4'
   s.summary          = 'Flutter plugin featuring custom audio and video call widgets. Integrate seamlessly with Cometchat Chat UI Kit or use independently for streamlined development.'
   s.description      = <<-DESC
 A new Flutter plugin project.

@@ -620,9 +620,6 @@ class TranslationsJa extends Translations {
   String get leave => '退会';
 
   @override
-  String get clickToStartConversation => '会話を開始するにはクリック';
-
-  @override
   String get customMessageLocation => '📍場所';
 
   @override

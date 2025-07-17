@@ -73,6 +73,16 @@ class _MessagesSampleState extends State<MessagesSample> {
           appBar: CometChatMessageHeader(
             user: widget.user,
             group: widget.group,
+            messageHeaderStyle: CometChatMessageHeaderStyle(
+                statusIndicatorStyle: CometChatStatusIndicatorStyle(
+                  backgroundColor: colorPalette.transparent,
+                  borderRadius: BorderRadius.zero,
+                  border: Border.all(
+                    width: 0,
+                    color: colorPalette.transparent ?? Colors.transparent,
+                  )
+                )
+            ),
             hideVideoCallButton:
                 (widget.user != null)
                     ? (controller.user?.blockedByMe != null &&
