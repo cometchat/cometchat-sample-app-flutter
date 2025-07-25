@@ -42,7 +42,7 @@ class MessagesSample extends StatelessWidget {
             Navigator.of(context).pop();
           }
         },
-        appBarOptions: (user, group, context) {
+        trailingView : (user, group, context) {
           if (group != null) {
             return [
               IconButton(
@@ -106,7 +106,7 @@ class MessagesSample extends StatelessWidget {
                 child: CometChatMessageList(
                   user: user,
                   group: group,
-                  showAvatar: true,
+                  avatarVisibility: true,
                   onThreadRepliesClick: (message, context, {template}) {
                     Navigator.push(
                       context,
