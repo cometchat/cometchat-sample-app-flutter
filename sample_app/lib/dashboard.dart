@@ -1,6 +1,8 @@
+import 'dart:developer' as developer;
 import 'dart:io';
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sample_app/contacts/cometchat_contacts.dart';
@@ -41,6 +43,8 @@ class _MyPageViewState extends State<MyPageView>
   late CometChatSpacing spacing;
 
   late String _dateString;
+
+  Future<void>? _permissionsFuture;
 
   String conversationEventListenerId = "CWMConversationListener";
   final String _listenerId = "callingEventListener";
@@ -91,6 +95,9 @@ class _MyPageViewState extends State<MyPageView>
     final callStateController = CallStateController.instance;
     if (callStateController.isActiveCall.value == true) {
       IncomingCallOverlay.dismiss();
+      if (call.sessionId != null) {
+        rejectIncomingCall(call);
+      }
       return;
     } else if (callStateController.isActiveOutgoingCall.value == true) {
       IncomingCallOverlay.dismiss();
@@ -101,30 +108,29 @@ class _MyPageViewState extends State<MyPageView>
     }
   }
 
-  Future<void> _checkPermissions() async {
-    PermissionStatus micStatus = await Permission.microphone.status;
-    PermissionStatus camStatus = await Permission.camera.status;
-    PermissionStatus notifyStatus = await Permission.notification.status;
+  Future<void> _checkPermissions() {
+    // If already running, return the same future
+    if (_permissionsFuture != null) return _permissionsFuture!;
 
-    if (micStatus.isDenied) {
-      await Permission.microphone.request();
-      await Future.delayed(const Duration(seconds: 1));
-    }
+    final completer = Completer<void>();
+    _permissionsFuture = completer.future;
 
-    if (camStatus.isDenied) {
-      await Permission.camera.request();
-      await Future.delayed(const Duration(seconds: 1));
-    }
+    () async {
+      try {
+        Map<Permission, PermissionStatus> statuses = await [
+          Permission.notification,
+          Permission.microphone,
+          Permission.camera,
+        ].request();
+      } catch (e) {
+        debugPrint('Permission request error: $e');
+      } finally {
+        completer.complete();
+        _permissionsFuture = null;
+      }
+    }();
 
-    if (notifyStatus.isDenied) {
-      await Permission.notification.request();
-    }
-
-    if (micStatus.isPermanentlyDenied ||
-        camStatus.isPermanentlyDenied ||
-        notifyStatus.isPermanentlyDenied) {
-      openAppSettings();
-    }
+    return _permissionsFuture!;
   }
 
   bool isLogoutLoading = false;
@@ -137,7 +143,6 @@ class _MyPageViewState extends State<MyPageView>
       return false;
     }
   }
-
 
   Future<void> logout() async {
     setState(() {
@@ -165,7 +170,6 @@ class _MyPageViewState extends State<MyPageView>
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-
 
     try {
       await CometChatUIKit.logout(
@@ -200,7 +204,6 @@ class _MyPageViewState extends State<MyPageView>
       });
     }
   }
-
 
   openCreateConversation(context) {
     Navigator.push(
@@ -383,7 +386,7 @@ class _MyPageViewState extends State<MyPageView>
                           child: Padding(
                             padding: EdgeInsets.all(spacing.padding4 ?? 0),
                             child: Text(
-                              "v5.0.4",
+                              "v5.0.5",
                               style: TextStyle(
                                 fontSize: typography.body?.regular?.fontSize,
                                 fontFamily:
@@ -600,5 +603,16 @@ class _MyPageViewState extends State<MyPageView>
         );
       },
     );
+  }
+
+  rejectIncomingCall(Call call) {
+    CometChatUIKitCalls.rejectCall(call.sessionId!, CallStatusConstants.busy,
+        onSuccess: (Call call) {
+      call.category = MessageCategoryConstants.call;
+      CometChatCallEvents.ccCallRejected(call);
+      developer.log('incoming call was cancelled');
+    }, onError: (e) {
+      developer.log("Unable to end call from incoming call screen");
+    });
   }
 }

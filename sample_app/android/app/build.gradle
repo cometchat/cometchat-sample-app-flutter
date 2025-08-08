@@ -6,8 +6,8 @@ plugins {
 
 android {
     namespace = "com.cometchat.sampleapp.flutter.android"
-    compileSdk = 34
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 35
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         coreLibraryDesugaringEnabled true
@@ -26,11 +26,10 @@ android {
     defaultConfig {
         applicationId = "com.cometchat.sampleapp.flutter.android"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
-
 
     buildTypes {
         release {

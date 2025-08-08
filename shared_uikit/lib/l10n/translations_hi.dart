@@ -1258,4 +1258,16 @@ class TranslationsHi extends Translations {
   String get enterTheGroupPassword => 'समूह का पासवर्ड दर्ज करें';
   @override
   String get type => 'टाइप';
+  @override
+  String get cantSendMessageBlockedUser => "संदेश नहीं भेजा जा सकता क्योंकि उपयोगकर्ता अवरुद्ध है।";
+
+  @override
+  String get cantSendMessageNotMember => "आप इस समूह को संदेश नहीं भेज सकते क्योंकि आप अब इसके सदस्य नहीं हैं।";
+
+  @override
+  String get youAreNoLongerPartOfThisGroup => 'आप अब इस समूह का हिस्सा नहीं हैं।';
+
+  @override
+  String get busy => "व्यस्त";
+
 }

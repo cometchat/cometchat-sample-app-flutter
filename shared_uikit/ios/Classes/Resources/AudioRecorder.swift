@@ -34,21 +34,51 @@ public class AudioRecorder: NSObject, AVAudioRecorderDelegate, AVAudioPlayerDele
     
     func setupRecorder(result: @escaping FlutterResult) {
         recordingSession = AVAudioSession.sharedInstance()
-        do {
-            try recordingSession.setCategory(.playAndRecord, mode: .default)
-            try recordingSession.setActive(true)
-            recordingSession.requestRecordPermission() { [unowned self] allowed in
+        
+        switch recordingSession.recordPermission {
+        case .denied:
+            Toast.show(message: "Microphone permission is denied.")
+            result(false)
+            return
+
+        case .undetermined:
+            // 🔄 Ask for permission
+            recordingSession.requestRecordPermission { [unowned self] allowed in
                 DispatchQueue.main.async {
                     if allowed {
-                        self.startRecording()
-                        result(true)
+                        do {
+                            try recordingSession.setCategory(.playAndRecord, mode: .default)
+                            try recordingSession.setActive(true)
+                            self.startRecording()
+                            result(true)
+                        } catch {
+                            Toast.show(message: "Failed to activate recording session.")
+                            result(false)
+                        }
                     } else {
-                        // failed to record
-                    }}}
-        } catch { // failed to record
-
+                        Toast.show(message: "Microphone permission is required to record audio.")
+                        result(false)
+                    }
+                }
+            }
+            
+        case .granted:
+            do {
+                try recordingSession.setCategory(.playAndRecord, mode: .default)
+                try recordingSession.setActive(true)
+                self.startRecording()
+                result(true)
+            } catch {
+                Toast.show(message: "Failed to activate recording session.")
+                result(false)
+            }
+            
+        @unknown default:
+            Toast.show(message: "Microphone permission status is unknown.")
+            result(false)
         }
     }
+
     
     func setupEventChannel(){
         let eventChannel = FlutterEventChannel(name: eventChannelName, binaryMessenger: binaryMessenger)
@@ -156,22 +186,33 @@ public class AudioRecorder: NSObject, AVAudioRecorderDelegate, AVAudioPlayerDele
         }
     
     func resumeRecording(result: @escaping FlutterResult) {
-        if let recorder = audioRecorder, !recorder.isRecording {
-            recorder.record()
+        guard let recorder = audioRecorder else {
+            result(false)
+            return
+        }
+
+        if recorder.isRecording {
             result(true)
-        }else{
+            return
+        }
+
+        let success = recorder.record()
+        if success {
+            result(true)
+        } else {
+            print("Failed to start recording")
             result(false)
         }
     }
-    
+
 }
 
 extension AudioRecorder: FlutterStreamHandler {
     
     
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-        // Send data through the eventSink
-        
+        timer?.invalidate()
+        timer = nil  // Reset before creating a new one
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
             self.audioRecorder?.updateMeters()
             let decibels = self.audioRecorder?.averagePower(forChannel: 0)
@@ -187,6 +228,7 @@ extension AudioRecorder: FlutterStreamHandler {
     
     public func onCancel(withArguments arguments: Any?) -> FlutterError? {
         timer?.invalidate()
+        timer = nil
         return nil
     }
     

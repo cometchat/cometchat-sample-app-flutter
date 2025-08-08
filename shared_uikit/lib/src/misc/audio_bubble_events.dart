@@ -18,6 +18,7 @@ class AudioBubbleEvents {
 
 enum AudioBubbleActions {
   pausePlayer,
+  stopPlayer,
 }
 
 ///[AudioBubbleStream] a singleton class to handle the audio bubble events stream

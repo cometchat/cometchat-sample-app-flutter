@@ -1246,5 +1246,17 @@ class TranslationsMs extends Translations {
   String get createGroupEmptyString =>
       'Sila isikan semua medan yang diperlukan sebelum membuat kumpulan.';
 
+  @override
+  String get cantSendMessageBlockedUser => "Tidak boleh hantar mesej kerana pengguna telah disekat.";
+
+  @override
+  String get cantSendMessageNotMember => "Anda tidak boleh menghantar mesej ke kumpulan ini kerana anda bukan lagi ahli.";
+
+  @override
+  String get youAreNoLongerPartOfThisGroup => 'Anda bukan lagi sebahagian daripada kumpulan ini.';
+
+  @override
+  String get busy => "Sibuk";
+
 }
 

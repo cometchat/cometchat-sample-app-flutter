@@ -101,252 +101,244 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
         onTap: () {
           FocusScope.of(context).unfocus();
         },
-        child: DraggableScrollableSheet(
-          initialChildSize: 0.98,
-          maxChildSize: 0.98,
-          expand: false,
-          builder: (context, scrollController) {
-            return Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: colorPalette.background1,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(
-                    spacing.radius6 ?? 0,
+        child: Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: colorPalette.background1,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(
+                spacing.radius6 ?? 0,
+              ),
+            ),
+          ),
+          child: Column(
+            children: [
+              _buildHeader(
+                context,
+                spacing,
+                typography,
+                colorPalette,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Form(
+                        key: formKey,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            top: spacing.padding4 ?? 16,
+                            left: spacing.padding4 ?? 16,
+                            right: spacing.padding4 ?? 16,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Question Text
+                              _buildQuestionInput(
+                                  typography, colorPalette, spacing),
+                              // Options Text
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: spacing.padding1 ?? 0,
+                                ),
+                                child: Text(
+                                  Translations.of(context).options,
+                                  style: TextStyle(
+                                    fontSize: typography
+                                        .heading4?.medium?.fontSize,
+                                    fontFamily: typography
+                                        .heading4?.medium?.fontFamily,
+                                    fontWeight: typography
+                                        .heading4?.medium?.fontWeight,
+                                    color: colorPalette.textPrimary,
+                                  ),
+                                ),
+                              ),
+                              // Options TextField
+                              ReorderableListView(
+                                shrinkWrap: true,
+                                physics:
+                                const NeverScrollableScrollPhysics(),
+                                onReorder: _onReorder,
+                                children: List.generate(
+                                  _answers.length,
+                                      (index) => getTextKey(
+                                    index,
+                                    context,
+                                    key: ValueKey(
+                                        '$index-${_answers[index]}'),
+                                    focusNode: focusNodes[index],
+                                  ),
+                                ),
+                              ),
+                              // Add more questions
+                              (_answers.length >= 12)
+                                  ? const SizedBox()
+                                  : GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _answers.add("");
+
+                                    FocusNode newFocusNode =
+                                    FocusNode(); // Create a new FocusNode
+                                    focusNodes.add(
+                                        newFocusNode); // Add it to the list
+                                    textEditingControllers.add(
+                                      TextEditingController(),
+                                    );
+                                    textFields.add(
+                                      getTextKey(
+                                        _answers.length - 1,
+                                        context,
+                                        focusNode: newFocusNode,
+                                      ),
+                                    );
+                                    newFocusNode.requestFocus();
+                                  });
+                                },
+                                child: Text(
+                                  "+ ${Translations.of(context).addOption}",
+                                  style: TextStyle(
+                                    fontSize: typography
+                                        .caption1?.medium?.fontSize,
+                                    fontFamily: typography
+                                        .caption1?.medium?.fontFamily,
+                                    fontWeight: typography
+                                        .caption1?.medium?.fontWeight,
+                                    color: colorPalette.textHighlight,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      (!_isEmpty && !_isError)
+                          ? const SizedBox()
+                          : Padding(
+                        padding: EdgeInsets.only(
+                          top: spacing.padding5 ?? 16,
+                          left: spacing.padding4 ?? 16,
+                          right: spacing.padding4 ?? 16,
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: colorPalette.error?.withOpacity(
+                              0.1,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              spacing.radius2 ?? 8,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: spacing.padding2 ?? 8,
+                              vertical: spacing.padding1 ?? 4,
+                            ),
+                            child: Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    right: spacing.padding1 ?? 2,
+                                  ),
+                                  child: Icon(
+                                    Icons.error_outline,
+                                    color: colorPalette.error,
+                                    size: 16,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    (_isEmpty)
+                                        ? Translations.of(context).pollEmptyString
+                                        : (_isError)
+                                        ? Translations.of(context)
+                                        .somethingWrong
+                                        : "",
+                                    style: TextStyle(
+                                      color: colorPalette.error,
+                                      fontSize: typography
+                                          .caption1?.regular?.fontSize,
+                                      fontFamily: typography.caption1
+                                          ?.regular?.fontFamily,
+                                      fontWeight: typography.caption1
+                                          ?.regular?.fontWeight,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: ((_isEmpty || _isError)
+                              ? spacing.padding3
+                              : spacing.padding5) ??
+                              16,
+                          bottom: spacing.padding5 ?? 16,
+                          left: spacing.padding4 ?? 16,
+                          right: spacing.padding4 ?? 16,
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (formKey.currentState!.validate()) {
+                              createPoll();
+                            } else {
+                              setState(() {
+                                _isEmpty = true;
+                                _isError = false;
+                              });
+                            }
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(
+                              colorPalette.primary,
+                            ),
+                            shape: WidgetStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  spacing.radius2 ?? 8,
+                                ),
+                              ),
+                            ),
+                            padding: WidgetStateProperty.all(
+                              EdgeInsets.symmetric(
+                                vertical: spacing.padding2 ?? 8,
+                                horizontal: spacing.padding5 ?? 20,
+                              ),
+                            ),
+                          ),
+                          child: Center(
+                            child: (_isLoading)
+                                ? CircularProgressIndicator(
+                              color: colorPalette.white,
+                            )
+                                : Text(
+                              Translations.of(context).create,
+                              style: TextStyle(
+                                color: colorPalette.buttonIconColor,
+                                fontSize: typography
+                                    .button?.medium?.fontSize,
+                                fontFamily: typography
+                                    .button?.medium?.fontFamily,
+                                fontWeight: typography
+                                    .button?.medium?.fontWeight,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              child: Column(
-                children: [
-                  _buildHeader(
-                    context,
-                    spacing,
-                    typography,
-                    colorPalette,
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      child: Column(
-                        children: [
-                          Form(
-                            key: formKey,
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                top: spacing.padding4 ?? 16,
-                                left: spacing.padding4 ?? 16,
-                                right: spacing.padding4 ?? 16,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Question Text
-                                  _buildQuestionInput(
-                                      typography, colorPalette, spacing),
-                                  // Options Text
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      bottom: spacing.padding1 ?? 0,
-                                    ),
-                                    child: Text(
-                                      Translations.of(context).options,
-                                      style: TextStyle(
-                                        fontSize: typography
-                                            .heading4?.medium?.fontSize,
-                                        fontFamily: typography
-                                            .heading4?.medium?.fontFamily,
-                                        fontWeight: typography
-                                            .heading4?.medium?.fontWeight,
-                                        color: colorPalette.textPrimary,
-                                      ),
-                                    ),
-                                  ),
-                                  // Options TextField
-                                  ReorderableListView(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    onReorder: _onReorder,
-                                    children: List.generate(
-                                      _answers.length,
-                                      (index) => getTextKey(
-                                        index,
-                                        context,
-                                        key: ValueKey(
-                                            '$index-${_answers[index]}'),
-                                        focusNode: focusNodes[index],
-                                      ),
-                                    ),
-                                  ),
-                                  // Add more questions
-                                  (_answers.length >= 12)
-                                      ? const SizedBox()
-                                      : GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _answers.add("");
-
-                                              FocusNode newFocusNode =
-                                                  FocusNode(); // Create a new FocusNode
-                                              focusNodes.add(
-                                                  newFocusNode); // Add it to the list
-                                              textEditingControllers.add(
-                                                TextEditingController(),
-                                              );
-                                              textFields.add(
-                                                getTextKey(
-                                                  _answers.length - 1,
-                                                  context,
-                                                  focusNode: newFocusNode,
-                                                ),
-                                              );
-                                              newFocusNode.requestFocus();
-                                            });
-                                          },
-                                          child: Text(
-                                            "+ ${Translations.of(context).addOption}",
-                                            style: TextStyle(
-                                              fontSize: typography
-                                                  .caption1?.medium?.fontSize,
-                                              fontFamily: typography
-                                                  .caption1?.medium?.fontFamily,
-                                              fontWeight: typography
-                                                  .caption1?.medium?.fontWeight,
-                                              color: colorPalette.textHighlight,
-                                            ),
-                                          ),
-                                        ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          (!_isEmpty && !_isError)
-                              ? const SizedBox()
-                              : Padding(
-                                  padding: EdgeInsets.only(
-                                    top: spacing.padding5 ?? 16,
-                                    left: spacing.padding4 ?? 16,
-                                    right: spacing.padding4 ?? 16,
-                                  ),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: colorPalette.error?.withOpacity(
-                                        0.1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                        spacing.radius2 ?? 8,
-                                      ),
-                                    ),
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: spacing.padding2 ?? 8,
-                                        vertical: spacing.padding1 ?? 4,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                              right: spacing.padding1 ?? 2,
-                                            ),
-                                            child: Icon(
-                                              Icons.error_outline,
-                                              color: colorPalette.error,
-                                              size: 16,
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              (_isEmpty)
-                                                  ? Translations.of(context).pollEmptyString
-                                                  : (_isError)
-                                                      ? Translations.of(context)
-                                                          .somethingWrong
-                                                      : "",
-                                              style: TextStyle(
-                                                color: colorPalette.error,
-                                                fontSize: typography
-                                                    .caption1?.regular?.fontSize,
-                                                fontFamily: typography.caption1
-                                                    ?.regular?.fontFamily,
-                                                fontWeight: typography.caption1
-                                                    ?.regular?.fontWeight,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                          Padding(
-                            padding: EdgeInsets.only(
-                              top: ((_isEmpty || _isError)
-                                      ? spacing.padding3
-                                      : spacing.padding5) ??
-                                  16,
-                              bottom: spacing.padding5 ?? 16,
-                              left: spacing.padding4 ?? 16,
-                              right: spacing.padding4 ?? 16,
-                            ),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (formKey.currentState!.validate()) {
-                                  createPoll();
-                                } else {
-                                  setState(() {
-                                    _isEmpty = true;
-                                    _isError = false;
-                                  });
-                                }
-                              },
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                  colorPalette.primary,
-                                ),
-                                shape: WidgetStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      spacing.radius2 ?? 8,
-                                    ),
-                                  ),
-                                ),
-                                padding: WidgetStateProperty.all(
-                                  EdgeInsets.symmetric(
-                                    vertical: spacing.padding2 ?? 8,
-                                    horizontal: spacing.padding5 ?? 20,
-                                  ),
-                                ),
-                              ),
-                              child: Center(
-                                child: (_isLoading)
-                                    ? CircularProgressIndicator(
-                                        color: colorPalette.white,
-                                      )
-                                    : Text(
-                                        Translations.of(context).create,
-                                        style: TextStyle(
-                                          color: colorPalette.buttonIconColor,
-                                          fontSize: typography
-                                              .button?.medium?.fontSize,
-                                          fontFamily: typography
-                                              .button?.medium?.fontFamily,
-                                          fontWeight: typography
-                                              .button?.medium?.fontWeight,
-                                        ),
-                                      ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
+            ],
+          ),
         ),
       ),
     );

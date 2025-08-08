@@ -8,8 +8,7 @@ class CallUtils {
       BuildContext context, BaseMessage baseMessage, User? loggedInUser) {
     String callMessageText = "";
     //check if the message is a call message and the receiver type is user
-    if (baseMessage is Call &&
-        baseMessage.receiverType == ReceiverTypeConstants.user) {
+    if (baseMessage is Call) {
       Call call = baseMessage;
       User initiator = call.callInitiator as User;
       //check if the call is initiated
@@ -44,7 +43,7 @@ class CallUtils {
         }
       } else if (call.callStatus == CallStatusConstants.busy) {
         if (isLoggedInUser(initiator, loggedInUser)) {
-          callMessageText = Translations.of(context).callRejected;
+          callMessageText = Translations.of(context).callBusy;
         } else {
           callMessageText = Translations.of(context).missedCall;
         }
@@ -303,8 +302,7 @@ class CallUtils {
       BuildContext context, BaseMessage baseMessage, User? loggedInUser, bool isAudio) {
     String callIcon = "";
     //check if the message is a call message and the receiver type is user
-    if (baseMessage is Call &&
-        baseMessage.receiverType == ReceiverTypeConstants.user) {
+    if (baseMessage is Call) {
       Call call = baseMessage;
       User initiator = call.callInitiator as User;
       //check if the call is initiated

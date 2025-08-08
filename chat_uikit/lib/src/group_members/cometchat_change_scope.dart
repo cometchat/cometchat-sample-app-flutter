@@ -219,6 +219,7 @@ class _CometChatChangeScopeState extends State<CometChatChangeScope> {
                       onPressed: () async{
                         if (selectedScope != null) {
                           String oldScope = widget.member.scope ?? "";
+                          if (oldScope == selectedScope) return;
                           if (widget.onSave != null) {
                             try {
                               await widget.onSave!(
@@ -232,12 +233,12 @@ class _CometChatChangeScopeState extends State<CometChatChangeScope> {
                           },
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(
-                          style.saveButtonBackgroundColor ??  colorPalette.buttonBackground,
+                          style.saveButtonBackgroundColor ??  ((widget.member.scope == selectedScope) ? colorPalette.neutral300 : colorPalette.buttonBackground),
                         ),
                         side: WidgetStateProperty.all(
                           style.saveButtonBorder ?? BorderSide(
-                            color:
-                            colorPalette.borderHighlight ?? Colors.transparent,
+                            color:((widget.member.scope == selectedScope) ? colorPalette.neutral300 :
+                            colorPalette.borderHighlight)?? Colors.transparent,
                             width: 1,
                           ),
                         ),

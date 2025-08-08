@@ -2,6 +2,9 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url "https://dl.cloudsmith.io/public/cometchat/cometchat/maven/"
+        }
     }
 }
 

@@ -5,8 +5,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:sample_app_push_notifications/notifications/services/android_notification_service/firebase_services.dart';
+import 'package:sample_app_push_notifications/notifications/services/android_notification_service/voip_notification_handler.dart';
 import 'package:sample_app_push_notifications/notifications/services/cometchat_service/cometchat_services.dart';
 import 'package:sample_app_push_notifications/notifications/services/globals.dart';
+import 'package:sample_app_push_notifications/utils/initialize_cometchat.dart';
 
 import '../../../messages/messages.dart';
 import '../../models/notification_date_model.dart';
@@ -26,6 +29,7 @@ class LocalNotificationService {
   /// a fallback ID based on timestamp is generated.
   static void showNotification(Map<String, dynamic> notificationData,
       RemoteMessage remoteMessage, String? conversationId) async {
+    print("[FCM] Showing local notification with data: $notificationData");
     // Define Android-specific notification configuration
     AndroidNotificationDetails androidPlatformChannelSpecifics =
         const AndroidNotificationDetails(
@@ -51,6 +55,8 @@ class LocalNotificationService {
     // Skip showing notification if it's of type "call"
     if (remoteMessage.data["type"]?.toString() == typeCall) {
       debugPrint("[FCM] Skipping notification for call type.");
+      debugPrint("[FCM] Skipping notification for call type ${remoteMessage.data['sessionId']}");
+      VoipNotificationHandler.activeCallSession = remoteMessage.data['sessionId'] ?? "";
       return;
     }
 
@@ -98,7 +104,7 @@ class LocalNotificationService {
   static void handleNotificationTap(NotificationResponse? response,
       {bool? isTerminatedState = false}) async {
     if (isTerminatedState == true) {
-      CometChatService().init();
+      InitializeCometChat.init();
     }
 
     // Proceed only if the payload exists

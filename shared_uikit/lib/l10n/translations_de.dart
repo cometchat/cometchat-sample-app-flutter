@@ -1267,4 +1267,17 @@ class TranslationsDe extends Translations {
   String get enterTheGroupPassword => 'Geben Sie das Gruppenpasswort ein';
   @override
   String get type => 'Eingabetyp';
+
+  @override
+  String get cantSendMessageBlockedUser => 'Nachricht kann nicht gesendet werden, da der Benutzer blockiert ist';
+
+  @override
+  String get cantSendMessageNotMember => 'Du kannst keine Nachrichten an diese Gruppe senden, da du kein Mitglied mehr bist';
+
+  @override
+  String get youAreNoLongerPartOfThisGroup => 'Du bist nicht mehr Teil dieser Gruppe';
+
+  @override
+  String get busy => "Beschäftigt";
+
 }

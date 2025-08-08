@@ -2467,6 +2467,24 @@ abstract class Translations {
   ///In en, this translates to :
   ///**'Please fill in all required fields before creating a poll.'
   String get createGroupEmptyString;
+
+  ///In en, this translates to :
+  ///**'Can’t send a message as the user is blocked.'
+  String get cantSendMessageBlockedUser;
+
+  ///In en, this translates to :
+  ///**'You can't send messages to this group because you're no longer a member.'
+  String get cantSendMessageNotMember;
+
+  ///In en, this translates to :
+  ///**'You are no longer part of this group.'
+  String get youAreNoLongerPartOfThisGroup;
+
+  ///In en, this translates to :
+  ///**'Busy'
+  String get busy;
+
+
 }
 
 class _TranslationsDelegate extends LocalizationsDelegate<Translations> {

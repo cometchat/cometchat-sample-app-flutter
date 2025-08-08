@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:get/get.dart';
 import 'package:sample_app/thread_screen/cometchat_thread.dart';
 import 'package:sample_app/user_info/cometchat_user_info.dart';
@@ -49,7 +50,7 @@ class _MessagesSampleState extends State<MessagesSample> {
 
   CometChatMentionsFormatter getMentionsTap() {
     CometChatMentionsFormatter mentionsFormatter;
-   return mentionsFormatter = CometChatMentionsFormatter(
+    return mentionsFormatter = CometChatMentionsFormatter(
       user: widget.user,
       group: widget.group,
       onMentionTap: (mention, mentionedUser, {message}) {
@@ -83,22 +84,28 @@ class _MessagesSampleState extends State<MessagesSample> {
                   )
                 )
             ),
-            hideVideoCallButton:
-                (widget.user != null)
-                    ? (controller.user?.blockedByMe != null &&
-                        controller.user?.blockedByMe! == true)
-                    : false,
-            hideVoiceCallButton:
-                (widget.user != null)
-                    ? (controller.user?.blockedByMe != null &&
-                        controller.user?.blockedByMe! == true)
-                    : false,
+            hideVideoCallButton: (widget.user != null || widget.group != null)
+                ? ((controller.user?.blockedByMe != null &&
+                        controller.user?.blockedByMe! == true) ||
+                    (controller.group?.hasJoined == false ||
+                        controller.group?.isBannedFromGroup == true))
+                : false,
+            hideVoiceCallButton: (widget.user != null || widget.group != null)
+                ? ((controller.user?.blockedByMe != null &&
+                        controller.user?.blockedByMe! == true) ||
+                    (controller.group?.hasJoined == false ||
+                        controller.group?.isBannedFromGroup == true))
+                : false,
             onBack: () {
               FocusManager.instance.primaryFocus?.unfocus();
               Navigator.of(context).pop();
             },
             trailingView: (user, group, context) {
-              if (group != null) {
+              if (controller.group != null) {
+                if (controller.group?.hasJoined == false ||
+                    controller.group?.isBannedFromGroup == true) {
+                  return [];
+                }
                 return [
                   IconButton(
                     onPressed: () {
@@ -106,8 +113,8 @@ class _MessagesSampleState extends State<MessagesSample> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder:
-                              (context) => CometchatGroupInfo(group: group),
+                          builder: (context) =>
+                              CometchatGroupInfo(group: controller.group!),
                         ),
                       );
                     },
@@ -160,33 +167,42 @@ class _MessagesSampleState extends State<MessagesSample> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder:
-                                (context) => CometChatThread(
-                                  user: widget.user,
-                                  group: widget.group,
-                                  message: message,
-                                  template: template,
-                                ),
+                            builder: (context) => CometChatThread(
+                              user: widget.user,
+                              group: widget.group,
+                              message: message,
+                              template: template,
+                            ),
                           ),
                         );
                       },
                     ),
                   ),
                 ),
-                (controller.user != null &&
-                        controller.user?.blockedByMe != null &&
-                        controller.user?.blockedByMe! == true)
-                    ? _buildBlockedUserSection(controller)
-                    : CometChatMessageComposer(
-                      user: widget.user,
-                      group: widget.group,
-                    ),
+                getComposer(controller),
               ],
             ),
           ),
         );
       },
     );
+  }
+
+  Widget getComposer(CometChatMessagesController controller) {
+    if (controller.user != null &&
+        controller.user?.blockedByMe != null &&
+        controller.user?.blockedByMe! == true) {
+      return _buildBlockedUserSection(controller);
+    } else if (controller.group != null &&
+        (controller.group?.hasJoined == false ||
+            controller.group?.isBannedFromGroup == true)) {
+      return _buildKickedFromGroup(controller);
+    } else {
+      return CometChatMessageComposer(
+        user: widget.user,
+        group: widget.group,
+      );
+    }
   }
 
   Widget _buildBlockedUserSection(CometChatMessagesController controller) {
@@ -201,7 +217,7 @@ class _MessagesSampleState extends State<MessagesSample> {
           Padding(
             padding: EdgeInsets.only(bottom: spacing.padding1 ?? 0),
             child: Text(
-              "Can’t send a message as the user is blocked",
+              cc.Translations.of(context).cantSendMessageBlockedUser,
               style: TextStyle(
                 color: colorPalette.textSecondary,
                 fontSize: typography.body?.regular?.fontSize,
@@ -212,38 +228,61 @@ class _MessagesSampleState extends State<MessagesSample> {
           ),
           controller.isBlockLoading.value
               ? Center(
-                child: CircularProgressIndicator(
-                  color: colorPalette.background2,
-                ),
-              )
+                  child: CircularProgressIndicator(
+                    color: colorPalette.background2,
+                  ),
+                )
               : SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => controller.unBlockUser(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        colorPalette.transparent, // Set proper color
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
-                      side: BorderSide(
-                        color: colorPalette.borderDark ?? Colors.transparent,
-                        width: 1,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => controller.unBlockUser(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          colorPalette.transparent, // Set proper color
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(spacing.radius2 ?? 0),
+                        side: BorderSide(
+                          color: colorPalette.borderDark ?? Colors.transparent,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      cc.Translations.of(context).unBlock,
+                      style: TextStyle(
+                        color: colorPalette.textPrimary,
+                        fontSize: typography.caption1?.regular?.fontSize,
+                        fontWeight: typography.caption1?.regular?.fontWeight,
+                        fontFamily: typography.caption1?.regular?.fontFamily,
                       ),
                     ),
                   ),
-                  child: Text(
-                    "UNBLOCK",
-                    style: TextStyle(
-                      color: colorPalette.textPrimary,
-                      fontSize: typography.caption1?.regular?.fontSize,
-                      fontWeight: typography.caption1?.regular?.fontWeight,
-                      fontFamily: typography.caption1?.regular?.fontFamily,
-                    ),
-                  ),
                 ),
-              ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildKickedFromGroup(CometChatMessagesController controller) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: spacing.padding2 ?? 8,
+        horizontal: spacing.padding5 ?? 20,
+      ),
+      color: colorPalette.background4,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: spacing.padding1 ?? 0),
+        child: Text(
+          cc.Translations.of(context).cantSendMessageNotMember,
+          style: TextStyle(
+            color: colorPalette.textSecondary,
+            fontSize: typography.body?.regular?.fontSize,
+            fontWeight: typography.body?.regular?.fontWeight,
+            fontFamily: typography.body?.regular?.fontFamily,
+          ),
+        ),
       ),
     );
   }

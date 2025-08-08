@@ -12,6 +12,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:sample_app_push_notifications/utils/page_manager.dart';
 import 'firebase_options.dart';
 import 'notifications/services/android_notification_service/local_notification_handler.dart';
+import 'notifications/services/android_notification_service/notification_launch_handler.dart';
 import 'prefs/shared_preferences.dart';
 
 Future<void> main() async {
@@ -42,11 +43,9 @@ Future<void> main() async {
 
   if (didNotificationLaunchApp &&
       notificationAppLaunchDetails?.notificationResponse != null) {
-    // Manually trigger tap handler
-    LocalNotificationService.handleNotificationTap(
-      notificationAppLaunchDetails?.notificationResponse,
-      isTerminatedState: true,
-    );
+    // Save for later use
+    NotificationLaunchHandler.pendingNotificationResponse =
+        notificationAppLaunchDetails!.notificationResponse;
   }
 
   try {
@@ -58,6 +57,7 @@ Future<void> main() async {
   } catch (e) {
     print('Firebase initialization failed: $e');
   }
+
 
   runApp(const MyApp());
 }

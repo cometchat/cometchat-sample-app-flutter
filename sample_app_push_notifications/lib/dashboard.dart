@@ -1,16 +1,20 @@
+import 'dart:developer' as developer;
 import 'dart:io';
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sample_app_push_notifications/contacts/cometchat_contacts.dart';
 import 'package:sample_app_push_notifications/create_group/cometchat_create_group.dart';
+import 'package:sample_app_push_notifications/notifications/services/android_notification_service/voip_notification_handler.dart';
 import 'package:sample_app_push_notifications/utils/join_protected_group_util.dart';
 import 'package:sample_app_push_notifications/utils/page_manager.dart';
 import 'call_log_details/cometchat_call_log_details.dart';
+import 'notifications/services/android_notification_service/local_notification_handler.dart';
+import 'notifications/services/android_notification_service/notification_launch_handler.dart';
 import 'notifications/services/iOS_notification_service/apns_services.dart';
 import 'notifications/services/android_notification_service/firebase_services.dart';
-import 'notifications/services/globals.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 import 'package:sample_app_push_notifications/utils/bool_singleton.dart';
@@ -48,6 +52,8 @@ class _MyPageViewState extends State<MyPageView>
 
   late String _dateString;
 
+  Future<void>? _permissionsFuture;
+
   String conversationEventListenerId = "CWMConversationListener";
   final String _listenerId = "callingEventListener";
 
@@ -66,20 +72,37 @@ class _MyPageViewState extends State<MyPageView>
     super.initState();
     if (Platform.isAndroid) {
       notificationService.init(context);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        VoipNotificationHandler.handleNativeCallIntent(context);
+      });
     } else {
       apnsServices.init(context);
     }
+
+    handleNotificationTap(context);
+  }
+
+  handleNotificationTap(context) {
+    // Delay slightly to ensure context and Navigator are ready
+    Future.delayed(const Duration(milliseconds: 300), () {
+      final response = NotificationLaunchHandler.pendingNotificationResponse;
+      if (response != null) {
+        NotificationLaunchHandler.pendingNotificationResponse = null;
+
+        LocalNotificationService.handleNotificationTap(
+          response,
+          isTerminatedState: true,
+        );
+      }
+    });
   }
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      if(BoolSingleton().value == true) {
+      if (BoolSingleton().value == true) {
         IncomingCallOverlay.dismiss();
         BoolSingleton().value = false;
-      }
-      if (useFcm && Platform.isAndroid) {
-        notificationService.resumeCallListeners(context);
       }
     }
   }
@@ -115,6 +138,9 @@ class _MyPageViewState extends State<MyPageView>
     final callStateController = CallStateController.instance;
     if (callStateController.isActiveCall.value == true) {
       IncomingCallOverlay.dismiss();
+      if (call.sessionId != null) {
+        rejectIncomingCall(call);
+      }
       return;
     } else if (callStateController.isActiveOutgoingCall.value == true) {
       IncomingCallOverlay.dismiss();
@@ -125,30 +151,29 @@ class _MyPageViewState extends State<MyPageView>
     }
   }
 
-  Future<void> _checkPermissions() async {
-    PermissionStatus micStatus = await Permission.microphone.status;
-    PermissionStatus camStatus = await Permission.camera.status;
-    PermissionStatus notifyStatus = await Permission.notification.status;
+  Future<void> _checkPermissions() {
+    // If already running, return the same future
+    if (_permissionsFuture != null) return _permissionsFuture!;
 
-    if (micStatus.isDenied) {
-      await Permission.microphone.request();
-      await Future.delayed(const Duration(seconds: 1));
-    }
+    final completer = Completer<void>();
+    _permissionsFuture = completer.future;
 
-    if (camStatus.isDenied) {
-      await Permission.camera.request();
-      await Future.delayed(const Duration(seconds: 1));
-    }
+    () async {
+      try {
+        Map<Permission, PermissionStatus> statuses = await [
+          Permission.notification,
+          Permission.microphone,
+          Permission.camera,
+        ].request();
+      } catch (e) {
+        debugPrint('Permission request error: $e');
+      } finally {
+        completer.complete();
+        _permissionsFuture = null;
+      }
+    }();
 
-    if (notifyStatus.isDenied) {
-      await Permission.notification.request();
-    }
-
-    if (micStatus.isPermanentlyDenied ||
-        camStatus.isPermanentlyDenied ||
-        notifyStatus.isPermanentlyDenied) {
-      openAppSettings();
-    }
+    return _permissionsFuture!;
   }
 
   bool isLogoutLoading = false;
@@ -161,7 +186,6 @@ class _MyPageViewState extends State<MyPageView>
       return false;
     }
   }
-
 
   Future<void> logout() async {
     setState(() {
@@ -189,7 +213,6 @@ class _MyPageViewState extends State<MyPageView>
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-
 
     try {
       PNRegistry.unregisterPNService();
@@ -225,7 +248,6 @@ class _MyPageViewState extends State<MyPageView>
       });
     }
   }
-
 
   openCreateConversation(context) {
     Navigator.push(
@@ -408,7 +430,7 @@ class _MyPageViewState extends State<MyPageView>
                           child: Padding(
                             padding: EdgeInsets.all(spacing.padding4 ?? 0),
                             child: Text(
-                              "v5.0.4",
+                              "v5.0.5",
                               style: TextStyle(
                                 fontSize: typography.body?.regular?.fontSize,
                                 fontFamily:
@@ -625,5 +647,16 @@ class _MyPageViewState extends State<MyPageView>
         );
       },
     );
+  }
+
+  rejectIncomingCall(Call call) {
+    CometChatUIKitCalls.rejectCall(call.sessionId!, CallStatusConstants.busy,
+        onSuccess: (Call call) {
+      call.category = MessageCategoryConstants.call;
+      CometChatCallEvents.ccCallRejected(call);
+      developer.log('incoming call was cancelled');
+    }, onError: (e) {
+      developer.log("Unable to end call from incoming call screen");
+    });
   }
 }

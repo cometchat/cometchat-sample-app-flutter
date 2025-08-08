@@ -605,6 +605,8 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
         AudioBubbleStream().stream.asBroadcastStream().listen((event) {
       if (event.id != tag && event.action == AudioBubbleActions.pausePlayer) {
         pauseAudio();
+      } else if (event.action == AudioBubbleActions.stopPlayer) {
+        stopAudio();
       }
     });
   }

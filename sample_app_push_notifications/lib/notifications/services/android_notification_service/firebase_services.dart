@@ -14,6 +14,7 @@ import '../../models/call_type.dart';
 import '../../models/notification_message_type.dart';
 import '../../models/payload.dart';
 import '../cometchat_service/cometchat_services.dart';
+import '../save_settings_to_native.dart';
 import 'local_notification_handler.dart';
 
 // This method handles incoming Firebase messages in the background, specifically for displaying incoming calls on Android platform.
@@ -28,7 +29,11 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage rMessage) async {
 // This class provides functions to interact and manage Firebase Messaging services such as requesting permissions, initializing listeners, managing notifications, and handling tokens.
 
 class FirebaseService
-    with CometChatUIEventListener, CometChatCallEventListener, CallListener {
+    with
+        CometChatUIEventListener,
+        CometChatCallEventListener,
+        CallListener,
+        CometChatCallsEventsListener {
   late final FirebaseMessaging _firebaseMessaging;
   late final NotificationSettings _settings;
   late final Function registerToServer;
@@ -56,6 +61,8 @@ class FirebaseService
       }
 
       _listenerId = "NotificationListener";
+
+      saveAppSettingsToNative();
 
       CometChatUIEvents.addUiListener(_listenerId, this);
       CometChatCallEvents.addCallEventsListener(_listenerId, this);
@@ -131,21 +138,26 @@ class FirebaseService
         FirebaseMessaging.instance
             .getInitialMessage()
             .then((RemoteMessage? message) async {
-          // if (message != null) {
-          debugPrint(
-              "[FCM] Notification tapped from terminated state. Payload: ${message?.data}");
-          openNotification(context, message, conversationId);
-          // } else {
-          debugPrint("[FCM] No initial message on app launch.");
-          debugPrint("[FCM] No initial message on app launch. ${message}");
-          // }
+          if (message != null) {
+            debugPrint(
+                "[FCM] Notification tapped from terminated state. Payload: ${message?.data}");
+            if (message.notification != null) {
+              openNotification(context, message, conversationId);
+            } else if (message.data.isNotEmpty) {
+              LocalNotificationService.showNotification(
+                  message.data, message, conversationId);
+            }
+            debugPrint("[FCM] No initial message on app launch.");
+            debugPrint("[FCM] No initial message on app launch. ${message}");
+          }
         });
-        openFromTerminatedState(context);
       } else {
         if (kDebugMode) {
           debugPrint('User declined or has not accepted permission');
         }
       }
+
+      initializeCallKitListeners(context);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error initializing listeners: $e.');
@@ -172,13 +184,31 @@ class FirebaseService
     }
   }
 
+  @override
+  void ccCallEnded(Call call) async {
+    debugPrint("[FCM] ccCallEnded triggered.");
+    await VoipNotificationHandler.endCall(sessionId: call.sessionId);
+  }
+
+  @override
+  void onCallEndButtonPressed() async {
+    debugPrint("[FCM] onCallEndButtonPressed triggered.");
+    await VoipNotificationHandler.endCall(sessionId: VoipNotificationHandler.activeCallSession);
+  }
+
+  @override
+  void onCallEnded() async {
+    debugPrint("[FCM] onCallEnded triggered.");
+    await FlutterCallkitIncoming.endAllCalls();
+  }
+
   // This method processes the incoming Firebase message to handle user or group notifications and carries out appropriate actions such as initiating a chat or call.
   Future<void> openNotification(
       context, RemoteMessage? message, String? conversationId) async {
-    debugPrint("[FCM] Notification tapped from terminated state. MKAP 111");
+    debugPrint("[FCM] Notification tapped from terminated state.");
 
     if (message != null) {
-      debugPrint("[FCM] Notification tapped from terminated state. MKAP 22222");
+      debugPrint("[FCM] Notification tapped from terminated state.");
       Map<String, dynamic> data = message.data;
 
       PayloadData payload = PayloadData.fromJson(data);
@@ -219,41 +249,6 @@ class FirebaseService
         );
       }
 
-      if (messageCategory == NotificationMessageTypeConstants.call) {
-        CallAction callAction = payload.callAction!;
-        String uuid = payload.sessionId ?? "";
-
-        if (callAction == CallAction.initiated) {
-          if (receiverType == ReceiverTypeConstants.user && sendUser != null) {
-            Call call = Call(
-                sessionId: uuid,
-                receiverUid: sendUser?.uid ?? "",
-                type: payload.callType?.value ?? "",
-                receiverType: receiverType);
-
-            if (context.mounted) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => CometChatIncomingCall(
-                    call: call,
-                    user: sendUser,
-                  ),
-                ),
-              );
-            }
-          }
-        } else if (receiverType == ReceiverTypeConstants.group &&
-            sendGroup != null) {
-          if (kDebugMode) {
-            debugPrint("we are in group call");
-          }
-        } else if (callAction == CallAction.cancelled) {
-          if (activeCallSession != null) {
-            await VoipNotificationHandler.endCall(sessionId: activeCallSession);
-          }
-        }
-      }
-
       debugPrint("[FCM] Notification tapped from terminated state.");
       // Navigating to the chat screen when messageCategory is message
       if (messageCategory == NotificationMessageTypeConstants.chat &&
@@ -281,8 +276,6 @@ class FirebaseService
     }
   }
 
-  // active call session
-  String? activeCallSession;
 
   // Deletes fcm token
   Future<void> deleteToken() async {
@@ -295,93 +288,37 @@ class FirebaseService
     }
   }
 
-  // checks For navigation when app opens from terminated state when we accept call
-  openFromTerminatedState(context) {
-    final sessionID = SharedPreferencesClass.getString("SessionId");
-    final callType = SharedPreferencesClass.getString("callType");
-
-    if (sessionID.isNotEmpty) {
-      CallSettingsBuilder callSettingsBuilder = (CallSettingsBuilder()
-        ..enableDefaultLayout = true
-        ..setAudioOnlyCall = (callType == CallType.audio.value));
-      CometChatUIKitCalls.acceptCall(sessionID, onSuccess: (Call call) {
-        call.category = MessageCategoryConstants.call;
-        CometChatCallEvents.ccCallAccepted(call);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CometChatOngoingCall(
-              callSettingsBuilder: callSettingsBuilder,
-              sessionId: sessionID,
-              callWorkFlow: CallWorkFlow.defaultCalling,
-            ),
-          ),
-        );
-      }, onError: (e) {
-        debugPrint(
-            "Unable to accept call from incoming call screen ${e.details}");
-      });
-    }
-  }
-
-  // checks For navigation when app opens from background state when we accept call
-  resumeCallListeners(BuildContext context) async {
+  static initializeCallKitListeners(context) {
+    // Listen for user actions on the call notification.
     FlutterCallkitIncoming.onEvent.listen(
       (CallEvent? callEvent) async {
+        debugPrint(
+            "[FCM] Received CallKit Event: ${callEvent?.event.name} - ${callEvent?.body}");
         switch (callEvent?.event) {
           case Event.actionCallIncoming:
-            CometChatUIKitCalls.init(
-                AppCredentials.appId, AppCredentials.region, onSuccess: (p0) {
-              debugPrint("CometChatUIKitCalls initialized successfully");
-            }, onError: (e) {
-              debugPrint("CometChatUIKitCalls failed ${e.message}");
-            });
-            activeCallSession = callEvent?.body["id"];
-
+            // Initialize shared preferences when call is incoming.
+            SharedPreferencesClass.init();
             break;
           case Event.actionCallAccept:
-            final callType = callEvent?.body["type"];
-            CallSettingsBuilder callSettingsBuilder = (CallSettingsBuilder()
-              ..enableDefaultLayout = true
-              ..setAudioOnlyCall = (callType == CallType.audio.value));
-
-            CometChatUIKitCalls.acceptCall(callEvent!.body["id"],
-                onSuccess: (Call call) {
-              call.category = MessageCategoryConstants.call;
-              CometChatCallEvents.ccCallAccepted(call);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CometChatOngoingCall(
-                    callSettingsBuilder: callSettingsBuilder,
-                    sessionId: callEvent.body["id"],
-                  ),
-                ),
-              );
-            }, onError: (e) {
-              debugPrint(
-                  "Unable to accept call from incoming call screen ${e.message}");
-            });
+            // User accepted the call.
+            VoipNotificationHandler.activeCallSession = callEvent?.body['id'] ?? "";
+            VoipNotificationHandler.acceptVoipCall(callEvent, context);
             break;
           case Event.actionCallDecline:
-            CometChatUIKitCalls.rejectCall(
-                callEvent?.body["id"], CallStatusConstants.rejected,
-                onSuccess: (Call call) {
-              call.category = MessageCategoryConstants.call;
-              CometChatCallEvents.ccCallRejected(call);
-              debugPrint('incoming call was cancelled');
-            }, onError: (e) {
-              debugPrint(
-                  "Unable to end call from incoming call screen ${e.message}");
-              debugPrint(
-                  "Unable to end call from incoming call screen ${e.details}");
-            });
+            // User declined the call.
+            VoipNotificationHandler.activeCallSession = callEvent?.body['id'] ?? "";
+            VoipNotificationHandler.declineVoipCall(callEvent);
             break;
           case Event.actionCallTimeout:
-            await VoipNotificationHandler.endCall(sessionId: callEvent?.body['id']);
+            // Call timed out, end the call.
+            await VoipNotificationHandler.endCall(
+                sessionId: callEvent?.body['id']);
             break;
           case Event.actionCallEnded:
-            await VoipNotificationHandler.endCall(sessionId: callEvent?.body['id']);
+            // Call ended, clean up.
+            debugPrint("[FCM] Call Ended Event Triggered: ${callEvent?.body}");
+            await VoipNotificationHandler.endCall(
+                sessionId: callEvent?.body['id']);
             break;
           default:
             break;
@@ -389,10 +326,15 @@ class FirebaseService
       },
       cancelOnError: false,
       onDone: () {
-        debugPrint('FlutterCallkitIncoming.onEvent: done');
+        if (kDebugMode) {
+          debugPrint('[FCM] FlutterCallkitIncoming.onEvent: done');
+        }
       },
       onError: (e) {
-        debugPrint('FlutterCallkitIncoming.onEvent:error ${e.toString()}');
+        if (kDebugMode) {
+          debugPrint(
+              '[FCM] FlutterCallkitIncoming.onEvent:error ${e.toString()}');
+        }
       },
     );
   }

@@ -324,6 +324,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
       hideCollaborativeWhiteboardOption:
           widget.hideCollaborativeWhiteboardOption,
       hideTakePhotoOption: widget.hideTakePhotoOption,
+      disableMentions: widget.disableMentions,
     );
 
     super.didChangeDependencies();
@@ -345,7 +346,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
       );
     } else {
       final isTextControllerEmpty = value.textEditingController != null &&
-          value.textEditingController!.text.isEmpty;
+          value.textEditingController!.text.trim().isEmpty;
 
       final isSameAsOldMessage = value.oldMessage is TextMessage &&
           value.textEditingController!.text ==

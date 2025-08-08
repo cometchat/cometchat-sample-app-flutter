@@ -1245,4 +1245,16 @@ class TranslationsTr extends Translations {
   String get createGroupEmptyString =>
       'Lütfen bir grup oluşturmadan önce tüm zorunlu alanları doldurun.';
 
+  @override
+  String get cantSendMessageBlockedUser => "Kullanıcı engellendiği için mesaj gönderilemiyor.";
+
+  @override
+  String get cantSendMessageNotMember => "Artık bu grubun üyesi olmadığınız için mesaj gönderemezsiniz.";
+
+  @override
+  String get youAreNoLongerPartOfThisGroup => 'Artık bu grubun bir parçası değilsiniz.';
+
+  @override
+  String get busy => "Meşgul";
+
 }

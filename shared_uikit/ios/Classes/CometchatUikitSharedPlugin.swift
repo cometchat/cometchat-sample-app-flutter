@@ -346,6 +346,8 @@ private func presentImagePicker(mediaType: String) {
             self.setAudioSessionToSpeaker(args: args, result:result)
         case "resetAudioSession":
             self.resetAudioSession(args: args, result:result)
+        case "checkCameraPermission":
+            self.checkCameraPermission(args: args, result:result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -363,22 +365,23 @@ private func presentImagePicker(mediaType: String) {
         let isLooping = args["isLooping"] as? Bool ?? false
         var assetKey: String?
 
-
         if let packageName = packageName {
             if packageName == "cometchat_uikit_shared" {
-                // If the package is 'cometchat_uikit_shared', use lookupKey with package
                 assetKey = globalRegistrar?.lookupKey(forAsset: assetAudioPath, fromPackage: packageName)
             } else {
-                // For other packages, use lookupKey for the asset directly
                 assetKey = globalRegistrar?.lookupKey(forAsset: assetAudioPath)
             }
         } else {
-            // Use lookupKey for main app when there's no package name
             assetKey = globalRegistrar?.lookupKey(forAsset: assetAudioPath)
         }
 
-        guard let resolvedAssetKey = assetKey,
-              let assetPath = Bundle.main.path(forResource: resolvedAssetKey, ofType: nil) else {
+        guard let resolvedAssetKey = assetKey else {
+            result(FlutterError(code: "ASSET_NOT_FOUND", message: "Asset key could not be resolved", details: nil))
+            return
+        }
+
+
+        guard let assetPath = Bundle.main.path(forResource: resolvedAssetKey, ofType: nil) else {
             result(FlutterError(code: "ASSET_NOT_FOUND", message: "Asset not found: \(assetAudioPath)", details: nil))
             return
         }
@@ -387,6 +390,7 @@ private func presentImagePicker(mediaType: String) {
 
         playSound(url: assetURL, isLooping: isLooping, result: result)
     }
+
 
     
     
@@ -420,54 +424,37 @@ private func presentImagePicker(mediaType: String) {
     
     
     
-    private func playSound(url:URL,isLooping: Bool, result: @escaping FlutterResult)  {
-        
-        let otherAudioPlaying = AVAudioSession.sharedInstance().secondaryAudioShouldBeSilencedHint
-        if otherAudioPlaying {
+    private func playSound(url: URL, isLooping: Bool, result: @escaping FlutterResult) {
+
+        let shouldSilenceOthers = AVAudioSession.sharedInstance().secondaryAudioShouldBeSilencedHint
+
+        if shouldSilenceOthers {
             AudioServicesPlayAlertSound(SystemSoundID(1519))
             result("VIBRATION")
             return
         }
-        
-        
-        do {
-            
-            if(audioPlayer != nil && audioPlayer?.isPlaying==true){
-                audioPlayer?.stop()
-            }
-            
-            
-            /* set session category and mode with options */
-            if #available(iOS 10.0, *) {
-                try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default, options: [])
-            } else {
-                try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, options: .mixWithOthers)
-            }
-            
-            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.soloAmbient)
-            
-            try AVAudioSession.sharedInstance().setActive(true)
-            
-            audioPlayer = try AVAudioPlayer(contentsOf: url)
 
+        do {
+            if let player = audioPlayer, player.isPlaying {
+                player.stop()
+            }
+
+
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
+            try AVAudioSession.sharedInstance().setActive(true)
+
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.numberOfLoops = isLooping ? -1 : 0
             audioPlayer?.prepareToPlay()
+
             audioPlayer?.play()
-            
-            
-            
-            
-            print(" line 137")
-            result("Error");
-            
-            
-            
-        } catch _ {
-            result("Error")
+
+            result("SUCCESS")
+        } catch {
+            result("ERROR: \(error.localizedDescription)")
         }
-        
-        
     }
+
     
     func toInt(duration : Double) -> Int? {
         if duration >= Double(Int.min) && duration < Double(Int.max) {
@@ -616,14 +603,43 @@ private func presentImagePicker(mediaType: String) {
     }
     
     private var audioRecorder: AudioRecorder?
-    private func startRecordingAudio(args: [String: Any], result: @escaping FlutterResult){
-        if let _audioRecorder = audioRecorder {
-            _audioRecorder.resumeRecording(result: result)
-        }else{
-            audioRecorder = AudioRecorder(binaryMessenger: (globalRegistrar?.messenger())!)
-            audioRecorder?.setupRecorder(result: result)
+    private func startRecordingAudio(args: [String: Any], result: @escaping FlutterResult) {
+
+        let permission = AVAudioSession.sharedInstance().recordPermission
+
+        switch permission {
+        case .granted:
+            if let _audioRecorder = audioRecorder,
+               _audioRecorder.audioRecorder != nil {
+                _audioRecorder.resumeRecording(result: result)
+            } else {
+                audioRecorder = AudioRecorder(binaryMessenger: (globalRegistrar?.messenger())!)
+                audioRecorder?.setupRecorder(result: result)
+            }
+
+        case .denied:
+            Toast.show(message: "Microphone permission is denied.")
+            result(false)
+
+        case .undetermined:
+            AVAudioSession.sharedInstance().requestRecordPermission { allowed in
+                DispatchQueue.main.async {
+                    if allowed {
+                        self.audioRecorder = AudioRecorder(binaryMessenger: (globalRegistrar?.messenger())!)
+                        self.audioRecorder?.setupRecorder(result: result)
+                    } else {
+                        Toast.show(message: "Microphone permission is denied.")
+                        result(false)
+                    }
+                }
+            }
+
+        @unknown default:
+            result(false)
         }
     }
+
+
     
     private func stopRecordingAudio(args: [String: Any], result: @escaping FlutterResult){
         if audioRecorder != nil {
@@ -725,6 +741,35 @@ private func presentImagePicker(mediaType: String) {
             result(FlutterError(code: "AUDIO_SESSION_RESET_ERROR",
                                 message: "Failed to reset audio session: \(error.localizedDescription)",
                                 details: nil))
+        }
+    }
+    
+    func checkCameraPermission(args: [String: Any], result: @escaping FlutterResult) {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        
+        switch status {
+        case .authorized:
+            result(true)
+
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        result(true)
+                    } else {
+                        Toast.show(message: "Camera permission is required to take photos.")
+                        result(false)
+                    }
+                }
+            }
+
+        case .denied, .restricted:
+            Toast.show(message: "Camera permission is required to take photos.")
+            result(false)
+
+        @unknown default:
+            Toast.show(message: "Camera permission status unknown.")
+            result(false)
         }
     }
     

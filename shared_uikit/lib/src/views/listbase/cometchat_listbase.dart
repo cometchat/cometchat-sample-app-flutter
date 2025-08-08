@@ -10,7 +10,7 @@ import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
 ///        style: ListBaseStyle(),
 ///    );
 /// ```
-class CometChatListBase extends StatelessWidget {
+class CometChatListBase extends StatefulWidget {
   /// Creates a widget that that gives CometChat ListBase UI
   const CometChatListBase({
     super.key,
@@ -88,21 +88,29 @@ class CometChatListBase extends StatelessWidget {
   ///[titleView] to specify title view
   final Widget? titleView;
 
+  @override
+  State<CometChatListBase> createState() => _CometChatListBaseState();
+}
+
+class _CometChatListBaseState extends State<CometChatListBase> {
+
+  late TextEditingController _searchController;
+
   /// returns back button to be shown in appbar
   Widget? getBackButton(context) {
     Widget? backButton;
-    if (showBackButton != null && showBackButton == true) {
+    if (widget.showBackButton != null && widget.showBackButton == true) {
       backButton = IconButton(
-        onPressed: onBack ??
+        onPressed: widget.onBack ??
             () {
               Navigator.pop(context);
             },
-        color: style.backIconTint,
-        icon: backIcon ??
+        color: widget.style.backIconTint,
+        icon: widget.backIcon ??
             Image.asset(
               AssetConstants.back,
               package: UIConstants.packageName,
-              color: style.backIconTint,
+              color: widget.style.backIconTint,
               height: 24,
               width: 24,
             ),
@@ -112,53 +120,67 @@ class CometChatListBase extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.searchText ?? '');
+  }
+
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: style.borderRadius ?? BorderRadius.zero,
+      borderRadius: widget.style.borderRadius ?? BorderRadius.zero,
       child: Container(
         decoration: BoxDecoration(
-          gradient: style.gradient,
-          border: style.border,
-          borderRadius: style.borderRadius,
+          gradient: widget.style.gradient,
+          border: widget.style.border,
+          borderRadius: widget.style.borderRadius,
         ),
         child: Scaffold(
           //appbar with back button and menu options
 
-          appBar: hideAppBar == true
+          appBar: widget.hideAppBar == true
               ? null
               : AppBar(
                   elevation: 0,
                   toolbarHeight: 56,
-                  title:titleView ?? Text(
-                    title ?? "",
-                    style: style.titleStyle,
+                  title:widget.titleView ?? Text(
+                    widget.title ?? "",
+                    style: widget.style.titleStyle,
                   ),
-                  shape: style.appBarShape,
-                  backgroundColor: style.background,
+                  shape: widget.style.appBarShape,
+                  backgroundColor: widget.style.background,
                   leading: getBackButton(context),
-                  automaticallyImplyLeading: showBackButton ?? false,
-                  actions: menuOptions ?? [],
+                  automaticallyImplyLeading: widget.showBackButton ?? false,
+                  actions: widget.menuOptions ?? [],
                   centerTitle: false,
-            titleSpacing: titleSpacing,
+            titleSpacing: widget.titleSpacing,
                 ),
 
-          backgroundColor: style.background,
+          backgroundColor: widget.style.background,
           body: Padding(
-            padding: style.padding ?? const EdgeInsets.only(left: 0, right: 0),
+            padding: widget.style.padding ?? const EdgeInsets.only(left: 0, right: 0),
             child: SizedBox(
-              height: style.height,
-              width: style.width,
+              height: widget.style.height,
+              width: widget.style.width,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   //-----------------------------------
                   //----------show search box----------
-                  if(hideSearch == false)
+                  if(widget.hideSearch == false)
                     Padding(
-                      padding: searchPadding ?? const EdgeInsets.all(0),
+                      padding: widget.searchPadding ?? const EdgeInsets.all(0),
                       child: SizedBox(
-                        height: searchBoxHeight,
+                        height: widget.searchBoxHeight,
                         child: Center(
                           child: TextField(
                             keyboardAppearance:
@@ -166,46 +188,45 @@ class CometChatListBase extends StatelessWidget {
                                 Brightness.dark
                                 ? Brightness.dark
                                 : Brightness.light,
-                            key: key,
+                            key: widget.key,
                             //--------------------------------------
                             //----------on search callback----------
-                            controller: TextEditingController(text: searchText),
-                            onChanged: onSearch,
-                            style: style.searchTextStyle,
-
+                            controller: _searchController,
+                            onChanged: widget.onSearch,
+                            style: widget.style.searchTextStyle,
                             //-----------------------------------------
                             //----------search box decoration----------
                             decoration: InputDecoration(
-                              contentPadding: searchContentPadding ??
+                              contentPadding: widget.searchContentPadding ??
                                   const EdgeInsets.all(0),
-                              hintText: placeholder ??
+                              hintText: widget.placeholder ??
                                   Translations.of(context).search,
-                              prefixIcon: searchBoxIcon ??
+                              prefixIcon: widget.searchBoxIcon ??
                                   Icon(
                                     Icons.search,
-                                    color: style.searchIconTint,
+                                    color: widget.style.searchIconTint,
                                     size: 24,
                                   ),
-                              prefixIconColor: style.searchIconTint,
-                              hintStyle: style.searchPlaceholderStyle,
+                              prefixIconColor: widget.style.searchIconTint,
+                              hintStyle: widget.style.searchPlaceholderStyle,
 
                               //-------------------------------------
                               //----------search box border----------
                               focusedBorder: OutlineInputBorder(
-                                borderSide: style.borderSide ?? BorderSide.none,
-                                borderRadius: style.searchTextFieldRadius ??
+                                borderSide: widget.style.borderSide ?? BorderSide.none,
+                                borderRadius: widget.style.searchTextFieldRadius ??
                                     BorderRadius.circular(28),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderSide: style.borderSide ?? BorderSide.none,
-                                borderRadius: style.searchTextFieldRadius ??
+                                borderSide: widget.style.borderSide ?? BorderSide.none,
+                                borderRadius: widget.style.searchTextFieldRadius ??
                                     BorderRadius.circular(
                                       28,
                                     ),
                               ),
                               border: OutlineInputBorder(
-                                borderSide: style.borderSide ?? BorderSide.none,
-                                borderRadius: style.searchTextFieldRadius ??
+                                borderSide: widget.style.borderSide ?? BorderSide.none,
+                                borderRadius: widget.style.searchTextFieldRadius ??
                                     BorderRadius.circular(
                                       28,
                                     ),
@@ -213,7 +234,7 @@ class CometChatListBase extends StatelessWidget {
 
                               //-----------------------------------------
                               //----------search box fill color----------
-                              fillColor: style.searchBoxBackground,
+                              fillColor: widget.style.searchBoxBackground,
                               filled: true,
                             ),
                           ),
@@ -223,7 +244,7 @@ class CometChatListBase extends StatelessWidget {
 
                   //--------------------------------
                   //----------showing list----------
-                  Expanded(child: container)
+                  Expanded(child: widget.container)
                 ],
               ),
             ),

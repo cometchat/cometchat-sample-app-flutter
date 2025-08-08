@@ -90,6 +90,36 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
           ),
           body: Column(
             children: [
+              if (value.group?.hasJoined == false || value.group?.isBannedFromGroup == true)
+                Container(
+                  width: double.infinity,
+                  color: colorPalette.warning,
+                  padding: EdgeInsets.symmetric(
+                    vertical: spacing.padding2 ?? 0,
+                    horizontal: spacing.padding5 ?? 0,
+                  ),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(right: spacing.padding1 ?? 0),
+                        child: Icon(
+                          Icons.info_outline,
+                          color: colorPalette.iconPrimary,
+                          size: 16,
+                        ),
+                      ),
+                      Text(
+                        cc.Translations.of(context).youAreNoLongerPartOfThisGroup,
+                        style: TextStyle(
+                          fontSize: typography.caption1?.regular?.fontSize,
+                          fontFamily: typography.caption1?.regular?.fontFamily,
+                          fontWeight: typography.caption1?.regular?.fontWeight,
+                          color: colorPalette.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               Divider(
                 color: colorPalette.borderLight,
                 height: 1,
@@ -330,7 +360,8 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if ((controller.membersCount > 1) && controller.canAccessOption(GroupOptionConstants.leave))
+        if ((widget.group.membersCount > 1) &&
+            controller.canAccessOption(GroupOptionConstants.leave))
           getLeaveOption(context, controller),
         if (controller.canAccessOption(GroupOptionConstants.delete))
           listTileOptions(
@@ -354,7 +385,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
       return const SizedBox();
     }
     return listTileOptions(
-        cc.Translations.of(context).leave,
+      cc.Translations.of(context).leave,
       Icon(Icons.exit_to_app, color: colorPalette.error),
       () {
         if (controller.membersCount > 1 &&

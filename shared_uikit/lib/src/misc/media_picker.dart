@@ -27,10 +27,19 @@ class MediaPicker {
   static final ImagePicker _picker = ImagePicker();
 
   static Future<PickedFile?> takePhoto() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      return PickedFile(name: image.name, path: image.path);
-    } else {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+
+      if (image != null) {
+        return PickedFile(name: image.name, path: image.path);
+      } else {
+        checkForPhotoPermission();
+        return null;
+      }
+    } catch (e, stack) {
+      debugPrint("Exception in takePhoto: $e");
+      debugPrint("$stack");
+      checkForPhotoPermission();
       return null;
     }
   }
@@ -62,7 +71,7 @@ class MediaPicker {
   // }
 
   static Future<PickedFile?> pickImage() async {
-    if(Platform.isAndroid) {
+    if (Platform.isAndroid) {
       return _getFilesFromMethodChannel(type: "image");
     }
     return await _getFilesFromMethodChannel(
@@ -71,7 +80,7 @@ class MediaPicker {
   }
 
   static Future<PickedFile?> pickVideo() async {
-    if(Platform.isAndroid) {
+    if (Platform.isAndroid) {
       return _getFilesFromMethodChannel(type: "video");
     }
     return await _getFilesFromMethodChannel(
@@ -115,7 +124,7 @@ class MediaPicker {
     "icns",
     "eps"
   ];
-  static  List<String> audioExtensions = [
+  static List<String> audioExtensions = [
     "mp3",
     "wav",
     "ogg",
@@ -183,6 +192,14 @@ class MediaPicker {
       return MessageTypeConstants.audio;
     } else {
       return null;
+    }
+  }
+
+  static checkForPhotoPermission() async {
+    final bool granted =
+        await UIConstants.channel.invokeMethod("checkCameraPermission");
+    if (!granted) {
+      debugPrint("Camera permission not granted");
     }
   }
 }

@@ -1247,4 +1247,16 @@ class TranslationsNl extends Translations {
   String get createGroupEmptyString =>
       'Vul alle verplichte velden in voordat je een groep maakt.';
 
+  @override
+  String get cantSendMessageBlockedUser => "Kan geen bericht verzenden omdat de gebruiker is geblokkeerd.";
+
+  @override
+  String get cantSendMessageNotMember => "Je kunt geen berichten naar deze groep sturen omdat je geen lid meer bent.";
+
+  @override
+  String get youAreNoLongerPartOfThisGroup => 'Je maakt geen deel meer uit van deze groep.';
+
+  @override
+  String get busy => "Bezet";
+
 }

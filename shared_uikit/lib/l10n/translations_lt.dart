@@ -1247,4 +1247,16 @@ class TranslationsLt extends Translations {
   String get createGroupEmptyString =>
       'Prašome užpildyti visus privalomus laukus prieš kuriant grupę.';
 
+  @override
+  String get cantSendMessageBlockedUser => "Negalima išsiųsti žinutės, nes naudotojas užblokuotas.";
+
+  @override
+  String get cantSendMessageNotMember => "Negalite siųsti žinučių šiai grupei, nes nebėra jos narys.";
+
+  @override
+  String get youAreNoLongerPartOfThisGroup => 'Jūs nebėra šios grupės narys.';
+
+  @override
+  String get busy => "Užimtas";
+
 }

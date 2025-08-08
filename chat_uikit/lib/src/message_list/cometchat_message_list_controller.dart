@@ -1199,8 +1199,7 @@ class CometChatMessageListController
     if (alignment == ChatAlignment.standard) {
       //-----if message is group action-----
       if ((messageObject.category == MessageCategoryConstants.action) ||
-          (messageObject.category == MessageCategoryConstants.call &&
-              messageObject.receiver is User)) {
+          (messageObject.category == MessageCategoryConstants.call)) {
         thumbnail = false;
         name = false;
         readReceipt = false;

@@ -98,7 +98,7 @@ class CometChatDate extends StatelessWidget {
     }
   }
 
-  String _getLastWeek(DateTime date, String weekFormatter) {
+  String _getLastWeek(DateTime date, String weekFormatter, String dateFormatter) {
     if (dateTimeFormatterCallback?.lastWeek(date.millisecondsSinceEpoch) !=
         null) {
       return dateTimeFormatterCallback?.lastWeek(date.millisecondsSinceEpoch) ??
@@ -106,7 +106,7 @@ class CometChatDate extends StatelessWidget {
     } else {
       return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
               ?.lastWeek(date.millisecondsSinceEpoch) ??
-          DateFormat(weekFormatter).format(date);
+          DateFormat(dateFormatter).format(date);
     }
   }
 
@@ -138,7 +138,7 @@ class CometChatDate extends StatelessWidget {
     } else if (_isSameDate(todayDate, date.add(const Duration(days: 1)))) {
       return _getYesterday(date, context);
     } else if (_isSameWeek(todayDate, date)) {
-      return _getLastWeek(date, weekFormatter);
+      return _getLastWeek(date, weekFormatter, dateFormatter);
     } else {
       return _getOtherDays(date, dateFormatter);
     }
@@ -155,7 +155,7 @@ class CometChatDate extends StatelessWidget {
     } else if (_isSameDate(todayDate, date.add(const Duration(days: 1)))) {
       return _getYesterday(date, context);
     } else if (_isSameWeek(todayDate, date)) {
-      return _getLastWeek(date, weekFormatter);
+      return _getLastWeek(date, weekFormatter, dateFormatter);
     } else {
       return _getOtherDays(date, dateFormatter);
     }

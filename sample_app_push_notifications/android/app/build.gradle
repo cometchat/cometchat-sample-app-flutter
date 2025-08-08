@@ -7,8 +7,8 @@ plugins {
 
 android {
     namespace = "com.cometchat.sampleapp.flutter.android"
-    compileSdk = 34
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 35
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         coreLibraryDesugaringEnabled true
@@ -27,18 +27,9 @@ android {
     defaultConfig {
         applicationId = "com.cometchat.sampleapp.flutter.android"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-    }
-
-    signingConfigs {
-        release {
-            keyAlias 'cometchat'
-            keyPassword 'cometchat'
-            storeFile file('cometchat_team_messanger.jks')
-            storePassword 'cometchat'
-        }
     }
 
     buildTypes {
@@ -56,4 +47,5 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    implementation "com.cometchat:chat-sdk-android:4.1.2"
 }

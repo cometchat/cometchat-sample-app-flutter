@@ -1,3 +1,13 @@
+## 5.0.5
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.24`.
+- Updated `cometchat_uikit_shared` to version `5.0.5`.
+
+## Fixes
+- Fixed an issue in the where initiating a default group call failed due to a missing asset reference.
+- Corrected the display of icons for incoming and missed calls in call logs and chat lists to ensure accuracy.
+
 ## 5.0.4
 
 ## Enhancements

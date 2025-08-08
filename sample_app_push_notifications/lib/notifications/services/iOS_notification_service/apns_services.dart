@@ -250,7 +250,7 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
 
 
         PayloadData payloadData = PayloadData();
-        if(body['extra']['message']!=null) {
+        if(body['extra'] != null && body['extra']['message']!=null) {
           payloadData =
               PayloadData.fromJson(jsonDecode(body['extra']['message']));
 
@@ -268,6 +268,7 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
 
             CometChatUIKitCalls.acceptCall(sessionId,
                 onSuccess: (Call call) async {
+                  IncomingCallOverlay.dismiss();
                   call.category = MessageCategoryConstants.call;
                   CometChatCallEvents.ccCallAccepted(call);
                   await FlutterCallkitIncoming.setCallConnected(sessionId);
@@ -295,6 +296,7 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
             CometChatUIKitCalls.rejectCall(
                 sessionId, CallStatusConstants.rejected,
                 onSuccess: (Call call) async {
+                  IncomingCallOverlay.dismiss();
                   call.category = MessageCategoryConstants.call;
                   CometChatCallEvents.ccCallRejected(call);
                   await FlutterCallkitIncoming.endCall(sessionId);

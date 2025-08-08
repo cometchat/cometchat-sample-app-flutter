@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
@@ -35,6 +36,26 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <receiver
+            android:name="com.cometchat.sampleapp.flutter.android.CallActionReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.hiennv.flutter_callkit_incoming.ACTION_CALL_ACCEPT" />
+                <action android:name="com.hiennv.flutter_callkit_incoming.ACTION_CALL_DECLINE" />
+                <action android:name="com.hiennv.flutter_callkit_incoming.ACTION_CALL_ENDED" />
+                <action android:name="com.hiennv.flutter_callkit_incoming.ACTION_CALL_TIMEOUT" />
+                <action android:name="com.hiennv.flutter_callkit_incoming.ACTION_CALL_INCOMING" />
+            </intent-filter>
+            <!-- Add this block: -->
+            <intent-filter>
+                <action android:name="com.cometchat.sampleapp.flutter.android.ACTION_CALL_ACCEPT" />
+                <action android:name="com.cometchat.sampleapp.flutter.android.ACTION_CALL_DECLINE" />
+                <action android:name="com.cometchat.sampleapp.flutter.android.ACTION_CALL_ENDED" />
+                <action android:name="com.cometchat.sampleapp.flutter.android.ACTION_CALL_TIMEOUT" />
+                <action android:name="com.cometchat.sampleapp.flutter.android.ACTION_CALL_INCOMING" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".services.VoipService"
             android:foregroundServiceType="camera|microphone"

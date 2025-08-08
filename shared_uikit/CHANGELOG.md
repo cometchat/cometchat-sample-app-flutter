@@ -1,3 +1,17 @@
+## 5.0.5
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.24`.
+- Adjusted font size in message bubbles to respect system font scaling preferences, improving accessibility.
+
+## Fixes
+- Fixed an issue where the app forcefully redirected users to system settings when permissions (camera, microphone, attachments) were denied. The app now consistently displays an appropriate error message across Android and iOS platforms when permissions are not granted.
+- Resolved a bug where the search keyword was cleared from the search bar after pressing the "Done" button on the keyboard. The entered keyword now persists, allowing users to view and modify their input.
+- Fixed an error when initiating default group calls in the Flutter v5 UI Kit, which was caused by missing asset references.
+- Standardized date separator formats in the message list to ensure consistency across devices. Formats now consistently display "Today", "Yesterday", or full dates as appropriate.
+- Resolved a screen flicker issue that occurred when users initiated a voice recording while audio playback was active. Playback now stops automatically when recording starts.
+- Fixed a bug where the MessageOptionSheet did not display when only the reactions option was enabled. The options sheet now correctly displays reactions even when all other options are hidden.
+
 ## 5.0.4
 
 ## Enhancements

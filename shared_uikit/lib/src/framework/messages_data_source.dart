@@ -1233,7 +1233,7 @@ class MessagesDataSource implements DataSource {
       style: style,
       audioUrl: audioUrl,
       title: title,
-      key: ValueKey(message.muid),
+      key: ValueKey('${message.id}_${message.muid}'),
       fileMimeType: message.attachment?.fileMimeType,
       alignment: alignment,
       id: message.id,
@@ -1384,6 +1384,7 @@ class MessagesDataSource implements DataSource {
         return RichText(
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+          textScaleFactor: MediaQuery.of(context).textScaleFactor,
           text: TextSpan(
             text: prefix,
             style: subtitleStyle0,
@@ -1404,13 +1405,15 @@ class MessagesDataSource implements DataSource {
               .getLastConversationWidget(conversation, context, iconColor);
           return Row(
             children: [
-              Padding(
-                padding: EdgeInsets.only(left: spacing.padding ?? 0),
-                child: Text(
-                  prefix,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis, // Handles text overflow
-                  style: subtitleStyle0,
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: spacing.padding ?? 0),
+                  child: Text(
+                    prefix,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis, // Handles text overflow
+                    style: subtitleStyle0,
+                  ),
                 ),
               ),
               icon,

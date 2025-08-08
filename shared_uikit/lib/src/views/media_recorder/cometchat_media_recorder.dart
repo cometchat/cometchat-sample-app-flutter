@@ -372,6 +372,7 @@ class _CometChatMediaRecorderState extends State<CometChatMediaRecorder> {
   }
 
   void startRecording() async {
+    stopAudioPlaybackBeforeRecording();
     if (_isRecording ||
         path != null ||
         _isAudioRecordingCompleted) {
@@ -393,6 +394,12 @@ class _CometChatMediaRecorderState extends State<CometChatMediaRecorder> {
         _hasRecordingStarted = true;
       });
     }
+  }
+
+  void stopAudioPlaybackBeforeRecording() {
+    AudioBubbleStream().controller.sink.add(
+      AudioBubbleEvents(id: DateTime.now().millisecondsSinceEpoch, action: AudioBubbleActions.stopPlayer),
+    );
   }
 
   void stopRecording() async {

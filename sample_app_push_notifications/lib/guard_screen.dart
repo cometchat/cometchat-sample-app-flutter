@@ -6,6 +6,7 @@ import 'package:sample_app_push_notifications/demo_meta_info_constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sample_app_push_notifications/prefs/shared_preferences.dart';
+import 'package:sample_app_push_notifications/utils/initialize_cometchat.dart';
 import 'package:sample_app_push_notifications/utils/text_constants.dart';
 
 import 'app_credentials.dart';
@@ -51,42 +52,12 @@ class _GuardScreenState extends State<GuardScreen> {
   }
 
   init() async {
-    UIKitSettings uiKitSettings = (UIKitSettingsBuilder()
-          ..subscriptionType = CometChatSubscriptionType.allUsers
-          ..region = AppCredentials.region
-          ..autoEstablishSocketConnection = true
-          ..appId = AppCredentials.appId
-          ..authKey = AppCredentials.authKey
-          ..callingExtension = CometChatCallingExtension()
-          ..extensions = CometChatUIKitChatExtensions.getDefaultExtensions()
-          ..aiFeature = CometChatUIKitChatAIFeatures.getDefaultAiFeatures())
-        .build();
-
-    CometChatUIKit.init(
-      uiKitSettings: uiKitSettings,
-      onSuccess: (successMessage) async {
-        alreadyLoggedIn(context);
-        try {
-          CometChat.setDemoMetaInfo(jsonObject: {
-            "name": DemoMetaInfoConstants.name,
-            "type": DemoMetaInfoConstants.type,
-            "version": DemoMetaInfoConstants.version,
-            "bundle": DemoMetaInfoConstants.bundle,
-            "platform": DemoMetaInfoConstants.platform,
-          });
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint("setDemoMetaInfo ended with error");
-          }
-        }
-      },
-      onError: (e) {
-        shouldGoToHomeScreen.value = false;
-        if (kDebugMode) {
-          debugPrint("Initialization failed with error: ${e.details}");
-        }
-      },
-    );
+    bool isInitialized = await InitializeCometChat.init();
+    if (isInitialized) {
+      await alreadyLoggedIn(context);
+    } else {
+      shouldGoToHomeScreen.value = false;
+    }
     debugPrint("CallingExtension enable with context called in login");
   }
 
@@ -131,11 +102,10 @@ class _GuardScreenState extends State<GuardScreen> {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => value
-                    ? const MyHomePage()
-                    : const LoginSampleUsers(),
+                builder: (context) =>
+                    value ? const MyHomePage() : const LoginSampleUsers(),
               ),
-                  (route) => false,
+              (route) => false,
             );
           });
 

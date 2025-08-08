@@ -1209,4 +1209,16 @@ class TranslationsJa extends Translations {
   String get createGroupEmptyString =>
       'グループを作成する前に、すべての必須項目を入力してください。';
 
+  @override
+  String get cantSendMessageBlockedUser => "ユーザーがブロックされているため、メッセージを送信できません。";
+
+  @override
+  String get cantSendMessageNotMember => "あなたはもうこのグループのメンバーではないため、メッセージを送信できません。";
+
+  @override
+  String get youAreNoLongerPartOfThisGroup => 'あなたはもうこのグループの一員ではありません。';
+
+  @override
+  String get busy => "取り込み中";
+
 }

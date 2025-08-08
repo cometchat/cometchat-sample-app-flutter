@@ -456,6 +456,17 @@ class CometChatConversationsController
     if (_checkGroupSettings() == false) {
       return;
     }
+    if (action.actionFor is Group && (action.actionFor as Group).guid == addedTo.guid) {
+      Group updatedGroup = action.actionFor as Group;
+      updatedGroup.hasJoined = true;
+
+      action.actionFor = updatedGroup;
+
+      // ✅ ALSO update receiver if it's the same group
+      if (action.receiver is Group && (action.receiver as Group).guid == addedTo.guid) {
+        action.receiver = updatedGroup;
+      }
+    }
     refreshSingleConversation(action, true);
   }
 

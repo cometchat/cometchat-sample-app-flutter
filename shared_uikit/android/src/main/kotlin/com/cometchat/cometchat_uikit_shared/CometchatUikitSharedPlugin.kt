@@ -40,6 +40,7 @@ import android.net.Uri
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
+import androidx.core.content.ContextCompat
 
 
 /** CometchatUikitSharedPlugin */
@@ -89,6 +90,7 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
       "releaseAudioRecorderResources" -> releaseAudioRecorderResources(call,result)
       "download" -> download(call,result)
       "pauseRecordingAudio" -> pauseRecordingAudio(call,result)
+      "checkCameraPermission" -> checkCameraPermission(call, result)
       else -> result.notImplemented()
     }
   }
@@ -287,9 +289,20 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
                 }
                     Toast.makeText(context, "Permissions Granted for record audio", Toast.LENGTH_LONG).show()
                 } else {
+                audioRecordResult?.success(false)
+                audioRecordResult = null
                     Toast.makeText(context, "Permissions Denied for record audio", Toast.LENGTH_LONG).show()
                 }
             }
+
+      201 -> {
+        val granted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+        if (!granted) {
+          Toast.makeText(activity, "Permissions Denied for camera", Toast.LENGTH_LONG).show()
+        }
+        cameraPermissionResult?.success(granted)
+        cameraPermissionResult = null
+      }
 
     }
     successCallback = null
@@ -555,6 +568,30 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
   private fun pauseRecordingAudio(call: MethodCall, result: Result) {
     if (AudioRecorderEventHandler.audioRecorder != null) {
       AudioRecorderEventHandler.audioRecorder?.pauseRecording()
+    }
+  }
+
+  private var cameraPermissionResult: Result? = null
+
+  private fun checkCameraPermission(call: MethodCall, result: Result) {
+    val permission = Manifest.permission.CAMERA
+
+    if (ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED) {
+      result.success(true)
+    } else {
+      val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
+
+      if (shouldShowRationale) {
+        // Ask permission again
+        cameraPermissionResult = result
+        ActivityCompat.requestPermissions(activity, arrayOf(permission), 201)
+      } else {
+        // Show toast on main thread
+        Handler(Looper.getMainLooper()).post {
+          Toast.makeText(activity, "Camera permission is required to take photos", Toast.LENGTH_LONG).show()
+        }
+        result.success(false)
+      }
     }
   }
 }

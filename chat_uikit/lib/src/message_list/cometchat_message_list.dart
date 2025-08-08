@@ -1141,7 +1141,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       additionalConfigurations,
     );
 
-    if (options != null && options.isNotEmpty) {
+    if (options != null) {
       List<ActionItem>? actionOptions = [];
       for (var element in options) {
         Function(BaseMessage message, CometChatMessageListController state)? fn;
@@ -1179,7 +1179,6 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
         );
       }
 
-      if (actionOptions.isNotEmpty) {
         ActionItem? item = await showMessageOptionSheet(
           context: context,
           actionItems: actionOptions,
@@ -1231,7 +1230,6 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
           }
           item.onItemClick(message, controller);
         }
-      }
     }
   }
 

@@ -1224,6 +1224,18 @@ class TranslationsZh extends Translations {
   String get createGroupEmptyString =>
       '请在创建群组前填写所有必填字段。';
 
+  @override
+  String get cantSendMessageBlockedUser => "无法发送消息，因为该用户已被屏蔽。";
+
+  @override
+  String get cantSendMessageNotMember => "您无法向该群组发送消息，因为您已不再是成员。";
+
+  @override
+  String get youAreNoLongerPartOfThisGroup => '您已不再是该群组的成员。';
+
+  @override
+  String get busy => "忙碌";
+
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2419,5 +2431,17 @@ class TranslationsZhTw extends TranslationsZh {
   @override
   String get createGroupEmptyString =>
       '請在創建群組前填寫所有必填欄位。';
+
+  @override
+  String get cantSendMessageBlockedUser => "無法傳送訊息，因為該用戶已被封鎖。";
+
+  @override
+  String get cantSendMessageNotMember => "您無法傳送訊息至此群組，因為您已不再是成員。";
+
+  @override
+  String get youAreNoLongerPartOfThisGroup => '您已不再是此群組的成員。';
+
+  @override
+  String get busy => "忙碌中";
 
 }

@@ -1255,4 +1255,16 @@ class TranslationsAr extends Translations {
   String get createGroupEmptyString =>
       'يرجى ملء جميع الحقول المطلوبة قبل إنشاء مجموعة.';
 
+  @override
+  String get cantSendMessageBlockedUser => 'لا يمكن إرسال الرسالة لأن المستخدم محظور';
+
+  @override
+  String get cantSendMessageNotMember => 'لا يمكنك إرسال رسائل إلى هذه المجموعة لأنك لم تعد عضوًا فيها';
+
+  @override
+  String get youAreNoLongerPartOfThisGroup => 'لم تعد جزءًا من هذه المجموعة';
+
+  @override
+  String get busy => "مشغول";
+
 }
