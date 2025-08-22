@@ -80,6 +80,10 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
   /// [success] - Success Color
   final Color? success;
 
+  /// Error Shades
+  /// [error100] - Light/Dark mode error color
+  final Color? error100;
+
   /// Background Color
   /// [background1] - Background Color 1
   final Color? background1;
@@ -213,6 +217,7 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
     this.warning,
     this.error,
     this.success,
+    this.error100,
 
     /// Background Color
     this.background1,
@@ -291,6 +296,7 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
     Color? warning,
     Color? error,
     Color? success,
+    Color? error100,
 
     /// Background Color
     Color? background1,
@@ -367,6 +373,7 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
       warning: warning ?? this.warning,
       error: error ?? this.error,
       success: success ?? this.success,
+      error100: error100 ?? this.error100,
 
       /// Background Color
       background1: background1 ?? this.background1,
@@ -461,6 +468,7 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
       warning: Color.lerp(warning, other.warning, t),
       error: Color.lerp(error, other.error, t),
       success: Color.lerp(success, other.success, t),
+      error100: Color.lerp(error100, other.error100, t),
 
       /// Background Color
       background1: Color.lerp(background1, other.background1, t),

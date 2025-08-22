@@ -1265,6 +1265,8 @@ class TranslationsFr extends Translations {
   String get enterTheGroupPassword => 'Entrez le mot de passe du groupe';
   @override
   String get type => 'Tapez';
+  @override
+  String get messageBlockedByModeration => 'Votre message a été bloqué en raison des politiques de modération.';
 
   @override
   String get cantSendMessageBlockedUser => "Impossible d’envoyer le message car l’utilisateur est bloqué.";

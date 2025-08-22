@@ -1246,6 +1246,8 @@ class TranslationsHu extends Translations {
   String get enterTheGroupPassword => 'Adja meg a csoport jelszavát';
   @override
   String get type => 'Írja be';
+  @override
+  String get messageBlockedByModeration => 'Üzenetét moderálási irányelvek miatt blokkolták.';
 
   @override
   String get cantSendMessageBlockedUser => "Az üzenet nem küldhető, mert a felhasználó blokkolva van.";

@@ -36,8 +36,10 @@ class MessageExtensionTranslationDecorator extends DataSourceDecorator {
       additionalConfigurations,
     );
 
-    if (messageObject.metadata != null &&
-        messageObject.metadata!.containsKey('translated_message') == false && additionalConfigurations?.hideTranslateMessageOption != true) {
+    if (!ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(messageObject) &&
+        (messageObject.metadata != null &&
+            messageObject.metadata!.containsKey('translated_message') == false) &&
+        additionalConfigurations?.hideTranslateMessageOption != true) {
       textTemplateOptions.add(getOption(context));
     }
 

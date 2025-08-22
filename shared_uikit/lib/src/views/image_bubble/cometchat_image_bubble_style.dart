@@ -114,6 +114,7 @@ class CometChatImageBubbleStyle extends ThemeExtension<CometChatImageBubbleStyle
       threadedMessageIndicatorTextStyle: style.threadedMessageIndicatorTextStyle,
       threadedMessageIndicatorIconColor: style.threadedMessageIndicatorIconColor,
       senderNameTextStyle: style.senderNameTextStyle,
+      messageReceiptStyle: style.messageReceiptStyle,
     );
   }
 }

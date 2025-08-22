@@ -46,6 +46,7 @@ class CometChatOutgoingMessageBubbleStyle extends ThemeExtension<CometChatOutgoi
     this.stickerBubbleStyle,
     this.voiceCallBubbleStyle,
     this.videoCallBubbleStyle,
+    this.moderationStyle,
   });
 
   ///[messageBubbleBackgroundImage] provides background image to the message bubble of the sent message
@@ -120,6 +121,8 @@ class CometChatOutgoingMessageBubbleStyle extends ThemeExtension<CometChatOutgoi
   ///[videoCallBubbleStyle] is a [CometChatCallBubbleStyle] that can be used to style video call bubble
   final CometChatCallBubbleStyle? videoCallBubbleStyle;
 
+  ///[moderationStyle] provides style to the moderated view of the sent message
+  final CometChatModerationStyle? moderationStyle;
 
   static CometChatOutgoingMessageBubbleStyle of(BuildContext context)=> const CometChatOutgoingMessageBubbleStyle();
 
@@ -150,6 +153,7 @@ class CometChatOutgoingMessageBubbleStyle extends ThemeExtension<CometChatOutgoi
     TextStyle? senderNameTextStyle,
     CometChatCallBubbleStyle? voiceCallBubbleStyle,
     CometChatCallBubbleStyle? videoCallBubbleStyle,
+    CometChatModerationStyle? moderationStyle,
   }) {
     return CometChatOutgoingMessageBubbleStyle(
       messageBubbleBackgroundImage: messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
@@ -176,6 +180,7 @@ class CometChatOutgoingMessageBubbleStyle extends ThemeExtension<CometChatOutgoi
       stickerBubbleStyle: stickerBubbleStyle ?? this.stickerBubbleStyle,
       voiceCallBubbleStyle: voiceCallBubbleStyle ?? this.voiceCallBubbleStyle,
       videoCallBubbleStyle: videoCallBubbleStyle ?? this.videoCallBubbleStyle,
+      moderationStyle: moderationStyle ?? this.moderationStyle,
     );
   }
 
@@ -239,6 +244,7 @@ class CometChatOutgoingMessageBubbleStyle extends ThemeExtension<CometChatOutgoi
       stickerBubbleStyle: stickerBubbleStyle?.lerp(other.stickerBubbleStyle, t),
       voiceCallBubbleStyle: voiceCallBubbleStyle?.lerp(other.voiceCallBubbleStyle, t),
       videoCallBubbleStyle: videoCallBubbleStyle?.lerp(other.videoCallBubbleStyle, t),
+      moderationStyle: moderationStyle?.lerp(other.moderationStyle, t),
     );
   }
 }

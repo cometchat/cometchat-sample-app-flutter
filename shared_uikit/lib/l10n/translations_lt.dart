@@ -1246,6 +1246,8 @@ class TranslationsLt extends Translations {
   @override
   String get createGroupEmptyString =>
       'Prašome užpildyti visus privalomus laukus prieš kuriant grupę.';
+  @override
+  String get messageBlockedByModeration => 'Jūsų pranešimas buvo užblokuotas dėl moderavimo politikos.';
 
   @override
   String get cantSendMessageBlockedUser => "Negalima išsiųsti žinutės, nes naudotojas užblokuotas.";

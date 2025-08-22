@@ -66,6 +66,7 @@ class CometChatVideoBubbleStyle
   ///[messageReceiptStyle] provides style to the message receipt
   final CometChatMessageReceiptStyle? messageReceiptStyle;
 
+
   @override
   CometChatVideoBubbleStyle copyWith({
     Color? playIconColor,

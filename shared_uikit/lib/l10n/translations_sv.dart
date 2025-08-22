@@ -1239,6 +1239,8 @@ class TranslationsSv extends Translations {
   @override
   String get createGroupEmptyString =>
       'Fyll i alla obligatoriska fält innan du skapar en grupp.';
+  @override
+  String get messageBlockedByModeration => 'Ditt meddelande blockerades på grund av modereringspolicyer.';
 
   @override
   String get cantSendMessageBlockedUser => "Kan inte skicka meddelande eftersom användaren är blockerad.";

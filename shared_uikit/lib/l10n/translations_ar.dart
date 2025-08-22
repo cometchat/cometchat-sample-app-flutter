@@ -1254,6 +1254,8 @@ class TranslationsAr extends Translations {
   @override
   String get createGroupEmptyString =>
       'يرجى ملء جميع الحقول المطلوبة قبل إنشاء مجموعة.';
+  @override
+  String get messageBlockedByModeration => 'تم حظر رسالتك بسبب سياسات الاعتدال.';
 
   @override
   String get cantSendMessageBlockedUser => 'لا يمكن إرسال الرسالة لأن المستخدم محظور';

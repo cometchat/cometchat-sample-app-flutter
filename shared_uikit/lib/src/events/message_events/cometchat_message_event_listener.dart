@@ -83,4 +83,7 @@ mixin CometChatMessageEventListener implements UIEventHandler {
 
   //event for all messages read by all
   void onMessagesReadByAll(MessageReceipt messageReceipt) {}
+
+  //event for on transient message received
+  void onMessageModerated(BaseMessage message) {}
 }

@@ -181,4 +181,11 @@ class CometChatMessageEvents {
       value.onMessagesReadByAll(messageReceipt);
     });
   }
+
+  /// Called when a message is moderated.
+  static void onMessageModerated(BaseMessage message) {
+    messagesListener.forEach((key, value) {
+      value.onMessageModerated(message);
+    });
+  }
 }

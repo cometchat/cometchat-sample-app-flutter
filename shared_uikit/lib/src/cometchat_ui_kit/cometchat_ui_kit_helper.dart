@@ -48,6 +48,12 @@ class CometChatUIKitHelper {
     CometChatUserEvents.ccUserUnblocked(user);
   }
 
+  ///[onMessageModerated] is used to inform the listeners
+  ///when the logged-in user has moderated a message
+  static onMessageModerated(BaseMessage message) {
+    CometChatMessageEvents.onMessageModerated(message);
+  }
+
   //---------- Group Events ----------
   ///[onGroupCreated] is used to inform the listeners
   ///when the logged-in user creates a Group

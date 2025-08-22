@@ -1,3 +1,13 @@
+## 5.1.0
+
+## New
+- Added a **Moderation View** in the default bottom view of the message bubble. This view appears for messages that are disapproved based on their moderation status.
+- Introduced a new prop `hideModerationView` in the **CometChatMessageList** component, allowing developers to hide the Moderation View when needed.
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.25`.
+- Updated `cometchat_uikit_shared` to version `5.1.0`.
+
 ## 5.0.5
 
 ## Enhancements

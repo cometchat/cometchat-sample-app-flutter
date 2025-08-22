@@ -1267,6 +1267,8 @@ class TranslationsDe extends Translations {
   String get enterTheGroupPassword => 'Geben Sie das Gruppenpasswort ein';
   @override
   String get type => 'Eingabetyp';
+  @override
+  String get messageBlockedByModeration => 'Ihre Nachricht wurde aufgrund der Moderationsrichtlinien blockiert.';
 
   @override
   String get cantSendMessageBlockedUser => 'Nachricht kann nicht gesendet werden, da der Benutzer blockiert ist';

@@ -108,7 +108,7 @@ abstract class Translations {
   }
 
   static const LocalizationsDelegate<Translations> delegate =
-      _TranslationsDelegate();
+  _TranslationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -121,7 +121,7 @@ abstract class Translations {
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  <LocalizationsDelegate<dynamic>>[
     Translations.delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -2469,6 +2469,8 @@ abstract class Translations {
   String get createGroupEmptyString;
 
   ///In en, this translates to :
+  ///**'Your message was blocked due to moderation policies'
+  String get messageBlockedByModeration;
   ///**'Can’t send a message as the user is blocked.'
   String get cantSendMessageBlockedUser;
 
@@ -2501,7 +2503,7 @@ class _TranslationsDelegate extends LocalizationsDelegate<Translations> {
     assert(isSupported(locale), '');
     return _loadedTranslations.putIfAbsent(
       locale,
-      () => SynchronousFuture<Translations>(
+          () => SynchronousFuture<Translations>(
         lookupTranslations(locale),
       ),
     );
@@ -2515,8 +2517,8 @@ Translations lookupTranslations(Locale locale) {
   // Lookup logic when language+country codes are specified.
   final languageCode = locale.languageCode;
   assert(
-    kCometChatSupportedLanguage.contains(languageCode),
-    'lookupTranslations() called for unsupported locale "$locale"',
+  kCometChatSupportedLanguage.contains(languageCode),
+  'lookupTranslations() called for unsupported locale "$locale"',
   );
 
   switch (locale.languageCode) {
@@ -2581,7 +2583,7 @@ Translations lookupTranslations(Locale locale) {
 
   throw FlutterError(
       'Translations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+          'an issue with the localizations generation tool. Please file an issue '
+          'on GitHub with a reproducible sample app and the gen-l10n configuration '
+          'that was used.');
 }

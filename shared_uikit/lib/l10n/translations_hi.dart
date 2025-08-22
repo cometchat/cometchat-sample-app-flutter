@@ -1259,6 +1259,9 @@ class TranslationsHi extends Translations {
   @override
   String get type => 'टाइप';
   @override
+  String get messageBlockedByModeration => 'आपका संदेश मोडरेशन नीतियों के कारण ब्लॉक कर दिया गया।';
+
+  @override
   String get cantSendMessageBlockedUser => "संदेश नहीं भेजा जा सकता क्योंकि उपयोगकर्ता अवरुद्ध है।";
 
   @override

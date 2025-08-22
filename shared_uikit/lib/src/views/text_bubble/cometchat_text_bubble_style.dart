@@ -63,6 +63,7 @@ final BoxBorder? border;
   final CometChatMessageReceiptStyle? messageReceiptStyle;
 
 
+
   static CometChatTextBubbleStyle of( BuildContext context) => const CometChatTextBubbleStyle( );
 
 

@@ -1248,6 +1248,9 @@ class TranslationsNl extends Translations {
       'Vul alle verplichte velden in voordat je een groep maakt.';
 
   @override
+  String get messageBlockedByModeration => 'Je bericht werd geblokkeerd vanwege het moderatiebeleid.';
+
+  @override
   String get cantSendMessageBlockedUser => "Kan geen bericht verzenden omdat de gebruiker is geblokkeerd.";
 
   @override

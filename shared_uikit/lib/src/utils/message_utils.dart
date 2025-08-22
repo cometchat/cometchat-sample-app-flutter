@@ -1,3 +1,4 @@
+import 'package:cometchat_sdk/utils/enums/moderation_status_enum.dart';
 import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
 import 'package:flutter/material.dart';
 
@@ -50,7 +51,7 @@ class MessageUtils {
             .merge(incomingMessageBubbleStyle);
 
     final bubbleStyleData = BubbleUIBuilder.getBubbleStyle(message,
-        outgoingMessageBubbleStyle0, incomingMessageBubbleStyle0, colorPalette);
+        outgoingMessageBubbleStyle0, incomingMessageBubbleStyle0, colorPalette, typography, spacing);
     final additionalConfigurations =
         BubbleUIBuilder.getAdditionalConfigurations(
             context,
@@ -382,7 +383,9 @@ extension BubbleUIBuilder on MessageUtils {
       BaseMessage message,
       CometChatOutgoingMessageBubbleStyle? outgoingMessageBubbleStyle,
       CometChatIncomingMessageBubbleStyle? incomingMessageBubbleStyle,
-      CometChatColorPalette colorPalette) {
+      CometChatColorPalette colorPalette,
+      CometChatTypography typography,
+      CometChatSpacing spacing) {
     bool isSent = message.sender?.uid == CometChatUIKit.loggedInUser?.uid;
     if (message.deletedAt != null) {
       return CometChatMessageBubbleStyleData(
@@ -447,7 +450,12 @@ extension BubbleUIBuilder on MessageUtils {
               ? outgoingMessageBubbleStyle?.textBubbleStyle?.border
               : incomingMessageBubbleStyle?.textBubbleStyle?.border,
           borderRadius: isSent
-              ? outgoingMessageBubbleStyle?.textBubbleStyle?.borderRadius
+              ? getSentTextMediaBorderRadiusGeometry(
+                  message,
+                  outgoingMessageBubbleStyle?.textBubbleStyle?.borderRadius,
+                  colorPalette,
+                  typography,
+                  spacing)
               : incomingMessageBubbleStyle?.textBubbleStyle?.borderRadius,
           threadedMessageIndicatorIconColor: isSent
               ? outgoingMessageBubbleStyle
@@ -489,7 +497,12 @@ extension BubbleUIBuilder on MessageUtils {
               ? outgoingMessageBubbleStyle?.imageBubbleStyle?.border
               : incomingMessageBubbleStyle?.imageBubbleStyle?.border,
           borderRadius: isSent
-              ? outgoingMessageBubbleStyle?.imageBubbleStyle?.borderRadius
+              ? getSentTextMediaBorderRadiusGeometry(
+              message,
+              outgoingMessageBubbleStyle?.imageBubbleStyle?.borderRadius,
+              colorPalette,
+              typography,
+              spacing)
               : incomingMessageBubbleStyle?.imageBubbleStyle?.borderRadius,
           threadedMessageIndicatorIconColor: isSent
               ? outgoingMessageBubbleStyle
@@ -1063,6 +1076,24 @@ extension BubbleUIBuilder on MessageUtils {
     }
     return textFormatters;
   }
+
+  // This method is used to get the border radius for sent text and media messages.
+  // If the message is disapproved, it returns a specific border radius.
+  static BorderRadiusGeometry? getSentTextMediaBorderRadiusGeometry(BaseMessage message,
+  BorderRadiusGeometry? borderRadius, CometChatColorPalette colorPalette,
+      CometChatTypography typography,
+      CometChatSpacing spacing) {
+    final moderationUtil = ModerationCheckUtil.instance;
+
+    if (moderationUtil.hideModerationStatus == false && ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(message)) {
+      return BorderRadius.only(
+        topLeft: Radius.circular(spacing.radius4 ?? 16),
+        topRight: Radius.circular(spacing.radius4 ?? 16),
+      );
+    } else {
+      return borderRadius;
+    }
+  }
 }
 
 ///[CometChatMessageBubbleStyleData] is a model class which contains the style properties for the message bubble.
@@ -1078,6 +1109,9 @@ class CometChatMessageBubbleStyleData {
     this.threadedMessageIndicatorTextStyle,
     this.senderNameTextStyle,
     this.messageReceiptStyle,
+    this.moderationBackgroundColor,
+    this.moderationTextStyle,
+    this.moderationIconTint,
   });
 
   ///[messageBubbleBackgroundImage] provides background image to the message bubble of a received message
@@ -1110,6 +1144,15 @@ class CometChatMessageBubbleStyleData {
   ///[messageReceiptStyle] provides style to the message receipt
   CometChatMessageReceiptStyle? messageReceiptStyle;
 
+  ///[moderationBackgroundColor] provides background color to the moderated view
+  final Color? moderationBackgroundColor;
+
+  ///[moderationTextStyle] provides text style to the moderated view warning text
+  final TextStyle? moderationTextStyle;
+
+  ///[moderationIconTint] provides icon color for the moderated view warning icon
+  final Color? moderationIconTint;
+
   CometChatMessageBubbleStyleData copyWith({
     DecorationImage? messageBubbleBackgroundImage,
     Color? backgroundColor,
@@ -1121,6 +1164,9 @@ class CometChatMessageBubbleStyleData {
     CometChatDateStyle? messageBubbleDateStyle,
     TextStyle? senderNameTextStyle,
     CometChatMessageReceiptStyle? messageReceiptStyle,
+    Color? moderationBackgroundColor,
+    TextStyle? moderationTextStyle,
+    Color? moderationIconTint,
   }) {
     return CometChatMessageBubbleStyleData(
       messageBubbleBackgroundImage:
@@ -1138,6 +1184,10 @@ class CometChatMessageBubbleStyleData {
           messageBubbleDateStyle ?? this.messageBubbleDateStyle,
       senderNameTextStyle: senderNameTextStyle ?? this.senderNameTextStyle,
       messageReceiptStyle: messageReceiptStyle ?? this.messageReceiptStyle,
+      moderationBackgroundColor:
+          moderationBackgroundColor ?? this.moderationBackgroundColor,
+      moderationTextStyle: moderationTextStyle ?? this.moderationTextStyle,
+      moderationIconTint: moderationIconTint ?? this.moderationIconTint,
     );
   }
 
@@ -1157,6 +1207,9 @@ class CometChatMessageBubbleStyleData {
       messageBubbleDateStyle: other.messageBubbleDateStyle,
       senderNameTextStyle: other.senderNameTextStyle,
       messageReceiptStyle: other.messageReceiptStyle,
+      moderationBackgroundColor: other.moderationBackgroundColor,
+      moderationTextStyle: other.moderationTextStyle,
+      moderationIconTint: other.moderationIconTint,
     );
   }
 
@@ -1179,6 +1232,10 @@ class CometChatMessageBubbleStyleData {
           messageBubbleDateStyle ?? other.messageBubbleDateStyle,
       senderNameTextStyle: senderNameTextStyle ?? other.senderNameTextStyle,
       messageReceiptStyle: messageReceiptStyle ?? other.messageReceiptStyle,
+      moderationBackgroundColor:
+          moderationBackgroundColor ?? other.moderationBackgroundColor,
+      moderationTextStyle: moderationTextStyle ?? other.moderationTextStyle,
+      moderationIconTint: moderationIconTint ?? other.moderationIconTint,
     );
   }
 }

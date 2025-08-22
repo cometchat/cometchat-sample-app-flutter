@@ -69,6 +69,7 @@ class CometChatFileBubbleStyle extends ThemeExtension<CometChatFileBubbleStyle> 
   ///[messageReceiptStyle] provides style to the message receipt
   final CometChatMessageReceiptStyle? messageReceiptStyle;
 
+
   static CometChatFileBubbleStyle of(BuildContext context) => const CometChatFileBubbleStyle();
 
   @override

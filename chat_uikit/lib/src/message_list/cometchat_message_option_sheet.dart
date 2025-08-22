@@ -130,84 +130,81 @@ class _CometchatMessageOptionSheetState
                   ),
                 ),
               ),
-              if ((widget.hideReactionOption != true) && !(widget.hideReactions ?? false))
-                Container(
-                  decoration: BoxDecoration(
-                    color:
-                        optionStyle.backgroundColor ?? colorPalette.background1,
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    vertical: spacing.padding2 ?? 0,
-                    horizontal: spacing.padding5 ?? 0,
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ...favoriteReactions.map(
-                          (reaction) => SizedBox(
-                            height: 40,
-                            width: 40,
-                            child: GestureDetector(
-                              onTap: () async {
-                                Navigator.of(context).pop();
-                                if (widget.onReactionTap != null) {
-                                  widget.onReactionTap!(
-                                      widget.messageObject, reaction);
-                                }
-                              },
-                              child: CircleAvatar(
-                                radius: spacing.radiusMax,
-                                backgroundColor: colorPalette.background3,
-                                child: Text(
-                                  reaction,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize:
-                                        typography.heading1?.regular?.fontSize,
-                                    fontWeight: typography
-                                        .heading1?.regular?.fontWeight,
-                                    fontFamily: typography
-                                        .heading1?.regular?.fontFamily,
+              if (!ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(widget.messageObject)) ...[
+                if ((widget.hideReactionOption != true) && !(widget.hideReactions ?? false))
+                  Container(
+                    decoration: BoxDecoration(
+                      color: optionStyle.backgroundColor ?? colorPalette.background1,
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      vertical: spacing.padding2 ?? 0,
+                      horizontal: spacing.padding5 ?? 0,
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ...favoriteReactions.map(
+                                (reaction) => SizedBox(
+                              height: 40,
+                              width: 40,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  Navigator.of(context).pop();
+                                  if (widget.onReactionTap != null) {
+                                    widget.onReactionTap!(widget.messageObject, reaction);
+                                  }
+                                },
+                                child: CircleAvatar(
+                                  radius: spacing.radiusMax,
+                                  backgroundColor: colorPalette.background3,
+                                  child: Text(
+                                    reaction,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: typography.heading1?.regular?.fontSize,
+                                      fontWeight: typography.heading1?.regular?.fontWeight,
+                                      fontFamily: typography.heading1?.regular?.fontFamily,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 40,
-                          width: 40,
-                          child: CircleAvatar(
-                            radius: spacing.radiusMax,
-                            backgroundColor: colorPalette.background3,
-                            child: IconButton(
-                              onPressed: () async {
-                                if (widget.onAddReactionIconTap != null) {
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  widget.onAddReactionIconTap!(
-                                      widget.messageObject);
-                                }
-                              },
-                              icon: widget.addReactionIcon ?? Icon(
-                                Icons.add_reaction_outlined,
-                                size: 24,
-                                color: colorPalette.iconSecondary,
+                          SizedBox(
+                            height: 40,
+                            width: 40,
+                            child: CircleAvatar(
+                              radius: spacing.radiusMax,
+                              backgroundColor: colorPalette.background3,
+                              child: IconButton(
+                                onPressed: () async {
+                                  if (widget.onAddReactionIconTap != null) {
+                                    FocusManager.instance.primaryFocus?.unfocus();
+                                    widget.onAddReactionIconTap!(widget.messageObject);
+                                  }
+                                },
+                                icon: widget.addReactionIcon ??
+                                    Icon(
+                                      Icons.add_reaction_outlined,
+                                      size: 24,
+                                      color: colorPalette.iconSecondary,
+                                    ),
                               ),
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              if ((widget.hideReactionOption != true) && !(widget.hideReactions ?? false))
-                Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: colorPalette.borderLight,
-                ),
+                if ((widget.hideReactionOption != true) && !(widget.hideReactions ?? false))
+                  Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: colorPalette.borderLight,
+                  ),
+              ],
               //---reactions---
               Flexible(
                 child: ListView.builder(

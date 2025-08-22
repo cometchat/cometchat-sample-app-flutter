@@ -144,11 +144,11 @@ class CometChatMessageBubble extends StatelessWidget {
                                   if (replyView != null) replyView!,
                                   if (contentView != null) contentView!,
                                   if (statusInfoView != null) statusInfoView!,
-                                  if (bottomView != null) bottomView!,
                                 ],
                               ),
                             ),
                           ),
+                          if (bottomView != null) bottomView!,
                           if (footerView != null)
                             Row(
                               mainAxisAlignment:

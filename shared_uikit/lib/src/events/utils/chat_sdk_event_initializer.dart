@@ -115,4 +115,9 @@ class ChatSDKEventInitializer with MessageListener {
   void onMessagesReadByAll(MessageReceipt messageReceipt) {
     CometChatMessageEvents.onMessagesReadByAll(messageReceipt);
   }
+
+  @override
+  void onMessageModerated(BaseMessage message) {
+    CometChatMessageEvents.onMessageModerated(message);
+  }
 }

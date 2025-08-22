@@ -1245,6 +1245,8 @@ class TranslationsMs extends Translations {
   @override
   String get createGroupEmptyString =>
       'Sila isikan semua medan yang diperlukan sebelum membuat kumpulan.';
+  @override
+  String get messageBlockedByModeration => 'Mesej anda telah disekat kerana dasar moderasi.';
 
   @override
   String get cantSendMessageBlockedUser => "Tidak boleh hantar mesej kerana pengguna telah disekat.";

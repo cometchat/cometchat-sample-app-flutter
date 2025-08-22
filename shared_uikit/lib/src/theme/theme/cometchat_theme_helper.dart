@@ -36,6 +36,7 @@ class CometChatThemeHelper {
       warning: _getColorWarning(context),
       error: _getColorError(context),
       success: _getColorSuccess(context),
+      error100: _getColorError100(context),
       //Background Color
       background1: _getColorBackground1(context),
       background2: _getColorBackground2(context),
@@ -220,6 +221,10 @@ class CometChatThemeHelper {
   static Color _getColorSuccess(BuildContext context) =>
       _getColor(context, (cc) => cc?.success, _getAlertColors(
           context, const Color(0xFF09C26F), const Color(0xFF0B9F5D)));
+
+  static Color _getColorError100(BuildContext context) =>
+      _getColor(context, (cc) => cc?.error100, _getAlertColors(
+          context, const Color(0xFFF9EAEF), const Color(0xFF3A0C05)));
 
   /// Background colors
   static Color _getColorBackground1(BuildContext context) =>
