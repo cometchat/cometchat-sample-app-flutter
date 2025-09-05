@@ -359,15 +359,16 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
                 value.textEditingController!.text,
               );
 
-      final shouldUseBackgroundColor =
-          isTextControllerEmpty || isSameAsOldMessage || isEditModeWithoutChanges;
+      final shouldUseBackgroundColor = isTextControllerEmpty ||
+          isSameAsOldMessage ||
+          isEditModeWithoutChanges;
 
       return Container(
         decoration: BoxDecoration(
-            color: messageComposerStyle.sendButtonIconBackgroundColor ??
-                (shouldUseBackgroundColor
-                    ? colorPalette.background4
-                    : colorPalette.primary),
+          color: messageComposerStyle.sendButtonIconBackgroundColor ??
+              (shouldUseBackgroundColor
+                  ? colorPalette.background4
+                  : colorPalette.primary),
           borderRadius: messageComposerStyle.sendButtonBorderRadius ??
               BorderRadius.circular(spacing.radiusMax ?? 0),
         ),
