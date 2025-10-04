@@ -212,6 +212,16 @@ class CometChatIncomingCallController extends GetxController with CallListener {
     IncomingCallOverlay.dismiss();
   }
 
+  @override
+  void onOutgoingCallRejected(Call call) {
+    IncomingCallOverlay.dismiss();
+  }
+
+  @override
+  void onOutgoingCallAccepted(Call call) {
+    IncomingCallOverlay.dismiss();
+  }
+
   void _showError(context, CometChatException e,
       CometChatColorPalette colorPalette, CometChatTypography typography) {
     try {

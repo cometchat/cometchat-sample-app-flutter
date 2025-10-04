@@ -88,77 +88,79 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
               ),
             ),
           ),
-          body: Column(
-            children: [
-              if (value.group?.hasJoined == false || value.group?.isBannedFromGroup == true)
-                Container(
-                  width: double.infinity,
-                  color: colorPalette.warning,
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                if (value.group?.hasJoined == false || value.group?.isBannedFromGroup == true)
+                  Container(
+                    width: double.infinity,
+                    color: colorPalette.warning,
+                    padding: EdgeInsets.symmetric(
+                      vertical: spacing.padding2 ?? 0,
+                      horizontal: spacing.padding5 ?? 0,
+                    ),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(right: spacing.padding1 ?? 0),
+                          child: Icon(
+                            Icons.info_outline,
+                            color: colorPalette.iconPrimary,
+                            size: 16,
+                          ),
+                        ),
+                        Text(
+                          cc.Translations.of(context).youAreNoLongerPartOfThisGroup,
+                          style: TextStyle(
+                            fontSize: typography.caption1?.regular?.fontSize,
+                            fontFamily: typography.caption1?.regular?.fontFamily,
+                            fontWeight: typography.caption1?.regular?.fontWeight,
+                            color: colorPalette.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                Divider(
+                  color: colorPalette.borderLight,
+                  height: 1,
+                ),
+                Padding(
                   padding: EdgeInsets.symmetric(
-                    vertical: spacing.padding2 ?? 0,
                     horizontal: spacing.padding5 ?? 0,
                   ),
-                  child: Row(
+                  child: Column(
                     children: [
-                      Padding(
-                        padding: EdgeInsets.only(right: spacing.padding1 ?? 0),
-                        child: Icon(
-                          Icons.info_outline,
-                          color: colorPalette.iconPrimary,
-                          size: 16,
+                      _getProfile(context, value),
+                      Text(
+                        widget.group.name,
+                        style: TextStyle(
+                          fontSize: typography.heading2?.medium?.fontSize,
+                          fontFamily: typography.heading2?.medium?.fontFamily,
+                          fontWeight: typography.heading2?.medium?.fontWeight,
+                          color: colorPalette.textPrimary,
                         ),
                       ),
                       Text(
-                        cc.Translations.of(context).youAreNoLongerPartOfThisGroup,
+                        "${value.membersCount} ${value.membersCount == 1 ?  cc.Translations.of(context).member : cc.Translations.of(context).members}",
                         style: TextStyle(
                           fontSize: typography.caption1?.regular?.fontSize,
                           fontFamily: typography.caption1?.regular?.fontFamily,
                           fontWeight: typography.caption1?.regular?.fontWeight,
-                          color: colorPalette.textPrimary,
+                          color: colorPalette.textSecondary,
                         ),
                       ),
+                      _getOptionTiles(value),
                     ],
                   ),
                 ),
-              Divider(
-                color: colorPalette.borderLight,
-                height: 1,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: spacing.padding5 ?? 0,
+                Divider(
+                  color: colorPalette.borderLight,
+                  height: 1,
                 ),
-                child: Column(
-                  children: [
-                    _getProfile(context, value),
-                    Text(
-                      widget.group.name,
-                      style: TextStyle(
-                        fontSize: typography.heading2?.medium?.fontSize,
-                        fontFamily: typography.heading2?.medium?.fontFamily,
-                        fontWeight: typography.heading2?.medium?.fontWeight,
-                        color: colorPalette.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      "${value.membersCount} ${value.membersCount == 1 ?  cc.Translations.of(context).member : cc.Translations.of(context).members}",
-                      style: TextStyle(
-                        fontSize: typography.caption1?.regular?.fontSize,
-                        fontFamily: typography.caption1?.regular?.fontFamily,
-                        fontWeight: typography.caption1?.regular?.fontWeight,
-                        color: colorPalette.textSecondary,
-                      ),
-                    ),
-                    _getOptionTiles(value),
-                  ],
-                ),
-              ),
-              Divider(
-                color: colorPalette.borderLight,
-                height: 1,
-              ),
-              _getSecondaryActions(context, value),
-            ],
+                _getSecondaryActions(context, value),
+              ],
+            ),
           ),
         );
       },

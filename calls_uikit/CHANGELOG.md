@@ -1,3 +1,13 @@
+## 5.0.6
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.26`.
+- Updated `cometchat_uikit_shared` to version `5.1.1`.
+
+## Fixes
+- Resolved a multi-device issue where incoming call screens appeared on all devices despite the call being accepted on one.
+- Fixed video call functionality in landscape mode for reliable video communication.
+
 ## 5.0.5
 
 ## Enhancements

@@ -257,7 +257,9 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
             val intent = when {
                 type?.startsWith("image") == true -> {
                     Intent(MediaStore.ACTION_PICK_IMAGES).apply {
-                        putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, if (isMultipleSelection) 5 else 1)
+                        if (isMultipleSelection) {
+                            putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, 5)
+                        }
                     }
                 }
                 type?.startsWith("video") == true -> {
@@ -271,11 +273,18 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
                     return
                 }
             }
-            activity.startActivityForResult(intent, REQUEST_CODE)
+
+            // Check if there's an app that can handle the new photo picker intent
+            if (intent.resolveActivity(activity.packageManager) != null) {
+                activity.startActivityForResult(intent, REQUEST_CODE)
+            } else {
+                launchFileExplorer() // Fallback to file explorer
+            }
         } else {
             launchFileExplorer()
         }
     }
+
 
     private fun setPendingMethodCallAndResult(result: MethodChannel.Result): Boolean {
         if (pendingResult != null) {

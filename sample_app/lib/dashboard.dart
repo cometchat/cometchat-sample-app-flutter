@@ -62,6 +62,18 @@ class _MyPageViewState extends State<MyPageView>
     CometChat.addCallListener(_dateString + _listenerId, this);
     CometChatCallEvents.addCallEventsListener(_dateString + _listenerId, this);
     super.initState();
+
+  }
+
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed) {
+      if (BoolSingleton().value == true) {
+        IncomingCallOverlay.dismiss();
+        BoolSingleton().value = false;
+      }
+    }
   }
 
   @override
@@ -92,6 +104,14 @@ class _MyPageViewState extends State<MyPageView>
   ///[onIncomingCallReceived] method is used to handle incoming call events.
   @override
   void onIncomingCallReceived(Call call) {
+    User? user;
+    if (call.callInitiator is User) {
+      user = call.callInitiator as User;
+    }
+
+    if(user != null && user.uid == CometChatUIKit.loggedInUser?.uid){
+      return;
+    }
     final callStateController = CallStateController.instance;
     if (callStateController.isActiveCall.value == true) {
       IncomingCallOverlay.dismiss();
@@ -386,7 +406,7 @@ class _MyPageViewState extends State<MyPageView>
                           child: Padding(
                             padding: EdgeInsets.all(spacing.padding4 ?? 0),
                             child: Text(
-                              "v5.0.5",
+                              "v5.1.1",
                               style: TextStyle(
                                 fontSize: typography.body?.regular?.fontSize,
                                 fontFamily:

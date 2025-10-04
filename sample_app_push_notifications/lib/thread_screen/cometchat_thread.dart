@@ -76,14 +76,16 @@ class _CometChatThreadState extends State<CometChatThread> {
                       fontWeight: typography.heading2?.bold?.fontWeight,
                     ),
                   ),
-                  Text(
-                    name,
-                    style: TextStyle(
-                      overflow: TextOverflow.ellipsis,
-                      color: colorPalette.textSecondary,
-                      fontSize: typography.caption1?.regular?.fontSize,
-                      fontFamily: typography.caption1?.regular?.fontFamily,
-                      fontWeight: typography.caption1?.regular?.fontWeight,
+                  Expanded(
+                    child: Text(
+                      name,
+                      style: TextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        color: colorPalette.textSecondary,
+                        fontSize: typography.caption1?.regular?.fontSize,
+                        fontFamily: typography.caption1?.regular?.fontFamily,
+                        fontWeight: typography.caption1?.regular?.fontWeight,
+                      ),
                     ),
                   ),
                 ],

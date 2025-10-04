@@ -2,6 +2,7 @@ import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 
 ///[CometChatOngoingCallController] is a view model class which manages the state of [CometChatOngoingCall] widget.
 class CometChatOngoingCallController extends GetxController
@@ -38,6 +39,10 @@ class CometChatOngoingCallController extends GetxController
   @override
   void onInit() {
     super.onInit();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
      _callStateController = CallStateController.instance;
     _callStateController?.setActiveCallValue(true);
     loadCallingScreen();
@@ -45,6 +50,12 @@ class CometChatOngoingCallController extends GetxController
 
   @override
   void onClose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     _callStateController?.setActiveCallValue(false);
     super.onClose();
   }

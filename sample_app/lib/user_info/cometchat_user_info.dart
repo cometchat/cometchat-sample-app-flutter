@@ -69,78 +69,80 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
               ),
             ),
           ),
-          body: Column(
-            children: [
-              Divider(
-                color: colorPalette.borderLight,
-                height: 1,
-              ),
-              if (value.getBlockedByMe())
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: spacing.padding3 ?? 0,
-                    vertical: spacing.padding2 ?? 0,
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                Divider(
+                  color: colorPalette.borderLight,
+                  height: 1,
+                ),
+                if (value.getBlockedByMe())
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: spacing.padding3 ?? 0,
+                      vertical: spacing.padding2 ?? 0,
+                    ),
+                    color: colorPalette.warning?.withValues(alpha: 0.2),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info,
+                          color: colorPalette.warning,
+                        ),
+                        SizedBox(
+                          width: spacing.padding2,
+                        ),
+                        Text(
+                          "${cc.Translations.of(context).youHaveBlocked} ${widget.user.name}.",
+                          style: TextStyle(
+                            fontSize: typography.body?.regular?.fontSize,
+                            fontFamily: typography.body?.regular?.fontFamily,
+                            fontWeight: typography.body?.regular?.fontWeight,
+                            color: colorPalette.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  color: colorPalette.warning?.withValues(alpha: 0.2),
-                  child: Row(
+                SizedBox(
+                  height: spacing.padding5,
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: spacing.padding5 ?? 0,
+                  ),
+                  child: Column(
                     children: [
-                      Icon(
-                        Icons.info,
-                        color: colorPalette.warning,
-                      ),
-                      SizedBox(
-                        width: spacing.padding2,
-                      ),
+                      _getProfile(context, value),
                       Text(
-                        "${cc.Translations.of(context).youHaveBlocked} ${widget.user.name}.",
+                        widget.user.name,
                         style: TextStyle(
-                          fontSize: typography.body?.regular?.fontSize,
-                          fontFamily: typography.body?.regular?.fontFamily,
-                          fontWeight: typography.body?.regular?.fontWeight,
+                          fontSize: typography.heading2?.medium?.fontSize,
+                          fontFamily: typography.heading2?.medium?.fontFamily,
+                          fontWeight: typography.heading2?.medium?.fontWeight,
                           color: colorPalette.textPrimary,
                         ),
                       ),
+                      Text(
+                        value.presence,
+                        style: TextStyle(
+                          fontSize: typography.caption1?.regular?.fontSize,
+                          fontFamily: typography.caption1?.regular?.fontFamily,
+                          fontWeight: typography.caption1?.regular?.fontWeight,
+                          color: colorPalette.textSecondary,
+                        ),
+                      ),
+                      if (value.isUserBlocked) _getOptionTiles(value),
                     ],
                   ),
                 ),
-              SizedBox(
-                height: spacing.padding5,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: spacing.padding5 ?? 0,
+                Divider(
+                  color: colorPalette.borderLight,
+                  height: 1,
                 ),
-                child: Column(
-                  children: [
-                    _getProfile(context, value),
-                    Text(
-                      widget.user.name,
-                      style: TextStyle(
-                        fontSize: typography.heading2?.medium?.fontSize,
-                        fontFamily: typography.heading2?.medium?.fontFamily,
-                        fontWeight: typography.heading2?.medium?.fontWeight,
-                        color: colorPalette.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      value.presence,
-                      style: TextStyle(
-                        fontSize: typography.caption1?.regular?.fontSize,
-                        fontFamily: typography.caption1?.regular?.fontFamily,
-                        fontWeight: typography.caption1?.regular?.fontWeight,
-                        color: colorPalette.textSecondary,
-                      ),
-                    ),
-                    if (value.isUserBlocked) _getOptionTiles(value),
-                  ],
-                ),
-              ),
-              Divider(
-                color: colorPalette.borderLight,
-                height: 1,
-              ),
-              _getSecondaryActions(context, value),
-            ],
+                _getSecondaryActions(context, value),
+              ],
+            ),
           ),
         );
       },

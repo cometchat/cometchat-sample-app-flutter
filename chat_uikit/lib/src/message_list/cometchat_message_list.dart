@@ -102,6 +102,7 @@ class CometChatMessageList extends StatefulWidget {
     this.addTemplate,
     this.dateTimeFormatterCallback,
     this.hideModerationView,
+    this.hideDateSeparator = false,
   })  : assert(user != null || group != null,
             "One of user or group should be passed"),
         assert(user == null || group == null,
@@ -181,7 +182,7 @@ class CometChatMessageList extends StatefulWidget {
 
   ///[headerView] sets custom widget to header
   final Widget? Function(
-    BuildContext, {
+    BuildContext context, {
     User? user,
     Group? group,
     int? parentMessageId,
@@ -256,7 +257,7 @@ class CometChatMessageList extends StatefulWidget {
   final Function(String? reaction, BaseMessage? message)?
       onReactionListItemClick;
 
-  ///[hideStickyDate] Hide the date separator
+  ///[hideStickyDate] Hide the sticky date separator
   final bool? hideStickyDate;
 
   ///[hideReplyInThreadOption] This prop defines whether Reply In Thread option should be visible or not.
@@ -309,6 +310,9 @@ class CometChatMessageList extends StatefulWidget {
 
   /// [hideModerationView] This prop defines whether the moderation view of a message should be hidden or not.
   final bool? hideModerationView;
+
+  ///[hideDateSeparator] Hide the date separator
+  final bool? hideDateSeparator;
 
   @override
   State<CometChatMessageList> createState() => _CometChatMessageListState();
@@ -393,6 +397,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       addTemplate: widget.addTemplate,
       dateSeparatorPattern: widget.dateSeparatorPattern,
       hideModerationView: widget.hideModerationView,
+      hideStickyDate: widget.hideStickyDate,
     );
 
     super.initState();
@@ -692,13 +697,13 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
     CometChatMessageBubbleStyleData? messageBubbleStyleData,
   ) {
     final moderationViewStyle =
-    CometChatThemeHelper.getTheme<CometChatModerationStyle>(
-        context: context,
-        defaultTheme: CometChatModerationStyle.of)
-        .merge(messageListStyle.outgoingMessageBubbleStyle?.moderationStyle);
+        CometChatThemeHelper.getTheme<CometChatModerationStyle>(
+                context: context, defaultTheme: CometChatModerationStyle.of)
+            .merge(
+                messageListStyle.outgoingMessageBubbleStyle?.moderationStyle);
     return Container(
       constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width * 0.582,
+        minWidth: MediaQuery.of(context).size.width * 0.65,
       ),
       decoration: BoxDecoration(
         color: moderationViewStyle.moderationBackgroundColor ??
@@ -723,11 +728,14 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
           children: [
             Icon(
               Icons.warning,
-              color: moderationViewStyle.moderationIconTint ??
-                  colorPalette.error,
+              color:
+                  moderationViewStyle.moderationIconTint ?? colorPalette.error,
               size: 16,
             ),
-            Expanded(
+            Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.52,
+              ),
               child: Text(
                 cc.Translations.of(context).messageBlockedByModeration,
                 style: moderationViewStyle.moderationTextStyle ??
@@ -785,7 +793,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
     CometChatTypography typography,
     CometChatSpacing spacing,
   ) {
-    if (widget.hideStickyDate == true) {
+    if (widget.hideDateSeparator == true) {
       return const SizedBox.shrink();
     }
 
@@ -873,13 +881,13 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
     BuildContext context,
     CometChatMessageListController controller,
     BubbleAlignment alignment,
-      CometChatMessageListStyle messageListStyle,
-      CometChatOutgoingMessageBubbleStyle outgoingMessageBubbleStyle,
-      CometChatIncomingMessageBubbleStyle incomingMessageBubbleStyle,
-      CometChatSpacing spacing,
-      CometChatColorPalette colorPalette,
-      CometChatTypography typography,
-      CometChatMessageBubbleStyleData? messageBubbleStyleData,
+    CometChatMessageListStyle messageListStyle,
+    CometChatOutgoingMessageBubbleStyle outgoingMessageBubbleStyle,
+    CometChatIncomingMessageBubbleStyle incomingMessageBubbleStyle,
+    CometChatSpacing spacing,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatMessageBubbleStyleData? messageBubbleStyleData,
   ) {
     if (controller
             .templateMap["${message.category}_${message.type}"]?.bottomView !=
@@ -887,8 +895,10 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       return controller.templateMap["${message.category}_${message.type}"]
           ?.bottomView!(message, context, alignment);
     } else {
-      final isModerated = ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(message);
-      if (controller.moderationUtil.hideModerationStatus == false && isModerated) {
+      final isModerated = ModerationCheckUtil.instance
+          .isMessageDisapprovedFromModeration(message);
+      if (controller.moderationUtil.hideModerationStatus == false &&
+          isModerated) {
         return getModerationView(
           alignment,
           message,
@@ -947,9 +957,9 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
     CometChatTypography typography,
     CometChatSpacing spacing,
   ) {
-    if((messageObject.sender?.uid == controller.loggedInUser?.uid) && ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(messageObject)) {
-      return const SizedBox();
-    }
+    // if((messageObject.sender?.uid == controller.loggedInUser?.uid) && ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(messageObject)) {
+    //   return const SizedBox();
+    // }
     if (messageObject.replyCount != 0) {
       String replyText = messageObject.replyCount == 1
           ? cc.Translations.of(context).reply
@@ -1048,9 +1058,11 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       return controller.templateMap["${message.category}_${message.type}"]
           ?.footerView!(message, context, alignment);
     } else {
-      final isModerated = ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(message);
+      final isModerated = ModerationCheckUtil.instance
+          .isMessageDisapprovedFromModeration(message);
       return (!(widget.disableReactions ??
-              message.category == MessageCategoryConstants.interactive) && !isModerated)
+                  message.category == MessageCategoryConstants.interactive) &&
+              !isModerated)
           ? getReactionsView(
               message,
               alignment,
@@ -1255,56 +1267,56 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
         );
       }
 
-        ActionItem? item = await showMessageOptionSheet(
-          context: context,
-          actionItems: actionOptions,
-          colorPalette: colorPalette,
-          message: message,
-          state: controller,
-          addReactionIcon: widget.addReactionIcon,
-          addReactionIconTap: (message) {
-            if (widget.addMoreReactionTap != null) {
-              widget.addMoreReactionTap!(message);
-            } else {
-              controller.addReactionIconTap(message, colorPalette);
-            }
-          },
-          hideReactions: widget.disableReactions ??
-              message.category == MessageCategoryConstants.interactive,
-          hideReactionOption: widget.hideReactionOption,
-          favoriteReactions: widget.favoriteReactions,
-          onReactionTap: (message, reaction) {
-            if (widget.onReactionClick != null) {
-              widget.onReactionClick!(reaction, message);
-            } else {
-              controller.onReactionTap(message, reaction);
-            }
-          },
-          style: CometChatMessageOptionSheetStyle(
-            titleTextStyle: _optionStyle?.titleTextStyle,
-            iconColor: _optionStyle?.iconColor,
-            border: _optionStyle?.border,
-            borderRadius: _optionStyle?.borderRadius,
-            titleColor: _optionStyle?.titleColor,
-            backgroundColor: _optionStyle?.backgroundColor,
-          ),
-        );
-
-        if (item != null) {
-          if (item.id == MessageOptionConstants.replyInThreadMessage) {
-            CometChatMessageTemplate? template =
-                controller.templateMap["${message.category}_${message.type}"];
-            if (widget.onThreadRepliesClick != null && mounted) {
-              widget.onThreadRepliesClick!(
-                message,
-                context,
-                template: template,
-              );
-            }
-            return;
+      ActionItem? item = await showMessageOptionSheet(
+        context: context,
+        actionItems: actionOptions,
+        colorPalette: colorPalette,
+        message: message,
+        state: controller,
+        addReactionIcon: widget.addReactionIcon,
+        addReactionIconTap: (message) {
+          if (widget.addMoreReactionTap != null) {
+            widget.addMoreReactionTap!(message);
+          } else {
+            controller.addReactionIconTap(message, colorPalette);
           }
-          item.onItemClick(message, controller);
+        },
+        hideReactions: widget.disableReactions ??
+            message.category == MessageCategoryConstants.interactive,
+        hideReactionOption: widget.hideReactionOption,
+        favoriteReactions: widget.favoriteReactions,
+        onReactionTap: (message, reaction) {
+          if (widget.onReactionClick != null) {
+            widget.onReactionClick!(reaction, message);
+          } else {
+            controller.onReactionTap(message, reaction);
+          }
+        },
+        style: CometChatMessageOptionSheetStyle(
+          titleTextStyle: _optionStyle?.titleTextStyle,
+          iconColor: _optionStyle?.iconColor,
+          border: _optionStyle?.border,
+          borderRadius: _optionStyle?.borderRadius,
+          titleColor: _optionStyle?.titleColor,
+          backgroundColor: _optionStyle?.backgroundColor,
+        ),
+      );
+
+      if (item != null) {
+        if (item.id == MessageOptionConstants.replyInThreadMessage) {
+          CometChatMessageTemplate? template =
+              controller.templateMap["${message.category}_${message.type}"];
+          if (widget.onThreadRepliesClick != null && mounted) {
+            widget.onThreadRepliesClick!(
+              message,
+              context,
+              template: template,
+            );
+          }
+          return;
         }
+        item.onItemClick(message, controller);
+      }
     }
   }
 
@@ -1500,71 +1512,73 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
                 children: [
                   if (value.getHeaderView() != null) value.getHeaderView()!,
                   Expanded(
-                    child: ListView.builder(
-                      controller: controller.messageListScrollController,
-                      reverse: true,
-                      itemCount: value.hasMoreItems
-                          ? value.list.length + 1
-                          : value.list.length,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        if (index == value.list.length) {
-                          value.loadMoreElements();
-                          return Center(
-                            child: SizedBox(
-                              height: 30,
-                              width: 30,
-                              child: CircularProgressIndicator(
-                                color: colorPalette.primary,
-                              ),
-                            ),
-                          );
-                        }
+                    child: Stack(
+                      children: [
+                        ListView.builder(
+                          controller: controller.messageListScrollController,
+                          reverse: true,
+                          itemCount: value.hasMoreItems
+                              ? value.list.length + 1
+                              : value.list.length,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            if (index == value.list.length) {
+                              value.loadMoreElements();
+                              return Center(
+                                child: SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: CircularProgressIndicator(
+                                    color: colorPalette.primary,
+                                  ),
+                                ),
+                              );
+                            }
 
-                        controller.updateStickyDateFromIndex(
-                            index, controller.list[index].sentAt);
-
-                        return Column(
-                          children: [
-                            _getDateSeparator(
-                              value,
-                              index,
-                              context,
-                              colorPalette,
-                              typography,
-                              spacing,
-                            ),
-                            _getMessageWidget(
-                              value.list[index],
-                              value,
-                              context,
-                              messageListStyle,
-                              colorPalette,
-                              typography,
-                              spacing,
-                            ),
-                          ],
-                        );
-                      },
+                            return Column(
+                              key: controller.keys.putIfAbsent(index, () => GlobalKey()),
+                              children: [
+                                _getDateSeparator(
+                                  value,
+                                  index,
+                                  context,
+                                  colorPalette,
+                                  typography,
+                                  spacing,
+                                ),
+                                _getMessageWidget(
+                                  value.list[index],
+                                  value,
+                                  context,
+                                  messageListStyle,
+                                  colorPalette,
+                                  typography,
+                                  spacing,
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        Positioned(
+                          top: 10,
+                          left: 0,
+                          right: 0,
+                          child: value.stickyDateNotifier.value != null
+                              ? Center(
+                                  child: _buildStickyDateHeader(
+                                    value,
+                                    colorPalette,
+                                    typography,
+                                    spacing,
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
                     ),
                   ),
                   if (value.getFooterView() != null) value.getFooterView()!,
                 ],
-              ),
-              Positioned(
-                top: 10,
-                left: 0,
-                right: 0,
-                child: value.stickyDateNotifier.value != null
-                    ? Center(
-                        child: _buildStickyDateHeader(
-                          value,
-                          colorPalette,
-                          typography,
-                          spacing,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
               ),
               _getNewMessageBanner(controller, context, colorPalette, spacing),
             ],
@@ -1584,46 +1598,35 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       return const SizedBox.shrink();
     }
 
-    if (controller.currentIndex == controller.list.length - 1) {
-      return const SizedBox.shrink();
-    }
-
-    if (_isSameDate(
-      dt1: controller.list[controller.currentIndex].sentAt,
-      dt2: controller.list[controller.currentIndex + 1].sentAt,
-    )) {
-      return ValueListenableBuilder<DateTime?>(
-          valueListenable: controller.stickyDateNotifier,
-          builder: (context, stickyDate, child) {
-            return Padding(
-              padding: EdgeInsets.fromLTRB(0, spacing.padding2 ?? 0, 0, 0),
-              child: CometChatDate(
-                date: stickyDate,
-                pattern: DateTimePattern.dayDateFormat,
-                customDateString: controller.stickyDateString,
-                style: CometChatDateStyle(
-                  backgroundColor: colorPalette.background2,
-                  border: Border.all(
-                    color: colorPalette.borderDark ??
-                        colorPalette.transparent ??
-                        Colors.transparent,
-                    width: 1,
-                  ),
-                  borderRadius: BorderRadius.circular(spacing.radius1 ?? 0),
-                  textStyle: TextStyle(
-                    fontSize: typography.caption2?.medium?.fontSize,
-                    fontWeight: typography.caption2?.medium?.fontWeight,
-                    fontFamily: typography.caption2?.medium?.fontFamily,
-                    letterSpacing: 0,
-                    color: colorPalette.textPrimary,
-                  ),
-                ).merge(widget.dateSeparatorStyle),
-              ),
-            );
-          });
-    } else {
-      return const SizedBox();
-    }
+    return ValueListenableBuilder<DateTime?>(
+        valueListenable: controller.stickyDateNotifier,
+        builder: (context, stickyDate, child) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(0, spacing.padding2 ?? 0, 0, 0),
+            child: CometChatDate(
+              date: stickyDate,
+              pattern: DateTimePattern.dayDateFormat,
+              customDateString: controller.stickyDateString,
+              style: CometChatDateStyle(
+                backgroundColor: colorPalette.background2,
+                border: Border.all(
+                  color: colorPalette.borderDark ??
+                      colorPalette.transparent ??
+                      Colors.transparent,
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(spacing.radius1 ?? 0),
+                textStyle: TextStyle(
+                  fontSize: typography.caption2?.medium?.fontSize,
+                  fontWeight: typography.caption2?.medium?.fontWeight,
+                  fontFamily: typography.caption2?.medium?.fontFamily,
+                  letterSpacing: 0,
+                  color: colorPalette.textPrimary,
+                ),
+              ).merge(widget.dateSeparatorStyle),
+            ),
+          );
+        });
   }
 
   Widget? _getStatusInfoView(

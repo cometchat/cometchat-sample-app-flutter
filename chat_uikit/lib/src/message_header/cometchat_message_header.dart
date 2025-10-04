@@ -300,14 +300,14 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
           typography.caption1?.regular?.fontWeight,
     );
 
-    if (controller.isTyping == true) {
+    if (controller.isTyping == true && controller.userIsNotBlocked(controller.userObject!)) {
       subtitle = _getTypingIndicator(context, controller,
           style.typingIndicatorTextStyle, typography, colorPalette.primary);
     } else if (widget.subtitleView != null) {
       subtitle = widget.subtitleView!(
           controller.groupObject, controller.userObject, context);
     } else if (controller.userObject != null) {
-      if (controller.usersStatusVisibility == true || !controller.userIsNotBlocked(controller.userObject!)) {
+      if (controller.usersStatusVisibility == true && controller.userIsNotBlocked(controller.userObject!)) {
         subtitle = Text(
           controller.userObject?.status == UserStatusConstants.online
               ? cc.Translations.of(context).online

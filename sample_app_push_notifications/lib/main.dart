@@ -58,7 +58,6 @@ Future<void> main() async {
     print('Firebase initialization failed: $e');
   }
 
-
   runApp(const MyApp());
 }
 

@@ -89,7 +89,7 @@ class CometChatActionBubble extends StatelessWidget {
           if (leadingIcon != null) leadingIcon!,
           Flexible(
             child: Text(
-              text.replaceAll('', '\u{200B}'),
+              sanitizeUtf16(text),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
               style:
@@ -106,4 +106,35 @@ class CometChatActionBubble extends StatelessWidget {
       ),
     );
   }
+
+  String sanitizeUtf16(String input) {
+    final buffer = StringBuffer();
+    for (int i = 0; i < input.length; i++) {
+      final codeUnit = input.codeUnitAt(i);
+
+      // If this is a high surrogate, check if the next code unit is a low surrogate
+      if (codeUnit >= 0xD800 && codeUnit <= 0xDBFF) {
+        if (i + 1 < input.length) {
+          final nextUnit = input.codeUnitAt(i + 1);
+          if (nextUnit >= 0xDC00 && nextUnit <= 0xDFFF) {
+            // Valid surrogate pair, add both
+            buffer.writeCharCode(codeUnit);
+            buffer.writeCharCode(nextUnit);
+            i++; // Skip next code unit
+            continue;
+          }
+        }
+        // Invalid high surrogate, skip it
+        continue;
+      }
+
+      // If this is a low surrogate without a preceding high surrogate, skip it
+      if (codeUnit >= 0xDC00 && codeUnit <= 0xDFFF) continue;
+
+      // Valid single code unit
+      buffer.writeCharCode(codeUnit);
+    }
+    return buffer.toString();
+  }
+
 }

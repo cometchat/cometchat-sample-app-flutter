@@ -34,7 +34,7 @@ class ThumbnailGenerationExtensionDecorator extends DataSourceDecorator {
       BuildContext context,) {
     String? thumbnailUrl = checkForThumbnail(message);
     return super.getImageMessageBubble(
-        thumbnailUrl,
+        thumbnailUrl ?? imageUrl,
         placeholderImage,
         caption,
         style,
@@ -54,7 +54,6 @@ class ThumbnailGenerationExtensionDecorator extends DataSourceDecorator {
     try {
       Map<String, Map>? extensionList =
           ExtensionModerator.extensionCheck(baseMessage);
-
       if (extensionList != null &&
           extensionList.containsKey(ExtensionConstants.thumbnailGeneration)) {
         Map? thumbnailGeneration =

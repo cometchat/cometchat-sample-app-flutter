@@ -54,6 +54,7 @@ class CometChatMessageListController
     this.addTemplate,
     this.dateSeparatorPattern,
     this.hideModerationView,
+    this.hideStickyDate,
   }) : super(
             builderProtocol: user != null
                 ? (messagesBuilderProtocol
@@ -189,6 +190,9 @@ class CometChatMessageListController
   /// [hideModerationView] This prop defines whether the moderation view of a message should be hidden or not.
   final bool? hideModerationView;
 
+  ///[hideStickyDate] Hide the sticky date separator
+  final bool? hideStickyDate;
+
   bool isScrolled = false;
 
   Widget? header;
@@ -218,6 +222,40 @@ class CometChatMessageListController
     if (hasScrolled != isScrolled) {
       isScrolled = hasScrolled;
       update();
+    }
+
+    if (list.isEmpty || hideStickyDate == true) return;
+
+    final listBox = context.findRenderObject() as RenderBox?;
+    if (listBox == null) return;
+
+    final listTop = listBox.localToGlobal(Offset.zero).dy;
+
+    DateTime? topDate;
+    double maxY = double.negativeInfinity;
+    int topIndex = 0;
+
+    keys.forEach((index, key) {
+      final ctx = key.currentContext;
+      if (ctx != null) {
+        final box = ctx.findRenderObject() as RenderBox;
+        // position relative to list top
+        final y = box.localToGlobal(Offset.zero).dy - listTop;
+
+        // find the element closest to the top but still visible
+        if (y <= 0 && y > maxY) {
+          maxY = y;
+          topIndex = index;
+        }
+      }
+    });
+
+    topDate = list[topIndex].sentAt;
+
+    if (topDate != null && stickyDateNotifier.value != topDate) {
+      stickyDateNotifier.value = topDate;
+      stickyDateString =
+          dateSeparatorPattern != null ? dateSeparatorPattern!(topDate) : null;
     }
   }
 
@@ -282,11 +320,11 @@ class CometChatMessageListController
     super.onInit();
   }
 
-  final ValueNotifier<DateTime?> stickyDateNotifier =
-      ValueNotifier<DateTime?>(null);
+  ValueNotifier<DateTime?> stickyDateNotifier = ValueNotifier<DateTime?>(null);
+
+  final Map<int, GlobalKey> keys = {};
 
   String? stickyDateString;
-  int currentIndex = 0;
 
   @override
   void onClose() {
@@ -606,7 +644,6 @@ class CometChatMessageListController
     update();
   }
 
-
   //------------------------SDK Group Event Listeners------------------------------
   @override
   void onMemberAddedToGroup(
@@ -793,8 +830,27 @@ class CometChatMessageListController
   @override
   updateMessageWithMuid(BaseMessage message) {
     int matchingIndex =
-        list.indexWhere((element) => (element.muid == message.muid));
-    if (matchingIndex != -1) {
+        list.indexWhere((element) => element.muid == message.muid);
+    if (matchingIndex == -1) return;
+
+    BaseMessage existingMessage = list[matchingIndex];
+
+    if (existingMessage is TextMessage || existingMessage is MediaMessage) {
+      bool isDisapproved =
+          moderationUtil.isMessageDisapprovedFromModeration(existingMessage);
+      if (!isDisapproved) {
+        list[matchingIndex] = message;
+        update();
+      } else {
+        if (existingMessage is TextMessage) {
+          TextMessage textMessage = message as TextMessage;
+          textMessage.moderationStatus = ModerationStatusEnum.DISAPPROVED;
+        } else {
+          MediaMessage mediaMessage = message as MediaMessage;
+          mediaMessage.moderationStatus = ModerationStatusEnum.DISAPPROVED;
+        }
+      }
+    } else {
       list[matchingIndex] = message;
       update();
     }
@@ -1915,25 +1971,6 @@ class CometChatMessageListController
         apiConfiguration: apiMap,
       ),
     );
-  }
-
-  void updateStickyDateFromIndex(
-    int index,
-    DateTime? date,
-  ) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      stickyDateNotifier.value = date;
-      currentIndex = index;
-      String? formattedDate;
-
-      if (dateSeparatorPattern != null && date != null) {
-        formattedDate = dateSeparatorPattern!(date);
-      }
-
-      if (formattedDate != null && stickyDateString != formattedDate) {
-        stickyDateString = formattedDate;
-      }
-    });
   }
 }
 

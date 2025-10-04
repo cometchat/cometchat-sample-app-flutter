@@ -1,3 +1,13 @@
+## 5.1.1
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.26`.
+
+## Fixes
+- Fixed an issue where voice notes would not play without downloading first, ensuring seamless playback.
+- Addressed an issue on some devices where images could not be attached, restoring proper attachment functionality.
+- Resolved an issue on iOS devices where audio messages could not be played after reinstalling the app.
+
 ## 5.1.0
 
 ## New

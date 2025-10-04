@@ -31,6 +31,11 @@ target 'Runner' do
   use_frameworks! :linkage => :static
   use_modular_headers!
 
+    # Firebase dependencies
+    pod 'Firebase/Core'
+    pod 'Firebase/Messaging'  # Optional, if you're using FCM (Firebase Cloud Messaging)
+    pod 'Firebase/Analytics'
+
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
   target 'RunnerTests' do

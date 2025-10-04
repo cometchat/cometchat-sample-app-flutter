@@ -1,3 +1,19 @@
+## 5.1.1
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.26`.
+- Updated `cometchat_uikit_shared` to version `5.1.1`.
+
+## Fixes
+- Resolved an issue where image thumbnails were not visible, improving media preview functionality.
+- Corrected the display of moderation indicators in messages for accurate moderation visibility.
+- Addressed an issue on some devices where images could not be attached, restoring proper attachment functionality.
+- Fixed extra spacing in the last message of group conversations after sending a media message, ensuring consistent layout.
+- Added the missing `hideStickyDate` prop in `CometChatMessageList` to allow better control over message list display.
+- Resolved an issue where typed chat text was cleared when uploading an image.
+- Fixed sticky date overlapping on the message list header for a cleaner interface.
+- Fixed a problem on Android where incoming call notifications were not received when the app was killed and the screen was off.
+
 ## 5.1.0
 
 ## New

@@ -893,12 +893,6 @@ class CometChatMessageComposerController extends GetxController
       sentAt: DateTime.now(),
     );
 
-    if (textEditingController != null &&
-        textEditingController!.text.isNotEmpty) {
-      textEditingController?.clear();
-      _previousText = '';
-      update();
-    }
 
     await CometChat.sendMediaMessage(mediaMessage2,
         onSuccess: (MediaMessage message) async {

@@ -8,16 +8,12 @@ class MessageReceiptUtils {
 
     // Moderation-based receipt override for Text and Media messages
     if (message is TextMessage) {
-      if (message.moderationStatus?.value == ModerationStatusEnum.PENDING.value) {
-        return ReceiptStatus.waiting;
-      } else if (message.moderationStatus?.value ==
+      if (message.moderationStatus?.value ==
           ModerationStatusEnum.DISAPPROVED.value) {
         return ReceiptStatus.error;
       }
     } else if (message is MediaMessage) {
-      if (message.moderationStatus?.value == ModerationStatusEnum.PENDING.value) {
-        return ReceiptStatus.waiting;
-      } else if (message.moderationStatus?.value ==
+      if (message.moderationStatus?.value ==
           ModerationStatusEnum.DISAPPROVED.value) {
         return ReceiptStatus.error;
       }

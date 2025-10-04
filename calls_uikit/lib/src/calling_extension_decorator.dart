@@ -462,6 +462,11 @@ class CallingExtensionDecorator extends DataSourceDecorator
     if (call.callInitiator is User) {
       user = call.callInitiator as User;
     }
+
+    if(user != null && user.uid == _loggedInUser?.uid){
+      return;
+    }
+
     if (CallNavigationContext.navigatorKey.currentContext != null) {
       IncomingCallOverlay.show(
         context: CallNavigationContext.navigatorKey.currentContext!,

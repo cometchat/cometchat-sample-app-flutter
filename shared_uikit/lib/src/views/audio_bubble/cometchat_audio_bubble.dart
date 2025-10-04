@@ -390,9 +390,9 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
         children: [
           GestureDetector(
             onTap: () async {
-              if (!isFileExists) {
-                debugPrint("File not downloaded. Playback disabled.");
-                return;
+              // Initialize if not already done
+              if (_controller == null || !_controller!.value.isInitialized) {
+                await initializeController();
               }
               if (playerStatus == PlayStates.playing) {
                 pauseAudio();

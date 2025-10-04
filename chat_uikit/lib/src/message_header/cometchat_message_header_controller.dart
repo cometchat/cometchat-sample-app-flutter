@@ -233,8 +233,8 @@ class CometChatMessageHeaderController extends GetxController
         (usersStatusVisibility == false || !userIsNotBlocked(userObject!));
   }
 
-  bool userIsNotBlocked(User user) {
-    return user.blockedByMe != true && user.hasBlockedMe != true;
+  bool userIsNotBlocked(User? user) {
+    return user?.blockedByMe != true && user?.hasBlockedMe != true;
   }
 
   @override

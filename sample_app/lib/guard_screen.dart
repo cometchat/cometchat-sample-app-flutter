@@ -1,5 +1,4 @@
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
-import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:sample_app/auth/login_app_credential.dart';
 import 'package:sample_app/dashboard.dart';
 import 'package:flutter/foundation.dart';
@@ -102,7 +101,7 @@ class _GuardScreenState extends State<GuardScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    value ? const MyHomePage() : const LoginSampleUsers(),
+                value ? const MyHomePage() : const LoginSampleUsers(),
               ),
               (route) => false,
             );

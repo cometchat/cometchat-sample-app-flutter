@@ -39,27 +39,15 @@ windows/build/
 linux/.dart_tool/
 linux/build/
 
-# sample_app
-sample_app/.dart_tool/
-sample_app/.flutter-plugins
-sample_app/.flutter-plugins-dependencies
-sample_app/.packages
-sample_app/build/
-sample_app/.idea/
-sample_app/*.iml
-sample_app/.vscode/
-sample_app/amdroid/app/.cxx/
-
-# sample_app_push_notifications
-sample_app_push_notifications/.dart_tool/
-sample_app_push_notifications/.flutter-plugins
-sample_app_push_notifications/.flutter-plugins-dependencies
-sample_app_push_notifications/.packages
-sample_app_push_notifications/build/
-sample_app_push_notifications/.idea/
-sample_app_push_notifications/*.iml
-sample_app_push_notifications/.vscode/
-sample_app_push_notifications/amdroid/app/.cxx/
+# Master App
+master_app/.dart_tool/
+master_app/.flutter-plugins
+master_app/.flutter-plugins-dependencies
+master_app/.packages
+master_app/build/
+master_app/.idea/
+master_app/*.iml
+master_app/.vscode/
 
 # Calls UI Kit
 calls_uikit/.dart_tool/
