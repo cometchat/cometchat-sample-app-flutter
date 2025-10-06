@@ -2,11 +2,11 @@ import 'package:sample_app_push_notifications/prefs/shared_preferences.dart';
 import 'package:sample_app_push_notifications/utils/text_constants.dart';
 
 class AppCredentials {
-  static String _appId = "";
-  static String _authKey = "";
-  static String _region = "";
-  static String _fcmProviderId = "";
-  static String _apnProviderId = "";
+  static String _appId = "YOUR_APP_ID";
+  static String _authKey = "YOUR_AUTH_KEY";
+  static String _region = "REGION";
+  static String _fcmProviderId = "FCM_PROVIDER_ID";
+  static String _apnProviderId = "APN_PROVIDER_ID";
 
   // Getters
   static String get appId {
