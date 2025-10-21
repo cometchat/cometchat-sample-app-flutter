@@ -5,7 +5,7 @@
 
 # Flutter AI Agents Sample App by CometChat
 
-This reference application demonstrates how to seamlessly integrate CometChat’s [Flutter UI Kit](https://www.cometchat.com/docs/ui-kit/flutter/overview) into a React Native project. It showcases the implementation of AI-powered chat agents using the UI Kit, highlighting how developers can leverage its prebuilt components to create rich, interactive messaging experiences with minimal effort.
+This reference application demonstrates how to seamlessly integrate CometChat’s [Flutter UI Kit](https://www.cometchat.com/docs/ui-kit/flutter/overview) into a Flutter project. It showcases the implementation of AI-powered chat agents using the UI Kit, highlighting how developers can leverage its prebuilt components to create rich, interactive messaging experiences with minimal effort.
 
 <div style="display: flex; align-items: center; justify-content: center">
    <img src="../screenshots/ai-agents-overview.png" />
