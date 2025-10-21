@@ -1254,4 +1254,37 @@ class TranslationsSv extends Translations {
   @override
   String get busy => "Upptagen";
 
+  @override
+  String get noConversationHistoryFound => "Ingen konversationshistorik hittades.";
+
+  @override
+  String get somethingWentWrongTryAgain => "Något gick fel hos oss. Vänligen försök igen.";
+
+  @override
+  String get startChatByTappingNewChat => 'Starta en chatt genom att trycka på knappen "Ny chatt".';
+
+  @override
+  String get chatHistory => "Chattlogg";
+
+  @override
+  String get askAnything => "Fråga vad som helst";
+
+  @override
+  String get aiAssistant => "AI-assistent";
+
+  @override
+  String get aiAgent => "AI-agent";
+
+  @override
+  String get agents => "Agenter";
+  @override
+  String get noInternetConnection => "Ingen internetanslutning";
+  @override
+  String get logoutFailedTryAgain => "Utloggning misslyckades. Försök igen.";
+  @override
+  String get thinking => "Tänker...";
+
+  @override
+  String get aiAssistants => "AI-assistenter";
+
 }

@@ -57,9 +57,13 @@ export 'src/events/message_events/cometchat_message_events.dart';
 
 export 'src/events/ui_events/cometchat_ui_event_listener.dart';
 export 'src/events/ui_events/cometchat_ui_events.dart';
-//
+
+
 export 'src/events/call_events/cometchat_call_events.dart';
 export 'src/events/call_events/cometchat_call_event_listener.dart';
+
+export 'src/events/ai_assistant_events/cometchat_ai_assistant_events.dart';
+export 'src/events/ai_assistant_events/cometchat_ai_assistant_events_listener.dart';
 
 //---helpers---
 export 'src/cometchat_ui_kit/ui_kit_settings.dart';
@@ -92,6 +96,7 @@ export 'src/utils/widget_position_util.dart';
 export 'src/utils/ai_constants.dart';
 export 'src/utils/ai_utils.dart';
 export 'src/utils/moderation_check_util.dart';
+export 'src/utils/text_marquee_effect.dart';
 
 //---views---
 //cometchat badge
@@ -340,3 +345,16 @@ export 'src/models/extension_bubble_styles/cometchat_incoming_message_bubble_sty
 export 'src/models/extension_bubble_styles/cometchat_outgoing_message_bubble_style.dart';
 export 'src/models/extension_bubble_styles/cometchat_moderation_style.dart';
 export 'src/models/date_time_formatter_callback.dart';
+
+//Ai Assistant bubble
+export 'src/views/ai_assistant_bubble/cometchat_ai_assistant_bubble.dart';
+export 'src/views/ai_assistant_bubble/cometchat_ai_assistant_bubble_Style.dart';
+export 'src/views/stream_bubble/cometchat_stream_bubble.dart';
+
+// Service
+export 'src/services/cometchat_stream_service.dart';
+export 'src/services/cometchat_stream_callback.dart';
+
+// Stream Message model
+export 'src/models/ai/stream_message.dart';
+

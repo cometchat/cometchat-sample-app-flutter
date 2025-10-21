@@ -123,7 +123,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
                           color: colorPalette.textPrimary,
                         ),
                       ),
-                      Text(
+                        Text(
                         value.presence,
                         style: TextStyle(
                           fontSize: typography.caption1?.regular?.fontSize,
@@ -278,7 +278,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
             cc.Translations.of(context).video,
             () {
               controller.initiateCallWorkflow(
-                CallTypeConstants.audioCall,
+                CallTypeConstants.videoCall,
                 context,
               );
             },

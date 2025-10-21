@@ -722,6 +722,7 @@ class _CometChatGroupsState extends State<CometChatGroups> {
       return Center(child: widget.emptyStateView!(context));
     } else {
       return Center(
+        child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -762,7 +763,7 @@ class _CometChatGroupsState extends State<CometChatGroups> {
                   ),
             ),
           ],
-        ),
+        )),
       );
     }
   }

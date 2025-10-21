@@ -108,7 +108,7 @@ abstract class Translations {
   }
 
   static const LocalizationsDelegate<Translations> delegate =
-  _TranslationsDelegate();
+      _TranslationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -121,7 +121,7 @@ abstract class Translations {
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-  <LocalizationsDelegate<dynamic>>[
+      <LocalizationsDelegate<dynamic>>[
     Translations.delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -2471,6 +2471,7 @@ abstract class Translations {
   ///In en, this translates to :
   ///**'Your message was blocked due to moderation policies'
   String get messageBlockedByModeration;
+
   ///**'Can’t send a message as the user is blocked.'
   String get cantSendMessageBlockedUser;
 
@@ -2486,7 +2487,53 @@ abstract class Translations {
   ///**'Busy'
   String get busy;
 
+  ///In en, this translates to :
+  ///**'No conversation history found. Start a chat by tapping the 'New Chat' button'
+  String get noConversationHistoryFound;
 
+  ///In en, this translates to :
+  ///**'Something went wrong on our end. Please try again.'
+  String get somethingWentWrongTryAgain;
+
+  ///In en, this translates to :
+  ///**'Start a chat by tapping the 'New Chat' button'
+  String get startChatByTappingNewChat;
+
+  ///In en, this translates to :
+  ///**'Chat History'
+  String get chatHistory;
+
+  ///In en, this translates to :
+  ///**'Ask anything…'
+  String get askAnything;
+
+  ///In en, this translates to :
+  ///**'AI Assistant'
+  String get aiAssistant;
+
+  ///In en, this translates to :
+  ///**'AI Agent'
+  String get aiAgent;
+
+  ///In en, this translates to :
+  ///**'Agents'
+  String get agents;
+
+  ///In en, this translates to :
+  ///**'No internet connection'
+  String get noInternetConnection;
+
+  ///In en, this translates to :
+  ///**'Logout failed. Try again.'
+  String get logoutFailedTryAgain;
+
+  ///In en, this translates to :
+  ///**'Thinking...'
+  String get thinking;
+
+  ///In en, this translates to :
+  ///**'AI Assistants'
+  String get aiAssistants;
 }
 
 class _TranslationsDelegate extends LocalizationsDelegate<Translations> {
@@ -2503,7 +2550,7 @@ class _TranslationsDelegate extends LocalizationsDelegate<Translations> {
     assert(isSupported(locale), '');
     return _loadedTranslations.putIfAbsent(
       locale,
-          () => SynchronousFuture<Translations>(
+      () => SynchronousFuture<Translations>(
         lookupTranslations(locale),
       ),
     );
@@ -2517,8 +2564,8 @@ Translations lookupTranslations(Locale locale) {
   // Lookup logic when language+country codes are specified.
   final languageCode = locale.languageCode;
   assert(
-  kCometChatSupportedLanguage.contains(languageCode),
-  'lookupTranslations() called for unsupported locale "$locale"',
+    kCometChatSupportedLanguage.contains(languageCode),
+    'lookupTranslations() called for unsupported locale "$locale"',
   );
 
   switch (locale.languageCode) {
@@ -2583,7 +2630,7 @@ Translations lookupTranslations(Locale locale) {
 
   throw FlutterError(
       'Translations.delegate failed to load unsupported locale "$locale". This is likely '
-          'an issue with the localizations generation tool. Please file an issue '
-          'on GitHub with a reproducible sample app and the gen-l10n configuration '
-          'that was used.');
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

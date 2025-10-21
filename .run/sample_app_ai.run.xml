@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="sample_app_ai" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="filePath" value="$PROJECT_DIR$/ai_sample_app/lib/main.dart" />
+    <option name="additionalArgs" value="--profile" />
+    <method v="2" />
+  </configuration>
+</component>

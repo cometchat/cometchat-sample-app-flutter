@@ -417,7 +417,8 @@ class CallingExtensionDecorator extends DataSourceDecorator
       {AdditionalConfigurations? additionalConfigurations}) {
     //retrieve the contents of the header menu from the data source.
     Widget? currentHeaderMenu = dataSource.getAuxiliaryHeaderMenu(
-        context, user, group, additionalConfigurations:  additionalConfigurations);
+        context, user, group,
+        additionalConfigurations: additionalConfigurations);
 
     //initializing an empty list of widgets.
     List<Widget> menuItems = [];
@@ -426,12 +427,15 @@ class CallingExtensionDecorator extends DataSourceDecorator
     menuItems.add(CometChatCallButtons(
       user: user,
       group: group,
-      callButtonsStyle: (configuration?.callButtonsConfiguration?.callButtonsStyle ??
-              const CometChatCallButtonsStyle())
-          .merge(additionalConfigurations?.callButtonsStyle),
+      callButtonsStyle:
+          (configuration?.callButtonsConfiguration?.callButtonsStyle ??
+                  const CometChatCallButtonsStyle())
+              .merge(additionalConfigurations?.callButtonsStyle),
       onError: configuration?.callButtonsConfiguration?.onError,
-      hideVoiceCallButton: additionalConfigurations?.hideVoiceCallButton ?? configuration?.callButtonsConfiguration?.hideVoiceCallButton,
-      hideVideoCallButton: additionalConfigurations?.hideVideoCallButton ?? configuration?.callButtonsConfiguration?.hideVideoCallButton,
+      hideVoiceCallButton: additionalConfigurations?.hideVoiceCallButton ??
+          configuration?.callButtonsConfiguration?.hideVoiceCallButton,
+      hideVideoCallButton: additionalConfigurations?.hideVideoCallButton ??
+          configuration?.callButtonsConfiguration?.hideVideoCallButton,
       voiceCallIcon: configuration?.callButtonsConfiguration?.voiceCallIcon,
       videoCallIcon: configuration?.callButtonsConfiguration?.videoCallIcon,
       outgoingCallConfiguration:

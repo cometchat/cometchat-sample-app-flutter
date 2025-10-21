@@ -29,16 +29,31 @@ class ConversationUtils {
 
   static String getLastCustomMessage(
       Conversation conversation, BuildContext context) {
-    CustomMessage customMessage = conversation.lastMessage as CustomMessage;
-    String messageType = customMessage.type;
-    String subtitle = '';
+    if(conversation.lastMessage is CustomMessage) {
+      CustomMessage customMessage = conversation.lastMessage as CustomMessage;
+      String messageType = customMessage.type;
+      String subtitle = '';
 
-    switch (messageType) {
-      default:
-        subtitle = messageType;
-        break;
+      switch (messageType) {
+        default:
+          subtitle = messageType;
+          break;
+      }
+      return subtitle;
+    } else if(conversation.lastMessage is AIAssistantMessage) {
+      AIAssistantMessage aiAssistantMessage = conversation.lastMessage as AIAssistantMessage;
+      String messageType = aiAssistantMessage.type;
+      String subtitle = '';
+
+      switch (messageType) {
+        default:
+          subtitle = messageType;
+          break;
+      }
+      return subtitle;
+    } else {
+      return "";
     }
-    return subtitle;
   }
 
   static String getLastMessage(

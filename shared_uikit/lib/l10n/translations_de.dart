@@ -1282,4 +1282,39 @@ class TranslationsDe extends Translations {
   @override
   String get busy => "Beschäftigt";
 
+  @override
+  String get noConversationHistoryFound => "Kein Gesprächsverlauf gefunden.";
+
+  @override
+  String get somethingWentWrongTryAgain => "Etwas ist schiefgelaufen. Bitte versuche es erneut.";
+
+  @override
+  String get startChatByTappingNewChat => 'Beginne einen Chat, indem du auf die Schaltfläche "Neuer Chat" tippst.';
+
+  @override
+  String get chatHistory => "Chatverlauf";
+
+  @override
+  String get askAnything => "Frag mich irgendetwas";
+
+  @override
+  String get aiAssistant => "KI-Assistent";
+
+  @override
+  String get aiAgent => "KI-Agent";
+
+  @override
+  String get agents => "Agenten";
+
+  @override
+  String get noInternetConnection => "Keine Internetverbindung";
+
+  @override
+  String get logoutFailedTryAgain => "Abmeldung fehlgeschlagen. Bitte erneut versuchen.";
+
+  @override
+  String get thinking => "Denke...";
+
+  @override
+  String get aiAssistants => "KI-Assistenten";
 }

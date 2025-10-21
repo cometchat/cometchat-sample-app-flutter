@@ -13,7 +13,13 @@ class CometChatMessagesController extends GetxController
   CometChatMessagesController(
     this.user,
     this.group,
-  );
+  ) {
+    tag = "tag$counter";
+    counter++;
+  }
+
+  static int counter = 0;
+  late String tag;
 
   User? user;
   Group? group;
@@ -280,5 +286,4 @@ class CometChatMessagesController extends GetxController
       update();
     }
   }
-
 }

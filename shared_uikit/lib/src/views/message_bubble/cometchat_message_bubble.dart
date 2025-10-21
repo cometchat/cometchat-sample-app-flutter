@@ -21,17 +21,17 @@ import '../../../../cometchat_uikit_shared.dart';
 class CometChatMessageBubble extends StatelessWidget {
   const CometChatMessageBubble(
       {super.key,
-      this.style = const CometChatMessageBubbleStyle(),
-      this.alignment,
-      this.contentView,
-      this.footerView,
-      this.headerView,
-      this.leadingView,
-      this.replyView,
-      this.threadView,
-      this.bottomView,
-      this.statusInfoView,
-      this.height,
+        this.style = const CometChatMessageBubbleStyle(),
+        this.alignment,
+        this.contentView,
+        this.footerView,
+        this.headerView,
+        this.leadingView,
+        this.replyView,
+        this.threadView,
+        this.bottomView,
+        this.statusInfoView,
+        this.height,
         this.width,
         this.padding,
         this.margin
@@ -90,7 +90,7 @@ class CometChatMessageBubble extends StatelessWidget {
       margin: margin,
       child: Padding(
         padding:
-           padding ??  EdgeInsets.symmetric(vertical: spacing.padding2 ?? 0, horizontal: spacing.padding4 ?? 0),
+        padding ??  EdgeInsets.symmetric(vertical: spacing.padding2 ?? 0, horizontal: spacing.padding4 ?? 0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -121,15 +121,15 @@ class CometChatMessageBubble extends StatelessWidget {
                           Container(
                             padding: EdgeInsets.fromLTRB(spacing.padding1 ?? 0, spacing.padding1 ?? 0, spacing.padding1 ?? 0, 0),
                             decoration: BoxDecoration(
-                                color: _getBubbleBackgroundColor(messageBubbleStyle, colorPalette),
-                                borderRadius: messageBubbleStyle.borderRadius ??  BorderRadius.all(
-                                    Radius.circular(spacing.radius3 ?? 0)),
-                                border: messageBubbleStyle.border,
+                              color: _getBubbleBackgroundColor(messageBubbleStyle, colorPalette),
+                              borderRadius: messageBubbleStyle.borderRadius ??  BorderRadius.all(
+                                  Radius.circular(spacing.radius3 ?? 0)),
+                              border: messageBubbleStyle.border,
                               image: messageBubbleStyle.backgroundImage,
                             ),
                             child: ClipRRect(
                               borderRadius: messageBubbleStyle.borderRadius ??  BorderRadius.all(
-                                Radius.circular(spacing.radius3 ?? 0)),
+                                  Radius.circular(spacing.radius3 ?? 0)),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment:
@@ -148,9 +148,9 @@ class CometChatMessageBubble extends StatelessWidget {
                           if (footerView != null)
                             Row(
                               mainAxisAlignment:
-                                  alignment == BubbleAlignment.right
-                                      ? MainAxisAlignment.end
-                                      : MainAxisAlignment.start,
+                              alignment == BubbleAlignment.right
+                                  ? MainAxisAlignment.end
+                                  : MainAxisAlignment.start,
                               children: [
                                 footerView!,
                               ],

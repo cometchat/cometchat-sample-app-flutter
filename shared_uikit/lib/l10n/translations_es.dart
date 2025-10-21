@@ -1276,4 +1276,35 @@ class TranslationsEs extends Translations {
   @override
   String get busy => "Ocupado";
 
+  @override
+  String get noConversationHistoryFound => "No se encontró historial de conversaciones.";
+
+  @override
+  String get somethingWentWrongTryAgain => "Algo salió mal de nuestro lado. Por favor, inténtalo de nuevo.";
+
+  @override
+  String get startChatByTappingNewChat => 'Inicia un chat tocando el botón "Nuevo chat".';
+
+  @override
+  String get chatHistory => "Historial de chat";
+
+  @override
+  String get askAnything => "Pregunta lo que quieras";
+
+  @override
+  String get aiAssistant => "Asistente de IA";
+
+  @override
+  String get aiAgent => "Agente de IA";
+
+  @override
+  String get agents => "Agentes";
+  @override
+  String get noInternetConnection => "Sin conexión a Internet";
+  @override
+  String get logoutFailedTryAgain => "Error al cerrar sesión. Inténtalo de nuevo.";
+  @override
+  String get thinking => "Pensando...";
+  @override
+  String get aiAssistants => "Asistentes de IA";
 }

@@ -1257,4 +1257,36 @@ class TranslationsRu extends Translations {
   @override
   String get busy => "Занят";
 
+  @override
+  String get noConversationHistoryFound => "История чатов не найдена.";
+
+  @override
+  String get somethingWentWrongTryAgain => "Произошла ошибка на нашей стороне. Пожалуйста, попробуйте снова.";
+
+  @override
+  String get startChatByTappingNewChat => 'Начните чат, нажав кнопку "Новый чат".';
+
+  @override
+  String get chatHistory => "История чатов";
+
+  @override
+  String get askAnything => "Спросите что угодно";
+
+  @override
+  String get aiAssistant => "AI помощник";
+
+  @override
+  String get aiAgent => "AI-агент";
+
+  @override
+  String get agents => "Агенты";
+  @override
+  String get noInternetConnection => "Нет подключения к интернету";
+  @override
+  String get logoutFailedTryAgain => "Выход не выполнен. Попробуйте снова.";
+  @override
+  String get thinking => "Обработка...";
+  @override
+  String get aiAssistants => "AI помощники";
+
 }

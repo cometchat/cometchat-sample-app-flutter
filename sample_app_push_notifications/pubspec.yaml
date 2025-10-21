@@ -3,7 +3,7 @@ description: "CometChat Flutter Sample App"
 publish_to: 'none'
 
 
-version: 5.1.1
+version: 5.2.1
 
 environment:
   sdk: ^3.5.0
@@ -18,10 +18,8 @@ dependencies:
 
   intl: any
   cupertino_icons: ^1.0.2
-  cometchat_chat_uikit:
-    path: ../chat_uikit
-  cometchat_calls_uikit:
-    path: ../calls_uikit
+  cometchat_chat_uikit: ^5.1.1
+  cometchat_calls_uikit: ^5.0.6
   http: ^1.1.0
   toast: ^0.3.0
   path_provider: ^2.1.4
@@ -44,15 +42,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: any
-
-dependency_overrides:
-  cometchat_chat_uikit:
-    path: ../chat_uikit
-  cometchat_calls_uikit:
-    path: ../calls_uikit
-  cometchat_uikit_shared:
-    path: ../shared_uikit
-
 
 flutter_icons:
   android: "launcher_icon"
@@ -113,10 +102,10 @@ flutter:
     - assets/sample_app/
 
 flutter_native_splash:
-    color: "#FFFFFF"
-    color_dark: "#121212"
-    image: assets/cometchat_logo.png
-    android: true
-    ios: true
-    android_gravity: center
-    ios_content_mode: center
+  color: "#FFFFFF"
+  color_dark: "#121212"
+  image: assets/cometchat_logo.png
+  android: true
+  ios: true
+  android_gravity: center
+  ios_content_mode: center

@@ -1262,4 +1262,36 @@ class TranslationsNl extends Translations {
   @override
   String get busy => "Bezet";
 
+  @override
+  String get noConversationHistoryFound => "Geen gespreksgeschiedenis gevonden.";
+
+  @override
+  String get somethingWentWrongTryAgain => "Er is iets misgegaan aan onze kant. Probeer het opnieuw.";
+
+  @override
+  String get startChatByTappingNewChat => 'Begin een chat door op de knop "Nieuwe chat" te tikken.';
+
+  @override
+  String get chatHistory => "Chatgeschiedenis";
+
+  @override
+  String get askAnything => "Vraag maar iets";
+
+  @override
+  String get aiAssistant => "AI-assistent";
+
+  @override
+  String get aiAgent => "AI-agent";
+
+  @override
+  String get agents => "Agenten";
+  @override
+  String get noInternetConnection => "Geen internetverbinding";
+  @override
+  String get logoutFailedTryAgain => "Uitloggen mislukt. Probeer het opnieuw.";
+  @override
+  String get thinking => "Bezig met nadenken...";
+  @override
+  String get aiAssistants => "AI-assistenten";
+
 }

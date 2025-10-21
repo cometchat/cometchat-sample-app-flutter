@@ -48,7 +48,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
         setState(() {});
       },
       onError: (e) {
-        print("Group Info: Group fetching failed with exception: ${e.message}");
+        debugPrint("Group Info: Group fetching failed with exception: ${e.message}");
       },
     );
   }

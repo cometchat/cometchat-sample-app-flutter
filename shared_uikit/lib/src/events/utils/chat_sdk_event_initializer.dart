@@ -1,6 +1,6 @@
 import '../../../cometchat_uikit_shared.dart';
 
-class ChatSDKEventInitializer with MessageListener {
+class ChatSDKEventInitializer with MessageListener, AIAssistantListener {
   //Do not use this id, its reserved for cometchat own structure
   final String _listenerId = "__CometChatConstantListenerID__";
 
@@ -119,5 +119,25 @@ class ChatSDKEventInitializer with MessageListener {
   @override
   void onMessageModerated(BaseMessage message) {
     CometChatMessageEvents.onMessageModerated(message);
+  }
+
+  @override
+  void onAIAssistantMessageReceived(AIAssistantMessage aiAssistantMessage) {
+    CometChatMessageEvents.onAIAssistantMessageReceived(aiAssistantMessage);
+  }
+
+  @override
+  void onAIToolResultReceived(AIToolResultMessage aiToolResultMessage) {
+    CometChatMessageEvents.onAIToolResultReceived(aiToolResultMessage);
+  }
+
+  @override
+  void onAIToolArgumentsReceived(AIToolArgumentMessage aiToolArgumentMessage) {
+    CometChatMessageEvents.onAIToolArgumentsReceived(aiToolArgumentMessage);
+  }
+
+  @override
+  void onAIAssistantEventReceived(AIAssistantBaseEvent aiAssistantBaseEvent) {
+    CometChatAIAssistantEvents.onAIAssistantEventReceived(aiAssistantBaseEvent);
   }
 }

@@ -22,6 +22,7 @@ class CometChatThreadedHeader extends StatefulWidget {
     this.template,
     this.height,
     this.width,
+    this.receiptsVisibility = true,
   });
 
   ///[parentMessage] parent message for thread
@@ -44,6 +45,9 @@ class CometChatThreadedHeader extends StatefulWidget {
 
   ///[width] provides width to the widget
   final double? width;
+
+  ///[receiptsVisibility] controls visibility of receipts
+  final bool? receiptsVisibility;
 
   @override
   State<CometChatThreadedHeader> createState() =>
@@ -151,7 +155,8 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
             .outgoingMessageBubbleStyle,
         incomingMessageBubbleStyle: threadedHeaderStyle.incomingMessageBubbleStyle,
         textFormatters: CometChatUIKit.getDataSource().getDefaultTextFormatters(),
-        key: key
+        key: key,
+        receiptsVisibility: widget.receiptsVisibility,
     );
 
     final maxHeight = MediaQuery.of(context).size.height * 0.30;

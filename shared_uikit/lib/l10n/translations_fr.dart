@@ -1280,4 +1280,36 @@ class TranslationsFr extends Translations {
   @override
   String get busy => "Occupé";
 
+  @override
+  String get noConversationHistoryFound => "Aucun historique de conversation trouvé.";
+
+  @override
+  String get somethingWentWrongTryAgain => "Une erreur s'est produite de notre côté. Veuillez réessayer.";
+
+  @override
+  String get startChatByTappingNewChat => 'Commencez une discussion en appuyant sur le bouton "Nouvelle discussion".';
+
+  @override
+  String get chatHistory => "Historique des discussions";
+
+  @override
+  String get askAnything => "Demandez-moi n'importe quoi";
+
+  @override
+  String get aiAssistant => "Assistant IA";
+
+  @override
+  String get aiAgent => "Agent IA";
+
+  @override
+  String get agents => "Agents";
+  @override
+  String get noInternetConnection => "Pas de connexion Internet";
+  @override
+  String get logoutFailedTryAgain => "Échec de la déconnexion. Réessayez.";
+  @override
+  String get thinking => "Réflexion...";
+
+  @override
+  String get aiAssistants => "Assistants IA";
 }

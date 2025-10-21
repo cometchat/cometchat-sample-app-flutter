@@ -28,8 +28,14 @@ class LocalNotificationService {
   /// If a valid notification ID (`tag`) is not provided in the payload,
   /// a fallback ID based on timestamp is generated.
   static void showNotification(Map<String, dynamic> notificationData,
-      RemoteMessage remoteMessage, String? conversationId) async {
+      RemoteMessage remoteMessage, String? conversationId, bool isAgentic) async {
     print("[FCM] Showing local notification with data: $notificationData");
+    print("[FCM] Showing local notification conversationId: $conversationId");
+
+    if(isAgentic) {
+      print("[FCM] Agentic mode - skipping local notification.");
+      return;
+    }
     // Define Android-specific notification configuration
     AndroidNotificationDetails androidPlatformChannelSpecifics =
         const AndroidNotificationDetails(

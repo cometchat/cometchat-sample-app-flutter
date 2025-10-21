@@ -52,6 +52,7 @@ class CometChatCallLogsController
         if (fetchedList.isEmpty) {
           isLoading = false;
           hasMoreItems = false;
+          onEmpty?.call();
         } else {
           isLoading = false;
           hasMoreItems = true;
@@ -69,9 +70,12 @@ class CometChatCallLogsController
               list.add(element);
             }
           }
+          onLoad?.call(list);
         }
         update();
       }, onError: (CometChatCallsException e) {
+        onError?.call(e);
+        hasError = true;
         if (kDebugMode) {
           debugPrint("Error -> ${e.details}");
         }
@@ -79,7 +83,6 @@ class CometChatCallLogsController
           onError!(e);
         } else {
           error = e;
-          hasError = true;
         }
 
         update();

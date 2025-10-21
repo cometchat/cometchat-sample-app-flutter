@@ -69,3 +69,8 @@ export 'package:cometchat_sdk/handlers/call_listener.dart';
 export 'src/ai/ai.dart';
 
 export 'src/message_composer/cometchat_suggestion_list_style.dart';
+
+//Ai Assistant Chat History
+export 'src/ai_assistant_chat_history/cometchat_ai_assistant_chat_history.dart';
+export 'src/ai_assistant_chat_history/cometchat_ai_assistant_chat_history_controller.dart';
+export 'src/ai_assistant_chat_history/cometchat_ai_assistant_chat_history_style.dart';

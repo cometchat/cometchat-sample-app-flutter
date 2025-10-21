@@ -1260,4 +1260,36 @@ class TranslationsPt extends Translations {
   @override
   String get busy => "Ocupado";
 
+  @override
+  String get noConversationHistoryFound => "Nenhum histórico de conversa encontrado.";
+
+  @override
+  String get somethingWentWrongTryAgain => "Algo deu errado do nosso lado. Por favor, tente novamente.";
+
+  @override
+  String get startChatByTappingNewChat => 'Inicie uma conversa tocando no botão "Nova conversa".';
+
+  @override
+  String get chatHistory => "Histórico de conversas";
+
+  @override
+  String get askAnything => "Pergunte qualquer coisa";
+
+  @override
+  String get aiAssistant => "Assistente de IA";
+
+  @override
+  String get aiAgent => "Agente de IA";
+
+  @override
+  String get agents => "Agentes";
+  @override
+  String get noInternetConnection => "Sem conexão com a internet";
+  @override
+  String get logoutFailedTryAgain => "Falha ao sair. Tente novamente.";
+  @override
+  String get thinking => "Pensando...";
+  @override
+  String get aiAssistants => "Assistentes de IA";
+
 }

@@ -1,14 +1,13 @@
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:sample_app_push_notifications/auth/login_app_credential.dart';
-import 'package:sample_app_push_notifications/dashboard.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sample_app_push_notifications/prefs/shared_preferences.dart';
 import 'package:sample_app_push_notifications/utils/initialize_cometchat.dart';
 import 'package:sample_app_push_notifications/utils/text_constants.dart';
-
 import 'app_credentials.dart';
 import 'auth/login_sample_users.dart';
+import 'dashboard.dart';
 
 class GuardScreen extends StatefulWidget {
   const GuardScreen({Key? key}) : super(key: key);
@@ -69,7 +68,7 @@ class _GuardScreenState extends State<GuardScreen> {
         },
         onError: (excep) {
           if (kDebugMode) {
-            print("Error while logging in: ${excep.message}");
+            debugPrint("Error while logging in: ${excep.message}");
           }
         },
       );

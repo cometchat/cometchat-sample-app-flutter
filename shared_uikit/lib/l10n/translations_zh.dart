@@ -1238,6 +1238,37 @@ class TranslationsZh extends Translations {
   @override
   String get busy => "忙碌";
 
+  @override
+  String get noConversationHistoryFound => "未找到聊天记录。";
+
+  @override
+  String get somethingWentWrongTryAgain => "我们这边出了点问题。请重试。";
+
+  @override
+  String get startChatByTappingNewChat => '点击“新聊天”按钮开始聊天。';
+
+  @override
+  String get chatHistory => "聊天记录";
+
+  @override
+  String get askAnything => "随便问我";
+
+  @override
+  String get aiAssistant => "AI助手";
+
+  @override
+  String get aiAgent => "AI代理人";
+
+  @override
+  String get agents => "代理人";
+  @override
+  String get noInternetConnection => "无网络连接";
+  @override
+  String get logoutFailedTryAgain => "注销失败。请再试一次。";
+  @override
+  String get thinking => "思考中...";
+  @override
+  String get aiAssistants => "AI助手们";
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2448,4 +2479,35 @@ class TranslationsZhTw extends TranslationsZh {
   @override
   String get busy => "忙碌中";
 
+  @override
+  String get noConversationHistoryFound => "找不到聊天紀錄。";
+
+  @override
+  String get somethingWentWrongTryAgain => "我們這邊出了點問題。請再試一次。";
+
+  @override
+  String get startChatByTappingNewChat => '點擊「新聊天」按鈕開始聊天。';
+
+  @override
+  String get chatHistory => "聊天紀錄";
+
+  @override
+  String get askAnything => "隨便問我";
+
+  @override
+  String get aiAssistant => "AI助理";
+
+  @override
+  String get aiAgent => "AI代理人";
+
+  @override
+  String get agents => "代理人";
+  @override
+  String get noInternetConnection => "無網路連線";
+  @override
+  String get logoutFailedTryAgain => "登出失敗。請再試一次。";
+  @override
+  String get thinking => "思考中...";
+  @override
+  String get aiAssistants => "AI助理們";
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -20,8 +22,9 @@ class CometChatMessageListController
         CometChatUIEventListener,
         CometChatCallEventListener,
         CallListener,
-        ConnectionListener
-    implements CometChatMessageListControllerProtocol {
+        ConnectionListener,
+        AIAssistantListener
+    implements CometChatMessageListControllerProtocol, QueueCompletionCallback {
   //--------------------Constructor-----------------------
   CometChatMessageListController({
     required this.messagesBuilderProtocol,
@@ -54,6 +57,9 @@ class CometChatMessageListController
     this.addTemplate,
     this.dateSeparatorPattern,
     this.hideModerationView,
+    this.suggestedMessages,
+    this.setAiAssistantTools,
+    this.streamingSpeed,
     this.hideStickyDate,
   }) : super(
             builderProtocol: user != null
@@ -71,6 +77,7 @@ class CometChatMessageListController
     _uiEventListener = "${dateStamp}UI_Event_listener";
     _uiCallListener = "${dateStamp}UI_Call_listener";
     _sdkCallListenerId = "${dateStamp}sdk_Call_listener";
+    _sdkAIAssistantListenerId = "${dateStamp}sdk_Stream_listener";
 
     createTemplateMap();
 
@@ -140,6 +147,7 @@ class CometChatMessageListController
   bool isThread = false;
   late String _uiGroupListener;
   late String _uiMessageListener;
+  late String _uiStreamCallbackListener;
   late BuildContext context;
 
   /// [addTemplate] Add Custom message templates on the existing templated.
@@ -161,9 +169,19 @@ class CometChatMessageListController
   ///[onReactionClick] This is to override the click of a reaction pill.
   final Function(String? emoji, BaseMessage message)? onReactionClick;
 
+  ///[suggestedMessages] is a list of predefined replies for the AI assistant.
+  final List<String>? suggestedMessages;
+
+  /// [setAiAssistantTools] This map contains the tool name as key and a function that takes a string argument and returns void as value. This function will be called when the AI assistant invokes a tool.
+  final Map<String, Function(String? args)>? setAiAssistantTools;
+
+  ///[streamingSpeed] sets the speed of streaming for AI assistant
+  final int? streamingSpeed;
+
   late String _uiEventListener;
   late String _uiCallListener;
   late String _sdkCallListenerId;
+  late String _sdkAIAssistantListenerId;
 
   ///[headerView] shown in header view
   Widget? Function(BuildContext,
@@ -209,6 +227,8 @@ class CometChatMessageListController
 
   final moderationUtil = ModerationCheckUtil.instance;
 
+  final CometChatStreamService _queueManager = CometChatStreamService();
+
   void _scrollControllerListener() {
     double offset = messageListScrollController.offset;
 
@@ -224,7 +244,7 @@ class CometChatMessageListController
       update();
     }
 
-    if (list.isEmpty || hideStickyDate == true) return;
+    if (hideStickyDate == true || list.isEmpty) return;
 
     final listBox = context.findRenderObject() as RenderBox?;
     if (listBox == null) return;
@@ -262,7 +282,6 @@ class CometChatMessageListController
   createTemplateMap() {
     List<CometChatMessageTemplate> localTypes =
         CometChatUIKit.getDataSource().getAllMessageTemplates();
-
     if (addTemplate != null && addTemplate!.isNotEmpty) {
       localTypes.addAll(addTemplate!);
     }
@@ -315,8 +334,23 @@ class CometChatMessageListController
     CometChatCallEvents.addCallEventsListener(_uiCallListener, this);
     CometChat.addCallListener(_sdkCallListenerId, this);
     CometChat.addConnectionListener(_messageListenerId, this);
+    CometChat.addAIAssistantListener(_sdkAIAssistantListenerId, this);
     initializeHeaderAndFooterView();
     moderationUtil.hideModerationStatus = hideModerationView ?? false;
+    getLoggedInUser();
+
+    if (isUserAgentic()) {
+      if (streamingSpeed != null) {
+        _queueManager.streamDelay = Duration(milliseconds: streamingSpeed!);
+      }
+      if (threadMessageParentId == 0) {
+        CometChatUIEvents.ccActiveChatChanged(
+            messageListId, null, user, group, initialUnreadCount ?? 0);
+        isLoading = false;
+        list.clear();
+        return;
+      }
+    }
     super.onInit();
   }
 
@@ -328,7 +362,6 @@ class CometChatMessageListController
 
   @override
   void onClose() {
-    //  CometChat.removeMessageListener(_messageListenerId);
     CometChat.removeGroupListener(_groupListenerId);
     CometChatGroupEvents.removeGroupsListener(_uiGroupListener);
     CometChatMessageEvents.removeMessagesListener(_uiMessageListener);
@@ -336,6 +369,11 @@ class CometChatMessageListController
     CometChatCallEvents.removeCallEventsListener(_uiCallListener);
     CometChat.removeCallListener(_sdkCallListenerId);
     CometChat.removeConnectionListener(_messageListenerId);
+    CometChat.removeAIAssistantListener(_sdkAIAssistantListenerId);
+    if (isUserAgentic()) {
+      CometChatStreamCallBackEvents.ccStreamCompleted(true);
+      _queueManager.cleanupAll();
+    }
     super.onClose();
   }
 
@@ -376,21 +414,16 @@ class CometChatMessageListController
 
   @override
   loadMoreElements({bool Function(BaseMessage element)? isIncluded}) async {
-    /// "Fetching again"
+    if (isUserAgentic() && threadMessageParentId == 0) {
+      return;
+    }
     isLoading = true;
     BaseMessage? lastMessage;
-    loggedInUser ??= await CometChat.getLoggedInUser();
+    getLoggedInUser();
     await getUnreadCount();
     conversation ??= (await CometChat.getConversation(
-        conversationWithId, conversationType, onSuccess: (conversation) {
-      if (conversation.lastMessage != null) {
-        /// "Marking as read"
-        if (kDebugMode) {
-          debugPrint("Marking as read from here");
-        }
-        markAsRead(conversation.lastMessage!);
-      }
-    }, onError: (_) {}));
+        conversationWithId, conversationType,
+        onSuccess: (conversation) {}, onError: (_) {}));
     conversationId ??= conversation?.conversationId;
 
     try {
@@ -448,6 +481,10 @@ class CometChatMessageListController
         getConversationStarter(user, group);
       }
     }
+  }
+
+  getLoggedInUser() async {
+    loggedInUser ??= await CometChat.getLoggedInUser();
   }
 
   //------------------------UI Message Event Listeners------------------------------
@@ -771,22 +808,42 @@ class CometChatMessageListController
 
   @override
   ccMessageSent(BaseMessage message, MessageStatus messageStatus) {
-    //checking if same conversation
+    // For agentic user, set parent id on first sent message
     if (_checkIfSameConversationForSenderMessage(message)) {
+      if (isUserAgentic() && message is TextMessage) {
+        if (threadMessageParentId == 0 && message.parentMessageId == 0) {
+          threadMessageParentId = message.parentMessageId;
+        } else if (messageStatus == MessageStatus.sent &&
+            threadMessageParentId == 0 &&
+            message.parentMessageId != 0 &&
+            list.isNotEmpty) {
+          threadMessageParentId = message.parentMessageId;
+          messagesBuilderProtocol.requestBuilder.parentMessageId =
+              threadMessageParentId;
+          request = messagesBuilderProtocol.getRequest();
+          if (threadMessageParentId > 0) {
+            messageListId['parentMessageId'] = threadMessageParentId;
+          }
+        }
+      }
+
       hidePanelSentMessage(message);
-      //checking if same thread
+
       if (message.parentMessageId == threadMessageParentId) {
-        //adding the message to list for optimistic ui
         if (messageStatus == MessageStatus.inProgress) {
           addMessage(message);
-        } else if (messageStatus == MessageStatus.sent ||
-            messageStatus == MessageStatus.error) {
-          //updating the status of the message that was previously added to list
-          //while in progress
+          if (isUserAgentic() && message is TextMessage) {
+            CometChatStreamCallBackEvents.ccStreamInProgress(true);
+          }
+        } else if (messageStatus == MessageStatus.sent) {
+          updateMessageWithMuid(message);
+          if (isUserAgentic() && message is TextMessage) {
+            addStreamMessage(message);
+          }
+        } else if (messageStatus == MessageStatus.error) {
           updateMessageWithMuid(message);
         }
       } else {
-        //check if same conversation but different thread
         if (messageStatus == MessageStatus.sent) {
           updateMessageThreadCount(message.parentMessageId);
         }
@@ -898,6 +955,26 @@ class CometChatMessageListController
 
   _onMessageReceived(BaseMessage message,
       {bool playSound = true, bool markRead = true}) {
+    // For agentic user, set parent id on first received message
+    if (isUserAgentic() && threadMessageParentId == 0) {
+      if (message.parentMessageId > 0) {
+        threadMessageParentId = message.parentMessageId;
+      } else {
+        threadMessageParentId = message.id;
+      }
+      messagesBuilderProtocol.requestBuilder.parentMessageId =
+          threadMessageParentId;
+      request = messagesBuilderProtocol.getRequest();
+      if (threadMessageParentId > 0) {
+        messageListId['parentMessageId'] = threadMessageParentId;
+      }
+    }
+
+    // For agentic user, set parentMessageId for subsequent messages
+    if (isUserAgentic() && threadMessageParentId > 0) {
+      message.parentMessageId = threadMessageParentId;
+    }
+
     if ((message.conversationId == conversationId ||
             _checkIfSameConversationForReceivedMessage(message) ||
             _checkIfSameConversationForSenderMessage(message)) &&
@@ -1105,6 +1182,9 @@ class CometChatMessageListController
             message.text, message.mentionedUsers);
       }
       Clipboard.setData(ClipboardData(text: text));
+    } else if (message is AIAssistantMessage) {
+      String text = message.text ?? "";
+      Clipboard.setData(ClipboardData(text: text));
     }
   }
 
@@ -1270,7 +1350,9 @@ class CometChatMessageListController
   }
 
   bool _checkIfSameConversationForSenderMessage(BaseMessage message) {
-    return (message.receiverType == CometChatReceiverType.user &&
+    return (message.sender?.role == AIConstants.aiRole &&
+            conversationId == message.conversationId) ||
+        (message.receiverType == CometChatReceiverType.user &&
             user?.uid == message.receiverUid) ||
         (message.receiverType == CometChatReceiverType.group &&
             group?.guid == message.receiverUid);
@@ -1360,6 +1442,33 @@ class CometChatMessageListController
         readReceipt = false;
         alignment0 = BubbleAlignment.left;
       }
+    }
+
+    if (messageObject.category == MessageCategoryConstants.agentic &&
+        (messageObject.type == MessageTypeConstants.toolResult ||
+            messageObject.type == MessageTypeConstants.toolArguments)) {
+      name = false;
+      thumbnail = false;
+      readReceipt = false;
+      showTime = false;
+    }
+
+    if (messageObject.category == MessageCategoryConstants.agentic &&
+        messageObject.type == MessageTypeConstants.assistant) {
+      alignment0 = BubbleAlignment.left;
+      name = false;
+      thumbnail = true;
+      readReceipt = false;
+      showTime = false;
+    }
+
+    if (messageObject.category == MessageCategoryConstants.streamMessage &&
+        messageObject.type == MessageTypeConstants.runStarted) {
+      alignment0 = BubbleAlignment.left;
+      name = false;
+      thumbnail = true;
+      readReceipt = false;
+      showTime = false;
     }
 
     if (receiptsVisibility == false) {
@@ -1557,14 +1666,51 @@ class CometChatMessageListController
 
   @override
   void onConnected() {
-    if (!isLoading) {
+    getLoggedInUser();
+
+    if (isUserAgentic()) {
+      // Clear all queues on reconnection
+      CometChatStreamCallBackEvents.ccStreamCompleted(true);
+      _queueManager.onConnected();
+
+      // Handle any runs that were interrupted during disconnection
+      _handleInterruptedRuns();
+    }
+
+    if (!isUserAgentic() && !isLoading) {
       _updateUserAndGroup();
       _fetchNewMessages();
     }
   }
 
+  @override
+  void onDisconnected() {
+    if (isUserAgentic()) {
+      CometChatStreamCallBackEvents.ccStreamInterrupted(true);
+      _queueManager.onDisconnected(context);
+    }
+  }
+
+  @override
+  void onConnectionError(CometChatException e) {
+    if (isUserAgentic()) {
+      CometChatStreamCallBackEvents.ccStreamInterrupted(true);
+      _queueManager.onConnectionError(e, context);
+    }
+  }
+
+  void _handleInterruptedRuns() {
+    list
+        .whereType<StreamMessage>()
+        .toList()
+        .forEach((msg) => removeElement(msg));
+  }
+
   /// [_fetchNewMessages] method fetches the new messages from the server after a web socket connection is re-established.
   void _fetchNewMessages() async {
+    if (isUserAgentic()) {
+      return;
+    }
     int? lastMessageId;
     for (int i = 0; i < list.length; i++) {
       if (list[i].id != 0) {
@@ -1635,7 +1781,7 @@ class CometChatMessageListController
               } else {
                 for (int i = 0; i < list.length; i++) {
                   if (list[i].muid == message.muid) {
-                    list.removeAt(i);
+                    removeElementAt(i);
                     update();
                     break;
                   }
@@ -1971,6 +2117,183 @@ class CometChatMessageListController
         apiConfiguration: apiMap,
       ),
     );
+  }
+
+// ----------------- AI Assistant Event Listeners -----------------
+  @override
+  void onAIAssistantEventReceived(AIAssistantBaseEvent aiAssistantBaseEvent) {
+    debugPrint(
+        "Received AI Event: ${aiAssistantBaseEvent.type} for Run ID: ${aiAssistantBaseEvent.id}");
+
+    final runId = aiAssistantBaseEvent.id;
+
+    if (runId == null) return;
+
+    _queueManager.handleIncomingEvent(runId, aiAssistantBaseEvent);
+    if (_queueManager.runExists(runId)) {
+      _processNextEvent(runId, aiAssistantBaseEvent);
+    }
+  }
+
+// Process all events for a specific run
+  Future<void> _processNextEvent(
+      int runId, AIAssistantBaseEvent aiAssistantBaseEvent) async {
+    if (runId == aiAssistantBaseEvent.id) {
+      await Future.delayed(_queueManager.streamDelay);
+      if (aiAssistantBaseEvent.type == AgenticKeys.runStarted) {
+        _handleRunStarted(aiAssistantBaseEvent as AIAssistantRunStartedEvent);
+      } else if (aiAssistantBaseEvent.type == AgenticKeys.runFinished) {
+        _handleRunFinished(aiAssistantBaseEvent as AIAssistantRunFinishedEvent);
+      } else if (aiAssistantBaseEvent.type == AgenticKeys.toolCallEnd) {
+        _handleToolCallEnd(aiAssistantBaseEvent as AIAssistantToolEndedEvent);
+      }
+    }
+  }
+
+  void _createThinkingMessage(int runId) {
+    // Create a thinking bubble for new run
+    final thinkingMessage = StreamMessage(
+      id: runId,
+      text: cc.Translations.of(context).thinking,
+      sender: user,
+      receiver: loggedInUser,
+      receiverUid: loggedInUser?.uid ?? '',
+      receiverType: ReceiverTypeConstants.user,
+      sentAt: DateTime.now(),
+      runId: runId,
+      muid: "run_$runId",
+      metadata: {AIConstants.aiShimmer: true},
+    );
+    // Use queue manager instead of direct map access
+    _queueManager.setMessageIdForRun(runId, thinkingMessage.id);
+    _queueManager.getOrCreateBuffer(runId); // Initialize buffer
+    if (!_queueManager.checkMessageExists(runId)) {
+      _queueManager.registerMessage(thinkingMessage);
+      addElement(thinkingMessage);
+    }
+  }
+
+  Future<void> _handleRunStarted(AIAssistantRunStartedEvent event) async {
+    final runId = event.id;
+    if (runId == null) return;
+  }
+
+  Future<void> _handleToolCallEnd(AIAssistantToolEndedEvent event) async {
+    final runId = event.id;
+    if (runId == null) return;
+
+    final messageId = _queueManager.getMessageIdForRun(runId);
+    if (messageId == null) return;
+
+    if (setAiAssistantTools != null &&
+        setAiAssistantTools!.containsKey(event.toolCallName)) {
+      setAiAssistantTools?[event.toolCallName]?.call(event.arguments);
+    }
+  }
+
+  Future<void> _handleRunFinished(AIAssistantRunFinishedEvent event) async {
+    final runId = event.id;
+    if (runId == null) return;
+    CometChatStreamCallBackEvents.ccStreamCompleted(true);
+
+    _queueManager.setQueueCompletionCallback(runId, this);
+  }
+
+  @override
+  void onAIAssistantMessageReceived(AIAssistantMessage aiAssistantMessage) {
+    final runId = aiAssistantMessage.runId;
+
+    debugPrint(
+        "AI Assistant Message Received: $threadMessageParentId && ${aiAssistantMessage.parentMessageId}");
+
+    if (threadMessageParentId != aiAssistantMessage.parentMessageId ||
+        runId == null) {
+      return;
+    }
+
+    _queueManager.aiAssistantMessages[runId] = aiAssistantMessage;
+    _queueManager.checkAndTriggerQueueCompletion(runId);
+  }
+
+  void _cleanupRun(int runId) {
+    _queueManager.stopStreamingForRunId(runId);
+  }
+
+// Modify your existing addStreamMessage method
+  void addStreamMessage(TextMessage textMessage) {
+    if (_queueManager.getMessageIdForRun(textMessage.id) == null) {
+      _createThinkingMessage(textMessage.id);
+    }
+  }
+
+  bool isUserAgentic() {
+    return user?.role == AIConstants.aiRole;
+  }
+
+  String getGreetingMessage() {
+    print(user?.metadata);
+    return user?.metadata?[AIConstants.greetingMessage] ?? "";
+  }
+
+  String getGreetingSubTitleMessage() {
+    return user?.metadata?[AIConstants.introductoryMessage] ?? "";
+  }
+
+  List<String> getSuggestedMessages() {
+    if (suggestedMessages != null && suggestedMessages!.isNotEmpty) {
+      return suggestedMessages!;
+    }
+    return List<String>.from(
+        user?.metadata?[AIConstants.suggestedMessages] ?? []);
+  }
+
+  String getDisconnectionState(AIAssistantMessage? streamMessage) {
+    return streamMessage?.metadata?[AIConstants.disconnection] ?? "";
+  }
+
+  void onAiSuggestionTap(String suggestion) {
+    if (suggestion.isNotEmpty) {
+      CometChatUIEvents.ccComposeMessage(
+        suggestion,
+        MessageEditStatus.inProgress,
+      );
+    }
+  }
+
+  bool isMessageAgentic(BaseMessage message) {
+    return (message.category == MessageCategoryConstants.agentic &&
+        message.type == MessageTypeConstants.assistant);
+  }
+
+  @override
+  void onQueueCompleted(
+    AIAssistantMessage? aiAssistantMessage,
+    AIToolResultMessage? aiToolResultMessage,
+    AIToolArgumentMessage? aiToolArgumentMessage,
+  ) {
+    CometChatStreamCallBackEvents.ccStreamCompleted(true);
+    if (aiAssistantMessage != null) {
+      updateStreamMessageIntoAssistantMessage(aiAssistantMessage);
+    }
+
+    if (aiToolResultMessage != null) {
+      // Handle tool results
+    }
+
+    if (aiToolArgumentMessage != null) {
+      // Handle tool arguments
+    }
+  }
+
+  void updateStreamMessageIntoAssistantMessage(
+      AIAssistantMessage aiAssistantMessage) {
+    for (int i = list.length - 1; i >= 0; i--) {
+      if (list[i].id == aiAssistantMessage.runId && list[i] is StreamMessage) {
+        list.removeAt(i);
+        addElement(aiAssistantMessage);
+        break;
+      }
+    }
   }
 }
 

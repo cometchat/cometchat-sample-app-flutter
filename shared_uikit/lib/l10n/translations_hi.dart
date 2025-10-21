@@ -1273,4 +1273,35 @@ class TranslationsHi extends Translations {
   @override
   String get busy => "व्यस्त";
 
+  @override
+  String get noConversationHistoryFound => "कोई बातचीत इतिहास नहीं मिला।";
+
+  @override
+  String get somethingWentWrongTryAgain => "हमारी ओर से कुछ गलत हो गया। कृपया दोबारा प्रयास करें।";
+
+  @override
+  String get startChatByTappingNewChat => '“नई चैट” बटन पर टैप करके चैट शुरू करें।';
+
+  @override
+  String get chatHistory => "चैट इतिहास";
+
+  @override
+  String get askAnything => "कुछ भी पूछें";
+
+  @override
+  String get aiAssistant => "एआई सहायक";
+
+  @override
+  String get aiAgent => "एआई एजेंट";
+
+  @override
+  String get agents => "एजेंट्स";
+  @override
+  String get noInternetConnection => "इंटरनेट कनेक्शन नहीं है";
+  @override
+  String get logoutFailedTryAgain => "लॉगआउट विफल। कृपया पुनः प्रयास करें।";
+  @override
+  String get thinking => "सोच रहा है...";
+  @override
+  String get aiAssistants => "एआई असिस्टेंट्स";
 }

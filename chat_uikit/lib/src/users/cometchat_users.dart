@@ -720,6 +720,7 @@ class _CometChatUsersState extends State<CometChatUsers> {
       return Center(child: widget.emptyStateView!(context));
     } else {
       return Center(
+          child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -772,7 +773,7 @@ class _CometChatUsersState extends State<CometChatUsers> {
             ),
           ],
         ),
-      );
+      ));
     }
   }
 

@@ -76,25 +76,25 @@ class _MessagesSampleState extends State<MessagesSample> {
             group: widget.group,
             messageHeaderStyle: CometChatMessageHeaderStyle(
                 statusIndicatorStyle: CometChatStatusIndicatorStyle(
-                  backgroundColor: colorPalette.transparent,
-                  borderRadius: BorderRadius.zero,
-                  border: Border.all(
-                    width: 0,
-                    color: colorPalette.transparent ?? Colors.transparent,
-                  )
+                    backgroundColor: colorPalette.transparent,
+                    borderRadius: BorderRadius.zero,
+                    border: Border.all(
+                      width: 0,
+                      color: colorPalette.transparent ?? Colors.transparent,
+                    )
                 )
             ),
             hideVideoCallButton: (widget.user != null || widget.group != null)
                 ? ((controller.user?.blockedByMe != null &&
-                        controller.user?.blockedByMe! == true) ||
-                    (controller.group?.hasJoined == false ||
-                        controller.group?.isBannedFromGroup == true))
+                controller.user?.blockedByMe! == true) ||
+                (controller.group?.hasJoined == false ||
+                    controller.group?.isBannedFromGroup == true))
                 : false,
             hideVoiceCallButton: (widget.user != null || widget.group != null)
                 ? ((controller.user?.blockedByMe != null &&
-                        controller.user?.blockedByMe! == true) ||
-                    (controller.group?.hasJoined == false ||
-                        controller.group?.isBannedFromGroup == true))
+                controller.user?.blockedByMe! == true) ||
+                (controller.group?.hasJoined == false ||
+                    controller.group?.isBannedFromGroup == true))
                 : false,
             onBack: () {
               FocusManager.instance.primaryFocus?.unfocus();
@@ -228,38 +228,38 @@ class _MessagesSampleState extends State<MessagesSample> {
           ),
           controller.isBlockLoading.value
               ? Center(
-                  child: CircularProgressIndicator(
-                    color: colorPalette.background2,
-                  ),
-                )
+            child: CircularProgressIndicator(
+              color: colorPalette.background2,
+            ),
+          )
               : SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => controller.unBlockUser(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          colorPalette.transparent, // Set proper color
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(spacing.radius2 ?? 0),
-                        side: BorderSide(
-                          color: colorPalette.borderDark ?? Colors.transparent,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      cc.Translations.of(context).unBlock,
-                      style: TextStyle(
-                        color: colorPalette.textPrimary,
-                        fontSize: typography.caption1?.regular?.fontSize,
-                        fontWeight: typography.caption1?.regular?.fontWeight,
-                        fontFamily: typography.caption1?.regular?.fontFamily,
-                      ),
-                    ),
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => controller.unBlockUser(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                colorPalette.transparent, // Set proper color
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                  BorderRadius.circular(spacing.radius2 ?? 0),
+                  side: BorderSide(
+                    color: colorPalette.borderDark ?? Colors.transparent,
+                    width: 1,
                   ),
                 ),
+              ),
+              child: Text(
+                cc.Translations.of(context).unBlock,
+                style: TextStyle(
+                  color: colorPalette.textPrimary,
+                  fontSize: typography.caption1?.regular?.fontSize,
+                  fontWeight: typography.caption1?.regular?.fontWeight,
+                  fontFamily: typography.caption1?.regular?.fontFamily,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

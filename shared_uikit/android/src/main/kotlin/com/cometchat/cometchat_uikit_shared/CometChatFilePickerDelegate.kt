@@ -142,7 +142,6 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
                 }
             }
-
             type?.startsWith("video") == true -> {
                 Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
@@ -171,6 +170,7 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
             finishWithError("activity_not_found", "No app found to pick the file.")
         }
     }
+
 
     private fun createAudioPickerIntent(): Intent {
         // Prioritize ACTION_PICK with MediaStore for reliability, which is what you were using.
@@ -235,7 +235,9 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
         allowedExtensions: Array<String>?,
         result: MethodChannel.Result?
     ) {
+
         if (!this.setPendingMethodCallAndResult(result!!)) {
+            Log.w("CometChatFilePicker", "Another file picker is already active. Finishing with error.")
             finishWithAlreadyActiveError(result)
             return
         }
@@ -245,6 +247,7 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
         loadDataToMemory = withData
         this.allowedExtensions = allowedExtensions
 
+
         if ((type?.startsWith("image") == true || type?.startsWith("video") == true) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             startPhotoPicker()
         } else {
@@ -252,23 +255,36 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
         }
     }
 
+
     private fun startPhotoPicker() {
+        Log.d(TAG, "Starting photo picker")
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13 (API 33) and above, using MediaStore.ACTION_PICK_IMAGES
+            Log.d(TAG, "Using MediaStore.ACTION_PICK_IMAGES for Android 13 and above")
+
             val intent = when {
                 type?.startsWith("image") == true -> {
+                    // Explicitly filtering for images only
                     Intent(MediaStore.ACTION_PICK_IMAGES).apply {
                         if (isMultipleSelection) {
                             putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, 5)
                         }
+                        // Use MIME type filter to allow only images
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*"))
                     }
                 }
                 type?.startsWith("video") == true -> {
-                    Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI).apply {
-                        type = "video/*"
-                        putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
+                    // If video type is selected, filter for video
+                    Intent(MediaStore.ACTION_PICK_IMAGES).apply {
+                        if (isMultipleSelection) {
+                            putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, 5)
+                        }
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*"))
                     }
                 }
                 else -> {
+                    // Default file explorer fallback
                     launchFileExplorer()
                     return
                 }
@@ -276,14 +292,20 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
 
             // Check if there's an app that can handle the new photo picker intent
             if (intent.resolveActivity(activity.packageManager) != null) {
+                Log.d(TAG, "Starting the photo picker intent for images")
                 activity.startActivityForResult(intent, REQUEST_CODE)
             } else {
+                Log.w(TAG, "No app found for photo picker intent, falling back to launchFileExplorer()")
                 launchFileExplorer() // Fallback to file explorer
             }
+
         } else {
+            // Android 12 (API 31) and below, fallback to file explorer
+            Log.d(TAG, "Using fallback to launchFileExplorer for Android versions below 13")
             launchFileExplorer()
         }
     }
+
 
 
     private fun setPendingMethodCallAndResult(result: MethodChannel.Result): Boolean {

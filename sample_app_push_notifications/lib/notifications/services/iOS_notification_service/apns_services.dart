@@ -27,13 +27,20 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
 
   String? conversationId;
 
+  bool isUserAgentic = false;
+
   // This methods helps to retrieve the conversation id from the last message received in the chat.
   @override
   void ccActiveChatChanged(Map<String, dynamic>? id, BaseMessage? lastMessage,
       User? user, Group? group, int unreadMessageCount) {
+    isUserAgentic = isAgentic(user);
     if (lastMessage != null) {
       conversationId = lastMessage.conversationId;
     }
+  }
+
+  bool isAgentic(User? user) {
+    return user?.role == AIConstants.aiRole;
   }
 
   @override
@@ -44,7 +51,10 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
 
-  void _showNotification(Map<String, dynamic> data, RemoteMessage msg, String? conversationId) async {
+  void _showNotification(Map<String, dynamic> data, RemoteMessage msg, String? conversationId, bool? iaAgentic) async {
+    if(isUserAgentic) {
+      return;
+    }
     AndroidNotificationDetails androidPlatformChannelSpecifics =
     const AndroidNotificationDetails('channel_id', 'channel_name',
       importance: Importance.max, priority: Priority.high, icon: 'ic_launcher',);
@@ -85,7 +95,7 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
 
   void handleNotificationTap(NotificationResponse response) async {
     if (response.payload != null) {
-      print('Notification tapped with payload: ${response.payload}');
+      debugPrint('Notification tapped with payload: ${response.payload}');
       final body = jsonDecode(response.payload!) as Map<String, dynamic>;
 
       // Map<String, dynamic> body = json.decode(response.payload!);
@@ -212,7 +222,7 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
       onMessage: (message) async{
         debugPrint('onMessage APNS MKAP: ${message.toString()}');
         debugPrint('onMessage APNS MKAP: ${message.data.toString()}');
-        _showNotification(message.data,message, conversationId);
+        _showNotification(message.data,message, conversationId, isUserAgentic);
       },
     );
 
@@ -224,7 +234,7 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
     _connector.token.addListener(() {
 
       if (_connector.token.value != null || _connector.token.value != '') {
-        print('Token Value MKAP ====--->>>> : ${_connector.token.value}');
+        debugPrint('Token Value MKAP ====--->>>> : ${_connector.token.value}');
         PNRegistry.registerPNService(_connector.token.value!,false,false);
 
       }

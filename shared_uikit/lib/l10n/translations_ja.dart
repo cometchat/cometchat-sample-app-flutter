@@ -1223,4 +1223,36 @@ class TranslationsJa extends Translations {
   @override
   String get busy => "取り込み中";
 
+  @override
+  String get noConversationHistoryFound => "会話履歴が見つかりません。";
+
+  @override
+  String get somethingWentWrongTryAgain => "問題が発生しました。もう一度お試しください。";
+
+  @override
+  String get startChatByTappingNewChat => '「新しいチャット」ボタンをタップしてチャットを開始してください。';
+
+  @override
+  String get chatHistory => "チャット履歴";
+
+  @override
+  String get askAnything => "なんでも聞いてください";
+
+  @override
+  String get aiAssistant => "AIアシスタント";
+
+  @override
+  String get aiAgent => "AIエージェント";
+
+  @override
+  String get agents => "エージェント";
+  @override
+  String get noInternetConnection => "インターネット接続がありません";
+  @override
+  String get logoutFailedTryAgain => "ログアウトに失敗しました。もう一度お試しください。";
+  @override
+  String get thinking => "考え中...";
+  @override
+  String get aiAssistants => "AIアシスタント";
 }
+

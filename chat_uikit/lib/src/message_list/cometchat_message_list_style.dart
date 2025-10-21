@@ -81,6 +81,16 @@ class CometChatMessageListStyle
     this.reactionsStyle,
     this.aiSmartRepliesStyle,
     this.aiConversationStarterStyle,
+    this.aiAssistantSuggestedMessageTextStyle,
+    this.aiAssistantSuggestedMessageTextColor,
+    this.aiAssistantSuggestedMessageBorder,
+    this.aiAssistantSuggestedMessageBorderRadius,
+    this.aiAssistantSuggestedMessageBackgroundColor,
+    this.aiAssistantSuggestedMessageIconColor,
+    this.emptyChatGreetingTitleTextColor,
+    this.emptyChatGreetingTitleTextStyle,
+    this.emptyChatGreetingSubtitleTextColor,
+    this.emptyChatGreetingSubtitleTextStyle,
   });
 
   ///[backgroundColor] defines the background color of the message list
@@ -149,6 +159,36 @@ class CometChatMessageListStyle
   ///[aiConversationStarterStyle] is a parameter used to set the style for the conversation starter
   final CometChatAIConversationStarterStyle? aiConversationStarterStyle;
 
+  ///[aiAssistantSuggestedMessageTextStyle] is a parameter used to set the text style for the AI assistant suggested message
+  final TextStyle? aiAssistantSuggestedMessageTextStyle;
+
+  ///[aiAssistantSuggestedMessageTextColor] is a parameter used to set the text color for the AI assistant suggested message
+  final Color? aiAssistantSuggestedMessageTextColor;
+
+  ///[aiAssistantSuggestedMessageBorder] is a parameter used to set the border for the AI assistant suggested message
+  final Border? aiAssistantSuggestedMessageBorder;
+
+  ///[aiAssistantSuggestedMessageBorderRadius] is a parameter used to set the border radius for the AI assistant suggested message
+  final BorderRadius? aiAssistantSuggestedMessageBorderRadius;
+
+  ///[aiAssistantSuggestedMessageBackgroundColor] is a parameter used to set the background color for the AI assistant suggested message
+  final Color? aiAssistantSuggestedMessageBackgroundColor;
+
+  ///[aiAssistantSuggestedMessageIconColor] is a parameter used to set the icon color for the AI assistant suggested message
+  final Color? aiAssistantSuggestedMessageIconColor;
+
+  ///[emptyChatGreetingTitleTextColor] is a parameter used to set the text color for the Empty Chat Greeting Title
+  final Color? emptyChatGreetingTitleTextColor;
+
+  ///[emptyChatGreetingTitleTextStyle] is a parameter used to set the text style for the Empty Chat Greeting Title
+  final TextStyle? emptyChatGreetingTitleTextStyle;
+
+  ///[emptyChatGreetingSubtitleTextColor] is a parameter used to set the text color for the Empty Chat Greeting Subtitle
+  final Color? emptyChatGreetingSubtitleTextColor;
+
+  ///[emptyChatGreetingSubtitleTextStyle] is a parameter used to set the text style for the Empty Chat Greeting Subtitle
+  final TextStyle? emptyChatGreetingSubtitleTextStyle;
+
   /// Copy with some properties replaced
   @override
   CometChatMessageListStyle copyWith({
@@ -177,6 +217,16 @@ class CometChatMessageListStyle
     CometChatReactionsStyle? reactionsStyle,
     CometChatAISmartRepliesStyle? aiSmartRepliesStyle,
     CometChatAIConversationStarterStyle? aiConversationStarterStyle,
+    TextStyle? aiAssistantSuggestedMessageTextStyle,
+    Color? aiAssistantSuggestedMessageTextColor,
+    Border? aiAssistantSuggestedMessageBorder,
+    BorderRadius? aiAssistantSuggestedMessageBorderRadius,
+    Color? aiAssistantSuggestedMessageBackgroundColor,
+    Color? aiAssistantSuggestedMessageIconColor,
+    Color? emptyChatGreetingTitleTextColor,
+    TextStyle? emptyChatGreetingTitleTextStyle,
+    Color? emptyChatGreetingSubtitleTextColor,
+    TextStyle? emptyChatGreetingSubtitleTextStyle,
   }) {
     return CometChatMessageListStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -208,7 +258,33 @@ class CometChatMessageListStyle
       reactionListStyle: reactionListStyle ?? this.reactionListStyle,
       reactionsStyle: reactionsStyle ?? this.reactionsStyle,
       aiSmartRepliesStyle: aiSmartRepliesStyle ?? this.aiSmartRepliesStyle,
-      aiConversationStarterStyle: aiConversationStarterStyle ?? this.aiConversationStarterStyle,
+      aiConversationStarterStyle:
+          aiConversationStarterStyle ?? this.aiConversationStarterStyle,
+      aiAssistantSuggestedMessageTextStyle:
+          aiAssistantSuggestedMessageTextStyle ??
+              this.aiAssistantSuggestedMessageTextStyle,
+      aiAssistantSuggestedMessageTextColor:
+          aiAssistantSuggestedMessageTextColor ??
+              this.aiAssistantSuggestedMessageTextColor,
+      aiAssistantSuggestedMessageBorder: aiAssistantSuggestedMessageBorder ??
+          this.aiAssistantSuggestedMessageBorder,
+      aiAssistantSuggestedMessageBorderRadius:
+          aiAssistantSuggestedMessageBorderRadius ??
+              this.aiAssistantSuggestedMessageBorderRadius,
+      aiAssistantSuggestedMessageBackgroundColor:
+          aiAssistantSuggestedMessageBackgroundColor ??
+              this.aiAssistantSuggestedMessageBackgroundColor,
+      aiAssistantSuggestedMessageIconColor:
+          aiAssistantSuggestedMessageIconColor ??
+              this.aiAssistantSuggestedMessageIconColor,
+      emptyChatGreetingTitleTextColor: emptyChatGreetingTitleTextColor ??
+          this.emptyChatGreetingTitleTextColor,
+      emptyChatGreetingTitleTextStyle: emptyChatGreetingTitleTextStyle ??
+          this.emptyChatGreetingTitleTextStyle,
+      emptyChatGreetingSubtitleTextColor: emptyChatGreetingSubtitleTextColor ??
+          this.emptyChatGreetingSubtitleTextColor,
+      emptyChatGreetingSubtitleTextStyle: emptyChatGreetingSubtitleTextStyle ??
+          this.emptyChatGreetingSubtitleTextStyle,
     );
   }
 
@@ -238,6 +314,24 @@ class CometChatMessageListStyle
       reactionsStyle: other.reactionsStyle,
       aiSmartRepliesStyle: other.aiSmartRepliesStyle,
       aiConversationStarterStyle: aiConversationStarterStyle,
+      aiAssistantSuggestedMessageTextStyle:
+          other.aiAssistantSuggestedMessageTextStyle,
+      aiAssistantSuggestedMessageTextColor:
+          other.aiAssistantSuggestedMessageTextColor,
+      aiAssistantSuggestedMessageBorder:
+          other.aiAssistantSuggestedMessageBorder,
+      aiAssistantSuggestedMessageBorderRadius:
+          other.aiAssistantSuggestedMessageBorderRadius,
+      aiAssistantSuggestedMessageBackgroundColor:
+          other.aiAssistantSuggestedMessageBackgroundColor,
+      aiAssistantSuggestedMessageIconColor:
+          other.aiAssistantSuggestedMessageIconColor,
+      emptyChatGreetingTitleTextColor: other.emptyChatGreetingTitleTextColor,
+      emptyChatGreetingTitleTextStyle: other.emptyChatGreetingTitleTextStyle,
+      emptyChatGreetingSubtitleTextColor:
+          other.emptyChatGreetingSubtitleTextColor,
+      emptyChatGreetingSubtitleTextStyle:
+          other.emptyChatGreetingSubtitleTextStyle,
     );
   }
 
@@ -287,6 +381,46 @@ class CometChatMessageListStyle
           aiSmartRepliesStyle?.lerp(other.aiSmartRepliesStyle, t),
       aiConversationStarterStyle:
           aiConversationStarterStyle?.lerp(other.aiConversationStarterStyle, t),
+      aiAssistantSuggestedMessageTextStyle: TextStyle.lerp(
+          aiAssistantSuggestedMessageTextStyle,
+          other.aiAssistantSuggestedMessageTextStyle,
+          t),
+      aiAssistantSuggestedMessageTextColor: Color.lerp(
+          aiAssistantSuggestedMessageTextColor,
+          other.aiAssistantSuggestedMessageTextColor,
+          t),
+      aiAssistantSuggestedMessageBorder: Border.lerp(
+          aiAssistantSuggestedMessageBorder,
+          other.aiAssistantSuggestedMessageBorder,
+          t),
+      aiAssistantSuggestedMessageBorderRadius: BorderRadius.lerp(
+          aiAssistantSuggestedMessageBorderRadius,
+          other.aiAssistantSuggestedMessageBorderRadius,
+          t),
+      aiAssistantSuggestedMessageBackgroundColor: Color.lerp(
+          aiAssistantSuggestedMessageBackgroundColor,
+          other.aiAssistantSuggestedMessageBackgroundColor,
+          t),
+      aiAssistantSuggestedMessageIconColor: Color.lerp(
+          aiAssistantSuggestedMessageIconColor,
+          other.aiAssistantSuggestedMessageIconColor,
+          t),
+      emptyChatGreetingTitleTextColor: Color.lerp(
+          emptyChatGreetingTitleTextColor,
+          other.emptyChatGreetingTitleTextColor,
+          t),
+      emptyChatGreetingTitleTextStyle: TextStyle.lerp(
+          emptyChatGreetingTitleTextStyle,
+          other.emptyChatGreetingTitleTextStyle,
+          t),
+      emptyChatGreetingSubtitleTextColor: Color.lerp(
+          emptyChatGreetingSubtitleTextColor,
+          other.emptyChatGreetingSubtitleTextColor,
+          t),
+      emptyChatGreetingSubtitleTextStyle: TextStyle.lerp(
+          emptyChatGreetingSubtitleTextStyle,
+          other.emptyChatGreetingSubtitleTextStyle,
+          t),
     );
   }
 }

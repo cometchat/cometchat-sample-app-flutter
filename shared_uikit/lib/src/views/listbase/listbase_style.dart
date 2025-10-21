@@ -15,6 +15,7 @@ class ListBaseStyle extends BaseStyles {
     this.borderSide,
     this.searchTextFieldRadius,
     this.appBarShape,
+    this.appBarBackground,
     super.width,
     super.height,
     super.background,
@@ -52,4 +53,8 @@ class ListBaseStyle extends BaseStyles {
 
   ///[appBarShape] to specify appbar shape
   final ShapeBorder? appBarShape;
+
+  ///[appBarBackground] provides background color to the appbar
+  final Color? appBarBackground;
+
 }

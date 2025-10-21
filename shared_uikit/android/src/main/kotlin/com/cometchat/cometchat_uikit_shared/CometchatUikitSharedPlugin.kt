@@ -114,20 +114,29 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
 
 
   private fun pickFile(call: MethodCall, result: Result) {
-
     val arguments = call.arguments as HashMap<*, *>
     var allowedExtensions: Array<String>? = null
 
-
+    // Extract arguments
     isMultipleSelection = arguments["allowMultipleSelection"] as Boolean
     withData = arguments["withData"] as Boolean
-    fileType = resolveType(arguments["type"] as String);
-    allowedExtensions = CometChatFileUtils.getMimeTypes(arguments["allowedExtensions"] as ArrayList<String>?)
+    val typeArg = arguments["type"] as String
+    fileType = resolveType(typeArg)
 
-    delegate!!.startFileExplorer(fileType, isMultipleSelection, withData, allowedExtensions , result)
+    // Get allowed MIME types based on extensions
+    allowedExtensions = CometChatFileUtils.getMimeTypes(arguments["allowedExtensions"] as? ArrayList<String>?)
 
-
+    // Call delegate
+    try {
+      delegate?.startFileExplorer(fileType, isMultipleSelection, withData, allowedExtensions, result)
+        ?: run {
+          result.error("delegate_null", "CometChatFilePickerDelegate not initialized", null)
+        }
+    } catch (e: Exception) {
+      result.error("file_picker_error", e.message, null)
+    }
   }
+
 
 
   private fun resolveType(type: String): String? {

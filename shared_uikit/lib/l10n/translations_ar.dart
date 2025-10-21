@@ -1269,4 +1269,40 @@ class TranslationsAr extends Translations {
   @override
   String get busy => "مشغول";
 
+  @override
+  String get noConversationHistoryFound => "لم يتم العثور على تاريخ المحادثة";
+
+  @override
+  String get somethingWentWrongTryAgain => "حدث خطأ من جانبنا. يرجى المحاولة مرة أخرى";
+
+  @override
+  String get startChatByTappingNewChat => 'ابدأ دردشة بالنقر على زر "دردشة جديدة"';
+
+  @override
+  String get chatHistory => "سجل الدردشة";
+
+  @override
+  String get askAnything => "اسأل أي شيء";
+
+  @override
+  String get aiAssistant => "مساعد الذكاء الاصطناعي";
+
+  @override
+  String get aiAgent => "وكيل الذكاء الاصطناعي";
+
+  @override
+  String get agents => "وكلاء";
+
+  @override
+  String get noInternetConnection => "لا يوجد اتصال بالإنترنت";
+
+  @override
+  String get logoutFailedTryAgain => "فشل تسجيل الخروج. حاول مرة أخرى.";
+
+  @override
+  String get thinking => "جاري التفكير...";
+
+  @override
+  String get aiAssistants => "مساعدو الذكاء الاصطناعي";
+
 }

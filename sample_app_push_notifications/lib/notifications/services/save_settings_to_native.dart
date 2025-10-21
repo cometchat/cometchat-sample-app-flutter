@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sample_app_push_notifications/app_credentials.dart';
 
@@ -10,6 +11,6 @@ Future<void> saveAppSettingsToNative() async {
       "region": AppCredentials.region,
     });
   } on PlatformException catch (e) {
-    print("Failed to save settings: ${e.message}");
+    debugPrint("Failed to save settings: ${e.message}");
   }
 }

@@ -1261,4 +1261,35 @@ class TranslationsHu extends Translations {
   @override
   String get busy => "Elfoglalt";
 
+  @override
+  String get noConversationHistoryFound => "Nem található beszélgetési előzmény.";
+
+  @override
+  String get somethingWentWrongTryAgain => "Valami hiba történt a mi oldalunkon. Kérjük, próbáld meg újra.";
+
+  @override
+  String get startChatByTappingNewChat => 'Indíts beszélgetést a "Új csevegés" gomb megérintésével.';
+
+  @override
+  String get chatHistory => "Csevegési előzmények";
+
+  @override
+  String get askAnything => "Kérdezz bármit";
+
+  @override
+  String get aiAssistant => "MI-asszisztens";
+
+  @override
+  String get aiAgent => "MI-ügynök";
+
+  @override
+  String get agents => "Ügynökök";
+  @override
+  String get noInternetConnection => "Nincs internetkapcsolat";
+  @override
+  String get logoutFailedTryAgain => "Kijelentkezés sikertelen. Próbáld újra.";
+  @override
+  String get thinking => "Gondolkodás...";
+  @override
+  String get aiAssistants => "MI-ügynökök";
 }

@@ -1261,4 +1261,35 @@ class TranslationsLt extends Translations {
   @override
   String get busy => "Užimtas";
 
+  @override
+  String get noConversationHistoryFound => "Pokalbių istorija nerasta.";
+
+  @override
+  String get somethingWentWrongTryAgain => "Įvyko klaida mūsų pusėje. Bandykite dar kartą.";
+
+  @override
+  String get startChatByTappingNewChat => 'Pradėkite pokalbį bakstelėdami mygtuką „Naujas pokalbis“.';
+
+  @override
+  String get chatHistory => "Pokalbių istorija";
+
+  @override
+  String get askAnything => "Klauskite bet ko";
+
+  @override
+  String get aiAssistant => "DI asistentas";
+
+  @override
+  String get aiAgent => "DI agentas";
+
+  @override
+  String get agents => "Agentai";
+  @override
+  String get noInternetConnection => "Nėra interneto ryšio";
+  @override
+  String get logoutFailedTryAgain => "Atsijungti nepavyko. Bandykite dar kartą.";
+  @override
+  String get thinking => "Mąstoma...";
+  @override
+  String get aiAssistants => "DI asistentai";
 }

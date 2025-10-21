@@ -2,7 +2,6 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'cometchat_add_memebers_controller.dart';
 
 class CometChatAddMembers extends StatelessWidget {

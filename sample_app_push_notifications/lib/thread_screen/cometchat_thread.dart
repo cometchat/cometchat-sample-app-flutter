@@ -58,6 +58,20 @@ class _CometChatThreadState extends State<CometChatThread> {
           appBar: CometChatMessageHeader(
             user: widget.user,
             group: widget.group,
+            hideVideoCallButton: (widget.user != null ) ||
+                (widget.group != null)
+                ? ((controller.user?.blockedByMe != null &&
+                controller.user?.blockedByMe! == true) ||
+                (controller.group?.hasJoined == false ||
+                    controller.group?.isBannedFromGroup == true))
+                : false,
+            hideVoiceCallButton: (widget.user != null ) ||
+                (widget.group != null)
+                ? ((controller.user?.blockedByMe != null &&
+                controller.user?.blockedByMe! == true) ||
+                (controller.group?.hasJoined == false ||
+                    controller.group?.isBannedFromGroup == true))
+                : false,
             padding: EdgeInsets.symmetric(
               vertical: spacing.padding2 ?? 0,
               horizontal: spacing.padding4 ?? 0,

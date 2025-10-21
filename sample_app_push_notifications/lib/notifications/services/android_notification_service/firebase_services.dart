@@ -22,7 +22,7 @@ import 'local_notification_handler.dart';
 // 1. This has to be defined outside of any class
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage rMessage) async {
-  LocalNotificationService.showNotification(rMessage.data, rMessage, "");
+  LocalNotificationService.showNotification(rMessage.data, rMessage, "", false);
   await VoipNotificationHandler.displayIncomingCall(rMessage);
 }
 
@@ -41,6 +41,8 @@ class FirebaseService
   late String _listenerId;
 
   String? conversationId;
+
+  bool isUserAgentic = false;
 
   Future<void> init(BuildContext context) async {
     try {
@@ -128,7 +130,7 @@ class FirebaseService
             openNotification(context, message, conversationId);
           } else if (message.data.isNotEmpty) {
             LocalNotificationService.showNotification(
-                message.data, message, conversationId);
+                message.data, message, conversationId, isUserAgentic);
           }
         });
 
@@ -145,7 +147,7 @@ class FirebaseService
               openNotification(context, message, conversationId);
             } else if (message.data.isNotEmpty) {
               LocalNotificationService.showNotification(
-                  message.data, message, conversationId);
+                  message.data, message, conversationId, isUserAgentic);
             }
             debugPrint("[FCM] No initial message on app launch.");
             debugPrint("[FCM] No initial message on app launch. ${message}");
@@ -169,9 +171,16 @@ class FirebaseService
   @override
   void ccActiveChatChanged(Map<String, dynamic>? id, BaseMessage? lastMessage,
       User? user, Group? group, int unreadMessageCount) {
+    debugPrint("ccActiveChatChanged called with id: $id, lastMessage: $lastMessage, user: $user, group: $group, unreadMessageCount: $unreadMessageCount");
+    isUserAgentic = isAgentic(user);
+    debugPrint("isUserAgentic: $isUserAgentic");
     if (lastMessage != null) {
       conversationId = lastMessage.conversationId;
     }
+  }
+
+  bool isAgentic(User? user) {
+    return user?.role == AIConstants.aiRole;
   }
 
   @override

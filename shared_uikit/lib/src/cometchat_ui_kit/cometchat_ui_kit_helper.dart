@@ -54,6 +54,24 @@ class CometChatUIKitHelper {
     CometChatMessageEvents.onMessageModerated(message);
   }
 
+  ///[onAIAssistantMessageReceived] is used to inform the listeners
+  ///when the logged-in user has aiAssistantMessage received
+  static onAIAssistantMessageReceived(AIAssistantMessage aiAssistantMessage) {
+    CometChatMessageEvents.onAIAssistantMessageReceived(aiAssistantMessage);
+  }
+
+  ///[onAIToolResultReceived] is used to inform the listeners
+  ///when the logged-in user has aiToolResultMessage received
+  static onAIToolResultReceived(AIToolResultMessage aiToolResultMessage) {
+    CometChatMessageEvents.onAIToolResultReceived(aiToolResultMessage);
+  }
+
+  ///[onAIToolArgumentsReceived] is used to inform the listeners
+  ///  when the logged-in user has aiToolArgumentMessage received
+  static onAIToolArgumentsReceived(AIToolArgumentMessage aiToolArgumentMessage) {
+    CometChatMessageEvents.onAIToolArgumentsReceived(aiToolArgumentMessage);
+  }
+
   //---------- Group Events ----------
   ///[onGroupCreated] is used to inform the listeners
   ///when the logged-in user creates a Group
@@ -173,5 +191,13 @@ class CometChatUIKitHelper {
   ///of a user or a group
   static onAiFeatureTapped(User? user, Group? group) {
     CometChatUIEvents.onAiFeatureTapped(user, group);
+  }
+
+//---------- AI Assistant Events ----------
+
+  ///[onAIAssistantEventReceived] is used to inform the listeners
+  ///when the logged-in user has aiAssistantEvent received
+  static onAIAssistantEventReceived(AIAssistantBaseEvent aiAssistantBaseEvent) {
+    CometChatAIAssistantEvents.onAIAssistantEventReceived(aiAssistantBaseEvent);
   }
 }

@@ -61,7 +61,7 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        buildConfigField("String", "SDK_VERSION", "\"5.1.1\"")
+        buildConfigField("String", "SDK_VERSION", "\"5.2.1\"")
     }
 
     dependencies {

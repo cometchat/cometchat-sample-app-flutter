@@ -1,3 +1,11 @@
+## 5.1.2
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.27`.
+
+## Fixes
+- Fixed an issue where videos were incorrectly displayed when selecting the "Attach Image" option in the message composer. Only image files are now shown, as expected.
+
 ## 5.1.1
 
 ## Enhancements

@@ -6,7 +6,7 @@ import 'package:sample_app/utils/show_snackBar.dart';
 import '../dashboard.dart';
 import '../models/user_model.dart';
 import '../services/api_services.dart';
-import '../utils/constant_utisl.dart';
+import '../utils/constant_utils.dart';
 
 class LoginSampleUsers extends StatefulWidget {
   const LoginSampleUsers({super.key});

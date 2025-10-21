@@ -50,6 +50,7 @@ class AdditionalConfigurations {
     this.voiceCallBubbleStyle,
     this.videoCallBubbleStyle,
     this.callButtonsStyle,
+    this.aiAssistantBubbleStyle,
     this.hideVideoCallButton,
     this.hideVoiceCallButton,
     this.hideImageAttachmentOption,
@@ -129,6 +130,9 @@ class AdditionalConfigurations {
 
   ///[callButtonsStyle] is a [CometChatCallButtonsStyle] that can be used to style call buttons
   final CometChatCallButtonsStyle? callButtonsStyle;
+
+  ///[aiAssistantBubbleStyle] is a [CometChatAIAssistantBubbleStyle] that can be used to style ai assistant bubble
+  final CometChatAIAssistantBubbleStyle? aiAssistantBubbleStyle;
 
   ///[hideVideoCallButton] is a [bool] that can be used to hide/display video call button
   final bool? hideVideoCallButton;

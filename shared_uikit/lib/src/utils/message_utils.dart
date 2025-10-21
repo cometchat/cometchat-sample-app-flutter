@@ -29,6 +29,7 @@ class MessageUtils {
     CometChatOutgoingMessageBubbleStyle? outgoingMessageBubbleStyle,
     CometChatIncomingMessageBubbleStyle? incomingMessageBubbleStyle,
     Key? key,
+    bool? receiptsVisibility,
   }) {
     if (template?.bubbleView != null) {
       return template?.bubbleView!(message, context, BubbleAlignment.left) ??
@@ -50,8 +51,13 @@ class MessageUtils {
                 defaultTheme: CometChatIncomingMessageBubbleStyle.of)
             .merge(incomingMessageBubbleStyle);
 
-    final bubbleStyleData = BubbleUIBuilder.getBubbleStyle(message,
-        outgoingMessageBubbleStyle0, incomingMessageBubbleStyle0, colorPalette, typography, spacing);
+    final bubbleStyleData = BubbleUIBuilder.getBubbleStyle(
+        message,
+        outgoingMessageBubbleStyle0,
+        incomingMessageBubbleStyle0,
+        colorPalette,
+        typography,
+        spacing);
     final additionalConfigurations =
         BubbleUIBuilder.getAdditionalConfigurations(
             context,
@@ -73,7 +79,9 @@ class MessageUtils {
         spacing,
         template,
         bubbleStyleData?.messageBubbleDateStyle,
-        bubbleStyleData?.messageReceiptStyle);
+        bubbleStyleData?.messageReceiptStyle,
+        receiptsVisibility,
+    );
 
     leadingView = _getAvatar(
       bubbleAlignment,
@@ -170,6 +178,7 @@ class MessageUtils {
     CometChatMessageTemplate? template,
     CometChatDateStyle? dateStyle,
     CometChatMessageReceiptStyle? receiptStyle,
+    bool? receiptsVisibility,
   ) {
     if (template?.statusInfoView != null) {
       return template?.statusInfoView!(
@@ -213,7 +222,7 @@ class MessageUtils {
                   alignment,
                   dateStyle,
                 ),
-                if (alignment == BubbleAlignment.right)
+                if (alignment == BubbleAlignment.right && (receiptsVisibility ?? true))
                   _getReceiptIcon(message, colorPalette, spacing, receiptStyle),
               ],
             ),
@@ -441,6 +450,34 @@ extension BubbleUIBuilder on MessageUtils {
     }
     CometChatMessageBubbleStyleData? messageBubbleStyleData;
     switch (key) {
+      case MessageCategoryConstants.agentic + MessageTypeConstants.assistant:
+        messageBubbleStyleData = CometChatMessageBubbleStyleData(
+          backgroundColor: incomingMessageBubbleStyle
+                  ?.aiAssistantBubbleStyle?.backgroundColor ??
+              colorPalette.transparent,
+          border: incomingMessageBubbleStyle?.aiAssistantBubbleStyle?.border,
+          borderRadius:
+              incomingMessageBubbleStyle?.aiAssistantBubbleStyle?.borderRadius ?? BorderRadius.circular(0),
+          messageBubbleAvatarStyle: incomingMessageBubbleStyle
+              ?.aiAssistantBubbleStyle?.messageBubbleAvatarStyle,
+          messageBubbleBackgroundImage: incomingMessageBubbleStyle
+              ?.aiAssistantBubbleStyle?.messageBubbleBackgroundImage,
+        );
+        break;
+      case MessageCategoryConstants.streamMessage + MessageTypeConstants.runStarted:
+        messageBubbleStyleData = CometChatMessageBubbleStyleData(
+          backgroundColor: incomingMessageBubbleStyle
+                  ?.aiAssistantBubbleStyle?.backgroundColor ??
+              colorPalette.transparent,
+          border: incomingMessageBubbleStyle?.aiAssistantBubbleStyle?.border,
+          borderRadius:
+              incomingMessageBubbleStyle?.aiAssistantBubbleStyle?.borderRadius,
+          messageBubbleAvatarStyle: incomingMessageBubbleStyle
+              ?.aiAssistantBubbleStyle?.messageBubbleAvatarStyle,
+          messageBubbleBackgroundImage: incomingMessageBubbleStyle
+              ?.aiAssistantBubbleStyle?.messageBubbleBackgroundImage,
+        );
+        break;
       case MessageCategoryConstants.message + MessageTypeConstants.text:
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
           backgroundColor: isSent
@@ -498,11 +535,11 @@ extension BubbleUIBuilder on MessageUtils {
               : incomingMessageBubbleStyle?.imageBubbleStyle?.border,
           borderRadius: isSent
               ? getSentTextMediaBorderRadiusGeometry(
-              message,
-              outgoingMessageBubbleStyle?.imageBubbleStyle?.borderRadius,
-              colorPalette,
-              typography,
-              spacing)
+                  message,
+                  outgoingMessageBubbleStyle?.imageBubbleStyle?.borderRadius,
+                  colorPalette,
+                  typography,
+                  spacing)
               : incomingMessageBubbleStyle?.imageBubbleStyle?.borderRadius,
           threadedMessageIndicatorIconColor: isSent
               ? outgoingMessageBubbleStyle
@@ -1062,6 +1099,7 @@ extension BubbleUIBuilder on MessageUtils {
               ? outgoingMessageBubbleStyle.videoCallBubbleStyle
               : incomingMessageBubbleStyle.videoCallBubbleStyle)
           ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+      aiAssistantBubbleStyle: incomingMessageBubbleStyle.aiAssistantBubbleStyle,
     );
 
     return additionalConfigurations;
@@ -1079,13 +1117,17 @@ extension BubbleUIBuilder on MessageUtils {
 
   // This method is used to get the border radius for sent text and media messages.
   // If the message is disapproved, it returns a specific border radius.
-  static BorderRadiusGeometry? getSentTextMediaBorderRadiusGeometry(BaseMessage message,
-  BorderRadiusGeometry? borderRadius, CometChatColorPalette colorPalette,
+  static BorderRadiusGeometry? getSentTextMediaBorderRadiusGeometry(
+      BaseMessage message,
+      BorderRadiusGeometry? borderRadius,
+      CometChatColorPalette colorPalette,
       CometChatTypography typography,
       CometChatSpacing spacing) {
     final moderationUtil = ModerationCheckUtil.instance;
 
-    if (moderationUtil.hideModerationStatus == false && ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(message)) {
+    if (moderationUtil.hideModerationStatus == false &&
+        ModerationCheckUtil.instance
+            .isMessageDisapprovedFromModeration(message)) {
       return BorderRadius.only(
         topLeft: Radius.circular(spacing.radius4 ?? 16),
         topRight: Radius.circular(spacing.radius4 ?? 16),

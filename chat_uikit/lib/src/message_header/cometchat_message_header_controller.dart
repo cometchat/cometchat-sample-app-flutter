@@ -355,4 +355,8 @@ class CometChatMessageHeaderController extends GetxController
           "${cc.Translations.of(context).lastSeen} $formattedDate ${cc.Translations.of(context).at} $formattedTime";
     }
   }
+
+  bool isUserAgentic() {
+    return userObject?.role == AIConstants.aiRole;
+  }
 }

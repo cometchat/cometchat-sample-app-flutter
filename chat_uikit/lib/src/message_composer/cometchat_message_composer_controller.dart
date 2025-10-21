@@ -14,7 +14,8 @@ class CometChatMessageComposerController extends GetxController
     with
         CometChatMessageEventListener,
         CometChatUIEventListener,
-        CometChatUserEventListener {
+        CometChatUserEventListener,
+        CometChatStreamCallbackListener {
   CometChatMessageComposerController({
     this.user,
     this.group,
@@ -112,7 +113,7 @@ class CometChatMessageComposerController extends GetxController
   final String? text;
 
   ///[parentMessageId] parent message id for in thread messages
-  final int parentMessageId;
+  int parentMessageId;
 
   ///[disableSoundForMessages] if true then disables outgoing message sound
   final bool disableSoundForMessages;
@@ -180,6 +181,7 @@ class CometChatMessageComposerController extends GetxController
   late String _dateString;
   late String _uiMessageListener;
   late String _uiEventListener;
+  late String _streamCallbackUiEventListener;
 
   ///[header] shown in header view
   Widget? header;
@@ -247,6 +249,9 @@ class CometChatMessageComposerController extends GetxController
   ///[auxiliaryButtonIconColor] provides color to the auxiliary button icon
   Color? auxiliaryButtonIconColor;
 
+  CometChatStreamService streamService = CometChatStreamService();
+  bool isActiveStreaming = false;
+
   //-------------------------LifeCycle Methods-----------------------------
   @override
   void onInit() {
@@ -260,6 +265,8 @@ class CometChatMessageComposerController extends GetxController
     _dateString = DateTime.now().millisecondsSinceEpoch.toString();
     _uiMessageListener = "${_dateString}UI_message_listener";
     _uiEventListener = "${_dateString}UI_event_listener";
+    _streamCallbackUiEventListener =
+        "${_dateString}UI_streamCallback_event_listener";
 
     /// Subscribe to the stream
     _subscription =
@@ -275,29 +282,29 @@ class CometChatMessageComposerController extends GetxController
               suggestions.add(element);
             }
           }
-            shouldScrollDown = true;
+          shouldScrollDown = true;
+        }
+        hasMore = true;
+        update();
+
+        CometChatUIEvents.showPanel(
+            composerId,
+            CustomUIPosition.composerPreview,
+            (context) => getList(context, textEditingController!, colorPalette,
+                spacing, typography));
+        overlayPortalController.show();
+        if (shouldScrollDown) {
+          _scrollDown();
+        } else {
+          if (_searcKeywordChanged) {
+            CometChatUIEvents.hidePanel(
+                composerId, CustomUIPosition.composerPreview);
+            suggestions.clear();
           }
-          hasMore = true;
+
+          hasMore = false;
           update();
-
-            CometChatUIEvents.showPanel(
-                composerId,
-                CustomUIPosition.composerPreview,
-                (context) => getList(context, textEditingController!,
-                    colorPalette, spacing, typography));
-            overlayPortalController.show();
-            if (shouldScrollDown) {
-              _scrollDown();
-            } else {
-              if (_searcKeywordChanged) {
-                CometChatUIEvents.hidePanel(
-                    composerId, CustomUIPosition.composerPreview);
-                suggestions.clear();
-              }
-
-              hasMore = false;
-              update();
-            }
+        }
       }
     });
 
@@ -313,6 +320,8 @@ class CometChatMessageComposerController extends GetxController
     CometChatUIEvents.addUiListener(_uiEventListener, this);
 
     CometChatUserEvents.addUsersListener(_uiEventListener, this);
+    CometChatStreamCallBackEvents.addStreamCallBackListener(
+        _streamCallbackUiEventListener, this);
 
     if (stateCallBack != null) {
       stateCallBack!(this);
@@ -334,8 +343,7 @@ class CometChatMessageComposerController extends GetxController
 
     if (getAttachmentOptionsCalled == false) {
       getAttachmentOptionsCalled = true;
-      getAttachmentOptions(
-          context, colorPalette!, typography!);
+      getAttachmentOptions(context, colorPalette!, typography!);
     }
     initializeHeaderView();
     initializeFooterView();
@@ -346,17 +354,17 @@ class CometChatMessageComposerController extends GetxController
   }
 
   initAuxiliaryOption() {
-    AdditionalConfigurations additionalConfigurations = AdditionalConfigurations(
+    AdditionalConfigurations additionalConfigurations =
+        AdditionalConfigurations(
       hideStickersButton: hideStickersButton,
     );
-    return CometChatUIKit.getDataSource()
-        .getAuxiliaryOptions(
+    return CometChatUIKit.getDataSource().getAuxiliaryOptions(
       user,
       group,
       context,
       composerId,
       auxiliaryButtonIconColor,
-        additionalConfigurations: additionalConfigurations,
+      additionalConfigurations: additionalConfigurations,
     );
   }
 
@@ -425,6 +433,8 @@ class CometChatMessageComposerController extends GetxController
     CometChatMessageEvents.removeMessagesListener(_uiMessageListener);
     CometChatUIEvents.removeUiListener(_uiEventListener);
     CometChatUserEvents.removeUsersListener(_uiEventListener);
+    CometChatStreamCallBackEvents.removeStreamCallBackListener(
+        _streamCallbackUiEventListener);
     focusNode.removeListener(_onFocusChange);
     focusNode.dispose();
     _subscription.cancel();
@@ -528,7 +538,8 @@ class CometChatMessageComposerController extends GetxController
                 fontWeight: typography?.heading4?.medium?.fontWeight,
                 fontFamily: typography?.heading4?.medium?.fontFamily,
                 color: colorPalette?.textPrimary)
-            .merge(suggestionListStyle?.textStyle).copyWith(color:  suggestionListStyle?.textColor),
+            .merge(suggestionListStyle?.textStyle)
+            .copyWith(color: suggestionListStyle?.textColor),
       ),
       leading: item.avatarName == null && item.avatarUrl == null
           ? null
@@ -566,9 +577,10 @@ class CometChatMessageComposerController extends GetxController
       print("is for this ID $id ${isForThisWidget(id)}");
     }
     if (isForThisWidget(id) == false) return;
-    if(id?.containsKey(AIUtils.extensionKey)==true){
-      String? extension =id?[AIUtils.extensionKey];
-      if(extension==AIFeatureConstants.aiSmartReplies || extension==AIFeatureConstants.aiConversationSummary){
+    if (id?.containsKey(AIUtils.extensionKey) == true) {
+      String? extension = id?[AIUtils.extensionKey];
+      if (extension == AIFeatureConstants.aiSmartReplies ||
+          extension == AIFeatureConstants.aiConversationSummary) {
         activeAiFeatures = true;
         aiFeatureEnabled = extension ?? "";
       }
@@ -586,9 +598,10 @@ class CometChatMessageComposerController extends GetxController
   @override
   void hidePanel(Map<String, dynamic>? id, CustomUIPosition uiPosition) {
     if (isForThisWidget(id) == false) return;
-    if(id?.containsKey(AIUtils.extensionKey)==true){
-      String? extension =id?[AIUtils.extensionKey];
-      if(extension==AIFeatureConstants.aiSmartReplies || extension==AIFeatureConstants.aiConversationSummary){
+    if (id?.containsKey(AIUtils.extensionKey) == true) {
+      String? extension = id?[AIUtils.extensionKey];
+      if (extension == AIFeatureConstants.aiSmartReplies ||
+          extension == AIFeatureConstants.aiConversationSummary) {
         activeAiFeatures = false;
       }
     }
@@ -605,7 +618,6 @@ class CometChatMessageComposerController extends GetxController
   bool isSameConversation(BaseMessage message) {
     return true;
   }
-
 
   //-----------------------Internal Dependency Initialization-------------------------
   initializeHeaderView() {
@@ -629,15 +641,15 @@ class CometChatMessageComposerController extends GetxController
 
   getAttachmentOptions(BuildContext context, CometChatColorPalette colorPalette,
       CometChatTypography typography) {
-    final attachmentOptionSheetStyle = CometChatThemeHelper.getTheme<CometChatAttachmentOptionSheetStyle>(
-        context: context,
-        defaultTheme: CometChatAttachmentOptionSheetStyle.of)
-        .merge(style?.attachmentOptionSheetStyle);
+    final attachmentOptionSheetStyle =
+        CometChatThemeHelper.getTheme<CometChatAttachmentOptionSheetStyle>(
+                context: context,
+                defaultTheme: CometChatAttachmentOptionSheetStyle.of)
+            .merge(style?.attachmentOptionSheetStyle);
 
     if (attachmentOptions != null) {
       List<CometChatMessageComposerAction> actionList =
           attachmentOptions!(context, user, group, {});
-
 
       for (CometChatMessageComposerAction attachmentOption in actionList) {
         _actionStyle = CometChatAttachmentOptionSheetStyle(
@@ -667,8 +679,7 @@ class CometChatMessageComposerController extends GetxController
               ).merge(
                 _actionStyle?.titleTextStyle,
               ),
-              backgroundColor:
-                  _actionStyle?.backgroundColor,
+              backgroundColor: _actionStyle?.backgroundColor,
               iconColor: _actionStyle?.iconColor,
               titleColor: _actionStyle?.titleColor,
               borderRadius: _actionStyle?.borderRadius,
@@ -682,14 +693,14 @@ class CometChatMessageComposerController extends GetxController
       AdditionalConfigurations additionalConfigurations =
           AdditionalConfigurations(
         attachmentOptionSheetStyle: attachmentOptionSheetStyle,
-            hideAudioAttachmentOption: hideAudioAttachmentOption,
-            hideCollaborativeDocumentOption: hideCollaborativeDocumentOption,
-            hideCollaborativeWhiteboardOption: hideCollaborativeWhiteboardOption,
-            hideFileAttachmentOption: hideFileAttachmentOption,
-            hideImageAttachmentOption: hideImageAttachmentOption,
-            hidePollsOption: hidePollsOption,
-            hideVideoAttachmentOption: hideVideoAttachmentOption,
-            hideTakPhotoOption: hideTakePhotoOption,
+        hideAudioAttachmentOption: hideAudioAttachmentOption,
+        hideCollaborativeDocumentOption: hideCollaborativeDocumentOption,
+        hideCollaborativeWhiteboardOption: hideCollaborativeWhiteboardOption,
+        hideFileAttachmentOption: hideFileAttachmentOption,
+        hideImageAttachmentOption: hideImageAttachmentOption,
+        hidePollsOption: hidePollsOption,
+        hideVideoAttachmentOption: hideVideoAttachmentOption,
+        hideTakPhotoOption: hideTakePhotoOption,
       );
       final defaultOptions =
           CometChatUIKit.getDataSource().getAttachmentOptions(
@@ -697,7 +708,8 @@ class CometChatMessageComposerController extends GetxController
         composerId,
         additionalConfigurations,
       );
-      for (CometChatMessageComposerAction defaultAttachmentOptions in defaultOptions) {
+      for (CometChatMessageComposerAction defaultAttachmentOptions
+          in defaultOptions) {
         _actionStyle = CometChatAttachmentOptionSheetStyle(
           border: defaultAttachmentOptions.style?.border,
           borderRadius: defaultAttachmentOptions.style?.borderRadius,
@@ -755,9 +767,12 @@ class CometChatMessageComposerController extends GetxController
     if (textEditingController == null) return;
     if ((_previousText.isEmpty && textEditingController!.text.isNotEmpty) ||
         (_previousText.isNotEmpty && textEditingController!.text.isEmpty) ||
-        ((oldMessage != null) && _previousText == (oldMessage as TextMessage).text && textEditingController!.text != (oldMessage as TextMessage).text) ||
-        ((oldMessage != null) && _previousText != (oldMessage as TextMessage).text && textEditingController!.text == (oldMessage as TextMessage).text)
-    ) {
+        ((oldMessage != null) &&
+            _previousText == (oldMessage as TextMessage).text &&
+            textEditingController!.text != (oldMessage as TextMessage).text) ||
+        ((oldMessage != null) &&
+            _previousText != (oldMessage as TextMessage).text &&
+            textEditingController!.text == (oldMessage as TextMessage).text)) {
       update();
     }
     if (_previousText.length > textEditingController!.text.length) {
@@ -827,6 +842,13 @@ class CometChatMessageComposerController extends GetxController
 
       CometChat.sendMessage(textMessage, onSuccess: (TextMessage message) {
         debugPrint("Message sent successfully:  ${message.text}");
+        debugPrint("Message sent successfully:  ${message.id}");
+        debugPrint("Message sent successfully:  ${message.parentMessageId}");
+        if (isUserAgentic() && parentMessageId == 0) {
+          parentMessageId = message.id;
+          message.parentMessageId = parentMessageId;
+        }
+
         if (disableSoundForMessages == false) {
           CometChatUIKit.soundManager.play(
               sound: Sound.outgoingMessage,
@@ -977,15 +999,15 @@ class CometChatMessageComposerController extends GetxController
 
   sendCustomMessage(Map<String, String> customData, String type) {
     CustomMessage customMessage = CustomMessage(
-        receiverUid: receiverID,
-        type: type,
-        customData: customData,
-        receiverType: receiverType,
-        sender: loggedInUser,
-        parentMessageId: parentMessageId,
-        muid: DateTime.now().microsecondsSinceEpoch.toString(),
-        category: CometChatMessageCategory.custom,
-        sentAt: DateTime.now(),
+      receiverUid: receiverID,
+      type: type,
+      customData: customData,
+      receiverType: receiverType,
+      sender: loggedInUser,
+      parentMessageId: parentMessageId,
+      muid: DateTime.now().microsecondsSinceEpoch.toString(),
+      category: CometChatMessageCategory.custom,
+      sentAt: DateTime.now(),
     );
 
     CometChatMessageEvents.ccMessageSent(
@@ -1012,7 +1034,6 @@ class CometChatMessageComposerController extends GetxController
                   "Custom message sending failed with exception: ${e.message}");
             });
   }
-
 
   //----------------------------methods used internally----------------------------
   //triggered if developer doesn't pass their onChange handler
@@ -1084,8 +1105,7 @@ class CometChatMessageComposerController extends GetxController
         ).merge(
           _actionStyle?.titleTextStyle,
         ),
-        backgroundColor:
-            _actionStyle?.backgroundColor,
+        backgroundColor: _actionStyle?.backgroundColor,
         iconColor: _actionStyle?.iconColor,
         titleColor: _actionStyle?.titleColor,
         borderRadius: _actionStyle?.borderRadius,
@@ -1114,7 +1134,7 @@ class CometChatMessageComposerController extends GetxController
       if (item.id == MessageTypeConstants.attachPhoto) {
         pickedFile = await MediaPicker.pickImage();
         type = pickedFile?.fileType;
-      } else if(item.id == MessageTypeConstants.attachVideo) {
+      } else if (item.id == MessageTypeConstants.attachVideo) {
         pickedFile = await MediaPicker.pickVideo();
         type = pickedFile?.fileType;
       } else if (item.id == 'takePhoto') {
@@ -1140,7 +1160,8 @@ class CometChatMessageComposerController extends GetxController
         }
         Map<String, dynamic> metadata = {};
         metadata["localPath"] = pickedFile.path;
-        sendMediaMessage(path: pickedFile.path, messageType: type,metadata: metadata);
+        sendMediaMessage(
+            path: pickedFile.path, messageType: type, metadata: metadata);
       }
     }
   }
@@ -1149,7 +1170,8 @@ class CometChatMessageComposerController extends GetxController
   useEmojis(BuildContext context) async {
     String? emoji = await showCometChatEmojiKeyboard(
       context: context,
-      colorPalette: colorPalette ?? CometChatThemeHelper.getColorPalette(context),
+      colorPalette:
+          colorPalette ?? CometChatThemeHelper.getColorPalette(context),
     );
     if (emoji != null) {
       if (!focusNode.hasFocus) {
@@ -1163,9 +1185,12 @@ class CometChatMessageComposerController extends GetxController
 
 //triggered if developer doesn't pass their onSendButtonClick handler
   onSendButtonClick() {
+    final isAiBusy = isUserAgentic() && isActiveStreaming;
+    if (isAiBusy) {
+      return;
+    }
     final text = textEditingController?.text.trim();
-    if (text != null &&
-        text.isNotEmpty) {
+    if (text != null && text.isNotEmpty) {
       if (previewMessageMode == PreviewMessageMode.none) {
         sendTextMessage();
       } else if (previewMessageMode == PreviewMessageMode.edit) {
@@ -1257,7 +1282,7 @@ class CometChatMessageComposerController extends GetxController
   void _onFocusChange() {
     if (focusNode.hasFocus) {
       CometChatUIEvents.hidePanel(composerId, CustomUIPosition.composerBottom);
-    } else if(!focusNode.hasFocus) {
+    } else if (!focusNode.hasFocus) {
       initializeFooterView();
     }
   }
@@ -1281,31 +1306,33 @@ class CometChatMessageComposerController extends GetxController
       );
       onSendButtonTap!(context, mediaMessage, previewMessageMode);
     } else {
-      sendMediaMessage(path: path, messageType: MessageTypeConstants.audio,metadata: metadata);
+      sendMediaMessage(
+          path: path,
+          messageType: MessageTypeConstants.audio,
+          metadata: metadata);
     }
   }
 
   aiButtonTap(
     BuildContext context,
-    id, CometChatAiOptionSheetStyle? aiOptionSheetStyle,
+    id,
+    CometChatAiOptionSheetStyle? aiOptionSheetStyle,
   ) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    if(activeAiFeatures) {
+    if (activeAiFeatures) {
       Map<String, dynamic> idMap =
-      UIEventUtils.createMap(user?.uid,
-          group?.guid, 0);
-      if(aiFeatureEnabled == AIFeatureConstants.aiSmartReplies){
+          UIEventUtils.createMap(user?.uid, group?.guid, 0);
+      if (aiFeatureEnabled == AIFeatureConstants.aiSmartReplies) {
         idMap[AIUtils.extensionKey] = AIFeatureConstants.aiSmartReplies;
-      } else if(aiFeatureEnabled == AIFeatureConstants.aiConversationSummary) {
+      } else if (aiFeatureEnabled == AIFeatureConstants.aiConversationSummary) {
         idMap[AIUtils.extensionKey] = AIFeatureConstants.aiConversationSummary;
       }
-        CometChatUIEvents.hidePanel(
-            idMap, CustomUIPosition.composerTop);
-        return;
+      CometChatUIEvents.hidePanel(idMap, CustomUIPosition.composerTop);
+      return;
     }
     List<CometChatMessageComposerAction> aiFeatureList =
-        CometChatUIKit.getDataSource().getAIOptions(
-            user, group, context, id, aiOptionStyle);
+        CometChatUIKit.getDataSource()
+            .getAIOptions(user, group, context, id, aiOptionStyle);
 
     if (aiFeatureList.isNotEmpty) {
       List<CometChatMessageComposerAction> actionList = [];
@@ -1331,16 +1358,15 @@ class CometChatMessageComposerController extends GetxController
       }
 
       showCometChatAiOptionSheet(
-        context: context,
-        user: user,
-        group: group,
-        actionItems: actionList,
-        colorPalette: colorPalette,
-        typography: typography,
-        spacing: spacing,
-        style: aiOptionSheetStyle,
-        aiOptionStyle: aiOptionStyle
-      );
+          context: context,
+          user: user,
+          group: group,
+          actionItems: actionList,
+          colorPalette: colorPalette,
+          typography: typography,
+          spacing: spacing,
+          style: aiOptionSheetStyle,
+          aiOptionStyle: aiOptionStyle);
 
       return;
     }
@@ -1362,6 +1388,36 @@ class CometChatMessageComposerController extends GetxController
   void ccUserUnblocked(User user) {
     if (user.uid == this.user?.uid) {
       this.user?.blockedByMe = false;
+    }
+  }
+
+  bool isUserAgentic() {
+    return user?.role == AIConstants.aiRole;
+  }
+
+  @override
+  void ccStreamCompleted(isCompleted) {
+    if (isActiveStreaming) {
+      if (isCompleted) {
+        isActiveStreaming = !isCompleted;
+      }
+      update();
+    }
+  }
+
+  @override
+  void ccStreamInProgress(isInProgress) {
+    isActiveStreaming = isInProgress;
+    update();
+  }
+
+  @override
+  void ccStreamInterrupted(isInterrupted) {
+    if (isActiveStreaming) {
+      if (isInterrupted) {
+        isActiveStreaming = !isInterrupted;
+      }
+      update();
     }
   }
 }

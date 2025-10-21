@@ -1260,5 +1260,36 @@ class TranslationsMs extends Translations {
   @override
   String get busy => "Sibuk";
 
+  @override
+  String get noConversationHistoryFound => "Tiada sejarah perbualan ditemui.";
+
+  @override
+  String get somethingWentWrongTryAgain => "Terdapat masalah di pihak kami. Sila cuba lagi.";
+
+  @override
+  String get startChatByTappingNewChat => 'Mulakan perbualan dengan mengetik butang "Perbualan Baru".';
+
+  @override
+  String get chatHistory => "Sejarah Perbualan";
+
+  @override
+  String get askAnything => "Tanya apa sahaja";
+
+  @override
+  String get aiAssistant => "Pembantu AI";
+
+  @override
+  String get aiAgent => "Ejen AI";
+
+  @override
+  String get agents => "Ejen";
+  @override
+  String get noInternetConnection => "Tiada sambungan internet";
+  @override
+  String get logoutFailedTryAgain => "Gagal log keluar. Sila cuba lagi.";
+  @override
+  String get thinking => "Memikir...";
+  @override
+  String get aiAssistants => "Pembantu AI";
 }
 

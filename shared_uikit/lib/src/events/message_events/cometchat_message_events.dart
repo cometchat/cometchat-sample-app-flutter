@@ -188,4 +188,25 @@ class CometChatMessageEvents {
       value.onMessageModerated(message);
     });
   }
+
+  /// Called when a AI Assistant message is received.
+  static void onAIAssistantMessageReceived(AIAssistantMessage aiAssistantMessage) {
+    messagesListener.forEach((key, value) {
+      value.onAIAssistantMessageReceived(aiAssistantMessage);
+    });
+  }
+
+  /// Called when a tool result message is received.
+  static void onAIToolResultReceived(AIToolResultMessage aiToolResultMessage) {
+    messagesListener.forEach((key, value) {
+      value.onAIToolResultReceived(aiToolResultMessage);
+    });
+  }
+
+  /// Called when a tool argument message is received.
+  static void onAIToolArgumentsReceived(AIToolArgumentMessage aiToolArgumentMessage) {
+    messagesListener.forEach((key, value) {
+      value.onAIToolArgumentsReceived(aiToolArgumentMessage);
+    });
+  }
 }

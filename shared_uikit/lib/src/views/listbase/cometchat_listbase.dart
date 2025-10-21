@@ -32,6 +32,8 @@ class CometChatListBase extends StatefulWidget {
     this.searchContentPadding,
     this.titleSpacing,
     this.titleView,
+    this.leadingWidth,
+    this.leadingIconPadding,
   });
 
   ///[style] styling properties
@@ -88,12 +90,17 @@ class CometChatListBase extends StatefulWidget {
   ///[titleView] to specify title view
   final Widget? titleView;
 
+  ///[leadingWidth] to specify leading width
+  final double? leadingWidth;
+
+  ///[leadingIconPadding] to specify leading icon padding
+  final EdgeInsetsGeometry? leadingIconPadding;
+
   @override
   State<CometChatListBase> createState() => _CometChatListBaseState();
 }
 
 class _CometChatListBaseState extends State<CometChatListBase> {
-
   late TextEditingController _searchController;
 
   /// returns back button to be shown in appbar
@@ -105,6 +112,7 @@ class _CometChatListBaseState extends State<CometChatListBase> {
             () {
               Navigator.pop(context);
             },
+        padding: widget.leadingIconPadding ?? EdgeInsets.zero,
         color: widget.style.backIconTint,
         icon: widget.backIcon ??
             Image.asset(
@@ -125,13 +133,11 @@ class _CometChatListBaseState extends State<CometChatListBase> {
     _searchController = TextEditingController(text: widget.searchText ?? '');
   }
 
-
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -151,22 +157,26 @@ class _CometChatListBaseState extends State<CometChatListBase> {
               : AppBar(
                   elevation: 0,
                   toolbarHeight: 56,
-                  title:widget.titleView ?? Text(
-                    widget.title ?? "",
-                    style: widget.style.titleStyle,
-                  ),
+                  title: widget.titleView ??
+                      Text(
+                        widget.title ?? "",
+                        style: widget.style.titleStyle,
+                      ),
                   shape: widget.style.appBarShape,
-                  backgroundColor: widget.style.background,
+                  backgroundColor: widget.style.appBarBackground ?? widget.style.background,
                   leading: getBackButton(context),
+                  leadingWidth: widget.leadingWidth ??
+                      (widget.showBackButton == true ? 40 : 0),
                   automaticallyImplyLeading: widget.showBackButton ?? false,
                   actions: widget.menuOptions ?? [],
                   centerTitle: false,
-            titleSpacing: widget.titleSpacing,
+                  titleSpacing: widget.titleSpacing,
                 ),
 
           backgroundColor: widget.style.background,
           body: Padding(
-            padding: widget.style.padding ?? const EdgeInsets.only(left: 0, right: 0),
+            padding: widget.style.padding ??
+                const EdgeInsets.only(left: 0, right: 0),
             child: SizedBox(
               height: widget.style.height,
               width: widget.style.width,
@@ -176,7 +186,7 @@ class _CometChatListBaseState extends State<CometChatListBase> {
                 children: [
                   //-----------------------------------
                   //----------show search box----------
-                  if(widget.hideSearch == false)
+                  if (widget.hideSearch == false)
                     Padding(
                       padding: widget.searchPadding ?? const EdgeInsets.all(0),
                       child: SizedBox(
@@ -184,10 +194,10 @@ class _CometChatListBaseState extends State<CometChatListBase> {
                         child: Center(
                           child: TextField(
                             keyboardAppearance:
-                            CometChatThemeHelper.getBrightness(context) ==
-                                Brightness.dark
-                                ? Brightness.dark
-                                : Brightness.light,
+                                CometChatThemeHelper.getBrightness(context) ==
+                                        Brightness.dark
+                                    ? Brightness.dark
+                                    : Brightness.light,
                             key: widget.key,
                             //--------------------------------------
                             //----------on search callback----------
@@ -213,23 +223,29 @@ class _CometChatListBaseState extends State<CometChatListBase> {
                               //-------------------------------------
                               //----------search box border----------
                               focusedBorder: OutlineInputBorder(
-                                borderSide: widget.style.borderSide ?? BorderSide.none,
-                                borderRadius: widget.style.searchTextFieldRadius ??
-                                    BorderRadius.circular(28),
+                                borderSide:
+                                    widget.style.borderSide ?? BorderSide.none,
+                                borderRadius:
+                                    widget.style.searchTextFieldRadius ??
+                                        BorderRadius.circular(28),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderSide: widget.style.borderSide ?? BorderSide.none,
-                                borderRadius: widget.style.searchTextFieldRadius ??
-                                    BorderRadius.circular(
-                                      28,
-                                    ),
+                                borderSide:
+                                    widget.style.borderSide ?? BorderSide.none,
+                                borderRadius:
+                                    widget.style.searchTextFieldRadius ??
+                                        BorderRadius.circular(
+                                          28,
+                                        ),
                               ),
                               border: OutlineInputBorder(
-                                borderSide: widget.style.borderSide ?? BorderSide.none,
-                                borderRadius: widget.style.searchTextFieldRadius ??
-                                    BorderRadius.circular(
-                                      28,
-                                    ),
+                                borderSide:
+                                    widget.style.borderSide ?? BorderSide.none,
+                                borderRadius:
+                                    widget.style.searchTextFieldRadius ??
+                                        BorderRadius.circular(
+                                          28,
+                                        ),
                               ),
 
                               //-----------------------------------------

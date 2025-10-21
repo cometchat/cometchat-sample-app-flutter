@@ -1259,4 +1259,35 @@ class TranslationsTr extends Translations {
   @override
   String get busy => "Meşgul";
 
+  @override
+  String get noConversationHistoryFound => "Konuşma geçmişi bulunamadı.";
+
+  @override
+  String get somethingWentWrongTryAgain => "Bizim tarafımızda bir hata oluştu. Lütfen tekrar deneyin.";
+
+  @override
+  String get startChatByTappingNewChat => '"Yeni Sohbet" düğmesine dokunarak sohbet başlatın.';
+
+  @override
+  String get chatHistory => "Sohbet Geçmişi";
+
+  @override
+  String get askAnything => "Herhangi bir şey sor";
+
+  @override
+  String get aiAssistant => "Yapay Zeka Asistanı";
+
+  @override
+  String get aiAgent => "AI Ajan";
+
+  @override
+  String get agents => "Ajanlar";
+  @override
+  String get noInternetConnection => "İnternet bağlantısı yok";
+  @override
+  String get logoutFailedTryAgain => "Çıkış başarısız. Tekrar deneyin.";
+  @override
+  String get thinking => "Düşünüyor...";
+  @override
+  String get aiAssistants => "AI Asistanları";
 }

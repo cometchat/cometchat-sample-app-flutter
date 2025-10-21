@@ -86,4 +86,13 @@ mixin CometChatMessageEventListener implements UIEventHandler {
 
   //event for on transient message received
   void onMessageModerated(BaseMessage message) {}
+
+  // event for on AI Assistant message received
+  void onAIAssistantMessageReceived(AIAssistantMessage aiAssistantMessage) {}
+
+  // event for on AI Tool Result message ended
+  void onAIToolResultReceived(AIToolResultMessage aiToolResultMessage) {}
+
+  //event for on AI Tool Arguments message received
+  void onAIToolArgumentsReceived(AIToolArgumentMessage aiToolArgumentMessage) {}
 }

@@ -1226,4 +1226,35 @@ class TranslationsKo extends Translations {
   @override
   String get busy => "바쁨";
 
+  @override
+  String get noConversationHistoryFound => "대화 기록을 찾을 수 없습니다.";
+
+  @override
+  String get somethingWentWrongTryAgain => "문제가 발생했습니다. 다시 시도해주세요.";
+
+  @override
+  String get startChatByTappingNewChat => '"새 채팅" 버튼을 눌러 채팅을 시작하세요.';
+
+  @override
+  String get chatHistory => "채팅 기록";
+
+  @override
+  String get askAnything => "무엇이든 물어보세요";
+
+  @override
+  String get aiAssistant => "AI 어시스턴트";
+
+  @override
+  String get aiAgent => "AI 에이전트";
+
+  @override
+  String get agents => "에이전트";
+  @override
+  String get noInternetConnection => "인터넷 연결이 없습니다";
+  @override
+  String get logoutFailedTryAgain => "로그아웃 실패. 다시 시도해주세요.";
+  @override
+  String get thinking => "생각 중...";
+  @override
+  String get aiAssistants => "AI 어시스턴트들";
 }

@@ -1,6 +1,6 @@
 name: cometchat_calls_uikit
 description: Flutter plugin featuring custom audio and video call widgets. Integrate seamlessly with Cometchat Chat UI Kit or use independently for streamlined development.
-version: 5.0.6
+version: 5.0.7
 homepage: https://www.cometchat.com/
 
 environment:
@@ -12,10 +12,9 @@ dependencies:
     sdk: flutter
   intl: any
   get:  ^4.6.5
-  cometchat_sdk: ^4.0.26
-  cometchat_calls_sdk: ^4.1.0
-  cometchat_uikit_shared:
-    path: ../shared_uikit
+  cometchat_sdk: ^4.0.27
+  cometchat_calls_sdk: ^4.1.2
+  cometchat_uikit_shared: ^5.1.2
   flutter_svg: ^2.0.17
 
 dev_dependencies:

@@ -245,7 +245,6 @@ class CometChatConversations extends StatefulWidget {
   ///[submitIcon] will override the default submit icon
   final Widget? submitIcon;
 
-
   ///[setOptions] sets List of actions available on the long press of list item
   final List<CometChatOption>? Function(
       Conversation conversation,
@@ -824,33 +823,41 @@ class _CometChatConversationsState extends State<CometChatConversations> {
         conversation,
       );
     } else {
-      tail = Padding(
-        padding: EdgeInsets.only(
-          left: spacing.padding2 ?? 0,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: getTime(
-                conversation,
-                context,
+      User? user;
+      if (conversation.conversationWith is User) {
+        user = conversation.conversationWith as User;
+      }
+      if (user?.role == AIConstants.aiRole) {
+        tail = const SizedBox();
+      } else {
+        tail = Padding(
+          padding: EdgeInsets.only(
+            left: spacing.padding2 ?? 0,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: getTime(
+                  conversation,
+                  context,
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 6.5,
-            ),
-            Flexible(
-              child: getUnreadCount(
-                conversation,
-                context,
+              const SizedBox(
+                height: 6.5,
               ),
-            ),
-          ],
-        ),
-      );
+              Flexible(
+                child: getUnreadCount(
+                  conversation,
+                  context,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
     }
 
     User? conversationWithUser;
@@ -863,32 +870,29 @@ class _CometChatConversationsState extends State<CometChatConversations> {
 
     StatusIndicatorUtils statusIndicatorUtils =
         StatusIndicatorUtils.getStatusIndicatorFromParams(
-            context: context,
-            isSelected:
-               false,
-            user: conversationWithUser,
-            group: conversationWithGroup,
-            onlineStatusIndicatorColor:
-                statusStyle.backgroundColor ?? colorPalette.success,
-            privateGroupIcon: widget.privateGroupIcon,
-            protectedGroupIcon: widget.protectedGroupIcon,
-            privateGroupIconBackground: style.privateGroupIconBackground,
-            protectedGroupIconBackground: style.protectedGroupIconBackground,
-            usersStatusVisibility:
-                controller.hideUserPresence(conversationWithUser),
-            groupTypeVisibility:
-                controller.hideGroupIconVisibility(conversationWithGroup),
-        );
+      context: context,
+      isSelected: false,
+      user: conversationWithUser,
+      group: conversationWithGroup,
+      onlineStatusIndicatorColor:
+          statusStyle.backgroundColor ?? colorPalette.success,
+      privateGroupIcon: widget.privateGroupIcon,
+      protectedGroupIcon: widget.protectedGroupIcon,
+      privateGroupIconBackground: style.privateGroupIconBackground,
+      protectedGroupIconBackground: style.protectedGroupIconBackground,
+      usersStatusVisibility: controller.hideUserPresence(conversationWithUser),
+      groupTypeVisibility:
+          controller.hideGroupIconVisibility(conversationWithGroup),
+    );
 
     backgroundColor = statusIndicatorUtils.statusIndicatorColor;
     icon = statusIndicatorUtils.icon;
     return Container(
-        decoration: BoxDecoration(
-          color: (controller.selectionMap[conversation.conversationId] != null)
-              ? style.listItemSelectedBackgroundColor ??
-              colorPalette.background4
-              : colorPalette.transparent,
-        ),
+      decoration: BoxDecoration(
+        color: (controller.selectionMap[conversation.conversationId] != null)
+            ? style.listItemSelectedBackgroundColor ?? colorPalette.background4
+            : colorPalette.transparent,
+      ),
       child: GestureDetector(
         key: UniqueKey(),
         onTap: () {
@@ -967,51 +971,55 @@ class _CometChatConversationsState extends State<CometChatConversations> {
           children: [
             (controller.selectionMap.isNotEmpty)
                 ? Checkbox(
-              fillColor: (controller.selectionMap[conversation.conversationId] != null)
-                  ? WidgetStateProperty.all(
-                  style.checkBoxCheckedBackgroundColor ??
-                      colorPalette.iconHighlight)
-                  : WidgetStateProperty.all(
-                  style.checkBoxBackgroundColor ??
-                      colorPalette.transparent),
-              value: controller.selectionMap[conversation.conversationId] != null,
-              onChanged: (value) {
-                if (widget.activateSelection ==
-                    ActivateSelection.onClick ||
-                    (widget.activateSelection ==
-                        ActivateSelection.onLongClick &&
-                        controller.selectionMap.isNotEmpty) &&
-                        !(widget.selectionMode == null ||
-                            widget.selectionMode == SelectionMode.none)) {
-                  controller.onTap(conversation);
-                  if (controller.selectionMap.isEmpty) {
-                    _isSelectionOn.value = false;
-                  } else if (widget.activateSelection ==
-                      ActivateSelection.onClick &&
-                      controller.selectionMap.isNotEmpty &&
-                      _isSelectionOn.value == false) {
-                    _isSelectionOn.value = true;
-                  }
-                }
-              },
-              activeColor: style.checkBoxCheckedBackgroundColor ??
-                  colorPalette.iconHighlight,
-              shape: RoundedRectangleBorder(
-                borderRadius: style.checkBoxBorderRadius ??
-                    BorderRadius.circular(
-                      spacing.radius1 ?? 4,
+                    fillColor:
+                        (controller.selectionMap[conversation.conversationId] !=
+                                null)
+                            ? WidgetStateProperty.all(
+                                style.checkBoxCheckedBackgroundColor ??
+                                    colorPalette.iconHighlight)
+                            : WidgetStateProperty.all(
+                                style.checkBoxBackgroundColor ??
+                                    colorPalette.transparent),
+                    value:
+                        controller.selectionMap[conversation.conversationId] !=
+                            null,
+                    onChanged: (value) {
+                      if (widget.activateSelection ==
+                              ActivateSelection.onClick ||
+                          (widget.activateSelection ==
+                                      ActivateSelection.onLongClick &&
+                                  controller.selectionMap.isNotEmpty) &&
+                              !(widget.selectionMode == null ||
+                                  widget.selectionMode == SelectionMode.none)) {
+                        controller.onTap(conversation);
+                        if (controller.selectionMap.isEmpty) {
+                          _isSelectionOn.value = false;
+                        } else if (widget.activateSelection ==
+                                ActivateSelection.onClick &&
+                            controller.selectionMap.isNotEmpty &&
+                            _isSelectionOn.value == false) {
+                          _isSelectionOn.value = true;
+                        }
+                      }
+                    },
+                    activeColor: style.checkBoxCheckedBackgroundColor ??
+                        colorPalette.iconHighlight,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: style.checkBoxBorderRadius ??
+                          BorderRadius.circular(
+                            spacing.radius1 ?? 4,
+                          ),
                     ),
-              ),
-              checkColor:
-              style.checkboxSelectedIconColor ?? colorPalette.white,
-              side: style.checkBoxBorder ??
-                  BorderSide(
-                    color:
-                    colorPalette.borderDefault ?? Colors.transparent,
-                    width: 1.25,
-                    style: BorderStyle.solid,
-                  ),
-            )
+                    checkColor:
+                        style.checkboxSelectedIconColor ?? colorPalette.white,
+                    side: style.checkBoxBorder ??
+                        BorderSide(
+                          color:
+                              colorPalette.borderDefault ?? Colors.transparent,
+                          width: 1.25,
+                          style: BorderStyle.solid,
+                        ),
+                  )
                 : const SizedBox(),
             Expanded(
               child: CometChatListItem(
@@ -1023,9 +1031,12 @@ class _CometChatConversationsState extends State<CometChatConversations> {
                 statusIndicatorHeight: widget.statusIndicatorHeight,
                 statusIndicatorWidth: widget.statusIndicatorWidth,
                 id: conversation.conversationId,
-                avatarName: conversationWithUser?.name ?? conversationWithGroup?.name,
-                avatarURL: conversationWithUser?.avatar ?? conversationWithGroup?.icon,
-                title: conversationWithUser?.name ?? conversationWithGroup?.name,
+                avatarName:
+                    conversationWithUser?.name ?? conversationWithGroup?.name,
+                avatarURL:
+                    conversationWithUser?.avatar ?? conversationWithGroup?.icon,
+                title:
+                    conversationWithUser?.name ?? conversationWithGroup?.name,
                 key: UniqueKey(),
                 subtitleView: subtitle,
                 tailView: tail,
@@ -1038,12 +1049,13 @@ class _CometChatConversationsState extends State<CometChatConversations> {
                         width: spacing.spacing ?? 0,
                         color: colorPalette.background1 ?? Colors.transparent,
                       ),
-                  backgroundColor: statusStyle.backgroundColor ?? colorPalette.success,
+                  backgroundColor:
+                      statusStyle.backgroundColor ?? colorPalette.success,
                 ),
                 hideSeparator: true,
                 style: ListItemStyle(
-                  background:
-                      widget.listItemStyle?.background ?? colorPalette.transparent,
+                  background: widget.listItemStyle?.background ??
+                      colorPalette.transparent,
                   titleStyle: TextStyle(
                     overflow: TextOverflow.ellipsis,
                     fontSize: typography.heading4?.medium?.fontSize,
@@ -1051,7 +1063,8 @@ class _CometChatConversationsState extends State<CometChatConversations> {
                     fontFamily: typography.heading4?.medium?.fontFamily,
                     color: style.itemTitleTextColor ?? colorPalette.textPrimary,
                   ).merge(
-                    widget.listItemStyle?.titleStyle ?? style.itemTitleTextStyle,
+                    widget.listItemStyle?.titleStyle ??
+                        style.itemTitleTextStyle,
                   ),
                   height: widget.listItemStyle?.height,
                   border: widget.listItemStyle?.border,
@@ -1098,6 +1111,12 @@ class _CometChatConversationsState extends State<CometChatConversations> {
     bool? hideThreadIndicator = true,
     String? threadIndicatorText,
   }) {
+    if (conversation.conversationWith is User) {
+      User user = conversation.conversationWith as User;
+      if (user.role == AIConstants.aiRole) {
+        return const SizedBox();
+      }
+    }
     String prefix = "";
     if (hideThreadIndicator != null && hideThreadIndicator == false) {
       if (conversation.conversationWith is User) {

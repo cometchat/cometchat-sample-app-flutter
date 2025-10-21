@@ -1,3 +1,32 @@
+## 5.2.1
+
+## Fixes
+- Fixed an issue where the group conversation header would grey out when a user started typing, and ensured the typing status is displayed correctly.
+
+## 5.2.0
+
+## New
+- Introduced **CometChatAIAssistantChat**, a composite component that combines a message header, message list, and composer to deliver an interactive AI agent chat experience.
+  - Added **CometChatStreamBubble**, allowing messages from the AI agent to appear in real time for a more natural conversation flow.
+  - Added **CometChatAIAssistantBubble** with Markdown support, enabling clear and formatted rendering of AI Agent messages for improved readability and user experience.
+  - Provided **quick starter suggestions** in the empty state to help users begin interactions with the AI agent faster.
+  - Added **"New Chat"** button to reset conversation context and **chat history** for easy access to previous sessions.
+  - Enabled full customization through props, including:
+  - Streaming speed adjustments.
+  - Custom header, empty state, and error views.
+  - Visibility toggles for suggestions, history, and new chat buttons.
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.27`.
+- Updated `cometchat_uikit_shared` to version `5.1.2`.
+
+## Fixes
+- Resolved a bug causing the `onMessagesRead()` real-time event to trigger twice instead of once when a message is marked as read.
+- Fixed the last seen status message to display as a marquee for better visibility when truncated.
+- Fixed an issue where users were unable to use the Conversation Starter feature to start a conversation.
+- Resolved a bug causing the Read Receipt option to appear incorrectly within thread messages. The read receipt should now only be visible in main conversation messages.
+- Fixed a problem where User Presence (online/offline status) was still visible in the group member list, even when the presence toggle was turned off in settings.
+
 ## 5.1.1
 
 ## Enhancements

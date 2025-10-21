@@ -49,18 +49,18 @@ abstract class DataSource {
       BaseMessage message, BuildContext context, BubbleAlignment alignment);
 
   ///override this to change content view for messages of type [MessageTypeConstants.text]
-  Widget getTextMessageContentView(TextMessage message, BuildContext context,
-      BubbleAlignment alignment,
+  Widget getTextMessageContentView(
+      TextMessage message, BuildContext context, BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to change content view for messages of type [MessageTypeConstants.image]
-  Widget getImageMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment,
+  Widget getImageMessageContentView(
+      MediaMessage message, BuildContext context, BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to change content view for messages of type [MessageTypeConstants.video]
-  Widget getVideoMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment,
+  Widget getVideoMessageContentView(
+      MediaMessage message, BuildContext context, BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to change content view for messages of type [MessageTypeConstants.file]
@@ -74,16 +74,21 @@ abstract class DataSource {
       {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to change content view for messages of type [MessageTypeConstants.form]
-  Widget getFormMessageContentView(FormMessage message, BuildContext context,
-      BubbleAlignment alignment);
+  Widget getFormMessageContentView(
+      FormMessage message, BuildContext context, BubbleAlignment alignment);
 
   ///override this to change content view for messages of type [MessageTypeConstants.form]
-  Widget getCardMessageContentView(CardMessage message, BuildContext context,
-      BubbleAlignment alignment);
+  Widget getCardMessageContentView(
+      CardMessage message, BuildContext context, BubbleAlignment alignment);
 
   ///override this to change content view for messages of type [MessageTypeConstants.scheduler]
   Widget getSchedulerMessageContentView(SchedulerMessage message,
       BuildContext context, BubbleAlignment alignment);
+
+  ///override this to change content view for messages of type [MessageTypeConstants.assistant]
+  Widget getAIAssistantMessageContentView(AIAssistantMessage message,
+      BuildContext context, BubbleAlignment alignment,
+      {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to alter template for messages of type [MessageTypeConstants.text]
   CometChatMessageTemplate getTextMessageTemplate();
@@ -112,16 +117,18 @@ abstract class DataSource {
   ///override this to alter template for messages of type [MessageTypeConstants.scheduler]
   CometChatMessageTemplate getSchedulerMessageTemplate();
 
+  ///override this to alter template for messages of type [MessageTypeConstants.assistant]
+  CometChatMessageTemplate getAIAssistantMessageTemplate();
+
   ///override this to alter template of all type
   ///
   /// by default it uses method [getTextMessageTemplate] , [getAudioMessageTemplate] ,[getVideoMessageTemplate],
-  /// [getImageMessageTemplate],[getGroupActionTemplate] and [getFileMessageTemplate]
+  /// [getImageMessageTemplate],[getGroupActionTemplate], [getFileMessageTemplate] and [getAIAssistantMessageTemplate]
   List<CometChatMessageTemplate> getAllMessageTemplates();
 
   ///override this to get messages of different template
   CometChatMessageTemplate? getMessageTemplate(
-      {required String messageType,
-      required String messageCategory});
+      {required String messageType, required String messageCategory});
 
   ///override this to alter options for messages of given type in [messageObject]
   List<CometChatMessageOption> getMessageOptions(
@@ -163,8 +170,8 @@ abstract class DataSource {
   String getId();
 
   ///override this to change view of deleted message
-  Widget getDeleteMessageBubble(
-      BaseMessage messageObject, BuildContext context, CometChatDeletedBubbleStyle? style);
+  Widget getDeleteMessageBubble(BaseMessage messageObject, BuildContext context,
+      CometChatDeletedBubbleStyle? style);
 
   ///override this to change view inside content view of message type [MessageTypeConstants.video]
   Widget getVideoMessageBubble(
@@ -230,6 +237,14 @@ abstract class DataSource {
     required SchedulerMessage message,
   });
 
+  ///override this to change view inside content view of message type [MessageTypeConstants.assistant]
+  Widget getAIAssistantMessageBubble({
+    String? text,
+    required AIAssistantMessage message,
+    BubbleAlignment? alignment,
+    CometChatAIAssistantBubbleStyle? style,
+  });
+
   ///override this to change last message fetched in conversations
   String getLastConversationMessage(
       Conversation conversation, BuildContext context);
@@ -247,16 +262,12 @@ abstract class DataSource {
       {AdditionalConfigurations? additionalConfigurations});
 
   /// Returns the auxiliary header menu view for the user or group.
-  Widget? getAuxiliaryHeaderMenu(
-      BuildContext context, User? user, Group? group,
+  Widget? getAuxiliaryHeaderMenu(BuildContext context, User? user, Group? group,
       {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to show options for messages of type [MessageTypeConstants.form]
-  List<CometChatMessageOption> getFormMessageOptions(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
+  List<CometChatMessageOption> getFormMessageOptions(User loggedInUser,
+      BaseMessage messageObject, BuildContext context, Group? group,
       {AdditionalConfigurations? additionalConfigurations});
 
   ///override this to show options for messages of type [MessageTypeConstants.card]
@@ -273,8 +284,7 @@ abstract class DataSource {
       Group? group,
       BuildContext context,
       Map<String, dynamic>? id,
-      AIOptionsStyle? aiOptionStyle
-      );
+      AIOptionsStyle? aiOptionStyle);
 
   ///override this to show options for messages of type [MessageTypeConstants.scheduler]
   List<CometChatMessageOption> getSchedulerMessageOptions(
@@ -286,4 +296,16 @@ abstract class DataSource {
 
   ///override this to alter template for messages of type [MessageTypeConstants.text]
   List<CometChatTextFormatter> getDefaultTextFormatters();
+
+  ///override this to show options for messages of type [MessageTypeConstants.assistant]
+  List<CometChatMessageOption> getAIAssistantMessageOptions(
+      User loggedInUser,
+      BaseMessage messageObject,
+      BuildContext context,
+      Group? group,
+      AdditionalConfigurations? additionalConfigurations);
+
+  Widget getAIAssistantMessageFooterView(AIAssistantMessage message,
+      BuildContext context, BubbleAlignment alignment,
+      {AdditionalConfigurations? additionalConfigurations});
 }

@@ -136,7 +136,7 @@ class VoipNotificationHandler {
             isShowFullLockedScreen: false,
           ),
           onDecline: (reason) {
-            print("[FCM] Call declined with reason: $reason");
+            debugPrint("[FCM] Call declined with reason: $reason");
             VoipNotificationHandler.declineVoipCall(null);
           },
         );

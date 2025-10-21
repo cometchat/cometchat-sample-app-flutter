@@ -54,7 +54,7 @@ class StatusIndicatorUtils {
               size: 7,
             );
       }
-    } else if (groupMember != null) {
+    } else if (groupMember != null && usersStatusVisibility == true) {
       backgroundColor = groupMember.status != null &&
               groupMember.status == UserStatusConstants.online
           ? onlineStatusIndicatorColor

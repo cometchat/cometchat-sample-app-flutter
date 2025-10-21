@@ -22,7 +22,8 @@ abstract class DataSourceDecorator implements DataSource {
   Widget getAuxiliaryOptions(User? user, Group? group, BuildContext context,
       Map<String, dynamic>? id, Color? color,
       {AdditionalConfigurations? additionalConfigurations}) {
-    return dataSource.getAuxiliaryOptions(user, group, context, id, color, additionalConfigurations: additionalConfigurations);
+    return dataSource.getAuxiliaryOptions(user, group, context, id, color,
+        additionalConfigurations: additionalConfigurations);
   }
 
   @override
@@ -130,8 +131,7 @@ abstract class DataSourceDecorator implements DataSource {
 
   @override
   CometChatMessageTemplate? getMessageTemplate(
-      {required String messageType,
-      required String messageCategory}) {
+      {required String messageType, required String messageCategory}) {
     return dataSource.getMessageTemplate(
         messageType: messageType, messageCategory: messageCategory);
   }
@@ -147,11 +147,10 @@ abstract class DataSourceDecorator implements DataSource {
   }
 
   @override
-  Widget getTextMessageContentView(TextMessage message, BuildContext context,
-      BubbleAlignment alignment,
+  Widget getTextMessageContentView(
+      TextMessage message, BuildContext context, BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
-    return dataSource.getTextMessageContentView(
-        message, context, alignment,
+    return dataSource.getTextMessageContentView(message, context, alignment,
         additionalConfigurations: additionalConfigurations);
   }
 
@@ -194,26 +193,24 @@ abstract class DataSourceDecorator implements DataSource {
   }
 
   @override
-  Widget getImageMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment,
+  Widget getImageMessageContentView(
+      MediaMessage message, BuildContext context, BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
-    return dataSource.getImageMessageContentView(
-        message, context, alignment,
+    return dataSource.getImageMessageContentView(message, context, alignment,
         additionalConfigurations: additionalConfigurations);
   }
 
   @override
-  Widget getVideoMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment,
+  Widget getVideoMessageContentView(
+      MediaMessage message, BuildContext context, BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
-    return dataSource.getVideoMessageContentView(
-        message, context, alignment,
+    return dataSource.getVideoMessageContentView(message, context, alignment,
         additionalConfigurations: additionalConfigurations);
   }
 
   @override
-  Widget getDeleteMessageBubble(
-      BaseMessage messageObject, BuildContext context, CometChatDeletedBubbleStyle? style) {
+  Widget getDeleteMessageBubble(BaseMessage messageObject, BuildContext context,
+      CometChatDeletedBubbleStyle? style) {
     return dataSource.getDeleteMessageBubble(messageObject, context, style);
   }
 
@@ -243,16 +240,16 @@ abstract class DataSourceDecorator implements DataSource {
 
   @override
   Widget getImageMessageBubble(
-      String? imageUrl,
-      String? placeholderImage,
-      String? caption,
-      CometChatImageBubbleStyle? style,
-      MediaMessage message,
-      Function()? onClick,
-      BuildContext context,
-      ) {
-    return dataSource.getImageMessageBubble(imageUrl, placeholderImage, caption,
-        style, message, onClick, context);
+    String? imageUrl,
+    String? placeholderImage,
+    String? caption,
+    CometChatImageBubbleStyle? style,
+    MediaMessage message,
+    Function()? onClick,
+    BuildContext context,
+  ) {
+    return dataSource.getImageMessageBubble(
+        imageUrl, placeholderImage, caption, style, message, onClick, context);
   }
 
   @override
@@ -310,10 +307,10 @@ abstract class DataSourceDecorator implements DataSource {
   }
 
   @override
-  Widget? getAuxiliaryHeaderMenu(
-      BuildContext context, User? user, Group? group,
+  Widget? getAuxiliaryHeaderMenu(BuildContext context, User? user, Group? group,
       {AdditionalConfigurations? additionalConfigurations}) {
-    return dataSource.getAuxiliaryHeaderMenu(context, user, group, additionalConfigurations: additionalConfigurations);
+    return dataSource.getAuxiliaryHeaderMenu(context, user, group,
+        additionalConfigurations: additionalConfigurations);
   }
 
   @override
@@ -321,16 +318,13 @@ abstract class DataSourceDecorator implements DataSource {
     String? title,
     required FormMessage message,
   }) {
-    return dataSource.getFormMessageBubble(
-        title: title,
-        message: message);
+    return dataSource.getFormMessageBubble(title: title, message: message);
   }
 
   @override
-  Widget getFormMessageContentView(FormMessage message, BuildContext context,
-      BubbleAlignment alignment) {
-    return dataSource.getFormMessageContentView(
-        message, context, alignment);
+  Widget getFormMessageContentView(
+      FormMessage message, BuildContext context, BubbleAlignment alignment) {
+    return dataSource.getFormMessageContentView(message, context, alignment);
   }
 
   @override
@@ -349,10 +343,9 @@ abstract class DataSourceDecorator implements DataSource {
   }
 
   @override
-  Widget getCardMessageContentView(CardMessage message, BuildContext context,
-      BubbleAlignment alignment) {
-    return dataSource.getCardMessageContentView(
-        message, context, alignment);
+  Widget getCardMessageContentView(
+      CardMessage message, BuildContext context, BubbleAlignment alignment) {
+    return dataSource.getCardMessageContentView(message, context, alignment);
   }
 
   @override
@@ -375,19 +368,16 @@ abstract class DataSourceDecorator implements DataSource {
   Widget getSchedulerMessageBubble({
     required SchedulerMessage message,
   }) {
-    return dataSource.getSchedulerMessageBubble(
-        message: message);
+    return dataSource.getSchedulerMessageBubble(message: message);
   }
 
   @override
-  List<CometChatMessageOption> getFormMessageOptions(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
+  List<CometChatMessageOption> getFormMessageOptions(User loggedInUser,
+      BaseMessage messageObject, BuildContext context, Group? group,
       {AdditionalConfigurations? additionalConfigurations}) {
     return dataSource.getFormMessageOptions(
-        loggedInUser, messageObject, context, group, additionalConfigurations: additionalConfigurations);
+        loggedInUser, messageObject, context, group,
+        additionalConfigurations: additionalConfigurations);
   }
 
   @override
@@ -402,26 +392,73 @@ abstract class DataSourceDecorator implements DataSource {
   }
 
   @override
-  List<CometChatMessageOption> getSchedulerMessageOptions(User loggedInUser,
-      BaseMessage messageObject, BuildContext context, Group? group, AdditionalConfigurations? additionalConfigurations) {
+  List<CometChatMessageOption> getSchedulerMessageOptions(
+      User loggedInUser,
+      BaseMessage messageObject,
+      BuildContext context,
+      Group? group,
+      AdditionalConfigurations? additionalConfigurations) {
     return dataSource.getSchedulerMessageOptions(
         loggedInUser, messageObject, context, group, additionalConfigurations);
   }
 
   @override
   List<CometChatMessageComposerAction> getAIOptions(
-      User? user,
-      Group? group,
-      BuildContext context,
-      Map<String, dynamic>? id,
-      AIOptionsStyle? aiOptionStyle,
-      ) {
-    return dataSource.getAIOptions(
-        user, group, context, id, aiOptionStyle);
+    User? user,
+    Group? group,
+    BuildContext context,
+    Map<String, dynamic>? id,
+    AIOptionsStyle? aiOptionStyle,
+  ) {
+    return dataSource.getAIOptions(user, group, context, id, aiOptionStyle);
   }
 
   @override
   List<CometChatTextFormatter> getDefaultTextFormatters() {
     return dataSource.getDefaultTextFormatters();
+  }
+
+  @override
+  CometChatMessageTemplate getAIAssistantMessageTemplate() {
+    return dataSource.getAIAssistantMessageTemplate();
+  }
+
+  @override
+  Widget getAIAssistantMessageContentView(AIAssistantMessage message,
+      BuildContext context, BubbleAlignment alignment,
+      {AdditionalConfigurations? additionalConfigurations}) {
+    return dataSource.getAIAssistantMessageContentView(
+        message, context, alignment,
+        additionalConfigurations: additionalConfigurations);
+  }
+
+  @override
+  Widget getAIAssistantMessageBubble({
+    String? text,
+    required AIAssistantMessage message,
+    BubbleAlignment? alignment,
+    CometChatAIAssistantBubbleStyle? style,
+  }) {
+    return dataSource.getAIAssistantMessageBubble(
+        text: text, message: message, alignment: alignment, style: style);
+  }
+
+  @override
+  List<CometChatMessageOption> getAIAssistantMessageOptions(
+      User loggedInUser,
+      BaseMessage messageObject,
+      BuildContext context,
+      Group? group,
+      AdditionalConfigurations? additionalConfigurations) {
+    return dataSource.getAIAssistantMessageOptions(
+        loggedInUser, messageObject, context, group, additionalConfigurations);
+  }
+
+  @override
+  Widget getAIAssistantMessageFooterView(AIAssistantMessage message,
+      BuildContext context, BubbleAlignment alignment,
+      {AdditionalConfigurations? additionalConfigurations}) {
+    return dataSource.getAIAssistantMessageFooterView(message, context, alignment,
+        additionalConfigurations: additionalConfigurations);
   }
 }

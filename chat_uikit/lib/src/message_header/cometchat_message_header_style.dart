@@ -27,6 +27,8 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
     this.avatarStyle,
     this.callButtonsStyle,
     this.statusIndicatorStyle,
+    this.newChatIconColor,
+    this.chatHistoryIconColor,
   });
 
   ///[typingIndicatorTextStyle] is text style for setting typing indicator text
@@ -86,6 +88,12 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
   ///[statusIndicatorStyle] set style for status indicator
   final CometChatStatusIndicatorStyle? statusIndicatorStyle;
 
+  ///[newChatIconColor] provides color to the new chat icon
+  final Color? newChatIconColor;
+
+  ///[chatHistoryIconColor] provides color to the chat history icon
+  final Color? chatHistoryIconColor;
+
   static CometChatMessageHeaderStyle of(BuildContext context) =>
       const CometChatMessageHeaderStyle();
 
@@ -111,6 +119,8 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
     CometChatAvatarStyle? avatarStyle,
     CometChatCallButtonsStyle? callButtonsStyle,
     CometChatStatusIndicatorStyle? statusIndicatorStyle,
+    Color? newChatIconColor,
+    Color? chatHistoryIconColor,
   }) {
     return CometChatMessageHeaderStyle(
       typingIndicatorTextStyle:
@@ -132,6 +142,8 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
       avatarStyle: avatarStyle ?? this.avatarStyle,
       callButtonsStyle: callButtonsStyle ?? this.callButtonsStyle,
       statusIndicatorStyle: statusIndicatorStyle ?? this.statusIndicatorStyle,
+      newChatIconColor: newChatIconColor ?? this.newChatIconColor,
+      chatHistoryIconColor: chatHistoryIconColor ?? this.chatHistoryIconColor,
     );
   }
 
@@ -156,6 +168,8 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
       avatarStyle: style.avatarStyle,
       callButtonsStyle: style.callButtonsStyle,
       statusIndicatorStyle: style.statusIndicatorStyle,
+      newChatIconColor: style.newChatIconColor,
+      chatHistoryIconColor: style.chatHistoryIconColor,
     );
   }
 
@@ -181,6 +195,8 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
       avatarStyle: avatarStyle?.lerp(other?.avatarStyle, t),
       callButtonsStyle: callButtonsStyle?.lerp(other?.callButtonsStyle, t),
       statusIndicatorStyle: statusIndicatorStyle?.lerp(other?.statusIndicatorStyle, t),
+      newChatIconColor: Color.lerp(newChatIconColor, other?.newChatIconColor, t),
+      chatHistoryIconColor: Color.lerp(chatHistoryIconColor, other?.chatHistoryIconColor, t),
     );
   }
 }

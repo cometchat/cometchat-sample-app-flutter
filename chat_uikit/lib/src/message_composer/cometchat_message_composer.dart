@@ -359,32 +359,54 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
                 value.textEditingController!.text,
               );
 
-      final shouldUseBackgroundColor =
-          isTextControllerEmpty || isSameAsOldMessage || isEditModeWithoutChanges;
+      final isAiBusy =
+          value.isUserAgentic() && value.isActiveStreaming;
+
+      final shouldDisable = isTextControllerEmpty ||
+          isSameAsOldMessage ||
+          isEditModeWithoutChanges || isAiBusy;
+
+      final bool isStopButton = value.isUserAgentic() && isAiBusy;
 
       return Container(
         decoration: BoxDecoration(
-            color: messageComposerStyle.sendButtonIconBackgroundColor ??
-                (shouldUseBackgroundColor
-                    ? colorPalette.background4
-                    : colorPalette.primary),
+          color: messageComposerStyle.sendButtonIconBackgroundColor ??
+              (isStopButton
+                  ? colorPalette.secondaryButtonBackground
+                  : shouldDisable
+                  ? colorPalette.background4
+                  : (value.isUserAgentic()
+                  ? colorPalette.secondaryButtonBackground
+                  : colorPalette.primary)),
           borderRadius: messageComposerStyle.sendButtonBorderRadius ??
               BorderRadius.circular(spacing.radiusMax ?? 0),
         ),
         alignment: Alignment.center,
-        height: 32,
-        width: 32,
+        height: value.isUserAgentic() ? 40 : 32,
+        width: value.isUserAgentic() ? 40 : 32,
         child: widget.sendButtonView ??
             IconButton(
               padding: const EdgeInsets.all(0),
               icon: widget.sendButtonIcon ??
-                  Image.asset(
-                    AssetConstants.send,
-                    package: UIConstants.packageName,
-                    height: 24,
-                    width: 24,
-                    color: messageComposerStyle.sendButtonIconColor,
-                  ),
+                  (value.isUserAgentic()
+                      ? ((isAiBusy == false)
+                          ? Icon(
+                              Icons.arrow_upward_outlined,
+                              color: colorPalette.iconWhite,
+                              size: 20,
+                            )
+                          : Icon(
+                              Icons.stop_rounded,
+                              color: colorPalette.iconWhite,
+                              size: 20,
+                            ))
+                      : Image.asset(
+                          AssetConstants.send,
+                          package: UIConstants.packageName,
+                          height: 24,
+                          width: 24,
+                          color: messageComposerStyle.sendButtonIconColor,
+                        )),
               onPressed: value.onSendButtonClick,
             ),
       );
@@ -423,362 +445,364 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
                     children: [
                       //-----message preview container-----
                       //-----
-                      Container(
-                        child: Column(
-                          children: [
-                            if (value.header != null) value.header!,
-                            if (value.messagePreviewTitle != null &&
-                                    value.messagePreviewTitle!.isNotEmpty ||
-                                value.preview != null)
-                              CompositedTransformTarget(
-                                link: _link,
-                                child: OverlayPortal(
-                                  controller: value.overlayPortalController,
-                                  overlayChildBuilder: (context) {
-                                    return CompositedTransformFollower(
-                                      link: _link,
-                                      targetAnchor: Alignment.bottomLeft,
-                                      followerAnchor: Alignment.bottomLeft,
-                                      child: Align(
-                                        alignment: Alignment.bottomLeft,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            if (value.messagePreviewTitle !=
-                                                    null &&
-                                                value.messagePreviewTitle!
-                                                    .isNotEmpty)
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                  left: spacing.padding2 ?? 0,
-                                                  right: spacing.padding2 ?? 0,
-                                                  bottom: (value.preview != null
-                                                      ? 8
-                                                      : 0),
-                                                ),
-                                                child: CometChatMessagePreview(
-                                                  messagePreviewTitle: value
-                                                      .messagePreviewTitle!,
-                                                  messagePreviewSubtitle: value
-                                                          .messagePreviewSubtitle ??
-                                                      '',
-                                                  onCloseClick: value
-                                                      .onMessagePreviewClose,
-                                                  style:
-                                                      CometChatMessagePreviewStyle(
-                                                    messagePreviewTitleStyle:
-                                                        TextStyle(
-                                                      color: colorPalette
-                                                          .textPrimary,
-                                                      fontSize: typography.body
-                                                          ?.regular?.fontSize,
-                                                      fontWeight: typography
-                                                          .body
-                                                          ?.regular
-                                                          ?.fontWeight,
-                                                      fontFamily: typography
-                                                          .body
-                                                          ?.regular
-                                                          ?.fontFamily,
-                                                    ),
-                                                    messagePreviewSubtitleStyle:
-                                                        TextStyle(
-                                                      color: colorPalette
-                                                          .textSecondary,
-                                                      fontSize: typography
-                                                          .caption1
-                                                          ?.regular
-                                                          ?.fontSize,
-                                                      fontWeight: typography
-                                                          .caption1
-                                                          ?.regular
-                                                          ?.fontWeight,
-                                                      fontFamily: typography
-                                                          .caption1
-                                                          ?.regular
-                                                          ?.fontFamily,
-                                                    ),
-                                                    closeIconColor:
-                                                        style.closeIconTint ??
-                                                            colorPalette
-                                                                .iconPrimary,
-                                                    messagePreviewBackground:
-                                                        colorPalette
-                                                            .background3,
+                      Column(
+                        children: [
+                          if (value.header != null) value.header!,
+                          if (value.messagePreviewTitle != null &&
+                                  value.messagePreviewTitle!.isNotEmpty ||
+                              value.preview != null)
+                            CompositedTransformTarget(
+                              link: _link,
+                              child: OverlayPortal(
+                                controller: value.overlayPortalController,
+                                overlayChildBuilder: (context) {
+                                  return CompositedTransformFollower(
+                                    link: _link,
+                                    targetAnchor: Alignment.bottomLeft,
+                                    followerAnchor: Alignment.bottomLeft,
+                                    child: Align(
+                                      alignment: Alignment.bottomLeft,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (value.messagePreviewTitle !=
+                                                  null &&
+                                              value.messagePreviewTitle!
+                                                  .isNotEmpty)
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                left: spacing.padding2 ?? 0,
+                                                right: spacing.padding2 ?? 0,
+                                                bottom: (value.preview != null
+                                                    ? 8
+                                                    : 0),
+                                              ),
+                                              child: CometChatMessagePreview(
+                                                messagePreviewTitle:
+                                                    value.messagePreviewTitle!,
+                                                messagePreviewSubtitle: value
+                                                        .messagePreviewSubtitle ??
+                                                    '',
+                                                onCloseClick:
+                                                    value.onMessagePreviewClose,
+                                                style:
+                                                    CometChatMessagePreviewStyle(
+                                                  messagePreviewTitleStyle:
+                                                      TextStyle(
+                                                    color: colorPalette
+                                                        .textPrimary,
+                                                    fontSize: typography.body
+                                                        ?.regular?.fontSize,
+                                                    fontWeight: typography.body
+                                                        ?.regular?.fontWeight,
+                                                    fontFamily: typography.body
+                                                        ?.regular?.fontFamily,
                                                   ),
+                                                  messagePreviewSubtitleStyle:
+                                                      TextStyle(
+                                                    color: colorPalette
+                                                        .textSecondary,
+                                                    fontSize: typography
+                                                        .caption1
+                                                        ?.regular
+                                                        ?.fontSize,
+                                                    fontWeight: typography
+                                                        .caption1
+                                                        ?.regular
+                                                        ?.fontWeight,
+                                                    fontFamily: typography
+                                                        .caption1
+                                                        ?.regular
+                                                        ?.fontFamily,
+                                                  ),
+                                                  closeIconColor: style
+                                                          .closeIconTint ??
+                                                      colorPalette.iconPrimary,
+                                                  messagePreviewBackground:
+                                                      colorPalette.background3,
                                                 ),
                                               ),
-                                            if (value.preview != null)
-                                              value.preview!,
-                                          ],
-                                        ),
+                                            ),
+                                          if (value.preview != null)
+                                            value.preview!,
+                                        ],
                                       ),
-                                    );
-                                  },
-                                  child:
-                                      Container(), // Placeholder child, can be empty or other widget
-                                ),
-                              ),
-                            Padding(
-                              padding: widget.messageInputPadding ??
-                                  EdgeInsets.fromLTRB(
-                                    spacing.padding2 ?? 0,
-                                    0,
-                                    spacing.padding2 ?? 0,
-                                    spacing.padding2 ?? 0,
-                                  ),
-                              child: CometChatMessageInput(
-                                text: widget.text,
-                                textEditingController:
-                                    value.textEditingController,
-                                placeholderText: widget.placeholderText,
-                                maxLine: widget.maxLine,
-                                onChange: (val) {
-                                  if (widget.onChange != null) {
-                                    widget.onChange!(val);
-                                  }
-                                  value.onChange(value);
+                                    ),
+                                  );
                                 },
-                                primaryButtonView: _getSendButton(
-                                  value,
-                                  style,
-                                  colorPalette,
-                                  spacing,
-                                ),
-                                secondaryButtonView: widget
-                                            .secondaryButtonView !=
-                                        null
-                                    ? widget.secondaryButtonView!(
-                                        context,
-                                        value.user,
-                                        value.group,
-                                        value.composerId,
-                                      )
-                                    : DecoratedBox(
-                                        decoration: BoxDecoration(
-                                          color: style
-                                              .secondaryButtonIconBackgroundColor,
-                                          borderRadius:
-                                              style.secondaryButtonBorderRadius,
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            if (widget.hideAttachmentButton !=
-                                                true)
-                                              Container(
-                                                height: 24,
-                                                width: 24,
-                                                margin: EdgeInsets.only(
-                                                  right: spacing.margin4 ?? 0,
-                                                ),
-                                                child: IconButton(
-                                                  padding:
-                                                      const EdgeInsets.all(0),
-                                                  constraints:
-                                                      const BoxConstraints(),
-                                                  icon: widget.attachmentIcon ??
-                                                      Image.asset(
-                                                        widget.attachmentIconURL ??
-                                                            AssetConstants.add,
-                                                        package: UIConstants
-                                                            .packageName,
-                                                        color: style
-                                                                .secondaryButtonIconColor ??
-                                                            colorPalette
-                                                                .iconSecondary,
-                                                      ),
-                                                  onPressed: () async {
-                                                    value.showBottomActionSheet(
-                                                      context,
-                                                      colorPalette,
-                                                      typography,
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            //-----show voice recording-----
-                                            if (widget
-                                                    .hideVoiceRecordingButton !=
-                                                true)
-                                              Container(
-                                                height: 24,
-                                                width: 24,
-                                                margin: EdgeInsets.only(
-                                                  right: spacing.margin4 ?? 0,
-                                                ),
-                                                child: IconButton(
-                                                  padding:
-                                                      const EdgeInsets.all(0),
-                                                  constraints:
-                                                      const BoxConstraints(),
-                                                  icon: widget
-                                                          .voiceRecordingIcon ??
-                                                      Image.asset(
-                                                        AssetConstants
-                                                            .microphone,
-                                                        package: UIConstants
-                                                            .packageName,
-                                                        color: style
-                                                                .secondaryButtonIconColor ??
-                                                            colorPalette
-                                                                .iconSecondary,
-                                                        // height: 24,
-                                                        // width: 24,
-                                                      ),
-                                                  onPressed: () {
-                                                    FocusManager
-                                                        .instance.primaryFocus
-                                                        ?.unfocus();
-                                                    showModalBottomSheet<void>(
-                                                      context: context,
-                                                      backgroundColor:
-                                                          Colors.transparent,
-                                                      builder: (
-                                                        BuildContext context,
-                                                      ) {
-                                                        return CometChatMediaRecorder(
-                                                          startButtonIcon: widget
-                                                              .recorderStartButtonIcon,
-                                                          pauseButtonIcon: widget
-                                                              .recorderPauseButtonIcon,
-                                                          stopButtonIcon: widget
-                                                              .recorderStopButtonIcon,
-                                                          deleteButtonIcon: widget
-                                                              .recorderDeleteButtonIcon,
-                                                          sendButtonIcon: widget
-                                                              .recorderSendButtonIcon,
-                                                          style: style
-                                                              .mediaRecorderStyle,
-                                                          onSubmit: value
-                                                              .sendMediaRecording,
-                                                        );
-                                                      },
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                auxiliaryButtonsAlignment:
-                                    widget.auxiliaryButtonsAlignment ??
-                                        AuxiliaryButtonsAlignment.left,
-                                auxiliaryButtonView: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    color: style
-                                        .auxiliaryButtonIconBackgroundColor,
-                                    borderRadius:
-                                        style.auxiliaryButtonBorderRadius,
-                                  ),
-                                  child: widget.auxiliaryButtonView != null
-                                      ? widget.auxiliaryButtonView!(
-                                          context,
-                                          value.user,
-                                          value.group,
-                                          value.composerId,
-                                        )
-                                      : Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            //-----show emoji keyboard-----
-
-                                            if (value.auxiliaryOptions != null)
-                                              value.auxiliaryOptions!,
-
-                                            if (value.parentMessageId == 0 &&
-                                                elementList.isNotEmpty)
-                                              SizedBox(
-                                                height: 24,
-                                                width: 24,
-                                                child: IconButton(
-                                                  padding:
-                                                      const EdgeInsets.all(0),
-                                                  constraints:
-                                                      const BoxConstraints(),
-                                                  icon: widget.aiIcon ??
-                                                      Image.asset(
-                                                        widget.aiIconURL ??
-                                                            (value.activeAiFeatures
-                                                                ? AssetConstants
-                                                                    .aiActive
-                                                                : AssetConstants
-                                                                    .aiInactive),
-                                                        package: widget
-                                                                .aiIconPackageName ??
-                                                            UIConstants
-                                                                .packageName,
-                                                        color: style
-                                                                .auxiliaryButtonIconColor ??
-                                                            (value.activeAiFeatures
-                                                                ? colorPalette
-                                                                    .iconHighlight
-                                                                : colorPalette
-                                                                    .iconSecondary),
-                                                      ),
-                                                  onPressed: () {
-                                                    value.aiButtonTap(
-                                                      context,
-                                                      value.composerId,
-                                                      style.aiOptionSheetStyle,
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                ),
-                                style: CometChatMessageInputStyle(
-                                  filledColor: style.filledColor,
-                                  dividerTint: style.dividerColor ??
-                                      colorPalette.borderLight,
-                                  dividerHeight: style.dividerHeight,
-                                  backgroundColor: style.backgroundColor ??
-                                      colorPalette.background1,
-                                  textStyle: TextStyle(
-                                    color: colorPalette.textPrimary,
-                                    fontSize:
-                                        typography.body?.regular?.fontSize,
-                                    fontWeight:
-                                        typography.body?.regular?.fontWeight,
-                                    fontFamily:
-                                        typography.body?.regular?.fontFamily,
-                                  )
-                                      .merge(style.textStyle)
-                                      .copyWith(color: style.textColor),
-                                  placeholderTextStyle: TextStyle(
-                                    color: colorPalette.textTertiary,
-                                    fontSize:
-                                        typography.body?.regular?.fontSize,
-                                    fontWeight:
-                                        typography.body?.regular?.fontWeight,
-                                    fontFamily:
-                                        typography.body?.regular?.fontFamily,
-                                  ).merge(style.placeHolderTextStyle).copyWith(
-                                        color: style.placeHolderTextColor,
-                                      ),
-                                  border: style.border ??
-                                      Border.all(
-                                        color: colorPalette.borderDefault ??
-                                            Colors.transparent,
-                                        width: 1,
-                                      ),
-                                  borderRadius: style.borderRadius ??
-                                      BorderRadius.circular(
-                                        spacing.radius2 ?? 0,
-                                      ),
-                                ),
-                                focusNode: value.focusNode,
+                                child:
+                                    Container(), // Placeholder child, can be empty or other widget
                               ),
                             ),
-                            if (value.footer != null) value.footer!,
-                          ],
-                        ),
+                          Padding(
+                            padding: widget.messageInputPadding ??
+                                EdgeInsets.fromLTRB(
+                                  spacing.padding2 ?? 0,
+                                  0,
+                                  spacing.padding2 ?? 0,
+                                  spacing.padding2 ?? 0,
+                                ),
+                            child: CometChatMessageInput(
+                              text: widget.text,
+                              textEditingController:
+                                  value.textEditingController,
+                              placeholderText: widget.placeholderText,
+                              maxLine: widget.maxLine,
+                              onChange: (val) {
+                                if (widget.onChange != null) {
+                                  widget.onChange!(val);
+                                }
+                                value.onChange(value);
+                              },
+                              primaryButtonView: _getSendButton(
+                                value,
+                                style,
+                                colorPalette,
+                                spacing,
+                              ),
+                              secondaryButtonView: widget.secondaryButtonView !=
+                                      null
+                                  ? widget.secondaryButtonView!(
+                                      context,
+                                      value.user,
+                                      value.group,
+                                      value.composerId,
+                                    )
+                                  : (value.isUserAgentic())
+                                      ? const SizedBox()
+                                      : DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            color: style
+                                                .secondaryButtonIconBackgroundColor,
+                                            borderRadius: style
+                                                .secondaryButtonBorderRadius,
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              if (widget.hideAttachmentButton !=
+                                                  true)
+                                                Container(
+                                                  height: 24,
+                                                  width: 24,
+                                                  margin: EdgeInsets.only(
+                                                    right: spacing.margin4 ?? 0,
+                                                  ),
+                                                  child: IconButton(
+                                                    padding:
+                                                        const EdgeInsets.all(0),
+                                                    constraints:
+                                                        const BoxConstraints(),
+                                                    icon:
+                                                        widget.attachmentIcon ??
+                                                            Image.asset(
+                                                              widget.attachmentIconURL ??
+                                                                  AssetConstants
+                                                                      .add,
+                                                              package: UIConstants
+                                                                  .packageName,
+                                                              color: style
+                                                                      .secondaryButtonIconColor ??
+                                                                  colorPalette
+                                                                      .iconSecondary,
+                                                            ),
+                                                    onPressed: () async {
+                                                      value
+                                                          .showBottomActionSheet(
+                                                        context,
+                                                        colorPalette,
+                                                        typography,
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              //-----show voice recording-----
+                                              if (widget
+                                                      .hideVoiceRecordingButton !=
+                                                  true)
+                                                Container(
+                                                  height: 24,
+                                                  width: 24,
+                                                  margin: EdgeInsets.only(
+                                                    right: spacing.margin4 ?? 0,
+                                                  ),
+                                                  child: IconButton(
+                                                    padding:
+                                                        const EdgeInsets.all(0),
+                                                    constraints:
+                                                        const BoxConstraints(),
+                                                    icon: widget
+                                                            .voiceRecordingIcon ??
+                                                        Image.asset(
+                                                          AssetConstants
+                                                              .microphone,
+                                                          package: UIConstants
+                                                              .packageName,
+                                                          color: style
+                                                                  .secondaryButtonIconColor ??
+                                                              colorPalette
+                                                                  .iconSecondary,
+                                                          // height: 24,
+                                                          // width: 24,
+                                                        ),
+                                                    onPressed: () {
+                                                      FocusManager
+                                                          .instance.primaryFocus
+                                                          ?.unfocus();
+                                                      showModalBottomSheet<
+                                                          void>(
+                                                        context: context,
+                                                        backgroundColor:
+                                                            Colors.transparent,
+                                                        builder: (
+                                                          BuildContext context,
+                                                        ) {
+                                                          return CometChatMediaRecorder(
+                                                            startButtonIcon: widget
+                                                                .recorderStartButtonIcon,
+                                                            pauseButtonIcon: widget
+                                                                .recorderPauseButtonIcon,
+                                                            stopButtonIcon: widget
+                                                                .recorderStopButtonIcon,
+                                                            deleteButtonIcon: widget
+                                                                .recorderDeleteButtonIcon,
+                                                            sendButtonIcon: widget
+                                                                .recorderSendButtonIcon,
+                                                            style: style
+                                                                .mediaRecorderStyle,
+                                                            onSubmit: value
+                                                                .sendMediaRecording,
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                              auxiliaryButtonsAlignment:
+                                  widget.auxiliaryButtonsAlignment ??
+                                      AuxiliaryButtonsAlignment.left,
+                              auxiliaryButtonView: (value.isUserAgentic())
+                                  ? const SizedBox()
+                                  : DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        color: style
+                                            .auxiliaryButtonIconBackgroundColor,
+                                        borderRadius:
+                                            style.auxiliaryButtonBorderRadius,
+                                      ),
+                                      child: widget.auxiliaryButtonView != null
+                                          ? widget.auxiliaryButtonView!(
+                                              context,
+                                              value.user,
+                                              value.group,
+                                              value.composerId,
+                                            )
+                                          : Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                //-----show emoji keyboard-----
+
+                                                if (value.auxiliaryOptions !=
+                                                    null)
+                                                  value.auxiliaryOptions!,
+
+                                                if (value.parentMessageId ==
+                                                        0 &&
+                                                    elementList.isNotEmpty)
+                                                  SizedBox(
+                                                    height: 24,
+                                                    width: 24,
+                                                    child: IconButton(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              0),
+                                                      constraints:
+                                                          const BoxConstraints(),
+                                                      icon: widget.aiIcon ??
+                                                          Image.asset(
+                                                            widget.aiIconURL ??
+                                                                (value.activeAiFeatures
+                                                                    ? AssetConstants
+                                                                        .aiActive
+                                                                    : AssetConstants
+                                                                        .aiInactive),
+                                                            package: widget
+                                                                    .aiIconPackageName ??
+                                                                UIConstants
+                                                                    .packageName,
+                                                            color: style
+                                                                    .auxiliaryButtonIconColor ??
+                                                                (value.activeAiFeatures
+                                                                    ? colorPalette
+                                                                        .iconHighlight
+                                                                    : colorPalette
+                                                                        .iconSecondary),
+                                                          ),
+                                                      onPressed: () {
+                                                        value.aiButtonTap(
+                                                          context,
+                                                          value.composerId,
+                                                          style
+                                                              .aiOptionSheetStyle,
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                    ),
+                              style: CometChatMessageInputStyle(
+                                filledColor: style.filledColor,
+                                dividerTint: style.dividerColor ??
+                                    colorPalette.borderLight,
+                                dividerHeight: style.dividerHeight,
+                                backgroundColor: style.backgroundColor ??
+                                    colorPalette.background1,
+                                textStyle: TextStyle(
+                                  color: colorPalette.textPrimary,
+                                  fontSize: typography.body?.regular?.fontSize,
+                                  fontWeight:
+                                      typography.body?.regular?.fontWeight,
+                                  fontFamily:
+                                      typography.body?.regular?.fontFamily,
+                                )
+                                    .merge(style.textStyle)
+                                    .copyWith(color: style.textColor),
+                                placeholderTextStyle: TextStyle(
+                                  color: colorPalette.textTertiary,
+                                  fontSize: typography.body?.regular?.fontSize,
+                                  fontWeight:
+                                      typography.body?.regular?.fontWeight,
+                                  fontFamily:
+                                      typography.body?.regular?.fontFamily,
+                                ).merge(style.placeHolderTextStyle).copyWith(
+                                      color: style.placeHolderTextColor,
+                                    ),
+                                border: style.border ??
+                                    Border.all(
+                                      color: colorPalette.borderDefault ??
+                                          Colors.transparent,
+                                      width: 1,
+                                    ),
+                                borderRadius: style.borderRadius ??
+                                    BorderRadius.circular(
+                                      spacing.radius2 ?? 0,
+                                    ),
+                              ),
+                              focusNode: value.focusNode,
+                            ),
+                          ),
+                          if (value.footer != null) value.footer!,
+                        ],
                       ),
                     ],
                   );

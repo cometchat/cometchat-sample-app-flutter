@@ -19,6 +19,8 @@ class UIStateUtils {
     Color? buttonBackgroundColor,
     BorderSide? buttonBorderSide,
     BorderRadiusGeometry? buttonBorderRadius,
+        User? user,
+        Group? group,
   }) {
     return Center(
       child: Column(
@@ -61,6 +63,7 @@ class UIStateUtils {
           .copyWith(color: errorStateSubtitleColor)
           ),
 
+          (user?.role != AIConstants.aiRole) ?
           Padding(
             padding: EdgeInsets.only(
               top: spacing.padding5 ?? 20,
@@ -99,7 +102,7 @@ class UIStateUtils {
                 ),
               ),
             ),
-          ),
+          ) : const SizedBox(),
         ],
       ),
     );

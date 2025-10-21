@@ -8,7 +8,7 @@ import 'package:sample_app/auth/login_sample_users.dart';
 import '../demo_meta_info_constants.dart';
 import '../models/region_model.dart';
 import '../prefs/shared_preferences.dart';
-import '../utils/constant_utisl.dart';
+import '../utils/constant_utils.dart';
 import '../utils/show_snackBar.dart';
 import '../utils/text_constants.dart';
 

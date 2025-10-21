@@ -118,6 +118,7 @@ class AssetConstants {
   static const aiSuggestReply = "assets/icons/ai_suggest_reply.png";
   static const aiActive = "assets/icons/ai_active.png";
   static const aiInactive = "assets/icons/ai_inactive.png";
+  static const aiProfile = "assets/icons/ai_profile.png";
 }
 
 ///[CometChatAssetConstants] is an extension that provides asset image paths according to the brightness mode of the device

@@ -1,3 +1,13 @@
+## 5.0.7
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.27`.
+- Updated `cometchat_uikit_shared` to version `5.1.2`.
+- Updated `cometchat_calls_sdk` to version `4.1.2`.
+
+## Fixes
+- Fixed the `onLoad` callback in the `CometChatCallLogs` widget not being triggered when call logs were loaded.
+
 ## 5.0.6
 
 ## Enhancements
