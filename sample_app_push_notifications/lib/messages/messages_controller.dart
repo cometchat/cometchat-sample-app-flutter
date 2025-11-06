@@ -286,4 +286,8 @@ class CometChatMessagesController extends GetxController
       update();
     }
   }
+
+  bool isUserAgentic() {
+    return user?.role == AIConstants.aiRole;
+  }
 }

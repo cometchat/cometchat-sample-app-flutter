@@ -1,3 +1,10 @@
+## 5.0.8
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.28`.
+- Updated `cometchat_uikit_shared` to version `5.1.3`.
+- Updated `cometchat_calls_sdk` to version `4.2.0`.
+
 ## 5.0.7
 
 ## Enhancements

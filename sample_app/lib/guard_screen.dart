@@ -1,4 +1,5 @@
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:sample_app/auth/login_app_credential.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

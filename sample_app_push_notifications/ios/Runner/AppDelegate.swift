@@ -4,6 +4,7 @@ import flutter_callkit_incoming
 import UIKit
 import PushKit
 import Firebase
+import AVFoundation
 
 func createUUID(sessionid: String) -> String {
     let components = sessionid.components(separatedBy: ".")
@@ -31,9 +32,10 @@ func convertDictionaryToJsonString(dictionary: [String: Any]) -> String? {
 }
 
 @main
-@objc class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
+@objc class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate, CXProviderDelegate{
     var pushRegistry: PKPushRegistry!
     var callController: CXCallController?
+    var callKitProvider: CXProvider?
 
     override func application(
         _ application: UIApplication,
@@ -58,13 +60,36 @@ func convertDictionaryToJsonString(dictionary: [String: Any]) -> String? {
                 appInfo["version"] = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
                 result(appInfo)
               } else if call.method == "endCall" {
-                  if let activeCall = self.activeCallSession {
+                  if let args = call.arguments as? [String: Any],
+                     let sessionId = args["sessionId"] as? String {
+                      
+                      print("📞 endCall called from Flutter with sessionId: \(sessionId)")
+                      
+                      let callUUIDString = createUUID(sessionid: sessionId)
+                      
+                      if let callUUID = UUID(uuidString: callUUIDString) {
+                          print("📞 Generated UUID: \(callUUIDString)")
+                          self.endCall(callUUID: callUUID)
+                          result(true)
+                      } else {
+                          print("❌ Failed to create valid UUID from sessionId")
+                          result(FlutterError(
+                            code: "INVALID_UUID",
+                            message: "Failed to create valid UUID from session ID",
+                            details: nil
+                          ))
+                      }
+                  } else if let activeCall = self.activeCallSession {
                       SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(activeCall)
-
                       result(true)
-                  }else {
-                  result(false)}
-                } else {
+                  } else {
+                      result(FlutterError(
+                        code: "MISSING_SESSION_ID",
+                        message: "Session ID is required",
+                        details: nil
+                      ))
+                  }
+              } else {
                 result(FlutterMethodNotImplemented)
               }
             })
@@ -79,10 +104,16 @@ func convertDictionaryToJsonString(dictionary: [String: Any]) -> String? {
 
         // CallKit setup (unchanged)
         let providerConfiguration = CXProviderConfiguration(localizedName: "Master App")
-        providerConfiguration.supportsVideo = false
+        providerConfiguration.supportsVideo = true
+        providerConfiguration.maximumCallGroups = 1
+        providerConfiguration.maximumCallsPerCallGroup = 1
         providerConfiguration.supportedHandleTypes = [.phoneNumber]
-        let callKitProvider = CXProvider(configuration: providerConfiguration)
+
+        callKitProvider = CXProvider(configuration: providerConfiguration)
+        callKitProvider?.setDelegate(self, queue: nil)
+
         callController = CXCallController()
+
 
         if #available(iOS 10.0, *) {
             UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
@@ -92,19 +123,33 @@ func convertDictionaryToJsonString(dictionary: [String: Any]) -> String? {
     }
 
     func endCall(callUUID: UUID) {
-        // 1. Create the End Call Action
-        let endCallAction = CXEndCallAction(call: callUUID)
-        // 2. Create the transaction
-        let transaction = CXTransaction(action: endCallAction)
-        // 3. Request the transaction through the call controller
-        callController?.request(transaction, completion: { error in
-            if let error = error {
-                print("Failed to end call: \(error.localizedDescription)")
-            } else {
-                print("Call ended successfully.")
+            print("🔥 endCall - Starting call cleanup for UUID: \(callUUID.uuidString)")
+            
+            callKitProvider?.reportCall(with: callUUID, endedAt: Date(), reason: .remoteEnded)
+            print("✅ Reported call ended to CallKit provider")
+            
+            let endCallAction = CXEndCallAction(call: callUUID)
+            let transaction = CXTransaction(action: endCallAction)
+            
+            callController?.request(transaction) { error in
+                if let error = error {
+                    print("❌ Failed to end call via controller: \(error.localizedDescription)")
+                } else {
+                    print("✅ Call ended successfully via controller")
+                }
             }
-        })
-    }
+            
+            if let activeCall = self.activeCallSession,
+               activeCall.uuid == callUUID.uuidString {
+                self.activeCallSession = nil
+                print("✅ Cleared active call session")
+            }
+            
+        if let activeCall = self.activeCallSession, activeCall.uuid == callUUID.uuidString {
+                SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(activeCall)
+                print("✅ Ended FlutterCallkitIncoming session")
+            }
+        }
 
     // PKPushRegistryDelegate method to handle updates to push credentials
     func pushRegistry(_ registry: PKPushRegistry, didUpdate credentials:
@@ -180,4 +225,64 @@ func convertDictionaryToJsonString(dictionary: [String: Any]) -> String? {
                 }
             }
     }
+    
+    func handleCallAccepted(_ callUUID: String) {
+        print("handleCallAccepted triggered for \(callUUID)")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            if let controller = self.window?.rootViewController as? FlutterViewController {
+                let channel = FlutterMethodChannel(
+                    name: "com.cometchat.sampleapp.flutter.ios",
+                    binaryMessenger: controller.binaryMessenger
+                )
+                channel.invokeMethod("onCallAcceptedFromNative", arguments: ["uuid": callUUID])
+            }
+        }
+    }
+
+    // MARK: - CXProviderDelegate
+    func providerDidReset(_ provider: CXProvider) {
+        print("CXProvider reset")
+    }
+
+    func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
+        print("Call answered from native iOS screen (lock/locked)")
+
+        let callUUID = action.callUUID.uuidString
+        handleCallAccepted(callUUID) // 👈 trigger Flutter callback
+        action.fulfill()
+    }
+
+    func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
+        print("Call ended from native iOS screen")
+
+        let callUUID = action.callUUID.uuidString
+
+        // 1️⃣ End the CallKit session
+        action.fulfill()
+
+        // 2️⃣ Inform Flutter (via MethodChannel)
+        if let controller = self.window?.rootViewController as? FlutterViewController {
+            let channel = FlutterMethodChannel(
+                name: "com.cometchat.sampleapp.flutter.ios",
+                binaryMessenger: controller.binaryMessenger
+            )
+            channel.invokeMethod("onCallEndedFromNative", arguments: ["uuid": callUUID])
+        }
+
+        // 3️⃣ End the FlutterCallkitIncoming session
+        if let activeCall = self.activeCallSession {
+//            SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(activeCall)
+            self.activeCallSession = nil
+        }
+    }
+
+
+    func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
+        print("Audio session activated")
+    }
+
+    func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {
+        print("Audio session deactivated")
+    }
+
 }

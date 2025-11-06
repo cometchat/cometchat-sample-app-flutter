@@ -27,6 +27,8 @@ class ImageViewer extends StatefulWidget {
 
 class _ImageViewerState extends State<ImageViewer> {
   Key imageKey = UniqueKey();
+  double _currentScale = 1.0;
+  bool _isZoomed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +40,28 @@ class _ImageViewerState extends State<ImageViewer> {
         backgroundColor: colorPalette.background1,
         iconTheme: IconThemeData(color: colorPalette.iconPrimary),
       ),
-      body: Center(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
         child: InteractiveViewer(
           panEnabled: true,
-          minScale: 0.5,
+          minScale: 0.1,
           maxScale: 4.0,
+          onInteractionEnd: (ScaleEndDetails details) {
+            // Only update state when interaction ends for smoother performance
+            final newZoomed = _currentScale > 1.1;
+            if (_isZoomed != newZoomed) {
+              setState(() {
+                _isZoomed = newZoomed;
+              });
+            }
+          },
+          onInteractionUpdate: (ScaleUpdateDetails details) {
+            _currentScale = details.scale;
+          },
+          child: SizedBox(
+            width: double.infinity,
+            height: double.infinity,
           child: FadeInImage(
             key: imageKey,
             placeholder: AssetImage(
@@ -50,7 +69,7 @@ class _ImageViewerState extends State<ImageViewer> {
               package:
               widget.placeHolderImagePackageName ?? UIConstants.packageName,
             ),
-            fit: BoxFit.cover,
+            fit: BoxFit.contain,
             placeholderFit: BoxFit.contain,
             imageErrorBuilder: (context, object, stackTrace) {
               return Center(
@@ -78,30 +97,31 @@ class _ImageViewerState extends State<ImageViewer> {
                   ],
                 ),
               );
-            },
-            image: NetworkImageWithRetry(
-              widget.imageUrl,
-              fetchStrategy: (Uri uri, FetchFailure? failure) async {
-                const int maxAttempts = 7;
-                const int baseDelaySeconds = 1;
-                if (failure == null) {
-                  return FetchInstructions.attempt(
-                    uri: uri,
-                    timeout: const Duration(seconds: 10),
-                  );
-                } else if (failure.attemptCount < maxAttempts) {
-                  final int delaySeconds =
-                  (baseDelaySeconds * pow(2, failure.attemptCount - 1))
-                      .toInt();
-                  await Future.delayed(Duration(seconds: delaySeconds));
-                  return FetchInstructions.attempt(
-                    uri: uri,
-                    timeout: Duration(seconds: 10 + delaySeconds),
-                  );
-                } else {
-                  return FetchInstructions.giveUp(uri: uri);
-                }
               },
+              image: NetworkImageWithRetry(
+                widget.imageUrl,
+                fetchStrategy: (Uri uri, FetchFailure? failure) async {
+                  const int maxAttempts = 7;
+                  const int baseDelaySeconds = 1;
+                  if (failure == null) {
+                    return FetchInstructions.attempt(
+                      uri: uri,
+                      timeout: const Duration(seconds: 10),
+                    );
+                  } else if (failure.attemptCount < maxAttempts) {
+                    final int delaySeconds =
+                    (baseDelaySeconds * pow(2, failure.attemptCount - 1))
+                        .toInt();
+                    await Future.delayed(Duration(seconds: delaySeconds));
+                    return FetchInstructions.attempt(
+                      uri: uri,
+                      timeout: Duration(seconds: 10 + delaySeconds),
+                    );
+                  } else {
+                    return FetchInstructions.giveUp(uri: uri);
+                  }
+                },
+              ),
             ),
           ),
         ),

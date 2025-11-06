@@ -27,7 +27,7 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
   final FocusNode _focusNode = FocusNode();
 
   final ValueNotifier<MaterialButtonUserModel?> selectedUserNotifier =
-      ValueNotifier<MaterialButtonUserModel?>(null);
+  ValueNotifier<MaterialButtonUserModel?>(null);
 
   String userId = "";
 
@@ -180,7 +180,7 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                         future: _futureUsers,
                         builder: (BuildContext context,
                             AsyncSnapshot<List<MaterialButtonUserModel>>
-                                snapshot) {
+                            snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return CometChatShimmerEffect(
@@ -204,7 +204,7 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                                   );
                                 },
                                 gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 3,
                                   crossAxisSpacing: spacing.padding2 ?? 8,
                                   mainAxisSpacing: spacing.padding2 ?? 8,
@@ -239,7 +239,7 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                                       onTap: () {
                                         removeFocus(context, _focusNode);
                                         selectedUserNotifier.value =
-                                            users[index];
+                                        users[index];
                                       },
                                       child: Stack(
                                         fit: StackFit.passthrough,
@@ -247,23 +247,23 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                                           Container(
                                             decoration: BoxDecoration(
                                               color: (selectedUser ==
-                                                      users[index])
+                                                  users[index])
                                                   ? colorPalette
-                                                      .extendedPrimary50
+                                                  .extendedPrimary50
                                                   : colorPalette.background1,
                                               borderRadius:
-                                                  BorderRadius.circular(
+                                              BorderRadius.circular(
                                                 spacing.radius2 ?? 8,
                                               ),
                                               border: Border.all(
                                                 color: (selectedUser ==
-                                                        users[index])
+                                                    users[index])
                                                     ? (colorPalette
-                                                            .borderHighlight ??
-                                                        Colors.transparent)
+                                                    .borderHighlight ??
+                                                    Colors.transparent)
                                                     : (colorPalette
-                                                            .borderLight ??
-                                                        Colors.transparent),
+                                                    .borderLight ??
+                                                    Colors.transparent),
                                                 width: 1,
                                               ),
                                             ),
@@ -273,27 +273,27 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                                               ),
                                               child: Column(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                                MainAxisAlignment.center,
                                                 crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
+                                                CrossAxisAlignment.center,
                                                 children: [
                                                   Padding(
                                                     padding: EdgeInsets.only(
                                                       bottom:
-                                                          spacing.padding2 ?? 8,
+                                                      spacing.padding2 ?? 8,
                                                     ),
                                                     child: CometChatAvatar(
                                                       name:
-                                                          users[index].username,
+                                                      users[index].username,
                                                       image:
-                                                          users[index].imageURL,
+                                                      users[index].imageURL,
                                                     ),
                                                   ),
                                                   Expanded(
                                                     child: Text(
                                                       users[index].username,
                                                       textAlign:
-                                                          TextAlign.center,
+                                                      TextAlign.center,
                                                       style: TextStyle(
                                                         color: colorPalette
                                                             .textPrimary,
@@ -321,7 +321,7 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                                                       child: Text(
                                                         users[index].userId,
                                                         textAlign:
-                                                            TextAlign.start,
+                                                        TextAlign.start,
                                                         style: TextStyle(
                                                           color: colorPalette
                                                               .textSecondary,
@@ -347,44 +347,44 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                                           ),
                                           (selectedUser == users[index])
                                               ? Positioned(
-                                                  right: 0,
-                                                  top: 0,
-                                                  child: Container(
-                                                    padding: EdgeInsets.all(
-                                                      spacing.padding ?? 8,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: colorPalette
-                                                          .iconHighlight,
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                        bottomLeft:
-                                                            Radius.circular(
-                                                          spacing.radius2 ?? 8,
-                                                        ),
-                                                        topRight:
-                                                            Radius.circular(
-                                                          spacing.radius2 ?? 8,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    child: Center(
-                                                      child: Icon(
-                                                        Icons.check,
-                                                        color:
-                                                            colorPalette.white,
-                                                        size: 15,
-                                                      ),
-                                                    ),
+                                            right: 0,
+                                            top: 0,
+                                            child: Container(
+                                              padding: EdgeInsets.all(
+                                                spacing.padding ?? 8,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: colorPalette
+                                                    .iconHighlight,
+                                                borderRadius:
+                                                BorderRadius.only(
+                                                  bottomLeft:
+                                                  Radius.circular(
+                                                    spacing.radius2 ?? 8,
                                                   ),
-                                                )
+                                                  topRight:
+                                                  Radius.circular(
+                                                    spacing.radius2 ?? 8,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Center(
+                                                child: Icon(
+                                                  Icons.check,
+                                                  color:
+                                                  colorPalette.white,
+                                                  size: 15,
+                                                ),
+                                              ),
+                                            ),
+                                          )
                                               : const SizedBox(),
                                         ],
                                       ),
                                     );
                                   },
                                   gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                  SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 3,
                                     crossAxisSpacing: spacing.padding1 ?? 8,
                                     mainAxisSpacing: spacing.padding1 ?? 8,
@@ -420,9 +420,9 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                                   color: colorPalette.textTertiary,
                                   fontSize: typography.body?.medium?.fontSize,
                                   fontFamily:
-                                      typography.body?.medium?.fontFamily,
+                                  typography.body?.medium?.fontFamily,
                                   fontWeight:
-                                      typography.body?.medium?.fontWeight,
+                                  typography.body?.medium?.fontWeight,
                                 ),
                               ),
                             ),
@@ -454,7 +454,7 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                         controller: uidController,
                         focusNode: _focusNode,
                         keyboardAppearance:
-                            CometChatThemeHelper.getBrightness(context),
+                        CometChatThemeHelper.getBrightness(context),
                         onChanged: (value) {
                           if (value.isNotEmpty) {
                             selectedUserNotifier.value = null;
@@ -568,24 +568,24 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                       child: Center(
                         child: isLoading
                             ? SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      colorPalette.white ?? Colors.white),
-                                ),
-                              )
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                colorPalette.white ?? Colors.white),
+                          ),
+                        )
                             : Text(
-                                "Continue",
-                                style: TextStyle(
-                                  color: colorPalette.buttonIconColor,
-                                  fontSize: typography.button?.medium?.fontSize,
-                                  fontFamily:
-                                      typography.button?.medium?.fontFamily,
-                                  fontWeight:
-                                      typography.button?.medium?.fontWeight,
-                                ),
-                              ),
+                          "Continue",
+                          style: TextStyle(
+                            color: colorPalette.buttonIconColor,
+                            fontSize: typography.button?.medium?.fontSize,
+                            fontFamily:
+                            typography.button?.medium?.fontFamily,
+                            fontWeight:
+                            typography.button?.medium?.fontWeight,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -613,11 +613,11 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                                 style: TextStyle(
                                   color: colorPalette.textSecondary,
                                   fontSize:
-                                      typography.caption1?.medium?.fontSize,
+                                  typography.caption1?.medium?.fontSize,
                                   fontFamily:
-                                      typography.caption1?.medium?.fontFamily,
+                                  typography.caption1?.medium?.fontFamily,
                                   fontWeight:
-                                      typography.caption1?.medium?.fontWeight,
+                                  typography.caption1?.medium?.fontWeight,
                                 ),
                               ),
                               TextSpan(
@@ -625,11 +625,11 @@ class _LoginSampleUsersState extends State<LoginSampleUsers> {
                                 style: TextStyle(
                                   color: colorPalette.textHighlight,
                                   fontSize:
-                                      typography.caption1?.medium?.fontSize,
+                                  typography.caption1?.medium?.fontSize,
                                   fontFamily:
-                                      typography.caption1?.medium?.fontFamily,
+                                  typography.caption1?.medium?.fontFamily,
                                   fontWeight:
-                                      typography.caption1?.medium?.fontWeight,
+                                  typography.caption1?.medium?.fontWeight,
                                 ),
                               ),
                             ],

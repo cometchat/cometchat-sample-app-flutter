@@ -131,9 +131,9 @@ class VoipNotificationHandler {
           duration: 45000,
           android: const AndroidParams(
             isCustomNotification: true,
-            isShowLogo: true,
+            isShowLogo: false,
             incomingCallNotificationChannelName: "Incoming Call",
-            isShowFullLockedScreen: false,
+            isShowFullLockedScreen: true,
           ),
           onDecline: (reason) {
             debugPrint("[FCM] Call declined with reason: $reason");
@@ -161,6 +161,9 @@ class VoipNotificationHandler {
     await FlutterCallkitIncoming.endCall(session ?? "");
     await Future.delayed(const Duration(milliseconds: 200));
     await FlutterCallkitIncoming.endAllCalls();
+
+    // Ensure lock screen is restored after ending call
+    await _restoreLockScreenAfterCall();
   }
 
   static Future<void> endCall({String? sessionId}) async {
@@ -193,6 +196,13 @@ class VoipNotificationHandler {
   }
 
   static _acceptAndNavigate(String sessionId, String callType, context) async {
+    // Setup temporary lock screen bypass when call is accepted
+    try {
+      await voipPlatformChannel.invokeMethod("setupLockScreenForCall");
+    } catch (e) {
+      debugPrint("[FCM] Failed to setup lock screen flags: $e");
+    }
+
     CometChatUIKitCalls.acceptCall(sessionId, onSuccess: (Call call) {
       IncomingCallOverlay.dismiss();
       call.category = MessageCategoryConstants.call;
@@ -204,6 +214,8 @@ class VoipNotificationHandler {
       CallSettingsBuilder callSettingsBuilder = (CallSettingsBuilder()
         ..enableDefaultLayout = true
         ..setAudioOnlyCall = call.type == CallTypeConstants.audioCall);
+
+      // Navigate to ongoing call screen
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -214,6 +226,8 @@ class VoipNotificationHandler {
           ),
         ),
       ).then((_) async {
+        // When call screen is closed, restore lock screen if device was locked
+        await _restoreLockScreenAfterCall();
         VoipNotificationHandler.endCallFromOngoingScreen(call.sessionId!);
       });
     }, onError: (e) {
@@ -221,6 +235,16 @@ class VoipNotificationHandler {
       debugPrint(
           "Unable to accept call from incoming call screen ${e.message}");
     });
+  }
+
+  /// Restores the lock screen after call ends if device was originally locked
+  static Future<void> _restoreLockScreenAfterCall() async {
+    try {
+      await voipPlatformChannel.invokeMethod("restoreLockScreenAfterCall");
+      debugPrint("[FCM] Lock screen restored after call ended");
+    } catch (e) {
+      debugPrint("[FCM] Failed to restore lock screen after call: $e");
+    }
   }
 
   static Future<void> handleNativeCallIntent(BuildContext context) async {

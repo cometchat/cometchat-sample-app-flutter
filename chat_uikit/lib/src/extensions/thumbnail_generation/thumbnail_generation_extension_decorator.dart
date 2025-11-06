@@ -84,7 +84,7 @@ class ThumbnailGenerationExtensionDecorator extends DataSourceDecorator {
 
   openImageInFullScreenMode(
       String? imageUrl, BuildContext context) {
-    if (imageUrl != null || imageUrl!.isNotEmpty) {
+    if (imageUrl != null && imageUrl.isNotEmpty) {
       Navigator.push(
         context,
         MaterialPageRoute(

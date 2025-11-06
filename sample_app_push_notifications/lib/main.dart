@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart' as cc;
@@ -9,7 +10,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:sample_app_push_notifications/guard_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:sample_app_push_notifications/notifications/services/iOS_notification_service/apns_services.dart';
 import 'package:sample_app_push_notifications/utils/page_manager.dart';
+import 'package:sample_app_push_notifications/call_screen.dart';
+import 'firebase_options.dart';
 import 'notifications/services/android_notification_service/local_notification_handler.dart';
 import 'notifications/services/android_notification_service/notification_launch_handler.dart';
 import 'prefs/shared_preferences.dart';
@@ -69,6 +73,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
+
+  @override
+  void initState() {
+    if(Platform.isIOS) {
+      APNSService.setupNativeCallListener(context);
+    }
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -112,6 +124,30 @@ class _MyAppState extends State<MyApp> {
       title: 'CometChat Flutter Sample App',
       navigatorKey: CallNavigationContext.navigatorKey,
       home: GuardScreen(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+// Entry point for CallActivity - displays ongoing call screen over lock screen
+@pragma('vm:entry-point')
+void callMain() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize SharedPreferences for CallActivity
+  SharedPreferencesClass.init();
+
+  runApp(const CallApp());
+}
+
+class CallApp extends StatelessWidget {
+  const CallApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'CometChat Call',
+      home: const CallScreen(),
       debugShowCheckedModeBanner: false,
     );
   }

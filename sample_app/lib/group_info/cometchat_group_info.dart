@@ -175,7 +175,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
 
     if (group != null) {
       StatusIndicatorUtils statusIndicatorUtils =
-          StatusIndicatorUtils.getStatusIndicatorFromParams(
+      StatusIndicatorUtils.getStatusIndicatorFromParams(
         isSelected: false,
         group: group,
         usersStatusVisibility: groupInfoController.hideUserPresence(),
@@ -300,7 +300,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
                 size: 24,
               ),
               cc.Translations.of(context).viewMembers,
-              () {
+                  () {
                 if (controller.group != null) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -324,7 +324,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
                 size: 24,
               ),
               cc.Translations.of(context).addMembers,
-              () {
+                  () {
                 if (controller.group != null) {
                   controller.onAddMemberClicked(
                     controller.group!,
@@ -344,7 +344,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
                 size: 24,
               ),
               cc.Translations.of(context).bannedMembers,
-              () {
+                  () {
                 if (controller.group != null) {
                   controller.onBannedMembersClicked(
                     controller.group!,
@@ -369,7 +369,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
           listTileOptions(
             cc.Translations.of(context).deleteAndExit,
             Icon(Icons.delete, color: colorPalette.error),
-            () {
+                () {
               controller.deleteGroupDialog(
                 context: context,
                 colorPalette: colorPalette,
@@ -389,7 +389,7 @@ class _CometchatGroupInfoState extends State<CometchatGroupInfo> {
     return listTileOptions(
       cc.Translations.of(context).leave,
       Icon(Icons.exit_to_app, color: colorPalette.error),
-      () {
+          () {
         if (controller.membersCount > 1 &&
             controller.group?.owner == controller.loggedInUser?.uid) {
           //transfer ownership of group

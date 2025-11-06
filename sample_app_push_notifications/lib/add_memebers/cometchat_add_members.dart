@@ -9,8 +9,8 @@ class CometChatAddMembers extends StatelessWidget {
     Key? key,
     required this.group,
   })  : _cometChatAddMembersController = CometChatAddMembersController(
-          group: group,
-        ),
+    group: group,
+  ),
         super(key: key);
 
   final Group group;
@@ -100,7 +100,7 @@ class CometChatAddMembers extends StatelessWidget {
                         if (Get.isRegistered<CometChatUsersController>(
                             tag: tag)) {
                           CometChatUsersController usersController =
-                              Get.find<CometChatUsersController>(tag: tag);
+                          Get.find<CometChatUsersController>(tag: tag);
                           controller.addMember(
                             usersController.getSelectedList(),
                             context,
@@ -132,19 +132,19 @@ class CometChatAddMembers extends StatelessWidget {
                       child: Center(
                         child: (controller.isLoading)
                             ? CircularProgressIndicator(
-                                color: colorPalette.white,
-                              )
+                          color: colorPalette.white,
+                        )
                             : Text(
-                            cc.Translations.of(context).addMembers,
-                                style: TextStyle(
-                                  color: colorPalette.buttonIconColor,
-                                  fontSize: typography.button?.medium?.fontSize,
-                                  fontFamily:
-                                      typography.button?.medium?.fontFamily,
-                                  fontWeight:
-                                      typography.button?.medium?.fontWeight,
-                                ),
-                              ),
+                          cc.Translations.of(context).addMembers,
+                          style: TextStyle(
+                            color: colorPalette.buttonIconColor,
+                            fontSize: typography.button?.medium?.fontSize,
+                            fontFamily:
+                            typography.button?.medium?.fontFamily,
+                            fontWeight:
+                            typography.button?.medium?.fontWeight,
+                          ),
+                        ),
                       ),
                     ),
                   ),

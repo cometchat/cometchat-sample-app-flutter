@@ -17,7 +17,6 @@ CometChat Flutter UIKit provides a pre-built user interface kit that developers 
 
 Dive straight into our Sample Apps to see CometChat UI Kit in action! Whether you're building a messaging app or enhancing your existing project, this sample app showcases the full potential of our Flutter UI components.
 - [Sample App ](sample_app#readme)
-- [Sample App AI Agents](ai_sample_app#readme)
 - [Sample App with Push Notifications](sample_app_push_notifications#readme)
 
 ## Prerequisites

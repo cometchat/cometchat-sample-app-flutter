@@ -264,7 +264,7 @@ class _CometChatCallLogDetailsState extends State<CometChatCallLogDetails> {
                       fontFamily: typography.heading4?.medium?.fontFamily,
                     ),
                     tabs:
-                        CometChatCallLogDetailsController.tabs("Participants"),
+                    CometChatCallLogDetailsController.tabs("Participants"),
                   ),
                 ),
                 body: TabBarView(

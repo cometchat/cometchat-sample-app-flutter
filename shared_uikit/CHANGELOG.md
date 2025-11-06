@@ -1,3 +1,13 @@
+## 5.1.3
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.28`.
+
+## Fixes
+- Fixed the bug causing image zoom functionality to not work correctly within the available space.
+- Fixed audio message playback stopping when a new message is received.
+- Fixed UI flicker issue when sending audio messages.
+
 ## 5.1.2
 
 ## Enhancements

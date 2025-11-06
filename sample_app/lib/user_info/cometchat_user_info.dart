@@ -123,7 +123,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
                           color: colorPalette.textPrimary,
                         ),
                       ),
-                        Text(
+                      Text(
                         value.presence,
                         style: TextStyle(
                           fontSize: typography.caption1?.regular?.fontSize,
@@ -292,9 +292,16 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
       BuildContext context, CometChatUserInfoController controller) {
     return Column(
       children: [
-        listTileOptions((controller.user != null && controller.user?.blockedByMe != null && !controller.user!.blockedByMe!) ? cc.Translations.of(context).block : cc.Translations.of(context).unBlock,
+        listTileOptions(
+            (controller.user != null &&
+                    controller.user?.blockedByMe != null &&
+                    !controller.user!.blockedByMe!)
+                ? cc.Translations.of(context).block
+                : cc.Translations.of(context).unBlock,
             Icon(Icons.block, color: colorPalette.error), () {
-          if ((controller.user != null && controller.user?.blockedByMe != null && !controller.user!.blockedByMe!)) {
+          if ((controller.user != null &&
+              controller.user?.blockedByMe != null &&
+              !controller.user!.blockedByMe!)) {
             controller.blockUserDialog(
               context: context,
               colorPalette: colorPalette,

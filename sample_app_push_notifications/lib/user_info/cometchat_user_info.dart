@@ -123,7 +123,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
                           color: colorPalette.textPrimary,
                         ),
                       ),
-                        Text(
+                      Text(
                         value.presence,
                         style: TextStyle(
                           fontSize: typography.caption1?.regular?.fontSize,
@@ -259,7 +259,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
               size: 24,
             ),
             cc.Translations.of(context).voice,
-            () {
+                () {
               controller.initiateCallWorkflow(
                 CallTypeConstants.audioCall,
                 context,
@@ -276,7 +276,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
               size: 24,
             ),
             cc.Translations.of(context).video,
-            () {
+                () {
               controller.initiateCallWorkflow(
                 CallTypeConstants.videoCall,
                 context,
@@ -294,20 +294,20 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
       children: [
         listTileOptions((controller.user != null && controller.user?.blockedByMe != null && !controller.user!.blockedByMe!) ? cc.Translations.of(context).block : cc.Translations.of(context).unBlock,
             Icon(Icons.block, color: colorPalette.error), () {
-          if ((controller.user != null && controller.user?.blockedByMe != null && !controller.user!.blockedByMe!)) {
-            controller.blockUserDialog(
-              context: context,
-              colorPalette: colorPalette,
-              typography: typography,
-            );
-          } else {
-            controller.unblockUserDialog(
-              context: context,
-              colorPalette: colorPalette,
-              typography: typography,
-            );
-          }
-        }),
+              if ((controller.user != null && controller.user?.blockedByMe != null && !controller.user!.blockedByMe!)) {
+                controller.blockUserDialog(
+                  context: context,
+                  colorPalette: colorPalette,
+                  typography: typography,
+                );
+              } else {
+                controller.unblockUserDialog(
+                  context: context,
+                  colorPalette: colorPalette,
+                  typography: typography,
+                );
+              }
+            }),
         listTileOptions(
           cc.Translations.of(context).deleteTheChat,
           Image.asset(
@@ -315,7 +315,7 @@ class _CometchatUserInfoState extends State<CometchatUserInfo> {
             color: colorPalette.error,
             package: UIConstants.packageName,
           ),
-          () {
+              () {
             controller.deleteChatDialog(
               context: context,
               colorPalette: colorPalette,

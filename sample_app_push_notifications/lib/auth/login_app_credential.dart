@@ -188,8 +188,8 @@ class _LoginAppCredentialState extends State<LoginAppCredential> {
                             child: Padding(
                               padding: (index != regions.length - 1)
                                   ? EdgeInsets.only(
-                                      right: spacing.padding ?? 2,
-                                    )
+                                right: spacing.padding ?? 2,
+                              )
                                   : const EdgeInsets.all(0),
                               child: GestureDetector(
                                 onTap: () {
@@ -218,16 +218,16 @@ class _LoginAppCredentialState extends State<LoginAppCredential> {
                                     border: Border.all(
                                       color: (selectedRegion == region)
                                           ? (colorPalette.borderHighlight ??
-                                              Colors.transparent)
+                                          Colors.transparent)
                                           : (colorPalette.borderLight ??
-                                              Colors.transparent),
+                                          Colors.transparent),
                                       width: 1,
                                     ),
                                   ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                    CrossAxisAlignment.center,
                                     children: [
                                       Image.asset(
                                         region.path ?? "",
@@ -278,7 +278,7 @@ class _LoginAppCredentialState extends State<LoginAppCredential> {
                       TextFormField(
                         controller: appIdController,
                         keyboardAppearance:
-                            CometChatThemeHelper.getBrightness(context),
+                        CometChatThemeHelper.getBrightness(context),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return "";

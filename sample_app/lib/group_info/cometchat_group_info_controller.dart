@@ -15,12 +15,12 @@ class CometChatGroupInfoController extends GetxController
         CometChatGroupEventListener,
         CometChatUserEventListener {
   CometChatGroupInfoController(
-    this.user,
-    this.group,
-    this.colorPalette,
-    this.typography,
-    this.spacing,
-  );
+      this.user,
+      this.group,
+      this.colorPalette,
+      this.typography,
+      this.spacing,
+      );
 
   final User? user;
 
@@ -79,8 +79,8 @@ class CometChatGroupInfoController extends GetxController
       }
       _conversation ??= (await CometChat.getConversation(id, conversationType,
           onSuccess: (conversation) {
-        if (conversation.lastMessage != null) {}
-      }, onError: (_) {}));
+            if (conversation.lastMessage != null) {}
+          }, onError: (_) {}));
       _conversationId ??= _conversation?.conversationId;
       update();
     }
@@ -418,23 +418,23 @@ class CometChatGroupInfoController extends GetxController
         confirmButtonTextColor: colorPalette.white,
       ),
       confirmButtonTextWidget: Obx(
-        () => (isLeaveGroupLoading.value)
+            () => (isLeaveGroupLoading.value)
             ? SizedBox(
-                height: 25,
-                width: 25,
-                child: CircularProgressIndicator(
-                  color: colorPalette.white,
-                ),
-              )
+          height: 25,
+          width: 25,
+          child: CircularProgressIndicator(
+            color: colorPalette.white,
+          ),
+        )
             : Text(
-                cc.Translations.of(context).leave,
-                style: TextStyle(
-                  color: colorPalette.white,
-                  fontSize: typography.button?.medium?.fontSize,
-                  fontWeight: typography.button?.medium?.fontWeight,
-                  fontFamily: typography.button?.medium?.fontFamily,
-                ),
-              ),
+          cc.Translations.of(context).leave,
+          style: TextStyle(
+            color: colorPalette.white,
+            fontSize: typography.button?.medium?.fontSize,
+            fontWeight: typography.button?.medium?.fontWeight,
+            fontFamily: typography.button?.medium?.fontFamily,
+          ),
+        ),
       ),
     ).show();
   }
@@ -486,23 +486,23 @@ class CometChatGroupInfoController extends GetxController
         horizontal: spacing.padding2 ?? 0,
       ),
       confirmButtonTextWidget: Obx(
-        () => (isDeleteLoading.value)
+            () => (isDeleteLoading.value)
             ? SizedBox(
-                height: 25,
-                width: 25,
-                child: CircularProgressIndicator(
-                  color: colorPalette.white,
-                ),
-              )
+          height: 25,
+          width: 25,
+          child: CircularProgressIndicator(
+            color: colorPalette.white,
+          ),
+        )
             : Text(
-                cc.Translations.of(context).deleteAndExit,
-                style: TextStyle(
-                  color: colorPalette.white,
-                  fontSize: typography.button?.medium?.fontSize,
-                  fontWeight: typography.button?.medium?.fontWeight,
-                  fontFamily: typography.button?.medium?.fontFamily,
-                ),
-              ),
+          cc.Translations.of(context).deleteAndExit,
+          style: TextStyle(
+            color: colorPalette.white,
+            fontSize: typography.button?.medium?.fontSize,
+            fontWeight: typography.button?.medium?.fontWeight,
+            fontFamily: typography.button?.medium?.fontFamily,
+          ),
+        ),
       ),
     ).show();
   }
@@ -611,13 +611,13 @@ class CometChatGroupInfoController extends GetxController
       ),
       confirmButtonTextWidget: Text(
         cc.Translations.of(context).continueText,
-          style: TextStyle(
-            color:  colorPalette.white,
-            fontSize: typography.button?.medium?.fontSize,
-            fontWeight: typography.button?.medium?.fontWeight,
-            fontFamily: typography.button?.medium?.fontFamily,
-          ),
+        style: TextStyle(
+          color:  colorPalette.white,
+          fontSize: typography.button?.medium?.fontSize,
+          fontWeight: typography.button?.medium?.fontWeight,
+          fontFamily: typography.button?.medium?.fontFamily,
         ),
+      ),
 
 
     ).show();

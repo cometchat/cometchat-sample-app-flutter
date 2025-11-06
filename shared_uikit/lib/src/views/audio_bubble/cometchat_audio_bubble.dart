@@ -8,7 +8,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
-enum PlayStates { playing, paused, stopped, init }
+import 'cometchat_audio_bubble_controller.dart';
 
 ///[CometChatAudioBubble] creates a widget that gives audio bubble
 ///
@@ -94,9 +94,9 @@ class CometChatAudioBubble extends StatefulWidget {
 
 class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     with TickerProviderStateMixin {
-  bool isInitializing = false;
-  PlayStates playerStatus = PlayStates.init;
-  VideoPlayerController? _controller;
+  AudioBubbleState? _audioState;
+  StreamSubscription<AudioStateUpdate>? _audioStateSubscription;
+  StreamSubscription<AudioBubbleEvents>? _eventSubscription;
 
   final Random random = Random();
   final double barWidth = 2.0;
@@ -110,77 +110,53 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
   int delayer = 1;
 
   double progress = 0.0;
-
   Ticker? _ticker;
 
   bool isFileDownloading = false;
   bool isFileExists = false;
   String? localPath;
-
-  Duration? totalDuration;
+  String fileName = '';
   late int tag;
 
   @override
   void initState() {
     super.initState();
     tag = widget.id ?? DateTime.now().millisecondsSinceEpoch;
-    setupEventStream();
-    fileExists();
+    _setupAudioState();
+    _setupEventStreams();
+    _checkFileExists();
   }
 
-  Future<void> initializeController() async {
-    try {
-      if (_controller == null) {
-        isInitializing = true;
-        if (mounted) {
-          setState(() {});
-        }
+  void _setupAudioState() {
+    _audioState = AudioStateManager().getAudioState(tag, widget.audioUrl, localPath);
 
-        if (localPath != null && localPath?.isNotEmpty == true) {
-          if(Platform.isIOS) {
-            await setAudioSessionToSpeaker();
-          }
-          _controller = VideoPlayerController.file(File(localPath!),
-              videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true));
-        } else if (widget.audioUrl != null &&
-            widget.audioUrl?.isNotEmpty == true) {
-          if(Platform.isIOS) {
-            await resetAudioSession();
-          }
-          _controller = VideoPlayerController.networkUrl(
-            Uri.parse(widget.audioUrl!),
-            videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-          );
-        }
-
-        if (_controller != null) {
-          await _controller!.initialize(); // Initialize the controller.
-
-          totalDuration = _controller!.value.duration;
-
-          _controller!.addListener(() {
-            if (mounted) {
-              setState(() {});
-            }
-            if (_controller!.value.isCompleted) {
-              stopAudio(); // Handle when audio finishes playing.
-            }
-          });
-        }
+    _audioStateSubscription = _audioState!.stateStream.listen((update) {
+      if (mounted && update.id == tag) {
+        setState(() {
+          _updateAnimationBasedOnPlayState(update.playState);
+        });
       }
-    } catch (e) {
-      debugPrint("Error initializing controller: $e");
-    } finally {
-      isInitializing = false;
-      if (mounted) {
-        setState(() {});
+    });
+  }
+
+  void _setupEventStreams() {
+    _eventSubscription = AudioBubbleStream().stream.asBroadcastStream().listen((event) {
+      if (event.id != tag && event.action == AudioBubbleActions.pausePlayer) {
+        _audioState?.pauseAudio();
+      } else if (event.action == AudioBubbleActions.stopPlayer) {
+        _audioState?.stopAudio();
       }
+    });
+  }
+
+  void _updateAnimationBasedOnPlayState(PlayStates playState) {
+    bool shouldAnimate = playState == PlayStates.playing;
+    if (isAnimating != shouldAnimate) {
+      toggleAnimation(shouldAnimate);
     }
   }
 
-  String fileName = '';
-
-  fileExists() async {
+  Future<void> _checkFileExists() async {
     if (widget.id != null) {
       fileName += '${widget.id}';
     }
@@ -196,7 +172,6 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
       isFileExists = true;
     } else {
       String? path = await BubbleUtils.isFileDownloaded(fileName);
-
       if (path == null) {
         isFileExists = false;
       } else {
@@ -207,7 +182,10 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     if (mounted) {
       setState(() {});
     }
-    initializeController();
+
+    // Update audio state with the local path if found
+    _audioState = AudioStateManager().getAudioState(tag, widget.audioUrl, localPath);
+    _audioState!.initializeController();
   }
 
   late CometChatAudioBubbleStyle audioBubbleStyle;
@@ -285,12 +263,8 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
 
   @override
   void dispose() {
-    _cleanUpAsync();
-
-    if (_controller != null) {
-      _controller!.dispose();
-      _controller = null;
-    }
+    _audioStateSubscription?.cancel();
+    _eventSubscription?.cancel();
 
     try {
       timer?.cancel();
@@ -310,45 +284,8 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
         _ticker = null;
       }
     }
-    closeEventStream();
+
     super.dispose();
-  }
-
-  void _cleanUpAsync() async {
-    if (localPath != null && Platform.isIOS) {
-      await resetAudioSession();
-    }
-  }
-
-  void playAudio() {
-    if (_controller != null && _controller!.value.isInitialized) {
-      AudioBubbleStream().controller.sink.add(
-          AudioBubbleEvents(id: tag, action: AudioBubbleActions.pausePlayer));
-      playerStatus = PlayStates.playing;
-      _controller!.play();
-      toggleAnimation(true);
-      setState(() {});
-    }
-  }
-
-  pauseAudio() {
-    if (_controller != null && _controller!.value.isInitialized) {
-      _controller?.pause();
-      playerStatus = PlayStates.paused;
-      toggleAnimation(false);
-      setState(() {});
-    }
-  }
-
-  stopAudio() async {
-    if (_controller != null && _controller!.value.isInitialized) {
-      _controller?.pause();
-      await _controller?.seekTo(Duration.zero);
-      playerStatus = PlayStates.stopped;
-      toggleAnimation(false);
-    }
-
-    setState(() {});
   }
 
   double getBarSpace() {
@@ -362,9 +299,10 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
 
   @override
   Widget build(BuildContext context) {
-    if (playerStatus != PlayStates.playing && isAnimating) {
-      toggleAnimation(false);
-    }
+    final isInitializing = _audioState?.isInitializing ?? false;
+    final playState = _audioState?.playState ?? PlayStates.init;
+    final currentPosition = _audioState?.currentPosition ?? Duration.zero;
+    final totalDuration = _audioState?.totalDuration ?? Duration.zero;
 
     return Container(
       height: widget.height,
@@ -390,14 +328,12 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
         children: [
           GestureDetector(
             onTap: () async {
-              // Initialize if not already done
-              if (_controller == null || !_controller!.value.isInitialized) {
-                await initializeController();
-              }
-              if (playerStatus == PlayStates.playing) {
-                pauseAudio();
+              if (playState == PlayStates.playing) {
+                await _audioState?.pauseAudio();
+                AudioBubbleStream().controller.sink.add(
+                    AudioBubbleEvents(id: tag, action: AudioBubbleActions.pausePlayer));
               } else {
-                playAudio();
+                await _audioState?.playAudio();
               }
             },
             child: isInitializing
@@ -415,7 +351,7 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                 : CircleAvatar(
                     backgroundColor: audioBubbleStyle.playIconBackgroundColor ??
                         colorPalette.white,
-                    child: playerStatus == PlayStates.playing
+                    child: playState == PlayStates.playing
                         ? widget.pauseIcon ??
                             Icon(Icons.pause,
                                 size: 32,
@@ -443,7 +379,7 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                       scrollDirection: Axis.horizontal,
                       physics: const NeverScrollableScrollPhysics(),
                       child: Row(
-                        children: playerStatus == PlayStates.playing
+                        children: playState == PlayStates.playing
                             ? List.generate(
                                 getBarCount(),
                                 (index) {
@@ -470,8 +406,8 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                   ),
                 ),
                 Text(
-                  '${formatDuration(_controller?.value.position ?? Duration.zero)}/'
-                  '${formatDuration(totalDuration ?? Duration.zero)}',
+                  '${formatDuration(currentPosition)}/'
+                  '${formatDuration(totalDuration)}',
                   style: TextStyle(
                     color: audioBubbleStyle.durationTextColor ??
                         (widget.alignment == BubbleAlignment.right
@@ -563,23 +499,6 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
             : colorPalette.primary);
   }
 
-  openFile() async {
-    if (isFileExists) {
-      String filePath = '${BubbleUtils.fileDownloadPath}/$fileName';
-      MethodChannel channel = const MethodChannel('cometchat_uikit_shared');
-
-      try {
-        debugPrint("Opening Path = $filePath");
-        final result = await channel.invokeMethod('open_file',
-            {'file_path': filePath, 'file_type': widget.fileMimeType});
-        debugPrint(result);
-      } catch (e) {
-        debugPrint('$e');
-        debugPrint("Could not open file");
-      }
-    }
-  }
-
   void _startTicker() {
     _ticker = createTicker((elapsed) {
       setState(() {
@@ -596,40 +515,5 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     int minutes = duration.inMinutes.remainder(60);
     int seconds = duration.inSeconds.remainder(60);
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-  }
-
-  late StreamSubscription<AudioBubbleEvents> streamSubscription;
-
-  void setupEventStream() {
-    streamSubscription =
-        AudioBubbleStream().stream.asBroadcastStream().listen((event) {
-      if (event.id != tag && event.action == AudioBubbleActions.pausePlayer) {
-        pauseAudio();
-      } else if (event.action == AudioBubbleActions.stopPlayer) {
-        stopAudio();
-      }
-    });
-  }
-
-  void closeEventStream() {
-    streamSubscription.cancel();
-  }
-
-  Future<void> setAudioSessionToSpeaker() async {
-    MethodChannel channel = const MethodChannel('cometchat_uikit_shared');
-    try {
-      await channel.invokeMethod('setAudioSessionToSpeaker');
-    } catch (e) {
-      debugPrint('$e');
-    }
-  }
-
-  Future<void> resetAudioSession() async {
-    MethodChannel channel = const MethodChannel('cometchat_uikit_shared');
-    try {
-      await channel.invokeMethod('resetAudioSession');
-    } catch (e) {
-      debugPrint('$e');
-    }
   }
 }

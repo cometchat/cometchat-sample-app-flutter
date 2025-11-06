@@ -438,7 +438,7 @@ class _MyPageViewState extends State<MyPageView>
                         child: Padding(
                           padding: EdgeInsets.all(spacing.padding4 ?? 0),
                           child: Text(
-                            "v5.2.1",
+                            "v5.2.2",
                             style: TextStyle(
                               fontSize:
                               typography.body?.regular?.fontSize,
@@ -508,23 +508,23 @@ class _MyPageViewState extends State<MyPageView>
           return (_pageController.selectedIndex == index)
               ? CometChatGroups(
             appBarOptions: (context) {
-                return [
-                  IconButton(
-                    onPressed: () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      showCreateGroup(
-                        context: context,
-                        colorPalette: colorPalette,
-                        typography: typography,
-                        spacing: spacing,
-                      );
-                    },
-                    icon: Icon(
-                      Icons.group_add,
-                      color: colorPalette.iconHighlight,
-                    ),
+              return [
+                IconButton(
+                  onPressed: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    showCreateGroup(
+                      context: context,
+                      colorPalette: colorPalette,
+                      typography: typography,
+                      spacing: spacing,
+                    );
+                  },
+                  icon: Icon(
+                    Icons.group_add,
+                    color: colorPalette.iconHighlight,
                   ),
-                ];
+                ),
+              ];
             },
             showBackButton: false,
             onItemTap: (context, group) {
@@ -659,11 +659,11 @@ class _MyPageViewState extends State<MyPageView>
   rejectIncomingCall(Call call) {
     CometChatUIKitCalls.rejectCall(call.sessionId!, CallStatusConstants.busy,
         onSuccess: (Call call) {
-        call.category = MessageCategoryConstants.call;
-        CometChatCallEvents.ccCallRejected(call);
-        developer.log('incoming call was cancelled');
-      }, onError: (e) {
-        developer.log("Unable to end call from incoming call screen");
-      });
+          call.category = MessageCategoryConstants.call;
+          CometChatCallEvents.ccCallRejected(call);
+          developer.log('incoming call was cancelled');
+        }, onError: (e) {
+          developer.log("Unable to end call from incoming call screen");
+        });
   }
 }

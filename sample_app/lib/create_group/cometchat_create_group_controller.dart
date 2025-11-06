@@ -72,7 +72,7 @@ class CometChatCreateGroupController extends GetxController {
         type: groupType,
         hasJoined: true,
         password:
-            groupType == GroupTypeConstants.password ? groupPassword : null);
+        groupType == GroupTypeConstants.password ? groupPassword : null);
     CometChat.createGroup(
         group: group,
         onSuccess: (Group group) {

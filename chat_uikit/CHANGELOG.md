@@ -1,3 +1,13 @@
+## 5.2.2
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.28`.
+- Updated `cometchat_uikit_shared` to version `5.1.3`.
+
+## Fixes
+- Resolved error occurred in console while using Thumbnail Generation.
+- Fixed issue where calls failed to join when the device was locked.
+
 ## 5.2.1
 
 ## Fixes
