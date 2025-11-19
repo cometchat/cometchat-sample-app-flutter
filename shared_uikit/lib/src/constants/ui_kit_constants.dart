@@ -371,3 +371,8 @@ class AIConstants {
   static const String introductoryMessage = "introductoryMessage";
   static const String greetingMessage = "greetingMessage";
 }
+
+class ErrorConstants {
+  static const String fileErrorCodeAndroid = "ERR_BAD_REQUEST";
+  static const String fileErrorCodeIOS = "ERROR_INVALID_FILE_SIZE";
+}

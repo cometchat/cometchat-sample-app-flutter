@@ -47,6 +47,7 @@ class CometChatOutgoingMessageBubbleStyle extends ThemeExtension<CometChatOutgoi
     this.voiceCallBubbleStyle,
     this.videoCallBubbleStyle,
     this.moderationStyle,
+    this.exceptionStyle,
   });
 
   ///[messageBubbleBackgroundImage] provides background image to the message bubble of the sent message
@@ -124,6 +125,9 @@ class CometChatOutgoingMessageBubbleStyle extends ThemeExtension<CometChatOutgoi
   ///[moderationStyle] provides style to the moderated view of the sent message
   final CometChatModerationStyle? moderationStyle;
 
+  ///[exceptionStyle] provides style to the exception view of the sent message
+  final CometChatExceptionStyle? exceptionStyle;
+
   static CometChatOutgoingMessageBubbleStyle of(BuildContext context)=> const CometChatOutgoingMessageBubbleStyle();
 
   @override
@@ -154,6 +158,7 @@ class CometChatOutgoingMessageBubbleStyle extends ThemeExtension<CometChatOutgoi
     CometChatCallBubbleStyle? voiceCallBubbleStyle,
     CometChatCallBubbleStyle? videoCallBubbleStyle,
     CometChatModerationStyle? moderationStyle,
+    CometChatExceptionStyle? exceptionStyle,
   }) {
     return CometChatOutgoingMessageBubbleStyle(
       messageBubbleBackgroundImage: messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
@@ -181,6 +186,7 @@ class CometChatOutgoingMessageBubbleStyle extends ThemeExtension<CometChatOutgoi
       voiceCallBubbleStyle: voiceCallBubbleStyle ?? this.voiceCallBubbleStyle,
       videoCallBubbleStyle: videoCallBubbleStyle ?? this.videoCallBubbleStyle,
       moderationStyle: moderationStyle ?? this.moderationStyle,
+      exceptionStyle: exceptionStyle ?? this.exceptionStyle,
     );
   }
 
@@ -212,6 +218,7 @@ class CometChatOutgoingMessageBubbleStyle extends ThemeExtension<CometChatOutgoi
       stickerBubbleStyle: style.stickerBubbleStyle,
       voiceCallBubbleStyle: style.voiceCallBubbleStyle,
       videoCallBubbleStyle: style.videoCallBubbleStyle,
+      exceptionStyle: style.exceptionStyle,
     );}
 
   @override
@@ -245,6 +252,7 @@ class CometChatOutgoingMessageBubbleStyle extends ThemeExtension<CometChatOutgoi
       voiceCallBubbleStyle: voiceCallBubbleStyle?.lerp(other.voiceCallBubbleStyle, t),
       videoCallBubbleStyle: videoCallBubbleStyle?.lerp(other.videoCallBubbleStyle, t),
       moderationStyle: moderationStyle?.lerp(other.moderationStyle, t),
+      exceptionStyle: exceptionStyle?.lerp(other.exceptionStyle, t),
     );
   }
 }

@@ -936,8 +936,10 @@ class CometChatMessageComposerController extends GetxController
             (e) {
               if (mediaMessage.metadata != null) {
                 mediaMessage.metadata!["error"] = e;
+                mediaMessage.metadata!["fileSizeError"] = e.code;
               } else {
                 mediaMessage.metadata = {"error": e};
+                mediaMessage.metadata = {"fileSizeError": e.code};
               }
               CometChatMessageEvents.ccMessageSent(
                   mediaMessage, MessageStatus.error);

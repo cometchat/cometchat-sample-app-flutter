@@ -97,6 +97,7 @@ export 'src/utils/ai_constants.dart';
 export 'src/utils/ai_utils.dart';
 export 'src/utils/moderation_check_util.dart';
 export 'src/utils/text_marquee_effect.dart';
+export 'src/utils/filesize_check_util.dart';
 
 //---views---
 //cometchat badge
@@ -344,6 +345,7 @@ export 'src/models/extension_bubble_styles/cometchat_call_buttons_style.dart';
 export 'src/models/extension_bubble_styles/cometchat_incoming_message_bubble_style.dart';
 export 'src/models/extension_bubble_styles/cometchat_outgoing_message_bubble_style.dart';
 export 'src/models/extension_bubble_styles/cometchat_moderation_style.dart';
+export 'src/models/extension_bubble_styles/cometchat_exception_style.dart';
 export 'src/models/date_time_formatter_callback.dart';
 
 //Ai Assistant bubble

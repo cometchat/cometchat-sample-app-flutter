@@ -1,3 +1,13 @@
+## 5.1.4
+
+## New
+- Added a **Exception View** in the bottom view of the message bubble. This view appears for messages whose file size exceeds the limit.
+- Added a new prop `exceptionStyle` in **CometChatOutgoingMessageBubbleStyle** to customize the background color and text appearance of the Exception View.
+- Added `cached_network_image` dependency in pubspec.yaml
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.29`.
+
 ## 5.1.3
 
 ## Enhancements

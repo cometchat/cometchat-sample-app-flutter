@@ -581,7 +581,12 @@ extension BubbleUIBuilder on MessageUtils {
               ? outgoingMessageBubbleStyle?.fileBubbleStyle?.border
               : incomingMessageBubbleStyle?.fileBubbleStyle?.border,
           borderRadius: isSent
-              ? outgoingMessageBubbleStyle?.fileBubbleStyle?.borderRadius
+              ? getSentTextMediaBorderRadiusGeometry(
+              message,
+              outgoingMessageBubbleStyle?.fileBubbleStyle?.borderRadius,
+              colorPalette,
+              typography,
+              spacing)
               : incomingMessageBubbleStyle?.fileBubbleStyle?.borderRadius,
           threadedMessageIndicatorIconColor: isSent
               ? outgoingMessageBubbleStyle
@@ -623,7 +628,12 @@ extension BubbleUIBuilder on MessageUtils {
               ? outgoingMessageBubbleStyle?.videoBubbleStyle?.border
               : incomingMessageBubbleStyle?.videoBubbleStyle?.border,
           borderRadius: isSent
-              ? outgoingMessageBubbleStyle?.videoBubbleStyle?.borderRadius
+              ? getSentTextMediaBorderRadiusGeometry(
+              message,
+              outgoingMessageBubbleStyle?.videoBubbleStyle?.borderRadius,
+              colorPalette,
+              typography,
+              spacing)
               : incomingMessageBubbleStyle?.videoBubbleStyle?.borderRadius,
           threadedMessageIndicatorIconColor: isSent
               ? outgoingMessageBubbleStyle
@@ -665,7 +675,12 @@ extension BubbleUIBuilder on MessageUtils {
               ? outgoingMessageBubbleStyle?.audioBubbleStyle?.border
               : incomingMessageBubbleStyle?.audioBubbleStyle?.border,
           borderRadius: isSent
-              ? outgoingMessageBubbleStyle?.audioBubbleStyle?.borderRadius
+              ? getSentTextMediaBorderRadiusGeometry(
+              message,
+              outgoingMessageBubbleStyle?.audioBubbleStyle?.borderRadius,
+              colorPalette,
+              typography,
+              spacing)
               : incomingMessageBubbleStyle?.audioBubbleStyle?.borderRadius,
           threadedMessageIndicatorIconColor: isSent
               ? outgoingMessageBubbleStyle
@@ -1124,7 +1139,13 @@ extension BubbleUIBuilder on MessageUtils {
       CometChatTypography typography,
       CometChatSpacing spacing) {
     final moderationUtil = ModerationCheckUtil.instance;
-
+    if (message.metadata != null &&
+        (message.metadata!.containsValue(ErrorConstants.fileErrorCodeAndroid) || message.metadata!.containsValue(ErrorConstants.fileErrorCodeIOS))) {
+      return BorderRadius.only(
+        topLeft: Radius.circular(spacing.radius4 ?? 16),
+        topRight: Radius.circular(spacing.radius4 ?? 16),
+      );
+    }
     if (moderationUtil.hideModerationStatus == false &&
         ModerationCheckUtil.instance
             .isMessageDisapprovedFromModeration(message)) {
@@ -1154,6 +1175,9 @@ class CometChatMessageBubbleStyleData {
     this.moderationBackgroundColor,
     this.moderationTextStyle,
     this.moderationIconTint,
+    this.exceptionBackgroundColor,
+    this.exceptionTextStyle,
+    this.exceptionIconTint,
   });
 
   ///[messageBubbleBackgroundImage] provides background image to the message bubble of a received message
@@ -1195,6 +1219,15 @@ class CometChatMessageBubbleStyleData {
   ///[moderationIconTint] provides icon color for the moderated view warning icon
   final Color? moderationIconTint;
 
+  ///[exceptionBackgroundColor] provides background color to the exception view
+  final Color? exceptionBackgroundColor;
+
+  ///[exceptionTextStyle] provides text style to the exception view warning text
+  final TextStyle? exceptionTextStyle;
+
+  ///[exceptionIconTint] provides icon color for the exception view warning icon
+  final Color? exceptionIconTint;
+
   CometChatMessageBubbleStyleData copyWith({
     DecorationImage? messageBubbleBackgroundImage,
     Color? backgroundColor,
@@ -1209,6 +1242,9 @@ class CometChatMessageBubbleStyleData {
     Color? moderationBackgroundColor,
     TextStyle? moderationTextStyle,
     Color? moderationIconTint,
+    Color? exceptionBackgroundColor,
+    TextStyle? exceptionTextStyle,
+    Color? exceptionIconTint,
   }) {
     return CometChatMessageBubbleStyleData(
       messageBubbleBackgroundImage:
@@ -1230,6 +1266,10 @@ class CometChatMessageBubbleStyleData {
           moderationBackgroundColor ?? this.moderationBackgroundColor,
       moderationTextStyle: moderationTextStyle ?? this.moderationTextStyle,
       moderationIconTint: moderationIconTint ?? this.moderationIconTint,
+      exceptionBackgroundColor:
+          exceptionBackgroundColor ?? this.exceptionBackgroundColor,
+      exceptionTextStyle: exceptionTextStyle ?? this.exceptionTextStyle,
+      exceptionIconTint: exceptionIconTint ?? this.exceptionIconTint,
     );
   }
 
@@ -1252,6 +1292,9 @@ class CometChatMessageBubbleStyleData {
       moderationBackgroundColor: other.moderationBackgroundColor,
       moderationTextStyle: other.moderationTextStyle,
       moderationIconTint: other.moderationIconTint,
+      exceptionBackgroundColor: other.exceptionBackgroundColor,
+      exceptionTextStyle: other.exceptionTextStyle,
+      exceptionIconTint: other.exceptionIconTint,
     );
   }
 
@@ -1278,6 +1321,9 @@ class CometChatMessageBubbleStyleData {
           moderationBackgroundColor ?? other.moderationBackgroundColor,
       moderationTextStyle: moderationTextStyle ?? other.moderationTextStyle,
       moderationIconTint: moderationIconTint ?? other.moderationIconTint,
+      exceptionBackgroundColor: exceptionBackgroundColor ?? other.exceptionBackgroundColor,
+      exceptionTextStyle: exceptionTextStyle ?? other.exceptionTextStyle,
+      exceptionIconTint: exceptionIconTint ?? other.exceptionIconTint,
     );
   }
 }

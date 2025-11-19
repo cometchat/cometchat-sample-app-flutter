@@ -2,10 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 ///[CometChatImageBubble] creates a widget that gives image bubble
 ///
-///used by default  when the category and type of [MediaMessage] is message and [MessageTypeConstants.image] respectively
+///used by default when the category and type of [MediaMessage] is message and [MessageTypeConstants.image] respectively
 /// ```dart
 ///             CometChatImageBubble(
 ///                  imageUrl:
@@ -17,19 +18,19 @@ import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
 ///                );
 /// ```
 class CometChatImageBubble extends StatefulWidget {
-  const CometChatImageBubble(
-      {super.key,
-      this.imageUrl,
-      this.style,
-      this.placeholderImage,
-      this.placeHolderImagePackageName,
-      this.onClick,
-      this.height,
-      this.width,
-      this.margin,
-      this.padding,
-      this.metadata
-      });
+  const CometChatImageBubble({
+    super.key,
+    this.imageUrl,
+    this.style,
+    this.placeholderImage,
+    this.placeHolderImagePackageName,
+    this.onClick,
+    this.height,
+    this.width,
+    this.margin,
+    this.padding,
+    this.metadata,
+  });
 
   ///[imageUrl] image url should be passed
   final String? imageUrl;
@@ -42,7 +43,6 @@ class CometChatImageBubble extends StatefulWidget {
 
   ///[placeHolderImagePackageName] is package path for the custom placeholder image
   final String? placeHolderImagePackageName;
-
 
   ///[onClick] custom action on tapping the image
   final Function()? onClick;
@@ -67,7 +67,7 @@ class CometChatImageBubble extends StatefulWidget {
 }
 
 class _CometChatImageBubbleState extends State<CometChatImageBubble> {
-  Key imageKey = UniqueKey();
+  bool _isLoading = true;  // Track loading state
 
   late CometChatImageBubbleStyle imageBubbleStyle;
   late CometChatColorPalette colorPalette;
@@ -75,67 +75,88 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
 
   @override
   void didChangeDependencies() {
+    super.didChangeDependencies();
     imageBubbleStyle =
         CometChatThemeHelper.getTheme<CometChatImageBubbleStyle>(
             context: context, defaultTheme: CometChatImageBubbleStyle.of)
             .merge(widget.style);
     colorPalette = CometChatThemeHelper.getColorPalette(context);
     spacing = CometChatThemeHelper.getSpacing(context);
-    super.didChangeDependencies();
   }
-
 
   Widget _buildImage() {
     final localPath = FileUtils.getLocalFilePath(widget.metadata) ?? '';
     if (FileUtils.isLocalFileAvailable(localPath)) {
+      _isLoading = false;  // No loading if local file is found
       return _buildLocalImage(localPath);
     } else if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
-      return _buildNetworkImage(widget.imageUrl!,0);
+      return _buildCachedNetworkImage(widget.imageUrl!);
     }
     return _buildPlaceholderImage();
   }
 
   Widget _buildLocalImage(String localPath) {
+    _isLoading = false;
     return Image.file(
-      File(localPath ?? ''),
+      File(localPath),
       fit: BoxFit.cover,
-      filterQuality: FilterQuality.high,
+      filterQuality: FilterQuality.medium,
       errorBuilder: (context, error, stackTrace) {
         if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
-          return _buildNetworkImage(widget.imageUrl!, 0);
+          return _buildCachedNetworkImage(widget.imageUrl!);
         }
         return _buildPlaceholderImage();
+      },
+      cacheHeight: 1024,
+      cacheWidth: 1024,
+    );
+  }
+
+  Widget _buildCachedNetworkImage(String imageUrl) {
+    _isLoading = false;
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: BoxFit.cover,
+      filterQuality: FilterQuality.medium,
+      memCacheHeight: 1024,
+      memCacheWidth: 1024,
+      maxHeightDiskCache: 2048,
+      maxWidthDiskCache: 2048,
+      placeholder: (context, url) {
+        // Only show loading indicator if the image is still being loaded
+        if (_isLoading) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: colorPalette.iconSecondary,
+              backgroundColor: colorPalette.neutral300,
+              strokeWidth: 2.0,
+            ),
+          );
+        } else {
+          return _buildPlaceholderImage(); // Show placeholder if not loading
+        }
+      },
+      errorWidget: (context, url, error) {
+        // Debug print for iOS issues
+        debugPrint('CachedNetworkImage error: $error');
+        debugPrint('Failed URL: $url');
+        return _buildPlaceholderImage();
+      },
+      httpHeaders: const {
+        'User-Agent': 'Flutter App',
+      },
+      imageBuilder: (context, imageProvider) {
+        _isLoading = false; // Set loading to false once the image has been loaded
+        return _buildImageContent(imageProvider);
       },
     );
   }
 
-  Widget _buildNetworkImage(String imageUrl, int retries) {
-    return Image.network(
-      imageUrl,
+  Widget _buildImageContent(ImageProvider imageProvider) {
+    return Image(
+      image: imageProvider,
       fit: BoxFit.cover,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) {
-          return child;
-        }
-        return Center(
-          child: CircularProgressIndicator(
-            color: colorPalette.iconSecondary,
-            backgroundColor: colorPalette.neutral300,
-            strokeWidth: 2.0,
-            value: loadingProgress.expectedTotalBytes != null
-                ? loadingProgress.cumulativeBytesLoaded /
-                loadingProgress.expectedTotalBytes!
-                : null,
-          ),
-        );
-      },
-      errorBuilder: (context, error, stackTrace) {
-        if(retries>2) {
-          return _buildPlaceholderImage();
-        } else {
-          return _buildNetworkImage(imageUrl, retries++);
-        }
-      },
+      filterQuality: FilterQuality.medium,
     );
   }
 
@@ -144,31 +165,33 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
       color: imageBubbleStyle.backgroundColor ?? colorPalette.background3,
       alignment: Alignment.center,
       child: Image(
-          fit: BoxFit.contain,
-          color: colorPalette.iconTertiary,
-          image: AssetImage(
-            widget.placeholderImage ?? AssetConstants.imagePlaceholder,
-            package: widget.placeHolderImagePackageName ?? UIConstants.packageName,
-          )),
+        fit: BoxFit.contain,
+        color: colorPalette.iconTertiary,
+        image: AssetImage(
+          widget.placeholderImage ?? AssetConstants.imagePlaceholder,
+          package: widget.placeHolderImagePackageName ?? UIConstants.packageName,
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
       onTap: widget.onClick ??
-          () {
-            if (widget.imageUrl != null || widget.imageUrl!.isNotEmpty) {
+              () {
+            if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ImageViewer(
-                            imageUrl: widget.imageUrl!,
-                            placeholderImage: widget.placeholderImage,
-                            placeHolderImagePackageName:
-                                widget.placeHolderImagePackageName,
-                          )));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ImageViewer(
+                    imageUrl: widget.imageUrl!,
+                    placeholderImage: widget.placeholderImage,
+                    placeHolderImagePackageName:
+                    widget.placeHolderImagePackageName,
+                  ),
+                ),
+              );
             }
           },
       child: Container(
@@ -178,10 +201,10 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
         margin: widget.margin,
         padding: widget.padding,
         decoration: BoxDecoration(
-            border: imageBubbleStyle.border,
-            borderRadius: imageBubbleStyle.borderRadius ??  BorderRadius.circular(spacing.radius3 ?? 0),
-            color: imageBubbleStyle.backgroundColor ?? colorPalette.background3
-                ,
+          border: imageBubbleStyle.border,
+          borderRadius: imageBubbleStyle.borderRadius ??
+              BorderRadius.circular(spacing.radius3 ?? 0),
+          color: imageBubbleStyle.backgroundColor ?? colorPalette.background3,
         ),
         child: _buildImage(),
       ),

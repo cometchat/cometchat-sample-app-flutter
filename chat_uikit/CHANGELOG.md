@@ -1,3 +1,12 @@
+## 5.2.3
+
+## New
+- Added a **Exception View** in the bottom view of the message bubble. This view appears for messages whose file size exceeds the limit.
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.29`.
+- Updated `cometchat_uikit_shared` to version `5.1.4`.
+
 ## 5.2.2
 
 ## Enhancements

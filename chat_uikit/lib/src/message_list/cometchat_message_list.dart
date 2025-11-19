@@ -705,9 +705,6 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
             .merge(
                 messageListStyle.outgoingMessageBubbleStyle?.moderationStyle);
     return Container(
-      constraints: BoxConstraints(
-        minWidth: MediaQuery.of(context).size.width * 0.65,
-      ),
       decoration: BoxDecoration(
         color: moderationViewStyle.moderationBackgroundColor ??
             colorPalette.error100,
@@ -721,10 +718,8 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: spacing.padding1 ?? 0,
-          horizontal: spacing.padding2 ?? 0,
-        ),
+        padding: EdgeInsets.fromLTRB(spacing.padding3 ?? 12,
+            spacing.padding1 ?? 4, 0, spacing.padding1 ?? 4),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -735,24 +730,95 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
                   moderationViewStyle.moderationIconTint ?? colorPalette.error,
               size: 16,
             ),
-            Container(
-              constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.52,
-              ),
-              child: Text(
-                cc.Translations.of(context).messageBlockedByModeration,
-                style: moderationViewStyle.moderationTextStyle ??
-                    TextStyle(
-                        color: colorPalette.error,
-                        fontSize: typography.body?.regular?.fontSize,
-                        fontWeight: typography.body?.regular?.fontWeight,
-                        fontFamily: typography.body?.regular?.fontFamily),
+            Padding(
+              padding: EdgeInsetsGeometry.only(left: spacing.padding1 ?? 4),
+              child: Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.5,
+                ),
+                child: Text(
+                  cc.Translations.of(context).messageBlockedByModeration,
+                  style: moderationViewStyle.moderationTextStyle ??
+                      TextStyle(
+                          color: colorPalette.error,
+                          fontSize: typography.body?.regular?.fontSize,
+                          fontWeight: typography.body?.regular?.fontWeight,
+                          fontFamily: typography.body?.regular?.fontFamily),
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget? getExceptionView(
+      BubbleAlignment alignment,
+      BaseMessage message,
+      CometChatMessageListController controller,
+      BuildContext context,
+      CometChatMessageListStyle messageListStyle,
+      CometChatOutgoingMessageBubbleStyle outgoingMessageBubbleStyle,
+      CometChatIncomingMessageBubbleStyle incomingMessageBubbleStyle,
+      CometChatSpacing spacing,
+      CometChatColorPalette colorPalette,
+      CometChatTypography typography,
+      CometChatMessageBubbleStyleData? messageBubbleStyleData,
+      String exception
+      ) {
+    final exceptionViewStyle =
+    CometChatThemeHelper.getTheme<CometChatExceptionStyle>(
+        context: context, defaultTheme: CometChatExceptionStyle.of)
+        .merge(
+        messageListStyle.outgoingMessageBubbleStyle?.exceptionStyle);
+    return Container(
+        decoration: BoxDecoration(
+          color: exceptionViewStyle.exceptionBackgroundColor ??
+              colorPalette.error100,
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(
+              spacing.radius3 ?? 0,
+            ),
+            bottomRight: Radius.circular(
+              spacing.radius3 ?? 0,
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(spacing.padding3 ?? 12,
+              spacing.padding1 ?? 4, spacing.padding1 ?? 4, spacing.padding1 ?? 4),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                      Icons.warning,
+                      color: exceptionViewStyle.exceptionIconTint ??
+                          colorPalette.error,
+                      size: 16,
+                  ),
+                  Padding(
+                    padding: EdgeInsetsGeometry.only(left: spacing.padding1 ?? 4),
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.5,
+                      ),
+                      child: Text(
+                        exception,
+                        style: exceptionViewStyle.exceptionTextStyle ??
+                            TextStyle(
+                                color: colorPalette.error,
+                                fontSize: typography.body?.regular?.fontSize,
+                                fontWeight: typography.body?.regular?.fontWeight,
+                                fontFamily: typography.body?.regular?.fontFamily),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+          ),
+      );
   }
 
   _launchReactionList(
@@ -897,6 +963,22 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
         null) {
       return controller.templateMap["${message.category}_${message.type}"]
           ?.bottomView!(message, context, alignment);
+    } else if (message.metadata != null &&
+        message.metadata!.containsKey("fileSizeError")) {
+      return getExceptionView(
+        alignment,
+        message,
+        controller,
+        context,
+        messageListStyle,
+        outgoingMessageBubbleStyle,
+        incomingMessageBubbleStyle,
+        spacing,
+        colorPalette,
+        typography,
+        messageBubbleStyleData,
+        FileSizeCheckUtil.instance.isFileSizeException(message.metadata!["fileSizeError"]),
+      );
     } else {
       final isModerated = ModerationCheckUtil.instance
           .isMessageDisapprovedFromModeration(message);
