@@ -286,13 +286,15 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
                         ),
                         child: ElevatedButton(
                           onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              createPoll();
-                            } else {
+                            // Trim and validate question and options
+                            if (_question.trim().isEmpty ||
+                                _answers.map((a) => a.trim()).where((a) => a.isNotEmpty).length < 2) {
                               setState(() {
                                 _isEmpty = true;
                                 _isError = false;
                               });
+                            } else {
+                              createPoll();
                             }
                           },
                           style: ButtonStyle(
@@ -623,19 +625,52 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
 
   // Remove Empty Options
   void _removeEmptyOptions(int removedIndex) {
-    for (int i = _answers.length - 1; i >= 0; i--) {
-      if (i < 2) continue;
+    if (removedIndex == 0) {
+      if (_answers.length >= 3 && _answers[removedIndex].isEmpty) {
+        _answers.removeAt(removedIndex);
+        focusNodes[removedIndex].dispose();
+        focusNodes.removeAt(removedIndex);
+        textEditingControllers[removedIndex].dispose();
+        textEditingControllers.removeAt(removedIndex);
 
-      if (_answers[i].isEmpty) {
-        _answers.removeAt(i);
-        focusNodes.removeAt(i);
-        textEditingControllers.removeAt(i);
+        // Focus on the next option (which is now at index 0)
+        if (focusNodes.isNotEmpty) {
+          focusNodes[0].requestFocus();
+        }
+      }
+      return;
+    }
 
-        if (removedIndex > 0 && removedIndex - 1 >= 0) {
-          focusNodes[removedIndex - 1].requestFocus();
-        } else if (removedIndex < _answers.length) {
+    // Special case: Allow removing 2nd option only if there are 3 or more total options
+    if (removedIndex == 1) {
+      if (_answers.length >= 3 && _answers[removedIndex].isEmpty) {
+        _answers.removeAt(removedIndex);
+        focusNodes[removedIndex].dispose();
+        focusNodes.removeAt(removedIndex);
+        textEditingControllers[removedIndex].dispose();
+        textEditingControllers.removeAt(removedIndex);
+
+        // Focus on the next option (which is now at index 1)
+        if (removedIndex < focusNodes.length) {
           focusNodes[removedIndex].requestFocus();
         }
+      }
+      return;
+    }
+
+    // Remove options beyond the first 2 defaults
+    if (removedIndex < _answers.length && _answers[removedIndex].isEmpty) {
+      _answers.removeAt(removedIndex);
+      focusNodes[removedIndex].dispose();
+      focusNodes.removeAt(removedIndex);
+      textEditingControllers[removedIndex].dispose();
+      textEditingControllers.removeAt(removedIndex);
+
+      // Always focus on the next option (which now takes the removed index position)
+      if (removedIndex < _answers.length) {
+        focusNodes[removedIndex].requestFocus();
+      } else if (removedIndex > 0) {
+        focusNodes[removedIndex - 1].requestFocus();
       }
     }
   }
@@ -657,10 +692,25 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
       receiverType = ReceiverTypeConstants.group;
     }
 
+    // Trim all answers and filter out empty ones
+    List<String> nonEmptyAnswers = _answers
+        .map((answer) => answer.trim())
+        .where((answer) => answer.isNotEmpty)
+        .toList();
+
+    // Validate that we have at least 2 non-empty options
+    if (nonEmptyAnswers.length < 2) {
+      setState(() {
+        _isEmpty = true;
+        _isError = false;
+      });
+      return;
+    }
+
     Map<String, dynamic> body = {};
 
-    body["question"] = _question;
-    body["options"] = _answers;
+    body["question"] = _question.trim();
+    body["options"] = nonEmptyAnswers;
     body["receiver"] = receiverUid;
     body["receiverType"] = receiverType;
 

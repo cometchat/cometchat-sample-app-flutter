@@ -44,9 +44,9 @@ class _GuardScreenState extends State<GuardScreen> {
   getCallButtonConfiguration() {
     return CallButtonsConfiguration(
         callButtonsStyle: CometChatCallButtonsStyle(
-      voiceCallIconColor: colorPalette.iconPrimary,
-      videoCallIconColor: colorPalette.iconPrimary,
-    ));
+          voiceCallIconColor: colorPalette.iconPrimary,
+          videoCallIconColor: colorPalette.iconPrimary,
+        ));
   }
 
   init() async {
@@ -103,7 +103,7 @@ class _GuardScreenState extends State<GuardScreen> {
                 builder: (context) =>
                 value ? const MyHomePage() : const LoginSampleUsers(),
               ),
-              (route) => false,
+                  (route) => false,
             );
           });
 

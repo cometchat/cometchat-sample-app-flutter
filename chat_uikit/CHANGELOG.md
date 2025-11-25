@@ -1,3 +1,15 @@
+## 5.2.4
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.30`.
+- Updated `cometchat_uikit_shared` to version `5.1.5`.
+
+## Fixes
+- Resolved an issue where the status of blocked users was still visible in the user information section, even after being blocked.
+- Fixed a bug that caused an odd message bubble to appear when deleting a call message.
+- Addressed an issue where "Unknown" was displayed instead of the actual user name while typing in the Whiteboard.
+- Addressed the issue where the option in the poll feature did not get removed when it is empty.
+
 ## 5.2.3
 
 ## New

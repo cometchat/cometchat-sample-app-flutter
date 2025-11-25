@@ -229,7 +229,7 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator {
         messageObject.customData!.containsKey("whiteboard")) {
       Map? whiteboard = messageObject.customData?["whiteboard"];
       if (whiteboard != null && whiteboard.containsKey("board_url")) {
-        return whiteboard["board_url"];
+        return "${whiteboard["board_url"]}&username=${loggedInUser?.name ??''}";
       }
     }
     return null;

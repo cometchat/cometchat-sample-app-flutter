@@ -1,5 +1,7 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/material.dart';
+
 import '../../../cometchat_uikit_shared.dart';
 
 ///[SoundManager] is an utility component that provides an audio player
@@ -33,8 +35,16 @@ class SoundManager {
         soundPath = "packages/$packageName/$soundPath";
       }
     }
+    try {
     await UIConstants.channel.invokeMethod("playCustomSound",
         {'assetAudioPath': soundPath, 'package': packageName, 'isLooping': isLooping});
+    } catch (e) {
+      if (e.toString().contains('AUDIO_FOCUS_FAILED')) {
+        debugPrint('Audio focus not available. Notification sound skipped.');
+      } else {
+        debugPrint('Error playing sound: $e');
+      }
+    }
   }
 
   void stop() async {

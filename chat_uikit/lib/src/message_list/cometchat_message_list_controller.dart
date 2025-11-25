@@ -1477,7 +1477,7 @@ class CometChatMessageListController
 
     if (messageObject.type == MessageTypeConstants.meeting) {
       readReceipt = false;
-      showTime = false;
+      showTime = messageObject.deletedAt != null ? true : false;
     }
 
     if (messageObject.deletedAt != null) {

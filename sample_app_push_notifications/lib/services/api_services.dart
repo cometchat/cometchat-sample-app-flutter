@@ -38,7 +38,7 @@ class ApiServices {
   // Load default users from local asset
   static Future<List<MaterialButtonUserModel>> getDefaultUsers() async {
     Map<String, dynamic> jsonData =
-    await loadJsonFromAssets('assets/master_app/sample_data.json');
+    await loadJsonFromAssets('assets/sample_app_push_notifications/sample_data.json');
     final List<dynamic> data = jsonData['users'] ?? [];
     final List<MaterialButtonUserModel> userList = data
         .map((user) => MaterialButtonUserModel(

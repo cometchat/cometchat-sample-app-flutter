@@ -1,3 +1,11 @@
+## 5.1.5
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.30`.
+
+## Fixes
+- Fixed an issue where if AUDIO_FOCUS was not available, an error was incorrectly logged in Crashlytics.
+
 ## 5.1.4
 
 ## New

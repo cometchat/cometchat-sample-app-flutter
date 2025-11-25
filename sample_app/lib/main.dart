@@ -62,9 +62,9 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       darkTheme: ThemeData(
-          appBarTheme: AppBarTheme(
-            scrolledUnderElevation: 0.0,
-          ),
+        appBarTheme: AppBarTheme(
+          scrolledUnderElevation: 0.0,
+        ),
       ),
       title: 'CometChat Flutter Sample App',
       navigatorKey: CallNavigationContext.navigatorKey,

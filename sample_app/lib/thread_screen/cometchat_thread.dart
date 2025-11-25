@@ -54,12 +54,12 @@ class _CometChatThreadState extends State<CometChatThread> {
         return Scaffold(
           backgroundColor: colorPalette.background1,
           resizeToAvoidBottomInset:
-          true, // Ensures layout adjusts for the keyboard
+              true, // Ensures layout adjusts for the keyboard
           appBar: CometChatMessageHeader(
             user: widget.user,
             group: widget.group,
             hideVideoCallButton: (widget.user != null) ||
-                (widget.group != null )
+                (widget.group != null)
                 ? ((controller.user?.blockedByMe != null &&
                 controller.user?.blockedByMe! == true) ||
                 (controller.group?.hasJoined == false ||
@@ -223,38 +223,38 @@ class _CometChatThreadState extends State<CometChatThread> {
           ),
           controller.isBlockLoading.value
               ? Center(
-            child: CircularProgressIndicator(
-              color: colorPalette.background2,
-            ),
-          )
+                  child: CircularProgressIndicator(
+                    color: colorPalette.background2,
+                  ),
+                )
               : SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => controller.unBlockUser(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                colorPalette.transparent, // Set proper color
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                  BorderRadius.circular(spacing.radius2 ?? 0),
-                  side: BorderSide(
-                    color: colorPalette.borderDark ?? Colors.transparent,
-                    width: 1,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => controller.unBlockUser(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          colorPalette.transparent, // Set proper color
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(spacing.radius2 ?? 0),
+                        side: BorderSide(
+                          color: colorPalette.borderDark ?? Colors.transparent,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      cc.Translations.of(context).unBlock,
+                      style: TextStyle(
+                        color: colorPalette.textPrimary,
+                        fontSize: typography.caption1?.regular?.fontSize,
+                        fontWeight: typography.caption1?.regular?.fontWeight,
+                        fontFamily: typography.caption1?.regular?.fontFamily,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              child: Text(
-                cc.Translations.of(context).unBlock,
-                style: TextStyle(
-                  color: colorPalette.textPrimary,
-                  fontSize: typography.caption1?.regular?.fontSize,
-                  fontWeight: typography.caption1?.regular?.fontWeight,
-                  fontFamily: typography.caption1?.regular?.fontFamily,
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );

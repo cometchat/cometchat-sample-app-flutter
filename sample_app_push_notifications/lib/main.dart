@@ -24,7 +24,7 @@ Future<void> main() async {
   Get.put(PageManager());
 
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('ic_launcher');
+  AndroidInitializationSettings('ic_launcher');
 
   const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
@@ -33,13 +33,13 @@ Future<void> main() async {
   await LocalNotificationService.flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
     onDidReceiveNotificationResponse:
-        LocalNotificationService.handleNotificationTap,
+    LocalNotificationService.handleNotificationTap,
   );
 
   // Check for notification launch in terminated state
   final NotificationAppLaunchDetails? notificationAppLaunchDetails =
-      await LocalNotificationService.flutterLocalNotificationsPlugin
-          .getNotificationAppLaunchDetails();
+  await LocalNotificationService.flutterLocalNotificationsPlugin
+      .getNotificationAppLaunchDetails();
 
   final didNotificationLaunchApp =
       notificationAppLaunchDetails?.didNotificationLaunchApp ?? false;
@@ -117,9 +117,9 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       darkTheme: ThemeData(
-          appBarTheme: AppBarTheme(
-            scrolledUnderElevation: 0.0,
-          ),
+        appBarTheme: AppBarTheme(
+          scrolledUnderElevation: 0.0,
+        ),
       ),
       title: 'CometChat Flutter Sample App',
       navigatorKey: CallNavigationContext.navigatorKey,
