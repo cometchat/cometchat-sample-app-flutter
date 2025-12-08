@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:get/get.dart';
+import '../utils/page_manager.dart';
 import 'cometchat_thread_controller.dart';
 
 class CometChatThread extends StatefulWidget {
@@ -37,6 +38,21 @@ class _CometChatThreadState extends State<CometChatThread> {
   void dispose() {
     Get.delete<CometChatThreadController>(); // Cleanup controller
     super.dispose();
+  }
+
+  CometChatMentionsFormatter getMentionsTap() {
+    return CometChatMentionsFormatter(
+      user: widget.user,
+      group: widget.group,
+      onMentionTap: (mention, mentionedUser, {message}) {
+        if (mentionedUser.uid != CometChatUIKit.loggedInUser!.uid) {
+          PageManager().navigateToMessages(
+            context: context,
+            user: mentionedUser,
+          );
+        }
+      },
+    );
   }
 
   @override
@@ -179,6 +195,9 @@ class _CometChatThreadState extends State<CometChatThread> {
       user: user,
       group: group,
       messagesRequestBuilder: requestBuilder,
+      textFormatters: [
+        getMentionsTap(),
+      ],
     );
   }
 

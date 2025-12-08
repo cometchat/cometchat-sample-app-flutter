@@ -1307,4 +1307,10 @@ class TranslationsEs extends Translations {
   String get thinking => "Pensando...";
   @override
   String get aiAssistants => "Asistentes de IA";
+
+  @override
+  String get notifyEveryoneInThisGroup => "Notificar a todos en este grupo";
+
+  @override
+  String get notifyAll => "todos";
 }

@@ -1305,4 +1305,10 @@ class TranslationsAr extends Translations {
   @override
   String get aiAssistants => "مساعدو الذكاء الاصطناعي";
 
+  @override
+  String get notifyEveryoneInThisGroup => "إخطار الجميع في هذه المجموعة";
+
+  @override
+  String get notifyAll => "الجميع";
+
 }

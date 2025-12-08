@@ -1287,4 +1287,9 @@ class TranslationsSv extends Translations {
   @override
   String get aiAssistants => "AI-assistenter";
 
+  @override
+  String get notifyEveryoneInThisGroup => "Meddela alla i denna grupp";
+
+  @override
+  String get notifyAll => "alla";
 }

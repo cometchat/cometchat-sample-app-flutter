@@ -1304,4 +1304,10 @@ class TranslationsHi extends Translations {
   String get thinking => "सोच रहा है...";
   @override
   String get aiAssistants => "एआई असिस्टेंट्स";
+
+  @override
+  String get notifyEveryoneInThisGroup => "इस समूह में सभी को सूचित करें";
+
+  @override
+  String get notifyAll => "सभी";
 }

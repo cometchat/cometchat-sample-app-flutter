@@ -75,6 +75,9 @@ class CometChatMessageComposer extends StatefulWidget {
     this.hideCollaborativeWhiteboardOption,
     this.hideTakePhotoOption,
     this.sendButtonIcon,
+    this.disableMentionAll = false,
+    this.mentionAllLabel,
+    this.mentionAllLabelId,
   })  : assert(
           user != null || group != null,
           "One of user or group should be passed",
@@ -241,6 +244,15 @@ class CometChatMessageComposer extends StatefulWidget {
   ///[sendButtonIcon] custom send button icon
   final Widget? sendButtonIcon;
 
+  ///[disableMentionAll] is a boolean which is used to disable @all mentions in groups
+  final bool disableMentionAll;
+
+  ///[mentionAllLabel] is a String which is used to set a custom label for @all mentions
+  final String? mentionAllLabel;
+
+  ///[mentionAllLabelId] is a String which is used to set a custom label ID for @all mentions
+  final String? mentionAllLabelId;
+
   @override
   State<CometChatMessageComposer> createState() =>
       _CometChatMessageComposerState();
@@ -325,6 +337,9 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
           widget.hideCollaborativeWhiteboardOption,
       hideTakePhotoOption: widget.hideTakePhotoOption,
       disableMentions: widget.disableMentions,
+      disableMentionAll: widget.disableMentionAll,
+      mentionAllLabel: widget.mentionAllLabel,
+      mentionAllLabelId: widget.mentionAllLabelId,
     );
 
     super.didChangeDependencies();

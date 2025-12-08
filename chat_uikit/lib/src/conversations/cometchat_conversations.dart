@@ -60,6 +60,8 @@ class CometChatConversations extends StatefulWidget {
     this.onItemLongPress,
     this.hideAppbar = false,
     this.textFormatters,
+    this.mentionAllLabel,
+    this.mentionAllLabelId,
     this.datePadding,
     this.dateHeight,
     this.dateBackgroundIsTransparent,
@@ -190,6 +192,12 @@ class CometChatConversations extends StatefulWidget {
 
   ///[textFormatters] is a list of text formatters for message bubbles with type text
   final List<CometChatTextFormatter>? textFormatters;
+
+  ///[mentionAllLabel] is a String which is used to set a custom label for @all mentions
+  final String? mentionAllLabel;
+
+  ///[mentionAllLabelId] is a String which is used to set a custom label ID for @all mentions
+  final String? mentionAllLabelId;
 
   ///[datePadding] provides padding for [CometChatDate]
   final EdgeInsets? datePadding;
@@ -357,6 +365,8 @@ class _CometChatConversationsState extends State<CometChatConversations> {
           onLoad: widget.onLoad,
           textFormatters: widget.textFormatters,
           mentionsStyle: widget.conversationsStyle.mentionsStyle,
+          mentionAllLabel: widget.mentionAllLabel,
+          mentionAllLabelId: widget.mentionAllLabelId,
           conversationsStyle: widget.conversationsStyle,
           groupTypeVisibility: widget.groupTypeVisibility,
         ),

@@ -128,7 +128,8 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
   }
 
   void _setupAudioState() {
-    _audioState = AudioStateManager().getAudioState(tag, widget.audioUrl, localPath);
+    final path = FileUtils.getLocalFilePath(widget.metadata) ?? '';
+    _audioState = AudioStateManager().getAudioState(tag, widget.audioUrl, path);
 
     _audioStateSubscription = _audioState!.stateStream.listen((update) {
       if (mounted && update.id == tag) {

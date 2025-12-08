@@ -1312,4 +1312,10 @@ class TranslationsFr extends Translations {
 
   @override
   String get aiAssistants => "Assistants IA";
+
+  @override
+  String get notifyEveryoneInThisGroup => "Notifier tout le monde dans ce groupe";
+
+  @override
+  String get notifyAll => "tous";
 }

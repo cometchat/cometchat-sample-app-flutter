@@ -61,6 +61,8 @@ class CometChatMessageListController
     this.setAiAssistantTools,
     this.streamingSpeed,
     this.hideStickyDate,
+    this.mentionAllLabel,
+    this.mentionAllLabelId,
   }) : super(
             builderProtocol: user != null
                 ? (messagesBuilderProtocol
@@ -136,6 +138,8 @@ class CometChatMessageListController
   String? customIncomingMessageSound;
   String? customIncomingMessageSoundPackage;
   late bool disableSoundForMessages;
+  String? mentionAllLabel;
+  String? mentionAllLabelId;
   int threadMessageParentId = 0;
   late bool hideDeletedMessage;
   late bool scrollToBottomOnNewMessage;
@@ -1972,14 +1976,21 @@ class CometChatMessageListController
       int indexOfMentionsFormatter = textFormatters
           .indexWhere((element) => element is CometChatMentionsFormatter);
       if (indexOfMentionsFormatter != -1) {
-        textFormatters[indexOfMentionsFormatter] =
-            CometChatMentionsFormatter(style: mentionsStyle);
+        textFormatters[indexOfMentionsFormatter] = CometChatMentionsFormatter(
+              style: mentionsStyle,
+              mentionAllLabel: mentionAllLabel,
+              mentionAllLabelId: mentionAllLabelId,
+            );
       }
     } else if (textFormatters.indexWhere(
                 (element) => element is CometChatMentionsFormatter) ==
             -1 &&
         disableMentions != true) {
-      textFormatters.add(CometChatMentionsFormatter(style: mentionsStyle));
+      textFormatters.add(CometChatMentionsFormatter(
+        style: mentionsStyle,
+        mentionAllLabel: mentionAllLabel,
+        mentionAllLabelId: mentionAllLabelId,
+      ));
     }
 
     if (disableMentions == true) {

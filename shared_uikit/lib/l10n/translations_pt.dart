@@ -1292,4 +1292,9 @@ class TranslationsPt extends Translations {
   @override
   String get aiAssistants => "Assistentes de IA";
 
+  @override
+  String get notifyEveryoneInThisGroup => "Notificar todos neste grupo";
+
+  @override
+  String get notifyAll => "todos";
 }

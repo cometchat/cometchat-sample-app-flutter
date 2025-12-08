@@ -1292,4 +1292,10 @@ class TranslationsHu extends Translations {
   String get thinking => "Gondolkodás...";
   @override
   String get aiAssistants => "MI-ügynökök";
+
+  @override
+  String get notifyEveryoneInThisGroup => "Mindenkit értesíteni ebben a csoportban";
+
+  @override
+  String get notifyAll => "mindenkit";
 }

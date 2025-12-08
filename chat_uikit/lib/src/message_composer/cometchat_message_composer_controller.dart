@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
@@ -55,6 +56,9 @@ class CometChatMessageComposerController extends GetxController
     this.hidePollsOption,
     this.hideVideoAttachmentOption,
     this.hideTakePhotoOption,
+    this.disableMentionAll = false,
+    this.mentionAllLabel,
+    this.mentionAllLabelId,
   }) {
     tag = "tag$counter";
     counter++;
@@ -221,6 +225,15 @@ class CometChatMessageComposerController extends GetxController
   bool _searcKeywordChanged = true;
   bool? disableMentions;
 
+  ///[disableMentionAll] is a boolean which is used to disable @all mentions in groups
+  final bool disableMentionAll;
+
+  ///[mentionAllLabel] is a String which is used to set a custom label for @all mentions
+  final String? mentionAllLabel;
+
+  ///[mentionAllLabelId] is a String which is used to set a custom label ID for @all mentions
+  final String? mentionAllLabelId;
+
   List<CometChatTextFormatter> _formatters = [];
 
   ///[textFormatters] is a list of [CometChatTextFormatter] which is used to format the text
@@ -371,12 +384,27 @@ class CometChatMessageComposerController extends GetxController
   void initializeFormatters() {
     _formatters = textFormatters ?? [];
 
-    if ((_formatters.isEmpty ||
-            _formatters.indexWhere(
-                    (element) => element is CometChatMentionsFormatter) ==
-                -1) &&
-        disableMentions != true) {
-      _formatters.add(CometChatMentionsFormatter(style: mentionsStyle));
+    int mentionFormatterIndex = _formatters.indexWhere(
+        (element) => element is CometChatMentionsFormatter);
+
+    if (disableMentions != true) {
+      if (mentionFormatterIndex != -1) {
+        // Update existing mentions formatter with controller properties
+        _formatters[mentionFormatterIndex] = CometChatMentionsFormatter(
+          style: mentionsStyle,
+          disableMentionAll: disableMentionAll,
+          mentionAllLabel: mentionAllLabel,
+          mentionAllLabelId: mentionAllLabelId
+        );
+      } else {
+        var formatter = CometChatMentionsFormatter(
+          style: mentionsStyle,
+          disableMentionAll: disableMentionAll,
+          mentionAllLabelId: mentionAllLabelId,
+          mentionAllLabel: mentionAllLabel,
+        );
+        _formatters.add(formatter);
+      }
     }
 
     for (var element in _formatters) {
@@ -531,15 +559,36 @@ class CometChatMessageComposerController extends GetxController
         _currentSearchKeyword = null;
         _searcKeywordChanged = true;
       },
-      title: Text(
-        item.title ?? "",
-        style: TextStyle(
-                fontSize: typography?.heading4?.medium?.fontSize,
-                fontWeight: typography?.heading4?.medium?.fontWeight,
-                fontFamily: typography?.heading4?.medium?.fontFamily,
-                color: colorPalette?.textPrimary)
-            .merge(suggestionListStyle?.textStyle)
-            .copyWith(color: suggestionListStyle?.textColor),
+      title: Row(
+        children: [
+          Text(
+            item.title ?? "",
+            style: TextStyle(
+                    fontSize: typography?.heading4?.medium?.fontSize,
+                    fontWeight: typography?.heading4?.medium?.fontWeight,
+                    fontFamily: typography?.heading4?.medium?.fontFamily,
+                    color: colorPalette?.textPrimary)
+                .merge(suggestionListStyle?.textStyle)
+                .copyWith(color: suggestionListStyle?.textColor),
+            overflow: TextOverflow.ellipsis, // Prevent overflow
+            maxLines: 1,
+          ),
+          Container(margin: const EdgeInsetsGeometry.symmetric(horizontal: 4)),
+          if(item.subtitle != null)
+    Expanded(child:
+          Text(
+            item.subtitle!,
+            style: TextStyle(
+                fontSize: typography?.body?.regular?.fontSize,
+                fontWeight: typography?.body?.regular?.fontWeight,
+                fontFamily: typography?.body?.regular?.fontFamily,
+                color: colorPalette?.textSecondary)
+                .merge(suggestionListStyle?.textStyle)
+                .copyWith(color: suggestionListStyle?.textColor?.withOpacity(0.6)),
+            overflow: TextOverflow.ellipsis, // Prevent overflow
+            maxLines: 1,
+          ))
+        ],
       ),
       leading: item.avatarName == null && item.avatarUrl == null
           ? null
@@ -809,7 +858,7 @@ class CometChatMessageComposerController extends GetxController
 
   sendTextMessage({Map<String, dynamic>? metadata}) {
     if (textEditingController == null) return;
-    String messagesText = textEditingController!.text.trim();
+    String messagesText = textEditingController!.text;
     String type = MessageTypeConstants.text;
 
     TextMessage textMessage = TextMessage(
@@ -826,6 +875,7 @@ class CometChatMessageComposerController extends GetxController
     );
 
     handlePreMessageSend(textMessage);
+    textMessage.text = textMessage.text.trim();
 
     oldMessage = null;
     messagePreviewTitle = '';
@@ -873,6 +923,70 @@ class CometChatMessageComposerController extends GetxController
                     "Message sending failed with exception:  ${e.message}");
               });
     }
+  }
+
+  bool _isHeicOrHeif(String filePath) {
+
+    // Check file extension first - most reliable method
+    final parts = filePath.split('.');
+    if (parts.length > 1) {
+      final extension = parts.last.toLowerCase();
+      if (extension == FileConstants.fileExtensionHeic || extension == FileConstants.fileExtensionHeif) {
+        return true;
+      }
+    }
+
+    // For iOS, check file contents since paths might not have extensions
+    if (Platform.isIOS) {
+
+      // Check if the path contains HEIC/HEIF indicators
+      final pathLower = filePath.toLowerCase();
+      if (pathLower.contains(FileConstants.fileExtensionHeic) || pathLower.contains(FileConstants.fileExtensionHeif)) {
+        return true;
+      }
+
+      // Check file signature for iOS files
+      try {
+        final file = File(filePath);
+        if (file.existsSync()) {
+          final bytes = file.readAsBytesSync();
+          if (bytes.length >= 12) {
+            // Check for HEIF file type box signature (ftyp box)
+            final boxType = String.fromCharCodes(bytes.sublist(4, 8));
+            if (boxType == 'ftyp') {
+              final brand = String.fromCharCodes(bytes.sublist(8, 12));
+              if (kDebugMode) {
+                debugPrint("ISOBMFF file detected with brand: $brand");
+              }
+
+              // Check for common HEIC/HEIF brands
+              if ([
+                FileConstants.fileExtensionHeic,
+                FileConstants.fileExtensionHeif,
+                FileConstants.fileExtensionMif1,
+                FileConstants.fileExtensionHeix,
+                FileConstants.fileExtensionHeim,
+                FileConstants.fileExtensionHeis,
+                FileConstants.fileExtensionHevm,
+                FileConstants.fileExtensionHevs
+              ].contains(brand)) {
+                return true;
+              }
+            }
+          }
+        } else {
+          if (kDebugMode) {
+            debugPrint("File does not exist: $filePath");
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint("Error checking file signature: $e");
+        }
+      }
+    }
+
+    return false;
   }
 
   sendMediaMessage(
@@ -1055,9 +1169,21 @@ class CometChatMessageComposerController extends GetxController
     }
     if (message is TextMessage) {
       String previewText = message.text;
+
+      // Handle @all mentions FIRST before user mentions formatter
+      if (mentionAllLabelId != null) {
+        String specificPattern = '<@all:$mentionAllLabelId>';
+        String replacement = mentionAllLabel ?? '@all';
+        previewText = previewText.replaceAll(specificPattern, replacement);
+      }
+      // Also handle fallback @all pattern
+      previewText = previewText.replaceAll('<@all:all>', mentionAllLabel ?? '@all');
+      // Do NOT convert unmatched @all patterns - leave them as text
+
+      // Then handle user mentions
       if (message.mentionedUsers.isNotEmpty) {
         previewText = CometChatMentionsFormatter.getTextWithMentions(
-            message.text, message.mentionedUsers);
+            previewText, message.mentionedUsers);
       }
       messagePreviewSubtitle = previewText;
     } else {
@@ -1066,19 +1192,46 @@ class CometChatMessageComposerController extends GetxController
     }
 
     if (mode == PreviewMessageMode.edit && message is TextMessage) {
-      textEditingController?.text = message.text;
+      // Use the formatter's onMessageEdit which handles position tracking
+      int mentionFormatterIndex = _formatters
+          .indexWhere((element) => element is CometChatMentionsFormatter);
 
-      _previousText = message.text;
+      if (mentionFormatterIndex != -1) {
+        CometChatMentionsFormatter mentionsFormatter =
+        _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
 
-      if (message.mentionedUsers.isNotEmpty) {
-        int mentionFormatterIndex = _formatters
-            .indexWhere((element) => element.trackingCharacter == '@');
-        if (textEditingController != null && mentionFormatterIndex != -1) {
-          CometChatMentionsFormatter mentionsFormatter =
-              _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
-          mentionsFormatter.onMessageEdit(textEditingController!,
-              mentionedUsers: message.mentionedUsers);
+        // Set the text first
+        textEditingController?.text = message.text;
+        _previousText = message.text;
+
+        // Let the formatter handle the conversion and tracking
+        mentionsFormatter.onMessageEdit(
+          textEditingController!,
+          mentionedUsers: message.mentionedUsers,
+        );
+
+        // Update _previousText to the converted text
+        _previousText = textEditingController!.text;
+      } else {
+        // Fallback if no mentions formatter
+        String editText = message.text;
+
+        // Handle @all mentions
+        if (mentionAllLabelId != null) {
+          String specificPattern = '<@all:$mentionAllLabelId>';
+          String replacement = mentionAllLabel ?? '@all';
+          editText = editText.replaceAll(specificPattern, replacement);
         }
+        editText = editText.replaceAll('<@all:all>', mentionAllLabel ?? '@all');
+
+        // Handle user mentions
+        if (message.mentionedUsers.isNotEmpty) {
+          editText = CometChatMentionsFormatter.getTextWithMentions(
+              editText, message.mentionedUsers);
+        }
+
+        textEditingController?.text = editText;
+        _previousText = editText;
       }
     }
     previewMessageMode = mode;
@@ -1157,8 +1310,20 @@ class CometChatMessageComposerController extends GetxController
       }
 
       if (pickedFile != null && type != null) {
-        if (kDebugMode) {
-          debugPrint("File Path is: ${pickedFile.path}");
+
+        // Check if the picked image is HEIC or HEIF format and change type to file
+        bool isHeicOrHeif = false;
+
+        if (pickedFile.fileType != null && pickedFile.fileType == MessageTypeConstants.image) {
+          isHeicOrHeif = _isHeicOrHeif(pickedFile.path);
+        }
+
+        if (type == MessageTypeConstants.image && !isHeicOrHeif) {
+          isHeicOrHeif = _isHeicOrHeif(pickedFile.path);
+        }
+
+        if (isHeicOrHeif) {
+          type = MessageTypeConstants.file;
         }
         Map<String, dynamic> metadata = {};
         metadata["localPath"] = pickedFile.path;
@@ -1213,6 +1378,15 @@ class CometChatMessageComposerController extends GetxController
     messagePreviewTitle = "";
     messagePreviewSubtitle = "";
     textEditingController?.clear();
+
+    // Reset mentions formatter state if we were in edit mode
+    // This ensures that if the user cancelled an edit, the formatter doesn't think it's still tracking mentions from the old message
+    for (var element in _formatters) {
+      if (element is CometChatMentionsFormatter && textEditingController != null) {
+        element.onMessageEdit(textEditingController!, mentionedUsers: []);
+      }
+    }
+
     update();
     debugPrint('close preview requested');
   }

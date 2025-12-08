@@ -26,6 +26,7 @@ class SuggestionListItem {
     this.onTap,
     this.avatarHeight,
     this.avatarWidth,
+    this.data
   });
 
   final String id;
@@ -50,6 +51,9 @@ class SuggestionListItem {
 
   ///[avatarHeight] provides height to the widget
   final double? avatarHeight;
+
+  ///[data] is a [Map<String, dynamic>] value that defines the data of the list item.
+  final Map<String, dynamic>? data;
 
   @override
   bool operator ==(other) => other is SuggestionListItem && id == other.id;

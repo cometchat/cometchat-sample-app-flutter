@@ -1,3 +1,15 @@
+## 5.2.5
+
+## New
+- Added the ability to enable or disable the "mention all" feature, along with custom labels for specific IDs in both `CometChatMessageComposer`, `CometChatMessageList` and `CometChatConversations`.
+- Introducing new methods like `disableMentionAll`, `mentionAllLabelId` and `mentionAllLabel`, giving developers greater flexibility in managing mentions.
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.1.6`.
+
+## Fixes
+- Fixed a bug where users who had not logged in at least once were not shown as "Offline".
+
 ## 5.2.4
 
 ## Enhancements

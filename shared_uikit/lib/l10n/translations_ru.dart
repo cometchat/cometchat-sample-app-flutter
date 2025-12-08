@@ -1289,4 +1289,9 @@ class TranslationsRu extends Translations {
   @override
   String get aiAssistants => "AI помощники";
 
+  @override
+  String get notifyEveryoneInThisGroup => "Уведомить всех в этой группе";
+
+  @override
+  String get notifyAll => "все";
 }

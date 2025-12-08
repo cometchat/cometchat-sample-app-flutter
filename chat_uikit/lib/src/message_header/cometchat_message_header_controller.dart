@@ -254,8 +254,11 @@ class CometChatMessageHeaderController extends GetxController
   }
 
   String getUserActivityStatus(BuildContext context) {
-    if (userObject == null || userObject?.lastActiveAt == null) {
+    if (userObject == null) {
       return "";
+    }
+    if (userObject?.lastActiveAt == null) {
+      return cc.Translations.of(context).offline;
     }
     return _getLastSeenText(userObject!.lastActiveAt!, context);
   }

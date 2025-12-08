@@ -1317,4 +1317,10 @@ class TranslationsDe extends Translations {
 
   @override
   String get aiAssistants => "KI-Assistenten";
+
+  @override
+  String get notifyEveryoneInThisGroup => "Alle in dieser Gruppe benachrichtigen";
+
+  @override
+  String get notifyAll => "alle";
 }

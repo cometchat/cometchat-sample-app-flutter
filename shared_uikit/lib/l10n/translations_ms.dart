@@ -1291,5 +1291,11 @@ class TranslationsMs extends Translations {
   String get thinking => "Memikir...";
   @override
   String get aiAssistants => "Pembantu AI";
+
+  @override
+  String get notifyEveryoneInThisGroup => "Beritahu semua orang dalam kumpulan ini";
+
+  @override
+  String get notifyAll => "semua";
 }
 

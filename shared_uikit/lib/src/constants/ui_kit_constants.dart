@@ -376,3 +376,16 @@ class ErrorConstants {
   static const String fileErrorCodeAndroid = "ERR_BAD_REQUEST";
   static const String fileErrorCodeIOS = "ERROR_INVALID_FILE_SIZE";
 }
+
+class FileConstants {
+
+  static const String fileExtensionHeic = "heic";
+  static const String fileExtensionHeif = "heif";
+  static const String fileExtensionMif1 = "mif1";
+  static const String fileExtensionHeix = "heix";
+  static const String fileExtensionHeim = "heim";
+  static const String fileExtensionHeis = "heis";
+  static const String fileExtensionHevm = "hevm";
+  static const String fileExtensionHevs = "hevs";
+
+}

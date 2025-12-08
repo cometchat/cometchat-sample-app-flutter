@@ -1292,4 +1292,10 @@ class TranslationsLt extends Translations {
   String get thinking => "Mąstoma...";
   @override
   String get aiAssistants => "DI asistentai";
+
+  @override
+  String get notifyEveryoneInThisGroup => "Pranešti visiems šioje grupėje";
+
+  @override
+  String get notifyAll => "visi";
 }

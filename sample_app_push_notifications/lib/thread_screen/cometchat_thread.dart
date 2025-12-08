@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:get/get.dart';
+import '../utils/page_manager.dart';
 import 'cometchat_thread_controller.dart';
 
 class CometChatThread extends StatefulWidget {
@@ -39,6 +40,21 @@ class _CometChatThreadState extends State<CometChatThread> {
     super.dispose();
   }
 
+  CometChatMentionsFormatter getMentionsTap() {
+    return CometChatMentionsFormatter(
+      user: widget.user,
+      group: widget.group,
+      onMentionTap: (mention, mentionedUser, {message}) {
+        if (mentionedUser.uid != CometChatUIKit.loggedInUser!.uid) {
+          PageManager().navigateToMessages(
+            context: context,
+            user: mentionedUser,
+          );
+        }
+      },
+    );
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -58,14 +74,14 @@ class _CometChatThreadState extends State<CometChatThread> {
           appBar: CometChatMessageHeader(
             user: widget.user,
             group: widget.group,
-            hideVideoCallButton: (widget.user != null ) ||
+            hideVideoCallButton: (widget.user != null) ||
                 (widget.group != null)
                 ? ((controller.user?.blockedByMe != null &&
                 controller.user?.blockedByMe! == true) ||
                 (controller.group?.hasJoined == false ||
                     controller.group?.isBannedFromGroup == true))
                 : false,
-            hideVoiceCallButton: (widget.user != null ) ||
+            hideVoiceCallButton: (widget.user != null) ||
                 (widget.group != null)
                 ? ((controller.user?.blockedByMe != null &&
                 controller.user?.blockedByMe! == true) ||
@@ -179,6 +195,9 @@ class _CometChatThreadState extends State<CometChatThread> {
       user: user,
       group: group,
       messagesRequestBuilder: requestBuilder,
+      textFormatters: [
+        getMentionsTap(),
+      ],
     );
   }
 

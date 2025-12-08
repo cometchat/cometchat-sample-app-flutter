@@ -35,6 +35,8 @@ class CometChatConversationsController
     OnEmpty? onEmpty,
     this.textFormatters,
     this.mentionsStyle,
+    this.mentionAllLabel,
+    this.mentionAllLabelId,
     this.conversationsStyle,
   }) : super(conversationsBuilderProtocol.getRequest(), onError: onError, onLoad: onLoad, onEmpty: onEmpty) {
     selectionMode = mode ?? SelectionMode.none;
@@ -92,6 +94,12 @@ class CometChatConversationsController
 
   ///[mentionsStyle] is a [CometChatMentionsStyle] which is used to style the mentions
   final CometChatMentionsStyle? mentionsStyle;
+
+  ///[mentionAllLabel] is a String which is used to set a custom label for @all mentions
+  final String? mentionAllLabel;
+
+  ///[mentionAllLabelId] is a String which is used to set a custom label ID for @all mentions
+  final String? mentionAllLabelId;
 
   ///[conversationsStyle] is a [CometChatConversationsStyle] which is used to style the conversations
   final CometChatConversationsStyle? conversationsStyle;
@@ -974,8 +982,10 @@ class CometChatConversationsController
             textFormatters.indexWhere(
                     (element) => element is CometChatMentionsFormatter) ==
                 -1)) {
-      textFormatters.add(
-          CometChatMentionsFormatter(style: ccMentionStyle ?? mentionsStyle));
+      textFormatters.add(CometChatMentionsFormatter(
+          style: ccMentionStyle ?? mentionsStyle,
+          mentionAllLabel: mentionAllLabel,
+          mentionAllLabelId: mentionAllLabelId));
     }
 
     this.textFormatters = textFormatters;

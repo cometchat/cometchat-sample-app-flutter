@@ -1,3 +1,9 @@
+## 5.1.6
+
+## Fixes
+- Fixed an issue where the audio recording timer displayed "0 minutes" before sending a message.
+- Resolved a crash on Android devices caused by processing HEIC image formats. HEIC files are now handled more reliably by sending them as messageType file instead of messageType image.
+
 ## 5.1.5
 
 ## Enhancements

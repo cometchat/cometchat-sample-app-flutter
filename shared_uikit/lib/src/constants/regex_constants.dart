@@ -7,5 +7,5 @@ class RegexConstants {
   static const phoneNumberRegexPattern =
       r'\b(\+?( |-|\.)?\d{1,2}( |-|\.)?)?(\(?\d{3}\)?|\d{3})( |-|\.)?(\d{3}( |-|\.)?\d{4})\b';
 
-  static const mentionRegexPattern = r'<@uid:(.+?)>';
+  static const mentionRegexPattern = r'<@(uid|all):(.+?)>';
 }

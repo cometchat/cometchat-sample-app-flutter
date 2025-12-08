@@ -65,6 +65,8 @@ class CometChatMessageList extends StatefulWidget {
     this.favoriteReactions,
     this.textFormatters,
     this.disableMentions,
+    this.mentionAllLabel,
+    this.mentionAllLabelId,
     this.padding,
     this.margin,
     this.width,
@@ -230,6 +232,12 @@ class CometChatMessageList extends StatefulWidget {
 
   ///[disableMentions] disables formatting of mentions in the subtitle of the conversation
   final bool? disableMentions;
+
+  ///[mentionAllLabel] sets the text label for mention all
+  final String? mentionAllLabel;
+
+  ///[mentionAllLabelId] sets the ID for mention all
+  final String? mentionAllLabelId;
 
   ///[padding] sets padding for the message list
   final EdgeInsetsGeometry? padding;
@@ -403,6 +411,8 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       receiptsVisibility: widget.receiptsVisibility,
       disableReactions: widget.disableReactions ?? false,
       disableMentions: widget.disableMentions ?? false,
+      mentionAllLabel: widget.mentionAllLabel,
+      mentionAllLabelId: widget.mentionAllLabelId,
       textFormatters: widget.textFormatters,
       mentionsStyle: widget.style?.mentionsStyle,
       messageListStyle: widget.style,

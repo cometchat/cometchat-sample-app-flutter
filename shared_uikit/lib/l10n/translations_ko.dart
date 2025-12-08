@@ -1257,4 +1257,10 @@ class TranslationsKo extends Translations {
   String get thinking => "생각 중...";
   @override
   String get aiAssistants => "AI 어시스턴트들";
+
+  @override
+  String get notifyEveryoneInThisGroup => "이 그룹의 모든 사람에게 알림";
+
+  @override
+  String get notifyAll => "모든";
 }

@@ -31,8 +31,26 @@ class FormatterUtils {
     int start = 0;
 
     for (AttributedText attributedText in attributedTexts) {
+      // Validate indices before substring operations
+      if (attributedText.start < 0 ||
+          attributedText.start > text.length ||
+          attributedText.end < 0 ||
+          attributedText.end > text.length ||
+          attributedText.start > attributedText.end ||
+          start > text.length ||
+          start > attributedText.start ||
+          start < 0) {
+        continue; // Skip invalid attributed text
+      }
+
+      // Additional safety check for substring operation
+      String beforeText = '';
+      if (start < attributedText.start && start >= 0 && attributedText.start <= text.length) {
+        beforeText = text.substring(start, attributedText.start);
+      }
+
       textSpan.add(TextSpan(
-        text: text.substring(start, attributedText.start),
+        text: beforeText,
         style:textStyle?.merge(TextStyle(
           color: alignment == BubbleAlignment.right
               ? colorPalette.white
@@ -55,13 +73,22 @@ class FormatterUtils {
         child: InkWell(
           onTap: () async {
             if (!forConversation && attributedText.onTap != null) {
-              attributedText.onTap!(
-                  text.substring(attributedText.start, attributedText.end));
+              // Add safety check for substring operation
+              if (attributedText.start >= 0 && 
+                  attributedText.end <= text.length && 
+                  attributedText.start <= attributedText.end) {
+                attributedText.onTap!(
+                    text.substring(attributedText.start, attributedText.end));
+              }
             }
           },
           child: Text(
             attributedText.underlyingText ??
-                text.substring(attributedText.start, attributedText.end),
+                (attributedText.start >= 0 && 
+                 attributedText.end <= text.length && 
+                 attributedText.start <= attributedText.end
+                    ? text.substring(attributedText.start, attributedText.end)
+                    : ''),
             style: attributedText.style ??
                 textStyle?.merge(TextStyle(
                   color: alignment == BubbleAlignment.right
@@ -77,19 +104,22 @@ class FormatterUtils {
       start = attributedText.end;
     }
 
-    textSpan.add(TextSpan(
-      text: text.substring(start),
-      style: textStyle?.merge(TextStyle(
-        color: alignment == BubbleAlignment.right
-            ? colorPalette.white
-            : forConversation
-                ? colorPalette.textSecondary
-                : colorPalette.textPrimary,
-        fontWeight: typography.body?.regular?.fontWeight,
-        fontSize: typography.body?.regular?.fontSize,
-        fontFamily: typography.body?.regular?.fontFamily,
-      )),
-    ));
+    // Validate final substring
+    if (start <= text.length) {
+      textSpan.add(TextSpan(
+        text: text.substring(start),
+        style: textStyle?.merge(TextStyle(
+          color: alignment == BubbleAlignment.right
+              ? colorPalette.white
+              : forConversation
+                  ? colorPalette.textSecondary
+                  : colorPalette.textPrimary,
+          fontWeight: typography.body?.regular?.fontWeight,
+          fontSize: typography.body?.regular?.fontSize,
+          fontFamily: typography.body?.regular?.fontFamily,
+        )),
+      ));
+    }
 
     return textSpan;
   }
@@ -115,8 +145,26 @@ class FormatterUtils {
     int start = 0;
 
     for (AttributedText attributedText in attributedTexts) {
+      // Validate indices before substring operations
+      if (attributedText.start < 0 ||
+          attributedText.start > text.length ||
+          attributedText.end < 0 ||
+          attributedText.end > text.length ||
+          attributedText.start > attributedText.end ||
+          start > text.length ||
+          start > attributedText.start ||
+          start < 0) {
+        continue; // Skip invalid attributed text
+      }
+
+      // Additional safety check for substring operation
+      String beforeText = '';
+      if (start < attributedText.start && start >= 0 && attributedText.start <= text.length) {
+        beforeText = text.substring(start, attributedText.start);
+      }
+
       textSpan.add(TextSpan(
-        text: text.substring(start, attributedText.start),
+        text: beforeText,
         style: TextStyle(
           color: colorPalette.textSecondary,
           fontWeight: typography.body?.regular?.fontWeight,
@@ -136,14 +184,18 @@ class FormatterUtils {
         ),
         child: InkWell(
           onTap: () async {
-            // if (!forConversation && attributedText.onTap != null) {
-            //   attributedText.onTap!(
-            //       text.substring(attributedText.start, attributedText.end));
-            // }
+            if (attributedText.onTap != null) {
+              attributedText.onTap!(
+                  attributedText.underlyingText ?? text.substring(attributedText.start, attributedText.end));
+            }
           },
           child: Text(
             attributedText.underlyingText ??
-                text.substring(attributedText.start, attributedText.end),
+                (attributedText.start >= 0 && 
+                 attributedText.end <= text.length && 
+                 attributedText.start <= attributedText.end
+                    ? text.substring(attributedText.start, attributedText.end)
+                    : ''),
             style: attributedText.style ??
                 TextStyle(
                   color: colorPalette.textSecondary,
@@ -159,17 +211,20 @@ class FormatterUtils {
       start = attributedText.end;
     }
 
-    textSpan.add(TextSpan(
-      text: text.substring(start),
-      style: TextStyle(
-        color: colorPalette.textSecondary,
-        fontWeight: typography.body?.regular?.fontWeight,
-        fontSize: typography.body?.regular?.fontSize,
-        fontFamily: typography.body?.regular?.fontFamily,
-      ).merge(
-        textStyle,
-      ),
-    ));
+    // Validate final substring
+    if (start <= text.length && start >= 0) {
+      textSpan.add(TextSpan(
+        text: text.substring(start),
+        style: TextStyle(
+          color: colorPalette.textSecondary,
+          fontWeight: typography.body?.regular?.fontWeight,
+          fontSize: typography.body?.regular?.fontSize,
+          fontFamily: typography.body?.regular?.fontFamily,
+        ).merge(
+          textStyle,
+        ),
+      ));
+    }
 
     return textSpan;
   }

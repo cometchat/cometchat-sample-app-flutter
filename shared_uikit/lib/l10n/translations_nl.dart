@@ -1294,4 +1294,9 @@ class TranslationsNl extends Translations {
   @override
   String get aiAssistants => "AI-assistenten";
 
+  @override
+  String get notifyEveryoneInThisGroup => "Iedereen in deze groep op de hoogte stellen";
+
+  @override
+  String get notifyAll => "iedereen";
 }

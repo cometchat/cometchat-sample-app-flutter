@@ -1290,4 +1290,10 @@ class TranslationsTr extends Translations {
   String get thinking => "Düşünüyor...";
   @override
   String get aiAssistants => "AI Asistanları";
+
+  @override
+  String get notifyEveryoneInThisGroup => "Bu gruptaki herkesi bilgilendir";
+
+  @override
+  String get notifyAll => "hepsi";
 }

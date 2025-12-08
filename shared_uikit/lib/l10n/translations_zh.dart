@@ -1269,6 +1269,12 @@ class TranslationsZh extends Translations {
   String get thinking => "思考中...";
   @override
   String get aiAssistants => "AI助手们";
+
+  @override
+  String get notifyEveryoneInThisGroup => "通知该群组中的每个人";
+
+  @override
+  String get notifyAll => "所有";
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2510,4 +2516,10 @@ class TranslationsZhTw extends TranslationsZh {
   String get thinking => "思考中...";
   @override
   String get aiAssistants => "AI助理們";
+
+  @override
+  String get notifyEveryoneInThisGroup => "通知該群組中的每個人";
+
+  @override
+  String get notifyAll => "所有";
 }

@@ -1303,4 +1303,10 @@ class TranslationsEnGb extends Translations {
 
   @override
   String get aiAssistants => "AI Assistants";
+
+  @override
+  String get notifyEveryoneInThisGroup => "Notify everyone in this group";
+
+  @override
+  String get notifyAll => "all";
 }

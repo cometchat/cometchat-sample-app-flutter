@@ -2534,6 +2534,15 @@ abstract class Translations {
   ///In en, this translates to :
   ///**'AI Assistants'
   String get aiAssistants;
+
+  ///In en, this translates to :
+  ///**'Notify everyone in this group'
+  String get notifyEveryoneInThisGroup;
+
+  ///In en, this translates to :
+  ///**'all'
+  String get notifyAll;
+
 }
 
 class _TranslationsDelegate extends LocalizationsDelegate<Translations> {

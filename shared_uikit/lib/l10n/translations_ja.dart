@@ -1254,5 +1254,11 @@ class TranslationsJa extends Translations {
   String get thinking => "考え中...";
   @override
   String get aiAssistants => "AIアシスタント";
+
+  @override
+  String get notifyEveryoneInThisGroup => "このグループのすべての人に通知する";
+
+  @override
+  String get notifyAll => "すべて";
 }
 
