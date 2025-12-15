@@ -1297,4 +1297,37 @@ class TranslationsPt extends Translations {
 
   @override
   String get notifyAll => "todos";
+
+  @override
+  String get report => 'Denunciar';
+
+  @override
+  String get reportMessage => 'Denunciar uma mensagem';
+
+  @override
+  String get reportChatInfo =>
+      'Denuncie este chat se ele violar nossos Padrões da Comunidade. Não informaremos a conta que você a denunciou.';
+
+  @override
+  String get reason => 'Motivo';
+
+  @override
+  String get optional => 'Opcional';
+
+  @override
+  String get additionalContext =>
+      'Forneça contexto adicional para sua denúncia';
+
+  @override
+  String get messageReported => 'Mensagem denunciada.';
+
+  @override
+  String get spam => 'Spam / Conteúdo indesejado';
+
+  @override
+  String get sexual => 'Conteúdo sexual';
+
+  @override
+  String get harassment => 'Assédio / Bullying';
+
 }

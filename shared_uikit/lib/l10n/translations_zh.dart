@@ -1275,6 +1275,39 @@ class TranslationsZh extends Translations {
 
   @override
   String get notifyAll => "所有";
+
+  @override
+  String get report => '举报';
+
+  @override
+  String get reportMessage => '举报消息';
+
+  @override
+  String get reportChatInfo =>
+      '如果此聊天违反了我们的社区标准，请举报。我们不会告诉对方您举报了他们。';
+
+  @override
+  String get reason => '原因';
+
+  @override
+  String get optional => '可选';
+
+  @override
+  String get additionalContext =>
+      '为您的举报提供更多上下文';
+
+  @override
+  String get messageReported => '消息已举报。';
+
+  @override
+  String get spam => '垃圾信息 / 不需要的内容';
+
+  @override
+  String get sexual => '色情内容';
+
+  @override
+  String get harassment => '骚扰 / 欺凌';
+
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2522,4 +2555,37 @@ class TranslationsZhTw extends TranslationsZh {
 
   @override
   String get notifyAll => "所有";
+
+  @override
+  String get report => '举报';
+
+  @override
+  String get reportMessage => '举报消息';
+
+  @override
+  String get reportChatInfo =>
+      '如果此聊天违反了我们的社区标准，请举报。我们不会告诉对方您举报了他们。';
+
+  @override
+  String get reason => '原因';
+
+  @override
+  String get optional => '可选';
+
+  @override
+  String get additionalContext =>
+      '为您的举报提供更多上下文';
+
+  @override
+  String get messageReported => '消息已举报。';
+
+  @override
+  String get spam => '垃圾信息 / 不需要的内容';
+
+  @override
+  String get sexual => '色情内容';
+
+  @override
+  String get harassment => '骚扰 / 欺凌';
+
 }

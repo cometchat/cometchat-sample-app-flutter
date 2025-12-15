@@ -91,6 +91,7 @@ class CometChatMessageListStyle
     this.emptyChatGreetingTitleTextStyle,
     this.emptyChatGreetingSubtitleTextColor,
     this.emptyChatGreetingSubtitleTextStyle,
+    this.flagMessageStyle,
   });
 
   ///[backgroundColor] defines the background color of the message list
@@ -189,6 +190,9 @@ class CometChatMessageListStyle
   ///[emptyChatGreetingSubtitleTextStyle] is a parameter used to set the text style for the Empty Chat Greeting Subtitle
   final TextStyle? emptyChatGreetingSubtitleTextStyle;
 
+  ///[flagMessageStyle] is a parameter used to set the style for the flag message
+  final CometchatFlagMessageStyle? flagMessageStyle;
+
   /// Copy with some properties replaced
   @override
   CometChatMessageListStyle copyWith({
@@ -227,6 +231,7 @@ class CometChatMessageListStyle
     TextStyle? emptyChatGreetingTitleTextStyle,
     Color? emptyChatGreetingSubtitleTextColor,
     TextStyle? emptyChatGreetingSubtitleTextStyle,
+    CometchatFlagMessageStyle? flagMessageStyle,
   }) {
     return CometChatMessageListStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -285,6 +290,7 @@ class CometChatMessageListStyle
           this.emptyChatGreetingSubtitleTextColor,
       emptyChatGreetingSubtitleTextStyle: emptyChatGreetingSubtitleTextStyle ??
           this.emptyChatGreetingSubtitleTextStyle,
+      flagMessageStyle: flagMessageStyle ?? this.flagMessageStyle,
     );
   }
 
@@ -332,6 +338,7 @@ class CometChatMessageListStyle
           other.emptyChatGreetingSubtitleTextColor,
       emptyChatGreetingSubtitleTextStyle:
           other.emptyChatGreetingSubtitleTextStyle,
+      flagMessageStyle: other.flagMessageStyle,
     );
   }
 
@@ -421,6 +428,7 @@ class CometChatMessageListStyle
           emptyChatGreetingSubtitleTextStyle,
           other.emptyChatGreetingSubtitleTextStyle,
           t),
+      flagMessageStyle: flagMessageStyle?.lerp(other.flagMessageStyle, t),
     );
   }
 }

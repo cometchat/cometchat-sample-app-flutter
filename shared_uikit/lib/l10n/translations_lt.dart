@@ -1298,4 +1298,37 @@ class TranslationsLt extends Translations {
 
   @override
   String get notifyAll => "visi";
+
+  @override
+  String get report => 'Pranešti';
+
+  @override
+  String get reportMessage => 'Pranešti apie žinutę';
+
+  @override
+  String get reportChatInfo =>
+      'Praneškite apie šį pokalbį, jei jis pažeidžia bendruomenės standartus. Mes nepranešime paskyrai, kad ją pranešėte.';
+
+  @override
+  String get reason => 'Priežastis';
+
+  @override
+  String get optional => 'Pasirinktinai';
+
+  @override
+  String get additionalContext =>
+      'Pateikite papildomą kontekstą savo pranešimui';
+
+  @override
+  String get messageReported => 'Žinutė pranešta.';
+
+  @override
+  String get spam => 'Šlamštas / Nepageidaujamas turinys';
+
+  @override
+  String get sexual => 'Seksualinis turinys';
+
+  @override
+  String get harassment => 'Priekabiavimas / Patyčios';
+
 }

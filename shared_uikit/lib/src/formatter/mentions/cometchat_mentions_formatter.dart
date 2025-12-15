@@ -42,6 +42,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       this.onMentionTap,
       this.visibleIn,
       this.style,
+      this.disableMentions = false,
       this.disableMentionAll = false,
       this.mentionAllLabel,
       this.mentionAllLabelId})
@@ -74,6 +75,9 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
 
   ///[style] is a [CometChatMentionsStyle] object which is used to store the mentions style
   CometChatMentionsStyle? style;
+
+  ///[disableMentions] disables mentions in the composer
+  final bool disableMentions;
 
   ///[disableMentionAll] controls whether @all mention is enabled (default: false)
   final bool disableMentionAll;
@@ -218,15 +222,120 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   void initializeFetchRequest(
       String? searchKeyword, TextEditingController textEditingController) {
     _lastSearchKeyword = searchKeyword;
-    _request = (_requestBuilder
-          ..limit = 10
-          ..searchKeyword = searchKeyword)
-        .build();
+    if (!disableMentions) {
+      _request = (_requestBuilder
+        ..limit = 10
+        ..searchKeyword = searchKeyword)
+          .build();
 
-    fetchItems(
-        firstTimeFetch: true,
-        textEditingController: textEditingController,
-        searchKeyword: searchKeyword);
+      fetchItems(
+          firstTimeFetch: true,
+          textEditingController: textEditingController,
+          searchKeyword: searchKeyword);
+    }
+    else if (!disableMentionAll && group != null) {
+      // Only show @all, no need to fetch users
+      // But we still need to trigger the suggestion list for @all
+      List<SuggestionListItem> suggestions = [];
+      String? currentKeyword = searchKeyword;
+
+      final allLabelId = mentionAllLabelId ?? "all";
+      final allLabel = context != null
+          ? cc.Translations.of(context!).notifyAll
+          : (mentionAllLabel ?? "all");
+
+      bool shouldShowAll = currentKeyword == null ||
+          currentKeyword.isEmpty ||
+          allLabel.toLowerCase().startsWith(currentKeyword.toLowerCase());
+
+      if (shouldShowAll) {
+        suggestions.add(SuggestionListItem(
+          id: allLabelId,
+          title: "@$allLabel",
+          subtitle: context != null
+              ? cc.Translations.of(context!).notifyEveryoneInThisGroup
+              : "Notify everyone in this group",
+          avatarHeight: 30,
+          avatarWidth: 30,
+          avatarUrl: group!.icon,
+          avatarName: group!.name,
+          onTap: () {
+            try {
+              String mention = "@$allLabel";
+
+              // Safety check for selection
+              if (textEditingController.selection.base.offset == -1) {
+                textEditingController.selection = TextSelection.fromPosition(
+                    TextPosition(offset: textEditingController.text.length));
+              }
+
+              int cursorPos = textEditingController.selection.base.offset;
+
+              // Safety check for bounds
+              if (cursorPos < mentionTracker.length) {
+                // Fallback: try to find the mention tracker at the end of text or just insert
+                if (textEditingController.text.endsWith(mentionTracker)) {
+                  cursorPos = textEditingController.text.length;
+                } else {
+                  return;
+                }
+              }
+
+              mentionAllPositions.add(mention);
+
+              String textOnLeftOfMention = textEditingController.text
+                  .substring(0, cursorPos - mentionTracker.length);
+              String textOnRightOfMention =
+              textEditingController.text.substring(cursorPos);
+
+              int mentionStartPos = cursorPos - mentionTracker.length;
+
+              trackedMentionPositions[mentionStartPos] = mention;
+              if (mentionTextToPositions.containsKey(mention)) {
+                mentionTextToPositions[mention]!.add(mentionStartPos);
+              } else {
+                mentionTextToPositions[mention] = [mentionStartPos];
+              }
+
+              if (mentionedUsersMap.containsKey(mention)) {
+                mentionedUsersMap[mention]!.add(null);
+              } else {
+                mentionedUsersMap[mention] = [null];
+              }
+
+              textEditingController.text =
+              "$textOnLeftOfMention$mention $textOnRightOfMention";
+
+              updatePreviousText(textEditingController.text);
+
+              textEditingController.selection = TextSelection(
+                baseOffset: cursorPos -
+                    mentionTracker.length +
+                    mention.length +
+                    1,
+                extentOffset: cursorPos -
+                    mentionTracker.length +
+                    mention.length +
+                    1,
+              );
+              lastCursorPos =
+                  cursorPos - mentionTracker.length + mention.length + 1;
+              resetMentionsTracker();
+              CometChatUIEvents.hidePanel(
+                  composerId, CustomUIPosition.composerPreview);
+            } catch (e) {
+              if (kDebugMode) {
+                print("Error tapping @all mention: $e");
+              }
+            }
+          },
+        ));
+      }
+
+      if (suggestionListEventSink != null) {
+        suggestionListEventSink?.add(suggestions);
+      }
+    }
   }
 
   ///[fetchItems] is a method which is used to fetch the items
@@ -357,7 +466,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
         }
       }
 
-      if (users.isNotEmpty) {
+      if (users.isNotEmpty && !disableMentions) {
         suggestions.addAll((users as List<User>)
             .map((user) => SuggestionListItem(
                 id: user.uid,
@@ -752,7 +861,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
 
     // if text is empty then we will clear the listItems and hide the panel
     if (textEditingController.text.isEmpty) {
-      if (listItems.isNotEmpty) {
+      if (listItems.isNotEmpty || mentionTracker.isNotEmpty) {
         resetMentionsTracker();
         mentionedUsersMap.clear();
         mentionCount.clear();

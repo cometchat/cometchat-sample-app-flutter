@@ -1294,4 +1294,37 @@ class TranslationsRu extends Translations {
 
   @override
   String get notifyAll => "все";
+
+  @override
+  String get report => 'Пожаловаться';
+
+  @override
+  String get reportMessage => 'Пожаловаться на сообщение';
+
+  @override
+  String get reportChatInfo =>
+      'Пожалуйтесь на этот чат, если он нарушает наши стандарты сообщества. Мы не сообщим аккаунту, что вы подали жалобу.';
+
+  @override
+  String get reason => 'Причина';
+
+  @override
+  String get optional => 'Необязательно';
+
+  @override
+  String get additionalContext =>
+      'Укажите дополнительный контекст для вашей жалобы';
+
+  @override
+  String get messageReported => 'Сообщение отправлено на проверку.';
+
+  @override
+  String get spam => 'Спам / Нежелательный контент';
+
+  @override
+  String get sexual => 'Сексуальный контент';
+
+  @override
+  String get harassment => 'Домогательства / Буллинг';
+
 }

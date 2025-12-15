@@ -1311,4 +1311,35 @@ class TranslationsAr extends Translations {
   @override
   String get notifyAll => "الجميع";
 
+  @override
+  String get report => 'الإبلاغ';
+
+  @override
+  String get reportMessage => 'الإبلاغ عن رسالة';
+
+  @override
+  String get reportChatInfo =>
+      'أبلغ عن هذه الدردشة إذا كانت تخالف معايير المجتمع. لن نخبر الحساب أنك أبلغت عنه.';
+
+  @override
+  String get reason => 'السبب';
+
+  @override
+  String get optional => 'اختياري';
+
+  @override
+  String get additionalContext => 'قدّم سياقًا إضافيًا لتقريرك';
+
+  @override
+  String get messageReported => 'تم الإبلاغ عن الرسالة.';
+
+  @override
+  String get spam => 'رسائل غير مرغوب فيها / محتوى مزعج';
+
+  @override
+  String get sexual => 'محتوى جنسي';
+
+  @override
+  String get harassment => 'مضايقة / تنمر';
+
 }

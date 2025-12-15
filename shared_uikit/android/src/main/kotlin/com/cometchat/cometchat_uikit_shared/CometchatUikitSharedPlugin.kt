@@ -515,7 +515,9 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
 
   ///[startRecordingAudio] is used to start the recording audio
   private fun startRecordingAudio(call: MethodCall, result: Result){
-    AudioRecorderEventHandler.audioRecorder = AudioRecorder(context,activity)
+    if (AudioRecorderEventHandler.audioRecorder == null) {
+      AudioRecorderEventHandler.audioRecorder = AudioRecorder(context,activity)
+    }
     val isRecording = AudioRecorderEventHandler.audioRecorder?.startRecording()
     result.success(isRecording)
   }
@@ -523,8 +525,8 @@ class CometchatUikitSharedPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
   ///[stopRecordingAudio] is used to stop the recording audio
   private fun stopRecordingAudio(call: MethodCall, result: Result){
     if (AudioRecorderEventHandler.audioRecorder != null ){
-      val filePath : String? = AudioRecorderEventHandler.audioRecorder?.pauseRecording()
-//      AudioRecorderEventHandler.audioRecorder = null
+      val filePath : String? = AudioRecorderEventHandler.audioRecorder?.stopRecording()
+      AudioRecorderEventHandler.audioRecorder = null
       AudioRecorderEventHandler.onCancel(null)
       result.success(filePath)
     }

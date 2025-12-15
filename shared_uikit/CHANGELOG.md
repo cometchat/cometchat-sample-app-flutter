@@ -1,3 +1,16 @@
+## 5.1.7
+
+## New
+- Added a new feature that allows users to report a specific message for moderation purposes.
+- Added `hideFlagMessageOption` — to hide the **Flag Message** option from the message actions menu.
+- Added `hideFlagRemarkField` — to hide the remark text area in the flag dialog.
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.32`.
+
+## Fixes
+- Fixed an issue where only the last segment of a paused and resumed audio recording was sent. Audio messages now include the full recording, even after multiple pauses and resumes.
+
 ## 5.1.6
 
 ## Fixes

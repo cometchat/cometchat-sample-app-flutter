@@ -336,7 +336,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
       hideCollaborativeWhiteboardOption:
           widget.hideCollaborativeWhiteboardOption,
       hideTakePhotoOption: widget.hideTakePhotoOption,
-      disableMentions: widget.disableMentions,
+      disableMentions: widget.disableMentions ?? false,
       disableMentionAll: widget.disableMentionAll,
       mentionAllLabel: widget.mentionAllLabel,
       mentionAllLabelId: widget.mentionAllLabelId,

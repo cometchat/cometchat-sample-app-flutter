@@ -2543,6 +2543,45 @@ abstract class Translations {
   ///**'all'
   String get notifyAll;
 
+  ///In en, this translates to :
+  ///**'Report'
+  String get report;
+
+  ///In en, this translates to :
+  ///**'Report a message'
+  String get reportMessage;
+
+  ///In en, this translates to :
+  ///**'Report this chat if it goes against our Community Standards. We won't tell the account you reported them.'
+  String get reportChatInfo;
+
+  ///In en, this translates to :
+  ///**'Reason'
+  String get reason;
+
+  ///In en, this translates to :
+  ///**'Optional'
+  String get optional;
+
+  ///In en, this translates to :
+  ///**'Provide additional context for your report'
+  String get additionalContext;
+
+  ///In en, this translates to :
+  ///**'Message reported.'
+  String get messageReported;
+
+  ///In en, this translates to :
+  ///**'Spam / Unwanted Content'
+  String get spam;
+
+  ///In en, this translates to :
+  ///**'Sexual Content.'
+  String get sexual;
+
+  ///In en, this translates to :
+  ///**'Harassment / Bullying.'
+  String get harassment;
 }
 
 class _TranslationsDelegate extends LocalizationsDelegate<Translations> {

@@ -110,6 +110,9 @@ class CometChatMessageList extends StatefulWidget {
     this.hideSuggestedMessages = false,
     this.streamingSpeed,
     this.hideDateSeparator = false,
+    this.hideFlagOption = false,
+    this.flagReasonLocalizer,
+    this.hideFlagRemarkField = false,
   })  : assert(user != null || group != null,
   "One of user or group should be passed"),
         assert(user == null || group == null,
@@ -345,6 +348,15 @@ class CometChatMessageList extends StatefulWidget {
   ///[hideDateSeparator] Hide the date separator
   final bool? hideDateSeparator;
 
+  ///[hideFlagOption] This prop defines whether report option should be visible or not.
+  final bool? hideFlagOption;
+
+  /// [flagReasonLocalizer] This function is used to localize the reason IDs to the desired language.
+  final String Function(String reasonId)? flagReasonLocalizer;
+
+  /// [hideFlagRemarkField] This prop defines whether to hide the remark field in the flag message option.
+  final bool? hideFlagRemarkField;
+
   @override
   State<CometChatMessageList> createState() => _CometChatMessageListState();
 }
@@ -434,6 +446,8 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       streamingSpeed: widget.streamingSpeed,
       suggestedMessages: widget.suggestedMessages,
       hideStickyDate: widget.hideStickyDate,
+      flagReasonLocalizer: widget.flagReasonLocalizer,
+      hideFlagRemarkField: widget.hideFlagRemarkField,
     );
 
     super.initState();
@@ -1334,6 +1348,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       hideMessagePrivatelyOption: widget.hideMessagePrivatelyOption,
       hideShareMessageOption: widget.hideShareMessageOption,
       hideTranslateMessageOption: widget.hideTranslateMessageOption,
+      hideFlagOption: widget.hideFlagOption,
     );
 
     if (controller

@@ -80,7 +80,9 @@ class _CometChatMarqueeState extends State<CometChatMarquee>
     final textWidget = Text(widget.text, style: widget.style);
 
     // If text doesn't require scrolling, return just the text
-    if (widget.text == cc.Translations.of(context).online || !_needsScrolling) return textWidget;
+    if (widget.text == cc.Translations.of(context).online || 
+        widget.text == cc.Translations.of(context).offline || 
+        !_needsScrolling) return textWidget;
 
     if (_controller == null) return const SizedBox.shrink();
 

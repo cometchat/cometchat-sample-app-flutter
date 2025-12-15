@@ -1292,4 +1292,37 @@ class TranslationsSv extends Translations {
 
   @override
   String get notifyAll => "alla";
+
+  @override
+  String get report => 'Rapportera';
+
+  @override
+  String get reportMessage => 'Rapportera ett meddelande';
+
+  @override
+  String get reportChatInfo =>
+      'Rapportera den här chatten om den bryter mot våra gemenskapsstandarder. Vi kommer inte berätta för kontot att du rapporterat det.';
+
+  @override
+  String get reason => 'Orsak';
+
+  @override
+  String get optional => 'Valfritt';
+
+  @override
+  String get additionalContext =>
+      'Ge ytterligare sammanhang för din rapport';
+
+  @override
+  String get messageReported => 'Meddelande rapporterat.';
+
+  @override
+  String get spam => 'Spam / Oönskat innehåll';
+
+  @override
+  String get sexual => 'Sexuellt innehåll';
+
+  @override
+  String get harassment => 'Trakasserier / Mobbning';
+
 }

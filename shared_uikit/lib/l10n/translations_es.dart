@@ -1313,4 +1313,37 @@ class TranslationsEs extends Translations {
 
   @override
   String get notifyAll => "todos";
+
+  @override
+  String get report => 'Reportar';
+
+  @override
+  String get reportMessage => 'Reportar un mensaje';
+
+  @override
+  String get reportChatInfo =>
+      'Reporta este chat si infringe nuestras Normas Comunitarias. No le diremos a la cuenta que los reportaste.';
+
+  @override
+  String get reason => 'Motivo';
+
+  @override
+  String get optional => 'Opcional';
+
+  @override
+  String get additionalContext =>
+      'Proporciona contexto adicional para tu reporte';
+
+  @override
+  String get messageReported => 'Mensaje reportado.';
+
+  @override
+  String get spam => 'رسائل غير مرغوب فيها / محتوى مزعج';
+
+  @override
+  String get sexual => 'محتوى جنسي';
+
+  @override
+  String get harassment => 'مضايقة / تنمر';
+
 }

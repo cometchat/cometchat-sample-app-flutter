@@ -629,6 +629,7 @@ class CometChatConversationsController
             (oldConversation.unreadMessageCount ?? 0) + 1;
       } else {
         conversation.unreadMessageCount = oldConversation.unreadMessageCount;
+        conversation.conversationWith = oldConversation.conversationWith;
       }
       removeElementAt(matchingIndex);
       addElement(conversation);

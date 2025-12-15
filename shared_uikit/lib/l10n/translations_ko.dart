@@ -1263,4 +1263,37 @@ class TranslationsKo extends Translations {
 
   @override
   String get notifyAll => "모든";
+
+  @override
+  String get report => '신고';
+
+  @override
+  String get reportMessage => '메시지 신고';
+
+  @override
+  String get reportChatInfo =>
+      '이 채팅이 커뮤니티 기준을 위반한 경우 신고하세요. 신고한 사실은 상대 계정에게 알려지지 않습니다.';
+
+  @override
+  String get reason => '이유';
+
+  @override
+  String get optional => '선택 사항';
+
+  @override
+  String get additionalContext =>
+      '신고를 위한 추가 내용을 제공하세요';
+
+  @override
+  String get messageReported => '메시지가 신고되었습니다.';
+
+  @override
+  String get spam => '스팸 / 원치 않는 콘텐츠';
+
+  @override
+  String get sexual => '성적 콘텐츠';
+
+  @override
+  String get harassment => '괴롭힘 / 따돌림';
+
 }

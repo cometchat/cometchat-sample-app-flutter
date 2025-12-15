@@ -360,3 +360,7 @@ export 'src/services/cometchat_stream_callback.dart';
 // Stream Message model
 export 'src/models/ai/stream_message.dart';
 
+export 'src/views/flag_message_dialog/cometchat_flag_message.dart';
+export 'src/views/flag_message_dialog/cometchat_flag_message_controller.dart';
+export 'src/views/flag_message_dialog/cometchat_flag_message_style.dart';
+

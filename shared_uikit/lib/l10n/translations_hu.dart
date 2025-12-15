@@ -1298,4 +1298,37 @@ class TranslationsHu extends Translations {
 
   @override
   String get notifyAll => "mindenkit";
+
+  @override
+  String get report => 'Jelentés';
+
+  @override
+  String get reportMessage => 'Üzenet jelentése';
+
+  @override
+  String get reportChatInfo =>
+      'Jelentse ezt a csevegést, ha megsérti a közösségi irányelveket. Nem mondjuk el a fióknak, hogy Ön jelentette.';
+
+  @override
+  String get reason => 'Ok';
+
+  @override
+  String get optional => 'Opcionális';
+
+  @override
+  String get additionalContext =>
+      'Adjon meg további kontextust a jelentéséhez';
+
+  @override
+  String get messageReported => 'Üzenet jelentve.';
+
+  @override
+  String get spam => 'Spam / Nem kívánt tartalom';
+
+  @override
+  String get sexual => 'Szexuális tartalom';
+
+  @override
+  String get harassment => 'Zaklatás / Megfélemlítés';
+
 }

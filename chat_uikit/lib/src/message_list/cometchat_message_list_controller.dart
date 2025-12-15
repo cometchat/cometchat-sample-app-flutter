@@ -63,6 +63,8 @@ class CometChatMessageListController
     this.hideStickyDate,
     this.mentionAllLabel,
     this.mentionAllLabelId,
+    this.flagReasonLocalizer,
+    this.hideFlagRemarkField,
   }) : super(
             builderProtocol: user != null
                 ? (messagesBuilderProtocol
@@ -214,6 +216,12 @@ class CometChatMessageListController
 
   ///[hideStickyDate] Hide the sticky date separator
   final bool? hideStickyDate;
+
+  /// [flagReasonLocalizer] This function is used to localize the reason IDs to the desired language.
+  final String Function(String reasonId)? flagReasonLocalizer;
+
+  /// [hideFlagRemarkField] This prop defines whether to hide the remark field in the flag message option.
+  final bool? hideFlagRemarkField;
 
   bool isScrolled = false;
 
@@ -1192,6 +1200,35 @@ class CometChatMessageListController
     }
   }
 
+  _reportMessage(
+      BaseMessage message, CometChatMessageListControllerProtocol state) {
+    showConfirmationDialog(context, message);
+  }
+
+  Future<bool?> showConfirmationDialog(
+      BuildContext context, BaseMessage message) {
+    final listStyle = CometChatThemeHelper.getTheme<CometChatMessageListStyle>(
+        context: context, defaultTheme: CometChatMessageListStyle.of)
+        .merge(messageListStyle);
+
+    final flagMessageStyle =
+    CometChatThemeHelper.getTheme<CometchatFlagMessageStyle>(
+        context: context, defaultTheme: CometchatFlagMessageStyle.of)
+        .merge(listStyle.flagMessageStyle);
+
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return CometChatFlagMessage(
+          message: message,
+          style: flagMessageStyle,
+          flagReasonLocalizer: flagReasonLocalizer,
+          hideFlagRemarkField: hideFlagRemarkField,
+        );
+      },
+    );
+  }
+
   _messageInformation(
       BaseMessage message, CometChatMessageListControllerProtocol state) {
     final listStyle = CometChatThemeHelper.getTheme<CometChatMessageListStyle>(
@@ -1324,6 +1361,10 @@ class CometChatMessageListController
       case MessageOptionConstants.sendMessagePrivately:
         {
           return _sendMessagePrivately;
+        }
+      case MessageOptionConstants.reportMessage:
+        {
+          return _reportMessage;
         }
 
       default:

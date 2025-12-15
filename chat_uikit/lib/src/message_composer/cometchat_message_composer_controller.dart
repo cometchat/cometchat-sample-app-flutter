@@ -223,7 +223,9 @@ class CometChatMessageComposerController extends GetxController
 
   String? _currentSearchKeyword;
   bool _searcKeywordChanged = true;
-  bool? disableMentions;
+
+  ///[disableMentions] disables mentions in the composer
+  final bool disableMentions;
 
   ///[disableMentionAll] is a boolean which is used to disable @all mentions in groups
   final bool disableMentionAll;
@@ -387,11 +389,12 @@ class CometChatMessageComposerController extends GetxController
     int mentionFormatterIndex = _formatters.indexWhere(
         (element) => element is CometChatMentionsFormatter);
 
-    if (disableMentions != true) {
+    if (disableMentions != true || disableMentionAll != true) {
       if (mentionFormatterIndex != -1) {
         // Update existing mentions formatter with controller properties
         _formatters[mentionFormatterIndex] = CometChatMentionsFormatter(
           style: mentionsStyle,
+          disableMentions: disableMentions,
           disableMentionAll: disableMentionAll,
           mentionAllLabel: mentionAllLabel,
           mentionAllLabelId: mentionAllLabelId
@@ -399,6 +402,7 @@ class CometChatMessageComposerController extends GetxController
       } else {
         var formatter = CometChatMentionsFormatter(
           style: mentionsStyle,
+          disableMentions: disableMentions,
           disableMentionAll: disableMentionAll,
           mentionAllLabelId: mentionAllLabelId,
           mentionAllLabel: mentionAllLabel,

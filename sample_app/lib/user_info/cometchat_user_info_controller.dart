@@ -95,8 +95,12 @@ class CometChatUserInfoController extends GetxController
 
   updateUserStatue(User user) {
     if (user.status == CometChatUserStatus.online) {
-      presence = "Online";
-    } else {
+      presence = cc.Translations.of(context).online;
+    }
+    else if (user.lastActiveAt == null) {
+      presence = cc.Translations.of(context).offline;
+    }
+    else {
       presence = getLastSeenText(user.lastActiveAt);
     }
   }

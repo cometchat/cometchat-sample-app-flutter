@@ -1310,4 +1310,37 @@ class TranslationsHi extends Translations {
 
   @override
   String get notifyAll => "सभी";
+
+  @override
+  String get report => 'रिपोर्ट';
+
+  @override
+  String get reportMessage => 'संदेश रिपोर्ट करें';
+
+  @override
+  String get reportChatInfo =>
+      'यदि यह चैट हमारे सामुदायिक मानकों का उल्लंघन करती है, तो इसे रिपोर्ट करें। हम उस खाते को नहीं बताएंगे जिसे आपने रिपोर्ट किया है।';
+
+  @override
+  String get reason => 'कारण';
+
+  @override
+  String get optional => 'वैकल्पिक';
+
+  @override
+  String get additionalContext =>
+      'अपनी रिपोर्ट के लिए अतिरिक्त संदर्भ प्रदान करें';
+
+  @override
+  String get messageReported => 'संदेश रिपोर्ट किया गया।';
+
+  @override
+  String get spam => 'स्पैम / अवांछित सामग्री';
+
+  @override
+  String get sexual => 'यौन सामग्री';
+
+  @override
+  String get harassment => 'उत्पीड़न / धमकाना';
+
 }

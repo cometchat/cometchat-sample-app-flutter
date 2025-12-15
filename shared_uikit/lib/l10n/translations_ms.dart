@@ -1297,5 +1297,38 @@ class TranslationsMs extends Translations {
 
   @override
   String get notifyAll => "semua";
+
+  @override
+  String get report => 'Laporkan';
+
+  @override
+  String get reportMessage => 'Laporkan mesej';
+
+  @override
+  String get reportChatInfo =>
+      'Laporkan chat ini jika ia melanggar Standard Komuniti kami. Kami tidak akan memberitahu akaun bahawa anda melaporkan mereka.';
+
+  @override
+  String get reason => 'Sebab';
+
+  @override
+  String get optional => 'Pilihan';
+
+  @override
+  String get additionalContext =>
+      'Berikan konteks tambahan untuk laporan anda';
+
+  @override
+  String get messageReported => 'Mesej dilaporkan.';
+
+  @override
+  String get spam => 'Spam / Kandungan tidak diingini';
+
+  @override
+  String get sexual => 'Kandungan seksual';
+
+  @override
+  String get harassment => 'Gangguan / Buli';
+
 }
 

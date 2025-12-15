@@ -1260,5 +1260,38 @@ class TranslationsJa extends Translations {
 
   @override
   String get notifyAll => "すべて";
+
+  @override
+  String get report => '通報';
+
+  @override
+  String get reportMessage => 'メッセージを通報';
+
+  @override
+  String get reportChatInfo =>
+      'このチャットがコミュニティ基準に反する場合は報告してください。あなたが報告したことは相手には通知されません。';
+
+  @override
+  String get reason => '理由';
+
+  @override
+  String get optional => '任意';
+
+  @override
+  String get additionalContext =>
+      '報告に追加の情報を提供してください';
+
+  @override
+  String get messageReported => 'メッセージが報告されました。';
+
+  @override
+  String get spam => 'スパム / 不要なコンテンツ';
+
+  @override
+  String get sexual => '性的コンテンツ';
+
+  @override
+  String get harassment => '嫌がらせ / いじめ';
+
 }
 

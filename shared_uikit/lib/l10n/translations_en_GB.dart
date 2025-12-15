@@ -1309,4 +1309,35 @@ class TranslationsEnGb extends Translations {
 
   @override
   String get notifyAll => "all";
+
+  @override
+  String get report => 'Report';
+
+  @override
+  String get reportMessage => 'Report a message';
+
+  @override
+  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+
+  @override
+  String get reason => 'Reason';
+
+  @override
+  String get optional => 'Optional';
+
+  @override
+  String get additionalContext => 'Provide additional context for your report';
+
+  @override
+  String get messageReported => 'Message reported.';
+
+  @override
+  String get spam => 'Spam / Unwanted Content';
+
+  @override
+  String get sexual => 'Sexual Content';
+
+  @override
+  String get harassment => 'Harassment / Bullying';
+
 }

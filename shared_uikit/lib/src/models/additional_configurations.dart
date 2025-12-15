@@ -71,6 +71,7 @@ class AdditionalConfigurations {
     this.hideTranslateMessageOption,
     this.hideReplyInThreadOption,
     this.hideShareMessageOption,
+    this.hideFlagOption,
   });
 
 
@@ -193,4 +194,7 @@ class AdditionalConfigurations {
 
   ///[hideShareMessageOption] This prop defines whether share option should be visible or not.
   final bool? hideShareMessageOption;
+
+  ///[hideFlagOption] This prop defines whether report option should be visible or not.
+  final bool? hideFlagOption;
 }

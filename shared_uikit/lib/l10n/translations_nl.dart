@@ -1299,4 +1299,37 @@ class TranslationsNl extends Translations {
 
   @override
   String get notifyAll => "iedereen";
+
+  @override
+  String get report => 'Melden';
+
+  @override
+  String get reportMessage => 'Een bericht melden';
+
+  @override
+  String get reportChatInfo =>
+      'Meld deze chat als deze in strijd is met onze Gemeenschapsrichtlijnen. We zullen het account niet vertellen dat u het heeft gemeld.';
+
+  @override
+  String get reason => 'Reden';
+
+  @override
+  String get optional => 'Optioneel';
+
+  @override
+  String get additionalContext =>
+      'Geef extra context voor uw melding';
+
+  @override
+  String get messageReported => 'Bericht gemeld.';
+
+  @override
+  String get spam => 'Spam / Ongewenste inhoud';
+
+  @override
+  String get sexual => 'Seksuele inhoud';
+
+  @override
+  String get harassment => 'Intimidatie / Pesten';
+
 }

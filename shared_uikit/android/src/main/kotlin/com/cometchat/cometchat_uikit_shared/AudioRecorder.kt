@@ -32,6 +32,7 @@ class AudioRecorder (private val context: Context, private val activity: Activit
 
 
     // creating a variable for media recorder object class.
+    // creating a variable for media recorder object class.
     var audioRecorder: MediaRecorder? = null
 
     // creating a variable for media-player class
@@ -43,8 +44,7 @@ class AudioRecorder (private val context: Context, private val activity: Activit
     private var audioManager: AudioManager? = null // AudioManager for managing audio focus
     private var hasAudioFocus = false // To track audio focus status
 
-//    private var timer: Timer? = null
-
+    private var isPaused = false
 
     /**
      * Requests audio focus before starting playback or recording.
@@ -103,6 +103,15 @@ class AudioRecorder (private val context: Context, private val activity: Activit
         // that the user has granted permission
         // to record and store the audio.
         if (checkPermissions()) {
+            
+            if (isPaused && audioRecorder != null) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    audioRecorder?.resume()
+                    isPaused = false
+                    return true
+                }
+            }
+            
             // we are here initializing our filename variable
             // with the path of the recorded audio file.
             fileName = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.absolutePath
@@ -142,6 +151,7 @@ class AudioRecorder (private val context: Context, private val activity: Activit
             // the audio recording.
             if (requestAudioFocus()) { // Request audio focus before starting recording
                 audioRecorder?.start()
+                isPaused = false
                 return true
             } else {
                 Log.e("AudioRecorder", "Failed to gain audio focus")
@@ -211,11 +221,15 @@ class AudioRecorder (private val context: Context, private val activity: Activit
         }
     }
 
-    public fun pauseRecording():String? {
+    public fun stopRecording():String? {
 
         // below method will stop
         // the audio recording.
-        audioRecorder?.stop()
+        try {
+            audioRecorder?.stop()
+        }catch (e:Exception){
+            Log.e("AudioRecorder","stopRecording failed $e")
+        }
 
 
         // below method will release
@@ -223,7 +237,21 @@ class AudioRecorder (private val context: Context, private val activity: Activit
         audioRecorder?.release()
         audioRecorder = null
         releaseAudioFocus()
+        isPaused = false
         return fileName
+    }
+
+    public fun pauseRecording() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+             try {
+                 audioRecorder?.pause()
+                 isPaused = true
+             }catch (e:Exception){
+                    Log.e("AudioRecorder","pauseRecording failed $e")
+             }
+        } else {
+            stopRecording()
+        }
     }
 
     fun pausePlaying() {
@@ -241,7 +269,7 @@ class AudioRecorder (private val context: Context, private val activity: Activit
     /// release all media resources
     fun releaseMediaResources(){
         if (audioRecorder!=null ){
-            pauseRecording()
+            stopRecording()
         }
         if (audioPlayer!=null || audioPlayer?.isPlaying == true){
             stopPlaying()

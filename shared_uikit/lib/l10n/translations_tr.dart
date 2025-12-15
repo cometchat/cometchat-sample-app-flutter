@@ -1296,4 +1296,37 @@ class TranslationsTr extends Translations {
 
   @override
   String get notifyAll => "hepsi";
+
+  @override
+  String get report => 'Bildir';
+
+  @override
+  String get reportMessage => 'Bir mesajı bildir';
+
+  @override
+  String get reportChatInfo =>
+      'Bu sohbet topluluk kurallarımıza aykırıysa bildir. Bildirdiğini karşı hesaba söylemeyeceğiz.';
+
+  @override
+  String get reason => 'Sebep';
+
+  @override
+  String get optional => 'İsteğe bağlı';
+
+  @override
+  String get additionalContext =>
+      'Raporunuz için ek bilgi sağlayın';
+
+  @override
+  String get messageReported => 'Mesaj bildirildi.';
+
+  @override
+  String get spam => 'Spam / İstenmeyen içerik';
+
+  @override
+  String get sexual => 'Cinsel içerik';
+
+  @override
+  String get harassment => 'Taciz / Zorbalık';
+
 }

@@ -1,3 +1,17 @@
+## 5.2.6
+
+## New
+- Added a new feature that allows users to report a specific message for moderation purposes.
+- Added `hideFlagMessageOption` — to hide the **Flag Message** option from the message actions menu.
+- Added `hideFlagRemarkField` — to hide the remark text area in the flag dialog.
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.1.7`.
+- Updated `cometchat_sdk` to version `4.0.32`.
+
+## Fixes
+- Fixed a bug where users who had not logged in at least once were not shown as "Offline". Presence status now correctly reflects the state of such users.
+
 ## 5.2.5
 
 ## New

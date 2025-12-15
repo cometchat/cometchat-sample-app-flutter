@@ -1318,4 +1318,37 @@ class TranslationsFr extends Translations {
 
   @override
   String get notifyAll => "tous";
+
+  @override
+  String get report => 'Signaler';
+
+  @override
+  String get reportMessage => 'Signaler un message';
+
+  @override
+  String get reportChatInfo =>
+      'Signalez cette discussion si elle enfreint nos Standards de la Communauté. Nous n’informerons pas le compte que vous l’avez signalé.';
+
+  @override
+  String get reason => 'Raison';
+
+  @override
+  String get optional => 'Optionnel';
+
+  @override
+  String get additionalContext =>
+      'Fournissez un contexte supplémentaire pour votre signalement';
+
+  @override
+  String get messageReported => 'Message signalé.';
+
+  @override
+  String get spam => 'Spam / Contenu indésirable';
+
+  @override
+  String get sexual => 'Contenu sexuel';
+
+  @override
+  String get harassment => 'Harcèlement / Intimidation';
+
 }
