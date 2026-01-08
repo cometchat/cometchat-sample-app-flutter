@@ -21,22 +21,22 @@ import 'package:intl/intl.dart';
 class CometChatFileBubble extends StatefulWidget {
   const CometChatFileBubble(
       {super.key,
-      this.style,
-      this.title,
-      this.subtitle,
-      this.fileUrl,
-      this.fileMimeType,
-      this.id,
-      this.downloadIcon,
-      this.width,
-      this.height,
-      this.padding,
-      this.margin,
-      this.alignment,
-      this.fileExtension,
-      this.fileSize,
-      this.dateTime,
-      this.metadata
+        this.style,
+        this.title,
+        this.subtitle,
+        this.fileUrl,
+        this.fileMimeType,
+        this.id,
+        this.downloadIcon,
+        this.width,
+        this.height,
+        this.padding,
+        this.margin,
+        this.alignment,
+        this.fileExtension,
+        this.fileSize,
+        this.dateTime,
+        this.metadata
       });
 
   ///[title] if title passed then that title is displayed instead of file name from [MediaMessage]
@@ -91,9 +91,15 @@ class CometChatFileBubble extends StatefulWidget {
   State<CometChatFileBubble> createState() => _CometChatFileBubbleState();
 }
 
-class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerProviderStateMixin {
+class _CometChatFileBubbleState extends State<CometChatFileBubble>
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
+
+  @override
+  bool get wantKeepAlive => true;
+
   bool isFileDownloading = false;
   bool isFileExists = false;
+  bool _hasCheckedFile = false;
 
   String fileName = '';
   String? subtitle;
@@ -156,28 +162,61 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
   final double _millisecondsInHrs = 3600000;
   int delayer = 1;
 
-
   double progress = 0.0;
 
   Ticker? _ticker;
 
   String? localPath;
 
+  static final Map<String, bool> _fileExistenceCache = {};
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     setParameters();
-
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     if(_ticker!=null && _ticker?.isActive==true){
       _ticker?.stop(canceled: true);
       _ticker?.dispose();
     }
-
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // When app comes back to foreground, recheck file existence
+    if (state == AppLifecycleState.resumed) {
+      debugPrint("App resumed - rechecking file existence");
+      _recheckFileExistence();
+    }
+  }
+
+  void _recheckFileExistence() async {
+    final localPath = FileUtils.getLocalFilePath(widget.metadata) ?? '';
+    final decodedPath = Uri.decodeFull(localPath);
+
+    bool fileExists = false;
+
+    if (FileUtils.isLocalFileAvailable(decodedPath)) {
+      this.localPath = decodedPath;
+      fileExists = true;
+    } else {
+      String? path = await BubbleUtils.isFileDownloaded(fileName);
+      fileExists = path != null;
+    }
+
+    if (fileExists != isFileExists && mounted) {
+      setState(() {
+        isFileExists = fileExists;
+        _fileExistenceCache[fileName] = fileExists;
+      });
+    }
   }
 
   late CometChatFileBubbleStyle fileBubbleStyle;
@@ -196,7 +235,6 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
     typography = CometChatThemeHelper.getTypography(context);
     super.didChangeDependencies();
   }
-
 
   String? getFileExtension(String? fileUrl) {
     // Decode file URL to handle encoded paths
@@ -234,7 +272,6 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
     return fileIcon;
   }
 
-
   setParameters() {
     if (widget.id != null) {
       fileName += '${widget.id}';
@@ -253,6 +290,13 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
     }
     if (widget.fileMimeType != null) {
       fileMimeType = widget.fileMimeType;
+    }
+
+    // Check cache first to avoid flickering
+    if (_fileExistenceCache.containsKey(fileName)) {
+      isFileExists = _fileExistenceCache[fileName]!;
+      _hasCheckedFile = true;
+      debugPrint("Using cached file existence: $isFileExists for $fileName");
     }
 
     fileExists();
@@ -275,12 +319,16 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
         isFileExists = true;
       }
     }
-    debugPrint("File Exist $isFileExists");
+
+    // Cache the result
+    _fileExistenceCache[fileName] = isFileExists;
+    _hasCheckedFile = true;
+
+    debugPrint("File Exist $isFileExists for $fileName");
     if (mounted) {
       setState(() {});
     }
   }
-
 
   openFile() async {
     if (isFileExists) {
@@ -343,12 +391,12 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
 
     return GestureDetector(
       onTap: openFile,
       child: Container(
         height: widget.height,
-
         width: widget.width ?? 265,
         margin: widget.margin,
         padding: widget.padding ?? EdgeInsets.fromLTRB(spacing.padding1 ?? 0, spacing.padding2 ?? 0,0,spacing.padding1 ?? 0),
@@ -376,34 +424,34 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
                   Text(widget.title ?? Translations.of(context).file,
                       overflow: TextOverflow.ellipsis,
                       style:  TextStyle(
-                              fontSize: typography.body?.medium?.fontSize,
-                              fontWeight:
-                                  typography.body?.medium?.fontWeight,
-                              color: getTitleColor(
-                                  context, fileBubbleStyle, colorPalette)).merge(fileBubbleStyle.titleTextStyle)
-                  .copyWith(color: getTitleColor(context, fileBubbleStyle, colorPalette))
+                          fontSize: typography.body?.medium?.fontSize,
+                          fontWeight:
+                          typography.body?.medium?.fontWeight,
+                          color: getTitleColor(
+                              context, fileBubbleStyle, colorPalette)).merge(fileBubbleStyle.titleTextStyle)
+                          .copyWith(color: getTitleColor(context, fileBubbleStyle, colorPalette))
                   ),
                   Text(
-                    subtitle ?? _getDefaultSubtitle(),
-                    style:  TextStyle(
-                            fontSize:
-                                typography.caption2?.regular?.fontSize,
-                            fontWeight:
-                                typography.caption2?.regular?.fontWeight,
-                            color: getSubtitleColor(
-                                context, fileBubbleStyle, colorPalette)).merge(fileBubbleStyle.subtitleTextStyle)
-                    .copyWith(color: getSubtitleColor(context, fileBubbleStyle, colorPalette))
+                      subtitle ?? _getDefaultSubtitle(),
+                      style:  TextStyle(
+                          fontSize:
+                          typography.caption2?.regular?.fontSize,
+                          fontWeight:
+                          typography.caption2?.regular?.fontWeight,
+                          color: getSubtitleColor(
+                              context, fileBubbleStyle, colorPalette)).merge(fileBubbleStyle.subtitleTextStyle)
+                          .copyWith(color: getSubtitleColor(context, fileBubbleStyle, colorPalette))
                   )
                 ],
               ),
             ),
-              const Spacer(),
+            const Spacer(),
 
-              if(!isFileExists)SizedBox(
+            // Only show download button if file doesn't exist AND we've checked at least once
+            if(!isFileExists && _hasCheckedFile) SizedBox(
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-
                   if(isFileDownloading) SizedBox(
                     height: 20,
                     width: 20,
@@ -427,6 +475,10 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
                         } else {
                           isFileExists = true;
                         }
+
+                        // Update cache
+                        _fileExistenceCache[fileName] = isFileExists;
+
                         _ticker?.stop();
                         _ticker?.dispose();
 
@@ -453,7 +505,9 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
                   ),
                 ],
               ),
-            )
+            ),
+
+            if(!_hasCheckedFile) const SizedBox(),
           ],
         ),
       ),
@@ -475,7 +529,7 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
       CometChatFileBubbleStyle fileBubbleStyle,
       CometChatColorPalette colorPalette) {
     return (fileBubbleStyle.subtitleColor ??
-            fileBubbleStyle.subtitleTextStyle?.color) ??
+        fileBubbleStyle.subtitleTextStyle?.color) ??
         (widget.alignment == BubbleAlignment.right
             ? colorPalette.white
             : colorPalette.neutral600);
@@ -486,7 +540,7 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
       CometChatFileBubbleStyle fileBubbleStyle,
       CometChatColorPalette colorPalette) {
     return (fileBubbleStyle.titleColor ??
-            fileBubbleStyle.titleTextStyle?.color) ??
+        fileBubbleStyle.titleTextStyle?.color) ??
         (widget.alignment == BubbleAlignment.right
             ? colorPalette.white
             : colorPalette.neutral900);

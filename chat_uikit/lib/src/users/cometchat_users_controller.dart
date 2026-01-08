@@ -114,36 +114,17 @@ class CometChatUsersController
     update();
   }
 
-  // TODO: Implement the retry logic later.
-  // Method to load groups
-  void retryUsers() async {
-    try {
-      request = usersBuilderProtocol.getRequest();
-      list = [];
-      isLoading = true;
-      await loadMoreElements();
-      isLoading = false;
-      _currentRetryCount = 0; // Reset retries on success
-    } catch (e) {
-      isLoading = false;
-      _handleError(e);
-    }
+  resetUsers() {
+    // reset values
+    list.clear();
+    error = null;
+    hasError = false;
+    hasMoreItems = true;
+    isLoading = true;
+    loadMoreElements();
+    update();
   }
 
-  // TODO: Implement the retry logic later.
-  // Retry logic on error
-  void _handleError(dynamic error) {
-    if (_currentRetryCount < maxRetries) {
-      _currentRetryCount++;
-      Future.delayed(retryDelay, () {
-        retryUsers();
-      });
-    } else {
-      if (onError != null) {
-        onError!(error);
-      }
-    }
-  }
 
   // Function to show pop-up menu on long press
   void showPopupMenu(

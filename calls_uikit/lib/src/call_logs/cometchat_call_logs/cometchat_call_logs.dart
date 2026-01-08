@@ -640,7 +640,7 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
       typography,
       spacing,
       () {
-        controller.retryGroups();
+        controller.resetCallLogs();
       },
       errorStateTextColor: style.errorStateTextColor,
       errorStateTextStyle: style.errorStateTextStyle,

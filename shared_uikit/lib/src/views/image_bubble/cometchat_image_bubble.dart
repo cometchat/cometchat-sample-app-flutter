@@ -1,10 +1,10 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'image_utility.dart'; // For any FileUtils or constants
@@ -48,6 +48,25 @@ Future<ui.Image?> decodeImageInIsolate(Uint8List bytes) async {
   }
 }
 
+/// Decode image on main thread (for iOS compatibility)
+Future<ui.Image?> decodeImageOnMainThread(Uint8List bytes) async {
+  try {
+    const maxWidth = 1024;
+    const maxHeight = 1024;
+
+    final codec = await ui.instantiateImageCodec(
+      bytes,
+      targetWidth: maxWidth,
+      targetHeight: maxHeight,
+    );
+    final frame = await codec.getNextFrame();
+    return frame.image;
+  } catch (e) {
+    debugPrint("❌ Image decode error on main thread: $e");
+    return null;
+  }
+}
+
 /// Widget that shows an image bubble with caching and isolate download support
 class CometChatImageBubble extends StatefulWidget {
   final String? imageUrl;
@@ -79,8 +98,26 @@ class CometChatImageBubble extends StatefulWidget {
   State<CometChatImageBubble> createState() => _CometChatImageBubbleState();
 }
 
+/// Image loading state
+enum _ImageLoadState {
+  loading,
+  loaded,
+  error,
+}
+
 class _CometChatImageBubbleState extends State<CometChatImageBubble> {
   bool _isHeicHeif = false; // Track if it's HEIC/HEIF format
+  int _retryCount = 0; // Track automatic retry attempts
+  int _imageKey = 0; // Key to force image reload
+  _ImageLoadState _loadState = _ImageLoadState.loading;
+  static const int _maxRetries = 3; // Maximum automatic retry attempts
+
+  /// Resets all retry state to initial values
+  void _resetRetryState() {
+    _retryCount = 0;
+    _imageKey = 0;
+    _loadState = _ImageLoadState.loading;
+  }
 
   late CometChatImageBubbleStyle imageBubbleStyle;
   late CometChatColorPalette colorPalette;
@@ -94,6 +131,16 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
         .merge(widget.style);
     colorPalette = CometChatThemeHelper.getColorPalette(context);
     spacing = CometChatThemeHelper.getSpacing(context);
+  }
+
+  @override
+  void didUpdateWidget(CometChatImageBubble oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reset retry state when URL changes
+    if (oldWidget.imageUrl != widget.imageUrl) {
+      _resetRetryState();
+      _checkImageFormat();
+    }
   }
 
   @override
@@ -122,6 +169,10 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
       debugPrint("⚠️ HEIC/HEIF/AVIF image detected, showing placeholder: ${widget.imageUrl}");
       setState(() {
         _isHeicHeif = true;
+      });
+    } else {
+      setState(() {
+        _isHeicHeif = false;
       });
     }
   }
@@ -156,6 +207,124 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
         ),
       ),
     );
+  }
+
+  /// Builds the loading indicator widget
+  Widget _buildLoadingIndicator() {
+    return Container(
+      color: imageBubbleStyle.backgroundColor ?? colorPalette.background3,
+      alignment: Alignment.center,
+      child: CircularProgressIndicator(
+        color: colorPalette.primary,
+        strokeWidth: 2.0,
+      ),
+    );
+  }
+
+  /// Builds the error UI with retry button displayed after all retries are exhausted
+  Widget _buildErrorUIWithRetryButton() {
+    return Container(
+      color: imageBubbleStyle.backgroundColor ?? colorPalette.background3?.withOpacity(0.5),
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 48,
+            color: colorPalette.error ?? Colors.red[400],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Failed to load',
+            style: TextStyle(
+              color: colorPalette.textSecondary ?? Colors.grey[600],
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: _onManualRetry,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: colorPalette.primary,
+                borderRadius: BorderRadius.circular(spacing.radius2 ?? 4),
+              ),
+              child: Text(
+                'Retry',
+                style: TextStyle(
+                  color: colorPalette.white ?? Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Handles manual retry button tap, resets state and triggers reload
+  void _onManualRetry() {
+    debugPrint("🔄 Manual retry triggered");
+    // Clear memory cache for this URL
+    if (widget.imageUrl != null) {
+      PaintingBinding.instance.imageCache.evict(widget.imageUrl!);
+    }
+    if (mounted) {
+      setState(() {
+        _retryCount = 0;
+        _loadState = _ImageLoadState.loading;
+        _imageKey++; // Force image widget to rebuild
+      });
+    }
+  }
+  
+  /// Handles image load error and triggers retry if needed
+  void _onImageError(Object error, StackTrace? stackTrace) {
+    debugPrint("❌ Image load error (attempt ${_retryCount + 1}/$_maxRetries): $error");
+    
+    if (_retryCount < _maxRetries - 1) {
+      // Still have retries left - schedule retry
+      _retryCount++;
+      debugPrint("🔄 Scheduling retry ${_retryCount}/$_maxRetries");
+      
+      // Clear memory cache before retry
+      if (widget.imageUrl != null) {
+        PaintingBinding.instance.imageCache.evict(widget.imageUrl!);
+      }
+      
+      // Delay then retry
+      Future.delayed(const Duration(milliseconds: 800), () {
+        if (mounted) {
+          setState(() {
+            _loadState = _ImageLoadState.loading;
+            _imageKey++;
+          });
+        }
+      });
+    } else {
+      // All retries exhausted
+      debugPrint("❌ All $_maxRetries retries exhausted, showing error UI");
+      if (mounted) {
+        setState(() {
+          _loadState = _ImageLoadState.error;
+        });
+      }
+    }
+  }
+  
+  /// Handles successful image load
+  void _onImageLoaded() {
+    if (mounted && _loadState != _ImageLoadState.loaded) {
+      setState(() {
+        _loadState = _ImageLoadState.loaded;
+      });
+    }
   }
 
   @override
@@ -194,91 +363,73 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
         child: _isHeicHeif
             ? _buildHeicHeifPlaceholder()
             : widget.imageUrl != null && widget.imageUrl!.isNotEmpty
-            ? CachedNetworkImage(
-          imageUrl: widget.imageUrl!,
-          cacheManager: CometChatCacheManager.instance,
-          fit: BoxFit.cover,
-          memCacheWidth: 800,  // Limit memory cache size for iOS optimization
-          memCacheHeight: 600,
-          maxWidthDiskCache: 1200,  // Limit disk cache size
-          maxHeightDiskCache: 900,
-          placeholder: (context, url) => Container(
-            color: imageBubbleStyle.backgroundColor ?? colorPalette.background3,
-            alignment: Alignment.center,
-            child: CircularProgressIndicator(
-              color: colorPalette.primary,
-              strokeWidth: 2.0,
-            ),
-          ),
-          errorWidget: (context, url, error) {
-            debugPrint("❌ CachedNetworkImage error for $url: $error");
-            // Try to use isolate decoding as fallback
-            return FutureBuilder<ui.Image?>(
-              future: _tryIsolateDecoding(url),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Container(
-                    color: imageBubbleStyle.backgroundColor ?? colorPalette.background3,
-                    alignment: Alignment.center,
-                    child: CircularProgressIndicator(
-                      color: colorPalette.primary,
-                      strokeWidth: 2.0,
-                    ),
-                  );
-                }
-
-                if (snapshot.hasData && snapshot.data != null) {
-                  return RawImage(
-                    image: snapshot.data,
-                    fit: BoxFit.cover,
-                  );
-                }
-
-                return Container(
-                  color: imageBubbleStyle.backgroundColor ?? colorPalette.background3?.withValues(alpha: 0.5),
-                  alignment: Alignment.center,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 48,
-                        color: colorPalette.error ?? Colors.red[400],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Failed to load',
-                        style: TextStyle(
-                          color: colorPalette.textSecondary ?? Colors.grey[600],
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        )
+            ? _buildNetworkImage()
             : _buildDefaultPlaceholder(),
       ),
+    );
+  }
+  
+  /// Builds the network image with retry support
+  Widget _buildNetworkImage() {
+    // Show error UI if retries exhausted
+    if (_loadState == _ImageLoadState.error) {
+      return _buildErrorUIWithRetryButton();
+    }
+    
+    return Image.network(
+      widget.imageUrl!,
+      key: ValueKey('${widget.imageUrl}_$_imageKey'),
+      fit: BoxFit.cover,
+      cacheWidth: 800,
+      cacheHeight: 600,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) {
+          // Image loaded successfully
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _onImageLoaded();
+          });
+          return child;
+        }
+        // Still loading
+        return _buildLoadingIndicator();
+      },
+      errorBuilder: (context, error, stackTrace) {
+        // Handle error with retry logic
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _onImageError(error, stackTrace);
+        });
+        
+        // Show loading during retry, error UI after exhausted
+        if (_retryCount < _maxRetries - 1) {
+          return _buildLoadingIndicator();
+        }
+        return _buildErrorUIWithRetryButton();
+      },
     );
   }
 
   /// Fallback method to try isolate decoding when CachedNetworkImage fails
   Future<ui.Image?> _tryIsolateDecoding(String url) async {
     try {
-      // Download image bytes using isolate
-      final bytes = await compute(fetchImageBytes, url);
-
-      // Decode using isolate with memory constraints
-      final image = await compute(decodeImageInIsolate, bytes);
-
-      return image;
+      debugPrint("🔄 Attempting fallback image loading for: $url");
+      
+      // Download image bytes - use compute only for fetching, not for decoding on iOS
+      Uint8List bytes;
+      
+      if (Platform.isIOS) {
+        // On iOS, fetch directly without isolate to avoid issues
+        bytes = await fetchImageBytes(url);
+        // Decode on main thread for iOS to avoid isolate registry issues
+        final image = await decodeImageOnMainThread(bytes);
+        return image;
+      } else {
+        // On Android, use isolate for both fetching and decoding
+        bytes = await compute(fetchImageBytes, url);
+        final image = await compute(decodeImageInIsolate, bytes);
+        return image;
+      }
     } catch (e) {
-      debugPrint("❌ Isolate decoding failed for $url: $e");
+      debugPrint("❌ Fallback image loading failed for $url: $e");
       return null;
     }
   }

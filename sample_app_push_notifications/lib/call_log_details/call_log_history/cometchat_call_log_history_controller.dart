@@ -176,34 +176,14 @@ class CometChatCallLogHistoryController
     return formatted;
   }
 
-  // TODO: Implement the retry logic later.
-  // Method to load groups
-  void retryGroups() async {
-    try {
-      request = callLogsBuilderProtocol.getRequest();
-      list = [];
-      isLoading = true;
-      await loadMoreElements();
-      isLoading = false;
-      _currentRetryCount = 0; // Reset retries on success
-    } catch (e) {
-      isLoading = false;
-      _handleError(e);
-    }
-  }
-
-  // TODO: Implement the retry logic later.
-  // Retry logic on error
-  void _handleError(dynamic error) {
-    if (_currentRetryCount < maxRetries) {
-      _currentRetryCount++;
-      Future.delayed(retryDelay, () {
-        retryGroups();
-      });
-    } else {
-      if (onError != null) {
-        onError!(error);
-      }
-    }
+  resetCallLogHistory() {
+    // reset values
+    list.clear();
+    error = null;
+    hasError = false;
+    hasMoreItems = true;
+    isLoading = true;
+    loadMoreElements();
+    update();
   }
 }

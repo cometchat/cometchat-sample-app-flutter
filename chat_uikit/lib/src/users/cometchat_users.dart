@@ -824,7 +824,7 @@ class _CometChatUsersState extends State<CometChatUsers> {
       typography,
       spacing,
       () {
-        controller.retryUsers();
+        controller.resetUsers();
       },
       errorStateTextColor: style.errorStateTextColor,
       errorStateTextStyle: style.errorStateTextStyle,

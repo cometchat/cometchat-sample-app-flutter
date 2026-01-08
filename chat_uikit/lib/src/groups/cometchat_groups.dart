@@ -778,7 +778,7 @@ class _CometChatGroupsState extends State<CometChatGroups> {
       typography,
       spacing,
       () {
-        controller.retryGroups();
+        controller.resetGroups();
       },
       errorStateTextColor: style.errorStateTextColor,
       errorStateTextStyle: style.errorStateTextStyle,

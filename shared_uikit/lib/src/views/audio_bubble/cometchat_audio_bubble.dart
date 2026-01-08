@@ -125,19 +125,45 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     _setupAudioState();
     _setupEventStreams();
     _checkFileExists();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _audioState != null) {
+        _updateAnimationBasedOnPlayState(_audioState!.playState);
+      }
+    });
   }
 
   void _setupAudioState() {
     final path = FileUtils.getLocalFilePath(widget.metadata) ?? '';
     _audioState = AudioStateManager().getAudioState(tag, widget.audioUrl, path);
 
+    // Cancel any existing subscription first
+    _audioStateSubscription?.cancel();
+
+    // Set up new subscription
     _audioStateSubscription = _audioState!.stateStream.listen((update) {
       if (mounted && update.id == tag) {
         setState(() {
+          // Update animation based on the new play state
           _updateAnimationBasedOnPlayState(update.playState);
         });
       }
     });
+
+    // ✅ Immediately sync with current state
+    if (mounted) {
+      _updateAnimationBasedOnPlayState(_audioState!.playState);
+    }
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+  }
+
+  void permanentCleanup() {
+    _audioState?.stopAudio();
+    AudioStateManager().removeAudioState(tag);
   }
 
   void _setupEventStreams() {
@@ -152,8 +178,13 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
 
   void _updateAnimationBasedOnPlayState(PlayStates playState) {
     bool shouldAnimate = playState == PlayStates.playing;
+
     if (isAnimating != shouldAnimate) {
       toggleAnimation(shouldAnimate);
+    }
+
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -184,7 +215,6 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
       setState(() {});
     }
 
-    // Update audio state with the local path if found
     _audioState = AudioStateManager().getAudioState(tag, widget.audioUrl, localPath);
     _audioState!.initializeController();
   }
@@ -264,6 +294,8 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
 
   @override
   void dispose() {
+
+    AudioStateManager().stopAllAudio();
     _audioStateSubscription?.cancel();
     _eventSubscription?.cancel();
 
@@ -457,6 +489,15 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                                   isFileExists = false;
                                 } else {
                                   isFileExists = true;
+
+                                  final state = AudioStateManager().getAudioState(
+                                    tag,
+                                    widget.audioUrl,
+                                    null,
+                                  );
+
+                                  state.updateLocalPath(path);
+                                  await state.initializeController();
                                 }
                               } catch (e) {
                                 debugPrint("Error downloading file: $e");

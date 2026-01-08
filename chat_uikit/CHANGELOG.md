@@ -1,3 +1,12 @@
+## 5.2.7
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.1.8`.
+- Updated `cometchat_sdk` to version `4.0.33`.
+
+## Fixes
+- Fixed the Retry button to reattempt network requests and refresh data when the internet connection is restored.
+
 ## 5.2.6
 
 ## New

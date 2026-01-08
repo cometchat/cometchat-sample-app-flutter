@@ -317,7 +317,7 @@ class _CometChatCallLogHistoryState extends State<CometChatCallLogHistory> {
       typography,
       spacing,
       () {
-        controller.retryGroups();
+        controller.resetCallLogHistory();
       },
     );
   }

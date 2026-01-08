@@ -67,6 +67,8 @@ class _ImageViewerState extends State<ImageViewer> {
     return FileUtils.isLocalFileAvailable(widget.imageUrl);
   }
 
+  bool get _isGif => widget.imageUrl.toLowerCase().endsWith('.gif');
+
   @override
   Widget build(BuildContext context) {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
@@ -85,7 +87,7 @@ class _ImageViewerState extends State<ImageViewer> {
             InteractiveViewer(
               panEnabled: true,
               minScale: 0.1,
-              maxScale: 4.0,
+              maxScale: _isGif ? 2.5 : 4.0,
               onInteractionEnd: (ScaleEndDetails details) {
                 // Only update state when interaction ends for smoother performance
                 final newZoomed = _currentScale > 1.1;
@@ -103,110 +105,151 @@ class _ImageViewerState extends State<ImageViewer> {
                 height: double.infinity,
                 child: _isLocalFile
                     ? Image.file(
-                  File(widget.imageUrl),
-                  fit: BoxFit.contain,
-                  filterQuality: FilterQuality.medium,
-                  errorBuilder: (context, error, stackTrace) {
-                    return _buildPlaceholderImage();
-                  },
-                  cacheHeight: 512,
-                  cacheWidth: 512,
-                  frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                    if (wasSynchronouslyLoaded || frame != null) {
-                      // Image loaded successfully
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted && _isLoading) {
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        }
-                      });
-                    }
-                    return child;
-                  },
-                )
-                    : FadeInImage(
-                  key: imageKey,
-                  placeholder: AssetImage(
-                    widget.placeholderImage ??
-                        AssetConstants.imagePlaceholder,
-                    package: widget.placeHolderImagePackageName ??
-                        UIConstants.packageName,
-                  ),
-                  fit: BoxFit.contain,
-                  placeholderFit: BoxFit.contain,
-                  imageErrorBuilder: (context, object, stackTrace) {
-                    // Set loading to false on error
-                    if (_isLoading) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted) {
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        }
-                      });
-                    }
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _isLoading = true; // Reset loading state for retry
-                                imageCache.evict(
-                                  NetworkImageWithRetry(widget.imageUrl),
-                                );
-                                imageKey = ValueKey(widget.imageUrl +
-                                    DateTime.now().toString());
-                              });
-                              // Set timer again for retry
-                              Future.delayed(const Duration(seconds: 3), () {
-                                if (mounted) {
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                }
-                              });
+                        File(widget.imageUrl),
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.medium,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _buildPlaceholderImage();
+                        },
+                        cacheHeight: 512,
+                        cacheWidth: 512,
+                        frameBuilder:
+                            (context, child, frame, wasSynchronouslyLoaded) {
+                          if (wasSynchronouslyLoaded || frame != null) {
+                            // Image loaded successfully
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (mounted && _isLoading) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                            });
+                          }
+                          return child;
+                        },
+                      )
+                    : _isGif
+                        ? Image.network(
+                            widget.imageUrl,
+                            fit: BoxFit.contain,
+                            gaplessPlayback: true,
+                            errorBuilder: (context, error, stackTrace) {
+                              return _buildPlaceholderImage();
                             },
-                            icon: Image.asset(
-                              AssetConstants.refreshIcon,
-                              height: 24,
-                              width: 24,
-                              package: UIConstants.packageName,
-                              color: colorPalette.iconPrimary,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  if (mounted && _isLoading) {
+                                    setState(() => _isLoading = false);
+                                  }
+                                });
+                                return child;
+                              }
+                              return Container(
+                                color: colorPalette.background1
+                                    ?.withValues(alpha: 0.8),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: colorPalette.iconSecondary ??
+                                        Colors.grey,
+                                    backgroundColor: colorPalette.neutral300
+                                        ?.withValues(alpha: 0.3),
+                                    strokeWidth: 3.0,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : FadeInImage(
+                            key: imageKey,
+                            placeholder: AssetImage(
+                              widget.placeholderImage ??
+                                  AssetConstants.imagePlaceholder,
+                              package: widget.placeHolderImagePackageName ??
+                                  UIConstants.packageName,
                             ),
+                            fit: BoxFit.contain,
+                            placeholderFit: BoxFit.contain,
+                            imageErrorBuilder: (context, object, stackTrace) {
+                              // Set loading to false on error
+                              if (_isLoading) {
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  if (mounted) {
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                  }
+                                });
+                              }
+                              return Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isLoading =
+                                              true; // Reset loading state for retry
+                                          imageCache.evict(
+                                            NetworkImageWithRetry(
+                                                widget.imageUrl),
+                                          );
+                                          imageKey = ValueKey(widget.imageUrl +
+                                              DateTime.now().toString());
+                                        });
+                                        // Set timer again for retry
+                                        Future.delayed(
+                                            const Duration(seconds: 3), () {
+                                          if (mounted) {
+                                            setState(() {
+                                              _isLoading = false;
+                                            });
+                                          }
+                                        });
+                                      },
+                                      icon: Image.asset(
+                                        AssetConstants.refreshIcon,
+                                        height: 24,
+                                        width: 24,
+                                        package: UIConstants.packageName,
+                                        color: colorPalette.iconPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            image: NetworkImageWithRetry(
+                              widget.imageUrl,
+                              fetchStrategy:
+                                  (Uri uri, FetchFailure? failure) async {
+                                const int maxAttempts = 7;
+                                const int baseDelaySeconds = 1;
+                                if (failure == null) {
+                                  return FetchInstructions.attempt(
+                                    uri: uri,
+                                    timeout: const Duration(seconds: 10),
+                                  );
+                                } else if (failure.attemptCount < maxAttempts) {
+                                  final int delaySeconds = (baseDelaySeconds *
+                                          pow(2, failure.attemptCount - 1))
+                                      .toInt();
+                                  await Future.delayed(
+                                      Duration(seconds: delaySeconds));
+                                  return FetchInstructions.attempt(
+                                    uri: uri,
+                                    timeout:
+                                        Duration(seconds: 10 + delaySeconds),
+                                  );
+                                } else {
+                                  return FetchInstructions.giveUp(uri: uri);
+                                }
+                              },
+                            ),
+                            fadeInDuration: const Duration(milliseconds: 300),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                  image: NetworkImageWithRetry(
-                    widget.imageUrl,
-                    fetchStrategy: (Uri uri, FetchFailure? failure) async {
-                      const int maxAttempts = 7;
-                      const int baseDelaySeconds = 1;
-                      if (failure == null) {
-                        return FetchInstructions.attempt(
-                          uri: uri,
-                          timeout: const Duration(seconds: 10),
-                        );
-                      } else if (failure.attemptCount < maxAttempts) {
-                        final int delaySeconds = (baseDelaySeconds *
-                            pow(2, failure.attemptCount - 1))
-                            .toInt();
-                        await Future.delayed(Duration(seconds: delaySeconds));
-                        return FetchInstructions.attempt(
-                          uri: uri,
-                          timeout: Duration(seconds: 10 + delaySeconds),
-                        );
-                      } else {
-                        return FetchInstructions.giveUp(uri: uri);
-                      }
-                    },
-                  ),
-                  fadeInDuration: const Duration(milliseconds: 300),
-                ),
               ),
             ),
             // Circular progress indicator overlay
@@ -216,7 +259,8 @@ class _ImageViewerState extends State<ImageViewer> {
                 child: Center(
                   child: CircularProgressIndicator(
                     color: colorPalette.iconSecondary ?? Colors.grey,
-                    backgroundColor: colorPalette.neutral300?.withValues(alpha: 0.3),
+                    backgroundColor:
+                        colorPalette.neutral300?.withValues(alpha: 0.3),
                     strokeWidth: 3.0,
                   ),
                 ),
@@ -237,7 +281,7 @@ class _ImageViewerState extends State<ImageViewer> {
           image: AssetImage(
             widget.placeholderImage ?? AssetConstants.imagePlaceholder,
             package:
-            widget.placeHolderImagePackageName ?? UIConstants.packageName,
+                widget.placeHolderImagePackageName ?? UIConstants.packageName,
           )),
     );
   }

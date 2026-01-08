@@ -2347,6 +2347,21 @@ class CometChatMessageListController
       }
     }
   }
+
+  resetMessageList() {
+    // reset values
+    list.clear();
+    error = null;
+    hasError = false;
+    hasMoreItems = true;
+    isLoading = true;
+
+    newUnreadMessageCount = 0;
+    lastParticipantMessage = null;
+    isScrolled = false;
+    loadMoreElements();
+    update();
+  }
 }
 
 class BubbleContentVerifier {

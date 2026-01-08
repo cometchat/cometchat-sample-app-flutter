@@ -1514,7 +1514,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
         colorPalette,
         typography,
         spacing,
-        controller.loadMoreElements,
+        controller.resetMessageList,
         errorStateText: widget.errorStateText,
         errorStateTextColor: messageListStyle.errorStateTextColor,
         errorStateTextStyle: messageListStyle.errorStateTextStyle,

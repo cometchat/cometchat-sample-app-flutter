@@ -1,3 +1,15 @@
+## 5.1.8
+
+## Enhancements
+- Updated `cometchat_sdk` to version `4.0.33`.
+
+## Fixes
+- Fixed the issue where GIFs were displaying as static images in full-screen mode; they now animate properly.
+- Resolved the issue where .heic files couldn't be opened in Photos or Files by Google, ensuring they are now viewable across Android apps.
+- Fixed the audio playback issue where audio would not stop immediately after sending a message or navigating to another screen.
+- Resolved the issue where voice messages between iOS and Android wouldn't play on the receiver's side.
+- Fixed the issue where thumbnails for images and videos wouldn't load in the chat UI when both Thumbnail Generation and Token-Based File Access were enabled.
+
 ## 5.1.7
 
 ## New
