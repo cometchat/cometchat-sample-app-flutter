@@ -3,7 +3,7 @@ import '../../../../../cometchat_chat_uikit.dart';
 
 ///[PollsExtensionDecorator] is a the view model for [PollsExtension] it contains all the relevant business logic
 ///it is also a sub-class of [DataSourceDecorator] which allows any extension to override the default methods provided by [MessagesDataSource]
-class PollsExtensionDecorator extends DataSourceDecorator {
+class PollsExtensionDecorator extends DataSourceDecorator with CometChatMessageEventListener, CometChatUIEventListener {
   String pollsTypeConstant = "extension_poll";
   PollsConfiguration? configuration;
 
@@ -11,6 +11,8 @@ class PollsExtensionDecorator extends DataSourceDecorator {
 
   PollsExtensionDecorator(super.dataSource, {this.configuration}) {
     getLoggedInUser();
+    CometChatMessageEvents.addMessagesListener(ExtensionType.extensionPoll, this);
+    CometChatUIEvents.addUiListener(ExtensionType.extensionPoll, this);
   }
 
   getLoggedInUser() async {
@@ -50,6 +52,35 @@ class PollsExtensionDecorator extends DataSourceDecorator {
     templateList.add(getTemplate());
 
     return templateList;
+  }
+
+  BaseMessage? quotedMessage;
+
+  @override
+  void ccReplyToMessage(BaseMessage message, MessageStatus status) {
+    if (status == MessageStatus.inProgress) {
+      quotedMessage = message;
+    }
+    // Clear quotedMessage when any reply is sent or errors out
+    if (status == MessageStatus.error || status == MessageStatus.sent) {
+      quotedMessage = null;
+    }
+  }
+
+  @override
+  void ccMessageSent(BaseMessage message, MessageStatus messageStatus) {
+    // Clear quotedMessage when ANY message is successfully sent
+    // This ensures the quoted message doesn't persist to subsequent polls
+    if (messageStatus == MessageStatus.sent || messageStatus == MessageStatus.error) {
+      quotedMessage = null;
+    }
+  }
+
+  @override
+  void ccActiveChatChanged(Map<String, dynamic>? id, BaseMessage? lastMessage,
+      User? user, Group? group, int unreadMessageCount) {
+    // Clear quotedMessage when user switches to a different chat
+    quotedMessage = null;
   }
 
   @override
@@ -117,7 +148,9 @@ class PollsExtensionDecorator extends DataSourceDecorator {
 
         },
         options: CometChatUIKit.getDataSource().getCommonOptions,
-        bottomView: CometChatUIKit.getDataSource().getBottomView);
+        bottomView: CometChatUIKit.getDataSource().getBottomView,
+      replyView: CometChatUIKit.getDataSource().getReplyView,
+    );
   }
 
   Widget getContentView(
@@ -125,7 +158,9 @@ class PollsExtensionDecorator extends DataSourceDecorator {
 
     return CometChatPollsBubble(
       loggedInUser: loggedInUser?.uid,
-      choosePoll: choosePoll,
+      choosePoll: (vote, id) {
+        return choosePoll(vote, id, customMessage);
+      },
       senderUid: customMessage.sender?.uid,
       pollQuestion: customMessage.customData?["question"] ?? "",
       pollId: customMessage.customData?["id"],
@@ -182,14 +217,21 @@ class PollsExtensionDecorator extends DataSourceDecorator {
             uid: uid,
             guid: guid,
             title: configuration?.title,
+            quotedMessage: quotedMessage,
+            groupObject: group,
+            userObject: user
           );
         }
       },
     );
   }
 
-  Future<void> choosePoll(String vote, String id) async {
+  Future<void> choosePoll(String vote, String id, BaseMessage message) async {
     Map<String, dynamic> body = {"vote": vote, "id": id};
+
+    if(message.quotedMessageId != null && message.quotedMessageId != -1){
+      body['quotedMessageId'] = message.quotedMessageId ?? quotedMessage?.quotedMessageId;
+    }
 
     await CometChat.callExtension(
       ExtensionConstants.polls,

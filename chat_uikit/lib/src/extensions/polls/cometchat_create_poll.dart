@@ -16,6 +16,9 @@ class CometChatCreatePoll extends StatefulWidget {
     this.user,
     this.group,
     this.defaultAnswers = 2,
+    this.quotedMessage,
+    this.groupObject,
+    this.userObject,
   });
 
   ///[title] title default is 'Create Poll'
@@ -29,6 +32,16 @@ class CometChatCreatePoll extends StatefulWidget {
 
   ///[defaultAnswers] min no. of default answers and default options cannot be deleted
   final int defaultAnswers;
+
+  ///[quotedMessage] quoted message object
+  final BaseMessage? quotedMessage;
+
+  ///[userObject] user object
+  final User? userObject;
+
+  ///[groupObject] group object
+  final Group? groupObject;
+
 
   @override
   State<CometChatCreatePoll> createState() => _CometChatCreatePollState();
@@ -294,7 +307,10 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
                                 _isError = false;
                               });
                             } else {
-                              createPoll();
+                              createPoll(
+                                user: widget.userObject,
+                                group: widget.groupObject,
+                              );
                             }
                           },
                           style: ButtonStyle(
@@ -676,10 +692,20 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
   }
 
   // Create Poll Options
-  createPoll() async {
+  createPoll({User? user, Group? group}) async {
+    print("Create Poll Called");
+    print(user);
+    print(group);
     if (_isLoading) {
       return;
     }
+
+    int? getQuotedMessageId = ReplyUtils.getQuotedMessageId(
+        quotedMessage: widget.quotedMessage, user: user, group: group);
+    if (getQuotedMessageId != null && getQuotedMessageId == -1) {}
+
+    print("Quoted Message ID: $getQuotedMessageId");
+
     FocusScope.of(context).unfocus();
     String receiverUid = '';
     String receiverType = '';
@@ -713,6 +739,9 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
     body["options"] = nonEmptyAnswers;
     body["receiver"] = receiverUid;
     body["receiverType"] = receiverType;
+    if (getQuotedMessageId != null && getQuotedMessageId != -1) {
+      body["quotedMessageId"] = getQuotedMessageId;
+    }
 
     setState(() {
       _isLoading = true;
@@ -727,6 +756,10 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
       setState(() {
         _isLoading = false;
       });
+      if (widget.quotedMessage != null) {
+        CometChatMessageEvents.ccReplyToMessage(
+            widget.quotedMessage!, MessageStatus.sent);
+      }
       Navigator.pop(context);
     }, onError: (CometChatException e) {
       setState(() {
@@ -746,6 +779,9 @@ Future<String?> showCometChatCreatePoll({
   String? uid,
   String? guid,
   String? title,
+  BaseMessage? quotedMessage,
+  User? userObject,
+  Group? groupObject,
 }) {
   return showModalBottomSheet(
     context: context,
@@ -773,6 +809,9 @@ Future<String?> showCometChatCreatePoll({
               user: uid,
               group: guid,
               title: title,
+              quotedMessage: quotedMessage,
+              userObject: userObject,
+              groupObject: groupObject,
             ),
           ),
         ),

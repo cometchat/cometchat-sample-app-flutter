@@ -18,17 +18,19 @@ import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
 /// ```
 
 class CometChatMessageTemplate {
-  CometChatMessageTemplate(
-      {required this.type,
-      required this.category,
-      this.bubbleView,
-      this.options,
-      this.headerView,
-      this.footerView,
-      this.contentView,
-      this.bottomView,
-      this.threadView,
-      this.statusInfoView});
+  CometChatMessageTemplate({
+    required this.type,
+    required this.category,
+    this.bubbleView,
+    this.options,
+    this.headerView,
+    this.footerView,
+    this.contentView,
+    this.bottomView,
+    this.threadView,
+    this.statusInfoView,
+    this.replyView,
+  });
 
   ///[type] of the message
   String type;
@@ -71,6 +73,10 @@ class CometChatMessageTemplate {
   ///[threadView] widget to be shown at the bottom of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
       threadView;
+
+  ///[replyView] widget to be shown at the top of the bubble
+  Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment, {AdditionalConfigurations? additionalConfigurations})?
+      replyView;
 
   @override
   String toString() {

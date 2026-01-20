@@ -1305,10 +1305,34 @@ class TranslationsEn extends Translations {
   String get aiAssistants => "AI Assistants";
 
   @override
-  String get notifyEveryoneInThisGroup => "Notify everyone in this group";
+  String get conversations => 'Conversations';
 
   @override
-  String get notifyAll => "all";
+  String get messages => 'Messages';
+
+  @override
+  String get noResults => 'No Results';
+
+  @override
+  String get noResultsFor => 'There were no results for';
+
+  @override
+  String get tryNewSearch => 'Try a new search';
+
+  @override
+  String get startTyping => 'Start typing to search for messages';
+
+  @override
+  String get seeMore => 'See More';
+
+  @override
+  String get unread => 'Unread';
+
+  @override
+  String get links => 'links';
+
+  @override
+  String get documents => 'Documents';
 
   @override
   String get report => 'Report';
@@ -1339,5 +1363,11 @@ class TranslationsEn extends Translations {
 
   @override
   String get harassment => 'Harassment / Bullying';
+
+  @override
+  String get notifyEveryoneInThisGroup => "Notify everyone in this group";
+
+  @override
+  String get notifyAll => "all";
 
 }

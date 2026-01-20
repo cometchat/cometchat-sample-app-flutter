@@ -2536,12 +2536,44 @@ abstract class Translations {
   String get aiAssistants;
 
   ///In en, this translates to :
-  ///**'Notify everyone in this group'
-  String get notifyEveryoneInThisGroup;
+  ///**'Conversations'
+  String get conversations;
 
   ///In en, this translates to :
-  ///**'all'
-  String get notifyAll;
+  ///**'Messages'
+  String get messages;
+
+  ///In en, this translates to :
+  ///**'No Results'
+  String get noResults;
+
+  ///In en, this translates to :
+  ///**'There were no results for'
+  String get noResultsFor;
+
+  ///In en, this translates to :
+  ///**'Try a new search'
+  String get tryNewSearch;
+
+  ///In en, this translates to :
+  ///**'Start typing to search for messages'
+  String get startTyping;
+
+  ///In en, this translates to :
+  ///**'See More'
+  String get seeMore;
+
+  ///In en, this translates to :
+  ///**'Unread'
+  String get unread;
+
+  ///In en, this translates to :
+  ///**'Links'
+  String get links;
+
+  ///In en, this translates to :
+  ///**'Documents'
+  String get documents;
 
   ///In en, this translates to :
   ///**'Report'
@@ -2582,6 +2614,12 @@ abstract class Translations {
   ///In en, this translates to :
   ///**'Harassment / Bullying.'
   String get harassment;
+  ///**'Notify everyone in this group'
+  String get notifyEveryoneInThisGroup;
+
+  ///In en, this translates to :
+  ///**'all'
+  String get notifyAll;
 }
 
 class _TranslationsDelegate extends LocalizationsDelegate<Translations> {

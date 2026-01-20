@@ -38,6 +38,7 @@ class CometChatListItem extends StatelessWidget {
     this.titlePadding,
     this.titleView,
     this.leadingStateView,
+    this.contentPadding,
   }) : assert(avatarURL != null || avatarName != null);
 
   ///[avatarURL] sets image url to be shown in avatar
@@ -108,6 +109,9 @@ class CometChatListItem extends StatelessWidget {
 
   ///[titleView] to set title view
   final Widget? titleView;
+
+  ///[contentPadding] set content padding
+  final EdgeInsetsGeometry? contentPadding;
 
   Widget getLeadingView() {
     if (leadingStateView != null) {
@@ -203,6 +207,7 @@ class CometChatListItem extends StatelessWidget {
             subtitle: getSubtitle(),
             trailing: tailView,
             titlePadding: titlePadding,
+            contentPadding: contentPadding,
           ),
           if (hideSeparator == false)
             Divider(

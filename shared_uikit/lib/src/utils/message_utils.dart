@@ -1,4 +1,3 @@
-import 'package:cometchat_sdk/utils/enums/moderation_status_enum.dart';
 import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
 import 'package:flutter/material.dart';
 
@@ -39,6 +38,7 @@ class MessageUtils {
     Widget? statusInfoView;
     Widget? leadingView;
     Widget? headerView;
+    Widget? replyView;
 
     final outgoingMessageBubbleStyle0 =
         CometChatThemeHelper.getTheme<CometChatOutgoingMessageBubbleStyle>(
@@ -70,17 +70,20 @@ class MessageUtils {
     contentView = _getSuitableContentView(message, colorPalette, context,
         template, bubbleAlignment, additionalConfigurations);
 
+    replyView = _getSuitableReplyView(message, colorPalette, context, template,
+        bubbleAlignment, additionalConfigurations);
+
     statusInfoView = _getStatusInfoView(
-        bubbleAlignment,
-        message,
-        context,
-        colorPalette,
-        typography,
-        spacing,
-        template,
-        bubbleStyleData?.messageBubbleDateStyle,
-        bubbleStyleData?.messageReceiptStyle,
-        receiptsVisibility,
+      bubbleAlignment,
+      message,
+      context,
+      colorPalette,
+      typography,
+      spacing,
+      template,
+      bubbleStyleData?.messageBubbleDateStyle,
+      bubbleStyleData?.messageReceiptStyle,
+      receiptsVisibility,
     );
 
     leadingView = _getAvatar(
@@ -136,6 +139,7 @@ class MessageUtils {
               footerView: const SizedBox(),
               leadingView: leadingView,
               statusInfoView: statusInfoView,
+              replyView: replyView,
             ),
           ],
         ),
@@ -162,6 +166,21 @@ class MessageUtils {
       AdditionalConfigurations? additionalConfigurations) {
     if (template?.contentView != null) {
       return template?.contentView!(messageObject, context, alignment,
+          additionalConfigurations: additionalConfigurations);
+    } else {
+      return const SizedBox();
+    }
+  }
+
+  static Widget? _getSuitableReplyView(
+      BaseMessage messageObject,
+      CometChatColorPalette colorPalette,
+      BuildContext context,
+      CometChatMessageTemplate? template,
+      BubbleAlignment alignment,
+      AdditionalConfigurations? additionalConfigurations) {
+    if (template?.replyView != null) {
+      return template?.replyView!(messageObject, context, alignment,
           additionalConfigurations: additionalConfigurations);
     } else {
       return const SizedBox();
@@ -222,7 +241,8 @@ class MessageUtils {
                   alignment,
                   dateStyle,
                 ),
-                if (alignment == BubbleAlignment.right && (receiptsVisibility ?? true))
+                if (alignment == BubbleAlignment.right &&
+                    (receiptsVisibility ?? true))
                   _getReceiptIcon(message, colorPalette, spacing, receiptStyle),
               ],
             ),
@@ -456,15 +476,17 @@ extension BubbleUIBuilder on MessageUtils {
                   ?.aiAssistantBubbleStyle?.backgroundColor ??
               colorPalette.transparent,
           border: incomingMessageBubbleStyle?.aiAssistantBubbleStyle?.border,
-          borderRadius:
-              incomingMessageBubbleStyle?.aiAssistantBubbleStyle?.borderRadius ?? BorderRadius.circular(0),
+          borderRadius: incomingMessageBubbleStyle
+                  ?.aiAssistantBubbleStyle?.borderRadius ??
+              BorderRadius.circular(0),
           messageBubbleAvatarStyle: incomingMessageBubbleStyle
               ?.aiAssistantBubbleStyle?.messageBubbleAvatarStyle,
           messageBubbleBackgroundImage: incomingMessageBubbleStyle
               ?.aiAssistantBubbleStyle?.messageBubbleBackgroundImage,
         );
         break;
-      case MessageCategoryConstants.streamMessage + MessageTypeConstants.runStarted:
+      case MessageCategoryConstants.streamMessage +
+          MessageTypeConstants.runStarted:
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
           backgroundColor: incomingMessageBubbleStyle
                   ?.aiAssistantBubbleStyle?.backgroundColor ??
@@ -853,12 +875,12 @@ extension BubbleUIBuilder on MessageUtils {
         break;
       case MessageCategoryConstants.custom + ExtensionType.sticker:
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
-            backgroundColor: (isSent
-                    ? outgoingMessageBubbleStyle
-                        ?.stickerBubbleStyle?.backgroundColor
-                    : incomingMessageBubbleStyle
-                        ?.stickerBubbleStyle?.backgroundColor) ??
-                colorPalette.transparent,
+            backgroundColor: (isSent ? outgoingMessageBubbleStyle?.stickerBubbleStyle?.backgroundColor : incomingMessageBubbleStyle?.stickerBubbleStyle?.backgroundColor) ??
+                ((message.quotedMessage != null)
+                    ? (message.sender?.uid == CometChatUIKit.loggedInUser?.uid
+                        ? colorPalette.primary ?? Colors.transparent
+                        : colorPalette.neutral300 ?? Colors.transparent)
+                    : colorPalette.transparent),
             border: isSent
                 ? outgoingMessageBubbleStyle?.stickerBubbleStyle?.border
                 : incomingMessageBubbleStyle?.stickerBubbleStyle?.border,
@@ -890,10 +912,8 @@ extension BubbleUIBuilder on MessageUtils {
                 : incomingMessageBubbleStyle
                     ?.stickerBubbleStyle?.messageBubbleBackgroundImage,
             threadedMessageIndicatorTextStyle: isSent
-                ? outgoingMessageBubbleStyle
-                    ?.stickerBubbleStyle?.threadedMessageIndicatorTextStyle
-                : incomingMessageBubbleStyle
-                    ?.stickerBubbleStyle?.threadedMessageIndicatorTextStyle);
+                ? outgoingMessageBubbleStyle?.stickerBubbleStyle?.threadedMessageIndicatorTextStyle
+                : incomingMessageBubbleStyle?.stickerBubbleStyle?.threadedMessageIndicatorTextStyle);
         break;
       case MessageCategoryConstants.custom + MessageTypeConstants.meeting:
         CustomMessage msg = message as CustomMessage;
@@ -1058,64 +1078,35 @@ extension BubbleUIBuilder on MessageUtils {
         BubbleUIBuilder.getTextFormatters(message, formatters ?? []);
 
     additionalConfigurations = AdditionalConfigurations(
-      textFormatters: textFormatters,
-      textBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.textBubbleStyle
-              : incomingMessageBubbleStyle.textBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      imageBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.imageBubbleStyle
-              : incomingMessageBubbleStyle.imageBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      fileBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.fileBubbleStyle
-              : incomingMessageBubbleStyle.fileBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      videoBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.videoBubbleStyle
-              : incomingMessageBubbleStyle.videoBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      audioBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.audioBubbleStyle
-              : incomingMessageBubbleStyle.audioBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      collaborativeDocumentBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.collaborativeDocumentBubbleStyle
-              : incomingMessageBubbleStyle.collaborativeDocumentBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      collaborativeWhiteboardBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.collaborativeWhiteboardBubbleStyle
-              : incomingMessageBubbleStyle.collaborativeWhiteboardBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      pollsBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.pollsBubbleStyle
-              : incomingMessageBubbleStyle.pollsBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      actionBubbleStyle: actionBubbleStyle,
-      deletedBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.deletedBubbleStyle
-              : incomingMessageBubbleStyle.deletedBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      linkPreviewBubbleStyle: isSent
-          ? outgoingMessageBubbleStyle.linkPreviewBubbleStyle
-          : incomingMessageBubbleStyle.linkPreviewBubbleStyle,
-      messageTranslationBubbleStyle: isSent
-          ? outgoingMessageBubbleStyle.messageTranslationBubbleStyle
-          : incomingMessageBubbleStyle.messageTranslationBubbleStyle,
-      stickerBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.stickerBubbleStyle
-              : incomingMessageBubbleStyle.stickerBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      voiceCallBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.voiceCallBubbleStyle
-              : incomingMessageBubbleStyle.voiceCallBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      videoCallBubbleStyle: (isSent
-              ? outgoingMessageBubbleStyle.videoCallBubbleStyle
-              : incomingMessageBubbleStyle.videoCallBubbleStyle)
-          ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
-      aiAssistantBubbleStyle: incomingMessageBubbleStyle.aiAssistantBubbleStyle,
-    );
+        textFormatters: textFormatters,
+        textBubbleStyle: (isSent ? outgoingMessageBubbleStyle.textBubbleStyle : incomingMessageBubbleStyle.textBubbleStyle)
+            ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        imageBubbleStyle: (isSent ? outgoingMessageBubbleStyle.imageBubbleStyle : incomingMessageBubbleStyle.imageBubbleStyle)
+            ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        fileBubbleStyle: (isSent ? outgoingMessageBubbleStyle.fileBubbleStyle : incomingMessageBubbleStyle.fileBubbleStyle)
+            ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        videoBubbleStyle: (isSent ? outgoingMessageBubbleStyle.videoBubbleStyle : incomingMessageBubbleStyle.videoBubbleStyle)
+            ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        audioBubbleStyle: (isSent ? outgoingMessageBubbleStyle.audioBubbleStyle : incomingMessageBubbleStyle.audioBubbleStyle)
+            ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        collaborativeDocumentBubbleStyle: (isSent
+                ? outgoingMessageBubbleStyle.collaborativeDocumentBubbleStyle
+                : incomingMessageBubbleStyle.collaborativeDocumentBubbleStyle)
+            ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        collaborativeWhiteboardBubbleStyle: (isSent
+                ? outgoingMessageBubbleStyle.collaborativeWhiteboardBubbleStyle
+                : incomingMessageBubbleStyle.collaborativeWhiteboardBubbleStyle)
+            ?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        pollsBubbleStyle: (isSent ? outgoingMessageBubbleStyle.pollsBubbleStyle : incomingMessageBubbleStyle.pollsBubbleStyle)?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        actionBubbleStyle: actionBubbleStyle,
+        deletedBubbleStyle: (isSent ? outgoingMessageBubbleStyle.deletedBubbleStyle : incomingMessageBubbleStyle.deletedBubbleStyle)?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        linkPreviewBubbleStyle: isSent ? outgoingMessageBubbleStyle.linkPreviewBubbleStyle : incomingMessageBubbleStyle.linkPreviewBubbleStyle,
+        messageTranslationBubbleStyle: isSent ? outgoingMessageBubbleStyle.messageTranslationBubbleStyle : incomingMessageBubbleStyle.messageTranslationBubbleStyle,
+        stickerBubbleStyle: (isSent ? outgoingMessageBubbleStyle.stickerBubbleStyle : incomingMessageBubbleStyle.stickerBubbleStyle)?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        voiceCallBubbleStyle: (isSent ? outgoingMessageBubbleStyle.voiceCallBubbleStyle : incomingMessageBubbleStyle.voiceCallBubbleStyle)?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        videoCallBubbleStyle: (isSent ? outgoingMessageBubbleStyle.videoCallBubbleStyle : incomingMessageBubbleStyle.videoCallBubbleStyle)?.copyWith(border: Border.all(color: Colors.transparent, width: 0)),
+        aiAssistantBubbleStyle: incomingMessageBubbleStyle.aiAssistantBubbleStyle,
+        messagePreviewStyle: (isSent ? outgoingMessageBubbleStyle.messagePreviewStyle : incomingMessageBubbleStyle.messagePreviewStyle));
 
     return additionalConfigurations;
   }

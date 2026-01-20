@@ -71,6 +71,8 @@ class AdditionalConfigurations {
     this.hideTranslateMessageOption,
     this.hideReplyInThreadOption,
     this.hideShareMessageOption,
+    this.hideReplyOption,
+    this.messagePreviewStyle,
     this.hideFlagOption,
   });
 
@@ -135,6 +137,9 @@ class AdditionalConfigurations {
   ///[aiAssistantBubbleStyle] is a [CometChatAIAssistantBubbleStyle] that can be used to style ai assistant bubble
   final CometChatAIAssistantBubbleStyle? aiAssistantBubbleStyle;
 
+  ///[messagePreviewStyle] is a [CometChatMessagePreview] that can be used to style ai message preview
+  final CometChatMessagePreviewStyle? messagePreviewStyle;
+
   ///[hideVideoCallButton] is a [bool] that can be used to hide/display video call button
   final bool? hideVideoCallButton;
 
@@ -194,6 +199,9 @@ class AdditionalConfigurations {
 
   ///[hideShareMessageOption] This prop defines whether share option should be visible or not.
   final bool? hideShareMessageOption;
+
+  ///[hideReplyOption] This prop defines whether reply to message option should be visible or not.
+  final bool? hideReplyOption;
 
   ///[hideFlagOption] This prop defines whether report option should be visible or not.
   final bool? hideFlagOption;

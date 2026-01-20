@@ -1270,11 +1270,36 @@ class TranslationsZh extends Translations {
   @override
   String get aiAssistants => "AI助手们";
 
-  @override
-  String get notifyEveryoneInThisGroup => "通知该群组中的每个人";
 
   @override
-  String get notifyAll => "所有";
+  String get conversations => '会话';
+
+  @override
+  String get messages => '消息';
+
+  @override
+  String get noResults => '无结果';
+
+  @override
+  String get noResultsFor => '未找到以下内容的结果：';
+
+  @override
+  String get tryNewSearch => '尝试新的搜索';
+
+  @override
+  String get startTyping => '开始输入以搜索消息';
+
+  @override
+  String get seeMore => '查看更多';
+
+  @override
+  String get unread => '未读';
+
+  @override
+  String get links => '链接';
+
+  @override
+  String get documents => '文档';
 
   @override
   String get report => '举报';
@@ -1307,6 +1332,13 @@ class TranslationsZh extends Translations {
 
   @override
   String get harassment => '骚扰 / 欺凌';
+
+
+  @override
+  String get notifyEveryoneInThisGroup => "通知该群组中的每个人";
+
+  @override
+  String get notifyAll => "所有";
 
 }
 
@@ -2550,11 +2582,36 @@ class TranslationsZhTw extends TranslationsZh {
   @override
   String get aiAssistants => "AI助理們";
 
-  @override
-  String get notifyEveryoneInThisGroup => "通知該群組中的每個人";
 
   @override
-  String get notifyAll => "所有";
+  String get conversations => '会话';
+
+  @override
+  String get messages => '消息';
+
+  @override
+  String get noResults => '无结果';
+
+  @override
+  String get noResultsFor => '未找到以下内容的结果：';
+
+  @override
+  String get tryNewSearch => '尝试新的搜索';
+
+  @override
+  String get startTyping => '开始输入以搜索消息';
+
+  @override
+  String get seeMore => '查看更多';
+
+  @override
+  String get unread => '未读';
+
+  @override
+  String get links => '链接';
+
+  @override
+  String get documents => '文档';
 
   @override
   String get report => '举报';
@@ -2588,4 +2645,9 @@ class TranslationsZhTw extends TranslationsZh {
   @override
   String get harassment => '骚扰 / 欺凌';
 
+  @override
+  String get notifyEveryoneInThisGroup => "通知該群組中的每個人";
+
+  @override
+  String get notifyAll => "所有";
 }

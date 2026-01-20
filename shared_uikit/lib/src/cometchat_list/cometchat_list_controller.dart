@@ -8,6 +8,7 @@ abstract class CometChatListController<T1, T2> extends GetxController
   List<T1> list = [];
   bool isLoading = true;
   bool hasMoreItems = true;
+  bool hasMoreNext = true;
   bool hasError = false;
   Exception? error;
   late dynamic request;
@@ -19,6 +20,9 @@ abstract class CometChatListController<T1, T2> extends GetxController
 
   /// Callback when the list is empty
   OnEmpty? onEmpty;
+
+  /// prevents both fetchNext & fetchPrevious from running at same time
+  bool isFetching = false;
 
   CometChatListController(this.request,
       {this.onError, this.isFetchNext = true, this.onLoad, this.onEmpty});
@@ -82,20 +86,26 @@ abstract class CometChatListController<T1, T2> extends GetxController
 
   @override
   loadMoreElements({bool Function(T1 element)? isIncluded}) async {
+    if (isFetching) return;
+
+    isFetching = true;
     isLoading = true;
 
     try {
       if (isFetchNext) {
         await request.fetchNext(
           onSuccess: (List<T1> fetchedList) {
+            isFetching = false;
             if (fetchedList.isEmpty) {
               isLoading = false;
+              hasMoreNext = false;
               hasMoreItems = false;
 
               /// Call `onEmpty` when no data is found
               onEmpty?.call();
             } else {
               isLoading = false;
+              hasMoreNext = true;
               hasMoreItems = true;
 
               if (isIncluded == null) {
@@ -115,6 +125,7 @@ abstract class CometChatListController<T1, T2> extends GetxController
             update();
           },
           onError: (e) {
+            isFetching = false;
             _onError(e);
             onError?.call(e);
           },
@@ -122,6 +133,7 @@ abstract class CometChatListController<T1, T2> extends GetxController
       } else {
         await request.fetchPrevious(
           onSuccess: (List<T1> fetchedList) {
+            isFetching = false;
             if (fetchedList.isEmpty) {
               isLoading = false;
               hasMoreItems = false;
@@ -149,12 +161,14 @@ abstract class CometChatListController<T1, T2> extends GetxController
             update();
           },
           onError: (e) {
+            isFetching = false;
             _onError(e);
             onError?.call(e);
           },
         );
       }
     } catch (e, s) {
+      isFetching = false;
       if (kDebugMode) {
         print("Error in Catch: $e");
       }
@@ -162,10 +176,10 @@ abstract class CometChatListController<T1, T2> extends GetxController
       hasError = true;
       isLoading = false;
       hasMoreItems = false;
+      hasMoreNext = false;
       update();
     }
   }
-
 
   @override
   updateElement(T1 element, {int? index}) {

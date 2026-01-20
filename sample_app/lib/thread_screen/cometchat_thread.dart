@@ -7,12 +7,13 @@ import 'cometchat_thread_controller.dart';
 
 class CometChatThread extends StatefulWidget {
   const CometChatThread(
-      {this.user, this.group, required this.message, this.template, super.key});
+      {this.user, this.group, required this.message, this.template,this.messageId, super.key});
 
   final User? user;
   final Group? group;
   final BaseMessage message;
   final CometChatMessageTemplate? template;
+  final int? messageId;
 
   @override
   State<CometChatThread> createState() => _CometChatThreadState();
@@ -93,7 +94,14 @@ class _CometChatThreadState extends State<CometChatThread> {
               horizontal: spacing.padding4 ?? 0,
             ),
             listItemView: (group, user, context) {
-              final name = group != null ? group.name : user?.name ?? "";
+              var name = "";
+              if (widget.message.sender != null &&
+                  widget.message.sender?.uid ==
+                      CometChatUIKit.loggedInUser?.uid) {
+                name = widget.message.sender?.name ?? "";
+              } else {
+                name = group != null ? group.name : user?.name ?? "";
+              }
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -196,6 +204,9 @@ class _CometChatThreadState extends State<CometChatThread> {
       group: group,
       messagesRequestBuilder: requestBuilder,
       textFormatters: [
+        CometChatEmailFormatter(),
+        CometChatPhoneNumberFormatter(),
+        CometChatUrlFormatter(),
         getMentionsTap(),
       ],
     );

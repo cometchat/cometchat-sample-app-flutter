@@ -11,8 +11,10 @@ import 'messages_controller.dart';
 class MessagesSample extends StatefulWidget {
   final User? user;
   final Group? group;
+  final BaseMessage? message;
 
-  const MessagesSample({Key? key, this.user, this.group}) : super(key: key);
+  const MessagesSample({Key? key, this.user, this.group, this.message})
+      : super(key: key);
 
   @override
   State<MessagesSample> createState() => _MessagesSampleState();
@@ -81,72 +83,202 @@ class _MessagesSampleState extends State<MessagesSample> {
                     border: Border.all(
                       width: 0,
                       color: colorPalette.transparent ?? Colors.transparent,
-                    )
-                )
-            ),
+                    ))),
             hideVideoCallButton: (widget.user != null || widget.group != null)
                 ? ((controller.user?.blockedByMe != null &&
-                controller.user?.blockedByMe! == true) ||
-                (controller.group?.hasJoined == false ||
-                    controller.group?.isBannedFromGroup == true))
+                        controller.user?.blockedByMe! == true) ||
+                    (controller.group?.hasJoined == false ||
+                        controller.group?.isBannedFromGroup == true))
                 : false,
             hideVoiceCallButton: (widget.user != null || widget.group != null)
                 ? ((controller.user?.blockedByMe != null &&
-                controller.user?.blockedByMe! == true) ||
-                (controller.group?.hasJoined == false ||
-                    controller.group?.isBannedFromGroup == true))
+                        controller.user?.blockedByMe! == true) ||
+                    (controller.group?.hasJoined == false ||
+                        controller.group?.isBannedFromGroup == true))
                 : false,
             onBack: () {
               FocusManager.instance.primaryFocus?.unfocus();
               Navigator.of(context).pop();
             },
-            trailingView: (user, group, context) {
-              if (controller.group != null) {
-                if (controller.group?.hasJoined == false ||
-                    controller.group?.isBannedFromGroup == true) {
-                  return [];
-                }
-                return [
-                  IconButton(
-                    onPressed: () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CometchatGroupInfo(group: controller.group!),
-                        ),
-                      );
-                    },
-                    icon: Icon(Icons.info_outline, color: ccColor.iconPrimary),
-                  ),
-                ];
-              } else if (user != null) {
-                if (controller.user?.blockedByMe != null &&
-                    controller.user?.blockedByMe! == true) {
-                  return [];
-                } else {
-                  return [
-                    IconButton(
-                      onPressed: () {
+            options: (user, group, context) {
+              return [
+                if (controller.user != null &&
+                    ((controller.user?.role == AIConstants.aiRole) ||
+                        (controller.user?.blockedByMe != null &&
+                            controller.user?.blockedByMe! == false)))
+                  CometChatOption(
+                    id: 'user-info',
+                    title: cc.Translations.of(context).userInfo,
+                    iconWidget: Padding(
+                      padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
+                      child: Icon(
+                        Icons.info_outline,
+                        color: ccColor.iconSecondary,
+                        size: 24,
+                      ),
+                    ),
+                    onClick: () {
+                      if (controller.user != null) {
                         FocusManager.instance.primaryFocus?.unfocus();
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CometchatUserInfo(user: user),
+                            builder: (context) =>
+                                CometchatUserInfo(user: controller.user!),
                           ),
                         );
-                      },
-                      icon: Icon(
+                      }
+                    },
+                  ),
+                if (controller.group != null &&
+                    (controller.group?.hasJoined == true ||
+                        controller.group?.isBannedFromGroup == false))
+                  CometChatOption(
+                    id: 'group-info',
+                    title: cc.Translations.of(context).groupInfo,
+                    iconWidget: Padding(
+                      padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
+                      child: Icon(
                         Icons.info_outline,
-                        color: ccColor.iconPrimary,
+                        color: ccColor.iconSecondary,
                         size: 24,
                       ),
                     ),
-                  ];
-                }
-              }
-              return null;
+                    onClick: () {
+                      if (controller.group != null) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CometchatGroupInfo(group: controller.group!),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                CometChatOption(
+                  id: 'search',
+                  title: cc.Translations.of(context).search,
+                  iconWidget: Padding(
+                    padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
+                    child: Icon(
+                      Icons.search,
+                      color: ccColor.iconSecondary,
+                      size: 24,
+                    ),
+                  ),
+                  onClick: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => CometChatSearch(
+                          user: controller.user,
+                          group: controller.group,
+                          onBack: () {
+                            Navigator.of(context).pop();
+                          },
+                          onMessageClicked: (message) {
+                            User? user;
+                            Group? group;
+                            if (message.receiverType ==
+                                ReceiverTypeConstants.user) {
+                              user = (message.sender?.uid ==
+                                      CometChatUIKit.loggedInUser?.uid)
+                                  ? message.receiver as User?
+                                  : message.sender;
+                            } else {
+                              group = message.receiver as Group?;
+                            }
+                            if (message.parentMessageId > 0) {
+                              CometChatHelper.getMessageDetails(
+                                message.parentMessageId,
+                                onSuccess: (getMessage) {
+                                  if (getMessage == null) {
+                                    SnackBarUtils.show(
+                                      cc.Translations.of(context)
+                                          .somethingWentWrongError,
+                                      context,
+                                      snackBarConfiguration:
+                                          cc.SnackBarConfiguration(
+                                        backgroundColor: colorPalette.error,
+                                      ),
+                                    );
+                                  } else {
+                                    User? threadUser;
+                                    Group? threadGroup;
+                                    if (message.receiverType ==
+                                        ReceiverTypeConstants.user) {
+                                      threadUser = (getMessage.sender?.uid ==
+                                              CometChatUIKit.loggedInUser?.uid)
+                                          ? getMessage.receiver as User?
+                                          : getMessage.sender;
+                                    } else {
+                                      threadGroup =
+                                          getMessage.receiver as Group?;
+                                    }
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => CometChatThread(
+                                          user: threadUser,
+                                          group: threadGroup,
+                                          message: getMessage,
+                                          messageId: message.id,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                onError: (excep) {
+                                  SnackBarUtils.show(
+                                    cc.Translations.of(context)
+                                        .somethingWentWrongError,
+                                    context,
+                                    snackBarConfiguration:
+                                        cc.SnackBarConfiguration(
+                                      backgroundColor: colorPalette.error,
+                                    ),
+                                  );
+                                },
+                              );
+                            } else {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MessagesSample(
+                                    user: user,
+                                    group: group,
+                                    message: message,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          searchIn: [SearchScope.messages],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                CometChatOption(
+                  id: 'conversation-summary',
+                  title: cc.Translations.of(context).conversationSummary,
+                  iconWidget: Padding(
+                    padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
+                    child: Image.asset(
+                      AssetConstants.conversationSummaryOutlined,
+                      color: ccColor.iconSecondary,
+                      package: UIConstants.packageName,
+                      height: 24,
+                      width: 24,
+                    ),
+                  ),
+                  onClick: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    controller.updateConversationsSummarySetting(true);
+                  },
+                ),
+              ];
             },
           ),
           resizeToAvoidBottomInset: true,
@@ -160,8 +292,15 @@ class _MessagesSampleState extends State<MessagesSample> {
                     child: CometChatMessageList(
                       user: widget.user,
                       group: widget.group,
+                      messageId: widget.message?.id,
                       textFormatters: [
+                        CometChatEmailFormatter(),
+                        CometChatPhoneNumberFormatter(),
+                        CometChatUrlFormatter(),
                         getMentionsTap(),
+                        CometChatUrlFormatter(),
+                        CometChatEmailFormatter(),
+                        CometChatPhoneNumberFormatter(),
                       ],
                       onThreadRepliesClick: (message, context, {template}) {
                         Navigator.push(
@@ -228,38 +367,38 @@ class _MessagesSampleState extends State<MessagesSample> {
           ),
           controller.isBlockLoading.value
               ? Center(
-            child: CircularProgressIndicator(
-              color: colorPalette.background2,
-            ),
-          )
+                  child: CircularProgressIndicator(
+                    color: colorPalette.background2,
+                  ),
+                )
               : SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => controller.unBlockUser(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                colorPalette.transparent, // Set proper color
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                  BorderRadius.circular(spacing.radius2 ?? 0),
-                  side: BorderSide(
-                    color: colorPalette.borderDark ?? Colors.transparent,
-                    width: 1,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => controller.unBlockUser(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          colorPalette.transparent, // Set proper color
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(spacing.radius2 ?? 0),
+                        side: BorderSide(
+                          color: colorPalette.borderDark ?? Colors.transparent,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      cc.Translations.of(context).unBlock,
+                      style: TextStyle(
+                        color: colorPalette.textPrimary,
+                        fontSize: typography.caption1?.regular?.fontSize,
+                        fontWeight: typography.caption1?.regular?.fontWeight,
+                        fontFamily: typography.caption1?.regular?.fontFamily,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              child: Text(
-                cc.Translations.of(context).unBlock,
-                style: TextStyle(
-                  color: colorPalette.textPrimary,
-                  fontSize: typography.caption1?.regular?.fontSize,
-                  fontWeight: typography.caption1?.regular?.fontWeight,
-                  fontFamily: typography.caption1?.regular?.fontFamily,
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );

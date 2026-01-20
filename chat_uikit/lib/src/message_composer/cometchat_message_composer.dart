@@ -270,6 +270,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
   late CometChatSuggestionListStyle suggestionListStyle;
   late AIOptionsStyle? aiOptionStyle;
   late List<CometChatMessageComposerAction> elementList;
+  late CometChatMessagePreviewStyle messagePreviewStyle;
 
   @override
   void didChangeDependencies() {
@@ -291,6 +292,12 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
       context: context,
       defaultTheme: AIOptionsStyle.of,
     ).merge(style.aiOptionStyle);
+
+    messagePreviewStyle =
+        CometChatThemeHelper.getTheme<CometChatMessagePreviewStyle>(
+      context: context,
+      defaultTheme: CometChatMessagePreviewStyle.of,
+    ).merge(style.messagePreviewStyle);
 
     elementList = CometChatUIKit.getDataSource().getAIOptions(
       widget.user,
@@ -363,7 +370,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
       final isTextControllerEmpty = value.textEditingController != null &&
           value.textEditingController!.text.trim().isEmpty;
 
-      final isSameAsOldMessage = value.oldMessage is TextMessage &&
+      final isSameAsOldMessage = value.previewMessageMode == PreviewMessageMode.edit &&
+          value.oldMessage is TextMessage &&
           value.textEditingController!.text ==
               (value.oldMessage as TextMessage).text;
 
@@ -374,12 +382,12 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
                 value.textEditingController!.text,
               );
 
-      final isAiBusy =
-          value.isUserAgentic() && value.isActiveStreaming;
+      final isAiBusy = value.isUserAgentic() && value.isActiveStreaming;
 
       final shouldDisable = isTextControllerEmpty ||
           isSameAsOldMessage ||
-          isEditModeWithoutChanges || isAiBusy;
+          isEditModeWithoutChanges ||
+          isAiBusy;
 
       final bool isStopButton = value.isUserAgentic() && isAiBusy;
 
@@ -389,10 +397,10 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
               (isStopButton
                   ? colorPalette.secondaryButtonBackground
                   : shouldDisable
-                  ? colorPalette.background4
-                  : (value.isUserAgentic()
-                  ? colorPalette.secondaryButtonBackground
-                  : colorPalette.primary)),
+                      ? colorPalette.background4
+                      : (value.isUserAgentic()
+                          ? colorPalette.secondaryButtonBackground
+                          : colorPalette.primary)),
           borderRadius: messageComposerStyle.sendButtonBorderRadius ??
               BorderRadius.circular(spacing.radiusMax ?? 0),
         ),
@@ -480,66 +488,16 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          if (value.messagePreviewTitle !=
-                                                  null &&
-                                              value.messagePreviewTitle!
-                                                  .isNotEmpty)
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                left: spacing.padding2 ?? 0,
-                                                right: spacing.padding2 ?? 0,
-                                                bottom: (value.preview != null
-                                                    ? 8
-                                                    : 0),
-                                              ),
-                                              child: CometChatMessagePreview(
-                                                messagePreviewTitle:
-                                                    value.messagePreviewTitle!,
-                                                messagePreviewSubtitle: value
-                                                        .messagePreviewSubtitle ??
-                                                    '',
-                                                onCloseClick:
-                                                    value.onMessagePreviewClose,
-                                                style:
-                                                    CometChatMessagePreviewStyle(
-                                                  messagePreviewTitleStyle:
-                                                      TextStyle(
-                                                    color: colorPalette
-                                                        .textPrimary,
-                                                    fontSize: typography.body
-                                                        ?.regular?.fontSize,
-                                                    fontWeight: typography.body
-                                                        ?.regular?.fontWeight,
-                                                    fontFamily: typography.body
-                                                        ?.regular?.fontFamily,
-                                                  ),
-                                                  messagePreviewSubtitleStyle:
-                                                      TextStyle(
-                                                    color: colorPalette
-                                                        .textSecondary,
-                                                    fontSize: typography
-                                                        .caption1
-                                                        ?.regular
-                                                        ?.fontSize,
-                                                    fontWeight: typography
-                                                        .caption1
-                                                        ?.regular
-                                                        ?.fontWeight,
-                                                    fontFamily: typography
-                                                        .caption1
-                                                        ?.regular
-                                                        ?.fontFamily,
-                                                  ),
-                                                  closeIconColor: style
-                                                          .closeIconTint ??
-                                                      colorPalette.iconPrimary,
-                                                  messagePreviewBackground:
-                                                      colorPalette.background3,
-                                                ),
-                                              ),
-                                            ),
                                           if (value.preview != null)
                                             value.preview!,
+                                          showPreviewMessage(
+                                            context,
+                                            value,
+                                            style,
+                                            colorPalette,
+                                            spacing,
+                                            typography,
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -803,14 +761,68 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
                                       color: style.placeHolderTextColor,
                                     ),
                                 border: style.border ??
-                                    Border.all(
-                                      color: colorPalette.borderDefault ??
-                                          Colors.transparent,
-                                      width: 1,
+                                    Border(
+                                      top: (value.messagePreviewTitle != null &&
+                                              value.messagePreviewTitle!
+                                                  .isNotEmpty &&
+                                              (value.previewMessageMode ==
+                                                      PreviewMessageMode
+                                                          .reply ||
+                                                  value.previewMessageMode ==
+                                                      PreviewMessageMode.edit))
+                                          ? BorderSide.none
+                                          : BorderSide(
+                                              color:
+                                                  colorPalette.borderDefault ??
+                                                      Colors.transparent,
+                                              width: 1,
+                                            ),
+                                      bottom: BorderSide(
+                                        color: colorPalette.borderDefault ??
+                                            Colors.transparent,
+                                        width: 1,
+                                      ),
+                                      left: BorderSide(
+                                        color: colorPalette.borderDefault ??
+                                            Colors.transparent,
+                                        width: 1,
+                                      ),
+                                      right: BorderSide(
+                                        color: colorPalette.borderDefault ??
+                                            Colors.transparent,
+                                        width: 1,
+                                      ),
                                     ),
                                 borderRadius: style.borderRadius ??
-                                    BorderRadius.circular(
-                                      spacing.radius2 ?? 0,
+                                    BorderRadius.only(
+                                      topLeft: (value.messagePreviewTitle !=
+                                                  null &&
+                                              value.messagePreviewTitle!
+                                                  .isNotEmpty &&
+                                              (value.previewMessageMode ==
+                                                      PreviewMessageMode
+                                                          .reply ||
+                                                  value.previewMessageMode ==
+                                                      PreviewMessageMode.edit))
+                                          ? Radius.zero
+                                          : Radius.circular(
+                                              spacing.radius2 ?? 0),
+                                      topRight: (value.messagePreviewTitle !=
+                                                  null &&
+                                              value.messagePreviewTitle!
+                                                  .isNotEmpty &&
+                                              (value.previewMessageMode ==
+                                                      PreviewMessageMode
+                                                          .reply ||
+                                                  value.previewMessageMode ==
+                                                      PreviewMessageMode.edit))
+                                          ? Radius.zero
+                                          : Radius.circular(
+                                              spacing.radius2 ?? 0),
+                                      bottomLeft:
+                                          Radius.circular(spacing.radius2 ?? 0),
+                                      bottomRight:
+                                          Radius.circular(spacing.radius2 ?? 0),
                                     ),
                               ),
                               focusNode: value.focusNode,
@@ -828,5 +840,146 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
         ),
       ),
     );
+  }
+
+  Widget showPreviewMessage(
+      BuildContext context,
+      CometChatMessageComposerController value,
+      CometChatMessageComposerStyle style,
+      CometChatColorPalette colorPalette,
+      CometChatSpacing spacing,
+      CometChatTypography typography) {
+    if (value.messagePreviewTitle != null &&
+        value.messagePreviewTitle!.isNotEmpty) {
+      if (value.previewMessageMode == PreviewMessageMode.edit) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: spacing.padding2 ?? 0,
+            right: spacing.padding2 ?? 0,
+            bottom: (value.preview != null ? 8 : 0),
+          ),
+          child: Container(
+            padding: EdgeInsets.all(
+              spacing.padding1 ?? 0,
+            ),
+            decoration: BoxDecoration(
+              color: style.backgroundColor ?? colorPalette.background1,
+              borderRadius: style.borderRadius ??
+                  BorderRadius.only(
+                    topLeft: Radius.circular(spacing.radius2 ?? 0),
+                    topRight: Radius.circular(spacing.radius2 ?? 0),
+                  ),
+              border: style.border ??
+                  Border(
+                    top: BorderSide(
+                      color: colorPalette.borderLight ?? Colors.transparent,
+                      width: 1,
+                    ),
+                    bottom: BorderSide.none,
+                    left: BorderSide(
+                      color: colorPalette.borderLight ?? Colors.transparent,
+                      width: 1,
+                    ),
+                    right: BorderSide(
+                      color: colorPalette.borderLight ?? Colors.transparent,
+                      width: 1,
+                    ),
+                  ),
+            ),
+            child: CometChatMessagePreview(
+              message: value.oldMessage,
+              messagePreviewTitle: value.messagePreviewTitle ?? "",
+              messagePreviewSubtitle: value.messagePreviewSubtitle ?? '',
+              onCloseClick: value.onMessagePreviewClose,
+              messagePreviewStyle: CometChatMessagePreviewStyle(
+                      messagePreviewTitleStyle: TextStyle(
+                        color: colorPalette.textHighlight,
+                        fontSize: typography.caption1?.medium?.fontSize,
+                        fontWeight: typography.caption1?.medium?.fontWeight,
+                        fontFamily: typography.caption1?.medium?.fontFamily,
+                      ),
+                      messagePreviewSubtitleStyle: TextStyle(
+                        color: colorPalette.textSecondary,
+                        fontSize: typography.caption1?.regular?.fontSize,
+                        fontWeight: typography.caption1?.regular?.fontWeight,
+                        fontFamily: typography.caption1?.regular?.fontFamily,
+                      ),
+                      closeIconColor:
+                          style.closeIconTint ?? colorPalette.iconPrimary,
+                      messagePreviewBackground: colorPalette.background3,
+                      messagePreviewBorder: Border.all(width: 0))
+                  .merge(
+                messagePreviewStyle,
+              ),
+            ),
+          ),
+        );
+      } else if (value.previewMessageMode == PreviewMessageMode.reply) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: spacing.padding2 ?? 0,
+            right: spacing.padding2 ?? 0,
+            bottom: (value.preview != null ? 8 : 0),
+          ),
+          child: Container(
+            padding: EdgeInsets.all(
+              spacing.padding1 ?? 0,
+            ),
+            decoration: BoxDecoration(
+              color: style.backgroundColor ?? colorPalette.background1,
+              borderRadius: style.borderRadius ??
+                  BorderRadius.only(
+                    topLeft: Radius.circular(spacing.radius2 ?? 0),
+                    topRight: Radius.circular(spacing.radius2 ?? 0),
+                  ),
+              border: style.border ??
+                  Border(
+                    top: BorderSide(
+                      color: colorPalette.borderLight ?? Colors.transparent,
+                      width: 1,
+                    ),
+                    bottom: BorderSide.none,
+                    left: BorderSide(
+                      color: colorPalette.borderLight ?? Colors.transparent,
+                      width: 1,
+                    ),
+                    right: BorderSide(
+                      color: colorPalette.borderLight ?? Colors.transparent,
+                      width: 1,
+                    ),
+                  ),
+            ),
+            child: CometChatMessagePreview(
+              message: value.oldMessage,
+              messagePreviewTitle: value.messagePreviewTitle ?? "",
+              messagePreviewSubtitle: value.messagePreviewSubtitle ?? '',
+              onCloseClick: () {
+                value.onMessagePreviewClose(clearText: false, isReply: true);
+              },
+              messagePreviewStyle: CometChatMessagePreviewStyle(
+                messagePreviewTitleStyle: TextStyle(
+                  color: colorPalette.textHighlight,
+                  fontSize: typography.caption1?.medium?.fontSize,
+                  fontWeight: typography.caption1?.medium?.fontWeight,
+                  fontFamily: typography.caption1?.medium?.fontFamily,
+                ),
+                messagePreviewSubtitleStyle: TextStyle(
+                  color: colorPalette.textSecondary,
+                  fontSize: typography.caption1?.regular?.fontSize,
+                  fontWeight: typography.caption1?.regular?.fontWeight,
+                  fontFamily: typography.caption1?.regular?.fontFamily,
+                ),
+                closeIconColor: style.closeIconTint ?? colorPalette.iconPrimary,
+                messagePreviewBackground: colorPalette.background3,
+              ).merge(
+                messagePreviewStyle,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    return const SizedBox();
   }
 }

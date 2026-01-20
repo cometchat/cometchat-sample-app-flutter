@@ -54,6 +54,7 @@ class PageManager extends GetxController {
     required BuildContext context,
     User? user,
     Group? group,
+    BaseMessage? message,
   }) async {
     final ccColor = CometChatThemeHelper.getColorPalette(context);
     final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
@@ -80,6 +81,7 @@ class PageManager extends GetxController {
               body: MessagesSample(
                 user: user,
                 group: group,
+                message: message,
               ),
             );
           },

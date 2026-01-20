@@ -1294,10 +1294,34 @@ class TranslationsHu extends Translations {
   String get aiAssistants => "MI-ügynökök";
 
   @override
-  String get notifyEveryoneInThisGroup => "Mindenkit értesíteni ebben a csoportban";
+  String get conversations => 'Beszélgetések';
 
   @override
-  String get notifyAll => "mindenkit";
+  String get messages => 'Üzenetek';
+
+  @override
+  String get noResults => 'Nincs találat';
+
+  @override
+  String get noResultsFor => 'Nincs találat erre:';
+
+  @override
+  String get tryNewSearch => 'Próbáljon új keresést';
+
+  @override
+  String get startTyping => 'Kezdjen el gépelni az üzenetek kereséséhez';
+
+  @override
+  String get seeMore => 'Több megtekintése';
+
+  @override
+  String get unread => 'Olvasatlan';
+
+  @override
+  String get links => 'Hivatkozások';
+
+  @override
+  String get documents => 'Dokumentumok';
 
   @override
   String get report => 'Jelentés';
@@ -1331,4 +1355,9 @@ class TranslationsHu extends Translations {
   @override
   String get harassment => 'Zaklatás / Megfélemlítés';
 
+  @override
+  String get notifyEveryoneInThisGroup => "Mindenkit értesíteni ebben a csoportban";
+
+  @override
+  String get notifyAll => "mindenkit";
 }

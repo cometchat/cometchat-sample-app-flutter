@@ -1,30 +1,31 @@
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/material.dart';
 
-///[CometChatMessagePreview] is a component that provides a bubble consisting of text
+///[CometChatEditPreview] is a component that provides a bubble consisting of text
 ///that can be appended to the message composer, message bubble or any other component as desired
 ///the appearance is similar to quote block of markdown files
-class CometChatMessagePreview extends StatelessWidget {
-  const CometChatMessagePreview(
-      {super.key,
-      required this.messagePreviewTitle,
-      required this.messagePreviewSubtitle,
-      this.messagePreviewCloseButtonIcon,
-      this.style = const CometChatMessagePreviewStyle(),
-      this.onCloseClick,
-      this.hideCloseButton = false});
+class CometChatEditPreview extends StatelessWidget {
+  const CometChatEditPreview({
+    super.key,
+    required this.editPreviewTitle,
+    required this.editPreviewSubtitle,
+    this.editPreviewCloseButtonIcon,
+    this.style = const CometChatEditPreviewStyle(),
+    this.onCloseClick,
+    this.hideCloseButton = false,
+  });
 
-  ///[messagePreviewTitle]
-  final String messagePreviewTitle;
+  ///[editPreviewTitle]
+  final String editPreviewTitle;
 
-  ///[messagePreviewSubtitle] replace message preview subtitle
-  final String messagePreviewSubtitle;
+  ///[editPreviewSubtitle] replace message preview subtitle
+  final String editPreviewSubtitle;
 
-  ///[messagePreviewCloseButtonIcon] replaces message preview close button
-  final Icon? messagePreviewCloseButtonIcon;
+  ///[editPreviewCloseButtonIcon] replaces message preview close button
+  final Icon? editPreviewCloseButtonIcon;
 
   ///[style] alters styling properties
-  final CometChatMessagePreviewStyle style;
+  final CometChatEditPreviewStyle style;
 
   ///[onCloseClick] call function to be called on close button click
   final Function()? onCloseClick;
@@ -35,23 +36,30 @@ class CometChatMessagePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
-    CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
+    CometChatColorPalette colorPalette =
+        CometChatThemeHelper.getColorPalette(context);
     return Container(
       padding: EdgeInsets.all(spacing.padding ?? 0),
       decoration: BoxDecoration(
         color: colorPalette.borderDefault,
-        borderRadius:BorderRadius.only(topLeft: Radius.circular(spacing.radius2 ?? 0),topRight: Radius.circular(spacing.radius2 ?? 0)),
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(spacing.radius2 ?? 0),
+            topRight: Radius.circular(spacing.radius2 ?? 0)),
       ),
-
       child: ClipRRect(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(spacing.radius2 ?? 0),topRight: Radius.circular(spacing.radius2 ?? 0)),
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(spacing.radius2 ?? 0),
+            topRight: Radius.circular(spacing.radius2 ?? 0)),
         child: Container(
           height: 51,
           decoration: BoxDecoration(
-            color: style.messagePreviewBackground,
+            color: style.editPreviewBackground,
           ),
           child: Padding(
-            padding:  EdgeInsets.only(left: spacing.padding2 ?? 0, top: spacing.padding2 ?? 0,right: spacing.padding2 ?? 0),
+            padding: EdgeInsets.only(
+                left: spacing.padding2 ?? 0,
+                top: spacing.padding2 ?? 0,
+                right: spacing.padding2 ?? 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -59,10 +67,10 @@ class CometChatMessagePreview extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      messagePreviewTitle,
+                      editPreviewTitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: style.messagePreviewTitleStyle ??
+                      style: style.editPreviewTitleStyle ??
                           TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -71,7 +79,7 @@ class CometChatMessagePreview extends StatelessWidget {
                     if (hideCloseButton == false)
                       GestureDetector(
                           onTap: onCloseClick,
-                          child: messagePreviewCloseButtonIcon ??
+                          child: editPreviewCloseButtonIcon ??
                               Icon(
                                 Icons.close,
                                 size: 20,
@@ -82,10 +90,10 @@ class CometChatMessagePreview extends StatelessWidget {
                 ),
                 Flexible(
                   child: Text(
-                    messagePreviewSubtitle,
+                    editPreviewSubtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: style.messagePreviewSubtitleStyle ??
+                    style: style.editPreviewSubtitleStyle ??
                         TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w400,
@@ -101,25 +109,25 @@ class CometChatMessagePreview extends StatelessWidget {
   }
 }
 
-class CometChatMessagePreviewStyle {
-  const CometChatMessagePreviewStyle(
-      {this.messagePreviewBackground,
-      this.messagePreviewBorder,
-      this.messagePreviewTitleStyle,
-      this.messagePreviewSubtitleStyle,
+class CometChatEditPreviewStyle {
+  const CometChatEditPreviewStyle(
+      {this.editPreviewBackground,
+      this.editPreviewBorder,
+      this.editPreviewTitleStyle,
+      this.editPreviewSubtitleStyle,
       this.closeIconColor});
 
-  ///[messagePreviewBackground]
-  final Color? messagePreviewBackground;
+  ///[editPreviewBackground]
+  final Color? editPreviewBackground;
 
-  ///[messagePreviewBorder]
-  final BoxBorder? messagePreviewBorder;
+  ///[editPreviewBorder]
+  final BoxBorder? editPreviewBorder;
 
-  ///[messagePreviewTitleStyle]
-  final TextStyle? messagePreviewTitleStyle;
+  ///[editPreviewTitleStyle]
+  final TextStyle? editPreviewTitleStyle;
 
-  ///[messagePreviewSubtitleStyle]
-  final TextStyle? messagePreviewSubtitleStyle;
+  ///[editPreviewSubtitleStyle]
+  final TextStyle? editPreviewSubtitleStyle;
 
   ///[closeIconColor]
   final Color? closeIconColor;

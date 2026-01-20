@@ -29,6 +29,7 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
     this.statusIndicatorStyle,
     this.newChatIconColor,
     this.chatHistoryIconColor,
+    this.menuIconColor,
   });
 
   ///[typingIndicatorTextStyle] is text style for setting typing indicator text
@@ -94,6 +95,9 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
   ///[chatHistoryIconColor] provides color to the chat history icon
   final Color? chatHistoryIconColor;
 
+  ///[menuIconColor] provides color to the menu icon
+  final Color? menuIconColor;
+
   static CometChatMessageHeaderStyle of(BuildContext context) =>
       const CometChatMessageHeaderStyle();
 
@@ -121,6 +125,7 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
     CometChatStatusIndicatorStyle? statusIndicatorStyle,
     Color? newChatIconColor,
     Color? chatHistoryIconColor,
+    Color? menuIconColor,
   }) {
     return CometChatMessageHeaderStyle(
       typingIndicatorTextStyle:
@@ -144,6 +149,7 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
       statusIndicatorStyle: statusIndicatorStyle ?? this.statusIndicatorStyle,
       newChatIconColor: newChatIconColor ?? this.newChatIconColor,
       chatHistoryIconColor: chatHistoryIconColor ?? this.chatHistoryIconColor,
+      menuIconColor: menuIconColor ?? this.menuIconColor,
     );
   }
 
@@ -170,6 +176,7 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
       statusIndicatorStyle: style.statusIndicatorStyle,
       newChatIconColor: style.newChatIconColor,
       chatHistoryIconColor: style.chatHistoryIconColor,
+      menuIconColor: style.menuIconColor,
     );
   }
 
@@ -197,6 +204,7 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
       statusIndicatorStyle: statusIndicatorStyle?.lerp(other?.statusIndicatorStyle, t),
       newChatIconColor: Color.lerp(newChatIconColor, other?.newChatIconColor, t),
       chatHistoryIconColor: Color.lerp(chatHistoryIconColor, other?.chatHistoryIconColor, t),
+      menuIconColor: Color.lerp(menuIconColor, other?.menuIconColor, t),
     );
   }
 }

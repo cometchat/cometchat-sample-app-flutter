@@ -91,6 +91,12 @@ class CometChatConversations extends StatefulWidget {
     this.disableSoundForMessages = false,
     this.submitIcon,
     this.dateTimeFormatterCallback,
+    this.hideSearch,
+    this.searchReadOnly = false,
+    this.onSearchTap,
+    this.searchBoxIcon,
+    this.searchPadding,
+    this.searchContentPadding,
   });
 
   ///[conversationsProtocol] Request builder protocol to fetch conversations.
@@ -253,6 +259,12 @@ class CometChatConversations extends StatefulWidget {
   ///[submitIcon] will override the default submit icon
   final Widget? submitIcon;
 
+  ///[searchReadOnly] to specify if search box is read only
+  final bool searchReadOnly;
+
+  ///[onSearchTap] callback triggered on search box tap
+  final GestureTapCallback? onSearchTap;
+
   ///[setOptions] sets List of actions available on the long press of list item
   final List<CometChatOption>? Function(
       Conversation conversation,
@@ -276,10 +288,10 @@ class CometChatConversations extends StatefulWidget {
   ///[onError] call back when the component encounters an error
   final OnError? onError;
 
-  ///[onError] is a function which will called when conversation is loading.
+  ///[onLoad] is a function which will called when conversation is loading.
   final OnLoad<Conversation>? onLoad;
 
-  ///[onError] is a function which will called when list is empty.
+  ///[onEmpty] is a function which will called when list is empty.
   final OnEmpty? onEmpty;
 
   ///[customSoundForMessages] set custom sound for messages
@@ -290,6 +302,18 @@ class CometChatConversations extends StatefulWidget {
 
   /// [dateTimeFormatterCallback] is a callback that can be used to format the date and time
   final DateTimeFormatterCallback? dateTimeFormatterCallback;
+
+  /// [hideSearch] hides the search bar in the app bar
+  final bool? hideSearch;
+
+  ///[searchBoxIcon] search box prefix icon
+  final Widget? searchBoxIcon;
+
+  ///[searchPadding] provides padding to the search
+  final EdgeInsetsGeometry? searchPadding;
+
+  ///[searchContentPadding] provides padding to the search content
+  final EdgeInsetsGeometry? searchContentPadding;
 
   @override
   State<CometChatConversations> createState() => _CometChatConversationsState();
@@ -408,8 +432,22 @@ class _CometChatConversationsState extends State<CometChatConversations> {
                       .copyWith(color: style.titleTextColor),
                 )),
         titleSpacing: widget.showBackButton ? 0 : 16,
-        hideSearch: true,
+        hideSearch: widget.hideSearch,
         hideAppBar: widget.hideAppbar,
+        onSearchTap: widget.onSearchTap,
+        searchReadOnly: widget.searchReadOnly,
+        searchPadding: widget.searchPadding ??
+            EdgeInsets.symmetric(
+              horizontal: spacing.padding4 ?? 0,
+              vertical: spacing.padding3 ?? 0,
+            ),
+        searchContentPadding: widget.searchContentPadding ??
+            EdgeInsets.symmetric(
+              horizontal: spacing.padding3 ?? 0,
+              vertical: spacing.padding2 ?? 0,
+            ),
+        searchBoxIcon: widget.searchBoxIcon,
+        searchBoxHeight: 40,
         backIcon: GetBuilder<CometChatConversationsController>(
             tag: tag,
             builder: (CometChatConversationsController value) =>
@@ -462,20 +500,39 @@ class _CometChatConversationsState extends State<CometChatConversations> {
           backIconTint: style.backIconColor ?? colorPalette.iconPrimary,
           border: style.border,
           borderRadius: style.borderRadius,
-        ),
-        container: Column(
-          children: [
-            Divider(
-              color: style.separatorColor ?? colorPalette.borderLight,
-              height: style.separatorHeight ?? 1,
-            ),
-            Expanded(
-              child: _getList(
-                conversationsController,
-                context,
+          searchIconTint: style.searchIconColor ?? colorPalette.iconSecondary,
+          searchBoxBackground:
+              style.searchBackgroundColor ?? colorPalette.background3,
+          borderSide: style.searchBorder ??
+              BorderSide(
+                color: colorPalette.borderLight ?? Colors.transparent,
+                width: 1,
               ),
+          searchTextFieldRadius: style.searchBorderRadius ??
+              BorderRadius.circular(
+                spacing.radiusMax ?? 0,
+              ),
+          searchPlaceholderStyle: TextStyle(
+            color:
+                style.searchPlaceHolderTextColor ?? colorPalette.textTertiary,
+            fontSize: typography.heading4?.regular?.fontSize,
+            fontWeight: typography.heading4?.regular?.fontWeight,
+            fontFamily: typography.heading4?.regular?.fontFamily,
+          ).merge(style.searchPlaceHolderTextStyle).copyWith(
+                color: style.searchPlaceHolderTextColor,
+              ),
+          appBarShape: Border(
+            bottom: BorderSide(
+              color: style.separatorColor ??
+                  colorPalette.borderLight ??
+                  Colors.transparent,
+              width: style.separatorHeight ?? 1,
             ),
-          ],
+          ),
+        ),
+        container: _getList(
+          conversationsController,
+          context,
         ),
       ),
     );

@@ -52,6 +52,12 @@ class CometChatConversationsStyle
     this.listItemSelectedBackgroundColor,
     this.checkboxSelectedIconColor,
     this.submitIconColor,
+    this.searchBackgroundColor,
+    this.searchBorder,
+    this.searchBorderRadius,
+    this.searchIconColor,
+    this.searchPlaceHolderTextColor,
+    this.searchPlaceHolderTextStyle,
   });
 
   ///[submitIconColor] provides color for submit icon
@@ -98,7 +104,6 @@ class CometChatConversationsStyle
 
   ///[errorStateSubTitleTextColor] provides sub-title text color for error state
   final Color? errorStateSubTitleTextColor;
-
 
   ///[itemTitleTextStyle] provides text style for item tile title
   final TextStyle? itemTitleTextStyle;
@@ -169,6 +174,24 @@ class CometChatConversationsStyle
   ///[checkBoxBorder] provides border for selected item
   final BorderSide? checkBoxBorder;
 
+  ///[searchBorder] provides border for search box
+  final BorderSide? searchBorder;
+
+  ///[searchBackgroundColor] provides background color for search box
+  final Color? searchBackgroundColor;
+
+  ///[searchIconColor] provides color for search icon
+  final Color? searchIconColor;
+
+  ///[searchBorderRadius] provides padding for search box content
+  final BorderRadius? searchBorderRadius;
+
+  ///[searchPlaceHolderTextColor] provides placeholder text color for search box
+  final Color? searchPlaceHolderTextColor;
+
+  ///[searchPlaceHolderTextStyle] provides placeholder text style for search box
+  final TextStyle? searchPlaceHolderTextStyle;
+
   static CometChatConversationsStyle of(BuildContext context) =>
       const CometChatConversationsStyle();
 
@@ -212,6 +235,12 @@ class CometChatConversationsStyle
     BorderRadiusGeometry? checkBoxBorderRadius,
     Color? listItemSelectedBackgroundColor,
     Color? checkboxSelectedIconColor,
+    Color? searchBackgroundColor,
+    BorderSide? searchBorder,
+    BorderRadius? searchBorderRadius,
+    Color? searchIconColor,
+    Color? searchPlaceHolderTextColor,
+    TextStyle? searchPlaceHolderTextStyle,
   }) {
     return CometChatConversationsStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -256,16 +285,24 @@ class CometChatConversationsStyle
           protectedGroupIconBackground ?? this.protectedGroupIconBackground,
       checkBoxBorder: checkBoxBorder ?? this.checkBoxBorder,
       checkBoxBackgroundColor:
-      checkBoxBackgroundColor ?? this.checkBoxBackgroundColor,
+          checkBoxBackgroundColor ?? this.checkBoxBackgroundColor,
       checkBoxCheckedBackgroundColor:
-      checkBoxCheckedBackgroundColor ?? this.checkBoxCheckedBackgroundColor,
+          checkBoxCheckedBackgroundColor ?? this.checkBoxCheckedBackgroundColor,
       checkBoxBorderRadius: checkBoxBorderRadius ?? this.checkBoxBorderRadius,
       listItemSelectedBackgroundColor: listItemSelectedBackgroundColor ??
           this.listItemSelectedBackgroundColor,
       checkboxSelectedIconColor:
-      checkboxSelectedIconColor ?? this.checkboxSelectedIconColor,
-      submitIconColor:
-      submitIconColor ?? this.submitIconColor,
+          checkboxSelectedIconColor ?? this.checkboxSelectedIconColor,
+      submitIconColor: submitIconColor ?? this.submitIconColor,
+      searchBackgroundColor:
+          searchBackgroundColor ?? this.searchBackgroundColor,
+      searchBorder: searchBorder ?? this.searchBorder,
+      searchBorderRadius: searchBorderRadius ?? this.searchBorderRadius,
+      searchIconColor: searchIconColor ?? this.searchIconColor,
+      searchPlaceHolderTextColor:
+          searchPlaceHolderTextColor ?? this.searchPlaceHolderTextColor,
+      searchPlaceHolderTextStyle:
+          searchPlaceHolderTextStyle ?? this.searchPlaceHolderTextStyle,
     );
   }
 
@@ -310,6 +347,12 @@ class CometChatConversationsStyle
       listItemSelectedBackgroundColor: style.listItemSelectedBackgroundColor,
       checkboxSelectedIconColor: style.checkboxSelectedIconColor,
       submitIconColor: style.submitIconColor,
+      searchBackgroundColor: style.searchBackgroundColor,
+      searchBorder: style.searchBorder,
+      searchBorderRadius: style.searchBorderRadius,
+      searchIconColor: style.searchIconColor,
+      searchPlaceHolderTextColor: style.searchPlaceHolderTextColor,
+      searchPlaceHolderTextStyle: style.searchPlaceHolderTextStyle,
     );
   }
 
@@ -373,7 +416,7 @@ class CometChatConversationsStyle
       checkBoxBorder: BorderSide.lerp(checkBoxBorder ?? BorderSide.none,
           other.checkBoxBorder ?? BorderSide.none, t),
       checkBoxBackgroundColor:
-      Color.lerp(checkBoxBackgroundColor, other.checkBoxBackgroundColor, t),
+          Color.lerp(checkBoxBackgroundColor, other.checkBoxBackgroundColor, t),
       checkBoxCheckedBackgroundColor: Color.lerp(checkBoxCheckedBackgroundColor,
           other.checkBoxCheckedBackgroundColor, t),
       checkBoxBorderRadius: BorderRadiusGeometry.lerp(
@@ -384,8 +427,18 @@ class CometChatConversationsStyle
           t),
       checkboxSelectedIconColor: Color.lerp(
           checkboxSelectedIconColor, other.checkboxSelectedIconColor, t),
-      submitIconColor: Color.lerp(
-          submitIconColor, other.submitIconColor, t),
+      submitIconColor: Color.lerp(submitIconColor, other.submitIconColor, t),
+      searchBackgroundColor:
+          Color.lerp(searchBackgroundColor, other.searchBackgroundColor, t),
+      searchBorder: BorderSide.lerp(searchBorder ?? BorderSide.none,
+          other.searchBorder ?? BorderSide.none, t),
+      searchBorderRadius:
+          BorderRadius.lerp(searchBorderRadius, other.searchBorderRadius, t),
+      searchIconColor: Color.lerp(searchIconColor, other.searchIconColor, t),
+      searchPlaceHolderTextColor: Color.lerp(
+          searchPlaceHolderTextColor, other.searchPlaceHolderTextColor, t),
+      searchPlaceHolderTextStyle: TextStyle.lerp(
+          searchPlaceHolderTextStyle, other.searchPlaceHolderTextStyle, t),
     );
   }
 }

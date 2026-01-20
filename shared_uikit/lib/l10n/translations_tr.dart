@@ -1292,10 +1292,34 @@ class TranslationsTr extends Translations {
   String get aiAssistants => "AI Asistanları";
 
   @override
-  String get notifyEveryoneInThisGroup => "Bu gruptaki herkesi bilgilendir";
+  String get conversations => 'Sohbetler';
 
   @override
-  String get notifyAll => "hepsi";
+  String get messages => 'Mesajlar';
+
+  @override
+  String get noResults => 'Sonuç yok';
+
+  @override
+  String get noResultsFor => 'Bunun için sonuç bulunamadı';
+
+  @override
+  String get tryNewSearch => 'Yeni bir arama deneyin';
+
+  @override
+  String get startTyping => 'Mesaj aramak için yazmaya başlayın';
+
+  @override
+  String get seeMore => 'Daha fazla gör';
+
+  @override
+  String get unread => 'Okunmamış';
+
+  @override
+  String get links => 'Bağlantılar';
+
+  @override
+  String get documents => 'Belgeler';
 
   @override
   String get report => 'Bildir';
@@ -1329,4 +1353,9 @@ class TranslationsTr extends Translations {
   @override
   String get harassment => 'Taciz / Zorbalık';
 
+  @override
+  String get notifyEveryoneInThisGroup => "Bu gruptaki herkesi bilgilendir";
+
+  @override
+  String get notifyAll => "hepsi";
 }

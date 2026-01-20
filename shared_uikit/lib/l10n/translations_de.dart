@@ -1319,10 +1319,34 @@ class TranslationsDe extends Translations {
   String get aiAssistants => "KI-Assistenten";
 
   @override
-  String get notifyEveryoneInThisGroup => "Alle in dieser Gruppe benachrichtigen";
+  String get conversations => 'Unterhaltungen';
 
   @override
-  String get notifyAll => "alle";
+  String get messages => 'Nachrichten';
+
+  @override
+  String get noResults => 'Keine Ergebnisse';
+
+  @override
+  String get noResultsFor => 'Es wurden keine Ergebnisse gefunden für';
+
+  @override
+  String get tryNewSearch => 'Versuchen Sie eine neue Suche';
+
+  @override
+  String get startTyping => 'Beginnen Sie zu tippen, um nach Nachrichten zu suchen';
+
+  @override
+  String get seeMore => 'Mehr anzeigen';
+
+  @override
+  String get unread => 'Ungelesen';
+
+  @override
+  String get links => 'Links';
+
+  @override
+  String get documents => 'Dokumente';
 
   @override
   String get report => 'Melden';
@@ -1355,5 +1379,11 @@ class TranslationsDe extends Translations {
 
   @override
   String get harassment => 'مضايقة / تنمر';
+
+  @override
+  String get notifyEveryoneInThisGroup => "Alle in dieser Gruppe benachrichtigen";
+
+  @override
+  String get notifyAll => "alle";
 
 }

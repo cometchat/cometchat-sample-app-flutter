@@ -16,21 +16,22 @@ import 'package:flutter/services.dart';
 /// ```
 ///
 class CometChatVideoBubble extends StatelessWidget {
-  const CometChatVideoBubble(
-      {super.key,
-        this.style,
-        this.videoUrl,
-        this.thumbnailUrl,
-        this.placeHolderImage,
-        this.placeHolderImagePackageName,
-        this.playIcon,
-        this.onClick,
-        this.height,
-        this.width,
-        this.padding,
-        this.margin,
-        this.metadata
-      });
+  const CometChatVideoBubble({
+    super.key,
+    this.style,
+    this.videoUrl,
+    this.thumbnailUrl,
+    this.placeHolderImage,
+    this.placeHolderImagePackageName,
+    this.playIcon,
+    this.onClick,
+    this.height,
+    this.width,
+    this.padding,
+    this.margin,
+    this.metadata,
+    this.placeHolder,
+  });
 
   ///[videoUrl] if message object is not passed then video url should be passed
   final String? videoUrl;
@@ -68,7 +69,11 @@ class CometChatVideoBubble extends StatelessWidget {
   ///[metadata] metadata of the message object
   final Map<String, dynamic>? metadata;
 
-  Widget _getImageWidget(String imageUrl,CometChatColorPalette colorPalette,int retries) {
+  ///[placeHolder]
+  final Widget? placeHolder;
+
+  Widget _getImageWidget(
+      String imageUrl, CometChatColorPalette colorPalette, int retries) {
     return Image.network(
       imageUrl,
       fit: BoxFit.cover,
@@ -83,27 +88,30 @@ class CometChatVideoBubble extends StatelessWidget {
             strokeWidth: 2.0,
             value: loadingProgress.expectedTotalBytes != null
                 ? loadingProgress.cumulativeBytesLoaded /
-                loadingProgress.expectedTotalBytes!
+                    loadingProgress.expectedTotalBytes!
                 : null,
           ),
         );
       },
       errorBuilder:
           (BuildContext context, Object exception, StackTrace? stackTrace) {
-            if(retries>2) {
-              return  const SizedBox();
-            }
-            return _getImageWidget(imageUrl,colorPalette,retries++);
+        if (retries > 2) {
+          return const SizedBox();
+        }
+        return _getImageWidget(imageUrl, colorPalette, retries++);
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final videoBubbleStyle = CometChatThemeHelper.getTheme<CometChatVideoBubbleStyle>(context: context,defaultTheme: CometChatVideoBubbleStyle.of).merge(style);
-    CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
+    final videoBubbleStyle =
+        CometChatThemeHelper.getTheme<CometChatVideoBubbleStyle>(
+                context: context, defaultTheme: CometChatVideoBubbleStyle.of)
+            .merge(style);
+    CometChatColorPalette colorPalette =
+        CometChatThemeHelper.getColorPalette(context);
     CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
-
 
     return GestureDetector(
       onTap: onClick ??
@@ -112,9 +120,9 @@ class CometChatVideoBubble extends StatelessWidget {
 
             String? videoUrl;
             bool playFromFile = FileUtils.isLocalFileAvailable(localPath ?? '');
-            if(playFromFile){
+            if (playFromFile) {
               videoUrl = localPath;
-            } else{
+            } else {
               videoUrl = this.videoUrl;
             }
 
@@ -139,31 +147,45 @@ class CometChatVideoBubble extends StatelessWidget {
         margin: margin,
         padding: padding,
         decoration: BoxDecoration(
-            border: videoBubbleStyle.border,
-            borderRadius: videoBubbleStyle.borderRadius ?? BorderRadius.circular(spacing.radius3 ??0),
-            color: videoBubbleStyle.backgroundColor ?? colorPalette.background3,),
+          border: videoBubbleStyle.border,
+          borderRadius: videoBubbleStyle.borderRadius ??
+              BorderRadius.circular(spacing.radius3 ?? 0),
+          color: videoBubbleStyle.backgroundColor ?? colorPalette.background3,
+        ),
         alignment: Alignment.center,
         child: Stack(
           children: [
-
-            thumbnailUrl != null && thumbnailUrl!.isNotEmpty? Positioned.fill(child: _getImageWidget(thumbnailUrl!,colorPalette,0)):const SizedBox(),
-           if(videoUrl!=null && videoUrl!.isNotEmpty) Center(
-              child: Container(
-                alignment: Alignment.center,
-                height: 64,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: videoBubbleStyle.playIconBackgroundColor ?? ((MediaQuery.of(context).platformBrightness == Brightness.light ?  colorPalette.neutral500 : colorPalette.neutral900))?.withOpacity(.6),
-                ),
-                child: playIcon ??
-                    Icon(
-                      Icons.play_arrow,
-                      size: 56.0,
-                      color: videoBubbleStyle.playIconColor ?? (MediaQuery.of(context).platformBrightness == Brightness.light ? colorPalette.neutral50 : colorPalette.neutral900),
-
+            thumbnailUrl != null && thumbnailUrl!.isNotEmpty
+                ? Positioned.fill(
+                    child: _getImageWidget(thumbnailUrl!, colorPalette, 0))
+                : const SizedBox(),
+            if (videoUrl != null && videoUrl!.isNotEmpty)
+              placeHolder ??
+                  Center(
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: videoBubbleStyle.playIconBackgroundColor ??
+                            ((MediaQuery.of(context).platformBrightness ==
+                                        Brightness.light
+                                    ? colorPalette.neutral500
+                                    : colorPalette.neutral900))
+                                ?.withOpacity(.6),
+                      ),
+                      child: playIcon ??
+                          Icon(
+                            Icons.play_arrow,
+                            size: 56.0,
+                            color: videoBubbleStyle.playIconColor ??
+                                (MediaQuery.of(context).platformBrightness ==
+                                        Brightness.light
+                                    ? colorPalette.neutral50
+                                    : colorPalette.neutral900),
+                          ),
                     ),
-              ),
-            )
+                  )
           ],
         ),
       ),

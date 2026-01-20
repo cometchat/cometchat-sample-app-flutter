@@ -1344,6 +1344,11 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   }
 
   static String getTextWithMentions(String text, List<User> mentionedUsers) {
+    // Handle @all mentions - replace <@all:labelId> with @all
+    final allMentionPattern = RegExp(r'<@all:[^>]+>');
+    text = text.replaceAll(allMentionPattern, '@all');
+    
+    // Handle user mentions
     if (mentionedUsers.isNotEmpty) {
       for (var user in mentionedUsers) {
         text = text.replaceAll("<@uid:${user.uid}>", "@${user.name}");
@@ -1485,9 +1490,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       if (isMatchingAllMention) {
         // Handle @all mention - format it with the configured or default label
         // Use localized text if available, otherwise fall back to custom or default label
-        final allLabel = (context != null)
-            ? cc.Translations.of(context!).notifyAll
-            : (mentionAllLabel ?? "all");
+        final allLabel = cc.Translations.of(context!).notifyAll;
         underlyingText = "@$allLabel";
         // Style @all like logged-in user mention
         isLoggedInUser = true;

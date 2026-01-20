@@ -668,41 +668,40 @@ class CometChatAIAssistantChatHistoryController
   }
 
   showDeleteOptions(BaseMessage message) {
-    if (context != null) {
-      final colorPalette = CometChatThemeHelper.getColorPalette(context);
-      final typography = CometChatThemeHelper.getTypography(context);
-      final style = CometChatThemeHelper.getTheme<CometChatAIAssistantChatHistoryStyle>(
-          context: context, defaultTheme: CometChatAIAssistantChatHistoryStyle.of)
-          .merge(chatHistoryStyle);
-      final confirmDialogStyle =
-      CometChatThemeHelper.getTheme<CometChatConfirmDialogStyle>(
-          context: context!,
-          defaultTheme: CometChatConfirmDialogStyle.of)
-          .merge(style.deleteChatHistoryDialogStyle);
-      CometChatConfirmDialog(
-        context: context!,
-        confirmButtonText: cc.Translations.of(context!).delete,
-        cancelButtonText: cc.Translations.of(context!).cancel,
-        icon: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Image.asset(
-            AssetConstants.deleteIcon,
-            package: UIConstants.packageName,
+    final colorPalette = CometChatThemeHelper.getColorPalette(context);
+    final typography = CometChatThemeHelper.getTypography(context);
+    final style = CometChatThemeHelper.getTheme<CometChatAIAssistantChatHistoryStyle>(
+        context: context, defaultTheme: CometChatAIAssistantChatHistoryStyle.of)
+        .merge(chatHistoryStyle);
+    final confirmDialogStyle =
+    CometChatThemeHelper.getTheme<CometChatConfirmDialogStyle>(
+        context: context,
+        defaultTheme: CometChatConfirmDialogStyle.of)
+        .merge(style.deleteChatHistoryDialogStyle);
+    CometChatConfirmDialog(
+      context: context,
+      confirmButtonText: cc.Translations.of(context).delete,
+      cancelButtonText: cc.Translations.of(context).cancel,
+      icon: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Image.asset(
+          AssetConstants.deleteIcon,
+          package: UIConstants.packageName,
             height: 48,
             width: 48,
             color: confirmDialogStyle.iconColor ?? colorPalette.error,
           ),
         ),
         title: Text(
-          cc.Translations.of(context!).deleteConversation,
+          cc.Translations.of(context).deleteConversation,
           textAlign: TextAlign.center,
         ),
         messageText: Text(
-          cc.Translations.of(context!).confirmDeleteConversation,
+          cc.Translations.of(context).confirmDeleteConversation,
           textAlign: TextAlign.center,
         ),
         onCancel: () {
-          Navigator.pop(context!);
+          Navigator.pop(context);
         },
         style: CometChatConfirmDialogStyle(
           iconColor: confirmDialogStyle.iconColor ?? colorPalette.error,
@@ -790,7 +789,7 @@ class CometChatAIAssistantChatHistoryController
                 var snackBar = SnackBar(
                   backgroundColor: colorPalette.error,
                   content: Text(
-                    cc.Translations.of(context!)
+                    cc.Translations.of(context)
                         .somethingWentWrongError,
                     style: TextStyle(
                       color: colorPalette.white,
@@ -821,7 +820,7 @@ class CometChatAIAssistantChatHistoryController
             ),
           )
               : Text(
-            cc.Translations.of(context!).delete,
+            cc.Translations.of(context).delete,
             style: TextStyle(
               color: confirmDialogStyle.confirmButtonTextColor ??
                   colorPalette.white,
@@ -838,6 +837,5 @@ class CometChatAIAssistantChatHistoryController
           ),
         ),
       ).show();
-    }
   }
 }

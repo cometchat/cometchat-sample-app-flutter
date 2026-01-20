@@ -1292,11 +1292,36 @@ class TranslationsPt extends Translations {
   @override
   String get aiAssistants => "Assistentes de IA";
 
-  @override
-  String get notifyEveryoneInThisGroup => "Notificar todos neste grupo";
 
   @override
-  String get notifyAll => "todos";
+  String get conversations => 'Conversas';
+
+  @override
+  String get messages => 'Mensagens';
+
+  @override
+  String get noResults => 'Sem resultados';
+
+  @override
+  String get noResultsFor => 'Não foram encontrados resultados para';
+
+  @override
+  String get tryNewSearch => 'Tente uma nova pesquisa';
+
+  @override
+  String get startTyping => 'Comece a digitar para procurar mensagens';
+
+  @override
+  String get seeMore => 'Ver mais';
+
+  @override
+  String get unread => 'Não lido';
+
+  @override
+  String get links => 'Links';
+
+  @override
+  String get documents => 'Documentos';
 
   @override
   String get report => 'Denunciar';
@@ -1330,4 +1355,9 @@ class TranslationsPt extends Translations {
   @override
   String get harassment => 'Assédio / Bullying';
 
+  @override
+  String get notifyEveryoneInThisGroup => "Notificar todos neste grupo";
+
+  @override
+  String get notifyAll => "todos";
 }

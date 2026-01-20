@@ -1293,10 +1293,34 @@ class TranslationsMs extends Translations {
   String get aiAssistants => "Pembantu AI";
 
   @override
-  String get notifyEveryoneInThisGroup => "Beritahu semua orang dalam kumpulan ini";
+  String get conversations => 'Perbualan';
 
   @override
-  String get notifyAll => "semua";
+  String get messages => 'Mesej';
+
+  @override
+  String get noResults => 'Tiada hasil';
+
+  @override
+  String get noResultsFor => 'Tiada hasil untuk';
+
+  @override
+  String get tryNewSearch => 'Cuba carian baharu';
+
+  @override
+  String get startTyping => 'Mula menaip untuk mencari mesej';
+
+  @override
+  String get seeMore => 'Lihat Lagi';
+
+  @override
+  String get unread => 'Belum dibaca';
+
+  @override
+  String get links => 'Pautan';
+
+  @override
+  String get documents => 'Dokumen';
 
   @override
   String get report => 'Laporkan';
@@ -1330,5 +1354,10 @@ class TranslationsMs extends Translations {
   @override
   String get harassment => 'Gangguan / Buli';
 
+  @override
+  String get notifyEveryoneInThisGroup => "Beritahu semua orang dalam kumpulan ini";
+
+  @override
+  String get notifyAll => "semua";
 }
 

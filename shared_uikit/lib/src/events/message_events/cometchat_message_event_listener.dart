@@ -26,6 +26,9 @@ mixin CometChatMessageEventListener implements UIEventHandler {
   void ccMessageForwarded(BaseMessage message, List<User>? usersSent,
       List<Group>? groupsSent, MessageStatus status) {}
 
+  //event for replying to message by logged-in user
+  void ccReplyToMessage(BaseMessage message, MessageStatus status) {}
+
   //event for forwarding message by logged-in user
   void onTextMessageReceived(TextMessage textMessage) {}
 

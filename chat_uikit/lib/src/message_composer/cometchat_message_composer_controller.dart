@@ -78,6 +78,9 @@ class CometChatMessageComposerController extends GetxController
   ///[oldMessage] the message to edit
   BaseMessage? oldMessage;
 
+  ///[quotedMessage] the message to quote
+  BaseMessage? quotedMessage;
+
   ///[receiverID] the uid of the user or guid of the group
   String receiverID = "";
 
@@ -558,7 +561,7 @@ class CometChatMessageComposerController extends GetxController
         if (item.onTap != null) {
           item.onTap!();
         }
-        overlayPortalController.hide();
+        // overlayPortalController.hide();
         suggestions.clear();
         _currentSearchKeyword = null;
         _searcKeywordChanged = true;
@@ -624,6 +627,22 @@ class CometChatMessageComposerController extends GetxController
   }
 
   @override
+  void ccReplyToMessage(BaseMessage message, MessageStatus status) {
+    if (status == MessageStatus.inProgress &&
+        message.parentMessageId == parentMessageId) {
+      if (!focusNode.hasFocus) {
+        focusNode.requestFocus();
+      }
+      previewMessage(message, PreviewMessageMode.reply);
+      quotedMessage = message;
+      update();
+    } else if ((status == MessageStatus.sent || status == MessageStatus.error) &&
+            previewMessageMode == PreviewMessageMode.reply) {
+      hideReplyPreview();
+    }
+  }
+
+  @override
   void showPanel(Map<String, dynamic>? id, CustomUIPosition uiPosition,
       WidgetBuilder child) {
     if (kDebugMode) {
@@ -650,6 +669,7 @@ class CometChatMessageComposerController extends GetxController
 
   @override
   void hidePanel(Map<String, dynamic>? id, CustomUIPosition uiPosition) {
+    print("HIDE PANEL is for this ID $id ${isForThisWidget(id)}");
     if (isForThisWidget(id) == false) return;
     if (id?.containsKey(AIUtils.extensionKey) == true) {
       String? extension = id?[AIUtils.extensionKey];
@@ -663,6 +683,7 @@ class CometChatMessageComposerController extends GetxController
     } else if (uiPosition == CustomUIPosition.composerTop) {
       header = null;
     } else if (uiPosition == CustomUIPosition.composerPreview) {
+      print("HIDE PREVIEW PANEL");
       preview = null;
     }
     update();
@@ -821,9 +842,11 @@ class CometChatMessageComposerController extends GetxController
     if ((_previousText.isEmpty && textEditingController!.text.isNotEmpty) ||
         (_previousText.isNotEmpty && textEditingController!.text.isEmpty) ||
         ((oldMessage != null) &&
+            (oldMessage is TextMessage) &&
             _previousText == (oldMessage as TextMessage).text &&
             textEditingController!.text != (oldMessage as TextMessage).text) ||
         ((oldMessage != null) &&
+            (oldMessage is TextMessage) &&
             _previousText != (oldMessage as TextMessage).text &&
             textEditingController!.text == (oldMessage as TextMessage).text)) {
       update();
@@ -882,6 +905,7 @@ class CometChatMessageComposerController extends GetxController
     textMessage.text = textMessage.text.trim();
 
     oldMessage = null;
+    quotedMessage = null;
     messagePreviewTitle = '';
     messagePreviewSubtitle = '';
     previewMessageMode = PreviewMessageMode.none;
@@ -1010,10 +1034,9 @@ class CometChatMessageComposerController extends GetxController
       muid: muid,
       category: CometChatMessageCategory.message,
       sentAt: DateTime.now(),
+      quotedMessageId: quotedMessage?.id,
+      quotedMessage: quotedMessage,
     );
-
-    CometChatMessageEvents.ccMessageSent(
-        mediaMessage, MessageStatus.inProgress);
 
     //for sending files
     MediaMessage mediaMessage2 = MediaMessage(
@@ -1031,13 +1054,23 @@ class CometChatMessageComposerController extends GetxController
       muid: muid,
       category: CometChatMessageCategory.message,
       sentAt: DateTime.now(),
+      quotedMessageId: quotedMessage?.id,
+      quotedMessage: quotedMessage,
     );
 
+    CometChatMessageEvents.ccMessageSent(
+        mediaMessage, MessageStatus.inProgress);
+
+    if (previewMessageMode == PreviewMessageMode.reply) {
+      hideReplyPreview();
+    } else {
+      // Always clear quotedMessage after creating the message objects
+      // to prevent it from persisting to subsequent messages
+      quotedMessage = null;
+    }
 
     await CometChat.sendMediaMessage(mediaMessage2,
         onSuccess: (MediaMessage message) async {
-      debugPrint("Media message sent successfully: ${mediaMessage.muid}");
-
       if (Platform.isIOS) {
         if (message.file != null) {
           message.file = message.file?.replaceAll("file://", '');
@@ -1128,10 +1161,16 @@ class CometChatMessageComposerController extends GetxController
       muid: DateTime.now().microsecondsSinceEpoch.toString(),
       category: CometChatMessageCategory.custom,
       sentAt: DateTime.now(),
+      quotedMessageId: quotedMessage?.id,
+      quotedMessage: quotedMessage,
     );
 
     CometChatMessageEvents.ccMessageSent(
         customMessage, MessageStatus.inProgress);
+
+    if (previewMessageMode == PreviewMessageMode.reply) {
+      hideReplyPreview();
+    }
 
     CometChat.sendCustomMessage(customMessage,
         onSuccess: (CustomMessage message) {
@@ -1155,6 +1194,88 @@ class CometChatMessageComposerController extends GetxController
             });
   }
 
+  hideReplyPreview() {
+    if (overlayPortalController.isShowing) {
+      overlayPortalController.hide();
+    }
+    previewMessageMode = PreviewMessageMode.none;
+    messagePreviewTitle = '';
+    messagePreviewSubtitle = '';
+    quotedMessage = null;
+    oldMessage = null;
+    update();
+  }
+
+  sendReplyMessage(
+      {Map<String, dynamic>? metadata, BaseMessage? quotedMessage}) {
+    if (textEditingController == null) return;
+    String messagesText = textEditingController!.text.trim();
+    String type = MessageTypeConstants.text;
+
+    TextMessage textMessage = TextMessage(
+      sender: loggedInUser,
+      text: messagesText,
+      receiverUid: receiverID,
+      receiverType: receiverType,
+      type: type,
+      metadata: metadata,
+      parentMessageId: parentMessageId,
+      muid: DateTime.now().microsecondsSinceEpoch.toString(),
+      category: CometChatMessageCategory.message,
+      sentAt: DateTime.now(),
+      quotedMessageId: quotedMessage?.id,
+      quotedMessage: quotedMessage,
+    );
+
+    handlePreMessageSend(textMessage);
+
+    oldMessage = null;
+    this.quotedMessage = null;
+    messagePreviewTitle = '';
+    messagePreviewSubtitle = '';
+    previewMessageMode = PreviewMessageMode.none;
+    textEditingController?.clear();
+    _previousText = '';
+    update();
+    overlayPortalController.hide();
+    if (onSendButtonTap != null) {
+      onSendButtonTap!(context, textMessage, previewMessageMode);
+    } else {
+      CometChatMessageEvents.ccMessageSent(
+          textMessage, MessageStatus.inProgress);
+
+      CometChat.sendMessage(textMessage, onSuccess: (TextMessage message) {
+        if (isUserAgentic() && parentMessageId == 0) {
+          parentMessageId = message.id;
+          message.parentMessageId = parentMessageId;
+        }
+
+        if (disableSoundForMessages == false) {
+          CometChatUIKit.soundManager.play(
+              sound: Sound.outgoingMessage,
+              customSound: customSoundForMessage,
+              packageName:
+                  customSoundForMessage == null || customSoundForMessage == ""
+                      ? UIConstants.packageName
+                      : customSoundForMessagePackage);
+        }
+        CometChatMessageEvents.ccMessageSent(message, MessageStatus.sent);
+      },
+          onError: onError ??
+              (CometChatException e) {
+                if (textMessage.metadata != null) {
+                  textMessage.metadata!["error"] = e;
+                } else {
+                  textMessage.metadata = {"error": e};
+                }
+                CometChatMessageEvents.ccMessageSent(
+                    textMessage, MessageStatus.error);
+                debugPrint(
+                    "Message sending failed with exception:  ${e.message}");
+              });
+    }
+  }
+
   //----------------------------methods used internally----------------------------
   //triggered if developer doesn't pass their onChange handler
   onChange(val) {
@@ -1170,6 +1291,7 @@ class CometChatMessageComposerController extends GetxController
       overlayPortalController.show();
     } else if (mode == PreviewMessageMode.reply) {
       messagePreviewTitle = message.sender?.name;
+      overlayPortalController.show();
     }
     if (message is TextMessage) {
       String previewText = message.text;
@@ -1191,8 +1313,8 @@ class CometChatMessageComposerController extends GetxController
       }
       messagePreviewSubtitle = previewText;
     } else {
-      messagePreviewSubtitle = CometChatUIKit.getDataSource()
-          .getMessageTypeToSubtitle(message.type, context);
+      messagePreviewSubtitle =
+          ComposerUtils().getReplySubtitle(message, context);
     }
 
     if (mode == PreviewMessageMode.edit && message is TextMessage) {
@@ -1367,6 +1489,8 @@ class CometChatMessageComposerController extends GetxController
       } else if (previewMessageMode == PreviewMessageMode.edit) {
         editTextMessage();
       } else if (previewMessageMode == PreviewMessageMode.reply) {
+        sendReplyMessage(quotedMessage: quotedMessage);
+      } else if (previewMessageMode == PreviewMessageMode.reply) {
         Map<String, dynamic> metadata = {};
         metadata["reply-message"] = oldMessage!.toJson();
 
@@ -1376,12 +1500,19 @@ class CometChatMessageComposerController extends GetxController
   }
 
   //closes message preview view
-  onMessagePreviewClose() {
+  onMessagePreviewClose({bool clearText = true, bool isReply = false}) {
+    if (isReply == true && quotedMessage != null) {
+      CometChatMessageEvents.ccReplyToMessage(
+          quotedMessage!, MessageStatus.error);
+    }
     overlayPortalController.hide();
     previewMessageMode = PreviewMessageMode.none;
     messagePreviewTitle = "";
     messagePreviewSubtitle = "";
-    textEditingController?.clear();
+    quotedMessage = null;
+    if (clearText == true) {
+      textEditingController?.clear();
+    }
 
     // Reset mentions formatter state if we were in edit mode
     // This ensures that if the user cancelled an edit, the formatter doesn't think it's still tracking mentions from the old message
@@ -1483,6 +1614,8 @@ class CometChatMessageComposerController extends GetxController
         category: CometChatMessageCategory.message,
         metadata: metadata,
         sentAt: DateTime.now(),
+        quotedMessageId: quotedMessage?.id,
+        quotedMessage: quotedMessage,
       );
       onSendButtonTap!(context, mediaMessage, previewMessageMode);
     } else {

@@ -61,7 +61,7 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
   @override
   void didChangeDependencies() {
     flagMessageStyle = CometChatThemeHelper.getTheme<CometchatFlagMessageStyle>(
-        context: context, defaultTheme: CometchatFlagMessageStyle.of)
+            context: context, defaultTheme: CometchatFlagMessageStyle.of)
         .merge(widget.style);
 
     colorPalette = CometChatThemeHelper.getColorPalette(context);
@@ -80,7 +80,7 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
         final bool isReportButtonEnabled = controller.isReportEnabled;
         return AlertDialog(
           backgroundColor:
-          flagMessageStyle.backgroundColor ?? colorPalette.background1,
+              flagMessageStyle.backgroundColor ?? colorPalette.background1,
           shape: RoundedRectangleBorder(
             borderRadius: flagMessageStyle.borderRadius ??
                 BorderRadius.circular(
@@ -125,12 +125,12 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                         fontFamily: typography.heading2?.bold?.fontFamily,
                       )
                           .merge(
-                        flagMessageStyle.titleTextStyle,
-                      )
+                            flagMessageStyle.titleTextStyle,
+                          )
                           .copyWith(
-                        color: flagMessageStyle.titleTextColor ??
-                            colorPalette.textPrimary,
-                      ),
+                            color: flagMessageStyle.titleTextColor ??
+                                colorPalette.textPrimary,
+                          ),
                     ),
                     GestureDetector(
                       child: Icon(
@@ -153,12 +153,12 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                   fontFamily: typography.button?.regular?.fontFamily,
                 )
                     .merge(
-                  flagMessageStyle.subTitleTextStyle,
-                )
+                      flagMessageStyle.subTitleTextStyle,
+                    )
                     .copyWith(
-                  color: flagMessageStyle.subTitleTextColor ??
-                      colorPalette.textSecondary,
-                ),
+                      color: flagMessageStyle.subTitleTextColor ??
+                          colorPalette.textSecondary,
+                    ),
               ),
             ],
           ),
@@ -180,7 +180,7 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                       runSpacing: spacing.spacing2 ?? 8, // vertical spacing
                       children: List.generate(
                         controller.reportReasons.length,
-                            (index) {
+                        (index) {
                           final isSelected =
                               controller.selectedReasonIndex == index;
                           return GestureDetector(
@@ -195,79 +195,79 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                               decoration: BoxDecoration(
                                 color: (isSelected == true)
                                     ? (flagMessageStyle
-                                    .chipActiveBackgroundColor ??
-                                    colorPalette.extendedPrimary100)
+                                            .chipActiveBackgroundColor ??
+                                        colorPalette.extendedPrimary100)
                                     : (flagMessageStyle.chipBackgroundColor ??
-                                    colorPalette.background1),
+                                        colorPalette.background1),
                                 border: (flagMessageStyle.chipActiveBorder !=
-                                    null &&
-                                    isSelected == true)
+                                            null &&
+                                        isSelected == true)
                                     ? flagMessageStyle.chipActiveBorder
                                     : (flagMessageStyle.chipBorder ??
-                                    Border.all(
-                                      color: ((isSelected == true)
-                                          ? colorPalette
-                                          .extendedPrimary200
-                                          : colorPalette
-                                          .borderDefault) ??
-                                          Colors.transparent,
-                                    )),
+                                        Border.all(
+                                          color: ((isSelected == true)
+                                                  ? colorPalette
+                                                      .extendedPrimary200
+                                                  : colorPalette
+                                                      .borderDefault) ??
+                                              Colors.transparent,
+                                        )),
                                 borderRadius: (flagMessageStyle
-                                    .chipActiveBorderRadius !=
-                                    null &&
-                                    isSelected == true)
+                                                .chipActiveBorderRadius !=
+                                            null &&
+                                        isSelected == true)
                                     ? flagMessageStyle.chipActiveBorderRadius
                                     : (flagMessageStyle.chipBorderRadius ??
-                                    BorderRadius.circular(
-                                      spacing.radiusMax ?? 0,
-                                    )),
+                                        BorderRadius.circular(
+                                          spacing.radiusMax ?? 0,
+                                        )),
                               ),
                               child: Text(
                                   controller.defaultTranslatedReasons
-                                      .containsKey(controller
-                                      .reportReasons[index].id
-                                      .toLowerCase())
+                                          .containsKey(controller
+                                              .reportReasons[index].id
+                                              .toLowerCase())
                                       ? controller.defaultTranslatedReasons[
-                                  controller.reportReasons[index].id
-                                      .toLowerCase()]!
+                                          controller.reportReasons[index].id
+                                              .toLowerCase()]!
                                       : (controller.getLocalizedReason(
-                                      reasonId: controller
-                                          .reportReasons[index].id,
-                                      reasonName: controller
-                                          .reportReasons[index].name)),
+                                          reasonId: controller
+                                              .reportReasons[index].id,
+                                          reasonName: controller
+                                              .reportReasons[index].name)),
                                   style: (flagMessageStyle
-                                      .chipActiveTitleTextStyle !=
-                                      null &&
-                                      isSelected == true)
+                                                  .chipActiveTitleTextStyle !=
+                                              null &&
+                                          isSelected == true)
                                       ? flagMessageStyle
-                                      .chipActiveTitleTextStyle
+                                          .chipActiveTitleTextStyle
                                       : TextStyle(
-                                    color: ((isSelected == true)
-                                        ? (flagMessageStyle
-                                        .chipActiveTitleTextColor ??
-                                        colorPalette.textHighlight)
-                                        : (flagMessageStyle
-                                        .chipTitleTextColor ??
-                                        colorPalette.textPrimary)),
-                                    fontSize: typography
-                                        .button?.regular?.fontSize,
-                                    fontWeight: typography
-                                        .button?.regular?.fontWeight,
-                                    fontFamily: typography
-                                        .button?.regular?.fontFamily,
-                                  )
-                                      .merge(
-                                    flagMessageStyle.chipTitleTextStyle,
-                                  )
-                                      .copyWith(
-                                    color: isSelected
-                                        ? (flagMessageStyle
-                                        .chipActiveTitleTextColor ??
-                                        colorPalette.textHighlight)
-                                        : (flagMessageStyle
-                                        .chipTitleTextColor ??
-                                        colorPalette.textPrimary),
-                                  )),
+                                          color: ((isSelected == true)
+                                              ? (flagMessageStyle
+                                                      .chipActiveTitleTextColor ??
+                                                  colorPalette.textHighlight)
+                                              : (flagMessageStyle
+                                                      .chipTitleTextColor ??
+                                                  colorPalette.textPrimary)),
+                                          fontSize: typography
+                                              .button?.regular?.fontSize,
+                                          fontWeight: typography
+                                              .button?.regular?.fontWeight,
+                                          fontFamily: typography
+                                              .button?.regular?.fontFamily,
+                                        )
+                                          .merge(
+                                            flagMessageStyle.chipTitleTextStyle,
+                                          )
+                                          .copyWith(
+                                            color: isSelected
+                                                ? (flagMessageStyle
+                                                        .chipActiveTitleTextColor ??
+                                                    colorPalette.textHighlight)
+                                                : (flagMessageStyle
+                                                        .chipTitleTextColor ??
+                                                    colorPalette.textPrimary),
+                                          )),
                             ),
                           );
                         },
@@ -292,27 +292,27 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                                 fontFamily: typography.body?.medium?.fontFamily,
                               )
                                   .merge(flagMessageStyle
-                                  .remarkFieldTitleTextStyle)
+                                      .remarkFieldTitleTextStyle)
                                   .copyWith(
-                                  color: flagMessageStyle
-                                      .remarkFieldTitleTextColor),
+                                      color: flagMessageStyle
+                                          .remarkFieldTitleTextColor),
                             ),
                             TextSpan(
                               text:
-                              ' (${cc.Translations.of(context).optional})', // Note the space here
+                                  ' (${cc.Translations.of(context).optional})', // Note the space here
                               style: TextStyle(
                                 color: colorPalette.textTertiary,
                                 fontSize: typography.body?.regular?.fontSize,
                                 fontWeight:
-                                typography.body?.regular?.fontWeight,
+                                    typography.body?.regular?.fontWeight,
                                 fontFamily:
-                                typography.body?.regular?.fontFamily,
+                                    typography.body?.regular?.fontFamily,
                               )
                                   .merge(flagMessageStyle
-                                  .remarkFieldSubTitleTextStyle)
+                                      .remarkFieldSubTitleTextStyle)
                                   .copyWith(
-                                  color: flagMessageStyle
-                                      .remarkFieldSubTitleTextColor),
+                                      color: flagMessageStyle
+                                          .remarkFieldSubTitleTextColor),
                             ),
                           ],
                         ),
@@ -336,17 +336,17 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                             fontFamily: typography.body?.regular?.fontFamily,
                           )
                               .merge(
-                            flagMessageStyle.remarkFieldTextStyle,
-                          )
+                                flagMessageStyle.remarkFieldTextStyle,
+                              )
                               .copyWith(
-                            color: flagMessageStyle.remarkFieldTextColor ??
-                                colorPalette.textPrimary,
-                          ),
+                                color: flagMessageStyle.remarkFieldTextColor ??
+                                    colorPalette.textPrimary,
+                              ),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor:
-                            flagMessageStyle.remarkFieldBackgroundColor ??
-                                colorPalette.background2,
+                                flagMessageStyle.remarkFieldBackgroundColor ??
+                                    colorPalette.background2,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(
                                 spacing.radius2 ?? 0,
@@ -375,7 +375,7 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                               ),
                             ),
                             hintText:
-                            "${cc.Translations.of(context).additionalContext}...",
+                                "${cc.Translations.of(context).additionalContext}...",
                             hintStyle: TextStyle(
                               color: colorPalette.textTertiary,
                               fontSize: typography.body?.regular?.fontSize,
@@ -383,13 +383,13 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                               fontFamily: typography.body?.regular?.fontFamily,
                             )
                                 .merge(
-                              flagMessageStyle.remarkFieldHintTextStyle,
-                            )
+                                  flagMessageStyle.remarkFieldHintTextStyle,
+                                )
                                 .copyWith(
-                              color: flagMessageStyle
-                                  .remarkFieldHintTextColor ??
-                                  colorPalette.textTertiary,
-                            ),
+                                  color: flagMessageStyle
+                                          .remarkFieldHintTextColor ??
+                                      colorPalette.textTertiary,
+                                ),
                             contentPadding: EdgeInsets.all(
                               spacing.padding2 ?? 0,
                             ),
@@ -428,11 +428,11 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                           MaterialStateProperty.all(
                             BorderSide(
                               color:
-                              colorPalette.borderDark ?? Colors.transparent,
+                                  colorPalette.borderDark ?? Colors.transparent,
                             ),
                           ),
                       shadowColor:
-                      MaterialStateProperty.all(colorPalette.transparent),
+                          MaterialStateProperty.all(colorPalette.transparent),
                       shape: flagMessageStyle.cancelButtonShape ??
                           MaterialStateProperty.all(
                             RoundedRectangleBorder(
@@ -457,12 +457,12 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                         fontFamily: typography.button?.medium?.fontFamily,
                       )
                           .merge(
-                        flagMessageStyle.cancelButtonTextStyle,
-                      )
+                            flagMessageStyle.cancelButtonTextStyle,
+                          )
                           .copyWith(
-                        color: flagMessageStyle.cancelButtonTextColor ??
-                            colorPalette.textPrimary,
-                      ),
+                            color: flagMessageStyle.cancelButtonTextColor ??
+                                colorPalette.textPrimary,
+                          ),
                     ),
                   ),
                 ),
@@ -473,17 +473,17 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                   child: ElevatedButton(
                     onPressed: isReportButtonEnabled
                         ? () {
-                      controller.reportMessage(context, widget.message);
-                    }
+                            controller.reportMessage(context, widget.message);
+                          }
                         : () {},
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
                         isReportButtonEnabled
                             ? (flagMessageStyle
-                            .reportButtonActiveBackgroundColor ??
-                            colorPalette.primary)
+                                    .reportButtonActiveBackgroundColor ??
+                                colorPalette.primary)
                             : (flagMessageStyle.reportButtonBackgroundColor ??
-                            colorPalette.background4),
+                                colorPalette.background4),
                       ),
                       side: flagMessageStyle.reportButtonBorder,
                       shape: flagMessageStyle.reportButtonShape ??
@@ -495,7 +495,7 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                             ),
                           ),
                       shadowColor:
-                      MaterialStateProperty.all(colorPalette.transparent),
+                          MaterialStateProperty.all(colorPalette.transparent),
                       padding: MaterialStateProperty.all(
                         EdgeInsets.symmetric(
                           vertical: spacing.padding2 ?? 0,
@@ -505,31 +505,31 @@ class _CometChatFlagMessageState extends State<CometChatFlagMessage> {
                     ),
                     child: (controller.isLoading)
                         ? Center(
-                      child: SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: CircularProgressIndicator(
-                          color: colorPalette.white,
-                        ),
-                      ),
-                    )
+                            child: SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(
+                                color: colorPalette.white,
+                              ),
+                            ),
+                          )
                         : Text(
-                      cc.Translations.of(context).report,
-                      style: TextStyle(
-                        color: colorPalette.buttonIconColor,
-                        fontSize: typography.button?.medium?.fontSize,
-                        fontWeight: typography.button?.medium?.fontWeight,
-                        fontFamily: typography.button?.medium?.fontFamily,
-                      )
-                          .merge(
-                        flagMessageStyle.reportButtonTextStyle,
-                      )
-                          .copyWith(
-                        color:
-                        flagMessageStyle.reportButtonTextColor ??
-                            colorPalette.buttonIconColor,
-                      ),
-                    ),
+                            cc.Translations.of(context).report,
+                            style: TextStyle(
+                              color: colorPalette.buttonIconColor,
+                              fontSize: typography.button?.medium?.fontSize,
+                              fontWeight: typography.button?.medium?.fontWeight,
+                              fontFamily: typography.button?.medium?.fontFamily,
+                            )
+                                .merge(
+                                  flagMessageStyle.reportButtonTextStyle,
+                                )
+                                .copyWith(
+                                  color:
+                                      flagMessageStyle.reportButtonTextColor ??
+                                          colorPalette.buttonIconColor,
+                                ),
+                          ),
                   ),
                 ),
               ],

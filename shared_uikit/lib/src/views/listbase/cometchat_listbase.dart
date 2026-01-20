@@ -32,6 +32,8 @@ class CometChatListBase extends StatefulWidget {
     this.searchContentPadding,
     this.titleSpacing,
     this.titleView,
+    this.onSearchTap,
+    this.searchReadOnly = false,
     this.leadingWidth,
     this.leadingIconPadding,
   });
@@ -90,6 +92,11 @@ class CometChatListBase extends StatefulWidget {
   ///[titleView] to specify title view
   final Widget? titleView;
 
+  ///[searchReadOnly] to specify if search box is read only
+  final bool searchReadOnly;
+
+  ///[onSearchTap] callback triggered on search box tap
+  final GestureTapCallback? onSearchTap;
   ///[leadingWidth] to specify leading width
   final double? leadingWidth;
 
@@ -204,6 +211,8 @@ class _CometChatListBaseState extends State<CometChatListBase> {
                             controller: _searchController,
                             onChanged: widget.onSearch,
                             style: widget.style.searchTextStyle,
+                            readOnly: widget.searchReadOnly,
+                            onTap: widget.onSearchTap,
                             //-----------------------------------------
                             //----------search box decoration----------
                             decoration: InputDecoration(

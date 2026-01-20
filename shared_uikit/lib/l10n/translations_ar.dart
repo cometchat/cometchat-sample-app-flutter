@@ -1306,10 +1306,34 @@ class TranslationsAr extends Translations {
   String get aiAssistants => "مساعدو الذكاء الاصطناعي";
 
   @override
-  String get notifyEveryoneInThisGroup => "إخطار الجميع في هذه المجموعة";
+  String get conversations => 'المحادثات';
 
   @override
-  String get notifyAll => "الجميع";
+  String get messages => 'الرسائل';
+
+  @override
+  String get noResults => 'لا توجد نتائج';
+
+  @override
+  String get noResultsFor => 'لا توجد نتائج لـ';
+
+  @override
+  String get tryNewSearch => 'جرّب بحثًا جديدًا';
+
+  @override
+  String get startTyping => 'ابدأ بالكتابة للبحث عن الرسائل';
+
+  @override
+  String get seeMore => 'عرض المزيد';
+
+  @override
+  String get unread => 'غير مقروء';
+
+  @override
+  String get links => 'الروابط';
+
+  @override
+  String get documents => 'المستندات';
 
   @override
   String get report => 'الإبلاغ';
@@ -1341,5 +1365,11 @@ class TranslationsAr extends Translations {
 
   @override
   String get harassment => 'مضايقة / تنمر';
+
+  @override
+  String get notifyEveryoneInThisGroup => "إخطار الجميع في هذه المجموعة";
+
+  @override
+  String get notifyAll => "الجميع";
 
 }

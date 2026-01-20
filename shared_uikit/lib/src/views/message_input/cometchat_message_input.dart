@@ -126,10 +126,6 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
 
   @override
   void didChangeDependencies() {
-    messageInputStyle =
-        CometChatThemeHelper.getTheme<CometChatMessageInputStyle>(
-                context: context, defaultTheme: CometChatMessageInputStyle.of)
-            .merge(widget.style);
     colorPalette = CometChatThemeHelper.getColorPalette(context);
     spacing = CometChatThemeHelper.getSpacing(context);
     typography = CometChatThemeHelper.getTypography(context);
@@ -138,6 +134,13 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
 
   @override
   Widget build(BuildContext context) {
+    messageInputStyle =
+        CometChatThemeHelper.getTheme<CometChatMessageInputStyle>(
+            context: context, defaultTheme: CometChatMessageInputStyle.of)
+            .merge(widget.style);
+    final resolvedRadius = (messageInputStyle.borderRadius ??
+            BorderRadius.circular(spacing.radius2 ?? 0))
+        .resolve(Directionality.of(context));
     return Container(
       height: widget.height,
       width: widget.width,
@@ -154,16 +157,16 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
               padding: EdgeInsets.only(
                   left: spacing.padding3 ?? 0, right: spacing.padding3 ?? 0),
               decoration: BoxDecoration(
-                color: messageInputStyle.filledColor ?? messageInputStyle.backgroundColor,
+                color: messageInputStyle.filledColor ??
+                    messageInputStyle.backgroundColor,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(spacing.radius2 ?? 0),
-                  topRight: Radius.circular(spacing.radius2 ?? 0),
+                  topLeft: resolvedRadius.topLeft,
+                  topRight: resolvedRadius.topRight,
                 ),
               ),
               child: TextFormField(
                 textCapitalization: TextCapitalization.sentences,
-                keyboardAppearance:
-                    CometChatThemeHelper.getBrightness(context),
+                keyboardAppearance: CometChatThemeHelper.getBrightness(context),
                 style: TextStyle(
                         color: colorPalette.textPrimary,
                         fontSize: typography.body?.regular?.fontSize,
@@ -199,12 +202,16 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
                 color: messageInputStyle.dividerTint),
           if (widget.hideBottomView != true)
             Container(
-              padding: EdgeInsets.symmetric(horizontal: spacing.padding3 ?? 0, vertical: spacing.padding2 ?? 0),
+              padding: EdgeInsets.symmetric(
+                  horizontal: spacing.padding3 ?? 0,
+                  vertical: spacing.padding2 ?? 0),
               decoration: BoxDecoration(
-                  color: messageInputStyle.backgroundColor,
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(spacing.radius2 ?? 0),
-                      bottomRight: Radius.circular(spacing.radius2 ?? 0))),
+                color: messageInputStyle.backgroundColor,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: resolvedRadius.bottomLeft,
+                  bottomRight: resolvedRadius.bottomRight,
+                ),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

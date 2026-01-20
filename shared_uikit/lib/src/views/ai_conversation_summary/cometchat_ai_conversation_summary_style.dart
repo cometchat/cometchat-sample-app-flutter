@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+
+import '../../../cometchat_uikit_shared.dart';
 
 ///[CometChatAIConversationSummaryStyle] is a data class that has styling-related properties
 ///to customize the appearance of [CometChatAIConversationSummaryStyle]

@@ -50,6 +50,12 @@ class CometChatMessageEvents {
     });
   }
 
+  static ccReplyToMessage(BaseMessage message, MessageStatus status) {
+    messagesListener.forEach((key, value) {
+      value.ccReplyToMessage(message, status);
+    });
+  }
+
   /// Called when an outgoing call is initiated by the logged-in user.
   static void onTextMessageReceived(TextMessage textMessage) {
     messagesListener.forEach((key, value) {

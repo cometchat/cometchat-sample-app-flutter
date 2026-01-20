@@ -1,10 +1,10 @@
 name: cometchat_uikit_shared
 description: Shared Components and Resources for CometChat's chat and calls UI Kits
-version: 5.1.8
+version: 5.1.9
 homepage: https://www.cometchat.com/
 
 environment:
-  sdk: '>=2.17.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
   flutter: ">=2.5.0"
 
 dependencies:
@@ -27,11 +27,20 @@ dependencies:
   gpt_markdown: ^1.1.2
   cached_network_image: ^3.4.1
   flutter_cache_manager: ^3.4.1
+  provider: ^6.1.0
+  cross_cache: ^1.0.0
+  diffutil_dart: ^3.0.0
+  scrollview_observer: ^1.0.0
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  build_runner: ^2.4.0
+  freezed: ^3.2.3
+  json_serializable: ^6.7.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

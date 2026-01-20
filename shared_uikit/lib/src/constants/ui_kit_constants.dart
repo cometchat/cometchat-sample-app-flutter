@@ -58,7 +58,7 @@ class MessageOptionConstants {
   static const String shareMessage = "shareMessage";
   static const String copyMessage = "copyMessage";
   static const String forwardMessage = "forwardMessage";
-  // static const String replyMessage = "replyMessage";
+  static const String replyMessage = "replyMessage";
   static const String replyInThreadMessage = "replyInThreadMessage";
   // static const String reactToMessage = "reactToMessage";
   // static const String translateMessage = "translateMessage";
@@ -344,6 +344,7 @@ class ExtensionType {
   static const String sticker = "extension_sticker";
   static const String document = "extension_document";
   static const String whiteboard = "extension_whiteboard";
+  static const String meeting = "meeting";
 }
 
 
@@ -373,6 +374,15 @@ class AIConstants {
   static const String greetingMessage = "greetingMessage";
 }
 
+class SearchConstants {
+  static const String unread = "Unread";
+  static const String groups = "Groups";
+  static const String photos = "Photos";
+  static const String videos = "Videos";
+  static const String links = "Links";
+  static const String documents = "Documents";
+  static const String audio = "Audio";
+}
 class ErrorConstants {
   static const String fileErrorCodeAndroid = "ERR_BAD_REQUEST";
   static const String fileErrorCodeIOS = "ERROR_INVALID_FILE_SIZE";

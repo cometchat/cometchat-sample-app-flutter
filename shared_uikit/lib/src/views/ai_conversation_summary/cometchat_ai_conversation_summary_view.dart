@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+
+import '../../../cometchat_uikit_shared.dart';
 
 
 ///[CometChatAIConversationSummaryView] is a widget that is rendered as the content view for [CometChatAIConversationSummaryView]

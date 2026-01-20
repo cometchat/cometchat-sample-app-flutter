@@ -69,9 +69,43 @@ class _ImageViewerState extends State<ImageViewer> {
 
   bool get _isGif => widget.imageUrl.toLowerCase().endsWith('.gif');
 
+  /// Check if the image is SVG format (not natively supported)
+  bool get _isSvg {
+    final lowerUrl = widget.imageUrl.toLowerCase();
+    // Check for .svg extension or /svg in path (e.g., dicebear URLs like /svg?seed=...)
+    return lowerUrl.endsWith('.svg') || 
+           lowerUrl.contains('/svg?') || 
+           lowerUrl.contains('/svg/');
+  }
+
+  /// Check if the image is HEIC/HEIF format (not natively supported)
+  bool get _isHeicOrHeif {
+    final lowerUrl = widget.imageUrl.toLowerCase();
+    return lowerUrl.endsWith('.heic') || lowerUrl.endsWith('.heif');
+  }
+
+  /// Check if the image format is unsupported
+  bool get _isUnsupportedFormat => _isSvg || _isHeicOrHeif;
+
   @override
   Widget build(BuildContext context) {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
+
+    // Show placeholder for unsupported formats
+    if (_isUnsupportedFormat) {
+      return Scaffold(
+        backgroundColor: colorPalette.background1,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: colorPalette.background1,
+          iconTheme: IconThemeData(color: colorPalette.iconPrimary),
+        ),
+        body: Center(
+          child: _buildPlaceholderImage(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: colorPalette.background1,
       appBar: AppBar(

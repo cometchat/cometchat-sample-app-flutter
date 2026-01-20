@@ -226,46 +226,46 @@ class CometchatFlagMessageStyle
       chipTitleTextStyle: chipTitleTextStyle ?? this.chipTitleTextStyle,
       chipTitleTextColor: chipTitleTextColor ?? this.chipTitleTextColor,
       chipActiveBackgroundColor:
-      chipActiveBackgroundColor ?? this.chipActiveBackgroundColor,
+          chipActiveBackgroundColor ?? this.chipActiveBackgroundColor,
       chipActiveTitleTextColor:
-      chipActiveTitleTextColor ?? this.chipActiveTitleTextColor,
+          chipActiveTitleTextColor ?? this.chipActiveTitleTextColor,
       chipActiveTitleTextStyle:
-      chipActiveTitleTextStyle ?? this.chipActiveTitleTextStyle,
+          chipActiveTitleTextStyle ?? this.chipActiveTitleTextStyle,
       chipActiveBorder: chipActiveBorder ?? this.chipActiveBorder,
       chipActiveBorderRadius:
-      chipActiveBorderRadius ?? this.chipActiveBorderRadius,
+          chipActiveBorderRadius ?? this.chipActiveBorderRadius,
       remarkFieldTitleTextStyle:
-      remarkFieldTitleTextStyle ?? this.remarkFieldTitleTextStyle,
+          remarkFieldTitleTextStyle ?? this.remarkFieldTitleTextStyle,
       remarkFieldTitleTextColor:
-      remarkFieldTitleTextColor ?? this.remarkFieldTitleTextColor,
+          remarkFieldTitleTextColor ?? this.remarkFieldTitleTextColor,
       remarkFieldSubTitleTextStyle:
-      remarkFieldSubTitleTextStyle ?? this.remarkFieldSubTitleTextStyle,
+          remarkFieldSubTitleTextStyle ?? this.remarkFieldSubTitleTextStyle,
       remarkFieldSubTitleTextColor:
-      remarkFieldSubTitleTextColor ?? this.remarkFieldSubTitleTextColor,
+          remarkFieldSubTitleTextColor ?? this.remarkFieldSubTitleTextColor,
       remarkFieldHintTextStyle:
-      remarkFieldHintTextStyle ?? this.remarkFieldHintTextStyle,
+          remarkFieldHintTextStyle ?? this.remarkFieldHintTextStyle,
       remarkFieldHintTextColor:
-      remarkFieldHintTextColor ?? this.remarkFieldHintTextColor,
+          remarkFieldHintTextColor ?? this.remarkFieldHintTextColor,
       remarkFieldTextStyle: remarkFieldTextStyle ?? this.remarkFieldTextStyle,
       remarkFieldTextColor: remarkFieldTextColor ?? this.remarkFieldTextColor,
       remarkFieldBackgroundColor:
-      remarkFieldBackgroundColor ?? this.remarkFieldBackgroundColor,
+          remarkFieldBackgroundColor ?? this.remarkFieldBackgroundColor,
       cancelButtonBackgroundColor:
-      cancelButtonBackgroundColor ?? this.cancelButtonBackgroundColor,
+          cancelButtonBackgroundColor ?? this.cancelButtonBackgroundColor,
       cancelButtonTextStyle:
-      cancelButtonTextStyle ?? this.cancelButtonTextStyle,
+          cancelButtonTextStyle ?? this.cancelButtonTextStyle,
       cancelButtonTextColor:
-      cancelButtonTextColor ?? this.cancelButtonTextColor,
+          cancelButtonTextColor ?? this.cancelButtonTextColor,
       cancelButtonBorder: cancelButtonBorder ?? this.cancelButtonBorder,
       cancelButtonShape: cancelButtonShape ?? this.cancelButtonShape,
       reportButtonBackgroundColor:
-      reportButtonBackgroundColor ?? this.reportButtonBackgroundColor,
+          reportButtonBackgroundColor ?? this.reportButtonBackgroundColor,
       reportButtonActiveBackgroundColor: reportButtonActiveBackgroundColor ??
           this.reportButtonActiveBackgroundColor,
       reportButtonTextStyle:
-      reportButtonTextStyle ?? this.reportButtonTextStyle,
+          reportButtonTextStyle ?? this.reportButtonTextStyle,
       reportButtonTextColor:
-      reportButtonTextColor ?? this.reportButtonTextColor,
+          reportButtonTextColor ?? this.reportButtonTextColor,
       reportButtonBorder: reportButtonBorder ?? this.reportButtonBorder,
       reportButtonShape: reportButtonShape ?? this.reportButtonShape,
       errorTextStyle: errorTextStyle ?? this.errorTextStyle,
@@ -281,23 +281,23 @@ class CometchatFlagMessageStyle
       border: BorderSide.lerp(
           border ?? BorderSide.none, other.border ?? BorderSide.none, t),
       borderRadius:
-      BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
       titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
       titleTextColor: Color.lerp(titleTextColor, other.titleTextColor, t),
       closeIconTint: Color.lerp(closeIconTint, other.closeIconTint, t),
       subTitleTextColor:
-      Color.lerp(subTitleTextColor, other.subTitleTextColor, t),
+          Color.lerp(subTitleTextColor, other.subTitleTextColor, t),
       subTitleTextStyle:
-      TextStyle.lerp(subTitleTextStyle, other.subTitleTextStyle, t),
+          TextStyle.lerp(subTitleTextStyle, other.subTitleTextStyle, t),
       chipBackgroundColor:
-      Color.lerp(chipBackgroundColor, other.chipBackgroundColor, t),
+          Color.lerp(chipBackgroundColor, other.chipBackgroundColor, t),
       chipBorder: BoxBorder.lerp(chipBorder, other.chipBorder, t),
       chipBorderRadius: BorderRadiusGeometry.lerp(
           chipBorderRadius, other.chipBorderRadius, t),
       chipTitleTextStyle:
-      TextStyle.lerp(chipTitleTextStyle, other.chipTitleTextStyle, t),
+          TextStyle.lerp(chipTitleTextStyle, other.chipTitleTextStyle, t),
       chipTitleTextColor:
-      Color.lerp(chipTitleTextColor, other.chipTitleTextColor, t),
+          Color.lerp(chipTitleTextColor, other.chipTitleTextColor, t),
       chipActiveBackgroundColor: Color.lerp(
           chipActiveBackgroundColor, other.chipActiveBackgroundColor, t),
       chipActiveTitleTextColor: Color.lerp(
@@ -305,7 +305,7 @@ class CometchatFlagMessageStyle
       chipActiveTitleTextStyle: TextStyle.lerp(
           chipActiveTitleTextStyle, other.chipActiveTitleTextStyle, t),
       chipActiveBorder:
-      BoxBorder.lerp(chipActiveBorder, other.chipActiveBorder, t),
+          BoxBorder.lerp(chipActiveBorder, other.chipActiveBorder, t),
       chipActiveBorderRadius: BorderRadiusGeometry.lerp(
           chipActiveBorderRadius, other.chipActiveBorderRadius, t),
       remarkFieldBackgroundColor: Color.lerp(
@@ -319,9 +319,9 @@ class CometchatFlagMessageStyle
       remarkFieldSubTitleTextStyle: TextStyle.lerp(
           remarkFieldSubTitleTextStyle, other.remarkFieldSubTitleTextStyle, t),
       remarkFieldTextColor:
-      Color.lerp(remarkFieldTextColor, other.remarkFieldTextColor, t),
+          Color.lerp(remarkFieldTextColor, other.remarkFieldTextColor, t),
       remarkFieldTextStyle:
-      TextStyle.lerp(remarkFieldTextStyle, other.remarkFieldTextStyle, t),
+          TextStyle.lerp(remarkFieldTextStyle, other.remarkFieldTextStyle, t),
       remarkFieldTitleTextColor: Color.lerp(
           remarkFieldTitleTextColor, other.remarkFieldTitleTextColor, t),
       remarkFieldTitleTextStyle: TextStyle.lerp(
@@ -331,7 +331,7 @@ class CometchatFlagMessageStyle
       cancelButtonTextStyle: TextStyle.lerp(
           cancelButtonTextStyle, other.cancelButtonTextStyle, t),
       cancelButtonTextColor:
-      Color.lerp(cancelButtonTextColor, other.cancelButtonTextColor, t),
+          Color.lerp(cancelButtonTextColor, other.cancelButtonTextColor, t),
       reportButtonBackgroundColor: Color.lerp(
           reportButtonBackgroundColor, other.reportButtonBackgroundColor, t),
       reportButtonActiveBackgroundColor: Color.lerp(
@@ -339,15 +339,15 @@ class CometchatFlagMessageStyle
           other.reportButtonActiveBackgroundColor,
           t),
       reportButtonTextStyle:
-      TextStyle.lerp(reportButtonTextStyle, other.reportButtonTextStyle, t),
+          TextStyle.lerp(reportButtonTextStyle, other.reportButtonTextStyle, t),
       reportButtonTextColor:
-      Color.lerp(reportButtonTextColor, other.reportButtonTextColor, t),
+          Color.lerp(reportButtonTextColor, other.reportButtonTextColor, t),
       cancelButtonBorder: WidgetStateProperty.lerp<BorderSide?>(
         cancelButtonBorder ?? const WidgetStatePropertyAll<BorderSide?>(null),
         other.cancelButtonBorder ??
             const WidgetStatePropertyAll<BorderSide?>(null),
         t,
-            (a, b, t) {
+        (a, b, t) {
           // Safe lerp: handles null → null or default output
           if (a == null && b == null) return null;
           if (a == null) return b;
@@ -360,14 +360,14 @@ class CometchatFlagMessageStyle
         cancelButtonShape,
         other.cancelButtonShape,
         t,
-            (a, b, t) => OutlinedBorder.lerp(a, b, t),
+        (a, b, t) => OutlinedBorder.lerp(a, b, t),
       ),
       reportButtonBorder: WidgetStateProperty.lerp<BorderSide?>(
         reportButtonBorder ?? const WidgetStatePropertyAll<BorderSide?>(null),
         other.reportButtonBorder ??
             const WidgetStatePropertyAll<BorderSide?>(null),
         t,
-            (a, b, t) {
+        (a, b, t) {
           // Safe lerp: handles null → null or default output
           if (a == null && b == null) return null;
           if (a == null) return b;
@@ -380,7 +380,7 @@ class CometchatFlagMessageStyle
         reportButtonShape,
         other.reportButtonShape,
         t,
-            (a, b, t) => OutlinedBorder.lerp(a, b, t),
+        (a, b, t) => OutlinedBorder.lerp(a, b, t),
       ),
       errorTextStyle: TextStyle.lerp(errorTextStyle, other.errorTextStyle, t),
       errorTextColor: Color.lerp(errorTextColor, other.errorTextColor, t),
@@ -427,7 +427,7 @@ class CometchatFlagMessageStyle
       cancelButtonShape: style.cancelButtonShape,
       reportButtonBackgroundColor: style.reportButtonBackgroundColor,
       reportButtonActiveBackgroundColor:
-      style.reportButtonActiveBackgroundColor,
+          style.reportButtonActiveBackgroundColor,
       reportButtonTextStyle: style.reportButtonTextStyle,
       reportButtonTextColor: style.reportButtonTextColor,
       reportButtonBorder: style.reportButtonBorder,

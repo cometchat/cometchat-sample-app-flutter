@@ -53,6 +53,8 @@ class CometChatMessageHeader extends StatefulWidget
     this.newChatButtonClick,
     this.newChatIcon,
     this.chatHistoryIcon,
+    this.options,
+    this.menuIcon,
   })  : assert(user != null || group != null,
             "One of user or group should be passed"),
         assert(user == null || group == null,
@@ -178,6 +180,14 @@ class CometChatMessageHeader extends StatefulWidget
 
   ///[chatHistoryIcon] provides chat history icon
   final IconData? chatHistoryIcon;
+
+  ///[options] set appbar options
+  final List<CometChatOption>? Function(
+      User? user, Group? group, BuildContext context)? options;
+
+  ///[menuIcon] set menu icon widget
+  final Widget? menuIcon;
+
 
   @override
   State<CometChatMessageHeader> createState() => _CometChatMessageHeaderState();
@@ -535,6 +545,66 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
 
       if (temp != null) {
         tailWidgetList.addAll(temp);
+      }
+    }
+
+    if (widget.options != null) {
+      final options = widget.options!(widget.user, widget.group, context);
+      if (options != null && options.isNotEmpty) {
+        tailWidgetList.add(
+          PopupMenuButton<CometChatOption>(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
+              side: BorderSide(
+                color: colorPalette.borderLight ?? Colors.transparent,
+                width: 1,
+              ),
+            ),
+            icon: widget.menuIcon ?? Icon(
+              Icons.more_vert,
+              color: style.menuIconColor ?? colorPalette.iconPrimary,
+              size: 24,
+            ),
+            color: colorPalette.background1,
+            menuPadding: EdgeInsets.zero,
+            padding: EdgeInsets.symmetric(
+              vertical: spacing.padding2 ?? 0,
+            ),
+            position: PopupMenuPosition.under,
+            enableFeedback: false,
+            // Build popup items from CometChatOption list
+            itemBuilder: (BuildContext context) {
+              return options.map((option) {
+                return PopupMenuItem<CometChatOption>(
+                  value: option,
+                  height: 44,
+                  padding: EdgeInsets.all(spacing.padding4 ?? 0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      if (option.iconWidget != null)
+                        option.iconWidget!,
+                      Text(
+                        option.title ?? "",
+                        style: option.titleStyle ??
+                            TextStyle(
+                              fontSize: typography.body?.regular?.fontSize,
+                              fontFamily: typography.body?.regular?.fontFamily,
+                              fontWeight: typography.body?.regular?.fontWeight,
+                              color: colorPalette.textPrimary,
+                            ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList();
+            },
+
+            onSelected: (option) {
+              option.onClick?.call();
+            },
+          ),
+        );
       }
     }
 

@@ -119,6 +119,9 @@ class AssetConstants {
   static const aiActive = "assets/icons/ai_active.png";
   static const aiInactive = "assets/icons/ai_inactive.png";
   static const aiProfile = "assets/icons/ai_profile.png";
+  static const conversationSearchEmpty = "assets/icons/conversation_search_empty.png";
+  static const conversationSummaryOutlined = "assets/icons/2x/conversation_summary_outlined.png";
+  static const replyToMessage = "assets/icons/2x/reply_to_message.png";
 }
 
 ///[CometChatAssetConstants] is an extension that provides asset image paths according to the brightness mode of the device
@@ -132,12 +135,6 @@ extension CometChatAssetConstants on AssetConstants {
 
 ///[SvgAssetConstants] is a utility class that stores String constants of asset image paths
 class SvgAssetConstants {
-
-  ///[_mode] stores the default asset directory according to the brightness mode of the device
-  String _mode = "light";
-  SvgAssetConstants(Brightness brightness) {
-    _mode = brightness == Brightness.light ? "light" : "dark";
-  }
 
   static const videoCall = "assets/icons/svg/calls/video_call.svg";
 

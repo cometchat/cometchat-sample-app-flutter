@@ -49,6 +49,7 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
     this.voiceCallBubbleStyle,
     this.videoCallBubbleStyle,
     this.aiAssistantBubbleStyle,
+    this.messagePreviewStyle,
   });
 
   ///[messageBubbleBackgroundImage] provides background image to the message bubble of a received message
@@ -126,6 +127,9 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
   ///[aiAssistantBubbleStyle] is a [CometChatAIAssistantBubbleStyle] that can be used to style ai assistant bubble
   final CometChatAIAssistantBubbleStyle? aiAssistantBubbleStyle;
 
+  ///[messagePreviewStyle] provides style to the message preview
+  final CometChatMessagePreviewStyle? messagePreviewStyle;
+
 
   static CometChatIncomingMessageBubbleStyle of(BuildContext context)=> const CometChatIncomingMessageBubbleStyle();
 
@@ -157,6 +161,7 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
     CometChatCallBubbleStyle? voiceCallBubbleStyle,
     CometChatCallBubbleStyle? videoCallBubbleStyle,
     CometChatAIAssistantBubbleStyle? aiAssistantBubbleStyle,
+    CometChatMessagePreviewStyle? messagePreviewStyle,
   }) {
     return CometChatIncomingMessageBubbleStyle(
       messageBubbleBackgroundImage: messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
@@ -184,6 +189,7 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
       voiceCallBubbleStyle: voiceCallBubbleStyle ?? this.voiceCallBubbleStyle,
       videoCallBubbleStyle: videoCallBubbleStyle ?? this.videoCallBubbleStyle,
       aiAssistantBubbleStyle: aiAssistantBubbleStyle ?? this.aiAssistantBubbleStyle,
+      messagePreviewStyle: messagePreviewStyle ?? this.messagePreviewStyle,
     );
   }
 
@@ -216,6 +222,7 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
       voiceCallBubbleStyle: style.voiceCallBubbleStyle,
       videoCallBubbleStyle: style.videoCallBubbleStyle,
       aiAssistantBubbleStyle: style.aiAssistantBubbleStyle,
+      messagePreviewStyle: style.messagePreviewStyle,
     );}
 
   @override
@@ -249,6 +256,7 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
       voiceCallBubbleStyle: voiceCallBubbleStyle?.lerp(other.voiceCallBubbleStyle, t),
       videoCallBubbleStyle: videoCallBubbleStyle?.lerp(other.videoCallBubbleStyle, t),
       aiAssistantBubbleStyle: aiAssistantBubbleStyle?.lerp(other.aiAssistantBubbleStyle, t),
+      messagePreviewStyle: messagePreviewStyle?.lerp(other.messagePreviewStyle, t),
     );
   }
 }

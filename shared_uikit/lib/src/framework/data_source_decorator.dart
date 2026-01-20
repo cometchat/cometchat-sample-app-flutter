@@ -461,4 +461,10 @@ abstract class DataSourceDecorator implements DataSource {
     return dataSource.getAIAssistantMessageFooterView(message, context, alignment,
         additionalConfigurations: additionalConfigurations);
   }
+
+  @override
+  Widget getReplyView(
+      BaseMessage message, BuildContext context, BubbleAlignment alignment, {AdditionalConfigurations? additionalConfigurations}) {
+    return dataSource.getReplyView(message, context, alignment, additionalConfigurations: additionalConfigurations);
+  }
 }

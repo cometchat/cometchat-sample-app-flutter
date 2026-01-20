@@ -38,9 +38,11 @@ export 'src/models/cometchat_message_composer_action.dart';
 //---constants---
 export 'src/constants/ui_kit_constants.dart';
 export 'src/constants/asset_constants.dart';
-export 'src/constants/enums.dart';
+export 'src/constants/enums/enums.dart';
 export 'src/constants/regex_constants.dart';
 export 'src/constants/request_builder_constants.dart';
+export 'src/constants/enums/search_filter_enum.dart';
+export 'src/constants/enums/search_scope_enum.dart';
 
 //---events---
 export 'src/events/user_events/cometchat_user_event_listener.dart';
@@ -95,9 +97,12 @@ export 'src/utils/string_utils.dart';
 export 'src/utils/widget_position_util.dart';
 export 'src/utils/ai_constants.dart';
 export 'src/utils/ai_utils.dart';
+export 'src/utils/filter_chip.dart';
 export 'src/utils/moderation_check_util.dart';
 export 'src/utils/text_marquee_effect.dart';
+export 'src/utils/composer_utils.dart';
 export 'src/utils/filesize_check_util.dart';
+export 'src/utils/reply_utils.dart';
 
 //---views---
 //cometchat badge
@@ -180,6 +185,10 @@ export 'src/views/ai_smart_replies/cometchat_ai_smart_replies_view.dart';
 export 'src/views/ai_conversation_starter/cometchat_ai_conversation_starter_style.dart';
 export 'src/views/ai_conversation_starter/cometchat_ai_conversation_starter_view.dart';
 
+//ai conversation summary
+export 'src/views/ai_conversation_summary/cometchat_ai_conversation_summary_view.dart';
+export 'src/views/ai_conversation_summary/cometchat_ai_conversation_summary_style.dart';
+
 //quickView
 export 'src/views/quick_view/quick_view_style.dart';
 export 'src/views/quick_view/cometchat_quick_view.dart';
@@ -224,6 +233,9 @@ export 'src/view_models/cometchat_message_list_controller_protocol.dart';
 export 'src/view_models/cometchat_group_members_controller_protocol.dart';
 export 'src/view_models/cometchat_conversations_controller_protocol.dart';
 export 'src/view_models/cometchat_details_controller_protocol.dart';
+
+export 'src/views/message_preview/cometchat_message_preview.dart';
+export 'src/views/message_preview/cometchat_message_preview_style.dart';
 
 //misc
 export 'src/misc/bubble_utils.dart';
@@ -363,4 +375,7 @@ export 'src/models/ai/stream_message.dart';
 export 'src/views/flag_message_dialog/cometchat_flag_message.dart';
 export 'src/views/flag_message_dialog/cometchat_flag_message_controller.dart';
 export 'src/views/flag_message_dialog/cometchat_flag_message_style.dart';
+
+export 'src/cometchat_message_list/cometchat_message_list.dart';
+export 'src/cometchat_message_list/cometchat_message_search_list_controller.dart';
 

@@ -9,7 +9,7 @@ export 'src/users/cometchat_users_controller.dart';
 export 'src/users/cometchat_users.dart';
 
 export 'src/message_composer/cometchat_emoji_keyboard.dart';
-export 'src/message_composer/cometchat_message_preview.dart';
+export 'src/message_composer/cometchat_edit_preview.dart';
 
 export 'src/groups/cometchat_groups_style.dart';
 
@@ -64,6 +64,15 @@ export 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
 
 export 'package:cometchat_sdk/cometchat_sdk.dart';
 export 'package:cometchat_sdk/handlers/call_listener.dart';
+
+// CometChat Search
+
+export 'src/search/cometchat_search.dart';
+export 'src/search/cometchat_conversations_search_controller.dart';
+export 'src/search/cometchat_messages_search_controller.dart';
+export 'src/search/cometchat_search_controller.dart';
+export 'src/search/search_utils.dart';
+export 'src/search/cometchat_search_style.dart';
 
 /// Ai features
 export 'src/ai/ai.dart';

@@ -1256,10 +1256,34 @@ class TranslationsJa extends Translations {
   String get aiAssistants => "AIアシスタント";
 
   @override
-  String get notifyEveryoneInThisGroup => "このグループのすべての人に通知する";
+  String get conversations => '会話';
 
   @override
-  String get notifyAll => "すべて";
+  String get messages => 'メッセージ';
+
+  @override
+  String get noResults => '結果なし';
+
+  @override
+  String get noResultsFor => '次の結果は見つかりませんでした:';
+
+  @override
+  String get tryNewSearch => '新しい検索を試してください';
+
+  @override
+  String get startTyping => 'メッセージを検索するには入力を開始してください';
+
+  @override
+  String get seeMore => 'もっと見る';
+
+  @override
+  String get unread => '未読';
+
+  @override
+  String get links => 'リンク';
+
+  @override
+  String get documents => 'ドキュメント';
 
   @override
   String get report => '通報';
@@ -1293,5 +1317,10 @@ class TranslationsJa extends Translations {
   @override
   String get harassment => '嫌がらせ / いじめ';
 
+  @override
+  String get notifyEveryoneInThisGroup => "このグループのすべての人に通知する";
+
+  @override
+  String get notifyAll => "すべて";
 }
 

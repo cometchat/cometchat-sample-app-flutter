@@ -18,5 +18,11 @@ class RequestBuilderConstants {
       ..hideReplies = true;
     return messagesRequestBuilder;
   }
+
+  static ConversationsRequestBuilder getDefaultConversationsRequestBuilder() {
+    ConversationsRequestBuilder conversationsRequestBuilder = ConversationsRequestBuilder()
+      ..limit = 30;
+    return conversationsRequestBuilder;
+  }
   //TODO add all default Request Builders here and use it in code
 }

@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-
-import '../../cometchat_uikit_shared.dart';
-
 class FileSizeCheckUtil {
   // Private constructor
   FileSizeCheckUtil._();

@@ -34,6 +34,7 @@ class CometChatMessageComposerStyle
     this.suggestionListStyle,
     this.mediaRecorderStyle,
     this.filledColor,
+    this.messagePreviewStyle,
   });
 
   ///[closeIconTint] provides color to the close Icon/widget
@@ -114,6 +115,10 @@ class CometChatMessageComposerStyle
   ///[filledColor] sets the background color of the text input
   final Color? filledColor;
 
+  ///[messagePreviewStyle] provides style to the message preview
+  final CometChatMessagePreviewStyle? messagePreviewStyle;
+
+
   @override
   CometChatMessageComposerStyle copyWith({
     Color? closeIconTint,
@@ -142,6 +147,7 @@ class CometChatMessageComposerStyle
     CometChatSuggestionListStyle? suggestionListStyle,
     CometChatMediaRecorderStyle? mediaRecorderStyle,
     Color? filledColor,
+    CometChatMessagePreviewStyle? messagePreviewStyle,
   }) {
     return CometChatMessageComposerStyle(
       closeIconTint: closeIconTint ?? this.closeIconTint,
@@ -179,6 +185,7 @@ class CometChatMessageComposerStyle
       suggestionListStyle: suggestionListStyle ?? this.suggestionListStyle,
       mediaRecorderStyle: mediaRecorderStyle ?? this.mediaRecorderStyle,
       filledColor: filledColor ?? this.filledColor,
+      messagePreviewStyle: messagePreviewStyle ?? this.messagePreviewStyle
     );
   }
 
@@ -216,6 +223,7 @@ class CometChatMessageComposerStyle
       suggestionListStyle: style.suggestionListStyle,
       mediaRecorderStyle: style.mediaRecorderStyle,
       filledColor: style.filledColor,
+      messagePreviewStyle: style.messagePreviewStyle
     );
   }
 
@@ -266,6 +274,7 @@ class CometChatMessageComposerStyle
       suggestionListStyle: suggestionListStyle?.lerp(other?.suggestionListStyle, t),
       mediaRecorderStyle: mediaRecorderStyle?.lerp(other?.mediaRecorderStyle, t),
       filledColor: Color.lerp(filledColor, other?.filledColor, t),
+      messagePreviewStyle: messagePreviewStyle?.lerp(other?.messagePreviewStyle, t),
     );
   }
 }

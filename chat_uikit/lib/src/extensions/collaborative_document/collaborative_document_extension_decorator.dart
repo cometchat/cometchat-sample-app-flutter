@@ -3,7 +3,8 @@ import '../../../../../cometchat_chat_uikit.dart';
 
 ///[CollaborativeDocumentExtensionDecorator] is a the view model for [CollaborativeDocumentExtension] it contains all the relevant business logic
 ///it is also a sub-class of [DataSourceDecorator] which allows any extension to override the default methods provided by [MessagesDataSource]
-class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
+class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator
+    with CometChatMessageEventListener, CometChatUIEventListener {
   String collaborativeDocumentExtensionTypeConstant = ExtensionType.document;
   CollaborativeDocumentConfiguration? configuration;
 
@@ -12,6 +13,8 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
   CollaborativeDocumentExtensionDecorator(super.dataSource,
       {this.configuration}) {
     getLoggedInUser();
+    CometChatMessageEvents.addMessagesListener(ExtensionType.document, this);
+    CometChatUIEvents.addUiListener(ExtensionType.document, this);
   }
 
   CometChatAttachmentOptionSheetStyle? _attachmentStyle;
@@ -44,13 +47,41 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
 
   @override
   List<CometChatMessageTemplate> getAllMessageTemplates() {
-
     List<CometChatMessageTemplate> templateList =
         super.getAllMessageTemplates();
 
     templateList.add(getTemplate());
 
     return templateList;
+  }
+
+  BaseMessage? quotedMessage;
+
+  @override
+  void ccReplyToMessage(BaseMessage message, MessageStatus status) {
+    if (status == MessageStatus.inProgress) {
+      quotedMessage = message;
+    }
+    // Clear quotedMessage when any reply is sent or errors out
+    if (status == MessageStatus.error || status == MessageStatus.sent) {
+      quotedMessage = null;
+    }
+  }
+
+  @override
+  void ccMessageSent(BaseMessage message, MessageStatus messageStatus) {
+    // Clear quotedMessage when ANY message is successfully sent
+    // This ensures the quoted message doesn't persist to subsequent collaborative documents
+    if (messageStatus == MessageStatus.sent || messageStatus == MessageStatus.error) {
+      quotedMessage = null;
+    }
+  }
+
+  @override
+  void ccActiveChatChanged(Map<String, dynamic>? id, BaseMessage? lastMessage,
+      User? user, Group? group, int unreadMessageCount) {
+    // Clear quotedMessage when user switches to a different chat
+    quotedMessage = null;
   }
 
   @override
@@ -89,7 +120,8 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
       id,
       additionalConfigurations,
     );
-    if (additionalConfigurations?.hideCollaborativeDocumentOption != true && isNotThread(id)) {
+    if (additionalConfigurations?.hideCollaborativeDocumentOption != true &&
+        isNotThread(id)) {
       actions.add(
         getAttachmentOption(
           context,
@@ -116,20 +148,22 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
 
   CometChatMessageTemplate getTemplate() {
     return CometChatMessageTemplate(
-        type: collaborativeDocumentExtensionTypeConstant,
-        category: CometChatMessageCategory.custom,
-        contentView: (BaseMessage message, BuildContext context,
-            BubbleAlignment alignment,
-            {AdditionalConfigurations? additionalConfigurations}) {
-          if (message.deletedAt != null) {
-            return super.getDeleteMessageBubble(
-                message, context, additionalConfigurations?.deletedBubbleStyle);
-          }
-          return getContentView(message as CustomMessage, context, alignment,
-              additionalConfigurations?.collaborativeDocumentBubbleStyle);
-        },
-        options: CometChatUIKit.getDataSource().getCommonOptions,
-        bottomView: CometChatUIKit.getDataSource().getBottomView);
+      type: collaborativeDocumentExtensionTypeConstant,
+      category: CometChatMessageCategory.custom,
+      contentView:
+          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
+              {AdditionalConfigurations? additionalConfigurations}) {
+        if (message.deletedAt != null) {
+          return super.getDeleteMessageBubble(
+              message, context, additionalConfigurations?.deletedBubbleStyle);
+        }
+        return getContentView(message as CustomMessage, context, alignment,
+            additionalConfigurations?.collaborativeDocumentBubbleStyle);
+      },
+      options: CometChatUIKit.getDataSource().getCommonOptions,
+      bottomView: CometChatUIKit.getDataSource().getBottomView,
+      replyView: CometChatUIKit.getDataSource().getReplyView,
+    );
   }
 
   Widget getContentView(
@@ -156,15 +190,34 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
   sendCollaborativeDocument(
     BuildContext context,
     String receiverID,
-    String receiverType,
-  ) {
+    String receiverType, {
+    User? user,
+    Group? group,
+  }) {
+    int? getQuotedMessageId = ReplyUtils.getQuotedMessageId(
+        quotedMessage: quotedMessage, user: user, group: group);
+    if (getQuotedMessageId != null && getQuotedMessageId == -1) {
+      quotedMessage = null;
+    }
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
+
+    final body = {
+      "receiver": receiverID,
+      "receiverType": receiverType,
+    };
+
+    if (quotedMessage != null && getQuotedMessageId != -1) {
+      body['quotedMessageId'] = quotedMessage!.id.toString();
+    }
+
+    if (quotedMessage != null) {
+      CometChatMessageEvents.ccReplyToMessage(
+          quotedMessage!, MessageStatus.sent);
+      quotedMessage = null;
+    }
     CometChat.callExtension(
-        ExtensionConstants.document,
-        "POST",
-        ExtensionUrls.document,
-        {"receiver": receiverID, "receiverType": receiverType},
+        ExtensionConstants.document, "POST", ExtensionUrls.document, body,
         onSuccess: (Map<String, dynamic> map) {
       debugPrint("Success map $map");
     }, onError: (CometChatException e) {
@@ -189,6 +242,8 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
               context,
               receiverID,
               receiverType,
+              user: user,
+              group: group,
             );
           }).show();
     });
@@ -240,6 +295,8 @@ class CollaborativeDocumentExtensionDecorator extends DataSourceDecorator {
             context,
             uid ?? guid ?? '',
             receiverType,
+            user: user,
+            group: group,
           );
         }
       },

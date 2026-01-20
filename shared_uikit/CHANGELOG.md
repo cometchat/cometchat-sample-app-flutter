@@ -1,3 +1,9 @@
+## 5.1.9
+
+## New
+- **Global Conversation and Message Search:** Introduced a new feature that allows users to easily search across all conversations and messages for quick access to specific content.
+- **Quoted Replies:** Users can now swipe to a message and reply directly to it, creating a quoted reply for improved context in conversations.
+
 ## 5.1.8
 
 ## Enhancements

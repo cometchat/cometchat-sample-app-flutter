@@ -91,6 +91,7 @@ class CometChatMessageListStyle
     this.emptyChatGreetingTitleTextStyle,
     this.emptyChatGreetingSubtitleTextColor,
     this.emptyChatGreetingSubtitleTextStyle,
+    this.aiConversationSummaryStyle,
     this.flagMessageStyle,
   });
 
@@ -190,6 +191,9 @@ class CometChatMessageListStyle
   ///[emptyChatGreetingSubtitleTextStyle] is a parameter used to set the text style for the Empty Chat Greeting Subtitle
   final TextStyle? emptyChatGreetingSubtitleTextStyle;
 
+  ///[aiConversationSummaryStyle] provides styling to the reply chips/bubbles
+  final CometChatAIConversationSummaryStyle? aiConversationSummaryStyle;
+  
   ///[flagMessageStyle] is a parameter used to set the style for the flag message
   final CometchatFlagMessageStyle? flagMessageStyle;
 
@@ -231,6 +235,7 @@ class CometChatMessageListStyle
     TextStyle? emptyChatGreetingTitleTextStyle,
     Color? emptyChatGreetingSubtitleTextColor,
     TextStyle? emptyChatGreetingSubtitleTextStyle,
+    CometChatAIConversationSummaryStyle? aiConversationSummaryStyle,
     CometchatFlagMessageStyle? flagMessageStyle,
   }) {
     return CometChatMessageListStyle(
@@ -290,6 +295,8 @@ class CometChatMessageListStyle
           this.emptyChatGreetingSubtitleTextColor,
       emptyChatGreetingSubtitleTextStyle: emptyChatGreetingSubtitleTextStyle ??
           this.emptyChatGreetingSubtitleTextStyle,
+      aiConversationSummaryStyle: aiConversationSummaryStyle ??
+          this.aiConversationSummaryStyle,
       flagMessageStyle: flagMessageStyle ?? this.flagMessageStyle,
     );
   }
@@ -338,6 +345,7 @@ class CometChatMessageListStyle
           other.emptyChatGreetingSubtitleTextColor,
       emptyChatGreetingSubtitleTextStyle:
           other.emptyChatGreetingSubtitleTextStyle,
+      aiConversationSummaryStyle: other.aiConversationSummaryStyle,
       flagMessageStyle: other.flagMessageStyle,
     );
   }
@@ -428,6 +436,8 @@ class CometChatMessageListStyle
           emptyChatGreetingSubtitleTextStyle,
           other.emptyChatGreetingSubtitleTextStyle,
           t),
+      aiConversationSummaryStyle:
+          aiConversationSummaryStyle?.lerp(other.aiConversationSummaryStyle, t),
       flagMessageStyle: flagMessageStyle?.lerp(other.flagMessageStyle, t),
     );
   }

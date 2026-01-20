@@ -22,6 +22,7 @@ import 'dart:async';
 import 'package:sample_app_push_notifications/utils/bool_singleton.dart';
 import '../guard_screen.dart';
 import 'notifications/services/cometchat_service/cometchat_services.dart';
+import 'package:sample_app_push_notifications/thread_screen/cometchat_thread.dart';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
@@ -318,7 +319,116 @@ class _MyPageViewState extends State<MyPageView>
         case 'chats':
           return (_pageController.selectedIndex == index)
               ? CometChatConversations(
+            conversationsStyle: CometChatConversationsStyle(
+              searchBorder: BorderSide(
+                width: 1,
+                color: colorPalette.borderLight ?? Colors.transparent,
+              ),
+              searchBorderRadius: BorderRadius.circular(
+                spacing.radiusMax ?? 0,
+              ),
+            ),
+            onSearchTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CometChatSearch(
+                    onBack: () {
+                      Navigator.of(context).pop();
+                    },
+                    onConversationClicked: (conversation) {
+                      User? user;
+                      Group? group;
+                      if (conversation.conversationWith is User) {
+                        user = conversation.conversationWith as User;
+                      } else {
+                        group = conversation.conversationWith as Group;
+                      }
+                      _pageController.navigateToMessages(
+                        context: context,
+                        user: user,
+                        group: group,
+                      );
+                    },
+                    onMessageClicked: (message) {
+                      User? user;
+                      Group? group;
+                      if (message.receiverType ==
+                          ReceiverTypeConstants.user) {
+                        user = (message.sender?.uid ==
+                            CometChatUIKit.loggedInUser?.uid)
+                            ? message.receiver as User?
+                            : message.sender;
+                      } else {
+                        group = message.receiver as Group?;
+                      }
+                      if (message.parentMessageId > 0) {
+                        CometChatHelper.getMessageDetails(
+                          message.parentMessageId,
+                          onSuccess: (getMessage) {
+                            if (getMessage == null) {
+                              SnackBarUtils.show(
+                                cc.Translations.of(context)
+                                    .somethingWentWrongError,
+                                context,
+                                snackBarConfiguration:
+                                cc.SnackBarConfiguration(
+                                  backgroundColor: colorPalette.error,
+                                ),
+                              );
+                            } else {
+                              User? threadUser;
+                              Group? threadGroup;
+                              if (message.receiverType ==
+                                  ReceiverTypeConstants.user) {
+                                threadUser = (getMessage.sender?.uid ==
+                                    CometChatUIKit.loggedInUser?.uid)
+                                    ? getMessage.receiver as User?
+                                    : getMessage.sender;
+                              } else {
+                                threadGroup =
+                                getMessage.receiver as Group?;
+                              }
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CometChatThread(
+                                    user: threadUser,
+                                    group: threadGroup,
+                                    message: getMessage,
+                                    messageId: message.id,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          onError: (excep) {
+                            SnackBarUtils.show(
+                              cc.Translations.of(context)
+                                  .somethingWentWrongError,
+                              context,
+                              snackBarConfiguration:
+                              cc.SnackBarConfiguration(
+                                backgroundColor: colorPalette.error,
+                              ),
+                            );
+                          },
+                        );
+                      } else {
+                        _pageController.navigateToMessages(
+                          context: context,
+                          user: user,
+                          group: group,
+                          message: message,
+                        );
+                      }
+                    },
+                  ),
+                ),
+              );
+            },
             showBackButton: false,
+            searchReadOnly: true,
+            hideSearch: false,
             appBarOptions: [
               PopupMenuButton(
                 shape: RoundedRectangleBorder(
@@ -473,7 +583,7 @@ class _MyPageViewState extends State<MyPageView>
                         child: Padding(
                           padding: EdgeInsets.all(spacing.padding4 ?? 0),
                           child: Text(
-                            "v5.2.5",
+                            "v5.2.6",
                             style: TextStyle(
                               fontSize:
                               typography.body?.regular?.fontSize,

@@ -1258,11 +1258,36 @@ class TranslationsKo extends Translations {
   @override
   String get aiAssistants => "AI 어시스턴트들";
 
-  @override
-  String get notifyEveryoneInThisGroup => "이 그룹의 모든 사람에게 알림";
 
   @override
-  String get notifyAll => "모든";
+  String get conversations => '대화';
+
+  @override
+  String get messages => '메시지';
+
+  @override
+  String get noResults => '결과 없음';
+
+  @override
+  String get noResultsFor => '다음에 대한 결과가 없습니다:';
+
+  @override
+  String get tryNewSearch => '새로운 검색을 시도하세요';
+
+  @override
+  String get startTyping => '메시지를 검색하려면 입력을 시작하세요';
+
+  @override
+  String get seeMore => '더 보기';
+
+  @override
+  String get unread => '읽지 않음';
+
+  @override
+  String get links => '링크';
+
+  @override
+  String get documents => '문서';
 
   @override
   String get report => '신고';
@@ -1296,4 +1321,9 @@ class TranslationsKo extends Translations {
   @override
   String get harassment => '괴롭힘 / 따돌림';
 
+  @override
+  String get notifyEveryoneInThisGroup => "이 그룹의 모든 사람에게 알림";
+
+  @override
+  String get notifyAll => "모든";
 }

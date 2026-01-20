@@ -1306,10 +1306,34 @@ class TranslationsHi extends Translations {
   String get aiAssistants => "एआई असिस्टेंट्स";
 
   @override
-  String get notifyEveryoneInThisGroup => "इस समूह में सभी को सूचित करें";
+  String get conversations => 'बातचीत';
 
   @override
-  String get notifyAll => "सभी";
+  String get messages => 'संदेश';
+
+  @override
+  String get noResults => 'कोई परिणाम नहीं';
+
+  @override
+  String get noResultsFor => 'इसके लिए कोई परिणाम नहीं मिला';
+
+  @override
+  String get tryNewSearch => 'एक नई खोज आज़माएँ';
+
+  @override
+  String get startTyping => 'संदेश खोजने के लिए टाइप करना शुरू करें';
+
+  @override
+  String get seeMore => 'और देखें';
+
+  @override
+  String get unread => 'अपठित';
+
+  @override
+  String get links => 'लिंक';
+
+  @override
+  String get documents => 'दस्तावेज़';
 
   @override
   String get report => 'रिपोर्ट';
@@ -1343,4 +1367,9 @@ class TranslationsHi extends Translations {
   @override
   String get harassment => 'उत्पीड़न / धमकाना';
 
+  @override
+  String get notifyEveryoneInThisGroup => "इस समूह में सभी को सूचित करें";
+
+  @override
+  String get notifyAll => "सभी";
 }

@@ -308,4 +308,8 @@ abstract class DataSource {
   Widget getAIAssistantMessageFooterView(AIAssistantMessage message,
       BuildContext context, BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations});
+
+  ///override this to change reply view of every type of message
+  Widget getReplyView(
+      BaseMessage message, BuildContext context, BubbleAlignment alignment, {AdditionalConfigurations? additionalConfigurations});
 }

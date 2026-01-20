@@ -43,6 +43,8 @@ class CometChatMessagesController extends GetxController
 
   bool? disableUsersPresence;
 
+  bool? generateConversationSummary = false;
+
   //initialization methods--------------
 
   String presence = "";
@@ -289,5 +291,10 @@ class CometChatMessagesController extends GetxController
 
   bool isUserAgentic() {
     return user?.role == AIConstants.aiRole;
+  }
+
+  updateConversationsSummarySetting(bool value) {
+    generateConversationSummary = value;
+    update();
   }
 }

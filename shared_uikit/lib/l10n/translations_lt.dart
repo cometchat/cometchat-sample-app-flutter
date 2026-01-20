@@ -1294,10 +1294,34 @@ class TranslationsLt extends Translations {
   String get aiAssistants => "DI asistentai";
 
   @override
-  String get notifyEveryoneInThisGroup => "Pranešti visiems šioje grupėje";
+  String get conversations => 'Pokalbiai';
 
   @override
-  String get notifyAll => "visi";
+  String get messages => 'Žinutės';
+
+  @override
+  String get noResults => 'Rezultatų nėra';
+
+  @override
+  String get noResultsFor => 'Nepavyko rasti rezultatų pagal';
+
+  @override
+  String get tryNewSearch => 'Pabandykite ieškoti iš naujo';
+
+  @override
+  String get startTyping => 'Pradėkite rašyti norėdami ieškoti žinučių';
+
+  @override
+  String get seeMore => 'Žiūrėti daugiau';
+
+  @override
+  String get unread => 'Neskaityta';
+
+  @override
+  String get links => 'Nuorodos';
+
+  @override
+  String get documents => 'Dokumentai';
 
   @override
   String get report => 'Pranešti';
@@ -1331,4 +1355,9 @@ class TranslationsLt extends Translations {
   @override
   String get harassment => 'Priekabiavimas / Patyčios';
 
+  @override
+  String get notifyEveryoneInThisGroup => "Pranešti visiems šioje grupėje";
+
+  @override
+  String get notifyAll => "visi";
 }

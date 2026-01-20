@@ -1288,12 +1288,35 @@ class TranslationsRu extends Translations {
   String get thinking => "Обработка...";
   @override
   String get aiAssistants => "AI помощники";
+  @override
+  String get conversations => 'Беседы';
 
   @override
-  String get notifyEveryoneInThisGroup => "Уведомить всех в этой группе";
+  String get messages => 'Сообщения';
 
   @override
-  String get notifyAll => "все";
+  String get noResults => 'Нет результатов';
+
+  @override
+  String get noResultsFor => 'Не найдено результатов для';
+
+  @override
+  String get tryNewSearch => 'Попробуйте новый поиск';
+
+  @override
+  String get startTyping => 'Начните вводить текст, чтобы искать сообщения';
+
+  @override
+  String get seeMore => 'Показать ещё';
+
+  @override
+  String get unread => 'Непрочитанное';
+
+  @override
+  String get links => 'Ссылки';
+
+  @override
+  String get documents => 'Документы';
 
   @override
   String get report => 'Пожаловаться';
@@ -1327,4 +1350,9 @@ class TranslationsRu extends Translations {
   @override
   String get harassment => 'Домогательства / Буллинг';
 
+  @override
+  String get notifyEveryoneInThisGroup => "Уведомить всех в этой группе";
+
+  @override
+  String get notifyAll => "все";
 }

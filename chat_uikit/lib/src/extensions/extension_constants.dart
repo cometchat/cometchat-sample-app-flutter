@@ -24,6 +24,7 @@ class ExtensionConstants {
   static const String customStickers = "customStickers";
   static const String defaultStickers = "defaultStickers";
   static const String stickerUrl = "stickerUrl";
+  static const String meeting = "meeting";
 }
 
 ///[ExtensionUrls] is a data class for storing String constants related to extension urls

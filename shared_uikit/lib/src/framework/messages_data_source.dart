@@ -75,9 +75,7 @@ class MessagesDataSource implements DataSource {
       CometChatMessageOptionSheetStyle? messageOptionSheetStyle,) {
     return CometChatMessageOption(
       id: MessageOptionConstants.replyInThreadMessage,
-      title: Translations
-          .of(context)
-          .reply,
+      title: Translations.of(context).replyInThread,
       icon: Icon(
         Icons.subdirectory_arrow_right,
         color: messageOptionSheetStyle?.iconColor ?? colorPalette.iconSecondary,
@@ -231,6 +229,38 @@ class MessagesDataSource implements DataSource {
     );
   }
 
+  CometChatMessageOption getReplyToMessageOption(
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatMessageOptionSheetStyle? messageOptionSheetStyle,
+  ) {
+    return CometChatMessageOption(
+      id: MessageOptionConstants.replyMessage,
+      title: cc.Translations.of(context).reply,
+      icon: Image.asset(
+        AssetConstants.replyToMessage,
+        package: UIConstants.packageName,
+        height: 24,
+        width: 24,
+        color: messageOptionSheetStyle?.iconColor ?? colorPalette.iconSecondary,
+      ),
+      messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
+        titleTextStyle: TextStyle(
+          color: messageOptionSheetStyle?.titleColor,
+          fontFamily: typography.body?.regular?.fontFamily,
+          fontWeight: typography.body?.regular?.fontWeight,
+          fontSize: typography.body?.regular?.fontSize,
+        ).merge(messageOptionSheetStyle?.titleTextStyle),
+        borderRadius: messageOptionSheetStyle?.borderRadius,
+        border: messageOptionSheetStyle?.border,
+        backgroundColor: messageOptionSheetStyle?.backgroundColor,
+        iconColor: messageOptionSheetStyle?.iconColor,
+        titleColor: messageOptionSheetStyle?.titleColor,
+      ),
+    );
+  }
+
   bool isSentByMe(User loggedInUser, BaseMessage message) {
     return loggedInUser.uid == message.sender?.uid;
   }
@@ -262,6 +292,13 @@ class MessagesDataSource implements DataSource {
       }
 
       return messageOptionList;
+    }
+
+    if (additionalConfigurations?.hideReplyOption != true &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.replyMessage)) {
+      messageOptionList.add(
+          getReplyToMessageOption(context, colorPalette, typography, style));
     }
 
     if (additionalConfigurations?.hideReplyInThreadOption != true &&
@@ -419,9 +456,17 @@ class MessagesDataSource implements DataSource {
             textMessage, context, alignment,
             additionalConfigurations: additionalConfigurations);
       },
-      options: CometChatUIKit
-          .getDataSource()
-          .getMessageOptions,
+      replyView:
+          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
+              {AdditionalConfigurations? additionalConfigurations}) {
+        return CometChatUIKit.getDataSource().getReplyView(
+          message,
+          context,
+          alignment,
+          additionalConfigurations: additionalConfigurations,
+        );
+      },
+      options: CometChatUIKit.getDataSource().getMessageOptions,
     );
   }
 
@@ -478,9 +523,17 @@ class MessagesDataSource implements DataSource {
           additionalConfigurations: additionalConfigurations,
         );
       },
-      options: CometChatUIKit
-          .getDataSource()
-          .getMessageOptions,
+      replyView:
+          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
+              {AdditionalConfigurations? additionalConfigurations}) {
+        return CometChatUIKit.getDataSource().getReplyView(
+          message,
+          context,
+          alignment,
+          additionalConfigurations: additionalConfigurations,
+        );
+      },
+      options: CometChatUIKit.getDataSource().getMessageOptions,
     );
   }
 
@@ -501,9 +554,17 @@ class MessagesDataSource implements DataSource {
             message as MediaMessage, context, alignment,
             additionalConfigurations: additionalConfigurations);
       },
-      options: CometChatUIKit
-          .getDataSource()
-          .getMessageOptions,
+      replyView:
+          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
+              {AdditionalConfigurations? additionalConfigurations}) {
+        return CometChatUIKit.getDataSource().getReplyView(
+          message,
+          context,
+          alignment,
+          additionalConfigurations: additionalConfigurations,
+        );
+      },
+      options: CometChatUIKit.getDataSource().getMessageOptions,
     );
   }
 
@@ -524,9 +585,17 @@ class MessagesDataSource implements DataSource {
             message as MediaMessage, context, alignment,
             additionalConfigurations: additionalConfigurations);
       },
-      options: CometChatUIKit
-          .getDataSource()
-          .getMessageOptions,
+      replyView:
+          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
+              {AdditionalConfigurations? additionalConfigurations}) {
+        return CometChatUIKit.getDataSource().getReplyView(
+          message,
+          context,
+          alignment,
+          additionalConfigurations: additionalConfigurations,
+        );
+      },
+      options: CometChatUIKit.getDataSource().getMessageOptions,
     );
   }
 
@@ -567,9 +636,17 @@ class MessagesDataSource implements DataSource {
             message as MediaMessage, context, alignment,
             additionalConfigurations: additionalConfigurations);
       },
-      options: CometChatUIKit
-          .getDataSource()
-          .getMessageOptions,
+      replyView:
+          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
+              {AdditionalConfigurations? additionalConfigurations}) {
+        return CometChatUIKit.getDataSource().getReplyView(
+          message,
+          context,
+          alignment,
+          additionalConfigurations: additionalConfigurations,
+        );
+      },
+      options: CometChatUIKit.getDataSource().getMessageOptions,
     );
   }
 
@@ -816,6 +893,9 @@ class MessagesDataSource implements DataSource {
       return true;
     }
 
+    if (MessageOptionConstants.replyMessage == optionId) {
+      return true;
+    }
     if (MessageOptionConstants.reportMessage == optionId &&
         loggedInUser.uid != messageObject.sender?.uid) {
       return true;
@@ -846,6 +926,13 @@ class MessagesDataSource implements DataSource {
             .add(getDeleteOption(context, colorPalette, typography, style));
       }
       return messageOptionList; // ✅ Only delete option is returned
+    }
+
+    if (additionalConfigurations?.hideReplyOption != true &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.replyMessage)) {
+      messageOptionList.add(
+          getReplyToMessageOption(context, colorPalette, typography, style));
     }
 
     if (additionalConfigurations?.hideReplyInThreadOption != true &&
@@ -1775,9 +1862,17 @@ class MessagesDataSource implements DataSource {
           additionalConfigurations: additionalConfigurations,
         );
       },
-      options: CometChatUIKit
-          .getDataSource()
-          .getMessageOptions,
+      replyView:
+          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
+              {AdditionalConfigurations? additionalConfigurations}) {
+        return CometChatUIKit.getDataSource().getReplyView(
+          message,
+          context,
+          alignment,
+          additionalConfigurations: additionalConfigurations,
+        );
+      },
+      options: CometChatUIKit.getDataSource().getMessageOptions,
     );
   }
 
@@ -1810,15 +1905,86 @@ class MessagesDataSource implements DataSource {
     );
   }
 
-  CometChatMessageOption getReportOption(BuildContext context,
-      CometChatColorPalette colorPalette,
-      CometChatTypography typography,
-      CometChatMessageOptionSheetStyle? messageOptionSheetStyle,) {
+  @override
+  Widget getReplyView(
+      BaseMessage message, BuildContext context, BubbleAlignment alignment,
+      {AdditionalConfigurations? additionalConfigurations}) {
+    if (message.deletedAt != null) {
+      return const SizedBox();
+    }
+    if (message.quotedMessage != null) {
+      final typography = CometChatThemeHelper.getTypography(context);
+      final colorPalette = CometChatThemeHelper.getColorPalette(context);
+      String messagePreviewTitle = message.quotedMessage?.sender?.name ?? "";
+      String messagePreviewSubtitle = "";
+      final style = CometChatThemeHelper.getTheme<CometChatMessagePreviewStyle>(
+              context: context, defaultTheme: CometChatMessagePreviewStyle.of)
+          .merge(additionalConfigurations?.messagePreviewStyle);
+      if (message.quotedMessage?.deletedAt != null) {
+        messagePreviewSubtitle = Translations.of(context).thisMessageDeleted;
+      } else if (message.quotedMessage is TextMessage) {
+        String previewText = (message.quotedMessage as TextMessage).text;
+        // Always call getTextWithMentions to handle both @all and user mentions
+        previewText = CometChatMentionsFormatter.getTextWithMentions(
+            previewText,
+            message.quotedMessage!.mentionedUsers);
+        messagePreviewSubtitle = previewText;
+      } else {
+        messagePreviewSubtitle =
+            ComposerUtils().getReplySubtitle(message.quotedMessage, context);
+      }
+      return CometChatMessagePreview(
+        message: message.quotedMessage,
+        messagePreviewTitle: messagePreviewTitle,
+        messagePreviewSubtitle: messagePreviewSubtitle,
+        messagePreviewStyle: CometChatMessagePreviewStyle(
+          messagePreviewTitleStyle: TextStyle(
+            color: (alignment == BubbleAlignment.left)
+                ? colorPalette.textHighlight
+                : colorPalette.white,
+            fontSize: typography.caption1?.medium?.fontSize,
+            fontWeight: typography.caption1?.medium?.fontWeight,
+            fontFamily: typography.caption1?.medium?.fontFamily,
+          ),
+          messagePreviewSubtitleStyle: TextStyle(
+            color: (alignment == BubbleAlignment.left)
+                ? colorPalette.textSecondary
+                : colorPalette.white,
+            fontSize: typography.caption1?.regular?.fontSize,
+            fontWeight: typography.caption1?.regular?.fontWeight,
+            fontFamily: typography.caption1?.regular?.fontFamily,
+          ),
+          closeIconColor: colorPalette.iconPrimary,
+          messagePreviewBackground: colorPalette.white?.withOpacity(0.2),
+          messagePreviewBorder: Border(
+            top: BorderSide.none,
+            bottom: BorderSide.none,
+            left: BorderSide(
+              color: ((alignment == BubbleAlignment.left)
+                      ? colorPalette.borderHighlight
+                      : colorPalette.white) ??
+                  Colors.transparent,
+              width: 2,
+            ),
+            right: BorderSide.none,
+          ),
+        ).merge(style),
+        hideCloseButton: true,
+      );
+    } else {
+      return const SizedBox();
+    }
+  }
+
+  CometChatMessageOption getReportOption(
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatMessageOptionSheetStyle? messageOptionSheetStyle,
+  ) {
     return CometChatMessageOption(
       id: MessageOptionConstants.reportMessage,
-      title: cc.Translations
-          .of(context)
-          .report,
+      title: cc.Translations.of(context).report,
       icon: Icon(
         Icons.error_outline,
         color: messageOptionSheetStyle?.iconColor ?? colorPalette.iconSecondary,

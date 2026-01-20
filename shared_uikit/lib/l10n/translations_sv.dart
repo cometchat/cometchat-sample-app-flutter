@@ -1288,10 +1288,34 @@ class TranslationsSv extends Translations {
   String get aiAssistants => "AI-assistenter";
 
   @override
-  String get notifyEveryoneInThisGroup => "Meddela alla i denna grupp";
+  String get conversations => 'Konversationer';
 
   @override
-  String get notifyAll => "alla";
+  String get messages => 'Meddelanden';
+
+  @override
+  String get noResults => 'Inga resultat';
+
+  @override
+  String get noResultsFor => 'Inga resultat för';
+
+  @override
+  String get tryNewSearch => 'Prova en ny sökning';
+
+  @override
+  String get startTyping => 'Börja skriva för att söka efter meddelanden';
+
+  @override
+  String get seeMore => 'Visa mer';
+
+  @override
+  String get unread => 'Oläst';
+
+  @override
+  String get links => 'Länkar';
+
+  @override
+  String get documents => 'Dokument';
 
   @override
   String get report => 'Rapportera';
@@ -1325,4 +1349,9 @@ class TranslationsSv extends Translations {
   @override
   String get harassment => 'Trakasserier / Mobbning';
 
+  @override
+  String get notifyEveryoneInThisGroup => "Meddela alla i denna grupp";
+
+  @override
+  String get notifyAll => "alla";
 }

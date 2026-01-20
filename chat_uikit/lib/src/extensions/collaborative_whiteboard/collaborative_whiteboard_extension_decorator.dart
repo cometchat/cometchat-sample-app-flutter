@@ -4,7 +4,8 @@ import '../../../../../cometchat_chat_uikit.dart';
 
 ///[CollaborativeWhiteBoardExtensionDecorator] is a the view model for [CollaborativeWhiteBoardExtension] it contains all the relevant business logic
 ///it is also a sub-class of [DataSourceDecorator] which allows any extension to override the default methods provided by [MessagesDataSource]
-class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator {
+class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
+    with CometChatMessageEventListener, CometChatUIEventListener {
   String collaborativeWhiteBoardExtensionTypeConstant =
       ExtensionType.whiteboard;
   CollaborativeWhiteBoardConfiguration? configuration;
@@ -14,6 +15,8 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator {
   CollaborativeWhiteBoardExtensionDecorator(super.dataSource,
       {this.configuration}) {
     getLoggedInUser();
+    CometChatMessageEvents.addMessagesListener(ExtensionType.whiteboard, this);
+    CometChatUIEvents.addUiListener(ExtensionType.whiteboard, this);
   }
 
   CometChatAttachmentOptionSheetStyle? _attachmentStyle;
@@ -46,13 +49,41 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator {
 
   @override
   List<CometChatMessageTemplate> getAllMessageTemplates() {
-
     List<CometChatMessageTemplate> templateList =
         super.getAllMessageTemplates();
 
     templateList.add(getTemplate());
 
     return templateList;
+  }
+
+  BaseMessage? quotedMessage;
+
+  @override
+  void ccReplyToMessage(BaseMessage message, MessageStatus status) {
+    if (status == MessageStatus.inProgress) {
+      quotedMessage = message;
+    }
+    // Clear quotedMessage when any reply is sent or errors out
+    if (status == MessageStatus.error || status == MessageStatus.sent) {
+      quotedMessage = null;
+    }
+  }
+
+  @override
+  void ccMessageSent(BaseMessage message, MessageStatus messageStatus) {
+    // Clear quotedMessage when ANY message is successfully sent
+    // This ensures the quoted message doesn't persist to subsequent collaborative whiteboards
+    if (messageStatus == MessageStatus.sent || messageStatus == MessageStatus.error) {
+      quotedMessage = null;
+    }
+  }
+
+  @override
+  void ccActiveChatChanged(Map<String, dynamic>? id, BaseMessage? lastMessage,
+      User? user, Group? group, int unreadMessageCount) {
+    // Clear quotedMessage when user switches to a different chat
+    quotedMessage = null;
   }
 
   @override
@@ -84,7 +115,8 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator {
     List<CometChatMessageComposerAction> actions =
         super.getAttachmentOptions(context, id, additionalConfigurations);
 
-    if (additionalConfigurations?.hideCollaborativeWhiteboardOption != true && isNotThread(id)) {
+    if (additionalConfigurations?.hideCollaborativeWhiteboardOption != true &&
+        isNotThread(id)) {
       actions.add(getAttachmentOption(context, id, additionalConfigurations));
     }
 
@@ -105,25 +137,30 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator {
   }
 
   CometChatMessageTemplate getTemplate() {
-
     return CometChatMessageTemplate(
-        type: collaborativeWhiteBoardExtensionTypeConstant,
-        category: CometChatMessageCategory.custom,
-        contentView: (BaseMessage message, BuildContext context,
-            BubbleAlignment alignment,
-            {AdditionalConfigurations? additionalConfigurations}) {
-          if (message.deletedAt != null) {
-            return super.getDeleteMessageBubble(message, context, additionalConfigurations?.deletedBubbleStyle);
-          }
-          return getContentView(message as CustomMessage, context,alignment,additionalConfigurations?.collaborativeWhiteboardBubbleStyle);
-        },
-        options: CometChatUIKit.getDataSource().getCommonOptions,
-        bottomView: CometChatUIKit.getDataSource().getBottomView);
+      type: collaborativeWhiteBoardExtensionTypeConstant,
+      category: CometChatMessageCategory.custom,
+      contentView:
+          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
+              {AdditionalConfigurations? additionalConfigurations}) {
+        if (message.deletedAt != null) {
+          return super.getDeleteMessageBubble(
+              message, context, additionalConfigurations?.deletedBubbleStyle);
+        }
+        return getContentView(message as CustomMessage, context, alignment,
+            additionalConfigurations?.collaborativeWhiteboardBubbleStyle);
+      },
+      options: CometChatUIKit.getDataSource().getCommonOptions,
+      bottomView: CometChatUIKit.getDataSource().getBottomView,
+      replyView: CometChatUIKit.getDataSource().getReplyView,
+    );
   }
 
   Widget getContentView(
-      CustomMessage customMessage, BuildContext context, BubbleAlignment alignment, CometChatCollaborativeBubbleStyle? collaborativeBubbleStyle) {
-
+      CustomMessage customMessage,
+      BuildContext context,
+      BubbleAlignment alignment,
+      CometChatCollaborativeBubbleStyle? collaborativeBubbleStyle) {
     return CometChatCollaborativeBubble(
       url: getWebViewUrl(customMessage),
       title: configuration?.title ??
@@ -135,19 +172,43 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator {
       icon: configuration?.icon,
       previewImage: AssetConstants.collaborativeWhiteboardPreview,
       alignment: alignment,
-      style: (configuration?.style ?? const CometChatCollaborativeBubbleStyle()).merge(collaborativeBubbleStyle),
+      style: (configuration?.style ?? const CometChatCollaborativeBubbleStyle())
+          .merge(collaborativeBubbleStyle),
     );
   }
 
   sendCollaborativeWhiteBoard(
-      BuildContext context, String receiverID, String receiverType) {
+    BuildContext context,
+    String receiverID,
+    String receiverType, {
+    User? user,
+    Group? group,
+  }) {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
+    int? getQuotedMessageId = ReplyUtils.getQuotedMessageId(
+        quotedMessage: quotedMessage, user: user, group: group);
+    if (getQuotedMessageId != null && getQuotedMessageId == -1) {
+      quotedMessage = null;
+    }
+
+    final body = {
+      "receiver": receiverID,
+      "receiverType": receiverType,
+    };
+
+    if (quotedMessage != null && getQuotedMessageId != -1) {
+      body['quotedMessageId'] = quotedMessage!.id.toString();
+    }
+
+    if (quotedMessage != null) {
+      CometChatMessageEvents.ccReplyToMessage(
+          quotedMessage!, MessageStatus.sent);
+      quotedMessage = null;
+    }
+
     CometChat.callExtension(
-        ExtensionConstants.whiteboard,
-        "POST",
-        ExtensionUrls.whiteboard,
-        {"receiver": receiverID, "receiverType": receiverType},
+        ExtensionConstants.whiteboard, "POST", ExtensionUrls.whiteboard, body,
         onSuccess: (Map<String, dynamic> map) {
       debugPrint("Success map $map");
     }, onError: (CometChatException e) {
@@ -168,7 +229,8 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator {
           cancelButtonText: Translations.of(context).cancelCapital,
           onConfirm: () {
             Navigator.pop(context);
-            sendCollaborativeWhiteBoard(context, receiverID, receiverType);
+            sendCollaborativeWhiteBoard(context, receiverID, receiverType,
+                user: user, group: group);
           }).show();
     });
   }
@@ -218,7 +280,8 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator {
 
           if (uid != null || guid != null) {
             sendCollaborativeWhiteBoard(
-                context, uid ?? guid ?? '', receiverType);
+                context, uid ?? guid ?? '', receiverType,
+                user: user, group: group);
           }
         });
   }
@@ -229,7 +292,7 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator {
         messageObject.customData!.containsKey("whiteboard")) {
       Map? whiteboard = messageObject.customData?["whiteboard"];
       if (whiteboard != null && whiteboard.containsKey("board_url")) {
-        return "${whiteboard["board_url"]}&username=${loggedInUser?.name ??''}";
+        return "${whiteboard["board_url"]}&username=${loggedInUser?.name ?? ''}";
       }
     }
     return null;
