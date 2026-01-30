@@ -1386,4 +1386,10 @@ class TranslationsDe extends Translations {
   @override
   String get notifyAll => "alle";
 
+  @override
+  String get markAsUnread => 'Als ungelesen markieren';
+
+  @override
+  String get newMessagesIndicator => 'Neu';
+
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
 
@@ -39,6 +40,7 @@ class CometChatBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🔢 [CometChatBadge] build called with count: $count');
     final badgeStyle = CometChatThemeHelper.getTheme<CometChatBadgeStyle>(
             context: context, defaultTheme: CometChatBadgeStyle.of)
         .merge(style);

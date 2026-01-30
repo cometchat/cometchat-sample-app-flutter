@@ -1355,4 +1355,11 @@ class TranslationsRu extends Translations {
 
   @override
   String get notifyAll => "все";
+
+  @override
+  String get markAsUnread => 'Отметить как непрочитанное';
+
+  @override
+  String get newMessagesIndicator => 'Новое';
+
 }

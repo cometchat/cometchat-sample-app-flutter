@@ -1322,5 +1322,12 @@ class TranslationsJa extends Translations {
 
   @override
   String get notifyAll => "すべて";
+
+  @override
+  String get markAsUnread => '未読にする';
+
+  @override
+  String get newMessagesIndicator => '新規';
+
 }
 

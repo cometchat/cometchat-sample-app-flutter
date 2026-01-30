@@ -1359,5 +1359,12 @@ class TranslationsMs extends Translations {
 
   @override
   String get notifyAll => "semua";
+
+  @override
+  String get markAsUnread => 'Tandai sebagai belum dibaca';
+
+  @override
+  String get newMessagesIndicator => 'Baharu';
+
 }
 

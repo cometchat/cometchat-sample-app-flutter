@@ -2620,6 +2620,14 @@ abstract class Translations {
   ///In en, this translates to :
   ///**'all'
   String get notifyAll;
+
+  ///In en, this translates to :
+  ///**'Mark as Unread'
+  String get markAsUnread;
+
+  ///In en, this translates to :
+  ///**'New'
+  String get newMessagesIndicator;
 }
 
 class _TranslationsDelegate extends LocalizationsDelegate<Translations> {

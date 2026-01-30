@@ -1354,4 +1354,11 @@ class TranslationsSv extends Translations {
 
   @override
   String get notifyAll => "alla";
+
+  @override
+  String get markAsUnread => 'Markera som oläst';
+
+  @override
+  String get newMessagesIndicator => 'Nytt';
+
 }

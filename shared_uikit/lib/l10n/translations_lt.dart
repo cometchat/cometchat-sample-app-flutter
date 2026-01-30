@@ -1360,4 +1360,11 @@ class TranslationsLt extends Translations {
 
   @override
   String get notifyAll => "visi";
+
+  @override
+  String get markAsUnread => 'Pažymėti kaip neskaitytą';
+
+  @override
+  String get newMessagesIndicator => 'Naujas';
+
 }

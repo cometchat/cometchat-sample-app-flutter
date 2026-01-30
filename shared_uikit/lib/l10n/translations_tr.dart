@@ -1358,4 +1358,11 @@ class TranslationsTr extends Translations {
 
   @override
   String get notifyAll => "hepsi";
+
+  @override
+  String get markAsUnread => 'Okunmadı olarak işaretle';
+
+  @override
+  String get newMessagesIndicator => 'Yeni';
+
 }

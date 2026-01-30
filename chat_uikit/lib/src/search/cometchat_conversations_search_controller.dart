@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../cometchat_chat_uikit.dart';
@@ -77,6 +78,9 @@ class CometChatConversationsSearchController
   String? activeConversation;
 
   Set<String> selectedFilters = {};
+
+  /// Set to track recently processed message IDs to prevent duplicate processing
+  final Set<int> _recentlyProcessedMessageIds = {};
 
   late CometChatSearchController searchController;
 
@@ -319,6 +323,7 @@ class CometChatConversationsSearchController
 
   @override
   void ccMessageRead(BaseMessage message) {
+    debugPrint('🔴🔴 [SEARCH] [ccMessageRead] called - conversationId: ${message.conversationId}');
     resetUnreadCount(message);
   }
 
@@ -385,6 +390,20 @@ class CometChatConversationsSearchController
   //-----------Message Listeners------------------------------------------------
 
   _onMessageReceived(BaseMessage message, bool isActionMessage) {
+    // Deduplicate: Skip if this message was recently processed
+    if (message.id > 0 && _recentlyProcessedMessageIds.contains(message.id)) {
+      debugPrint('🟠 [SEARCH] [_onMessageReceived] Skipping duplicate message id: ${message.id}');
+      return;
+    }
+    
+    // Add to recently processed set and remove after delay
+    if (message.id > 0) {
+      _recentlyProcessedMessageIds.add(message.id);
+      Future.delayed(const Duration(seconds: 2), () {
+        _recentlyProcessedMessageIds.remove(message.id);
+      });
+    }
+    
     if (message.sender!.uid != loggedInUserId) {
       CometChat.markAsDelivered(message, onSuccess: (_) {}, onError: (_) {});
     }
@@ -772,6 +791,11 @@ class CometChatConversationsSearchController
 
     if (matchingIndex != -1) {
       Conversation oldConversation = list[matchingIndex];
+
+      // Always preserve conversationWith from old conversation to maintain
+      // group membership state (hasJoined, isBannedFromGroup, etc.)
+      // This fixes ENG-28492: "You're no longer a member" error
+      conversation.conversationWith = oldConversation.conversationWith;
 
       if ((incrementUnreadCount || isCategoryMessage) &&
           conversation.lastMessage?.sender?.uid != loggedInUserId) {

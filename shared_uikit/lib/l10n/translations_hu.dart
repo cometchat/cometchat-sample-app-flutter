@@ -1360,4 +1360,11 @@ class TranslationsHu extends Translations {
 
   @override
   String get notifyAll => "mindenkit";
+
+  @override
+  String get markAsUnread => 'Megjelölés olvasatlanként';
+
+  @override
+  String get newMessagesIndicator => 'Új';
+
 }

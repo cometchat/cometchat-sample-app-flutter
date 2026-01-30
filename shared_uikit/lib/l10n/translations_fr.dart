@@ -1382,4 +1382,10 @@ class TranslationsFr extends Translations {
   @override
   String get notifyAll => "tous";
 
+  @override
+  String get markAsUnread => 'Marquer comme non lu';
+
+  @override
+  String get newMessagesIndicator => 'Nouveau';
+
 }

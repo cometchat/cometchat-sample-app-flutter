@@ -41,6 +41,8 @@ export 'src/message_list/cometchat_message_option_sheet.dart';
 export 'src/message_list/cometchat_message_list.dart';
 export 'src/message_list/cometchat_message_list_controller.dart';
 export 'src/message_list/cometchat_message_list_style.dart';
+export 'src/message_list/cometchat_new_message_indicator.dart';
+export 'src/message_list/cometchat_new_message_indicator_style.dart';
 
 //message composer
 export 'src/message_composer/cometchat_message_composer.dart';

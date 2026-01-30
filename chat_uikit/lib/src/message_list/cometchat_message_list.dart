@@ -122,6 +122,9 @@ class CometChatMessageList extends StatefulWidget {
     this.hideFlagOption = false,
     this.flagReasonLocalizer,
     this.hideFlagRemarkField = false,
+    this.showMarkAsUnreadOption = false,
+    this.startFromUnreadMessages = false,
+    this.newMessageIndicatorView,
   })  : assert(user != null || group != null,
   "One of user or group should be passed"),
         assert(user == null || group == null,
@@ -378,6 +381,18 @@ class CometChatMessageList extends StatefulWidget {
   /// [hideFlagRemarkField] This prop defines whether to hide the remark field in the flag message option.
   final bool? hideFlagRemarkField;
 
+  /// [showMarkAsUnreadOption] controls visibility of the "Mark as Unread" option
+  /// in the message options sheet. Default is false.
+  final bool? showMarkAsUnreadOption;
+
+  /// [startFromUnreadMessages] when true, the message list will initially
+  /// scroll to position the first unread message in view. Default is false.
+  final bool? startFromUnreadMessages;
+
+  /// [newMessageIndicatorView] custom widget builder for the new message indicator
+  /// that separates unread messages from read ones.
+  final WidgetBuilder? newMessageIndicatorView;
+
   @override
   State<CometChatMessageList> createState() => _CometChatMessageListState();
 }
@@ -477,6 +492,9 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       flagReasonLocalizer: widget.flagReasonLocalizer,
       hideFlagRemarkField: widget.hideFlagRemarkField,
     );
+
+    // Set startFromUnreadMessages on controller
+    messageListController.startFromUnreadMessages = widget.startFromUnreadMessages ?? false;
 
     super.initState();
   }
@@ -1007,6 +1025,36 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
     }
   }
 
+  /// Returns the new message indicator widget if the current message is the first unread message
+  Widget _getNewMessageIndicator(
+    CometChatMessageListController controller,
+    BaseMessage message,
+    BuildContext context,
+  ) {
+    // Don't show indicator if startFromUnreadMessages is false
+    if (widget.startFromUnreadMessages != true) {
+      return const SizedBox.shrink();
+    }
+
+    // Only show indicator if we have an unread message anchor
+    if (controller.unreadMessageAnchor == null) {
+      return const SizedBox.shrink();
+    }
+
+    // Show indicator only for the first unread message (the anchor)
+    if (message.id == controller.unreadMessageAnchor!.id) {
+      // Use custom view if provided, otherwise use default indicator
+      if (widget.newMessageIndicatorView != null) {
+        return widget.newMessageIndicatorView!(context);
+      }
+      return CometChatNewMessageIndicator(
+        style: messageListStyle.newMessageIndicatorStyle,
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
   Widget? getHeaderView(
       BaseMessage message,
       BuildContext context,
@@ -1461,6 +1509,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       hideTranslateMessageOption: widget.hideTranslateMessageOption,
       hideFlagOption: widget.hideFlagOption,
       hideReplyOption: widget.hideReplyOption,
+      showMarkAsUnreadOption: widget.showMarkAsUnreadOption,
     );
 
     if (controller
@@ -1833,12 +1882,79 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
   }
 
   Widget _getNewMessageBanner(
-      CometChatMessageListController controller,
-      BuildContext context,
-      CometChatColorPalette colorPalette,
-      CometChatSpacing spacing,
-      ) {
-    if (controller.isScrolled) {
+    CometChatMessageListController controller,
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+  ) {
+    // Don't show unread badge in thread views - threads don't have their own unread count
+    if (controller.isThread) {
+      if (controller.isScrolled) {
+        return Positioned(
+          right: 10,
+          bottom: 10,
+          child: GestureDetector(
+            onTap: () {
+              controller.resetMessageList();
+            },
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: colorPalette.background3,
+                borderRadius: BorderRadius.circular(spacing.radiusMax ?? 0),
+                border: Border.all(
+                  color: colorPalette.borderDefault ?? Colors.transparent,
+                  width: 1,
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    offset: Offset(0, 4),
+                    blurRadius: 6,
+                    spreadRadius: -2,
+                    color: Color(0x10182808),
+                  ),
+                  BoxShadow(
+                    offset: Offset(0, 12),
+                    blurRadius: 16,
+                    spreadRadius: -4,
+                    color: Color(0x10182814),
+                  ),
+                ],
+              ),
+              padding: EdgeInsets.symmetric(
+                vertical: spacing.padding2 ?? 0,
+                horizontal: spacing.padding2 ?? 0,
+              ),
+              child: Icon(
+                Icons.keyboard_arrow_down_outlined,
+                size: 24,
+                color: colorPalette.iconSecondary,
+              ),
+            ),
+          ),
+        );
+      }
+      return const SizedBox.shrink();
+    }
+    
+    // Show the banner if user has scrolled up OR if there are unread messages
+    // When markedAsUnreadInSession is true, combine unreadCount (initial marked count) + newUnreadMessageCount (new messages)
+    // Otherwise, use whichever is greater
+    int displayCount;
+    if (controller.markedAsUnreadInSession) {
+      // User marked as unread in this session - show total: initial unread + new messages
+      displayCount = controller.unreadCount + controller.newUnreadMessageCount;
+    } else if (controller.newUnreadMessageCount > 0) {
+      // New messages arrived while scrolled up
+      displayCount = controller.newUnreadMessageCount;
+    } else {
+      // Show unread count from previous session (if any)
+      displayCount = controller.unreadCount;
+    }
+    final showBadge = displayCount > 0;
+
+    if (controller.isScrolled || showBadge) {
       return Positioned(
         right: 10,
         bottom: 10,
@@ -1848,11 +1964,11 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
           },
           child: Container(
             width: 48,
-            height: controller.newUnreadMessageCount != 0 ? null : 48,
+            height: showBadge ? null : 48,
             decoration: BoxDecoration(
               color: colorPalette.background3,
               borderRadius: BorderRadius.circular(
-                controller.newUnreadMessageCount != 0
+                showBadge
                     ? (spacing.radius6 ?? 0)
                     : (spacing.radiusMax ?? 0),
               ),
@@ -1883,8 +1999,8 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                (controller.newUnreadMessageCount != 0)
-                    ? CometChatBadge(count: controller.newUnreadMessageCount)
+                showBadge
+                    ? CometChatBadge(count: displayCount)
                     : const SizedBox(),
                 Icon(
                   Icons.keyboard_arrow_down_outlined,
@@ -1960,13 +2076,13 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
   // }
 
   Widget _getList(
-      CometChatMessageListController controller,
-      BuildContext context,
-      CometChatMessageListStyle messageListStyle,
-      CometChatColorPalette colorPalette,
-      CometChatTypography typography,
-      CometChatSpacing spacing,
-      ) {
+    CometChatMessageListController controller,
+    BuildContext context,
+    CometChatMessageListStyle messageListStyle,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatSpacing spacing,
+  ) {
     return GetBuilder(
       init: controller,
       tag: controller.tag,
@@ -2015,7 +2131,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
                   Expanded(
                     child: Chat(
                       currentUserId:
-                      CometChatUIKit.loggedInUser?.uid ?? 'unknown',
+                          CometChatUIKit.loggedInUser?.uid ?? 'unknown',
                       resolveUser: (userId) async {
                         if (userId == CometChatUIKit.loggedInUser?.uid) {
                           return core.User(
@@ -2075,12 +2191,11 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
                               key: const ValueKey('chat_animated_list'),
                               itemBuilder: itemBuilder,
                               initialScrollToEndMode: InitialScrollToEndMode.none,
-                              shouldScrollToEndWhenAtBottom: true,
+                              shouldScrollToEndWhenAtBottom: false,
                               shouldScrollToEndWhenSendingMessage: true,
                               reversed: true,
                               onEndReached: () async {
                                 print("📜 onEndReached - loading older messages");
-                                // Prevent loading during cooldown after goToMessage
                                 if (controller.isInGoToMessageCooldown) {
                                   print("❌ Skipped onEndReached - in cooldown");
                                   return;
@@ -2123,12 +2238,12 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
                             {required isSentByMe, groupStatus}) {
                           // Get the original CometChat message from metadata
                           final baseMessage =
-                          MessageAdapter.getOriginalMessage(coreMessage);
+                              MessageAdapter.getOriginalMessage(coreMessage);
                           if (baseMessage == null) {
                             return const SizedBox.shrink();
                           }
 
-                          // Calculate the CometChat list index (reversed from flutter_chat_ui index)
+                          // flutter_chat_ui index is reversed (oldest=0), convert to CometChat index (newest=0)
                           final cometChatIndex = value.list.length - 1 - index;
 
                           // Bounds check: if index is out of sync (can happen during rapid updates),
@@ -2137,46 +2252,43 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
                             return const SizedBox.shrink();
                           }
 
-                          // Use GlobalKey for position tracking (sticky date functionality)
-                          // The GlobalKey is stable and doesn't change when message content updates
-                          // Rebuilds are triggered by ChatMessageInternal's setState when it receives
-                          // ChatOperationType.update events from the chatController
-                          final globalKey = value.getOrCreateKey(cometChatIndex, baseMessage.id);
-
-                          return Container(
-                            key: globalKey, // GlobalKey for position tracking
-                            child: Column(
-                              children: [
-                                _getDateSeparator(
-                                  value,
-                                  cometChatIndex,
-                                  context,
-                                  colorPalette,
-                                  typography,
-                                  spacing,
-                                ),
-                                _getMessageWidget(
-                                  baseMessage,
-                                  value,
-                                  context,
-                                  messageListStyle,
-                                  colorPalette,
-                                  typography,
-                                  spacing,
-                                ),
-                              ],
-                            ),
+                          return Column(
+                            key: value.getOrCreateKey(cometChatIndex, baseMessage.id),
+                            children: [
+                              _getDateSeparator(
+                                value,
+                                cometChatIndex,
+                                context,
+                                colorPalette,
+                                typography,
+                                spacing,
+                              ),
+                              _getNewMessageIndicator(
+                                value,
+                                baseMessage,
+                                context,
+                              ),
+                              _getMessageWidget(
+                                baseMessage,
+                                value,
+                                context,
+                                messageListStyle,
+                                colorPalette,
+                                typography,
+                                spacing,
+                              ),
+                            ],
                           );
                         },
                         imageMessageBuilder: (context, coreMessage, index,
                             {required isSentByMe, groupStatus}) {
                           final baseMessage =
-                          MessageAdapter.getOriginalMessage(coreMessage);
+                              MessageAdapter.getOriginalMessage(coreMessage);
                           if (baseMessage == null) {
                             return const SizedBox.shrink();
                           }
 
-                          // Calculate the CometChat list index (reversed from flutter_chat_ui index)
+                          // flutter_chat_ui index is reversed (oldest=0), convert to CometChat index (newest=0)
                           final cometChatIndex = value.list.length - 1 - index;
 
                           // Bounds check: if index is out of sync (can happen during rapid updates),
@@ -2202,6 +2314,11 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
                                   colorPalette,
                                   typography,
                                   spacing,
+                                ),
+                                _getNewMessageIndicator(
+                                  value,
+                                  baseMessage,
+                                  context,
                                 ),
                                 _getMessageWidget(
                                   baseMessage,
@@ -2571,9 +2688,9 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
         onSurface: colorPalette.textPrimary ?? Colors.black87,
         surfaceContainer: colorPalette.background2 ?? const Color(0xfff5f5f5),
         surfaceContainerLow:
-        colorPalette.neutral50 ?? const Color(0xfffafafa),
+            colorPalette.neutral50 ?? const Color(0xfffafafa),
         surfaceContainerHigh:
-        colorPalette.neutral100 ?? const Color(0xfff0f0f0),
+            colorPalette.neutral100 ?? const Color(0xfff0f0f0),
       ),
       typography: core.ChatTypography(
         bodyLarge: bodyTextStyle.copyWith(

@@ -261,6 +261,36 @@ class MessagesDataSource implements DataSource {
     );
   }
 
+  CometChatMessageOption getMarkAsUnreadOption(
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatMessageOptionSheetStyle? messageOptionSheetStyle,
+  ) {
+    return CometChatMessageOption(
+      id: MessageOptionConstants.markAsUnread,
+      title: cc.Translations.of(context).markAsUnread,
+      icon: Icon(
+        Icons.mark_email_unread_outlined,
+        color: messageOptionSheetStyle?.iconColor ?? colorPalette.iconSecondary,
+        size: 24,
+      ),
+      messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
+        titleTextStyle: TextStyle(
+          color: messageOptionSheetStyle?.titleColor,
+          fontFamily: typography.body?.regular?.fontFamily,
+          fontWeight: typography.body?.regular?.fontWeight,
+          fontSize: typography.body?.regular?.fontSize,
+        ).merge(messageOptionSheetStyle?.titleTextStyle),
+        borderRadius: messageOptionSheetStyle?.borderRadius,
+        border: messageOptionSheetStyle?.border,
+        backgroundColor: messageOptionSheetStyle?.backgroundColor,
+        iconColor: messageOptionSheetStyle?.iconColor,
+        titleColor: messageOptionSheetStyle?.titleColor,
+      ),
+    );
+  }
+
   bool isSentByMe(User loggedInUser, BaseMessage message) {
     return loggedInUser.uid == message.sender?.uid;
   }
@@ -345,6 +375,13 @@ class MessagesDataSource implements DataSource {
             MessageOptionConstants.sendMessagePrivately)) {
       messageOptionList.add(
           getSendMessagePrivately(context, colorPalette, typography, style));
+    }
+
+    if (additionalConfigurations?.showMarkAsUnreadOption != false &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.markAsUnread)) {
+      messageOptionList.add(
+          getMarkAsUnreadOption(context, colorPalette, typography, style));
     }
     return messageOptionList;
   }
@@ -901,6 +938,14 @@ class MessagesDataSource implements DataSource {
       return true;
     }
 
+    // Mark as unread: only for received messages (not sent by logged-in user)
+    // and not for threaded messages (parentMessageId > 0)
+    if (MessageOptionConstants.markAsUnread == optionId &&
+        loggedInUser.uid != messageObject.sender?.uid &&
+        messageObject.parentMessageId == 0) {
+      return true;
+    }
+
     return false;
   }
 
@@ -954,6 +999,13 @@ class MessagesDataSource implements DataSource {
             MessageOptionConstants.messageInformation)) {
       messageOptionList
           .add(getMessageInfo(context, colorPalette, typography, style));
+    }
+
+    if (additionalConfigurations?.showMarkAsUnreadOption != false &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.markAsUnread)) {
+      messageOptionList.add(
+          getMarkAsUnreadOption(context, colorPalette, typography, style));
     }
 
     if (additionalConfigurations?.hideDeleteMessageOption != true &&

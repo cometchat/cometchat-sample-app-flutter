@@ -1,7 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'cometchat_new_message_indicator_style.dart';
 
 ///[CometChatMessageListStyle] is a data class that has styling-related properties
 ///to customize the appearance of [CometChatMessageList]
@@ -93,6 +92,7 @@ class CometChatMessageListStyle
     this.emptyChatGreetingSubtitleTextStyle,
     this.aiConversationSummaryStyle,
     this.flagMessageStyle,
+    this.newMessageIndicatorStyle,
   });
 
   ///[backgroundColor] defines the background color of the message list
@@ -197,6 +197,9 @@ class CometChatMessageListStyle
   ///[flagMessageStyle] is a parameter used to set the style for the flag message
   final CometchatFlagMessageStyle? flagMessageStyle;
 
+  ///[newMessageIndicatorStyle] is a parameter used to set the style for the new message indicator
+  final CometChatNewMessageIndicatorStyle? newMessageIndicatorStyle;
+
   /// Copy with some properties replaced
   @override
   CometChatMessageListStyle copyWith({
@@ -237,6 +240,7 @@ class CometChatMessageListStyle
     TextStyle? emptyChatGreetingSubtitleTextStyle,
     CometChatAIConversationSummaryStyle? aiConversationSummaryStyle,
     CometchatFlagMessageStyle? flagMessageStyle,
+    CometChatNewMessageIndicatorStyle? newMessageIndicatorStyle,
   }) {
     return CometChatMessageListStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -298,6 +302,7 @@ class CometChatMessageListStyle
       aiConversationSummaryStyle: aiConversationSummaryStyle ??
           this.aiConversationSummaryStyle,
       flagMessageStyle: flagMessageStyle ?? this.flagMessageStyle,
+      newMessageIndicatorStyle: newMessageIndicatorStyle ?? this.newMessageIndicatorStyle,
     );
   }
 
@@ -347,6 +352,7 @@ class CometChatMessageListStyle
           other.emptyChatGreetingSubtitleTextStyle,
       aiConversationSummaryStyle: other.aiConversationSummaryStyle,
       flagMessageStyle: other.flagMessageStyle,
+      newMessageIndicatorStyle: other.newMessageIndicatorStyle,
     );
   }
 
@@ -439,6 +445,7 @@ class CometChatMessageListStyle
       aiConversationSummaryStyle:
           aiConversationSummaryStyle?.lerp(other.aiConversationSummaryStyle, t),
       flagMessageStyle: flagMessageStyle?.lerp(other.flagMessageStyle, t),
+      newMessageIndicatorStyle: newMessageIndicatorStyle?.lerp(other.newMessageIndicatorStyle, t),
     );
   }
 }

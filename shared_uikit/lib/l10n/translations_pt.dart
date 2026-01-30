@@ -1360,4 +1360,11 @@ class TranslationsPt extends Translations {
 
   @override
   String get notifyAll => "todos";
+
+  @override
+  String get markAsUnread => 'Marcar como não lido';
+
+  @override
+  String get newMessagesIndicator => 'Novo';
+
 }

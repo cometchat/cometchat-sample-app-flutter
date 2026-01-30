@@ -155,6 +155,12 @@ class CometChatUIKitHelper {
     CometChatConversationEvents.ccConversationDeleted(conversation);
   }
 
+  ///[onConversationUpdate] is used to inform the listeners
+  ///when a conversation is updated (e.g., unread count changes)
+  static onConversationUpdate(Conversation conversation) {
+    CometChatConversationEvents.ccUpdateConversation(conversation);
+  }
+
   //---------- CometChat UI Events ----------
   ///[showPanel] used to reveal a panel above message composer
   static showPanel(Map<String, dynamic>? id, CustomUIPosition uiPosition,

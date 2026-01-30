@@ -94,7 +94,7 @@ class CometChatFileBubble extends StatefulWidget {
 class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerProviderStateMixin {
   // Static cache to persist file existence state across widget rebuilds
   static final Map<String, bool> _fileExistsCache = {};
-  
+
   bool isFileDownloading = false;
   bool isFileExists = false;
   bool _isCheckingFileExists = true; // Track if initial check is in progress
@@ -273,7 +273,7 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
       }
       return;
     }
-    
+
     final localPath = FileUtils.getLocalFilePath(widget.metadata) ?? '';
     // Decode URL-encoded file path
     final decodedPath = Uri.decodeFull(localPath);
@@ -290,10 +290,10 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
         isFileExists = true;
       }
     }
-    
+
     // Cache the result
     _fileExistsCache[cacheKey] = isFileExists;
-    
+
     debugPrint("File Exist $isFileExists");
     _isCheckingFileExists = false;
     if (mounted) {
@@ -448,11 +448,11 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
                         } else {
                           isFileExists = true;
                         }
-                        
+
                         // Update cache after download
                         final cacheKey = widget.id?.toString() ?? fileName;
                         _fileExistsCache[cacheKey] = isFileExists;
-                        
+
                         _ticker?.stop();
                         _ticker?.dispose();
 

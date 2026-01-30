@@ -1362,4 +1362,11 @@ class TranslationsNl extends Translations {
 
   @override
   String get notifyAll => "iedereen";
+
+  @override
+  String get markAsUnread => 'Markeren als ongelezen';
+
+  @override
+  String get newMessagesIndicator => 'Nieuw';
+
 }

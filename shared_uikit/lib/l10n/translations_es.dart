@@ -1375,4 +1375,11 @@ class TranslationsEs extends Translations {
 
   @override
   String get notifyAll => "todos";
+
+  @override
+  String get markAsUnread => 'Marcar como no leído';
+
+  @override
+  String get newMessagesIndicator => 'Nuevo';
+
 }

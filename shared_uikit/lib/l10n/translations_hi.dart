@@ -1372,4 +1372,11 @@ class TranslationsHi extends Translations {
 
   @override
   String get notifyAll => "सभी";
+
+  @override
+  String get markAsUnread => 'अपठित के रूप में चिह्नित करें';
+
+  @override
+  String get newMessagesIndicator => 'नया';
+
 }

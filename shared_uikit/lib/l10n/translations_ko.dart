@@ -1326,4 +1326,11 @@ class TranslationsKo extends Translations {
 
   @override
   String get notifyAll => "모든";
+
+  @override
+  String get markAsUnread => '읽지 않음으로 표시';
+
+  @override
+  String get newMessagesIndicator => '새로운';
+
 }

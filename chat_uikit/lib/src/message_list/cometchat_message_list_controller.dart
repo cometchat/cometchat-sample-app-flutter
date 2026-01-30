@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -132,9 +133,6 @@ class CometChatMessageListController
   late String _messageListenerId;
   late String _groupListenerId;
 
-  // Debounce timer for batching sync operations
-  Timer? _syncDebounceTimer;
-
   User? loggedInUser;
   User? user;
   Group? group;
@@ -196,6 +194,9 @@ class CometChatMessageListController
   late String _sdkCallListenerId;
   late String _sdkAIAssistantListenerId;
 
+  /// Timer for debouncing sync operations to chatController
+  Timer? _syncDebounceTimer;
+
   ///[headerView] shown in header view
   Widget? Function(BuildContext,
       {User? user, Group? group, int? parentMessageId})? headerView;
@@ -247,6 +248,35 @@ class CometChatMessageListController
   Widget? defaultFooter;
 
   int? initialUnreadCount;
+
+  //-------------------------Mark as Unread Properties-----------------------------
+  /// [startFromUnreadMessages] when true, the message list will initially
+  /// scroll to position the first unread message in view
+  bool startFromUnreadMessages = false;
+
+  /// [lastReadMessageId] the last read message ID from the conversation
+  int? lastReadMessageId;
+
+  /// [unreadMessageAnchor] the first unread message (anchor for the indicator)
+  BaseMessage? unreadMessageAnchor;
+
+  /// [unreadMessageAnchorId] the ID of the first unread message (used to find anchor after list reload)
+  int? unreadMessageAnchorId;
+
+  /// [unreadCount] current unread count for the conversation
+  int unreadCount = 0;
+
+  /// [highlightScroll] whether to highlight the scroll target (false when scrolling to unread)
+  bool highlightScroll = true;
+
+  /// [markedAsUnreadInSession] tracks if user manually marked a message as unread in current session
+  /// When true, scrolling to bottom will NOT auto-mark as read
+  /// This resets when user leaves and comes back to the chat
+  bool markedAsUnreadInSession = false;
+
+  /// [isTargetAboveIndicator] tracks if the current goto target is above the unread indicator
+  /// When true, we should preserve the badge count until indicator comes into view
+  bool isTargetAboveIndicator = false;
 
   List<CometChatTextFormatter>? textFormatters;
   bool? disableMentions;
@@ -335,10 +365,24 @@ class CometChatMessageListController
 
     _previousScrollOffset = offset;
 
-    if (offset <= 10 && newUnreadMessageCount != 0) {
+    // Only auto-reset unread count when scrolling to bottom if NOT marked as unread in this session
+    // When markedAsUnreadInSession is true, user must tap the scroll-to-bottom button to clear
+    if (offset <= 10 && newUnreadMessageCount != 0 && !markedAsUnreadInSession) {
       markAsRead(list[0]);
       newUnreadMessageCount = 0;
     }
+
+    // Auto-mark conversation as read when scrolling to bottom ONLY if:
+    // - User did NOT manually mark as unread in this session
+    // - There are unread messages (from a previous session/re-entry)
+    // When user marks as unread in current session, they must tap the button to mark as read
+    if (offset <= 10 && unreadMessageAnchor != null && !markedAsUnreadInSession) {
+      markConversationAsRead();
+    }
+
+    // Check if unread indicator is visible in viewport
+    // If visible, clear the badge count but keep the indicator
+    _checkUnreadIndicatorVisibility();
 
     bool hasScrolled = offset > 100;
 
@@ -348,6 +392,50 @@ class CometChatMessageListController
     }
 
     _updateStickyDate();
+  }
+
+  /// Checks if the unread message indicator is visible in the viewport
+  /// If visible, clears the badge count (unreadCount) but keeps the indicator
+  /// Does NOT auto-clear if user manually marked as unread in this session
+  void _checkUnreadIndicatorVisibility() {
+    // Don't auto-clear if user manually marked as unread in this session
+    // They must tap the scroll-to-bottom button to mark as read
+    if (markedAsUnreadInSession) return;
+
+    // Don't check during jump animation - wait until jump completes
+    if (isJumpingToMessage) return;
+
+    if (unreadMessageAnchor == null || unreadCount == 0) return;
+
+    final anchorId = unreadMessageAnchor!.id;
+    final key = messageKeys[anchorId];
+    if (key == null) return;
+
+    final ctx = key.currentContext;
+    if (ctx == null) return;
+
+    final renderBox = ctx.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final listBox = context.findRenderObject() as RenderBox?;
+    if (listBox == null) return;
+
+    final listTop = listBox.localToGlobal(Offset.zero).dy;
+    final listBottom = listTop + listBox.size.height;
+
+    final indicatorPosition = renderBox.localToGlobal(Offset.zero).dy;
+    final indicatorBottom = indicatorPosition + renderBox.size.height;
+
+    // Check if indicator is within the visible viewport
+    final isVisible = indicatorBottom > listTop && indicatorPosition < listBottom;
+
+    if (isVisible) {
+      debugPrint('📌 Unread indicator is visible - clearing badge count');
+      unreadCount = 0;
+      isTargetAboveIndicator = false; // Reset the flag
+      markConversationAsRead();
+      update();
+    }
   }
 
   void _updateStickyDate() {
@@ -526,6 +614,8 @@ class CometChatMessageListController
   //-------------------------LifeCycle Methods-----------------------------
   @override
   void onInit() {
+    debugPrint('🚀 [onInit] START - startFromUnreadMessages: $startFromUnreadMessages, messageId: $messageId');
+    
     // Initialize flutter_chat_ui controller
     chatController = core.InMemoryChatController();
 
@@ -542,6 +632,7 @@ class CometChatMessageListController
     getLoggedInUser();
 
     if (isUserAgentic()) {
+      debugPrint('🚀 [onInit] isUserAgentic=true, threadMessageParentId: $threadMessageParentId');
       if (streamingSpeed != null) {
         _queueManager.streamDelay = Duration(milliseconds: streamingSpeed!);
       }
@@ -554,10 +645,20 @@ class CometChatMessageListController
       }
     }
     if (messageId != null && messageId! > 0) {
-      gotoMessageId(messageId!);
+      debugPrint('🚀 [onInit] messageId provided ($messageId), calling _fetchConversationAndGotoMessage');
+      // Fetch conversation to get unread count before navigating to message
+      _fetchConversationAndGotoMessage(messageId!);
       return;
     }
 
+    // If startFromUnreadMessages is true, use fetchMessagesWithUnreadCount
+    if (startFromUnreadMessages) {
+      debugPrint('🚀 [onInit] startFromUnreadMessages=true, calling fetchMessagesWithUnreadCount');
+      fetchMessagesWithUnreadCount();
+      return;
+    }
+
+    debugPrint('🚀 [onInit] Default path - calling super.onInit() which will trigger loadMoreElements');
     ever(generateConversationSummary, (bool isTrue) {
       if (isTrue) {
         getConversationsSummary(user, group);
@@ -828,7 +929,7 @@ class CometChatMessageListController
         // Update if updatedAt, deletedAt, reactionsHash, or baseMessageId changed
         // baseMessageId changes when message goes from pending (id=0) to sent (real id)
         // deletedAt changes when a message is deleted
-        if (currentUpdatedAt != newUpdatedAt || 
+        if (currentUpdatedAt != newUpdatedAt ||
             currentDeletedAt != newDeletedAt ||
             currentReactionsHash != newReactionsHash ||
             currentBaseMessageId != newBaseMessageId) {
@@ -872,8 +973,9 @@ class CometChatMessageListController
   }
 
   /// Override addElement to auto-sync with chatController
+  /// Returns true if the message was actually added (new message), false if skipped (duplicate) or updated
   @override
-  addElement(BaseMessage element, {int index = 0}) {
+  bool addElement(BaseMessage element, {int index = 0}) {
     _cleanupStaleKeys();
 
     // Fast duplicate check using tracking sets for rapid event handling
@@ -885,13 +987,13 @@ class CometChatMessageListController
         final existsInList = list.any((msg) => msg.id == element.id);
         if (existsInList) {
           debugPrint('🔄 [ADD_ELEMENT] Skipping duplicate message id: ${element.id}');
-          return;
+          return false; // Duplicate - not added
         }
         // Not in list, remove from tracking set and continue
         _recentlyAddedMessageIds.remove(element.id);
       }
     }
-    
+
     // For inProgress messages (id <= 0), check by muid
     // But don't skip - just check if we need to update instead of insert
     if (element.id <= 0 && element.muid.isNotEmpty) {
@@ -900,7 +1002,7 @@ class CometChatMessageListController
         final existsInList = list.any((msg) => msg.muid == element.muid);
         if (existsInList) {
           debugPrint('🔄 [ADD_ELEMENT] Skipping duplicate message muid: ${element.muid}');
-          return;
+          return false; // Duplicate - not added
         }
         // Not in list, remove from tracking set and continue
         _recentlyAddedMessageMuids.remove(element.muid);
@@ -947,7 +1049,7 @@ class CometChatMessageListController
       }
 
       list[matchingIndex] = element;
-      
+
       // Update tracking sets
       if (element.id > 0) {
         _recentlyAddedMessageIds.add(element.id);
@@ -955,16 +1057,16 @@ class CometChatMessageListController
       if (element.muid.isNotEmpty) {
         _recentlyAddedMessageMuids.add(element.muid);
       }
-      
+
       _cleanupStaleKeys();
       _scheduleSyncToChatController();
       update();
-      return;
+      return false; // Updated existing message - not a new addition
     }
 
     // Message doesn't exist in list - add it
     debugPrint('🔄 [ADD_ELEMENT] Adding new message - id: ${element.id}, muid: ${element.muid}');
-    
+
     // Track the IDs to prevent duplicate events from rapid callbacks
     if (element.id > 0) {
       _recentlyAddedMessageIds.add(element.id);
@@ -976,7 +1078,7 @@ class CometChatMessageListController
         }
       }
     }
-    
+
     if (element.muid.isNotEmpty) {
       _recentlyAddedMessageMuids.add(element.muid);
       // Clean up old MUIDs to prevent memory leak (keep last 200)
@@ -989,33 +1091,34 @@ class CometChatMessageListController
     }
 
     list.insert(index, element);
-    
+
     // Trim older messages if list exceeds memory limit
     // This prevents memory accumulation when sending many messages
     _trimIfNeeded();
-    
+
     _cleanupStaleKeys();
     _scheduleSyncToChatController();
     update();
+    return true; // New message added successfully
   }
-  
+
   /// Trims older messages from the list if it exceeds the memory limit.
   /// Called after adding new messages to prevent unbounded memory growth.
   void _trimIfNeeded() {
     if (list.length <= maxMessagesInMemory) {
       return;
     }
-    
+
     // Remove older messages from the end of the list
     // list structure: [newest...oldest], so end = oldest
     final messagesToRemove = list.length - maxMessagesInMemory + windowBuffer;
     if (messagesToRemove > 0 && messagesToRemove < list.length) {
       debugPrint('🔄 [TRIM] Removing $messagesToRemove older messages to stay within memory limit');
-      
+
       final startIndex = list.length - messagesToRemove;
       final removedMessages = list.sublist(startIndex);
       list.removeRange(startIndex, list.length);
-      
+
       // Clean up keys for removed messages
       for (final msg in removedMessages) {
         if (msg.id > 0) {
@@ -1027,10 +1130,10 @@ class CometChatMessageListController
         }
       }
       indexToMessageKey.clear();
-      
+
       // Allow fetching older messages again since we trimmed them
       hasMoreItems = true;
-      
+
       debugPrint('🔄 [TRIM] List size after trim: ${list.length}');
     }
   }
@@ -1071,27 +1174,27 @@ class CometChatMessageListController
     if (element.muid.isNotEmpty) {
       _recentlyAddedMessageMuids.remove(element.muid);
     }
-    
+
     // Remove from the chatController directly to avoid full sync
     // This prevents scroll position issues from setMessages diff
     // Try both muid and id.toString() since the flutter message ID could be either
     final muidId = element.muid.isNotEmpty ? element.muid : null;
     final numericId = element.id.toString();
-    
+
     int chatControllerIndex = -1;
-    
+
     // First try muid
     if (muidId != null) {
       chatControllerIndex = chatController.messages.indexWhere((m) => m.id == muidId);
     }
-    
+
     // If not found by muid, try numeric id
     if (chatControllerIndex == -1) {
       chatControllerIndex = chatController.messages.indexWhere((m) => m.id == numericId);
     }
-    
+
     debugPrint('🔄 [REMOVE_ELEMENT] Removing message - id: ${element.id}, muid: ${element.muid}, chatControllerIndex: $chatControllerIndex');
-    
+
     if (chatControllerIndex != -1) {
       chatController.removeMessage(chatController.messages[chatControllerIndex]);
     } else {
@@ -1099,7 +1202,7 @@ class CometChatMessageListController
       // Message not found - trigger a full sync to ensure consistency
       _scheduleSyncToChatController();
     }
-    
+
     super.removeElement(element);
     _cleanupStaleKeys();
   }
@@ -1164,6 +1267,21 @@ class CometChatMessageListController
     ));
     conversationId ??= conversation?.conversationId;
 
+    // Store lastReadMessageId and unreadCount from conversation for indicator
+    // We need unreadCount to find the indicator position, even if startFromUnreadMessages is false
+    // Skip this for thread views - thread views should not show the main conversation's unread count
+    if (conversation != null && lastReadMessageId == null && !isThread) {
+      lastReadMessageId = conversation!.lastReadMessageId;
+      unreadCount = conversation!.unreadMessageCount ?? 0;
+      debugPrint('📌 Conversation loaded - lastReadMessageId: $lastReadMessageId, unreadCount: $unreadCount');
+      debugPrint('📌 Conversation lastMessage.id: ${conversation!.lastMessage?.id}');
+      debugPrint('📌 Conversation lastMessage.parentMessageId: ${conversation!.lastMessage?.parentMessageId}');
+      
+      // If the last message is a thread reply and we're in main message list (not thread view),
+      // we need to check if there are any non-thread unread messages
+      // This will be done after messages are loaded in the anchor finding logic
+    }
+
     if (fetchPrevious) {
       try {
         // Check if we need to trim before fetching more messages
@@ -1204,7 +1322,11 @@ class CometChatMessageListController
               if (lastParticipantMessage == null) {
                 if (element.sender?.uid != loggedInUser?.uid) {
                   lastParticipantMessage = element;
-                  markAsRead(element);
+                  // Only mark as read if there are no unread messages to show indicator for
+                  // If unreadCount > 0, we want to show the indicator first
+                  if (unreadCount == 0) {
+                    markAsRead(element);
+                  }
                 }
               }
             }
@@ -1215,6 +1337,54 @@ class CometChatMessageListController
 
             // Sync to chatController
             syncMessagesToChatController();
+
+            // Set unread message anchor if there are unread messages (unreadCount > 0)
+            // This must happen BEFORE marking as read so the indicator is preserved
+            // Skip anchor recalculation if user manually marked as unread in this session
+            // The anchor was already set correctly by markMessageAsUnread
+            if (unreadCount > 0 && !markedAsUnreadInSession) {
+              debugPrint('📌 loadMoreElements: unreadCount > 0 ($unreadCount), looking for anchor, lastReadMessageId: $lastReadMessageId');
+              // First try to find using lastReadMessageId
+              if (unreadMessageAnchor == null && lastReadMessageId != null && lastReadMessageId! > 0) {
+                unreadMessageAnchor = _findFirstUnreadAfterLastRead();
+                unreadMessageAnchorId = unreadMessageAnchor?.id;
+                if (unreadMessageAnchor != null) {
+                  debugPrint('🟢🟢🟢 loadMoreElements: SET ANCHOR ID: ${unreadMessageAnchor?.id} 🟢🟢🟢');
+                }
+              }
+              // If still not found, try getFirstUnreadMessage
+              if (unreadMessageAnchor == null) {
+                unreadMessageAnchor = getFirstUnreadMessage();
+                unreadMessageAnchorId = unreadMessageAnchor?.id;
+                debugPrint('📌 loadMoreElements: Setting unreadMessageAnchor from getFirstUnreadMessage: ${unreadMessageAnchor?.id}, unreadCount: $unreadCount');
+              }
+              
+              // If no anchor found (all unread messages are thread replies), clear unreadCount
+              // Thread replies shouldn't trigger unread indicator in main message list
+              if (unreadMessageAnchor == null) {
+                debugPrint('📌 loadMoreElements: No non-thread unread messages found, clearing unreadCount from $unreadCount to 0');
+                unreadCount = 0;
+                markConversationAsRead();
+              }
+            } else if (markedAsUnreadInSession) {
+              debugPrint('📌 loadMoreElements: markedAsUnreadInSession=true, preserving existing anchor: ${unreadMessageAnchor?.id}');
+            } else {
+              debugPrint('📌 loadMoreElements: unreadCount is 0, skipping anchor search');
+            }
+
+            // When startFromUnreadMessages is false, mark conversation as read (default behavior)
+            // This clears the badge but keeps the indicator (set above)
+            // Only do this on first load (inInitialized == false) and if there are messages
+            if (!startFromUnreadMessages && !inInitialized && list.isNotEmpty) {
+              // Clear badge immediately
+              unreadCount = 0;
+              markConversationAsRead();
+            } else if (startFromUnreadMessages && unreadMessageAnchor != null) {
+              // When startFromUnreadMessages is true, check if indicator is visible
+              Future.delayed(const Duration(milliseconds: 100), () {
+                _checkUnreadIndicatorVisibility();
+              });
+            }
           }
           update();
         }, onError: (CometChatException e) {
@@ -1317,7 +1487,10 @@ class CometChatMessageListController
                 if (lastParticipantMessage == null) {
                   if (element.sender?.uid != loggedInUser?.uid) {
                     lastParticipantMessage = element;
-                    markAsRead(element);
+                    // Only mark as read if there are no unread messages to show indicator for
+                    if (unreadCount == 0) {
+                      markAsRead(element);
+                    }
                   }
                 }
               }
@@ -1346,7 +1519,7 @@ class CometChatMessageListController
                 final flutterMessages = MessageAdapter.toFlutterChatMessages(newMessages.reversed.toList())
                     .where((m) => !chatControllerIds.contains(m.id))
                     .toList();
-                
+
                 if (flutterMessages.isNotEmpty) {
                   await chatController.insertAllMessages(
                     flutterMessages,
@@ -1495,6 +1668,7 @@ class CometChatMessageListController
 
   @override
   void onTextMessageReceived(TextMessage textMessage) async {
+    debugPrint('🔢 [onTextMessageReceived] messageId: ${textMessage.id}, parentMessageId: ${textMessage.parentMessageId}, threadMessageParentId: $threadMessageParentId');
     if (enableSmartReplies == true) {
       _checkForSmartReplies(textMessage: textMessage);
     }
@@ -1522,7 +1696,7 @@ class CometChatMessageListController
     if (customMessage.muid.isNotEmpty && _recentlyAddedMessageMuids.contains(customMessage.muid)) {
       return;
     }
-    
+
     hidePanelReceivedMessage(customMessage);
     if (_messageCategoryTypeCheck(customMessage)) {
       _onMessageReceived(customMessage);
@@ -1616,13 +1790,29 @@ class CometChatMessageListController
 
   @override
   void onMessageDeleted(BaseMessage message) {
+    debugPrint('🗑️ [onMessageDeleted] START');
+    debugPrint('🗑️ [onMessageDeleted] message.id: ${message.id}');
+    debugPrint('🗑️ [onMessageDeleted] message.conversationId: ${message.conversationId}');
+    debugPrint('🗑️ [onMessageDeleted] message.parentMessageId: ${message.parentMessageId}');
+    debugPrint('🗑️ [onMessageDeleted] message.deletedAt: ${message.deletedAt}');
+    debugPrint('🗑️ [onMessageDeleted] message.sender: ${message.sender?.uid}');
+    debugPrint('🗑️ [onMessageDeleted] message.receiverUid: ${message.receiverUid}');
+    debugPrint('🗑️ [onMessageDeleted] message.receiverType: ${message.receiverType}');
+    debugPrint('🗑️ [onMessageDeleted] current conversationId: $conversationId');
+    debugPrint('🗑️ [onMessageDeleted] threadMessageParentId: $threadMessageParentId');
+    
     if (conversationId == message.conversationId ||
         _checkIfSameConversationForReceivedMessage(message)) {
+      debugPrint('🗑️ [onMessageDeleted] Conversation matches');
       if (request.hideDeleted == true) {
+        debugPrint('🗑️ [onMessageDeleted] hideDeleted=true, removing element');
         removeElement(message);
       } else {
+        debugPrint('🗑️ [onMessageDeleted] hideDeleted=false, updating element');
         updateElement(message);
       }
+    } else {
+      debugPrint('🗑️ [onMessageDeleted] Conversation does NOT match, ignoring');
     }
   }
 
@@ -1941,12 +2131,13 @@ class CometChatMessageListController
         if (chatControllerIndex != -1) {
           // Use updateMessage to trigger UI refresh
           await chatController.updateMessage(
-            chatController.messages[chatControllerIndex], 
+            chatController.messages[chatControllerIndex],
             newFlutterMessage
           );
         }
 
         update();
+        syncMessagesToChatController();
       } else {
         if (existingMessage is TextMessage) {
           TextMessage textMessage = message as TextMessage;
@@ -1962,6 +2153,7 @@ class CometChatMessageListController
       _cleanupStaleKeys();
       _scheduleSyncToChatController();
       update();
+      syncMessagesToChatController();
     }
   }
 
@@ -1985,6 +2177,411 @@ class CometChatMessageListController
     }
   }
 
+  /// Marks a message as unread using the SDK
+  Future<void> markMessageAsUnread(BaseMessage message) async {
+    debugPrint('🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤');
+    debugPrint('🟤 [MARK AS UNREAD] MESSAGE ID: ${message.id}');
+    debugPrint('🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤');
+    debugPrint('🟤 [markMessageAsUnread] message.conversationId: ${message.conversationId}');
+    debugPrint('🟤 [markMessageAsUnread] message.parentMessageId: ${message.parentMessageId}');
+    debugPrint('🟤 [markMessageAsUnread] message.deletedAt: ${message.deletedAt}');
+    
+    await CometChat.markMessageAsUnread(
+      message,
+      onSuccess: (Conversation updatedConversation) {
+        debugPrint('🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤');
+        debugPrint('🟤 [MARKED AS UNREAD] MESSAGE ID: ${message.id}');
+        debugPrint('🟤 [LAST READ MESSAGE ID]: ${updatedConversation.lastReadMessageId}');
+        debugPrint('🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤');
+        
+        CometChatUIKitHelper.onConversationUpdate(updatedConversation);
+        
+        unreadMessageAnchor = message;
+        unreadMessageAnchorId = message.id;
+        debugPrint('🟤 [markMessageAsUnread] SET ANCHOR ID: ${message.id}');
+        
+        if (updatedConversation.lastReadMessageId != null &&
+            updatedConversation.lastReadMessageId! > 0) {
+          lastReadMessageId = updatedConversation.lastReadMessageId;
+        }
+        
+        unreadCount = updatedConversation.unreadMessageCount ?? 0;
+        markedAsUnreadInSession = true;
+        debugPrint('🟤 [markMessageAsUnread] Set unreadCount: $unreadCount, markedAsUnreadInSession: $markedAsUnreadInSession');
+        update();
+      },
+      onError: (CometChatException e) {
+        debugPrint('🟤 [markMessageAsUnread] ERROR: ${e.message}');
+      },
+    );
+  }
+
+  /// Marks the entire conversation as read
+  Future<void> markConversationAsRead() async {
+    final uid = user?.uid ?? group?.guid;
+    if (uid == null) return;
+
+    final completer = Completer<void>();
+
+    await CometChat.markConversationAsRead(
+      uid,
+      conversationType,
+      onSuccess: (String success) {
+        debugPrint('📌 markConversationAsRead: Success');
+        if (list.isNotEmpty) {
+          CometChatUIKitHelper.onMessageRead(list.first);
+        }
+        unreadCount = 0;
+        // Keep unreadMessageAnchor and unreadMessageAnchorId so the indicator stays visible
+        // Only clear the badge (unreadCount), not the indicator
+        markedAsUnreadInSession = false;
+        update();
+        completer.complete();
+      },
+      onError: (CometChatException e) {
+        debugPrint('Error marking conversation as read: ${e.message}');
+        completer.complete(); // Complete even on error to not block
+      },
+    );
+
+    return completer.future;
+  }
+
+  /// Gets the first unread message from the list
+  /// Uses lastReadMessageId to determine which messages are actually unread
+  /// The first unread message is the oldest among the unread messages
+  /// Returns null if all unread messages are thread replies (shouldn't show indicator in main list)
+  BaseMessage? getFirstUnreadMessage() {
+    if (list.isEmpty || unreadCount <= 0) {
+      debugPrint('📌 getFirstUnreadMessage: list empty or no unread messages (unreadCount: $unreadCount)');
+      return null;
+    }
+
+    final loggedInUid = loggedInUser?.uid;
+    if (loggedInUid == null) {
+      debugPrint('📌 getFirstUnreadMessage: no logged in user');
+      return null;
+    }
+
+    debugPrint('📌 getFirstUnreadMessage: searching in ${list.length} messages, unreadCount: $unreadCount, lastReadMessageId: $lastReadMessageId');
+
+    // A message is unread if:
+    // 1. It's not from the logged-in user
+    // 2. It's not deleted
+    // 3. It's not a thread reply (parentMessageId == 0)
+    // 4. Its ID > lastReadMessageId (if lastReadMessageId is available)
+    
+    // List is ordered newest first (index 0 = newest)
+    // We need to find the OLDEST unread message (highest index that meets criteria)
+    BaseMessage? firstUnreadMessage;
+
+    for (int i = list.length - 1; i >= 0; i--) {
+      final message = list[i];
+      
+      // Skip messages from logged-in user
+      if (message.sender?.uid == loggedInUid) continue;
+      
+      // Skip deleted messages
+      if (message.deletedAt != null) continue;
+      
+      // Skip thread replies - they shouldn't trigger unread indicator in main list
+      if (message.parentMessageId != 0) continue;
+      
+      // If we have lastReadMessageId, only count messages with ID > lastReadMessageId as unread
+      if (lastReadMessageId != null && lastReadMessageId! > 0) {
+        if (message.id <= lastReadMessageId!) {
+          // This message and all older ones are already read
+          break;
+        }
+      }
+      
+      // This is an unread non-thread message
+      firstUnreadMessage = message;
+      debugPrint('📌 getFirstUnreadMessage: Found unread message ${message.id} at index $i');
+      break; // Found the oldest unread message
+    }
+
+    if (firstUnreadMessage != null) {
+      debugPrint('📌 getFirstUnreadMessage: returning message ${firstUnreadMessage.id}');
+      return firstUnreadMessage;
+    }
+
+    // If no non-thread unread messages found, return null (no indicator should be shown)
+    debugPrint('📌 getFirstUnreadMessage: no non-thread unread message found - all unread are thread replies');
+    return null;
+  }
+
+  /// Finds the first unread message after lastReadMessageId
+  /// Skips deleted messages - indicator should appear BELOW deleted messages
+  /// Skips thread replies, action messages, and messages from logged-in user
+  BaseMessage? _findFirstUnreadAfterLastRead() {
+    if (list.isEmpty || lastReadMessageId == null || lastReadMessageId! <= 0) {
+      debugPrint('📌 _findFirstUnreadAfterLastRead: list empty or no lastReadMessageId');
+      return null;
+    }
+
+    final loggedInUid = loggedInUser?.uid;
+    if (loggedInUid == null) {
+      debugPrint('📌 _findFirstUnreadAfterLastRead: no logged in user');
+      return null;
+    }
+
+    debugPrint('📌 _findFirstUnreadAfterLastRead: searching in ${list.length} messages, lastReadMessageId: $lastReadMessageId');
+
+    // List is ordered newest first (index 0 = newest)
+    // Find the message with smallest ID > lastReadMessageId that is:
+    // - NOT deleted (skip deleted, show indicator below them)
+    // - NOT from logged-in user
+    // - NOT a thread reply
+    // - NOT an action message (system messages)
+    
+    BaseMessage? firstUnreadMessage;
+    int? smallestValidId;
+
+    for (int i = 0; i < list.length; i++) {
+      final message = list[i];
+      
+      // Skip messages at or before lastReadMessageId
+      if (message.id <= lastReadMessageId!) continue;
+      
+      // Skip deleted messages - indicator should appear BELOW deleted messages
+      if (message.deletedAt != null) {
+        debugPrint('📌 _findFirstUnreadAfterLastRead: Skipping deleted message ${message.id}');
+        continue;
+      }
+      
+      // Skip thread replies
+      if (message.parentMessageId != 0) continue;
+      
+      // Skip messages from logged-in user
+      if (message.sender?.uid == loggedInUid) continue;
+      
+      // Skip ACTION messages (system messages like "user joined", "user left", etc.)
+      if (message.category == MessageCategoryConstants.action) {
+        debugPrint('📌 _findFirstUnreadAfterLastRead: Skipping action message ${message.id}');
+        continue;
+      }
+      
+      // This message is a candidate - check if it has the smallest ID
+      if (smallestValidId == null || message.id < smallestValidId) {
+        smallestValidId = message.id;
+        firstUnreadMessage = message;
+      }
+    }
+
+    if (firstUnreadMessage != null) {
+      debugPrint('🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢');
+      debugPrint('🟢 [LAST READ MESSAGE ID]: $lastReadMessageId');
+      debugPrint('🟢 [FIRST UNREAD MESSAGE ID]: ${firstUnreadMessage.id}');
+      debugPrint('🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢');
+      return firstUnreadMessage;
+    }
+
+    debugPrint('📌 _findFirstUnreadAfterLastRead: no valid unread message found');
+    return null;
+  }
+
+  /// Fetches messages with unread count consideration
+  /// When startFromUnreadMessages is true, this method fetches the conversation
+  /// to get lastReadMessageId and navigates to the first unread message
+  Future<void> fetchMessagesWithUnreadCount() async {
+    // Skip unread count handling for thread views
+    if (isThread) {
+      loadMoreElements();
+      return;
+    }
+    
+    final uid = user?.uid ?? group?.guid;
+    if (uid == null) return;
+
+    isLoading = true;
+    update();
+
+    await CometChat.getConversation(
+      uid,
+      conversationType,
+      onSuccess: (Conversation fetchedConversation) async {
+        conversation = fetchedConversation;
+        lastReadMessageId = fetchedConversation.lastReadMessageId;
+        unreadCount = fetchedConversation.unreadMessageCount ?? 0;
+
+        debugPrint('📌 fetchMessagesWithUnreadCount: lastReadMessageId=$lastReadMessageId, unreadCount=$unreadCount');
+
+        if (startFromUnreadMessages &&
+            lastReadMessageId != null &&
+            lastReadMessageId! > 0 &&
+            unreadCount > 0) {
+          // Fetch the first unread message (message after lastReadMessageId)
+          await _fetchFirstUnreadAndGoto();
+        } else {
+          // Normal fetch - latest messages
+          loadMoreElements();
+        }
+      },
+      onError: (CometChatException e) {
+        debugPrint('Error fetching conversation: ${e.message}');
+        loadMoreElements();
+      },
+    );
+  }
+
+  /// Fetches conversation to get unread count, then navigates to the specified message
+  /// Used when opening chat from conversation search
+  Future<void> _fetchConversationAndGotoMessage(int targetMessageId) async {
+    // Skip unread count handling for thread views
+    if (isThread) {
+      gotoMessageId(targetMessageId);
+      return;
+    }
+    
+    final uid = user?.uid ?? group?.guid;
+    if (uid == null) {
+      gotoMessageId(targetMessageId);
+      return;
+    }
+
+    isLoading = true;
+    update();
+
+    await CometChat.getConversation(
+      uid,
+      conversationType,
+      onSuccess: (Conversation fetchedConversation) async {
+        conversation = fetchedConversation;
+        lastReadMessageId = fetchedConversation.lastReadMessageId;
+        unreadCount = fetchedConversation.unreadMessageCount ?? 0;
+
+        debugPrint('📌 _fetchConversationAndGotoMessage: lastReadMessageId=$lastReadMessageId, unreadCount=$unreadCount, targetMessageId=$targetMessageId');
+
+        // Navigate to the target message
+        gotoMessageId(targetMessageId);
+      },
+      onError: (CometChatException e) {
+        debugPrint('Error fetching conversation: ${e.message}');
+        // Still navigate to message even if conversation fetch fails
+        gotoMessageId(targetMessageId);
+      },
+    );
+  }
+
+  /// Fetches the first unread message and navigates to it using gotoMessageId
+  Future<void> _fetchFirstUnreadAndGoto() async {
+    if (lastReadMessageId == null) {
+      loadMoreElements();
+      return;
+    }
+
+    // Build a request to fetch messages after lastReadMessageId
+    // Cap the limit at 30 (SDK max limit) - we only need to find the first unread message
+    final fetchLimit = unreadCount > 0 ? (unreadCount > 30 ? 30 : unreadCount) : 30;
+    debugPrint('📌 _fetchFirstUnreadAndGoto: lastReadMessageId=$lastReadMessageId, unreadCount=$unreadCount, fetchLimit=$fetchLimit');
+    
+    MessagesRequest messageRequest = (MessagesRequestBuilder()
+          ..uid = user?.uid
+          ..guid = group?.guid
+          ..messageId = lastReadMessageId
+          ..limit = fetchLimit)
+        .build();
+
+    await messageRequest.fetchNext(
+      onSuccess: (List<BaseMessage> fetchedList) async {
+        if (fetchedList.isEmpty) {
+          // No messages after lastReadMessageId, load from latest
+          loadMoreElements();
+          return;
+        }
+
+        // Find the first unread message that is:
+        // 1. NOT from logged-in user
+        // 2. NOT deleted (skip deleted messages)
+        // 3. NOT a thread reply
+        //
+        // This ensures if the first message after lastReadMessageId is deleted,
+        // we skip it and show indicator at the next non-deleted message (below the deleted one)
+        
+        BaseMessage? firstUnreadMessage;
+        int firstUnreadIndex = -1;
+        
+        for (int i = 0; i < fetchedList.length; i++) {
+          final message = fetchedList[i];
+          
+          // Skip messages from logged-in user
+          if (message.sender?.uid == loggedInUser?.uid) {
+            continue;
+          }
+          
+          // Skip deleted messages - indicator should appear BELOW deleted messages
+          if (message.deletedAt != null) {
+            debugPrint('📌 Skipping deleted message: ${message.id}');
+            continue;
+          }
+          
+          // Skip thread replies
+          if (message.parentMessageId != 0) {
+            continue;
+          }
+          
+          // Skip ACTION messages (system messages like "user joined", "user left", etc.)
+          if (message.category == MessageCategoryConstants.action) {
+            debugPrint('📌 Skipping action message: ${message.id}');
+            continue;
+          }
+          
+          // Found the first valid unread message
+          firstUnreadMessage = message;
+          firstUnreadIndex = i;
+          debugPrint('📌 Found first valid unread: ${message.id} at index $i');
+          break;
+        }
+        
+        // Log 5 messages before and after the anchor
+        if (firstUnreadIndex >= 0) {
+          debugPrint('📌 ============ MESSAGES AROUND ANCHOR ============');
+          int startIndex = (firstUnreadIndex - 5).clamp(0, fetchedList.length - 1);
+          int endIndex = (firstUnreadIndex + 5).clamp(0, fetchedList.length - 1);
+          
+          for (int i = startIndex; i <= endIndex; i++) {
+            final msg = fetchedList[i];
+            String marker = (i == firstUnreadIndex) ? '>>> ANCHOR >>>' : '';
+            debugPrint('📌 [$i] $marker MESSAGE ${msg.id}');
+            debugPrint('📌     sender.uid: ${msg.sender?.uid}');
+            debugPrint('📌     sender.name: ${msg.sender?.name}');
+            debugPrint('📌     deletedAt: ${msg.deletedAt}');
+            debugPrint('📌     deletedBy: ${msg.deletedBy}');
+            debugPrint('📌     parentMessageId: ${msg.parentMessageId}');
+            debugPrint('📌     type: ${msg.type}');
+            debugPrint('📌     category: ${msg.category}');
+            debugPrint('📌 -------------------------------------------');
+          }
+          debugPrint('📌 ================================================');
+        }
+        
+        if (firstUnreadMessage == null) {
+          debugPrint('📌 No valid unread messages found (all deleted or from self)');
+          loadMoreElements();
+          return;
+        }
+        
+        debugPrint('🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵');
+        debugPrint('🔵 [LAST READ MESSAGE ID]: $lastReadMessageId');
+        debugPrint('🔵 [FIRST UNREAD MESSAGE ID]: ${firstUnreadMessage.id}');
+        debugPrint('🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵');
+        
+        unreadMessageAnchorId = firstUnreadMessage.id;
+        unreadMessageAnchor = firstUnreadMessage;
+        
+        unreadCount = 0;
+        await markConversationAsRead();
+        highlightScroll = false;
+        gotoMessageId(firstUnreadMessage.id);
+      },
+      onError: (CometChatException e) {
+        debugPrint('Error fetching first unread message: ${e.message}');
+        loadMoreElements();
+      },
+    );
+  }
+
   _playSound() {
     if (!disableSoundForMessages) {
       CometChatUIKit.soundManager.play(
@@ -1998,15 +2595,30 @@ class CometChatMessageListController
   }
 
   markAsRead(BaseMessage message) {
+    debugPrint('🔵🔵 [markAsRead] called - messageId: ${message.id}, conversationId: ${message.conversationId}, markedAsUnreadInSession: $markedAsUnreadInSession');
     if (message.sender?.uid != loggedInUser?.uid && message.readAt == null) {
+      debugPrint('🔵🔵 [markAsRead] Calling CometChat.markAsRead...');
       CometChat.markAsRead(message, onSuccess: (String res) {
+        debugPrint('🔵🔵 [markAsRead] Success - firing ccMessageRead');
         CometChatMessageEvents.ccMessageRead(message);
-      }, onError: (e) {});
+      }, onError: (e) {
+        debugPrint('🔵🔵 [markAsRead] Error: $e');
+      });
+    } else {
+      debugPrint('🔵🔵 [markAsRead] Skipped - sender is logged in user or already read');
     }
   }
 
   _onMessageReceived(BaseMessage message,
       {bool playSound = true, bool markRead = true}) {
+    debugPrint('🔢 [ML_onMessageReceived] START - messageId: ${message.id}, conversationId: ${message.conversationId}, parentMessageId: ${message.parentMessageId}, threadMessageParentId: $threadMessageParentId, hasMoreNext: $hasMoreNext');
+    
+    // Check for duplicate message event early - SDK fires multiple events for same message
+    if (message.id > 0 && _recentlyAddedMessageIds.contains(message.id)) {
+      debugPrint('🔢 [ML_onMessageReceived] Skipping duplicate message id: ${message.id}');
+      return;
+    }
+    
     // For agentic user, set parent id on first received message
     if (isUserAgentic() && threadMessageParentId == 0) {
       if (message.parentMessageId > 0) {
@@ -2031,12 +2643,57 @@ class CometChatMessageListController
         _checkIfSameConversationForReceivedMessage(message) ||
         _checkIfSameConversationForSenderMessage(message)) &&
         message.parentMessageId == threadMessageParentId) {
-      addElement(message);
+      
+      // Track message ID to prevent duplicates
+      if (message.id > 0) {
+        _recentlyAddedMessageIds.add(message.id);
+      }
+      
+      // If hasMoreNext is true and user is NOT at the bottom of the list,
+      // we're not at the latest messages yet - don't add the message to avoid wrong ordering
+      // Only increment the badge count
+      // But if user is at the bottom (offset <= 100), add the message regardless of hasMoreNext
+      final isAtBottom = !messageListScrollController.hasClients || 
+                         messageListScrollController.offset <= 100;
+      if (hasMoreNext && !isAtBottom) {
+        debugPrint('🔢 [ML_onMessageReceived] hasMoreNext=true and not at bottom - NOT adding message to list, only incrementing badge');
+        if (playSound) {
+          _playSound();
+        }
+        // Increment unread count for badge
+        if (markedAsUnreadInSession) {
+          unreadCount++;
+        } else {
+          newUnreadMessageCount++;
+        }
+        update();
+        return;
+      }
+      
+      debugPrint('🔢 [ML_onMessageReceived] CONDITION MET - adding message');
+      // addElement returns true only if message was actually added (not a duplicate)
+      final wasAdded = addElement(message);
+      debugPrint('🔢 [ML_onMessageReceived] wasAdded: $wasAdded');
+      
       if (playSound) {
         _playSound();
       }
 
-      if (scrollToBottomOnNewMessage) {
+      // Only increment unread count if message was actually added (not a duplicate)
+      // This fixes the issue where duplicate SDK events caused incorrect unread counts
+      if (!wasAdded) {
+        debugPrint('🔢 [ML_onMessageReceived] Message was duplicate, NOT incrementing newUnreadMessageCount');
+        return;
+      }
+
+      // Don't auto-mark as read if user manually marked messages as unread in this session
+      // This fixes ENG-28434: unread count resets to 1 instead of incrementing
+      if (markedAsUnreadInSession) {
+        debugPrint('🔢 [ML_onMessageReceived] markedAsUnreadInSession=true, incrementing unreadCount: $unreadCount -> ${unreadCount + 1}');
+        unreadCount++;  // Increment unreadCount so badge shows correct total
+        update();
+      } else if (scrollToBottomOnNewMessage) {
+        debugPrint('🔢 [_onMessageReceived] scrollToBottomOnNewMessage=true, calling markAsRead');
         markAsRead(message);
         if (messageListScrollController.hasClients) {
           messageListScrollController.jumpTo(0.0);
@@ -2044,23 +2701,46 @@ class CometChatMessageListController
       } else {
         if (messageListScrollController.hasClients &&
             messageListScrollController.offset > 100) {
+          debugPrint('🔢 [_onMessageReceived] offset > 100, incrementing newUnreadMessageCount: $newUnreadMessageCount -> ${newUnreadMessageCount + 1}');
           newUnreadMessageCount++;
         } else {
+          debugPrint('🔢 [_onMessageReceived] offset <= 100, calling markAsRead');
           markAsRead(message);
         }
       }
     } else if (message.conversationId == conversationId ||
         _checkIfSameConversationForReceivedMessage(message)) {
+      // Check for duplicate thread message - SDK fires multiple events
+      if (message.id > 0 && _recentlyAddedMessageIds.contains(message.id)) {
+        debugPrint('🔢 [ML_onMessageReceived] Skipping duplicate thread message id: ${message.id}');
+        return;
+      }
+      
+      // Track thread message ID to prevent duplicates
+      if (message.id > 0) {
+        _recentlyAddedMessageIds.add(message.id);
+      }
+      
+      debugPrint('🔢 [ML_onMessageReceived] Thread message - incrementing reply count');
       //incrementing reply count
       if (playSound) {
         _playSound();
       }
       int matchingIndex =
-      list.indexWhere((element) => (element.id == message.parentMessageId));
+          list.indexWhere((element) => (element.id == message.parentMessageId));
       if (matchingIndex != -1) {
         list[matchingIndex].replyCount++;
       }
+      
+      // Also increment unread count for thread messages when markedAsUnreadInSession
+      if (markedAsUnreadInSession) {
+        debugPrint('🔢 [ML_onMessageReceived] Thread message + markedAsUnreadInSession=true, incrementing unreadCount: $unreadCount -> ${unreadCount + 1}');
+        unreadCount++;
+      }
+      
       update();
+    } else {
+      debugPrint('🔢 [ML_onMessageReceived] CONDITION NOT MET - conversationId: $conversationId, message.conversationId: ${message.conversationId}, parentMessageId: ${message.parentMessageId}, threadMessageParentId: $threadMessageParentId');
     }
   }
 
@@ -2198,6 +2878,11 @@ class CometChatMessageListController
         ),
       ),
     ).show();
+  }
+
+  _markAsUnread(
+      BaseMessage message, CometChatMessageListControllerProtocol state) {
+    markMessageAsUnread(message);
   }
 
   _shareMessage(
@@ -2421,6 +3106,10 @@ class CometChatMessageListController
       case MessageOptionConstants.reportMessage:
         {
           return _reportMessage;
+        }
+      case MessageOptionConstants.markAsUnread:
+        {
+          return _markAsUnread;
         }
 
       default:
@@ -2950,8 +3639,10 @@ class CometChatMessageListController
                         message.sender?.uid == loggedInUser?.uid) {
                       updateMessageWithMuid(message);
                     } else {
-                      addElement(message);
-                      newUnreadMessageCount++;
+                      final wasAdded = addElement(message);
+                      if (wasAdded) {
+                        newUnreadMessageCount++;
+                      }
                       update();
                     }
                   } else {
@@ -2962,8 +3653,10 @@ class CometChatMessageListController
                         break;
                       }
                     }
-                    addElement(message);
-                    newUnreadMessageCount++;
+                    final wasAdded = addElement(message);
+                    if (wasAdded) {
+                      newUnreadMessageCount++;
+                    }
                     update();
                   }
                 }
@@ -3035,7 +3728,10 @@ class CometChatMessageListController
           if (lastParticipantMessage == null) {
             if (element.sender?.uid != loggedInUser?.uid) {
               lastParticipantMessage = element;
-              markAsRead(element);
+              // Only mark as read if there are no unread messages to show indicator for
+              if (unreadCount == 0) {
+                markAsRead(element);
+              }
             }
           }
         }
@@ -3044,8 +3740,12 @@ class CometChatMessageListController
         _restoreSavedReactions(targetedMessage);
 
         addElement(targetedMessage);
-        highlightedMessage = targetedMessage;
-        highlightedMessageId = targetedMessage.id;
+
+        // Only highlight if highlightScroll is true
+        if (highlightScroll) {
+          highlightedMessage = targetedMessage;
+          highlightedMessageId = targetedMessage.id;
+        }
 
         for (var element in fetchedList) {
           if (element is InteractiveMessage) {
@@ -3068,6 +3768,9 @@ class CometChatMessageListController
 
         // Ensure sync completes and UI is built before scrolling
         await syncMessagesToChatController();
+        debugPrint('📌 fetchNextCall: Synced ${list.length} messages to chatController');
+        debugPrint('📌 fetchNextCall: Target message ID: ${targetedMessage.id}');
+        debugPrint('📌 fetchNextCall: List message IDs (first 10): ${list.take(10).map((m) => m.id).toList()}');
         update();
 
         // Wait for multiple frames to ensure the list is fully built
@@ -3075,13 +3778,83 @@ class CometChatMessageListController
 
         SchedulerBinding.instance.addPostFrameCallback((_) async {
           await jumpToMessageId(targetedMessage.id);
+          // Don't check indicator visibility here - it will be checked after determining
+          // if target is above or below the indicator
         });
 
-        Future.delayed(const Duration(seconds: 5), () {
-          highlightedMessage = null;
-          highlightedMessageId = null;
-          update();
-        });
+        // Only clear highlight after delay if highlighting was enabled
+        if (highlightScroll) {
+          Future.delayed(const Duration(seconds: 5), () {
+            highlightedMessage = null;
+            highlightedMessageId = null;
+            update();
+          });
+        }
+
+        // Reset highlightScroll to default for next navigation
+        highlightScroll = true;
+
+        // Set unread message anchor ONLY if there are unread messages (unreadCount > 0)
+        // Don't show indicator if unreadCount is 0 (all messages are read)
+        // Skip anchor recalculation if user manually marked as unread in this session
+        if (unreadCount > 0 && !markedAsUnreadInSession) {
+          // If we have a stored anchor ID (from _fetchFirstUnreadAndGoto), find it in the list
+          // Skip if it's a thread reply (parentMessageId > 0)
+          if (unreadMessageAnchorId != null && unreadMessageAnchor == null) {
+            final foundMessage = list.firstWhereOrNull((m) => m.id == unreadMessageAnchorId);
+            // Only set as anchor if it's not a thread reply
+            if (foundMessage != null && foundMessage.parentMessageId == 0) {
+              unreadMessageAnchor = foundMessage;
+              debugPrint('📌 fetchNextCall: Found unreadMessageAnchor by ID: ${unreadMessageAnchor?.id}');
+            } else if (foundMessage != null) {
+              debugPrint('📌 fetchNextCall: Skipping thread reply as unreadMessageAnchor: ${foundMessage.id}');
+              unreadMessageAnchorId = null; // Clear the ID so we try other methods
+            }
+          }
+          // If not found, try to find using lastReadMessageId
+          // The first unread message is the first message after lastReadMessageId that's not from logged-in user
+          if (unreadMessageAnchor == null && lastReadMessageId != null && lastReadMessageId! > 0) {
+            unreadMessageAnchor = _findFirstUnreadAfterLastRead();
+            unreadMessageAnchorId = unreadMessageAnchor?.id;
+            debugPrint('📌 fetchNextCall: Setting unreadMessageAnchor from lastReadMessageId: ${unreadMessageAnchor?.id}');
+          }
+          // If still not found, try to find using getFirstUnreadMessage (only if unreadCount > 0)
+          if (unreadMessageAnchor == null) {
+            unreadMessageAnchor = getFirstUnreadMessage();
+            unreadMessageAnchorId = unreadMessageAnchor?.id;
+            debugPrint('📌 fetchNextCall: Setting unreadMessageAnchor from getFirstUnreadMessage: ${unreadMessageAnchor?.id}');
+          }
+
+          // If no anchor found (all unread messages are thread replies), clear unreadCount
+          // Thread replies shouldn't trigger unread indicator in main message list
+          if (unreadMessageAnchor == null) {
+            debugPrint('📌 fetchNextCall: No non-thread unread messages found, clearing unreadCount');
+            unreadCount = 0;
+            markConversationAsRead();
+          } else {
+            // Check if target message is above or below the unread indicator
+            // Target message ID > unread anchor ID means target is BELOW (newer) the indicator
+            // Target message ID < unread anchor ID means target is ABOVE (older) the indicator
+            isTargetAboveIndicator = targetedMessage.id < unreadMessageAnchor!.id;
+            debugPrint('📌 fetchNextCall: targetMessageId=${targetedMessage.id}, unreadAnchorId=${unreadMessageAnchor!.id}, isTargetAboveIndicator=$isTargetAboveIndicator');
+
+            if (!isTargetAboveIndicator) {
+              // Target is BELOW or AT the indicator (newer message)
+              // Mark as read immediately, keep indicator visible
+              debugPrint('📌 fetchNextCall: Target is below/at indicator - marking as read, keeping indicator');
+              unreadCount = 0;
+              markConversationAsRead();
+            } else {
+              // Target is ABOVE the indicator (older message)
+              // Keep the badge count - it will be cleared when indicator comes into viewport
+              debugPrint('📌 fetchNextCall: Target is above indicator - keeping badge count: $unreadCount');
+            }
+          }
+        } else if (markedAsUnreadInSession && unreadMessageAnchor != null) {
+          debugPrint('📌 fetchNextCall: markedAsUnreadInSession=true, preserving existing anchor: ${unreadMessageAnchor?.id}');
+        } else if (unreadMessageAnchor != null) {
+          debugPrint('📌 fetchNextCall: unreadMessageAnchor already set to ${unreadMessageAnchor?.id}');
+        }
 
         update();
         completer.complete();
@@ -3793,10 +4566,15 @@ class CometChatMessageListController
   /// Scrolls to the bottom of the message list without resetting/reloading messages
   /// This is used when the user clicks the scroll to bottom button
   scrollToBottomOfList() {
+    // Mark conversation as read when user explicitly taps scroll-to-bottom
+    if (unreadMessageAnchor != null || unreadCount > 0) {
+      markConversationAsRead();
+    }
+
     // Reset scroll state
     isScrolled = false;
     newUnreadMessageCount = 0;
-    
+
     // Scroll to bottom using the scroll controller
     if (messageListScrollController.hasClients) {
       messageListScrollController.animateTo(
@@ -3804,31 +4582,31 @@ class CometChatMessageListController
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
-      
+
       // Mark the latest message as read
       if (list.isNotEmpty) {
         markAsRead(list[0]);
       }
     }
-    
+
     update();
   }
 
   resetMessageList() async {
     // First clear the chatController to prevent GlobalKey conflicts
     await chatController.setMessages([]);
-    
+
     // reset values
     list.clear();
-    
+
     // Clear tracking sets to allow messages to be re-added after reset
     _recentlyAddedMessageIds.clear();
     _recentlyAddedMessageMuids.clear();
-    
+
     // Clear message keys to prevent stale key references
     messageKeys.clear();
     indexToMessageKey.clear();
-    
+
     error = null;
     hasMoreItems = true;
     hasMoreNext = true;
@@ -3843,10 +4621,18 @@ class CometChatMessageListController
     isScrolled = false;
     hasJumpedToQuotedMessage = false;
     isFetchingNextForQuotedMessage = false;
+
+    // Clear unread anchor and session flag
+    unreadMessageAnchor = null;
+    unreadMessageAnchorId = null;
+    markedAsUnreadInSession = false;
+    isTargetAboveIndicator = false;
+    unreadCount = 0;  // Clear unread count when user taps scroll-to-bottom
+
     request = (messagesBuilderProtocol.requestBuilder..messageId = 0).build();
-    
+
     update();
-    
+
     // Load messages after clearing
     loadMoreElements();
   }

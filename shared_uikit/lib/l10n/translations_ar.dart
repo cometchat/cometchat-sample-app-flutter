@@ -1372,4 +1372,10 @@ class TranslationsAr extends Translations {
   @override
   String get notifyAll => "الجميع";
 
+  @override
+  String get markAsUnread => 'وضع علامة كغير مقروء';
+
+  @override
+  String get newMessagesIndicator => 'جديد';
+
 }

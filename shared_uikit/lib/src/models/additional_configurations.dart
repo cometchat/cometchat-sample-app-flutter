@@ -74,6 +74,7 @@ class AdditionalConfigurations {
     this.hideReplyOption,
     this.messagePreviewStyle,
     this.hideFlagOption,
+    this.showMarkAsUnreadOption,
   });
 
 
@@ -205,4 +206,7 @@ class AdditionalConfigurations {
 
   ///[hideFlagOption] This prop defines whether report option should be visible or not.
   final bool? hideFlagOption;
+
+  ///[showMarkAsUnreadOption] This prop defines whether mark as unread option should be visible or not.
+  final bool? showMarkAsUnreadOption;
 }

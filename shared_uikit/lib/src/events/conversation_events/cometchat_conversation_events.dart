@@ -19,4 +19,11 @@ class CometChatConversationEvents {
       value.ccConversationDeleted(conversation);
     });
   }
+
+  ///Triggers the ccUpdateConversation event for all listeners
+  static ccUpdateConversation(Conversation conversation) {
+    conversationListListener.forEach((key, value) {
+      value.ccUpdateConversation(conversation);
+    });
+  }
 }

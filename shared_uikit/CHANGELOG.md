@@ -1,3 +1,12 @@
+## 5.2.0
+
+## New
+- Added the "Mark as Unread" option, allowing users to mark previously read messages as unread for better message management.
+- Introduced a new message indicator UI that visually separates unread messages from read ones, improving the user experience and making unread messages more noticeable.
+
+## Enhancements
+- Implemented the `setStartFromUnread` property, enabling the message list to start from the unread messages when set to `true`. This feature provides a more seamless experience for users who want to focus on new messages.
+
 ## 5.1.9
 
 ## New

@@ -1340,6 +1340,12 @@ class TranslationsZh extends Translations {
   @override
   String get notifyAll => "所有";
 
+  @override
+  String get markAsUnread => '标记为未读';
+
+  @override
+  String get newMessagesIndicator => '新';
+
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2650,4 +2656,10 @@ class TranslationsZhTw extends TranslationsZh {
 
   @override
   String get notifyAll => "所有";
+
+  @override
+  String get markAsUnread => '標記為未讀';
+
+  @override
+  String get newMessagesIndicator => '新';
 }
