@@ -290,6 +290,8 @@ class _MessagesSampleState extends State<MessagesSample> {
                   child: GestureDetector(
                     onTap: () => FocusScope.of(context).unfocus(),
                     child: CometChatMessageList(
+                      startFromUnreadMessages: true,
+                      showMarkAsUnreadOption: true,
                       user: widget.user,
                       group: widget.group,
                       messageId: widget.message?.id,
