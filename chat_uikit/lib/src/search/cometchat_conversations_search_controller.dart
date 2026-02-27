@@ -323,7 +323,6 @@ class CometChatConversationsSearchController
 
   @override
   void ccMessageRead(BaseMessage message) {
-    debugPrint('🔴🔴 [SEARCH] [ccMessageRead] called - conversationId: ${message.conversationId}');
     resetUnreadCount(message);
   }
 
@@ -392,7 +391,6 @@ class CometChatConversationsSearchController
   _onMessageReceived(BaseMessage message, bool isActionMessage) {
     // Deduplicate: Skip if this message was recently processed
     if (message.id > 0 && _recentlyProcessedMessageIds.contains(message.id)) {
-      debugPrint('🟠 [SEARCH] [_onMessageReceived] Skipping duplicate message id: ${message.id}');
       return;
     }
     

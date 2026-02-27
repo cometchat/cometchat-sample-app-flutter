@@ -1,3 +1,16 @@
+## 5.2.10
+
+## New
+- Introduced badge count support in the Flutter Sample App, enabling the app icon to display unread message counts for improved visibility of new activity.
+- Integrated badge functionality using a reliable badge management dependency to ensure accurate and consistent badge updates across supported platforms.
+
+## Enhancements
+- Improved notification experience by automatically updating the app icon badge count based on unread messages.
+- Ensured seamless badge synchronization when messages are received, read, or cleared.
+
+## Fixes
+- Fixed an issue where the group call events were missing in `CometChatMessageListController`.
+
 ## 5.2.9
 
 ## New

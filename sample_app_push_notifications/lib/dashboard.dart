@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 import 'dart:io';
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
@@ -84,8 +85,19 @@ class _MyPageViewState extends State<MyPageView>
     } else {
       apnsServices.init(context);
     }
+    _clearBadge();
 
     handleNotificationTap(context);
+  }
+
+  Future<void> _clearBadge() async {
+    try {
+      LocalNotificationService.flutterLocalNotificationsPlugin.cancelAll();
+      await AppBadgePlus.updateBadge(0);
+      debugPrint("The badge was cleared");
+    } catch (e) {
+      debugPrint("Error in clearing the badge value $e");
+    }
   }
 
   handleNotificationTap(context) {
@@ -105,6 +117,7 @@ class _MyPageViewState extends State<MyPageView>
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    _clearBadge();
     if (state == AppLifecycleState.resumed) {
       if (BoolSingleton().value == true) {
         IncomingCallOverlay.dismiss();

@@ -168,7 +168,6 @@ class CometChatConversationsController
 
   @override
   void ccMessageRead(BaseMessage message) {
-    debugPrint('🔴🔴 [ccMessageRead] called - conversationId: ${message.conversationId}');
     resetUnreadCount(message);
   }
 
@@ -189,7 +188,6 @@ class CometChatConversationsController
 
   @override
   void ccUpdateConversation(Conversation conversation) {
-    debugPrint('🔴 [ccUpdateConversation] called - conversationId: ${conversation.conversationId}, newUnreadCount: ${conversation.unreadMessageCount}');
     updateConversationInList(conversation);
   }
 
@@ -207,12 +205,8 @@ class CometChatConversationsController
       // Fixes ENG-28434: unread count resets to 1 instead of incrementing
       final currentCount = list[index].unreadMessageCount ?? 0;
       final newCount = conversation.unreadMessageCount ?? 0;
-      debugPrint('🔴 [updateConversationInList] currentCount: $currentCount, newCount: $newCount');
       if (newCount > currentCount) {
-        debugPrint('🔴 [updateConversationInList] Updating count from $currentCount to $newCount');
         list[index].unreadMessageCount = newCount;
-      } else {
-        debugPrint('🔴 [updateConversationInList] Keeping current count $currentCount (new count $newCount is not higher)');
       }
       list[index].lastReadMessageId = conversation.lastReadMessageId;
       update();
@@ -267,12 +261,10 @@ class CometChatConversationsController
   //-----------Message Listeners------------------------------------------------
 
   _onMessageReceived(BaseMessage message, bool isActionMessage) {
-    debugPrint('🟠 [_onMessageReceived] called - messageId: ${message.id}, sender: ${message.sender?.uid}');
     
     // Deduplicate: Skip if this message was recently processed
     // This prevents double-counting when SDK fires duplicate events
     if (message.id > 0 && _recentlyProcessedMessageIds.contains(message.id)) {
-      debugPrint('🟠 [_onMessageReceived] Skipping duplicate message id: ${message.id}');
       return;
     }
     
@@ -286,11 +278,6 @@ class CometChatConversationsController
     
     // Log current count in list before refresh
     final existingIndex = list.indexWhere((c) => c.conversationId == message.conversationId);
-    if (existingIndex != -1) {
-      debugPrint('🟠 [_onMessageReceived] Current count in list: ${list[existingIndex].unreadMessageCount}');
-    } else {
-      debugPrint('🟠 [_onMessageReceived] Conversation not in list yet');
-    }
     
     if (message.sender!.uid != loggedInUserId) {
       CometChat.markAsDelivered(message, onSuccess: (_) {}, onError: (_) {});
@@ -580,14 +567,11 @@ class CometChatConversationsController
 
   @override
   resetUnreadCount(BaseMessage message) {
-    debugPrint('🔴 [resetUnreadCount] called - conversationId: ${message.conversationId}');
     if (message.conversationId == null) {
-      debugPrint('🔴 [resetUnreadCount] Skipping - conversationId is null');
       return;
     }
     int matchingIndex = getMatchingIndexFromKey(message.conversationId!);
     if (matchingIndex != -1) {
-      debugPrint('🔴 [resetUnreadCount] Resetting count from ${list[matchingIndex].unreadMessageCount} to 0');
       list[matchingIndex].unreadMessageCount = 0;
       update();
     }
@@ -595,12 +579,10 @@ class CometChatConversationsController
 
   @override
   updateLastMessage(BaseMessage message) async {
-    debugPrint('🔴 [updateLastMessage] called - conversationId: ${message.conversationId}');
     int matchingIndex = getMatchingIndexFromKey(message.conversationId!);
     if (matchingIndex != -1) {
       Conversation conversation = list[matchingIndex];
       conversation.lastMessage = message;
-      debugPrint('🔴 [updateLastMessage] Resetting count from ${conversation.unreadMessageCount} to 0');
       conversation.unreadMessageCount = 0;
       removeElementAt(matchingIndex);
       addElement(conversation);
@@ -651,12 +633,10 @@ class CometChatConversationsController
   @override
   refreshSingleConversation(BaseMessage message, bool isActionMessage,
       {bool? remove}) async {
-    debugPrint('🟡 [refreshSingleConversation] called - messageId: ${message.id}, conversationId: ${message.conversationId}');
     if (checkMessageIsAllowed(message)) {
       final conversation =
           await CometChatHelper.getConversationFromMessage(message);
       if (conversation != null) {
-        debugPrint('🟡 [refreshSingleConversation] Got conversation from SDK - unreadCount: ${conversation.unreadMessageCount}');
         conversation.lastMessage = message;
         conversation.updatedAt = message.updatedAt;
         if (remove == true) {
@@ -671,7 +651,6 @@ class CometChatConversationsController
   ///Update the conversation with new conversation Object matched according to conversation id ,  if not matched inserted at top
   @override
   updateConversation(Conversation conversation) {
-    debugPrint('🟢 [updateConversation] called - conversationId: ${conversation.conversationId}, incomingUnreadCount: ${conversation.unreadMessageCount}');
     int matchingIndex = getMatchingIndex(conversation);
 
     bool incrementUnreadCount = false;
@@ -695,7 +674,6 @@ class CometChatConversationsController
 
     if (matchingIndex != -1) {
       Conversation oldConversation = list[matchingIndex];
-      debugPrint('🟢 [updateConversation] Found existing conversation - oldUnreadCount: ${oldConversation.unreadMessageCount}');
 
       // Always preserve conversationWith from old conversation to maintain
       // group membership state (hasJoined, isBannedFromGroup, etc.)
@@ -706,28 +684,18 @@ class CometChatConversationsController
           conversation.lastMessage?.sender?.uid != loggedInUserId) {
         conversation.unreadMessageCount =
             (oldConversation.unreadMessageCount ?? 0) + 1;
-        debugPrint('🟢 [updateConversation] Incrementing count: ${oldConversation.unreadMessageCount} + 1 = ${conversation.unreadMessageCount}');
       } else {
         conversation.unreadMessageCount = oldConversation.unreadMessageCount;
-        debugPrint('🟢 [updateConversation] Keeping old count: ${conversation.unreadMessageCount}');
       }
       removeElementAt(matchingIndex);
       addElement(conversation);
     } else {
-      debugPrint('🟢 [updateConversation] New conversation - not in list');
       if ((incrementUnreadCount || isCategoryMessage) &&
           conversation.lastMessage?.sender?.uid != loggedInUserId) {
         int oldCount = conversation.unreadMessageCount ?? 0;
         conversation.unreadMessageCount = oldCount + 1;
-        debugPrint('🟢 [updateConversation] New conversation count: $oldCount + 1 = ${conversation.unreadMessageCount}');
       }
       addElement(conversation);
-    }
-
-    // Log final count after update
-    final finalIndex = list.indexWhere((c) => c.conversationId == conversation.conversationId);
-    if (finalIndex != -1) {
-      debugPrint('🟢 [updateConversation] FINAL count in list: ${list[finalIndex].unreadMessageCount}');
     }
 
     update();

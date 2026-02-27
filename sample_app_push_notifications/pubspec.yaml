@@ -3,7 +3,7 @@ description: "CometChat Flutter Sample App"
 publish_to: 'none'
 
 
-version: 5.2.6
+version: 5.2.10
 
 environment:
   sdk: ^3.5.0
@@ -37,6 +37,7 @@ dependencies:
     path: ../sample_app_push_notifications/flutter_callkit_incoming
   flutter_local_notifications: ^18.0.0
   flutter_native_splash: ^2.4.6
+  app_badge_plus: ^1.2.6
 
 dev_dependencies:
   flutter_test:

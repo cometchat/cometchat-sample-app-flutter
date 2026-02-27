@@ -430,7 +430,6 @@ class CometChatMessageListController
     final isVisible = indicatorBottom > listTop && indicatorPosition < listBottom;
 
     if (isVisible) {
-      debugPrint('📌 Unread indicator is visible - clearing badge count');
       unreadCount = 0;
       isTargetAboveIndicator = false; // Reset the flag
       markConversationAsRead();
@@ -614,8 +613,6 @@ class CometChatMessageListController
   //-------------------------LifeCycle Methods-----------------------------
   @override
   void onInit() {
-    debugPrint('🚀 [onInit] START - startFromUnreadMessages: $startFromUnreadMessages, messageId: $messageId');
-    
     // Initialize flutter_chat_ui controller
     chatController = core.InMemoryChatController();
 
@@ -632,7 +629,6 @@ class CometChatMessageListController
     getLoggedInUser();
 
     if (isUserAgentic()) {
-      debugPrint('🚀 [onInit] isUserAgentic=true, threadMessageParentId: $threadMessageParentId');
       if (streamingSpeed != null) {
         _queueManager.streamDelay = Duration(milliseconds: streamingSpeed!);
       }
@@ -645,7 +641,6 @@ class CometChatMessageListController
       }
     }
     if (messageId != null && messageId! > 0) {
-      debugPrint('🚀 [onInit] messageId provided ($messageId), calling _fetchConversationAndGotoMessage');
       // Fetch conversation to get unread count before navigating to message
       _fetchConversationAndGotoMessage(messageId!);
       return;
@@ -653,12 +648,10 @@ class CometChatMessageListController
 
     // If startFromUnreadMessages is true, use fetchMessagesWithUnreadCount
     if (startFromUnreadMessages) {
-      debugPrint('🚀 [onInit] startFromUnreadMessages=true, calling fetchMessagesWithUnreadCount');
       fetchMessagesWithUnreadCount();
       return;
     }
 
-    debugPrint('🚀 [onInit] Default path - calling super.onInit() which will trigger loadMoreElements');
     ever(generateConversationSummary, (bool isTrue) {
       if (isTrue) {
         getConversationsSummary(user, group);
@@ -750,9 +743,6 @@ class CometChatMessageListController
       return false;
     }
 
-    debugPrint('🔄 [WINDOW] Trimming $windowBuffer messages from ${trimFromTop ? "top (newer)" : "bottom (older)"}');
-    debugPrint('🔄 [WINDOW] List size before trim: ${list.length}');
-
     // Show shimmer before trimming
     isTrimmingWindow = true;
     update();
@@ -801,9 +791,6 @@ class CometChatMessageListController
     }
     indexToMessageKey.clear(); // Will be rebuilt on next render
 
-    debugPrint('🔄 [WINDOW] List size after trim: ${list.length}');
-    debugPrint('🔄 [WINDOW] Removed message IDs: ${removedMessages.map((m) => m.id).take(5).join(", ")}...');
-
     // Sync the trimmed list to chatController
     await syncMessagesToChatController();
     update();
@@ -821,7 +808,6 @@ class CometChatMessageListController
   Future<void> _scrollToMessage(int messageId) async {
     final messageIndex = list.indexWhere((msg) => msg.id == messageId);
     if (messageIndex == -1) {
-      debugPrint('🔄 [SCROLL] Message $messageId not found in list');
       isTrimmingWindow = false;
       update();
       return;
@@ -836,9 +822,8 @@ class CometChatMessageListController
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
         );
-        debugPrint('🔄 [SCROLL] Scrolled to message $messageId');
       } catch (e) {
-        debugPrint('🔄 [SCROLL] Error scrolling to message: $e');
+        // Error scrolling to message
       }
     }
 
@@ -884,7 +869,6 @@ class CometChatMessageListController
   /// Uses updateMessage for existing messages to trigger ChatOperationType.update
   /// which causes ChatMessageInternal to rebuild without GlobalKey conflicts
   Future<void> syncMessagesToChatController() async {
-    debugPrint('🔄 [SYNC] syncMessagesToChatController called - list.length: ${list.length}');
     final reversedList = list.reversed.toList();
     var newFlutterMessages = MessageAdapter.toFlutterChatMessages(reversedList);
 
@@ -892,21 +876,16 @@ class CometChatMessageListController
     final seenIds = <String>{};
     newFlutterMessages = newFlutterMessages.where((msg) {
       if (seenIds.contains(msg.id)) {
-        debugPrint('🔄 [SYNC] Removing duplicate flutter message: ${msg.id}');
         return false;
       }
       seenIds.add(msg.id);
       return true;
     }).toList();
 
-    debugPrint('🔄 [SYNC] newFlutterMessages.length: ${newFlutterMessages.length}');
-
     // Get current messages in chatController
     final currentMessages = chatController.messages;
     final currentMessageIds = currentMessages.map((m) => m.id).toSet();
     final newMessageIds = newFlutterMessages.map((m) => m.id).toSet();
-
-    debugPrint('🔄 [SYNC] currentMessages.length: ${currentMessages.length}');
 
     final messagesToUpdate = <core.Message>[];
     final messagesToInsert = <core.Message>[];
@@ -933,7 +912,6 @@ class CometChatMessageListController
             currentDeletedAt != newDeletedAt ||
             currentReactionsHash != newReactionsHash ||
             currentBaseMessageId != newBaseMessageId) {
-          debugPrint('🔄 [SYNC] Message needs update - id: ${newMsg.id}, deletedAt: $currentDeletedAt -> $newDeletedAt');
           messagesToUpdate.add(newMsg);
         }
       } else {
@@ -948,28 +926,23 @@ class CometChatMessageListController
       }
     }
 
-    debugPrint('🔄 [SYNC] messagesToUpdate: ${messagesToUpdate.length}, messagesToInsert: ${messagesToInsert.length}, messagesToRemove: ${messagesToRemove.length}');
-
     // Determine if we need structural changes (inserts/removals) or just updates
     final hasStructuralChanges = messagesToInsert.isNotEmpty || messagesToRemove.isNotEmpty;
 
     if (hasStructuralChanges) {
       // For structural changes, use setMessages for a clean atomic sync
       // This avoids race conditions from mixing individual operations with setMessages
-      debugPrint('🔄 [SYNC] Structural changes detected, using setMessages for atomic sync');
       await chatController.setMessages(newFlutterMessages);
     } else {
       // For updates only, apply them individually to trigger ChatOperationType.update
       // This allows ChatMessageInternal to rebuild without full list replacement
       for (final newMsg in messagesToUpdate) {
         final oldMsg = currentMessages.firstWhere((m) => m.id == newMsg.id);
-        debugPrint('🔄 [SYNC] Updating message in chatController: ${newMsg.id}');
         await chatController.updateMessage(oldMsg, newMsg);
       }
     }
 
     update();
-    debugPrint('🔄 [SYNC] syncMessagesToChatController completed');
   }
 
   /// Override addElement to auto-sync with chatController
@@ -986,7 +959,6 @@ class CometChatMessageListController
         // This handles edge cases where tracking set has stale data
         final existsInList = list.any((msg) => msg.id == element.id);
         if (existsInList) {
-          debugPrint('🔄 [ADD_ELEMENT] Skipping duplicate message id: ${element.id}');
           return false; // Duplicate - not added
         }
         // Not in list, remove from tracking set and continue
@@ -1001,7 +973,6 @@ class CometChatMessageListController
         // Check if it actually exists in the list
         final existsInList = list.any((msg) => msg.muid == element.muid);
         if (existsInList) {
-          debugPrint('🔄 [ADD_ELEMENT] Skipping duplicate message muid: ${element.muid}');
           return false; // Duplicate - not added
         }
         // Not in list, remove from tracking set and continue
@@ -1023,7 +994,6 @@ class CometChatMessageListController
     if (matchingIndex != -1) {
       // Message already exists, update it instead
       final oldMessage = list[matchingIndex];
-      debugPrint('🔄 [ADD_ELEMENT] Message already exists at index $matchingIndex, updating instead');
 
       // If the message ID changed (pending -> sent), clean up old key
       if (oldMessage.id != element.id && oldMessage.id > 0) {
@@ -1033,7 +1003,6 @@ class CometChatMessageListController
 
       // Preserve reactions from old message if new message has no reactions
       if (element.reactions.isEmpty && oldMessage.reactions.isNotEmpty) {
-        debugPrint('🔄 [ADD_ELEMENT] Preserving ${oldMessage.reactions.length} reactions from old message ${oldMessage.id}');
         element.reactions.addAll(oldMessage.reactions);
       } else if (element.reactions.isNotEmpty && oldMessage.reactions.isNotEmpty) {
         // Merge reactions - preserve local reactedByMe state
@@ -1042,7 +1011,6 @@ class CometChatMessageListController
                   (r) => r.reaction == oldReaction.reaction
           );
           if (newReactionIdx == -1 && oldReaction.reactedByMe == true) {
-            debugPrint('🔄 [ADD_ELEMENT] Preserving local reaction ${oldReaction.reaction} for message ${oldMessage.id}');
             element.reactions.add(oldReaction);
           }
         }
@@ -1065,7 +1033,6 @@ class CometChatMessageListController
     }
 
     // Message doesn't exist in list - add it
-    debugPrint('🔄 [ADD_ELEMENT] Adding new message - id: ${element.id}, muid: ${element.muid}');
 
     // Track the IDs to prevent duplicate events from rapid callbacks
     if (element.id > 0) {
@@ -1113,7 +1080,6 @@ class CometChatMessageListController
     // list structure: [newest...oldest], so end = oldest
     final messagesToRemove = list.length - maxMessagesInMemory + windowBuffer;
     if (messagesToRemove > 0 && messagesToRemove < list.length) {
-      debugPrint('🔄 [TRIM] Removing $messagesToRemove older messages to stay within memory limit');
 
       final startIndex = list.length - messagesToRemove;
       final removedMessages = list.sublist(startIndex);
@@ -1133,34 +1099,15 @@ class CometChatMessageListController
 
       // Allow fetching older messages again since we trimmed them
       hasMoreItems = true;
-
-      debugPrint('🔄 [TRIM] List size after trim: ${list.length}');
     }
   }
 
   /// Override updateElement to auto-sync with chatController
   @override
   updateElement(BaseMessage element, {int? index}) {
-    debugPrint('🔄 [UPDATE_ELEMENT] updateElement called - id: ${element.id}, reactions: ${element.reactions.map((r) => "${r.reaction}:${r.count}:${r.reactedByMe}").join(", ")}');
-
-    // Find matching index before update
-    final matchingIndex = list.indexWhere((item) => item.id == element.id);
-    debugPrint('🔄 [UPDATE_ELEMENT] matchingIndex: $matchingIndex (list size: ${list.length})');
-
-    if (matchingIndex != -1) {
-      final oldMessage = list[matchingIndex];
-      debugPrint('🔄 [UPDATE_ELEMENT] Old message reactions: ${oldMessage.reactions.map((r) => "${r.reaction}:${r.count}:${r.reactedByMe}").join(", ")}');
-    }
-
     super.updateElement(element, index: index);
     _cleanupStaleKeys();
     _scheduleSyncToChatController();
-
-    // Verify update
-    final verifyIndex = list.indexWhere((item) => item.id == element.id);
-    if (verifyIndex != -1) {
-      debugPrint('🔄 [UPDATE_ELEMENT] After update - reactions: ${list[verifyIndex].reactions.map((r) => "${r.reaction}:${r.count}:${r.reactedByMe}").join(", ")}');
-    }
   }
 
   /// Override removeElement to auto-sync with chatController
@@ -1193,12 +1140,9 @@ class CometChatMessageListController
       chatControllerIndex = chatController.messages.indexWhere((m) => m.id == numericId);
     }
 
-    debugPrint('🔄 [REMOVE_ELEMENT] Removing message - id: ${element.id}, muid: ${element.muid}, chatControllerIndex: $chatControllerIndex');
-
     if (chatControllerIndex != -1) {
       chatController.removeMessage(chatController.messages[chatControllerIndex]);
     } else {
-      debugPrint('⚠️ [REMOVE_ELEMENT] Message not found in chatController, triggering sync');
       // Message not found - trigger a full sync to ensure consistency
       _scheduleSyncToChatController();
     }
@@ -1238,20 +1182,14 @@ class CometChatMessageListController
     bool fetchPrevious = true,
     BuildContext? context,
   }) async {
-    debugPrint(
-        '🔄 loadMoreElements called: fetchPrevious=$fetchPrevious, isFetching=$isFetching');
-
     if (isUserAgentic() && threadMessageParentId == 0) {
-      debugPrint('❌ Skipped: User is agentic');
       return;
     }
 
     if (isFetching) {
-      debugPrint('❌ Skipped: Already fetching');
       return;
     }
 
-    debugPrint('✅ Starting loadMoreElements, setting isFetching=true');
     isFetching = true;
     isLoading = true;
 
@@ -1273,9 +1211,6 @@ class CometChatMessageListController
     if (conversation != null && lastReadMessageId == null && !isThread) {
       lastReadMessageId = conversation!.lastReadMessageId;
       unreadCount = conversation!.unreadMessageCount ?? 0;
-      debugPrint('📌 Conversation loaded - lastReadMessageId: $lastReadMessageId, unreadCount: $unreadCount');
-      debugPrint('📌 Conversation lastMessage.id: ${conversation!.lastMessage?.id}');
-      debugPrint('📌 Conversation lastMessage.parentMessageId: ${conversation!.lastMessage?.parentMessageId}');
       
       // If the last message is a thread reply and we're in main message list (not thread view),
       // we need to check if there are any non-thread unread messages
@@ -1288,16 +1223,10 @@ class CometChatMessageListController
         // This happens when approaching the memory limit
         final didTrim = await _trimMessageWindow(trimFromTop: true);
         if (didTrim) {
-          debugPrint('🔄 [LOAD_MORE] Trimmed messages, continuing with fetch');
         }
 
-        debugPrint('🔄 [LOAD_MORE] fetchPrevious starting, request.messageId: ${messagesBuilderProtocol.requestBuilder.messageId}');
         await request.fetchPrevious(onSuccess: (List<BaseMessage> fetchedList) {
           isFetching = false;
-          debugPrint('🔄 [LOAD_MORE] fetchPrevious returned ${fetchedList.length} messages');
-          if (fetchedList.isNotEmpty) {
-            debugPrint('🔄 [LOAD_MORE] Message IDs: ${fetchedList.map((m) => m.id).join(", ")}');
-          }
           if (fetchedList.isEmpty) {
             isLoading = false;
             hasMoreItems = false;
@@ -1343,33 +1272,23 @@ class CometChatMessageListController
             // Skip anchor recalculation if user manually marked as unread in this session
             // The anchor was already set correctly by markMessageAsUnread
             if (unreadCount > 0 && !markedAsUnreadInSession) {
-              debugPrint('📌 loadMoreElements: unreadCount > 0 ($unreadCount), looking for anchor, lastReadMessageId: $lastReadMessageId');
               // First try to find using lastReadMessageId
               if (unreadMessageAnchor == null && lastReadMessageId != null && lastReadMessageId! > 0) {
                 unreadMessageAnchor = _findFirstUnreadAfterLastRead();
                 unreadMessageAnchorId = unreadMessageAnchor?.id;
-                if (unreadMessageAnchor != null) {
-                  debugPrint('🟢🟢🟢 loadMoreElements: SET ANCHOR ID: ${unreadMessageAnchor?.id} 🟢🟢🟢');
-                }
               }
               // If still not found, try getFirstUnreadMessage
               if (unreadMessageAnchor == null) {
                 unreadMessageAnchor = getFirstUnreadMessage();
                 unreadMessageAnchorId = unreadMessageAnchor?.id;
-                debugPrint('📌 loadMoreElements: Setting unreadMessageAnchor from getFirstUnreadMessage: ${unreadMessageAnchor?.id}, unreadCount: $unreadCount');
               }
               
               // If no anchor found (all unread messages are thread replies), clear unreadCount
               // Thread replies shouldn't trigger unread indicator in main message list
               if (unreadMessageAnchor == null) {
-                debugPrint('📌 loadMoreElements: No non-thread unread messages found, clearing unreadCount from $unreadCount to 0');
                 unreadCount = 0;
                 markConversationAsRead();
               }
-            } else if (markedAsUnreadInSession) {
-              debugPrint('📌 loadMoreElements: markedAsUnreadInSession=true, preserving existing anchor: ${unreadMessageAnchor?.id}');
-            } else {
-              debugPrint('📌 loadMoreElements: unreadCount is 0, skipping anchor search');
             }
 
             // When startFromUnreadMessages is false, mark conversation as read (default behavior)
@@ -1408,7 +1327,6 @@ class CometChatMessageListController
         // Check if we need to trim before fetching more messages
         final didTrim = await _trimMessageWindow(trimFromTop: false);
         if (didTrim) {
-          debugPrint('🔄 [LOAD_MORE] Trimmed messages, continuing with fetch');
         }
 
         // Show overlay if user has jumped to a quoted message and is now scrolling down
@@ -1668,7 +1586,6 @@ class CometChatMessageListController
 
   @override
   void onTextMessageReceived(TextMessage textMessage) async {
-    debugPrint('🔢 [onTextMessageReceived] messageId: ${textMessage.id}, parentMessageId: ${textMessage.parentMessageId}, threadMessageParentId: $threadMessageParentId');
     if (enableSmartReplies == true) {
       _checkForSmartReplies(textMessage: textMessage);
     }
@@ -1790,29 +1707,13 @@ class CometChatMessageListController
 
   @override
   void onMessageDeleted(BaseMessage message) {
-    debugPrint('🗑️ [onMessageDeleted] START');
-    debugPrint('🗑️ [onMessageDeleted] message.id: ${message.id}');
-    debugPrint('🗑️ [onMessageDeleted] message.conversationId: ${message.conversationId}');
-    debugPrint('🗑️ [onMessageDeleted] message.parentMessageId: ${message.parentMessageId}');
-    debugPrint('🗑️ [onMessageDeleted] message.deletedAt: ${message.deletedAt}');
-    debugPrint('🗑️ [onMessageDeleted] message.sender: ${message.sender?.uid}');
-    debugPrint('🗑️ [onMessageDeleted] message.receiverUid: ${message.receiverUid}');
-    debugPrint('🗑️ [onMessageDeleted] message.receiverType: ${message.receiverType}');
-    debugPrint('🗑️ [onMessageDeleted] current conversationId: $conversationId');
-    debugPrint('🗑️ [onMessageDeleted] threadMessageParentId: $threadMessageParentId');
-    
     if (conversationId == message.conversationId ||
         _checkIfSameConversationForReceivedMessage(message)) {
-      debugPrint('🗑️ [onMessageDeleted] Conversation matches');
       if (request.hideDeleted == true) {
-        debugPrint('🗑️ [onMessageDeleted] hideDeleted=true, removing element');
         removeElement(message);
       } else {
-        debugPrint('🗑️ [onMessageDeleted] hideDeleted=false, updating element');
         updateElement(message);
       }
-    } else {
-      debugPrint('🗑️ [onMessageDeleted] Conversation does NOT match, ignoring');
     }
   }
 
@@ -2179,26 +2080,13 @@ class CometChatMessageListController
 
   /// Marks a message as unread using the SDK
   Future<void> markMessageAsUnread(BaseMessage message) async {
-    debugPrint('🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤');
-    debugPrint('🟤 [MARK AS UNREAD] MESSAGE ID: ${message.id}');
-    debugPrint('🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤');
-    debugPrint('🟤 [markMessageAsUnread] message.conversationId: ${message.conversationId}');
-    debugPrint('🟤 [markMessageAsUnread] message.parentMessageId: ${message.parentMessageId}');
-    debugPrint('🟤 [markMessageAsUnread] message.deletedAt: ${message.deletedAt}');
-    
     await CometChat.markMessageAsUnread(
       message,
       onSuccess: (Conversation updatedConversation) {
-        debugPrint('🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤');
-        debugPrint('🟤 [MARKED AS UNREAD] MESSAGE ID: ${message.id}');
-        debugPrint('🟤 [LAST READ MESSAGE ID]: ${updatedConversation.lastReadMessageId}');
-        debugPrint('🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤');
-        
         CometChatUIKitHelper.onConversationUpdate(updatedConversation);
         
         unreadMessageAnchor = message;
         unreadMessageAnchorId = message.id;
-        debugPrint('🟤 [markMessageAsUnread] SET ANCHOR ID: ${message.id}');
         
         if (updatedConversation.lastReadMessageId != null &&
             updatedConversation.lastReadMessageId! > 0) {
@@ -2207,11 +2095,10 @@ class CometChatMessageListController
         
         unreadCount = updatedConversation.unreadMessageCount ?? 0;
         markedAsUnreadInSession = true;
-        debugPrint('🟤 [markMessageAsUnread] Set unreadCount: $unreadCount, markedAsUnreadInSession: $markedAsUnreadInSession');
         update();
       },
       onError: (CometChatException e) {
-        debugPrint('🟤 [markMessageAsUnread] ERROR: ${e.message}');
+        debugPrint('[markMessageAsUnread] ERROR: ${e.message}');
       },
     );
   }
@@ -2227,7 +2114,6 @@ class CometChatMessageListController
       uid,
       conversationType,
       onSuccess: (String success) {
-        debugPrint('📌 markConversationAsRead: Success');
         if (list.isNotEmpty) {
           CometChatUIKitHelper.onMessageRead(list.first);
         }
@@ -2253,17 +2139,13 @@ class CometChatMessageListController
   /// Returns null if all unread messages are thread replies (shouldn't show indicator in main list)
   BaseMessage? getFirstUnreadMessage() {
     if (list.isEmpty || unreadCount <= 0) {
-      debugPrint('📌 getFirstUnreadMessage: list empty or no unread messages (unreadCount: $unreadCount)');
       return null;
     }
 
     final loggedInUid = loggedInUser?.uid;
     if (loggedInUid == null) {
-      debugPrint('📌 getFirstUnreadMessage: no logged in user');
       return null;
     }
-
-    debugPrint('📌 getFirstUnreadMessage: searching in ${list.length} messages, unreadCount: $unreadCount, lastReadMessageId: $lastReadMessageId');
 
     // A message is unread if:
     // 1. It's not from the logged-in user
@@ -2297,17 +2179,14 @@ class CometChatMessageListController
       
       // This is an unread non-thread message
       firstUnreadMessage = message;
-      debugPrint('📌 getFirstUnreadMessage: Found unread message ${message.id} at index $i');
       break; // Found the oldest unread message
     }
 
     if (firstUnreadMessage != null) {
-      debugPrint('📌 getFirstUnreadMessage: returning message ${firstUnreadMessage.id}');
       return firstUnreadMessage;
     }
 
     // If no non-thread unread messages found, return null (no indicator should be shown)
-    debugPrint('📌 getFirstUnreadMessage: no non-thread unread message found - all unread are thread replies');
     return null;
   }
 
@@ -2316,17 +2195,13 @@ class CometChatMessageListController
   /// Skips thread replies, action messages, and messages from logged-in user
   BaseMessage? _findFirstUnreadAfterLastRead() {
     if (list.isEmpty || lastReadMessageId == null || lastReadMessageId! <= 0) {
-      debugPrint('📌 _findFirstUnreadAfterLastRead: list empty or no lastReadMessageId');
       return null;
     }
 
     final loggedInUid = loggedInUser?.uid;
     if (loggedInUid == null) {
-      debugPrint('📌 _findFirstUnreadAfterLastRead: no logged in user');
       return null;
     }
-
-    debugPrint('📌 _findFirstUnreadAfterLastRead: searching in ${list.length} messages, lastReadMessageId: $lastReadMessageId');
 
     // List is ordered newest first (index 0 = newest)
     // Find the message with smallest ID > lastReadMessageId that is:
@@ -2346,7 +2221,6 @@ class CometChatMessageListController
       
       // Skip deleted messages - indicator should appear BELOW deleted messages
       if (message.deletedAt != null) {
-        debugPrint('📌 _findFirstUnreadAfterLastRead: Skipping deleted message ${message.id}');
         continue;
       }
       
@@ -2358,7 +2232,6 @@ class CometChatMessageListController
       
       // Skip ACTION messages (system messages like "user joined", "user left", etc.)
       if (message.category == MessageCategoryConstants.action) {
-        debugPrint('📌 _findFirstUnreadAfterLastRead: Skipping action message ${message.id}');
         continue;
       }
       
@@ -2370,14 +2243,9 @@ class CometChatMessageListController
     }
 
     if (firstUnreadMessage != null) {
-      debugPrint('🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢');
-      debugPrint('🟢 [LAST READ MESSAGE ID]: $lastReadMessageId');
-      debugPrint('🟢 [FIRST UNREAD MESSAGE ID]: ${firstUnreadMessage.id}');
-      debugPrint('🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢');
       return firstUnreadMessage;
     }
 
-    debugPrint('📌 _findFirstUnreadAfterLastRead: no valid unread message found');
     return null;
   }
 
@@ -2404,8 +2272,6 @@ class CometChatMessageListController
         conversation = fetchedConversation;
         lastReadMessageId = fetchedConversation.lastReadMessageId;
         unreadCount = fetchedConversation.unreadMessageCount ?? 0;
-
-        debugPrint('📌 fetchMessagesWithUnreadCount: lastReadMessageId=$lastReadMessageId, unreadCount=$unreadCount');
 
         if (startFromUnreadMessages &&
             lastReadMessageId != null &&
@@ -2451,13 +2317,10 @@ class CometChatMessageListController
         lastReadMessageId = fetchedConversation.lastReadMessageId;
         unreadCount = fetchedConversation.unreadMessageCount ?? 0;
 
-        debugPrint('📌 _fetchConversationAndGotoMessage: lastReadMessageId=$lastReadMessageId, unreadCount=$unreadCount, targetMessageId=$targetMessageId');
-
         // Navigate to the target message
         gotoMessageId(targetMessageId);
       },
       onError: (CometChatException e) {
-        debugPrint('Error fetching conversation: ${e.message}');
         // Still navigate to message even if conversation fetch fails
         gotoMessageId(targetMessageId);
       },
@@ -2474,7 +2337,6 @@ class CometChatMessageListController
     // Build a request to fetch messages after lastReadMessageId
     // Cap the limit at 30 (SDK max limit) - we only need to find the first unread message
     final fetchLimit = unreadCount > 0 ? (unreadCount > 30 ? 30 : unreadCount) : 30;
-    debugPrint('📌 _fetchFirstUnreadAndGoto: lastReadMessageId=$lastReadMessageId, unreadCount=$unreadCount, fetchLimit=$fetchLimit');
     
     MessagesRequest messageRequest = (MessagesRequestBuilder()
           ..uid = user?.uid
@@ -2500,7 +2362,6 @@ class CometChatMessageListController
         // we skip it and show indicator at the next non-deleted message (below the deleted one)
         
         BaseMessage? firstUnreadMessage;
-        int firstUnreadIndex = -1;
         
         for (int i = 0; i < fetchedList.length; i++) {
           final message = fetchedList[i];
@@ -2512,7 +2373,6 @@ class CometChatMessageListController
           
           // Skip deleted messages - indicator should appear BELOW deleted messages
           if (message.deletedAt != null) {
-            debugPrint('📌 Skipping deleted message: ${message.id}');
             continue;
           }
           
@@ -2523,49 +2383,18 @@ class CometChatMessageListController
           
           // Skip ACTION messages (system messages like "user joined", "user left", etc.)
           if (message.category == MessageCategoryConstants.action) {
-            debugPrint('📌 Skipping action message: ${message.id}');
             continue;
           }
           
           // Found the first valid unread message
           firstUnreadMessage = message;
-          firstUnreadIndex = i;
-          debugPrint('📌 Found first valid unread: ${message.id} at index $i');
           break;
         }
         
-        // Log 5 messages before and after the anchor
-        if (firstUnreadIndex >= 0) {
-          debugPrint('📌 ============ MESSAGES AROUND ANCHOR ============');
-          int startIndex = (firstUnreadIndex - 5).clamp(0, fetchedList.length - 1);
-          int endIndex = (firstUnreadIndex + 5).clamp(0, fetchedList.length - 1);
-          
-          for (int i = startIndex; i <= endIndex; i++) {
-            final msg = fetchedList[i];
-            String marker = (i == firstUnreadIndex) ? '>>> ANCHOR >>>' : '';
-            debugPrint('📌 [$i] $marker MESSAGE ${msg.id}');
-            debugPrint('📌     sender.uid: ${msg.sender?.uid}');
-            debugPrint('📌     sender.name: ${msg.sender?.name}');
-            debugPrint('📌     deletedAt: ${msg.deletedAt}');
-            debugPrint('📌     deletedBy: ${msg.deletedBy}');
-            debugPrint('📌     parentMessageId: ${msg.parentMessageId}');
-            debugPrint('📌     type: ${msg.type}');
-            debugPrint('📌     category: ${msg.category}');
-            debugPrint('📌 -------------------------------------------');
-          }
-          debugPrint('📌 ================================================');
-        }
-        
         if (firstUnreadMessage == null) {
-          debugPrint('📌 No valid unread messages found (all deleted or from self)');
           loadMoreElements();
           return;
         }
-        
-        debugPrint('🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵');
-        debugPrint('🔵 [LAST READ MESSAGE ID]: $lastReadMessageId');
-        debugPrint('🔵 [FIRST UNREAD MESSAGE ID]: ${firstUnreadMessage.id}');
-        debugPrint('🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵');
         
         unreadMessageAnchorId = firstUnreadMessage.id;
         unreadMessageAnchor = firstUnreadMessage;
@@ -2576,7 +2405,6 @@ class CometChatMessageListController
         gotoMessageId(firstUnreadMessage.id);
       },
       onError: (CometChatException e) {
-        debugPrint('Error fetching first unread message: ${e.message}');
         loadMoreElements();
       },
     );
@@ -2595,27 +2423,19 @@ class CometChatMessageListController
   }
 
   markAsRead(BaseMessage message) {
-    debugPrint('🔵🔵 [markAsRead] called - messageId: ${message.id}, conversationId: ${message.conversationId}, markedAsUnreadInSession: $markedAsUnreadInSession');
     if (message.sender?.uid != loggedInUser?.uid && message.readAt == null) {
-      debugPrint('🔵🔵 [markAsRead] Calling CometChat.markAsRead...');
       CometChat.markAsRead(message, onSuccess: (String res) {
-        debugPrint('🔵🔵 [markAsRead] Success - firing ccMessageRead');
         CometChatMessageEvents.ccMessageRead(message);
       }, onError: (e) {
-        debugPrint('🔵🔵 [markAsRead] Error: $e');
       });
-    } else {
-      debugPrint('🔵🔵 [markAsRead] Skipped - sender is logged in user or already read');
     }
   }
 
   _onMessageReceived(BaseMessage message,
       {bool playSound = true, bool markRead = true}) {
-    debugPrint('🔢 [ML_onMessageReceived] START - messageId: ${message.id}, conversationId: ${message.conversationId}, parentMessageId: ${message.parentMessageId}, threadMessageParentId: $threadMessageParentId, hasMoreNext: $hasMoreNext');
     
     // Check for duplicate message event early - SDK fires multiple events for same message
     if (message.id > 0 && _recentlyAddedMessageIds.contains(message.id)) {
-      debugPrint('🔢 [ML_onMessageReceived] Skipping duplicate message id: ${message.id}');
       return;
     }
     
@@ -2656,7 +2476,6 @@ class CometChatMessageListController
       final isAtBottom = !messageListScrollController.hasClients || 
                          messageListScrollController.offset <= 100;
       if (hasMoreNext && !isAtBottom) {
-        debugPrint('🔢 [ML_onMessageReceived] hasMoreNext=true and not at bottom - NOT adding message to list, only incrementing badge');
         if (playSound) {
           _playSound();
         }
@@ -2670,10 +2489,8 @@ class CometChatMessageListController
         return;
       }
       
-      debugPrint('🔢 [ML_onMessageReceived] CONDITION MET - adding message');
       // addElement returns true only if message was actually added (not a duplicate)
       final wasAdded = addElement(message);
-      debugPrint('🔢 [ML_onMessageReceived] wasAdded: $wasAdded');
       
       if (playSound) {
         _playSound();
@@ -2682,18 +2499,15 @@ class CometChatMessageListController
       // Only increment unread count if message was actually added (not a duplicate)
       // This fixes the issue where duplicate SDK events caused incorrect unread counts
       if (!wasAdded) {
-        debugPrint('🔢 [ML_onMessageReceived] Message was duplicate, NOT incrementing newUnreadMessageCount');
         return;
       }
 
       // Don't auto-mark as read if user manually marked messages as unread in this session
       // This fixes ENG-28434: unread count resets to 1 instead of incrementing
       if (markedAsUnreadInSession) {
-        debugPrint('🔢 [ML_onMessageReceived] markedAsUnreadInSession=true, incrementing unreadCount: $unreadCount -> ${unreadCount + 1}');
         unreadCount++;  // Increment unreadCount so badge shows correct total
         update();
       } else if (scrollToBottomOnNewMessage) {
-        debugPrint('🔢 [_onMessageReceived] scrollToBottomOnNewMessage=true, calling markAsRead');
         markAsRead(message);
         if (messageListScrollController.hasClients) {
           messageListScrollController.jumpTo(0.0);
@@ -2701,10 +2515,8 @@ class CometChatMessageListController
       } else {
         if (messageListScrollController.hasClients &&
             messageListScrollController.offset > 100) {
-          debugPrint('🔢 [_onMessageReceived] offset > 100, incrementing newUnreadMessageCount: $newUnreadMessageCount -> ${newUnreadMessageCount + 1}');
           newUnreadMessageCount++;
         } else {
-          debugPrint('🔢 [_onMessageReceived] offset <= 100, calling markAsRead');
           markAsRead(message);
         }
       }
@@ -2712,7 +2524,6 @@ class CometChatMessageListController
         _checkIfSameConversationForReceivedMessage(message)) {
       // Check for duplicate thread message - SDK fires multiple events
       if (message.id > 0 && _recentlyAddedMessageIds.contains(message.id)) {
-        debugPrint('🔢 [ML_onMessageReceived] Skipping duplicate thread message id: ${message.id}');
         return;
       }
       
@@ -2721,7 +2532,6 @@ class CometChatMessageListController
         _recentlyAddedMessageIds.add(message.id);
       }
       
-      debugPrint('🔢 [ML_onMessageReceived] Thread message - incrementing reply count');
       //incrementing reply count
       if (playSound) {
         _playSound();
@@ -2734,13 +2544,10 @@ class CometChatMessageListController
       
       // Also increment unread count for thread messages when markedAsUnreadInSession
       if (markedAsUnreadInSession) {
-        debugPrint('🔢 [ML_onMessageReceived] Thread message + markedAsUnreadInSession=true, incrementing unreadCount: $unreadCount -> ${unreadCount + 1}');
         unreadCount++;
       }
       
       update();
-    } else {
-      debugPrint('🔢 [ML_onMessageReceived] CONDITION NOT MET - conversationId: $conversationId, message.conversationId: ${message.conversationId}, parentMessageId: ${message.parentMessageId}, threadMessageParentId: $threadMessageParentId');
     }
   }
 
@@ -2750,7 +2557,6 @@ class CometChatMessageListController
         _checkIfSameConversationForSenderMessage(message)) &&
         message.parentMessageId == threadMessageParentId) {
       addElement(message);
-      debugPrint("playSound  = $playSound");
       if (playSound) {
         _playSound();
       }
@@ -3383,12 +3189,25 @@ class CometChatMessageListController
 
   bool _checkCallInSameConversation(Call call) {
     if (kDebugMode) {
-      debugPrint(" $threadMessageParentId ${user?.uid} ${call.receiverUid} ");
+      debugPrint(" $threadMessageParentId ${user?.uid} ${group?.guid} ${call.receiverUid} ");
     }
 
-    return (threadMessageParentId == 0 &&
-        user != null &&
-        (call.sender?.uid == user?.uid || call.receiverUid == user?.uid));
+    // Check for thread - calls should not appear in threads
+    if (threadMessageParentId != 0) {
+      return false;
+    }
+
+    // Check for 1:1 user calls
+    if (user != null ) {
+      return call.sender?.uid == user?.uid || call.receiverUid == user?.uid;
+    }
+
+    // Check for group calls
+    if (group != null) {
+      return call.receiverUid == group?.guid;
+    }
+
+    return false;
   }
 
   @override
@@ -3764,13 +3583,9 @@ class CometChatMessageListController
         // DON'T clear the reactions cache - it should persist across jumps
         // The cache is only cleared when the controller is disposed or when
         // reactions are explicitly removed from a message
-        debugPrint('🔄 [FETCH_NEXT] Keeping ${_savedReactionsForJump.length} reactions in cache for future use');
 
         // Ensure sync completes and UI is built before scrolling
         await syncMessagesToChatController();
-        debugPrint('📌 fetchNextCall: Synced ${list.length} messages to chatController');
-        debugPrint('📌 fetchNextCall: Target message ID: ${targetedMessage.id}');
-        debugPrint('📌 fetchNextCall: List message IDs (first 10): ${list.take(10).map((m) => m.id).toList()}');
         update();
 
         // Wait for multiple frames to ensure the list is fully built
@@ -3805,9 +3620,7 @@ class CometChatMessageListController
             // Only set as anchor if it's not a thread reply
             if (foundMessage != null && foundMessage.parentMessageId == 0) {
               unreadMessageAnchor = foundMessage;
-              debugPrint('📌 fetchNextCall: Found unreadMessageAnchor by ID: ${unreadMessageAnchor?.id}');
             } else if (foundMessage != null) {
-              debugPrint('📌 fetchNextCall: Skipping thread reply as unreadMessageAnchor: ${foundMessage.id}');
               unreadMessageAnchorId = null; // Clear the ID so we try other methods
             }
           }
@@ -3816,19 +3629,16 @@ class CometChatMessageListController
           if (unreadMessageAnchor == null && lastReadMessageId != null && lastReadMessageId! > 0) {
             unreadMessageAnchor = _findFirstUnreadAfterLastRead();
             unreadMessageAnchorId = unreadMessageAnchor?.id;
-            debugPrint('📌 fetchNextCall: Setting unreadMessageAnchor from lastReadMessageId: ${unreadMessageAnchor?.id}');
           }
           // If still not found, try to find using getFirstUnreadMessage (only if unreadCount > 0)
           if (unreadMessageAnchor == null) {
             unreadMessageAnchor = getFirstUnreadMessage();
             unreadMessageAnchorId = unreadMessageAnchor?.id;
-            debugPrint('📌 fetchNextCall: Setting unreadMessageAnchor from getFirstUnreadMessage: ${unreadMessageAnchor?.id}');
           }
 
           // If no anchor found (all unread messages are thread replies), clear unreadCount
           // Thread replies shouldn't trigger unread indicator in main message list
           if (unreadMessageAnchor == null) {
-            debugPrint('📌 fetchNextCall: No non-thread unread messages found, clearing unreadCount');
             unreadCount = 0;
             markConversationAsRead();
           } else {
@@ -3836,24 +3646,16 @@ class CometChatMessageListController
             // Target message ID > unread anchor ID means target is BELOW (newer) the indicator
             // Target message ID < unread anchor ID means target is ABOVE (older) the indicator
             isTargetAboveIndicator = targetedMessage.id < unreadMessageAnchor!.id;
-            debugPrint('📌 fetchNextCall: targetMessageId=${targetedMessage.id}, unreadAnchorId=${unreadMessageAnchor!.id}, isTargetAboveIndicator=$isTargetAboveIndicator');
 
             if (!isTargetAboveIndicator) {
               // Target is BELOW or AT the indicator (newer message)
               // Mark as read immediately, keep indicator visible
-              debugPrint('📌 fetchNextCall: Target is below/at indicator - marking as read, keeping indicator');
               unreadCount = 0;
               markConversationAsRead();
-            } else {
-              // Target is ABOVE the indicator (older message)
-              // Keep the badge count - it will be cleared when indicator comes into viewport
-              debugPrint('📌 fetchNextCall: Target is above indicator - keeping badge count: $unreadCount');
             }
+            // Target is ABOVE the indicator (older message)
+            // Keep the badge count - it will be cleared when indicator comes into viewport
           }
-        } else if (markedAsUnreadInSession && unreadMessageAnchor != null) {
-          debugPrint('📌 fetchNextCall: markedAsUnreadInSession=true, preserving existing anchor: ${unreadMessageAnchor?.id}');
-        } else if (unreadMessageAnchor != null) {
-          debugPrint('📌 fetchNextCall: unreadMessageAnchor already set to ${unreadMessageAnchor?.id}');
         }
 
         update();
@@ -3893,7 +3695,6 @@ class CometChatMessageListController
 
   @override
   void onMessageReactionAdded(ReactionEvent reactionEvent) {
-    debugPrint('🟢 [REACTION] onMessageReactionAdded called - messageId: ${reactionEvent.reaction?.messageId}, reaction: ${reactionEvent.reaction?.reaction}');
     if (disableReactions != true) {
       _updateMessageOnReaction(reactionEvent, ReactionAction.reactionAdded);
     }
@@ -3901,7 +3702,6 @@ class CometChatMessageListController
 
   @override
   void onMessageReactionRemoved(ReactionEvent reactionEvent) {
-    debugPrint('🔴 [REACTION] onMessageReactionRemoved called - messageId: ${reactionEvent.reaction?.messageId}, reaction: ${reactionEvent.reaction?.reaction}');
     if (disableReactions != true) {
       _updateMessageOnReaction(reactionEvent, ReactionAction.reactionRemoved);
     }
@@ -3909,36 +3709,24 @@ class CometChatMessageListController
 
   _updateMessageOnReaction(ReactionEvent reactionEvent, String reactionAction) {
     Reaction? messageReaction = reactionEvent.reaction;
-    debugPrint('🔵 [REACTION] _updateMessageOnReaction called - action: $reactionAction, messageId: ${messageReaction?.messageId}');
     if (messageReaction != null) {
       int? messageId = messageReaction.messageId;
       if (messageId == null) {
-        debugPrint('🔴 [REACTION] messageId is null, returning');
         return;
       }
-
-      // Log all messages in list to check for duplicates
-      final matchingMessages = list.where((element) => element.id == messageId).toList();
-      debugPrint('🔵 [REACTION] Found ${matchingMessages.length} messages with id $messageId in list (total list size: ${list.length})');
 
       BaseMessage? message =
       list.firstWhereOrNull((element) => element.id == messageId);
       if (message == null) {
-        debugPrint('🔴 [REACTION] message not found in list for id: $messageId');
         return;
       }
-
-      debugPrint('🔵 [REACTION] Found message - id: ${message.id}, current reactions: ${message.reactions.map((r) => "${r.reaction}:${r.count}:${r.reactedByMe}").join(", ")}');
 
       CometChatHelper.updateMessageWithReactionInfo(
           message, messageReaction, reactionAction)
           .then((reactedMessage) {
         if (reactedMessage == null) {
-          debugPrint('🔴 [REACTION] reactedMessage is null after updateMessageWithReactionInfo');
           return;
         }
-
-        debugPrint('🟢 [REACTION] Calling updateElement - id: ${reactedMessage.id}, new reactions: ${reactedMessage.reactions.map((r) => "${r.reaction}:${r.count}:${r.reactedByMe}").join(", ")}');
 
         // CRITICAL: Save reactions to global cache whenever they change
         // This ensures reactions persist even if the list gets replaced by loadMoreElements
@@ -3954,25 +3742,20 @@ class CometChatMessageListController
   void _saveReactionsToCache(BaseMessage message) {
     if (message.reactions.isNotEmpty) {
       _savedReactionsForJump[message.id] = List<ReactionCount>.from(message.reactions);
-      debugPrint('💾 [REACTION_CACHE] Saved ${message.reactions.length} reactions for message ${message.id} to global cache');
     } else {
       // Remove from cache if no reactions
       _savedReactionsForJump.remove(message.id);
-      debugPrint('💾 [REACTION_CACHE] Removed message ${message.id} from cache (no reactions)');
     }
   }
 
   handleReactionPress(
       BaseMessage message, String? reaction, List<ReactionCount> reactionList) {
-    debugPrint('🟡 [REACTION] handleReactionPress called - messageId: ${message.id}, reaction: $reaction');
     if (reaction == null || reaction.isEmpty) return;
     int reactionIndex = reactionList.indexWhere((reactionCount) =>
     reactionCount.reaction == reaction &&
         reactionCount.reactedByMe == true);
-    debugPrint('🟡 [REACTION] reactionIndex: $reactionIndex (${reactionIndex != -1 ? "removing" : "adding"} reaction)');
 
     if (reactionIndex != -1) {
-      debugPrint('🟡 [REACTION] Removing reaction - calling updateElement');
       final updatedMessage = updateReactionsOnMessage(message, reaction, false);
       // Save to global cache immediately
       _saveReactionsToCache(updatedMessage);
@@ -3983,7 +3766,6 @@ class CometChatMessageListController
         message.id,
         reaction,
         onError: (error) {
-          debugPrint('🔴 [REACTION] removeReaction error: $error');
           // Only revert if it's NOT a "reaction not found" error
           // If reaction not found, it means it was already removed - no need to revert
           if (error.code != 'ERR_MESSAGE_REACTION_NOT_FOUND') {
@@ -3993,11 +3775,9 @@ class CometChatMessageListController
           }
         },
         onSuccess: (message) {
-          debugPrint('🟢 [REACTION] removeReaction success');
         },
       );
     } else {
-      debugPrint('🟡 [REACTION] Adding reaction - calling updateElement');
       /// add reaction
       final updatedMessage = updateReactionsOnMessage(message, reaction, true);
       // Save to global cache immediately
@@ -4007,20 +3787,16 @@ class CometChatMessageListController
         message.id,
         reaction,
         onError: (error) {
-          debugPrint('🔴 [REACTION] addReaction error: $error');
           // Only revert if it's NOT an "already added" error
           // If already added, it means the reaction is there - no need to revert
           if (error.code != 'ERR_MESSAGE_REACTION_ALREADY_ADDED') {
             final revertedMessage = updateReactionsOnMessage(message, reaction, false);
             _saveReactionsToCache(revertedMessage);
             updateElement(revertedMessage);
-          } else {
-            // Reaction already exists on server - keep the UI showing the reaction
-            debugPrint('🟡 [REACTION] Reaction already exists on server, keeping UI state');
           }
+          // Reaction already exists on server - keep the UI showing the reaction
         },
         onSuccess: (message) {
-          debugPrint('🟢 [REACTION] addReaction success');
         },
       );
     }
@@ -4495,11 +4271,9 @@ class CometChatMessageListController
           // Only save if not already in cache (don't overwrite newer cached reactions)
           if (!_savedReactionsForJump.containsKey(msg.id)) {
             _savedReactionsForJump[msg.id] = List<ReactionCount>.from(msg.reactions);
-            debugPrint('🔄 [SWIPE_GOTO] Saving ${msg.reactions.length} reactions for message ${msg.id}');
           }
         }
       }
-      debugPrint('🔄 [SWIPE_GOTO] Total saved reactions in cache: ${_savedReactionsForJump.length} messages');
 
       list.clear();
       // Start jumping process for goto message
@@ -4523,9 +4297,6 @@ class CometChatMessageListController
   void _restoreSavedReactions(BaseMessage message) {
     if (_savedReactionsForJump.containsKey(message.id)) {
       final savedReactions = _savedReactionsForJump[message.id]!;
-      debugPrint('🔄 [RESTORE_REACTIONS] Restoring ${savedReactions.length} saved reactions for message ${message.id}');
-      debugPrint('🔄 [RESTORE_REACTIONS] Saved reactions: ${savedReactions.map((r) => "${r.reaction}:${r.count}:${r.reactedByMe}").join(", ")}');
-      debugPrint('🔄 [RESTORE_REACTIONS] Current message reactions BEFORE: ${message.reactions.map((r) => "${r.reaction}:${r.count}:${r.reactedByMe}").join(", ")}');
 
       // IMPORTANT: Replace the message's reactions entirely with the cached version
       // The cached version is the source of truth for local changes
@@ -4539,8 +4310,6 @@ class CometChatMessageListController
         );
         message.reactions.add(reactionCopy);
       }
-
-      debugPrint('🔄 [RESTORE_REACTIONS] Current message reactions AFTER: ${message.reactions.map((r) => "${r.reaction}:${r.count}:${r.reactedByMe}").join(", ")}');
 
       // DON'T remove from cache - keep it for future fetches
       // The cache is updated when reactions change via _saveReactionsToCache

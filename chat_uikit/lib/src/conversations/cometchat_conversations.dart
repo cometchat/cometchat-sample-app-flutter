@@ -612,7 +612,6 @@ class _CometChatConversationsState extends State<CometChatConversations> {
               }
 
               final conversation = value.list[index];
-              debugPrint('🔢 [ListView] Building item $index - conversationId: ${conversation.conversationId}, unreadCount: ${conversation.unreadMessageCount}');
 
               return SizedBox(
                 key: tileKeys[index],
@@ -1423,7 +1422,6 @@ class _CometChatConversationsState extends State<CometChatConversations> {
 
   // Return unread message count widget
   Widget getUnreadCount(Conversation conversation, context) {
-    debugPrint('🔢 [UI] getUnreadCount for ${conversation.conversationId}: ${conversation.unreadMessageCount}');
     return CometChatBadge(
       count: conversation.unreadMessageCount ?? 0,
       width: widget.badgeWidth,

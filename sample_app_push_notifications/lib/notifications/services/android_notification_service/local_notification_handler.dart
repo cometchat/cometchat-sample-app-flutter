@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -19,36 +20,39 @@ class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
+  /// Tracks accumulated message lines per conversation for inbox-style
+  /// notifications. Key = conversationId, Value = list of message bodies.
+  static final Map<String, List<String>> _conversationMessages = {};
+
   /// Displays a local notification based on the incoming FCM [RemoteMessage].
   ///
-  /// The notification is shown only if:
-  /// - The message type is not a "call"
-  /// - The conversation is not currently active
-  ///
-  /// If a valid notification ID (`tag`) is not provided in the payload,
-  /// a fallback ID based on timestamp is generated.
+  /// Uses a single notification per conversation that gets updated with each
+  /// new message using InboxStyleInformation. This ensures notifications are
+  /// visually grouped on all Android devices including Samsung One UI.
   static void showNotification(Map<String, dynamic> notificationData,
       RemoteMessage remoteMessage, String? conversationId, bool isAgentic) async {
     print("[FCM] Showing local notification with data: $notificationData");
     print("[FCM] Showing local notification conversationId: $conversationId");
 
+    final unreadCount = notificationData['unreadMessageCount'];
+
+    int unreadMessageCount = int.tryParse(unreadCount) ?? 0;
+
+    if (unreadMessageCount >= 0) {
+      try {
+        await AppBadgePlus.updateBadge(unreadMessageCount);
+        print('Badge count updated: $unreadMessageCount');
+      } catch (e) {
+        print('Error updating badge count: $e');
+      }
+    } else {
+      print('Invalid badge count (negative): $unreadMessageCount');
+    }
+
     if(isAgentic) {
       print("[FCM] Agentic mode - skipping local notification.");
       return;
     }
-    // Define Android-specific notification configuration
-    AndroidNotificationDetails androidPlatformChannelSpecifics =
-        const AndroidNotificationDetails(
-      notificationChannelId, // Channel ID for Android notifications
-      notificationChannelName, // Channel name for user visibility
-      importance: Importance.max, // Ensures high-importance notifications
-      priority: Priority.high, // Display on top with sound/vibration
-      icon: 'ic_launcher', // Custom notification icon
-    );
-
-    // Define the notification details
-    NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
 
     // Encode the message data to JSON for use as payload (e.g., on notification tap)
     String? jsonPayload;
@@ -67,38 +71,83 @@ class LocalNotificationService {
     }
 
     // Skip showing notification if it matches the currently active conversation
+    final notifConversationId = notificationData["conversationId"]?.toString() ?? '';
     if (conversationId != null &&
         conversationId.isNotEmpty &&
-        conversationId == notificationData["conversationId"]?.toString()) {
+        conversationId == notifConversationId) {
       debugPrint(
           "[FCM] Skipping notification as it matches active conversation.");
+      // Clear accumulated messages for this conversation since user is viewing it
+      _conversationMessages.remove(notifConversationId);
       return;
     }
 
-    // Attempt to parse the notification ID from the payload
-    int id = 0;
-    try {
-      final tag = notificationData["tag"];
-      if (tag != null) {
-        id = int.parse(tag.toString());
-      }
-    } catch (e) {
-      debugPrint("[FCM] Error parsing notification ID: ${e.toString()}");
+    // Use a stable notification ID per conversation so each new message
+    // replaces the previous notification instead of creating a new one.
+    // This works reliably on all Android devices including Samsung One UI.
+    final int notificationId = notifConversationId.isNotEmpty
+        ? notifConversationId.hashCode
+        : DateTime.now().microsecondsSinceEpoch.hashCode;
+
+    // Accumulate message lines for this conversation
+    final String messageBody = notificationData['body']?.toString() ?? '';
+    _conversationMessages.putIfAbsent(notifConversationId, () => []);
+    _conversationMessages[notifConversationId]!.add(messageBody);
+
+    final messages = _conversationMessages[notifConversationId]!;
+    final String title = notificationData['title']?.toString() ?? '';
+
+    // Build notification style based on message count
+    StyleInformation styleInformation;
+    String bodyText;
+
+    if (messages.length == 1) {
+      // Single message — use default style
+      styleInformation = const DefaultStyleInformation(false, false);
+      bodyText = messageBody;
+    } else {
+      // Multiple messages — use InboxStyle to show stacked message lines
+      styleInformation = InboxStyleInformation(
+        messages,
+        contentTitle: title,
+        summaryText: unreadMessageCount > 0
+            ? '$unreadMessageCount unread ${unreadMessageCount == 1 ? 'message' : 'messages'}'
+            : '${messages.length} messages',
+      );
+      bodyText = messageBody; // Latest message shown as body fallback
     }
 
-    // If parsing failed or tag was missing, generate a fallback ID
-    if (id == 0) {
-      id = DateTime.now().microsecondsSinceEpoch.hashCode;
-    }
-
-    // Display the local notification
-    await flutterLocalNotificationsPlugin.show(
-      id, // Unique notification ID
-      notificationData['title'], // Title from notification data
-      notificationData['body'], // Body content from notification data
-      platformChannelSpecifics, // Platform-specific notification config
-      payload: jsonPayload, // Encoded payload for click handling
+    final androidDetails = AndroidNotificationDetails(
+      notificationChannelId,
+      notificationChannelName,
+      importance: Importance.max,
+      priority: Priority.high,
+      icon: 'ic_launcher',
+      styleInformation: styleInformation,
+      subText: unreadMessageCount > 0
+          ? '$unreadMessageCount unread ${unreadMessageCount == 1 ? 'message' : 'messages'}'
+          : null,
+      // number shows the count badge on the notification icon (Samsung)
+      number: messages.length > 1 ? messages.length : null,
     );
+
+    final platformChannelSpecifics = NotificationDetails(android: androidDetails);
+
+    // Show (or replace) the notification for this conversation
+
+    await flutterLocalNotificationsPlugin.show(
+      notificationId,
+      title,
+      bodyText,
+      platformChannelSpecifics,
+      payload: jsonPayload,
+    );
+  }
+
+  /// Clears the accumulated messages for a conversation.
+  /// Call this when the user opens a conversation to reset the notification state.
+  static void clearConversationMessages(String conversationId) {
+    _conversationMessages.remove(conversationId);
   }
 
   /// Handles the tap action on a local notification.
@@ -120,6 +169,11 @@ class LocalNotificationService {
 
       // Convert the map into a strongly-typed NotificationDataModel
       final notificationDataModel = NotificationDataModel.fromJson(body);
+
+      // Clear accumulated messages for this conversation since user tapped it
+      if (notificationDataModel.conversationId.isNotEmpty) {
+        clearConversationMessages(notificationDataModel.conversationId);
+      }
 
       // Variables to store user or group based on receiverType
       User? sendUser;
