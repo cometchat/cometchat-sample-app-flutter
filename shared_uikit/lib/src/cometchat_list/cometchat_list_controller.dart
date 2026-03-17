@@ -81,6 +81,7 @@ abstract class CometChatListController<T1, T2> extends GetxController
     }
     error = e;
     hasError = true;
+    isLoading = false;
     update();
   }
 

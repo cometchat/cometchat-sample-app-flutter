@@ -1346,6 +1346,12 @@ class TranslationsZh extends Translations {
   @override
   String get newMessagesIndicator => '新';
 
+  @override
+  String get fileTypeNotAllowed => '不允许此类型的文件。';
+
+  @override
+  String fileSizeExceedsLimit(String size) => '文件超过$size限制 - 请尝试较小的文件。';
+
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -2662,4 +2668,10 @@ class TranslationsZhTw extends TranslationsZh {
 
   @override
   String get newMessagesIndicator => '新';
+
+  @override
+  String get fileTypeNotAllowed => '不允許此類型的檔案。';
+
+  @override
+  String fileSizeExceedsLimit(String size) => '檔案超過$size限制 - 請嘗試較小的檔案。';
 }

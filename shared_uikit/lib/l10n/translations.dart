@@ -2628,6 +2628,18 @@ abstract class Translations {
   ///In en, this translates to :
   ///**'New'
   String get newMessagesIndicator;
+
+  /// No description provided for @fileTypeNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This file type is not allowed.'**
+  String get fileTypeNotAllowed;
+
+  /// No description provided for @fileSizeExceedsLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'File exceeds the {size} limit - try a smaller one.'**
+  String fileSizeExceedsLimit(String size);
 }
 
 class _TranslationsDelegate extends LocalizationsDelegate<Translations> {

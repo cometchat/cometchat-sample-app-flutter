@@ -1369,4 +1369,10 @@ class TranslationsNl extends Translations {
   @override
   String get newMessagesIndicator => 'Nieuw';
 
+  @override
+  String get fileTypeNotAllowed => 'Dit bestandstype is niet toegestaan.';
+
+  @override
+  String fileSizeExceedsLimit(String size) => 'Bestand overschrijdt de limiet van $size - probeer een kleiner bestand.';
+
 }

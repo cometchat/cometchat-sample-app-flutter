@@ -1241,7 +1241,7 @@ class _ChatAnimatedListState extends State<ChatAnimatedList>
   /// This ensures the SliverAnimatedList item count is always in sync with _oldList.
   void _performFullListRebuild(List<Message> newList) {
     debugPrint('🔄 [REBUILD] Performing full list rebuild - old: ${_oldList.length}, new: ${newList.length}');
-    
+
     // If lists are identical (same length and same IDs in same order), skip rebuild
     if (_oldList.length == newList.length) {
       bool identical = true;
@@ -1299,7 +1299,7 @@ class _ChatAnimatedListState extends State<ChatAnimatedList>
     for (int i = 0; i < newList.length; i++) {
       listState.insertItem(i, duration: Duration.zero);
     }
-    
+
     debugPrint('🔄 [REBUILD] Full rebuild complete - _oldList: ${_oldList.length}');
   }
 

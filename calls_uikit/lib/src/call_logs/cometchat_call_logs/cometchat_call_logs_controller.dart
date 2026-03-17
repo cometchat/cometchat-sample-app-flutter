@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class CometChatCallLogsController
-    extends CometChatListController<CallLog, String> {
+    extends CometChatListController<CallLog, String>
+    with ConnectionListener, WidgetsBindingObserver {
   CometChatCallLogsController({
     required this.callLogsBuilderProtocol,
     this.outgoingCallConfiguration,
@@ -27,16 +29,47 @@ class CometChatCallLogsController
   CometChatSpacing? spacing;
   CometChatTypography? typography;
 
-  // TODO: Implement the retry logic later.
-  // Retry configuration
-  final int maxRetries = 3;
-  final Duration retryDelay = const Duration(seconds: 3);
-  int _currentRetryCount = 0;
+  final String _connectionListenerId =
+      'callLogs_connection_${DateTime.now().millisecondsSinceEpoch}';
+
+  Timer? _retryTimer;
 
   @override
   void onInit() {
+    CometChat.addConnectionListener(_connectionListenerId, this);
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      WidgetsBinding.instance.addObserver(this);
+    }
     super.onInit();
     _initializeLoggedInUser();
+  }
+
+  @override
+  void onClose() {
+    _retryTimer?.cancel();
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      WidgetsBinding.instance.removeObserver(this);
+    }
+    CometChat.removeConnectionListener(_connectionListenerId);
+    super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && hasError && !isLoading) {
+      resetCallLogs();
+    }
+  }
+
+  @override
+  void onConnected() {
+    if (hasError) {
+      resetCallLogs();
+    } else if (!isLoading) {
+      list = [];
+      request = callLogsBuilderProtocol.getRequest();
+      loadMoreElements();
+    }
   }
 
   _initializeLoggedInUser() async {
@@ -76,6 +109,7 @@ class CometChatCallLogsController
       }, onError: (CometChatCallsException e) {
         onError?.call(e);
         hasError = true;
+        isLoading = false;
         if (kDebugMode) {
           debugPrint("Error -> ${e.details}");
         }
@@ -170,15 +204,26 @@ class CometChatCallLogsController
     }
   }
 
-  resetCallLogs() {
+  resetCallLogs({int retryCount = 0}) {
+    _retryTimer?.cancel();
     // reset values
     list.clear();
+    groupedEntries.clear();
     error = null;
     hasError = false;
     hasMoreItems = true;
     isLoading = true;
-    loadMoreElements();
+    request = callLogsBuilderProtocol.getRequest();
     update();
+    loadMoreElements().then((_) {
+      if (hasError && retryCount < 3) {
+        _retryTimer = Timer(const Duration(seconds: 2), () {
+          if (hasError) {
+            resetCallLogs(retryCount: retryCount + 1);
+          }
+        });
+      }
+    });
   }
 
 

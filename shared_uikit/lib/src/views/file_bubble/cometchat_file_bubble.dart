@@ -204,7 +204,12 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
 
   String? getFileExtension(String? fileUrl) {
     // Decode file URL to handle encoded paths
-    String decodedFileUrl = Uri.decodeFull(fileUrl ?? '');
+    String decodedFileUrl;
+    try {
+      decodedFileUrl = Uri.decodeFull(fileUrl ?? '');
+    } catch (_) {
+      decodedFileUrl = fileUrl ?? '';
+    }
     String fileName = decodedFileUrl.split('/').last;
 
     String extension = fileName.split('.').last.toLowerCase();
@@ -263,7 +268,14 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
   }
 
   fileExists() async {
-    // Check cache first using message id or fileName as key
+    // Always resolve localPath from metadata so it's available even on cache hits.
+    // getLocalFilePath already strips file:// and percent-decoding for iOS.
+    final decodedPath = FileUtils.getLocalFilePath(widget.metadata) ?? '';
+    if (decodedPath.isNotEmpty) {
+      localPath = decodedPath;
+    }
+
+    // Check cache using message id or fileName as key
     final cacheKey = widget.id?.toString() ?? fileName;
     if (_fileExistsCache.containsKey(cacheKey)) {
       isFileExists = _fileExistsCache[cacheKey]!;
@@ -274,27 +286,29 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
       return;
     }
 
-    final localPath = FileUtils.getLocalFilePath(widget.metadata) ?? '';
-    // Decode URL-encoded file path
-    final decodedPath = Uri.decodeFull(localPath);
-
     if (FileUtils.isLocalFileAvailable(decodedPath)) {
-      this.localPath = decodedPath;
       isFileExists = true;
     } else {
+      // Check download dir with ID-prefixed fileName (e.g. "54321_doc.pdf")
       String? path = await BubbleUtils.isFileDownloaded(fileName);
-
-      if (path == null) {
-        isFileExists = false;
-      } else {
+      if (path != null) {
+        localPath = path;
         isFileExists = true;
+      } else if (widget.title != null && widget.title!.isNotEmpty) {
+        // Fallback: check download dir with just the title (no ID prefix).
+        // The file may have been downloaded when the message had a different ID
+        // (e.g. id=0 during send vs real server ID on reload).
+        path = await BubbleUtils.isFileDownloaded(widget.title!);
+        if (path != null) {
+          localPath = path;
+          isFileExists = true;
+        }
       }
     }
 
     // Cache the result
     _fileExistsCache[cacheKey] = isFileExists;
 
-    debugPrint("File Exist $isFileExists");
     _isCheckingFileExists = false;
     if (mounted) {
       setState(() {});
@@ -304,17 +318,62 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
 
   openFile() async {
     if (isFileExists) {
-      String filePath = localPath ?? '${BubbleUtils.fileDownloadPath}/$fileName';
+      String filePath;
+      if (localPath != null && FileUtils.isLocalFileAvailable(localPath!)) {
+        filePath = localPath!;
+      } else {
+        filePath = '${BubbleUtils.fileDownloadPath}/$fileName';
+      }
+
+      String resolvedMimeType = fileMimeType ?? _resolveMimeType(filePath);
       MethodChannel channel = const MethodChannel('cometchat_uikit_shared');
 
       try {
-        final result = await channel.invokeMethod(
-            'open_file', {'file_path': filePath, 'file_type': fileMimeType});
+        await channel.invokeMethod('open_file', {
+          'file_path': filePath,
+          'file_type': resolvedMimeType,
+          'file_url': fileUrl ?? '',
+        });
       } catch (e) {
-        debugPrint('$e');
-        debugPrint("Could not open file");
+        debugPrint("Could not open file: $e");
       }
     }
+  }
+
+  /// Derives a MIME type from the file path extension when [fileMimeType] is null.
+  String _resolveMimeType(String path) {
+    final ext = path.split('.').last.toLowerCase();
+    const mimeMap = {
+      'pdf': 'application/pdf',
+      'doc': 'application/msword',
+      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'xls': 'application/vnd.ms-excel',
+      'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'ppt': 'application/vnd.ms-powerpoint',
+      'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'txt': 'text/plain',
+      'rtf': 'application/rtf',
+      'csv': 'text/csv',
+      'zip': 'application/zip',
+      'rar': 'application/x-rar-compressed',
+      '7z': 'application/x-7z-compressed',
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'png': 'image/png',
+      'gif': 'image/gif',
+      'webp': 'image/webp',
+      'svg': 'image/svg+xml',
+      'mp3': 'audio/mpeg',
+      'wav': 'audio/wav',
+      'mp4': 'video/mp4',
+      'mov': 'video/quicktime',
+      'avi': 'video/x-msvideo',
+      'mkv': 'video/x-matroska',
+      'json': 'application/json',
+      'xml': 'application/xml',
+      'html': 'text/html',
+    };
+    return mimeMap[ext] ?? 'application/octet-stream';
   }
 
   String _getFileSize(int size, {String unit = 'B'}) {
@@ -446,6 +505,7 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
                         if (path == null) {
                           isFileExists = false;
                         } else {
+                          localPath = path;
                           isFileExists = true;
                         }
 

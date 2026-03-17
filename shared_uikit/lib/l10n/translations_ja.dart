@@ -1329,5 +1329,11 @@ class TranslationsJa extends Translations {
   @override
   String get newMessagesIndicator => '新規';
 
+  @override
+  String get fileTypeNotAllowed => 'このファイル形式は許可されていません。';
+
+  @override
+  String fileSizeExceedsLimit(String size) => 'ファイルが$sizeの制限を超えています - 小さいファイルをお試しください。';
+
 }
 

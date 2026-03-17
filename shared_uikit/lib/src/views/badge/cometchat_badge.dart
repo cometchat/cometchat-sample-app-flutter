@@ -40,7 +40,6 @@ class CometChatBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('🔢 [CometChatBadge] build called with count: $count');
     final badgeStyle = CometChatThemeHelper.getTheme<CometChatBadgeStyle>(
             context: context, defaultTheme: CometChatBadgeStyle.of)
         .merge(style);

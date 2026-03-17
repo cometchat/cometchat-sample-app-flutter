@@ -158,6 +158,9 @@ class CometChatMessageListController
   late String tag;
   bool isThread = false;
   late String _uiGroupListener;
+
+  /// Cancellable retry timer for connection recovery
+  Timer? _retryTimer;
   late String _uiMessageListener;
   late BuildContext context;
 
@@ -837,6 +840,7 @@ class CometChatMessageListController
 
   @override
   void onClose() {
+    _retryTimer?.cancel();
     _syncDebounceTimer?.cancel(); // Cancel any pending sync
     chatController.dispose();
     CometChat.removeGroupListener(_groupListenerId);
@@ -904,14 +908,19 @@ class CometChatMessageListController
         final newReactionsHash = newMsg.metadata?['reactionsHash'];
         final currentBaseMessageId = currentMsg.metadata?['baseMessageId'];
         final newBaseMessageId = newMsg.metadata?['baseMessageId'];
+        final currentHasError = currentMsg.metadata?['hasError'];
+        final newHasError = newMsg.metadata?['hasError'];
 
-        // Update if updatedAt, deletedAt, reactionsHash, or baseMessageId changed
+        // Update if updatedAt, deletedAt, reactionsHash, baseMessageId, or hasError changed
         // baseMessageId changes when message goes from pending (id=0) to sent (real id)
         // deletedAt changes when a message is deleted
+        // hasError changes when a send error occurs (e.g. file size or MIME type error)
         if (currentUpdatedAt != newUpdatedAt ||
             currentDeletedAt != newDeletedAt ||
             currentReactionsHash != newReactionsHash ||
-            currentBaseMessageId != newBaseMessageId) {
+            currentBaseMessageId != newBaseMessageId ||
+            currentHasError != newHasError) {
+          debugPrint('🔄 [SYNC] Message needs update - id: ${newMsg.id}, deletedAt: $currentDeletedAt -> $newDeletedAt');
           messagesToUpdate.add(newMsg);
         }
       } else {
@@ -1308,6 +1317,7 @@ class CometChatMessageListController
           update();
         }, onError: (CometChatException e) {
           isFetching = false;
+          isLoading = false;
           onError?.call(e);
           error = e;
           hasError = true;
@@ -3278,17 +3288,18 @@ class CometChatMessageListController
     getLoggedInUser();
 
     if (isUserAgentic()) {
-      // Clear all queues on reconnection
       CometChatStreamCallBackEvents.ccStreamCompleted(true);
       _queueManager.onConnected();
-
-      // Handle any runs that were interrupted during disconnection
       _handleInterruptedRuns();
     }
 
-    if (!isUserAgentic() && !isLoading && !isScrolled) {
-      _updateUserAndGroup();
-      _fetchNewMessages();
+    if (!isUserAgentic()) {
+      if (hasError) {
+        resetMessageList();
+      } else if (!isLoading && !isScrolled) {
+        _updateUserAndGroup();
+        _fetchNewMessages();
+      }
     }
   }
 
@@ -4361,7 +4372,8 @@ class CometChatMessageListController
     update();
   }
 
-  resetMessageList() async {
+  resetMessageList({int retryCount = 0}) async {
+    _retryTimer?.cancel();
     // First clear the chatController to prevent GlobalKey conflicts
     await chatController.setMessages([]);
 
@@ -4377,6 +4389,7 @@ class CometChatMessageListController
     indexToMessageKey.clear();
 
     error = null;
+    hasError = false;
     hasMoreItems = true;
     hasMoreNext = true;
     isFetching = false;
@@ -4402,8 +4415,15 @@ class CometChatMessageListController
 
     update();
 
-    // Load messages after clearing
-    loadMoreElements();
+    // Load messages after clearing, with retry for iOS where SDK reconnection may be delayed
+    await loadMoreElements();
+    if (hasError && retryCount < 3) {
+      _retryTimer = Timer(const Duration(seconds: 2), () {
+        if (hasError) {
+          resetMessageList(retryCount: retryCount + 1);
+        }
+      });
+    }
   }
 }
 

@@ -3,16 +3,32 @@ import 'dart:io';
 import '../../cometchat_uikit_shared.dart';
 
 class FileUtils {
+  /// Strips the `file://` scheme and percent-decoding from a path so that
+  /// [File] APIs receive a clean filesystem path on both Android and iOS.
+  static String normalizeFilePath(String path) {
+    String normalized = path;
+    // Remove file:// or file:/// prefix
+    if (normalized.startsWith('file://')) {
+      normalized = normalized.replaceFirst(RegExp(r'^file://'), '');
+    }
+    // Decode percent-encoded characters (e.g. %20 → space)
+    try {
+      normalized = Uri.decodeFull(normalized);
+    } catch (_) {}
+    return normalized;
+  }
+
   static bool isLocalFileAvailable(String path) {
-    // Ensure that we are decoding the URL to get the correct file path
-    final decodedPath = Uri.decodeFull(path);
+    final decodedPath = normalizeFilePath(path);
     return decodedPath.isNotEmpty && File(decodedPath).existsSync();
   }
 
   static String? getLocalFilePath(Map<String, dynamic>? metadata) {
-    return metadata != null && metadata.containsKey("localPath")
+    final raw = metadata != null && metadata.containsKey("localPath")
         ? metadata["localPath"] ?? ""
         : null;
+    if (raw == null || (raw as String).isEmpty) return raw;
+    return normalizeFilePath(raw);
   }
 
   static String getFileSize(int size, {String unit = 'B'}) {
@@ -36,7 +52,12 @@ class FileUtils {
 
   static String? getFileExtension(String? fileUrl) {
     // Decode file URL to handle encoded paths
-    String decodedFileUrl = Uri.decodeFull(fileUrl ?? '');
+    String decodedFileUrl;
+    try {
+      decodedFileUrl = Uri.decodeFull(fileUrl ?? '');
+    } catch (_) {
+      decodedFileUrl = fileUrl ?? '';
+    }
     String fileName = decodedFileUrl.split('/').last;
 
     String extension = fileName.split('.').last.toLowerCase();

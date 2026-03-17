@@ -1174,14 +1174,74 @@ class MessagesDataSource implements DataSource {
   Widget getFileMessageContentView(MediaMessage message, BuildContext context,
       BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
+    // Extract file info from attachment or metadata (when upload failed)
+    String? fileUrl = message.attachment?.fileUrl;
+    String? fileMimeType = message.attachment?.fileMimeType;
+    String? fileName = message.attachment?.fileName;
+    
+    // Fallback to metadata when attachment is null (e.g., upload failed due to MIME type error)
+    if (message.attachment == null && message.metadata != null) {
+      final localPath = message.metadata?['localPath'] as String?;
+      if (localPath != null && localPath.isNotEmpty) {
+        // Use local path as fileUrl for icon display
+        fileUrl = localPath;
+        // Extract filename from local path
+        fileName = localPath.split('/').last;
+        // Extract mime type from file extension if not available
+        if (fileName.contains('.')) {
+          final extension = fileName.split('.').last.toLowerCase();
+          fileMimeType = _getMimeTypeFromExtension(extension);
+        }
+      }
+    }
+    
     return CometChatUIKit.getDataSource().getFileMessageBubble(
-        message.attachment?.fileUrl,
-        message.attachment?.fileMimeType,
-        message.attachment?.fileName,
+        fileUrl,
+        fileMimeType,
+        fileName,
         message.id,
         additionalConfigurations?.fileBubbleStyle,
         message,
         alignment);
+  }
+  
+  /// Helper method to get MIME type from file extension
+  String _getMimeTypeFromExtension(String extension) {
+    switch (extension) {
+      case 'pdf':
+        return 'application/pdf';
+      case 'doc':
+        return 'application/msword';
+      case 'docx':
+        return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      case 'xls':
+        return 'application/vnd.ms-excel';
+      case 'xlsx':
+        return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      case 'ppt':
+        return 'application/vnd.ms-powerpoint';
+      case 'pptx':
+        return 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+      case 'txt':
+        return 'text/plain';
+      case 'zip':
+        return 'application/zip';
+      case 'rar':
+        return 'application/x-rar-compressed';
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'gif':
+        return 'image/gif';
+      case 'mp3':
+        return 'audio/mpeg';
+      case 'mp4':
+        return 'video/mp4';
+      default:
+        return 'application/octet-stream';
+    }
   }
 
   @override
@@ -1467,6 +1527,27 @@ class MessagesDataSource implements DataSource {
       CometChatFileBubbleStyle? style,
       MediaMessage message,
       BubbleAlignment alignment,) {
+    // Get file extension and size from attachment or extract from fileUrl/metadata
+    String? fileExtension = message.attachment?.fileExtension;
+    int? fileSize = message.attachment?.fileSize;
+    
+    // Fallback: extract extension from fileUrl if attachment is null
+    if (fileExtension == null && fileUrl != null && fileUrl.isNotEmpty) {
+      try {
+        final decodedUrl = Uri.decodeFull(fileUrl);
+        final fileName = decodedUrl.split('/').last;
+        if (fileName.contains('.')) {
+          fileExtension = fileName.split('.').last.toLowerCase();
+        }
+      } catch (_) {
+        // fileUrl may contain invalid percent encoding (e.g. local paths)
+        final fileName = fileUrl.split('/').last;
+        if (fileName.contains('.')) {
+          fileExtension = fileName.split('.').last.toLowerCase();
+        }
+      }
+    }
+    
     return CometChatFileBubble(
       key: UniqueKey(),
       fileUrl: fileUrl,
@@ -1475,8 +1556,8 @@ class MessagesDataSource implements DataSource {
       style: style ?? const CometChatFileBubbleStyle(),
       title: title ?? "",
       id: id,
-      fileSize: message.attachment?.fileSize,
-      fileExtension: message.attachment?.fileExtension,
+      fileSize: fileSize,
+      fileExtension: fileExtension,
       dateTime: message.sentAt,
       metadata: message.metadata,
     );

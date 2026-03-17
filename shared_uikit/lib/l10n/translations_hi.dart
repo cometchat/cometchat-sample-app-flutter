@@ -1379,4 +1379,10 @@ class TranslationsHi extends Translations {
   @override
   String get newMessagesIndicator => 'नया';
 
+  @override
+  String get fileTypeNotAllowed => 'इस प्रकार की फ़ाइल की अनुमति नहीं है।';
+
+  @override
+  String fileSizeExceedsLimit(String size) => 'फ़ाइल $size की सीमा से अधिक है - छोटी फ़ाइल आज़माएं।';
+
 }

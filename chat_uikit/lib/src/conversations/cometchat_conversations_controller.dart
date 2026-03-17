@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,7 +20,8 @@ class CometChatConversationsController
         CallListener,
         CometChatCallEventListener,
         ConnectionListener,
-        CometChatConversationEventListener
+        CometChatConversationEventListener,
+        WidgetsBindingObserver
     implements CometChatConversationsControllerProtocol {
   //Constructor
   CometChatConversationsController({
@@ -110,6 +112,9 @@ class CometChatConversationsController
   /// Messages are removed from this set after a short delay
   final Set<int> _recentlyProcessedMessageIds = {};
 
+  /// Cancellable retry timer for connection recovery
+  Timer? _retryTimer;
+
   @override
   void onInit() {
     CometChatMessageEvents.addMessagesListener(messageUIListenerID, this);
@@ -126,11 +131,18 @@ class CometChatConversationsController
     CometChatConversationEvents.addConversationListListener(
         _conversationEventListenerId, this);
     initializeTextFormatters();
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      WidgetsBinding.instance.addObserver(this);
+    }
     super.onInit();
   }
 
   @override
   void onClose() {
+    _retryTimer?.cancel();
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      WidgetsBinding.instance.removeObserver(this);
+    }
     CometChatMessageEvents.removeMessagesListener(messageUIListenerID);
     CometChatGroupEvents.removeGroupsListener(groupUIListenerID);
     CometChat.removeMessageListener(messageSDKListenerID);
@@ -145,6 +157,13 @@ class CometChatConversationsController
     CometChatConversationEvents.removeConversationListListener(
         _conversationEventListenerId);
     super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && hasError && !isLoading) {
+      retryConversationList();
+    }
   }
 
   @override
@@ -1062,13 +1081,38 @@ class CometChatConversationsController
 
   @override
   void onConnected() {
-    if (!isLoading) {
+    if (hasError) {
+      retryConversationList();
+    } else if (!isLoading) {
       request = conversationsBuilderProtocol.getRequest();
       list = [];
       loadMoreElements(
         isIncluded: (element) => getMatchingIndex(element) != -1,
       );
     }
+  }
+
+  /// Resets the conversation list and reloads from scratch.
+  /// Called when the user taps Retry after an error, or on reconnection after error.
+  void retryConversationList({int retryCount = 0}) {
+    _retryTimer?.cancel();
+    list.clear();
+    error = null;
+    hasError = false;
+    hasMoreItems = true;
+    isFetching = false;
+    isLoading = true;
+    request = conversationsBuilderProtocol.getRequest();
+    update();
+    loadMoreElements().then((_) {
+      if (hasError && retryCount < 3) {
+        _retryTimer = Timer(const Duration(seconds: 2), () {
+          if (hasError) {
+            retryConversationList(retryCount: retryCount + 1);
+          }
+        });
+      }
+    });
   }
 
   @override

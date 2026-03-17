@@ -882,6 +882,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
         context: context, defaultTheme: CometChatExceptionStyle.of)
         .merge(messageListStyle.outgoingMessageBubbleStyle?.exceptionStyle);
     return Container(
+      constraints: const BoxConstraints(maxWidth: 265),
       decoration: BoxDecoration(
         color: exceptionViewStyle.exceptionBackgroundColor ??
             colorPalette.error100,
@@ -904,17 +905,17 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              Icons.warning,
-              color: exceptionViewStyle.exceptionIconTint ?? colorPalette.error,
-              size: 16,
-            ),
             Padding(
-              padding: EdgeInsetsGeometry.only(left: spacing.padding1 ?? 4),
-              child: Container(
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.5,
-                ),
+              padding: const EdgeInsets.only(top: 2),
+              child: Icon(
+                Icons.warning,
+                color: exceptionViewStyle.exceptionIconTint ?? colorPalette.error,
+                size: 16,
+              ),
+            ),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.all(2),
                 child: Text(
                   exception,
                   style: exceptionViewStyle.exceptionTextStyle ??
@@ -1111,6 +1112,8 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
           ?.bottomView!(message, context, alignment);
     } else if (message.metadata != null &&
         message.metadata!.containsKey("fileSizeError")) {
+      // Set context for localization
+      FileSizeCheckUtil.instance.setContext(context);
       return getExceptionView(
         alignment,
         message,

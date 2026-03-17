@@ -43,21 +43,28 @@ public class CometchatUikitSharedPlugin: NSObject, FlutterPlugin, QLPreviewContr
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "cometchat_uikit_shared", binaryMessenger: registrar.messenger())
-        let viewController = UIApplication.shared.delegate?.window?!.rootViewController
-        let instance = CometchatUikitSharedPlugin(viewController: viewController)
+        let instance = CometchatUikitSharedPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
         globalRegistrar = registrar
     }
     
-    init(viewController: UIViewController?) {
+    override init() {
         super.init()
-        CometchatUikitSharedPlugin.uiViewController = viewController
         documentPicker.delegate = self
         imagePicker.sourceType = .photoLibrary
         imagePicker.delegate = self
         imagePicker.mediaTypes = ["public.image", "public.movie"]
-        
-        
+    }
+    
+    private func getTopViewController() -> UIViewController? {
+        if #available(iOS 13.0, *) {
+            let scenes = UIApplication.shared.connectedScenes
+            let windowScene = scenes.first as? UIWindowScene
+            let window = windowScene?.windows.first(where: { $0.isKeyWindow })
+            return window?.rootViewController
+        } else {
+            return UIApplication.shared.keyWindow?.rootViewController
+        }
     }
     
     
@@ -201,7 +208,7 @@ public class CometchatUikitSharedPlugin: NSObject, FlutterPlugin, QLPreviewContr
             previewController.dataSource = self
             previewController.navigationController?.title = ""
             
-            if let controller = CometchatUikitSharedPlugin.uiViewController {
+            if let controller = self?.getTopViewController() {
                 controller.present(previewController, animated: true, completion: nil)
             }
         }
@@ -242,7 +249,7 @@ private func presentAudioPicker() {
         documentPicker.allowsMultipleSelection = false
         documentPicker.modalPresentationStyle = .fullScreen
 
-        if let controller = CometchatUikitSharedPlugin.uiViewController {
+        if let controller = self?.getTopViewController() {
             controller.present(documentPicker, animated: true, completion: nil)
         } else {
             print("⚠️ Warning: Could not present document picker — uiViewController is nil")
@@ -259,7 +266,7 @@ private func presentAudioPicker() {
                 return
             }
             
-            if let controller = CometchatUikitSharedPlugin.uiViewController {
+            if let controller = this.getTopViewController() {
                 this.documentPicker.modalPresentationStyle = UIModalPresentationStyle.fullScreen
                 controller.present(this.documentPicker, animated: true, completion: nil)
             }
@@ -271,7 +278,7 @@ private func presentImagePicker(mediaType: String) {
     DispatchQueue.main.async { [weak self] in
         guard let this = self else { return }
 
-        guard let controller = CometchatUikitSharedPlugin.uiViewController else {
+        guard let controller = this.getTopViewController() else {
             print("Error: Unable to access UI View Controller")
             return
         }
@@ -500,10 +507,24 @@ private func presentImagePicker(mediaType: String) {
     }
     
     private func openFile(args: [String: Any], result: @escaping FlutterResult){
-        let filePath = args["file_path"] as? String
-        self.previewItem = URL(fileURLWithPath: filePath!) as NSURL
-        self.presentQuickLook()
+        guard let filePath = args["file_path"] as? String else {
+            result("Invalid file path")
+            return
+        }
         
+        // Strip file:// prefix if present so URL(fileURLWithPath:) works correctly
+        let cleanPath = filePath.hasPrefix("file://")
+            ? String(filePath.dropFirst(7))
+            : filePath
+        
+        let fileManager = FileManager.default
+        guard fileManager.fileExists(atPath: cleanPath) else {
+            result("File not found")
+            return
+        }
+        
+        self.previewItem = URL(fileURLWithPath: cleanPath) as NSURL
+        self.presentQuickLook()
     }
     
     
@@ -588,7 +609,7 @@ private func presentImagePicker(mediaType: String) {
     }
     
     func copyMedia(_ item: Any) {
-        if let controller = CometchatUikitSharedPlugin.uiViewController {
+        if let controller = getTopViewController() {
             let activityViewController = UIActivityViewController(activityItems: [item], applicationActivities: nil)
             activityViewController.popoverPresentationController?.sourceView = controller.view
             activityViewController.excludedActivityTypes = [.airDrop]

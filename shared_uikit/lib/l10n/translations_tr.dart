@@ -1365,4 +1365,10 @@ class TranslationsTr extends Translations {
   @override
   String get newMessagesIndicator => 'Yeni';
 
+  @override
+  String get fileTypeNotAllowed => 'Bu dosya türüne izin verilmiyor.';
+
+  @override
+  String fileSizeExceedsLimit(String size) => 'Dosya $size sınırını aşıyor - daha küçük bir dosya deneyin.';
+
 }

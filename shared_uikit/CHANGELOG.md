@@ -1,3 +1,9 @@
+## 5.2.1
+
+## Enhancements
+- Improved iOS app lifecycle handling and added support for Flutter version `3.41`.
+- Added validation for unsupported file types in chat and displayed an error message in the message bubble when users attempt to send a restricted file format.
+
 ## 5.2.0
 
 ## New

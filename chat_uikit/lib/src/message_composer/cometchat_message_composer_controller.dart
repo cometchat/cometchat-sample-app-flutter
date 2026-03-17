@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
@@ -941,9 +940,9 @@ class CometChatMessageComposerController extends GetxController
           onError: onError ??
               (CometChatException e) {
                 if (textMessage.metadata != null) {
-                  textMessage.metadata!["error"] = e;
+                  textMessage.metadata!["error"] = e.message ?? e.code;
                 } else {
-                  textMessage.metadata = {"error": e};
+                  textMessage.metadata = {"error": e.message ?? e.code};
                 }
                 CometChatMessageEvents.ccMessageSent(
                     textMessage, MessageStatus.error);
@@ -1086,11 +1085,18 @@ class CometChatMessageComposerController extends GetxController
         onError: onError ??
             (e) {
               if (mediaMessage.metadata != null) {
-                mediaMessage.metadata!["error"] = e;
-                mediaMessage.metadata!["fileSizeError"] = e.code;
+                mediaMessage.metadata!["error"] = e.message ?? e.code;
               } else {
-                mediaMessage.metadata = {"error": e};
-                mediaMessage.metadata = {"fileSizeError": e.code};
+                mediaMessage.metadata = {"error": e.message ?? e.code};
+              }
+              // Only set fileSizeError for file-related errors (file size limit and MIME type permission)
+              if (e.code.contains('ERR_MAX_FILE_SIZE') || 
+                  e.code == 'ERR_PERMISSION_DENIED' ||
+                  (e.message != null && (e.message!.contains('file size') || e.message!.contains('greater than')))) {
+                // Store the full error message as fileSizeError so size can be parsed from it
+                mediaMessage.metadata!["fileSizeError"] = (e.code == 'ERR_PERMISSION_DENIED') 
+                    ? e.code 
+                    : (e.message ?? e.code);
               }
               CometChatMessageEvents.ccMessageSent(
                   mediaMessage, MessageStatus.error);
@@ -1134,9 +1140,9 @@ class CometChatMessageComposerController extends GetxController
           onError: onError ??
               (CometChatException e) {
                 if (editedMessage.metadata != null) {
-                  editedMessage.metadata!["error"] = e;
+                  editedMessage.metadata!["error"] = e.message ?? e.code;
                 } else {
-                  editedMessage.metadata = {"error": e};
+                  editedMessage.metadata = {"error": e.message ?? e.code};
                 }
                 CometChatMessageEvents.ccMessageSent(
                     editedMessage, MessageStatus.error);
@@ -1183,9 +1189,9 @@ class CometChatMessageComposerController extends GetxController
         onError: onError ??
             (CometChatException e) {
               if (customMessage.metadata != null) {
-                customMessage.metadata!["error"] = e;
+                customMessage.metadata!["error"] = e.message ?? e.code;
               } else {
-                customMessage.metadata = {"error": e};
+                customMessage.metadata = {"error": e.message ?? e.code};
               }
               CometChatMessageEvents.ccMessageSent(
                   customMessage, MessageStatus.error);
@@ -1264,9 +1270,9 @@ class CometChatMessageComposerController extends GetxController
           onError: onError ??
               (CometChatException e) {
                 if (textMessage.metadata != null) {
-                  textMessage.metadata!["error"] = e;
+                  textMessage.metadata!["error"] = e.message ?? e.code;
                 } else {
-                  textMessage.metadata = {"error": e};
+                  textMessage.metadata = {"error": e.message ?? e.code};
                 }
                 CometChatMessageEvents.ccMessageSent(
                     textMessage, MessageStatus.error);

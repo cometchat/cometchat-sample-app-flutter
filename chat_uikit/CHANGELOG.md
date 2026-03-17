@@ -1,4 +1,15 @@
-## 5.2.10
+# 5.2.11
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.2.1`.
+- Improved iOS app lifecycle handling and added support for Flutter version `3.41`.
+- Added validation for unsupported file types in chat and displayed an error message in the message bubble when users attempt to send a restricted file format.
+
+## Fixes
+- Resolved a problem where the message screen and other screens did not refresh automatically after the internet connection was restored, preventing newly received messages from appearing until the screen was reloaded.
+- Fixed an issue where an incorrect error message indicated that a file exceeded the 100 MB upload limit when attempting to upload a much smaller file under unstable or slow internet conditions.
+
+# 5.2.10
 
 ## New
 - Introduced badge count support in the Flutter Sample App, enabling the app icon to display unread message counts for improved visibility of new activity.

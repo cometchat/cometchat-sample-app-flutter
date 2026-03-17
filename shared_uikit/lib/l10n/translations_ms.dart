@@ -1366,5 +1366,11 @@ class TranslationsMs extends Translations {
   @override
   String get newMessagesIndicator => 'Baharu';
 
+  @override
+  String get fileTypeNotAllowed => 'Jenis fail ini tidak dibenarkan.';
+
+  @override
+  String fileSizeExceedsLimit(String size) => 'Fail melebihi had $size - cuba fail yang lebih kecil.';
+
 }
 

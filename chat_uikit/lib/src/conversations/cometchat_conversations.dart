@@ -780,56 +780,16 @@ class _CometChatConversationsState extends State<CometChatConversations> {
     BuildContext context,
     CometChatConversationsController controller,
   ) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(
-              bottom: spacing.padding5 ?? 0,
-            ),
-            child: Image.asset(
-              AssetConstants(CometChatThemeHelper.getBrightness(context))
-                  .messagesError,
-              package: UIConstants.packageName,
-              width: 120,
-              height: 120,
-            ),
-          ),
-          Text(
-            cc.Translations.of(context).oops,
-            style: TextStyle(
-              color: style.errorStateTextColor ?? colorPalette.textPrimary,
-              fontSize: typography.heading3?.bold?.fontSize,
-              fontWeight: typography.heading3?.bold?.fontWeight,
-              fontFamily: typography.heading3?.bold?.fontFamily,
-            )
-                .merge(
-                  style.errorStateTextStyle,
-                )
-                .copyWith(
-                  color: style.errorStateTextColor,
-                ),
-          ),
-          Text(
-            "${cc.Translations.of(context).looksLikeSomethingWrong}.\n${cc.Translations.of(context).pleaseTryAgain}.",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: style.errorStateSubTitleTextColor ??
-                  colorPalette.textSecondary,
-              fontSize: typography.heading3?.regular?.fontSize,
-              fontWeight: typography.heading3?.regular?.fontWeight,
-              fontFamily: typography.heading3?.regular?.fontFamily,
-            )
-                .merge(
-                  style.errorStateSubTitleTextStyle,
-                )
-                .copyWith(
-                  color: style.errorStateSubTitleTextColor,
-                ),
-          ),
-        ],
-      ),
+    return UIStateUtils.getDefaultErrorStateView(
+      context,
+      colorPalette,
+      typography,
+      spacing,
+      controller.retryConversationList,
+      errorStateTextColor: style.errorStateTextColor,
+      errorStateTextStyle: style.errorStateTextStyle,
+      errorStateSubtitleColor: style.errorStateSubTitleTextColor,
+      errorStateSubtitleStyle: style.errorStateSubTitleTextStyle,
     );
   }
 

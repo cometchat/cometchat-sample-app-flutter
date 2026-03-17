@@ -1362,4 +1362,10 @@ class TranslationsRu extends Translations {
   @override
   String get newMessagesIndicator => 'Новое';
 
+  @override
+  String get fileTypeNotAllowed => 'Этот тип файла не разрешен.';
+
+  @override
+  String fileSizeExceedsLimit(String size) => 'Файл превышает лимит $size - попробуйте файл меньшего размера.';
+
 }

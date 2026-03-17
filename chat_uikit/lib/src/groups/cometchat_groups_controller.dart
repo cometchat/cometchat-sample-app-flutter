@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../cometchat_chat_uikit.dart';
@@ -12,7 +14,8 @@ class CometChatGroupsController
         CometChatSelectable,
         CometChatGroupEventListener,
         GroupListener,
-        ConnectionListener {
+        ConnectionListener,
+        WidgetsBindingObserver {
   //Class members
   late GroupsBuilderProtocol groupsBuilderProtocol;
   late String dateStamp;
@@ -37,17 +40,14 @@ class CometChatGroupsController
     groupUIListenerID = "${dateStamp}_ui_FromGroup_listener";
   }
 
-  // TODO: Implement the retry logic later.
-  // Retry configuration
-  final int maxRetries = 3;
-  final Duration retryDelay = const Duration(seconds: 3);
-  int _currentRetryCount = 0;
-
   bool? groupTypeVisibility;
 
   CometChatColorPalette? colorPalette;
   CometChatSpacing? spacing;
   CometChatTypography? typography;
+
+  /// Cancellable retry timer for connection recovery
+  Timer? _retryTimer;
 
 //initialization functions
   @override
@@ -55,15 +55,29 @@ class CometChatGroupsController
     CometChatGroupEvents.addGroupsListener(groupUIListenerID, this);
     CometChat.addGroupListener(groupSDKListenerID, this);
     CometChat.addConnectionListener(groupSDKListenerID, this);
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      WidgetsBinding.instance.addObserver(this);
+    }
     super.onInit();
   }
 
   @override
   void onClose() {
+    _retryTimer?.cancel();
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      WidgetsBinding.instance.removeObserver(this);
+    }
     CometChat.removeGroupListener(groupSDKListenerID);
     CometChatGroupEvents.removeGroupsListener(groupUIListenerID);
     CometChat.removeConnectionListener(groupSDKListenerID);
     super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && hasError && !isLoading) {
+      resetGroups();
+    }
   }
 
   @override
@@ -184,7 +198,9 @@ class CometChatGroupsController
 
   @override
   void onConnected() {
-    if (!isLoading) {
+    if (hasError) {
+      resetGroups();
+    } else if (!isLoading) {
       request = groupsBuilderProtocol.getRequest();
       list = [];
       loadMoreElements();
@@ -196,15 +212,26 @@ class CometChatGroupsController
     update();
   }
 
-  resetGroups() {
+  resetGroups({int retryCount = 0}) {
+    _retryTimer?.cancel();
     // reset values
     list.clear();
     error = null;
     hasError = false;
     hasMoreItems = true;
+    isFetching = false;
     isLoading = true;
-    loadMoreElements();
+    request = groupsBuilderProtocol.getRequest();
     update();
+    loadMoreElements().then((_) {
+      if (hasError && retryCount < 3) {
+        _retryTimer = Timer(const Duration(seconds: 2), () {
+          if (hasError) {
+            resetGroups(retryCount: retryCount + 1);
+          }
+        });
+      }
+    });
   }
 
 

@@ -1361,4 +1361,10 @@ class TranslationsSv extends Translations {
   @override
   String get newMessagesIndicator => 'Nytt';
 
+  @override
+  String get fileTypeNotAllowed => 'Denna filtyp är inte tillåten.';
+
+  @override
+  String fileSizeExceedsLimit(String size) => 'Filen överskrider gränsen på $size - prova en mindre fil.';
+
 }

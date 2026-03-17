@@ -1367,4 +1367,10 @@ class TranslationsHu extends Translations {
   @override
   String get newMessagesIndicator => 'Új';
 
+  @override
+  String get fileTypeNotAllowed => 'Ez a fájltípus nem engedélyezett.';
+
+  @override
+  String fileSizeExceedsLimit(String size) => 'A fájl meghaladja a $size korlátot - próbáljon kisebbet.';
+
 }

@@ -18,7 +18,7 @@ dependencies:
 
   intl: any
   cupertino_icons: ^1.0.2
-  cometchat_chat_uikit: ^5.2.1
+  cometchat_chat_uikit: ^5.2.11
   http: ^1.1.0
   toast: ^0.3.0
   path_provider: ^2.1.4

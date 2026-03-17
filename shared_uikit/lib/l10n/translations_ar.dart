@@ -1378,4 +1378,10 @@ class TranslationsAr extends Translations {
   @override
   String get newMessagesIndicator => 'جديد';
 
+  @override
+  String get fileTypeNotAllowed => 'هذا النوع من الملفات غير مسموح به.';
+
+  @override
+  String fileSizeExceedsLimit(String size) => 'الملف يتجاوز الحد المسموح به $size - جرب ملفًا أصغر.';
+
 }

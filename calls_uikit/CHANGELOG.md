@@ -1,3 +1,10 @@
+## 5.0.13
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.2.1`.
+- Improved iOS app lifecycle handling and added support for Flutter version `3.41`.
+- Enhanced the Call Logs screen to refresh automatically after the internet connection is restored.
+
 ## 5.0.12
 
 ## Enhancements

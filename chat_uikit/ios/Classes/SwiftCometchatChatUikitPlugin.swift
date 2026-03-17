@@ -29,18 +29,14 @@ public class SwiftCometchatChatUikitPlugin: NSObject, FlutterPlugin , QLPreviewC
     
 public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "cometchat_chat_uikit", binaryMessenger: registrar.messenger())
-      let viewController = UIApplication.shared.delegate?.window?!.rootViewController
-      let instance = SwiftCometchatChatUikitPlugin(viewController: viewController)
+      let instance = SwiftCometchatChatUikitPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
     globalRegistrar = registrar
     
   }
     
-    init(viewController: UIViewController?) {
+    override init() {
         super.init()
-        SwiftCometchatChatUikitPlugin.uiViewController = viewController
-        
-        
     }
 
     
@@ -87,9 +83,20 @@ public static func register(with registrar: FlutterPluginRegistrar) {
             previewController.dataSource = self
             previewController.navigationController?.title = ""
            
-            if let controller = SwiftCometchatChatUikitPlugin.uiViewController {
+            if let controller = self?.getTopViewController() {
                 controller.present(previewController, animated: true, completion: nil)
             }
+        }
+    }
+    
+    private func getTopViewController() -> UIViewController? {
+        if #available(iOS 13.0, *) {
+            let scenes = UIApplication.shared.connectedScenes
+            let windowScene = scenes.first as? UIWindowScene
+            let window = windowScene?.windows.first(where: { $0.isKeyWindow })
+            return window?.rootViewController
+        } else {
+            return UIApplication.shared.keyWindow?.rootViewController
         }
     }
     

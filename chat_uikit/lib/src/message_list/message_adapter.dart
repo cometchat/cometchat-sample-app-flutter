@@ -34,6 +34,8 @@ class MessageAdapter {
       'updatedAt': baseMessage.updatedAt?.millisecondsSinceEpoch, // Add this for poll updates
       'deletedAt': baseMessage.deletedAt?.millisecondsSinceEpoch, // Add this to detect deletion
       'reactionsHash': reactionsHash, // Add this to detect reaction changes
+      'hasError': baseMessage.metadata?.containsKey('fileSizeError') == true ||
+                  baseMessage.metadata?.containsKey('error') == true, // Detect error state changes
     };
 
     // For now, convert all messages to text messages to simplify

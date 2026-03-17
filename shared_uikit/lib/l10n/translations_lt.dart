@@ -1367,4 +1367,10 @@ class TranslationsLt extends Translations {
   @override
   String get newMessagesIndicator => 'Naujas';
 
+  @override
+  String get fileTypeNotAllowed => 'Šis failo tipas neleidžiamas.';
+
+  @override
+  String fileSizeExceedsLimit(String size) => 'Failas viršija $size limitą - bandykite mažesnį.';
+
 }

@@ -1333,4 +1333,10 @@ class TranslationsKo extends Translations {
   @override
   String get newMessagesIndicator => '새로운';
 
+  @override
+  String get fileTypeNotAllowed => '이 파일 형식은 허용되지 않습니다.';
+
+  @override
+  String fileSizeExceedsLimit(String size) => '파일이 $size 제한을 초과합니다 - 더 작은 파일을 시도하세요.';
+
 }

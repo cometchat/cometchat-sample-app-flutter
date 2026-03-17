@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../cometchat_chat_uikit.dart';
@@ -9,7 +11,8 @@ class CometChatUsersController
         CometChatSelectable,
         UserListener,
         CometChatUserEventListener,
-        ConnectionListener {
+        ConnectionListener,
+        WidgetsBindingObserver {
   //--------------------Constructor-----------------------
   CometChatUsersController({
     required this.usersBuilderProtocol,
@@ -32,15 +35,12 @@ class CometChatUsersController
   late String _uiUserListener;
   bool? usersStatusVisibility;
 
-  // TODO: Implement the retry logic later.
-  // Retry configuration
-  final int maxRetries = 3;
-  final Duration retryDelay = const Duration(seconds: 3);
-  int _currentRetryCount = 0;
-
   CometChatColorPalette? colorPalette;
   CometChatSpacing? spacing;
   CometChatTypography? typography;
+
+  /// Cancellable retry timer for connection recovery
+  Timer? _retryTimer;
 
   //-------------------------LifeCycle Methods-----------------------------
   @override
@@ -48,15 +48,29 @@ class CometChatUsersController
     CometChat.addUserListener(userListenerID, this);
     CometChatUserEvents.addUsersListener(_uiUserListener, this);
     CometChat.addConnectionListener(userListenerID, this);
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      WidgetsBinding.instance.addObserver(this);
+    }
     super.onInit();
   }
 
   @override
   void onClose() {
+    _retryTimer?.cancel();
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      WidgetsBinding.instance.removeObserver(this);
+    }
     CometChat.removeUserListener(userListenerID);
     CometChatUserEvents.removeUsersListener(_uiUserListener);
     CometChat.removeConnectionListener(userListenerID);
     super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && hasError && !isLoading) {
+      resetUsers();
+    }
   }
 
   //-------------------------Parent List overriding Methods-----------------------------
@@ -94,7 +108,9 @@ class CometChatUsersController
 
   @override
   void onConnected() {
-    if (!isLoading) {
+    if (hasError) {
+      resetUsers();
+    } else if (!isLoading) {
       request = usersBuilderProtocol.getRequest();
       list = [];
       loadMoreElements();
@@ -114,15 +130,26 @@ class CometChatUsersController
     update();
   }
 
-  resetUsers() {
+  resetUsers({int retryCount = 0}) {
+    _retryTimer?.cancel();
     // reset values
     list.clear();
     error = null;
     hasError = false;
     hasMoreItems = true;
+    isFetching = false;
     isLoading = true;
-    loadMoreElements();
+    request = usersBuilderProtocol.getRequest();
     update();
+    loadMoreElements().then((_) {
+      if (hasError && retryCount < 3) {
+        _retryTimer = Timer(const Duration(seconds: 2), () {
+          if (hasError) {
+            resetUsers(retryCount: retryCount + 1);
+          }
+        });
+      }
+    });
   }
 
 
