@@ -990,6 +990,12 @@ class CometChatConversationsSearchController
           style: ccMentionStyle /*?? mentionsStyle*/));
     }
 
+    // Ensure rich text formatter is included for rendering formatted messages in conversation subtitle
+    if (textFormatters.indexWhere(
+            (element) => element is CometChatRichTextFormatter) == -1) {
+      textFormatters.add(CometChatRichTextFormatter());
+    }
+
     this.textFormatters = textFormatters;
   }
 

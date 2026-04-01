@@ -1,3 +1,12 @@
+## 5.2.2
+
+## New
+- Introduced the `CometChatCompactMessageComposer` component, a streamlined, single-line message composer for a more efficient message composition experience.
+- Added the `showTextSelectionMenuItems` prop, enabling the display of text formatting options (e.g., bold, italic) in the native text selection menu when users select text within the composer.
+- Added the `hideRichTextFormattingOptions` prop to hide the fixed formatting toolbar above the message composer, providing a cleaner interface.
+- Introduced the `enableRichTextEditor` master prop to control all rich text functionality. When disabled:
+- Both the selection menu items and fixed formatting toolbar are hidden, regardless of other settings.
+
 ## 5.2.1
 
 ## Enhancements

@@ -1041,8 +1041,8 @@ class TranslationsRu extends Translations {
   String get tapToRemove => 'Нажмите, чтобы удалить';
 
   @override
-  String get mentionsMaxLimitHit =>
-      'В сообщении можно указать только 10 пользователей.';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      'Вы можете упомянуть до \$count пользователей одновременно.';
 
   @override
   String get copy => 'Копировать';

@@ -222,7 +222,7 @@ class _CometChatThreadState extends State<CometChatThread> {
             controller.group?.isBannedFromGroup == true)) {
       return _buildKickedFromGroup(controller);
     } else {
-      return CometChatMessageComposer(
+      return CometChatCompactMessageComposer(
         user: widget.user,
         group: widget.group,
         parentMessageId: widget.message.id,

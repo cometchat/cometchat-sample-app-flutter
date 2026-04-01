@@ -213,7 +213,7 @@ extension AudioRecorder: FlutterStreamHandler {
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         timer?.invalidate()
         timer = nil  // Reset before creating a new one
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
             self.audioRecorder?.updateMeters()
             let decibels = self.audioRecorder?.averagePower(forChannel: 0)
             // Convert the decibels to a linear scale (0.0 to 1.0)

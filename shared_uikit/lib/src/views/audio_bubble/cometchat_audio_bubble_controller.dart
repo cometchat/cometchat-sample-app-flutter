@@ -170,28 +170,31 @@ class AudioBubbleState {
       await initializeController();
     }
 
-    if (_controller != null && _controller!.value.isInitialized) {
+    final controller = _controller;
+    if (controller != null && controller.value.isInitialized) {
       // Pause all other audio bubbles
       AudioStateManager().pauseAllExcept(id);
 
       _playState = PlayStates.playing;
-      await _controller!.play();
+      await controller.play();
       _notifyStateUpdate();
     }
   }
 
   Future<void> pauseAudio() async {
-    if (_controller != null && _controller!.value.isInitialized) {
-      await _controller!.pause();
+    final controller = _controller;
+    if (controller != null && controller.value.isInitialized) {
+      await controller.pause();
       _playState = PlayStates.paused;
       _notifyStateUpdate();
     }
   }
 
   Future<void> stopAudio() async {
-    if (_controller != null && _controller!.value.isInitialized) {
-      await _controller!.pause();
-      await _controller!.seekTo(Duration.zero);
+    final controller = _controller;
+    if (controller != null && controller.value.isInitialized) {
+      await controller.pause();
+      await controller.seekTo(Duration.zero);
       _playState = PlayStates.stopped;
       _currentPosition = Duration.zero;
       _notifyStateUpdate();

@@ -30,7 +30,7 @@ object AudioRecorderEventHandler: EventChannel.StreamHandler {
                     Log.e("onAttachedToEngine","EventChannel cometchat_uikit_shared_audio_intensity event is emitted")
                 }
             }
-        }, 0, 500)
+        }, 0, 100)
     }
 
     override fun onCancel(arguments: Any?) {

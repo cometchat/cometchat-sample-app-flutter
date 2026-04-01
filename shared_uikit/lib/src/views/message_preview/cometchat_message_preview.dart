@@ -15,6 +15,7 @@ class CometChatMessagePreview extends StatelessWidget {
     this.onCloseClick,
     this.hideCloseButton = false,
     this.message,
+    this.textFormatters,
   });
 
   ///[messagePreviewTitle]
@@ -37,6 +38,10 @@ class CometChatMessagePreview extends StatelessWidget {
 
   ///[message] message object to get message details
   final BaseMessage? message;
+
+  ///[textFormatters] list of text formatters for rendering rich text in the subtitle
+  ///_Requirements: 2.14_
+  final List<CometChatTextFormatter>? textFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -96,15 +101,19 @@ class CometChatMessagePreview extends StatelessWidget {
                           ),
                     ),
                     if (hideCloseButton == false)
-                      GestureDetector(
-                        onTap: onCloseClick,
-                        child: messagePreviewCloseButtonIcon ??
-                            Icon(
-                              Icons.close,
-                              size: 16,
-                              color: style.closeIconColor ??
-                                  colorPalette.iconSecondary,
-                            ),
+                      Semantics(
+                        label: 'Close preview',
+                        button: true,
+                        child: GestureDetector(
+                          onTap: onCloseClick,
+                          child: messagePreviewCloseButtonIcon ??
+                              Icon(
+                                Icons.close,
+                                size: 16,
+                                color: style.closeIconColor ??
+                                    colorPalette.iconSecondary,
+                              ),
+                        ),
                       )
                   ],
                 ),
@@ -127,17 +136,11 @@ class CometChatMessagePreview extends StatelessWidget {
                       constraints: BoxConstraints(
                         maxWidth: MediaQuery.of(context).size.width * 0.4,
                       ),
-                      child: Text(
-                        messagePreviewSubtitle,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: typography.caption1?.regular?.fontSize,
-                          fontWeight: typography.caption1?.regular?.fontWeight,
-                          color: colorPalette.textSecondary,
-                        ).merge(style.messagePreviewSubtitleStyle).copyWith(
-                              color: style.messagePreviewSubtitleColor,
-                            ),
+                      child: _buildSubtitleWidget(
+                        context,
+                        typography,
+                        colorPalette,
+                        style,
                       ),
                     ),
                   ),
@@ -146,6 +149,54 @@ class CometChatMessagePreview extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// Builds the subtitle widget with rich text rendering if formatters are provided.
+  /// Uses RichText widget with CometChatRichTextFormatter for formatting.
+  /// Applies 1-line constraint with overflow truncation.
+  /// _Requirements: 2.14_
+  Widget _buildSubtitleWidget(
+    BuildContext context,
+    CometChatTypography typography,
+    CometChatColorPalette colorPalette,
+    CometChatMessagePreviewStyle style,
+  ) {
+    // Default text style for the subtitle
+    final defaultTextStyle = TextStyle(
+      fontSize: typography.caption1?.regular?.fontSize,
+      fontWeight: typography.caption1?.regular?.fontWeight,
+      color: colorPalette.textSecondary,
+    ).merge(style.messagePreviewSubtitleStyle).copyWith(
+          color: style.messagePreviewSubtitleColor,
+        );
+
+    // If no text formatters provided, use plain Text widget
+    if (textFormatters == null || textFormatters!.isEmpty) {
+      return Text(
+        messagePreviewSubtitle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: defaultTextStyle,
+      );
+    }
+
+    // Build rich text spans using FormatterUtils
+    final textSpans = FormatterUtils.buildConversationTextSpan(
+      messagePreviewSubtitle,
+      textFormatters,
+      context,
+      defaultTextStyle,
+    );
+
+    // Use RichText widget with 1-line constraint and ellipsis overflow
+    return RichText(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        style: defaultTextStyle,
+        children: textSpans,
       ),
     );
   }

@@ -339,7 +339,7 @@ class _MessagesSampleState extends State<MessagesSample> {
             controller.group?.isBannedFromGroup == true)) {
       return _buildKickedFromGroup(controller);
     } else {
-      return CometChatMessageComposer(
+      return CometChatCompactMessageComposer(
         user: widget.user,
         group: widget.group,
       );

@@ -1516,7 +1516,16 @@ class MessagesDataSource implements DataSource {
       alignment: alignment,
       id: message.id,
       metadata: message.metadata,
+      fileSize: _formatFileSize(message.attachment?.fileSize),
     );
+  }
+
+  /// Formats file size in bytes to human readable format
+  String? _formatFileSize(int? bytes) {
+    if (bytes == null) return null;
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
   @override
@@ -1897,6 +1906,7 @@ class MessagesDataSource implements DataSource {
   List<CometChatTextFormatter> getDefaultTextFormatters() {
     return [
       CometChatMentionsFormatter(),
+      CometChatRichTextFormatter(),
       CometChatEmailFormatter(),
       CometChatPhoneNumberFormatter(),
       CometChatUrlFormatter(),
@@ -2061,7 +2071,9 @@ class MessagesDataSource implements DataSource {
         previewText = CometChatMentionsFormatter.getTextWithMentions(
             previewText,
             message.quotedMessage!.mentionedUsers);
-        messagePreviewSubtitle = previewText;
+        // Strip rich text formatting for preview display
+        // Requirements: 8.1, 8.2, 8.3, 8.4
+        messagePreviewSubtitle = FormatPatterns.stripFormatting(previewText);
       } else {
         messagePreviewSubtitle =
             ComposerUtils().getReplySubtitle(message.quotedMessage, context);

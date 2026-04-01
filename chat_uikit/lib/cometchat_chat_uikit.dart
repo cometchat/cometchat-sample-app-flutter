@@ -85,3 +85,8 @@ export 'src/message_composer/cometchat_suggestion_list_style.dart';
 export 'src/ai_assistant_chat_history/cometchat_ai_assistant_chat_history.dart';
 export 'src/ai_assistant_chat_history/cometchat_ai_assistant_chat_history_controller.dart';
 export 'src/ai_assistant_chat_history/cometchat_ai_assistant_chat_history_style.dart';
+
+//Compact Message Composer
+export 'src/compact_message_composer/cometchat_compact_message_composer.dart';
+export 'src/compact_message_composer/cometchat_compact_message_composer_controller.dart';
+export 'src/compact_message_composer/cometchat_compact_message_composer_style.dart';

@@ -88,7 +88,7 @@ class APNSService with CometChatCallsEventsListener, CometChatUIEventListener {
     await flutterLocalNotificationsPlugin.show(
       notifyId,
       data['title'], // Notification title
-      data['body'], // Notification body
+      FormatPatterns.stripFormatting(data['body'] ?? ''), // Notification body stripped of rich text formatting
       platformChannelSpecifics,
       payload: jsonPayload,
     );

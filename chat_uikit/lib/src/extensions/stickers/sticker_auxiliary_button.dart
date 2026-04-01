@@ -97,7 +97,7 @@ class _StickerAuxiliaryButtonState extends State<StickerAuxiliaryButton>
     return Container(
       height: 24,
       width: 24,
-      margin: EdgeInsets.only(right: spacing.margin4 ?? 0),
+      margin: EdgeInsets.only(right: spacing.margin3 ?? 0),
       child: _isStickerButtonActive == true
           ? IconButton(
         padding:

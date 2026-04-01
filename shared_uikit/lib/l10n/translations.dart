@@ -2168,11 +2168,11 @@ abstract class Translations {
   /// **'Tap to remove'**
   String get tapToRemove;
 
-  ///No description provided for @mentionsMaxLimitHit.
+  ///No description provided for @mentionsMaxLimitHitWithCount.
   ///
   ///In en, this translates to :
-  ///**'You can only mention 10 users in a message.'
-  String get mentionsMaxLimitHit;
+  ///**'You can mention up to {count} users at once.'
+  String mentionsMaxLimitHitWithCount(int count);
 
   ///No description provided for @copy.
 

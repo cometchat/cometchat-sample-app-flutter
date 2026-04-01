@@ -1,6 +1,6 @@
 name: cometchat_uikit_shared
 description: Shared Components and Resources for CometChat's chat and calls UI Kits
-version: 5.2.1
+version: 5.2.2
 homepage: https://www.cometchat.com/
 
 environment:
@@ -41,6 +41,7 @@ dev_dependencies:
   build_runner: ^2.4.0
   freezed: ^3.2.3
   json_serializable: ^6.7.0
+  glados: ^1.1.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

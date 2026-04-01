@@ -23,7 +23,7 @@ class CometChatAiAssistantTableBuilder extends StatelessWidget {
   /// Detect if a cell contains any markdown
   bool _containsMarkdown(String text) {
     final markdownRegex = RegExp(
-      r'(\*\*.*?\*\*|_.*?_|\~\~.*?\~\~|\`.*?\`|\[.*?\]\(.*?\)|\!?\[.*?\]\(.*?\)|^(\s*[-*+] |\d+\.)|:[a-z_]+:)',
+      r'((?<!\*)\*[^*]+\*(?!\*)|_.*?_|\~\~.*?\~\~|\`.*?\`|\[.*?\]\(.*?\)|\!?\[.*?\]\(.*?\)|^(\s*[-*+] |\d+\.)|:[a-z_]+:)',
       multiLine: true,
       caseSensitive: false,
     );
@@ -53,15 +53,15 @@ class CometChatAiAssistantTableBuilder extends StatelessWidget {
         .toList();
   }
 
-  /// Detect if text is **bold markdown**
+  /// Detect if text is *bold markdown*
   bool _isBoldMarkdown(String text) {
-    final boldRegex = RegExp(r'\*\*(.*?)\*\*');
+    final boldRegex = RegExp(r'(?<!\*)\*([^*]+)\*(?!\*)');
     return boldRegex.hasMatch(text);
   }
 
-  /// Remove ** markers from text
+  /// Remove * markers from text
   String _stripBoldMarkdown(String text) {
-    return text.replaceAll(RegExp(r'\*\*'), '');
+    return text.replaceAll(RegExp(r'(?<!\*)\*([^*]+)\*(?!\*)'), r'$1');
   }
 
   /// Build individual table cell with markdown support

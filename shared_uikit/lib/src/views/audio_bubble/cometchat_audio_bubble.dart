@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
-import 'package:video_player/video_player.dart';
 
 import 'cometchat_audio_bubble_controller.dart';
 
@@ -44,7 +41,8 @@ class CometChatAudioBubble extends StatefulWidget {
       this.alignment,
       this.fileMimeType,
       this.id,
-      this.metadata});
+      this.metadata,
+      this.fileSize});
 
   ///[audioUrl] if audioUrl passed then that audioUrl is used instead of file name from message Object
   final String? audioUrl;
@@ -88,6 +86,9 @@ class CometChatAudioBubble extends StatefulWidget {
   ///[metadata] metadata of the message object
   final Map<String, dynamic>? metadata;
 
+  ///[fileSize] file size to display before download
+  final String? fileSize;
+
   @override
   State<CometChatAudioBubble> createState() => _CometChatAudioBubbleState();
 }
@@ -98,13 +99,15 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
   StreamSubscription<AudioStateUpdate>? _audioStateSubscription;
   StreamSubscription<AudioBubbleEvents>? _eventSubscription;
 
-  final Random random = Random();
   final double barWidth = 2.0;
-  final double minHeight = 2.0;
-  final double maxHeight = 16.0;
-  List<double> barHeights = [];
-  Timer? timer;
-  bool isAnimating = false;
+  final double minHeight = 4.0;
+  final double maxHeight = 28.0;
+
+  /// Waveform amplitudes (0.0–1.0) extracted from metadata or generated
+  /// deterministically from the message id.
+  List<double> _waveformData = [];
+  List<double> _randomWaveformData = [];
+  List<double> _actualWaveformData = [];
 
   final double _millisecondsInHrs = 3600000;
   int delayer = 1;
@@ -122,38 +125,57 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
   void initState() {
     super.initState();
     tag = widget.id ?? DateTime.now().millisecondsSinceEpoch;
+    if (widget.metadata != null &&
+        widget.metadata!.containsKey(AudioBubbleConstants.usedByMediaRecorder)) {
+      usedByMediaRecorder = widget.metadata![AudioBubbleConstants.usedByMediaRecorder] ?? false;
+    }
+    _initWaveformData();
     _setupAudioState();
     _setupEventStreams();
     _checkFileExists();
+  }
 
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _audioState != null) {
-        _updateAnimationBasedOnPlayState(_audioState!.playState);
-      }
-    });
+  /// Initialise waveform data from metadata or generate a deterministic
+  /// pattern seeded from the message tag so the same message always looks
+  /// the same.
+  void _initWaveformData() {
+    final meta = widget.metadata;
+    if (meta != null && meta.containsKey('waveform') && meta['waveform'] is List) {
+      _actualWaveformData = (meta['waveform'] as List)
+          .map<double>((e) => (e is num ? e.toDouble() : 0.0).clamp(0.0, 1.0))
+          .toList();
+    }
+
+    // Generate a deterministic random waveform from the tag for initial display
+    final seededRandom = Random(tag);
+    _randomWaveformData = List.generate(
+      getBarCount(),
+      (_) => seededRandom.nextDouble(),
+    );
+
+    // If we have actual waveform data, use it; otherwise use random
+    if (_actualWaveformData.isEmpty) {
+      _actualWaveformData = List.generate(
+        getBarCount(),
+        (_) => seededRandom.nextDouble(),
+      );
+    }
+    
+    // Initially show random waveform
+    _waveformData = _randomWaveformData;
   }
 
   void _setupAudioState() {
     final path = FileUtils.getLocalFilePath(widget.metadata) ?? '';
     _audioState = AudioStateManager().getAudioState(tag, widget.audioUrl, path);
 
-    // Cancel any existing subscription first
     _audioStateSubscription?.cancel();
 
-    // Set up new subscription
     _audioStateSubscription = _audioState!.stateStream.listen((update) {
       if (mounted && update.id == tag) {
-        setState(() {
-          // Update animation based on the new play state
-          _updateAnimationBasedOnPlayState(update.playState);
-        });
+        setState(() {});
       }
     });
-
-    // ✅ Immediately sync with current state
-    if (mounted) {
-      _updateAnimationBasedOnPlayState(_audioState!.playState);
-    }
   }
 
   @override
@@ -174,18 +196,6 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
         _audioState?.stopAudio();
       }
     });
-  }
-
-  void _updateAnimationBasedOnPlayState(PlayStates playState) {
-    bool shouldAnimate = playState == PlayStates.playing;
-
-    if (isAnimating != shouldAnimate) {
-      toggleAnimation(shouldAnimate);
-    }
-
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   Future<void> _checkFileExists() async {
@@ -216,39 +226,46 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     }
 
     _audioState = AudioStateManager().getAudioState(tag, widget.audioUrl, localPath);
-    _audioState!.initializeController();
+    
+    // Only initialize controller if file exists
+    if (isFileExists) {
+      _audioState!.initializeController();
+      // Switch to actual waveform when file exists
+      _waveformData = _actualWaveformData;
+    }
   }
 
   late CometChatAudioBubbleStyle audioBubbleStyle;
   late CometChatColorPalette colorPalette;
   late CometChatSpacing spacing;
   late CometChatTypography typography;
-  late List<Widget> audioBars;
-  late bool usedByMediaRecorder;
+  bool usedByMediaRecorder = false;
 
   int getBarCount() {
     return usedByMediaRecorder ? 130 : 43;
   }
 
-  setAudioBarHeights() {
-    audioBars = List.generate(
-      getBarCount(),
-      (index) {
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 400),
-          margin: const EdgeInsets.only(right: 2.69),
-          width: barWidth,
-          height: randomHeight(),
-          decoration: BoxDecoration(
-            color: audioBubbleStyle.audioBarColor ??
-                (widget.alignment == BubbleAlignment.right
-                    ? colorPalette.white
-                    : colorPalette.primary),
-            borderRadius: BorderRadius.circular(spacing.radiusMax ?? 0),
-          ),
-        );
-      },
-    );
+  /// Resample [_waveformData] to exactly [targetCount] bars.
+  List<double> _resampleWaveform(int targetCount) {
+    if (_waveformData.isEmpty || targetCount <= 0) {
+      return List.filled(targetCount > 0 ? targetCount : 1, 0.0);
+    }
+    if (_waveformData.length == targetCount) return _waveformData;
+
+    final result = <double>[];
+    final ratio = _waveformData.length / targetCount;
+    for (int i = 0; i < targetCount; i++) {
+      final start = (i * ratio).floor();
+      final end = ((i + 1) * ratio).ceil().clamp(0, _waveformData.length);
+      double sum = 0;
+      int count = 0;
+      for (int j = start; j < end; j++) {
+        sum += _waveformData[j];
+        count++;
+      }
+      result.add(count > 0 ? sum / count : 0.0);
+    }
+    return result;
   }
 
   @override
@@ -259,53 +276,14 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     colorPalette = CometChatThemeHelper.getColorPalette(context);
     spacing = CometChatThemeHelper.getSpacing(context);
     typography = CometChatThemeHelper.getTypography(context);
-    if (widget.metadata != null &&
-        widget.metadata!.containsKey(AudioBubbleConstants.usedByMediaRecorder)) {
-      usedByMediaRecorder = widget.metadata![AudioBubbleConstants.usedByMediaRecorder] ?? false;
-    } else {
-      usedByMediaRecorder = false;
-    }
-    setAudioBarHeights();
     super.didChangeDependencies();
-  }
-
-  double randomHeight() {
-    return minHeight + random.nextDouble() * (maxHeight - minHeight);
-  }
-
-  void toggleAnimation(bool isPlaying) {
-    if (isAnimating && !isPlaying) {
-      timer?.cancel();
-      isAnimating = false;
-      setState(() {});
-      return;
-    }
-    if (!isAnimating && isPlaying) {
-      timer?.cancel();
-      timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-        setState(() {
-          barHeights = List.generate(getBarCount(), (index) => randomHeight());
-        });
-      });
-      isAnimating = true;
-      setState(() {});
-    }
   }
 
   @override
   void dispose() {
-
     AudioStateManager().stopAllAudio();
     _audioStateSubscription?.cancel();
     _eventSubscription?.cancel();
-
-    try {
-      timer?.cancel();
-    } catch (e) {
-      debugPrint('Error canceling timer: $e');
-    } finally {
-      timer = null;
-    }
 
     if (_ticker != null && _ticker!.isActive) {
       try {
@@ -323,10 +301,7 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
 
   double getBarSpace() {
     double width = (widget.width ?? 265) - 6;
-    double factor = widget.alignment == BubbleAlignment.right ||
-            (widget.alignment == BubbleAlignment.left && isFileExists)
-        ? 0.775
-        : 0.6;
+    double factor = 0.775;
     return width * factor;
   }
 
@@ -336,6 +311,9 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     final playState = _audioState?.playState ?? PlayStates.init;
     final currentPosition = _audioState?.currentPosition ?? Duration.zero;
     final totalDuration = _audioState?.totalDuration ?? Duration.zero;
+
+    // Show loader when downloading or initializing
+    final showLoader = isFileDownloading || (isInitializing && isFileExists);
 
     return Container(
       height: widget.height,
@@ -361,6 +339,46 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
         children: [
           GestureDetector(
             onTap: () async {
+              // If file doesn't exist, download it first
+              if (!isFileExists) {
+                if (widget.audioUrl != null && !isFileDownloading) {
+                  isFileDownloading = true;
+                  setState(() {});
+                  _startTicker();
+                  try {
+                    String? path = await BubbleUtils.downloadFile(
+                        widget.audioUrl!, fileName);
+                    if (path == null) {
+                      isFileExists = false;
+                    } else {
+                      isFileExists = true;
+
+                      _audioState = AudioStateManager().getAudioState(
+                        tag,
+                        widget.audioUrl,
+                        null,
+                      );
+
+                      _audioState!.updateLocalPath(path);
+                      await _audioState!.initializeController();
+                      
+                      // Switch to actual waveform after download
+                      _waveformData = _actualWaveformData;
+                    }
+                  } catch (e) {
+                    debugPrint("Error downloading file: $e");
+                    isFileExists = false;
+                  } finally {
+                    _ticker?.stop();
+                    _ticker?.dispose();
+                    isFileDownloading = false;
+                    setState(() {});
+                  }
+                }
+                return;
+              }
+              
+              // File exists, handle play/pause
               if (playState == PlayStates.playing) {
                 await _audioState?.pauseAudio();
                 AudioBubbleStream().controller.sink.add(
@@ -369,7 +387,7 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                 await _audioState?.playAudio();
               }
             },
-            child: isInitializing
+            child: showLoader
                 ? Padding(
                     padding: EdgeInsets.all(spacing.padding1 ?? 0),
                     child: SizedBox(
@@ -406,41 +424,66 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                 Padding(
                   padding: EdgeInsets.only(bottom: spacing.padding ?? 0),
                   child: SizedBox(
-                    height: 20,
+                    height: 32,
                     width: getBarSpace(),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      physics: const NeverScrollableScrollPhysics(),
-                      child: Row(
-                        children: playState == PlayStates.playing
-                            ? List.generate(
-                                getBarCount(),
-                                (index) {
-                                  return AnimatedContainer(
-                                    duration: const Duration(milliseconds: 400),
-                                    margin: const EdgeInsets.only(right: 2.69),
-                                    width: barWidth,
-                                    height: randomHeight(),
-                                    decoration: BoxDecoration(
-                                      color: audioBubbleStyle.audioBarColor ??
-                                          (widget.alignment ==
-                                                  BubbleAlignment.right
-                                              ? colorPalette.white
-                                              : colorPalette.primary),
-                                      borderRadius: BorderRadius.circular(
-                                          spacing.radiusMax ?? 0),
-                                    ),
-                                  );
-                                },
-                              )
-                            : audioBars,
-                      ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        const double barSpacing = 2.69;
+                        final double totalBarWidth = barWidth + barSpacing;
+                        final int barCount =
+                            (constraints.maxWidth / totalBarWidth).floor();
+                        final samples = _resampleWaveform(barCount);
+
+                        // Calculate playhead progress (0.0 – 1.0)
+                        double playProgress = 0.0;
+                        if (totalDuration.inMilliseconds > 0) {
+                          playProgress = (currentPosition.inMilliseconds /
+                                  totalDuration.inMilliseconds)
+                              .clamp(0.0, 1.0);
+                        }
+                        final int playedBars =
+                            (barCount * playProgress).round();
+
+                        final activeColor =
+                            audioBubbleStyle.audioBarColor ??
+                                (widget.alignment == BubbleAlignment.right
+                                    ? colorPalette.white
+                                    : colorPalette.primary);
+                        final inactiveColor = activeColor?.withValues(alpha: 0.35);
+
+                        return Row(
+                          children: List.generate(barCount, (index) {
+                            final amplitude =
+                                index < samples.length ? samples[index] : 0.0;
+                            // Apply sensitivity boost - amplify the amplitude
+                            final boostedAmplitude = (amplitude * 1.5).clamp(0.0, 1.0);
+                            final height = minHeight +
+                                boostedAmplitude * (maxHeight - minHeight);
+                            final color =
+                                index < playedBars ? activeColor : inactiveColor;
+
+                            return Container(
+                              margin: const EdgeInsets.only(right: barSpacing),
+                              width: barWidth,
+                              height: height,
+                              decoration: BoxDecoration(
+                                color: color,
+                                borderRadius: BorderRadius.circular(
+                                    spacing.radiusMax ?? 0),
+                              ),
+                            );
+                          }),
+                        );
+                      },
                     ),
                   ),
                 ),
+                // Show file size if file not downloaded, otherwise show timestamp
                 Text(
-                  '${formatDuration(currentPosition)}/'
-                  '${formatDuration(totalDuration)}',
+                  isFileExists
+                      ? '${formatDuration(currentPosition)}/'
+                        '${formatDuration(totalDuration)}'
+                      : widget.fileSize ?? '',
                   style: TextStyle(
                     color: audioBubbleStyle.durationTextColor ??
                         (widget.alignment == BubbleAlignment.right
@@ -458,87 +501,9 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
               ],
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(left: spacing.padding ?? 0),
-            child: widget.alignment == BubbleAlignment.left && !isFileExists
-                ? SizedBox(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        if (isFileDownloading)
-                          SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              value: progress,
-                              backgroundColor: colorPalette.extendedPrimary200,
-                              color: colorPalette.primary,
-                              strokeWidth: 2.5,
-                            ),
-                          ),
-                        IconButton(
-                          onPressed: () async {
-                            if (widget.audioUrl != null) {
-                              isFileDownloading = true;
-                              setState(() {});
-                              _startTicker();
-                              try {
-                                String? path = await BubbleUtils.downloadFile(
-                                    widget.audioUrl!, fileName);
-                                if (path == null) {
-                                  isFileExists = false;
-                                } else {
-                                  isFileExists = true;
-
-                                  final state = AudioStateManager().getAudioState(
-                                    tag,
-                                    widget.audioUrl,
-                                    null,
-                                  );
-
-                                  state.updateLocalPath(path);
-                                  await state.initializeController();
-                                }
-                              } catch (e) {
-                                debugPrint("Error downloading file: $e");
-                                isFileExists = false;
-                              } finally {
-                                _ticker?.stop();
-                                _ticker?.dispose();
-                                isFileDownloading = false;
-                                setState(() {});
-                              }
-                            }
-                          },
-                          icon: Image.asset(
-                            isFileDownloading
-                                ? AssetConstants.close
-                                : AssetConstants.download,
-                            height: isFileDownloading ? 15 : 24,
-                            width: isFileDownloading ? 15 : 24,
-                            package: UIConstants.packageName,
-                            color: getDownloadButtonColor(
-                                context, audioBubbleStyle, colorPalette),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : const SizedBox(),
-          )
         ],
       ),
     );
-  }
-
-  Color? getDownloadButtonColor(
-      BuildContext context,
-      CometChatAudioBubbleStyle audioBubbleStyle,
-      CometChatColorPalette colorPalette) {
-    return audioBubbleStyle.downloadIconColor ??
-        (widget.alignment == BubbleAlignment.right
-            ? colorPalette.white
-            : colorPalette.primary);
   }
 
   void _startTicker() {

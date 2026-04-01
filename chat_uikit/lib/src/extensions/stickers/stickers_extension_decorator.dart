@@ -208,7 +208,7 @@ class StickersExtensionDecorator extends DataSourceDecorator
       keyboardButtonIcon: configuration?.keyboardButtonIcon,
       stickerButtonIcon: configuration?.stickerButtonIcon,
       stickerIconTint: configuration?.stickerIconTint ?? color,
-      keyboardIconTint: configuration?.keyboardIconTint ?? color,
+      keyboardIconTint: configuration?.keyboardIconTint,
       onStickerTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
         Future.delayed(const Duration(milliseconds: 300), () {

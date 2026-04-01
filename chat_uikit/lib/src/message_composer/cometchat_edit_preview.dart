@@ -1,4 +1,5 @@
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:cometchat_uikit_shared/cometchat_uikit_shared.dart';
 import 'package:flutter/material.dart';
 
 ///[CometChatEditPreview] is a component that provides a bubble consisting of text
@@ -13,6 +14,7 @@ class CometChatEditPreview extends StatelessWidget {
     this.style = const CometChatEditPreviewStyle(),
     this.onCloseClick,
     this.hideCloseButton = false,
+    this.textFormatters,
   });
 
   ///[editPreviewTitle]
@@ -32,6 +34,10 @@ class CometChatEditPreview extends StatelessWidget {
 
   ///[hideCloseButton] if true the it hides close button
   final bool hideCloseButton;
+
+  ///[textFormatters] list of text formatters for rendering rich text in the subtitle
+  ///_Requirements: 2.14_
+  final List<CometChatTextFormatter>? textFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +80,7 @@ class CometChatEditPreview extends StatelessWidget {
                           TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
-                              color: const Color(0xff141414).withOpacity(0.6)),
+                              color: const Color(0xff141414).withValues(alpha: 0.6)),
                     ),
                     if (hideCloseButton == false)
                       GestureDetector(
@@ -89,21 +95,56 @@ class CometChatEditPreview extends StatelessWidget {
                   ],
                 ),
                 Flexible(
-                  child: Text(
-                    editPreviewSubtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: style.editPreviewSubtitleStyle ??
-                        TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: const Color(0xff141414).withOpacity(0.6)),
-                  ),
+                  child: _buildSubtitleWidget(context, colorPalette),
                 )
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Builds the subtitle widget with rich text rendering if formatters are provided.
+  /// Uses RichText widget with FormatterUtils.buildConversationTextSpan() for formatting.
+  /// Applies 1-line constraint with overflow truncation.
+  /// _Requirements: 2.14_
+  Widget _buildSubtitleWidget(
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+  ) {
+    // Default text style for the subtitle
+    final defaultTextStyle = style.editPreviewSubtitleStyle ??
+        TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w400,
+            color: const Color(0xff141414).withValues(alpha: 0.6));
+
+    // If no text formatters provided, use plain Text widget
+    if (textFormatters == null || textFormatters!.isEmpty) {
+      return Text(
+        editPreviewSubtitle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: defaultTextStyle,
+      );
+    }
+
+    // Build rich text spans using FormatterUtils
+    final textSpans = FormatterUtils.buildConversationTextSpan(
+      editPreviewSubtitle,
+      textFormatters,
+      context,
+      defaultTextStyle,
+    );
+
+    // Use RichText widget with 1-line constraint and ellipsis overflow
+    return RichText(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        style: defaultTextStyle,
+        children: textSpans,
       ),
     );
   }

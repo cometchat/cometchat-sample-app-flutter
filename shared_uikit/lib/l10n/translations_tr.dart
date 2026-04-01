@@ -1036,8 +1036,8 @@ class TranslationsTr extends Translations {
   String get tapToRemove => 'Kaldırmak için dokunun';
 
   @override
-  String get mentionsMaxLimitHit =>
-      'Bir mesajda yalnızca 10 kullanıcıyı belirtebilirsiniz';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      'Bir seferde en fazla \$count kullanıcıyı belirtebilirsiniz.';
 
   @override
   String get copy => 'Kopyala';

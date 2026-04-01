@@ -890,6 +890,9 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
               message: value.oldMessage,
               messagePreviewTitle: value.messagePreviewTitle ?? "",
               messagePreviewSubtitle: value.messagePreviewSubtitle ?? '',
+              // Pass text formatters for rich text rendering in preview
+              // _Requirements: 2.14_
+              textFormatters: value.formatters,
               onCloseClick: value.onMessagePreviewClose,
               messagePreviewStyle: CometChatMessagePreviewStyle(
                       messagePreviewTitleStyle: TextStyle(
@@ -953,6 +956,9 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
               message: value.oldMessage,
               messagePreviewTitle: value.messagePreviewTitle ?? "",
               messagePreviewSubtitle: value.messagePreviewSubtitle ?? '',
+              // Pass text formatters for rich text rendering in preview
+              // _Requirements: 2.14_
+              textFormatters: value.formatters,
               onCloseClick: () {
                 value.onMessagePreviewClose(clearText: false, isReply: true);
               },

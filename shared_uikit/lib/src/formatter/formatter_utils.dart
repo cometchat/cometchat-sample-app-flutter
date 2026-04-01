@@ -28,6 +28,9 @@ class FormatterUtils {
     CometChatTypography typography =
         CometChatThemeHelper.getTypography(context);
 
+    // Sort attributed texts by start position to ensure correct ordering
+    attributedTexts.sort((a, b) => a.start.compareTo(b.start));
+
     int start = 0;
 
     for (AttributedText attributedText in attributedTexts) {
@@ -47,6 +50,10 @@ class FormatterUtils {
       String beforeText = '';
       if (start < attributedText.start && start >= 0 && attributedText.start <= text.length) {
         beforeText = text.substring(start, attributedText.start);
+        // Convert bullet markers to bullet points for display
+        beforeText = _convertBulletMarkersForDisplay(beforeText, isLineStart: start == 0 || (start > 0 && text[start - 1] == '\n'));
+        // Convert blockquote markers for display
+        beforeText = _convertBlockquoteMarkersForDisplay(beforeText, isLineStart: start == 0 || (start > 0 && text[start - 1] == '\n'));
       }
 
       textSpan.add(TextSpan(
@@ -63,12 +70,59 @@ class FormatterUtils {
         )),
       ));
 
+      // Get display text and convert bullet markers
+      String displayText = attributedText.underlyingText ??
+          (attributedText.start >= 0 && 
+           attributedText.end <= text.length && 
+           attributedText.start <= attributedText.end
+              ? text.substring(attributedText.start, attributedText.end)
+              : '');
+      displayText = _convertBulletMarkersForDisplay(displayText, isLineStart: attributedText.start == 0 || (attributedText.start > 0 && text[attributedText.start - 1] == '\n'));
+      // Convert blockquote markers for display
+      displayText = _convertBlockquoteMarkersForDisplay(displayText, isLineStart: attributedText.start == 0 || (attributedText.start > 0 && text[attributedText.start - 1] == '\n'));
+
+      // Build the content widget - use RichText if childSpans are provided
+      Widget contentWidget;
+      if (attributedText.childSpans != null && attributedText.childSpans!.isNotEmpty) {
+        // Use RichText for mixed formatting within the container
+        contentWidget = RichText(
+          text: TextSpan(
+            style: attributedText.style ??
+                textStyle?.merge(TextStyle(
+                  color: alignment == BubbleAlignment.right
+                      ? colorPalette.white
+                      : colorPalette.textPrimary,
+                  fontWeight: typography.body?.regular?.fontWeight,
+                  fontSize: typography.body?.regular?.fontSize,
+                  fontFamily: typography.body?.regular?.fontFamily,
+                )),
+            children: attributedText.childSpans,
+          ),
+        );
+      } else {
+        // Use simple Text for single-style content
+        contentWidget = Text(
+          displayText,
+          style: attributedText.style ??
+              textStyle?.merge(TextStyle(
+                color: alignment == BubbleAlignment.right
+                    ? colorPalette.white
+                    : colorPalette.textPrimary,
+                fontWeight: typography.body?.regular?.fontWeight,
+                fontSize: typography.body?.regular?.fontSize,
+                fontFamily: typography.body?.regular?.fontFamily,
+              )),
+        );
+      }
+
       textSpan.add(WidgetSpan(
           child: Container(
+        width: attributedText.isFullWidth ? double.infinity : null,
         padding: attributedText.padding,
         decoration: BoxDecoration(
           color: attributedText.backgroundColor,
           borderRadius: BorderRadius.circular(attributedText.borderRadius ?? 0),
+          border: attributedText.border,
         ),
         child: InkWell(
           onTap: () async {
@@ -82,23 +136,7 @@ class FormatterUtils {
               }
             }
           },
-          child: Text(
-            attributedText.underlyingText ??
-                (attributedText.start >= 0 && 
-                 attributedText.end <= text.length && 
-                 attributedText.start <= attributedText.end
-                    ? text.substring(attributedText.start, attributedText.end)
-                    : ''),
-            style: attributedText.style ??
-                textStyle?.merge(TextStyle(
-                  color: alignment == BubbleAlignment.right
-                      ? colorPalette.white
-                      : colorPalette.textPrimary,
-                  fontWeight: typography.body?.regular?.fontWeight,
-                  fontSize: typography.body?.regular?.fontSize,
-                  fontFamily: typography.body?.regular?.fontFamily,
-                )),
-          ),
+          child: contentWidget,
         ),
       )));
       start = attributedText.end;
@@ -106,8 +144,13 @@ class FormatterUtils {
 
     // Validate final substring
     if (start <= text.length) {
+      String remainingText = text.substring(start);
+      // Convert bullet markers to bullet points for display
+      remainingText = _convertBulletMarkersForDisplay(remainingText, isLineStart: start == 0 || (start > 0 && text[start - 1] == '\n'));
+      // Convert blockquote markers for display
+      remainingText = _convertBlockquoteMarkersForDisplay(remainingText, isLineStart: start == 0 || (start > 0 && text[start - 1] == '\n'));
       textSpan.add(TextSpan(
-        text: text.substring(start),
+        text: remainingText,
         style: textStyle?.merge(TextStyle(
           color: alignment == BubbleAlignment.right
               ? colorPalette.white
@@ -130,6 +173,18 @@ class FormatterUtils {
     BuildContext context,
     TextStyle? textStyle,
   ) {
+    CometChatColorPalette colorPalette =
+        CometChatThemeHelper.getColorPalette(context);
+    CometChatTypography typography =
+        CometChatThemeHelper.getTypography(context);
+
+    final defaultStyle = TextStyle(
+      color: colorPalette.textSecondary,
+      fontWeight: typography.body?.regular?.fontWeight,
+      fontSize: typography.body?.regular?.fontSize,
+      fontFamily: typography.body?.regular?.fontFamily,
+    ).merge(textStyle);
+
     List<InlineSpan> textSpan = [];
     List<AttributedText> attributedTexts = [];
     for (CometChatTextFormatter formatter in formatters ?? []) {
@@ -137,10 +192,20 @@ class FormatterUtils {
           text, context, BubbleAlignment.left,
           existingAttributes: attributedTexts, forConversation: true);
     }
-    CometChatColorPalette colorPalette =
-        CometChatThemeHelper.getColorPalette(context);
-    CometChatTypography typography =
-        CometChatThemeHelper.getTypography(context);
+
+    // If there are no attributed texts, just return the plain text
+    // stripped of any markdown formatting
+    if (attributedTexts.isEmpty) {
+      final strippedText = _stripMarkdownFormatting(text);
+      textSpan.add(TextSpan(
+        text: strippedText,
+        style: defaultStyle,
+      ));
+      return textSpan;
+    }
+
+    // Sort attributed texts by start position
+    attributedTexts.sort((a, b) => a.start.compareTo(b.start));
 
     int start = 0;
 
@@ -157,75 +222,105 @@ class FormatterUtils {
         continue; // Skip invalid attributed text
       }
 
-      // Additional safety check for substring operation
+      // Get the text before this attributed region and strip any markdown from it
       String beforeText = '';
       if (start < attributedText.start && start >= 0 && attributedText.start <= text.length) {
-        beforeText = text.substring(start, attributedText.start);
+        beforeText = _stripMarkdownFormatting(text.substring(start, attributedText.start));
       }
 
-      textSpan.add(TextSpan(
-        text: beforeText,
-        style: TextStyle(
-          color: colorPalette.textSecondary,
-          fontWeight: typography.body?.regular?.fontWeight,
-          fontSize: typography.body?.regular?.fontSize,
-          fontFamily: typography.body?.regular?.fontFamily,
-        ).merge(
-          textStyle,
-        ),
-      ));
+      if (beforeText.isNotEmpty) {
+        textSpan.add(TextSpan(
+          text: beforeText,
+          style: defaultStyle,
+        ));
+      }
 
-      textSpan.add(WidgetSpan(
-          child: Container(
-        padding: attributedText.padding,
-        decoration: BoxDecoration(
-          color: attributedText.backgroundColor,
-          borderRadius: BorderRadius.circular(attributedText.borderRadius ?? 0),
-        ),
-        child: InkWell(
-          onTap: () async {
-            if (attributedText.onTap != null) {
-              attributedText.onTap!(
-                  attributedText.underlyingText ?? text.substring(attributedText.start, attributedText.end));
-            }
-          },
-          child: Text(
-            attributedText.underlyingText ??
-                (attributedText.start >= 0 && 
-                 attributedText.end <= text.length && 
-                 attributedText.start <= attributedText.end
-                    ? text.substring(attributedText.start, attributedText.end)
-                    : ''),
-            style: attributedText.style ??
-                TextStyle(
-                  color: colorPalette.textSecondary,
-                  fontWeight: typography.body?.regular?.fontWeight,
-                  fontSize: typography.body?.regular?.fontSize,
-                  fontFamily: typography.body?.regular?.fontFamily,
-                ).merge(
-                  textStyle,
-                ),
-          ),
-        ),
-      )));
+      // Get the display text - use underlyingText if available (content without markers)
+      // Strip any remaining markdown formatting from the display text
+      final rawDisplayText = attributedText.underlyingText ??
+          (attributedText.start >= 0 && 
+           attributedText.end <= text.length && 
+           attributedText.start <= attributedText.end
+              ? text.substring(attributedText.start, attributedText.end)
+              : '');
+      final displayText = _stripMarkdownFormatting(rawDisplayText);
+
+      if (displayText.isNotEmpty) {
+        // Use TextSpan instead of WidgetSpan for conversation subtitles
+        // This ensures proper text truncation with maxLines and overflow
+        // Preserve formatting (bold, italic, etc.) but override color
+        // with the default style color so reply previews show correct colors
+        final mergedStyle = (attributedText.style ?? defaultStyle).copyWith(
+          color: defaultStyle.color,
+          decorationColor: defaultStyle.color,
+        );
+        textSpan.add(TextSpan(
+          text: displayText,
+          style: mergedStyle,
+        ));
+      }
       start = attributedText.end;
     }
 
-    // Validate final substring
+    // Get remaining text after the last attributed region and strip markdown
     if (start <= text.length && start >= 0) {
-      textSpan.add(TextSpan(
-        text: text.substring(start),
-        style: TextStyle(
-          color: colorPalette.textSecondary,
-          fontWeight: typography.body?.regular?.fontWeight,
-          fontSize: typography.body?.regular?.fontSize,
-          fontFamily: typography.body?.regular?.fontFamily,
-        ).merge(
-          textStyle,
-        ),
-      ));
+      final remainingText = _stripMarkdownFormatting(text.substring(start));
+      if (remainingText.isNotEmpty) {
+        textSpan.add(TextSpan(
+          text: remainingText,
+          style: defaultStyle,
+        ));
+      }
     }
 
     return textSpan;
+  }
+
+  /// Strips markdown formatting markers from text, keeping only the content.
+  /// Delegates to [FormatPatterns.stripFormatting] for centralized logic.
+  static String _stripMarkdownFormatting(String text) {
+    return FormatPatterns.stripFormatting(text);
+  }
+  
+  /// Converts bullet list markers ("- ") to bullet point characters ("• ") for display.
+  /// 
+  /// This method replaces the markdown-style bullet markers with actual bullet
+  /// point characters at the start of lines for better visual presentation.
+  static String _convertBulletMarkersForDisplay(String inputText, {bool isLineStart = true}) {
+    if (inputText.isEmpty) return inputText;
+    
+    // Replace "- " at the start of lines with "• "
+    String result = inputText;
+    
+    // Handle the case where the text starts with "- " and it's at the start of a line
+    // Add a space before bullet and 2 spaces after to align with ordered list items (e.g. "1. ")
+    if (isLineStart && result.startsWith('- ')) {
+      result = ' •  ${result.substring(2)}';
+    }
+    
+    // Replace "- " after newlines with " •  " (space + bullet + 2 spaces)
+    result = result.replaceAll('\n- ', '\n •  ');
+    
+    return result;
+  }
+  
+  /// Removes blockquote markers ("> ") for display since styling is handled via Container with border.
+  /// 
+  /// This method removes the markdown-style blockquote markers as the visual
+  /// quote styling is handled by a Container with left border.
+  static String _convertBlockquoteMarkersForDisplay(String inputText, {bool isLineStart = true}) {
+    if (inputText.isEmpty) return inputText;
+    
+    String result = inputText;
+    
+    // Handle the case where the text starts with "> " and it's at the start of a line
+    if (isLineStart && result.startsWith('> ')) {
+      result = result.substring(2);
+    }
+    
+    // Remove "> " after newlines
+    result = result.replaceAll('\n> ', '\n');
+    
+    return result;
   }
 }

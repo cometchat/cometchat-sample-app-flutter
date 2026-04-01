@@ -1050,8 +1050,8 @@ class TranslationsDe extends Translations {
   String get tapToRemove => 'Zum Entfernen antippen';
 
   @override
-  String get mentionsMaxLimitHit =>
-      'Sie können in einer Nachricht nur 10 Benutzer erwähnen.';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      'Sie können bis zu $count Benutzer gleichzeitig erwähnen.';
 
   @override
   String get copy => 'Kopieren';

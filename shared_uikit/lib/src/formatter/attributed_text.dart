@@ -23,7 +23,10 @@ class AttributedText {
       this.onTap,
       this.padding,
       this.backgroundColor,
-      this.borderRadius
+      this.borderRadius,
+      this.border,
+      this.isFullWidth = false,
+      this.childSpans,
       });
 
   ///[start] is an integer value which is used to store the start index of the text
@@ -49,6 +52,17 @@ class AttributedText {
 
   ///[borderRadius] is a [double] value which is used to give border radius to the text
   double? borderRadius;
+
+  ///[border] is a [Border] object which is used to give border to the text container
+  Border? border;
+
+  ///[isFullWidth] is a boolean to indicate if the container should span full width
+  bool isFullWidth;
+
+  ///[childSpans] is a list of [InlineSpan] objects for rich text content
+  ///When provided, the attributed text will render using RichText with these spans
+  ///instead of a simple Text widget. This enables mixed formatting within containers.
+  List<InlineSpan>? childSpans;
 
   @override
   String toString() {

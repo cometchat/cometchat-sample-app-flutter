@@ -1039,8 +1039,8 @@ class TranslationsSv extends Translations {
   String get tapToRemove => 'Tryck för att ta bort';
 
   @override
-  String get mentionsMaxLimitHit =>
-      'Du kan bara nämna 10 användare i ett meddelande.';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      'Du kan nämna upp till \$count användare åt gången.';
   @override
   String get copy => 'Kopiera';
 

@@ -1045,8 +1045,8 @@ class TranslationsLt extends Translations {
   String get tapToRemove => 'Bakstelėkite, kad pašalintumėte';
 
   @override
-  String get mentionsMaxLimitHit =>
-      'Žinutėje galite paminėti tik 10 vartotojų.';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      'Vienu metu galite paminėti iki \$count vartotojų.';
 
   @override
   String get copy => 'Kopijuoti';

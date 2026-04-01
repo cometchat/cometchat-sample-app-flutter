@@ -1019,7 +1019,8 @@ class TranslationsJa extends Translations {
   String get tapToRemove => 'タップして削除';
 
   @override
-  String get mentionsMaxLimitHit => '1回のメッセージで10人までしかメンションできません。';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      '一度に$count人までメンションできます。';
 
   @override
   String get copy => 'コピー';

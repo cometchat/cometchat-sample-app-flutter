@@ -1039,8 +1039,8 @@ class TranslationsNl extends Translations {
   String get tapToRemove => 'Tik om te verwijderen';
 
   @override
-  String get mentionsMaxLimitHit =>
-      'Je kunt maximaal 10 gebruikers in een bericht vermelden.';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      'Je kunt maximaal \$count gebruikers tegelijk vermelden.';
 
   @override
   String get copy => 'Kopieer';

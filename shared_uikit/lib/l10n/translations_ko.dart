@@ -1019,7 +1019,8 @@ class TranslationsKo extends Translations {
   String get tapToRemove => '탭하여 제거';
 
   @override
-  String get mentionsMaxLimitHit => '한 메시지에서 최대 10명까지 멘션할 수 있습니다';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      '한 번에 최대 $count명까지 멘션할 수 있습니다.';
 
   @override
   String get copy => '복사';

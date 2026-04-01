@@ -69,7 +69,8 @@ class ConversationUtils {
           subtitle = CometChatMentionsFormatter.getTextWithMentions(
               message.text, message.mentionedUsers);
         }
-
+        // Strip rich text formatting for conversation subtitle display
+        subtitle = FormatPatterns.stripFormatting(subtitle);
         break;
       case MessageTypeConstants.image:
         subtitle = Translations.of(context).messageImage;

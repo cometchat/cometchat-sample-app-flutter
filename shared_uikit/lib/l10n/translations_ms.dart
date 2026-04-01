@@ -1044,8 +1044,8 @@ class TranslationsMs extends Translations {
   String get tapToRemove => 'Ketik untuk membuang';
 
   @override
-  String get mentionsMaxLimitHit =>
-      'Anda hanya boleh menyebut 10 pengguna dalam mesej.';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      'Anda boleh menyebut sehingga \$count pengguna sekaligus.';
 
   @override
   String get copy => 'Salin';

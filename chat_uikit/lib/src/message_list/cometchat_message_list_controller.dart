@@ -3916,6 +3916,13 @@ class CometChatMessageListController
           .removeWhere((element) => element is CometChatMentionsFormatter);
     }
 
+    // Ensure rich text formatter is included for rendering formatted messages
+    int indexOfRichTextFormatter = textFormatters
+        .indexWhere((element) => element is CometChatRichTextFormatter);
+    if (indexOfRichTextFormatter == -1) {
+      textFormatters.add(CometChatRichTextFormatter());
+    }
+
     this.textFormatters = textFormatters;
   }
 

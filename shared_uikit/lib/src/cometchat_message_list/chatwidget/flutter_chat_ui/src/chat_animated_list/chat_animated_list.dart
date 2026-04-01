@@ -1181,7 +1181,7 @@ class _ChatAnimatedListState extends State<ChatAnimatedList>
 
   void _onRemoved(final int position, final Message data, final bool animated) {
     debugPrint('🔄 [_onRemoved] Called - position: $position, messageId: ${data.id}, _oldList.length: ${_oldList.length}');
-    
+
     // Validate position before proceeding
     if (position < 0 || position >= _oldList.length) {
       debugPrint('⚠️ [_onRemoved] Invalid position $position for list length ${_oldList.length}');

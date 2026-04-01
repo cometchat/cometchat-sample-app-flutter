@@ -1025,7 +1025,8 @@ class TranslationsZh extends Translations {
   String get tapToRemove => '点按即可移除';
 
   @override
-  String get mentionsMaxLimitHit => '您只能在消息中提及 10 个用户。';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      '您一次最多可以提及 $count 个用户。';
 
   @override
   String get copy => '複製';
@@ -2349,7 +2350,8 @@ class TranslationsZhTw extends TranslationsZh {
   String get tapToRemove => '點擊以移除';
 
   @override
-  String get mentionsMaxLimitHit => '您只能在消息中提到 10 個用戶。';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      '您一次最多可以提及 $count 個用戶。';
 
   @override
   String get copy => '复制';

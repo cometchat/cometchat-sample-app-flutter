@@ -1044,8 +1044,8 @@ class TranslationsHi extends Translations {
   String get tapToRemove => 'हटाने के लिए टैप करें';
 
   @override
-  String get mentionsMaxLimitHit =>
-      'आप एक संदेश में केवल 10 यूज़र का उल्लेख कर सकते हैं।';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      'आप एक बार में \$count यूज़र का उल्लेख कर सकते हैं।';
 
   @override
   String get copy => 'कॉपी करें';

@@ -1053,8 +1053,8 @@ class TranslationsHu extends Translations {
   String get messagePrivately => 'Üzenet Privatel';
 
   @override
-  String get mentionsMaxLimitHit =>
-      'Egy üzenetben csak 10 felhasználót említhet.';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      'Egyszerre legfeljebb \$count felhasználót említhet.';
 
   @override
   String get newChat => 'Új csevegés';

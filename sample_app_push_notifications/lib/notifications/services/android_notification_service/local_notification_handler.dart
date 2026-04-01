@@ -34,9 +34,9 @@ class LocalNotificationService {
     print("[FCM] Showing local notification with data: $notificationData");
     print("[FCM] Showing local notification conversationId: $conversationId");
 
-    final unreadCount = notificationData['unreadMessageCount'];
+    final unreadCount = notificationData['unreadMessageCount']?.toString();
 
-    int unreadMessageCount = int.tryParse(unreadCount) ?? 0;
+    int unreadMessageCount = int.tryParse(unreadCount ?? '') ?? 0;
 
     if (unreadMessageCount >= 0) {
       try {
@@ -90,7 +90,7 @@ class LocalNotificationService {
         : DateTime.now().microsecondsSinceEpoch.hashCode;
 
     // Accumulate message lines for this conversation
-    final String messageBody = notificationData['body']?.toString() ?? '';
+    final String messageBody = FormatPatterns.stripFormatting(notificationData['body']?.toString() ?? '');
     _conversationMessages.putIfAbsent(notifConversationId, () => []);
     _conversationMessages[notifConversationId]!.add(messageBody);
 
@@ -133,12 +133,15 @@ class LocalNotificationService {
 
     final platformChannelSpecifics = NotificationDetails(android: androidDetails);
 
+    String? notificationBody = notificationData['body'];
+    if (notificationBody != null) {
+      notificationBody = FormatPatterns.stripFormatting(notificationBody);
+    }
     // Show (or replace) the notification for this conversation
-
     await flutterLocalNotificationsPlugin.show(
       notificationId,
       title,
-      bodyText,
+      notificationBody,
       platformChannelSpecifics,
       payload: jsonPayload,
     );

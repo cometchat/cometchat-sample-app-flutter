@@ -1043,8 +1043,8 @@ class TranslationsPt extends Translations {
   String get tapToRemove => 'Toque para remover';
 
   @override
-  String get mentionsMaxLimitHit =>
-      'Você só pode mencionar 10 usuários em uma mensagem.';
+  String mentionsMaxLimitHitWithCount(int count) =>
+      'Você pode mencionar até \$count usuários de uma vez.';
 
   @override
   String get copy => 'Copiar';

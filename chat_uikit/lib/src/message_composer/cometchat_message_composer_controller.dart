@@ -240,6 +240,11 @@ class CometChatMessageComposerController extends GetxController
 
   List<CometChatTextFormatter> _formatters = [];
 
+  /// [formatters] public getter for the list of text formatters
+  /// Used for passing formatters to child widgets like CometChatMessagePreview
+  /// _Requirements: 2.14_
+  List<CometChatTextFormatter> get formatters => _formatters;
+
   ///[textFormatters] is a list of [CometChatTextFormatter] which is used to format the text
   List<CometChatTextFormatter>? textFormatters;
 
@@ -1317,7 +1322,10 @@ class CometChatMessageComposerController extends GetxController
         previewText = CometChatMentionsFormatter.getTextWithMentions(
             previewText, message.mentionedUsers);
       }
-      messagePreviewSubtitle = previewText;
+      
+      // Strip rich text formatting for preview display
+      // Requirements: 8.1, 8.2, 8.3, 8.4
+      messagePreviewSubtitle = FormatPatterns.stripFormatting(previewText);
     } else {
       messagePreviewSubtitle =
           ComposerUtils().getReplySubtitle(message, context);

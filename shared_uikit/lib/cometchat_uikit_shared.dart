@@ -43,6 +43,8 @@ export 'src/constants/regex_constants.dart';
 export 'src/constants/request_builder_constants.dart';
 export 'src/constants/enums/search_filter_enum.dart';
 export 'src/constants/enums/search_scope_enum.dart';
+export 'src/constants/enums/format_type.dart';
+export 'src/constants/enums/enter_key_behavior.dart';
 
 //---events---
 export 'src/events/user_events/cometchat_user_event_listener.dart';
@@ -149,6 +151,7 @@ export 'src/views/video_bubble/video_player.dart';
 //audio bubble
 export 'src/views/audio_bubble/cometchat_audio_bubble.dart';
 export 'src/views/audio_bubble/cometchat_audio_bubble_style.dart';
+export 'src/views/audio_bubble/cometchat_audio_bubble_controller.dart';
 
 //file bubble
 export 'src/views/file_bubble/cometchat_file_bubble.dart';
@@ -172,6 +175,10 @@ export 'src/views/action_sheet/cometchat_attachment_option_sheet_style.dart';
 export 'src/views/action_sheet/cometchat_message_option_sheet_style.dart';
 export 'src/views/confirm_dialog/cometchat_confirm_dialog.dart';
 export 'src/views/confirm_dialog/cometchat_confirm_dialog_style.dart';
+
+//link dialog
+export 'src/views/link_dialog/cometchat_link_dialog.dart';
+export 'src/views/link_dialog/cometchat_link_dialog_style.dart';
 
 //action sheet
 export 'src/views/ai_option_sheet/cometchat_ai_option_sheet.dart';
@@ -260,6 +267,7 @@ export 'src/utils/interaction_message_utils.dart';
 
 export 'src/views/media_recorder/cometchat_media_recorder.dart';
 export 'src/views/media_recorder/cometchat_media_recorder_style.dart';
+export 'src/views/media_recorder/cometchat_single_line_media_recorder.dart';
 
 export 'src/framework/ai_extension.dart';
 export 'src/events/utils/chat_sdk_event_initializer.dart';
@@ -325,7 +333,24 @@ export 'src/formatter/cometchat_phone_number_formatter.dart';
 export 'src/models/additional_configurations.dart';
 export 'src/formatter/mentions/cometchat_mentions_style.dart';
 export 'src/formatter/formatter_utils.dart';
+
+//rich text formatter
+export 'src/formatter/rich_text/rich_text_formatter_manager.dart';
+export 'src/formatter/rich_text/cometchat_rich_text_formatter.dart';
+export 'src/formatter/rich_text/rich_text_span.dart';
+export 'src/formatter/rich_text/rich_text_editing_controller.dart';
+export 'src/formatter/rich_text/composer_segment.dart';
+export 'src/formatter/rich_text/segmented_composer_controller.dart';
+export 'src/formatter/rich_text/format_handlers.dart';
+export 'src/formatter/rich_text/format_patterns.dart';
+
+//rich text toolbar
+export 'src/views/rich_text_toolbar/cometchat_rich_text_toolbar.dart';
+export 'src/views/rich_text_toolbar/cometchat_rich_text_toolbar_style.dart';
 export 'src/views/message_input/custom_text_editing_controller.dart';
+
+//rich text selection controls
+export 'src/views/rich_text_selection_controls/cometchat_rich_text_selection_controls.dart';
 
 export 'src/theme/colors/cometchat_color_helper.dart';
 export 'src/theme/colors/cometchat_color_palette.dart';
