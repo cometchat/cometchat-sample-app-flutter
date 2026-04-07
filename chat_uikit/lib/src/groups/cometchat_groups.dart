@@ -272,8 +272,9 @@ class _CometChatGroupsState extends State<CometChatGroups> {
   @override
   Widget build(BuildContext context) {
     if (widget.stateCallBack != null) {
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => widget.stateCallBack!(groupsController));
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => widget.stateCallBack!(groupsController),
+      );
     }
 
     return ClipRRect(
@@ -821,7 +822,9 @@ class _CometChatGroupsState extends State<CometChatGroups> {
             value.hasMoreItems ? value.list.length + 1 : value.list.length,
         itemBuilder: (context, index) {
           if (index >= value.list.length) {
-            value.loadMoreElements();
+WidgetsBinding.instance.addPostFrameCallback(
+              (_) => value.loadMoreElements(),
+            );
             return _getLoadingIndicator(context);
           }
 

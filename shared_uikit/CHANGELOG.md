@@ -1,3 +1,10 @@
+## 5.2.3
+
+## Fixes
+- Resolved a crash caused by the unconditioned attachment of `TapGestureRecognizer` in editable text fields. The recognizer is now only attached when an `onTap` callback is provided.
+- Fixed an issue with stale suggestion handling in `CometChatMentionsFormatter` by tracking the last applied search keyword, ensuring outdated fetch responses are ignored.
+- Corrected the display of the AI `StreamBubble` thinking state, which was not appearing properly during streaming.
+
 ## 5.2.2
 
 ## New

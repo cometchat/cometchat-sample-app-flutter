@@ -101,7 +101,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   Set<String> mentionCount = {};
   Set<String> mentionAllPositions = {}; // Track @all mention text patterns
 
-  Map<int, String> trackedMentionPositions = {}; // Maps start position to mention text
+  Map<int, String> trackedMentionPositions =
+      {}; // Maps start position to mention text
   Map<String, List<int>> mentionTextToPositions = {};
 
   int mentionStartIndex = 0;
@@ -110,32 +111,32 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   int mentionsLimit = 10;
 
   /// [_mentionsEnabled] controls whether mention suggestions should be shown.
-  /// 
+  ///
   /// When false:
   /// - The suggestion list will not appear when @ is typed
   /// - Mentions will be displayed as plain @username/@all text without formatting
-  /// 
+  ///
   /// This is set to false when code block or inline code is active, and true
   /// for all other formats (ordered list, bullet list, quote block, or no format).
-  /// 
+  ///
   /// _Requirements: 2.5, 2.6, 2.7_
   bool _mentionsEnabled = true;
 
   /// Sets whether mention suggestions should be enabled.
-  /// 
+  ///
   /// Call this method to dynamically control mention suggestions based on
   /// the active format type. When [enabled] is false:
   /// - The suggestion list will not appear when @ is typed
   /// - Mentions will be displayed as plain @username/@all text
-  /// 
+  ///
   /// When [enabled] is true:
   /// - The suggestion list will appear when @ is typed
   /// - Mentions will be formatted with proper styling
-  /// 
+  ///
   /// _Requirements: 2.5, 2.6, 2.7_
   void setMentionsEnabled(bool enabled) {
     _mentionsEnabled = enabled;
-    
+
     // If mentions are being disabled and we have an active mention tracker,
     // reset it and hide the suggestion list
     if (!enabled && mentionTracker.isNotEmpty) {
@@ -145,7 +146,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   }
 
   /// Returns whether mention suggestions are currently enabled.
-  /// 
+  ///
   /// _Requirements: 2.5, 2.6, 2.7_
   bool get isMentionsEnabled => _mentionsEnabled;
 
@@ -187,7 +188,6 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       // Verify the mention still exists at this position in the current text
       if (endPos <= messagesText.length &&
           messagesText.substring(startPos, endPos) == mentionText) {
-
         bool isAllMention = mentionAllPositions.contains(mentionText);
         User? mentionedUser;
 
@@ -265,30 +265,27 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   ///[initializeFetchRequest] is a method which is used to initialize the fetch request
   String? _lastSearchKeyword;
 
-
-
-  void initializeFetchRequest(
-      String? searchKeyword, TextEditingController textEditingController) {
+  Future<void> initializeFetchRequest(String? searchKeyword,
+      TextEditingController textEditingController) async {
     // Don't initialize fetch request if mentions are disabled
     // This happens when code block or inline code is active
     // _Requirements: 2.5, 2.6_
     if (!_mentionsEnabled) {
       return;
     }
-    
+
     _lastSearchKeyword = searchKeyword;
     if (!disableMentions) {
       _request = (_requestBuilder
-        ..limit = 10
-        ..searchKeyword = searchKeyword)
+            ..limit = 10
+            ..searchKeyword = searchKeyword)
           .build();
 
-      fetchItems(
+      await fetchItems(
           firstTimeFetch: true,
           textEditingController: textEditingController,
           searchKeyword: searchKeyword);
-    }
-    else if (!disableMentionAll && group != null) {
+    } else if (!disableMentionAll && group != null) {
       // Only show @all, no need to fetch users
       // But we still need to trigger the suggestion list for @all
       List<SuggestionListItem> suggestions = [];
@@ -341,7 +338,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
               String textOnLeftOfMention = textEditingController.text
                   .substring(0, cursorPos - mentionTracker.length);
               String textOnRightOfMention =
-              textEditingController.text.substring(cursorPos);
+                  textEditingController.text.substring(cursorPos);
 
               int mentionStartPos = cursorPos - mentionTracker.length;
 
@@ -359,17 +356,16 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
               }
 
               textEditingController.text =
-              "$textOnLeftOfMention$mention $textOnRightOfMention";
+                  "$textOnLeftOfMention$mention $textOnRightOfMention";
 
               updatePreviousText(textEditingController.text);
 
               // Calculate the new cursor position and clamp to valid range
-              int newCursorPos = cursorPos -
-                  mentionTracker.length +
-                  mention.length +
-                  1;
-              newCursorPos = newCursorPos.clamp(0, textEditingController.text.length);
-              
+              int newCursorPos =
+                  cursorPos - mentionTracker.length + mention.length + 1;
+              newCursorPos =
+                  newCursorPos.clamp(0, textEditingController.text.length);
+
               textEditingController.selection = TextSelection(
                 baseOffset: newCursorPos,
                 extentOffset: newCursorPos,
@@ -394,7 +390,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   }
 
   ///[fetchItems] is a method which is used to fetch the items
-  void fetchItems({
+  Future<void> fetchItems({
     bool firstTimeFetch = false,
     required TextEditingController textEditingController,
     String? searchKeyword,
@@ -431,13 +427,13 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
             onTap: () {
               try {
                 String mention = "@$allLabel";
-                
+
                 // Safety check for selection
                 if (textEditingController.selection.base.offset == -1) {
                   textEditingController.selection = TextSelection.fromPosition(
                       TextPosition(offset: textEditingController.text.length));
                 }
-                
+
                 int cursorPos = textEditingController.selection.base.offset;
 
                 // Safety check for bounds
@@ -478,12 +474,11 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
                 updatePreviousText(textEditingController.text);
 
                 // Calculate the new cursor position and clamp to valid range
-                int newCursorPos = cursorPos -
-                    mentionTracker.length +
-                    mention.length +
-                    1;
-                newCursorPos = newCursorPos.clamp(0, textEditingController.text.length);
-                
+                int newCursorPos =
+                    cursorPos - mentionTracker.length + mention.length + 1;
+                newCursorPos =
+                    newCursorPos.clamp(0, textEditingController.text.length);
+
                 textEditingController.selection = TextSelection(
                   baseOffset: newCursorPos,
                   extentOffset: newCursorPos,
@@ -504,12 +499,13 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
 
       if (users.isEmpty) {
         if (firstTimeFetch && suggestions.isEmpty) {
-          // Do not reset mentionTracker here so user can backspace to refresh suggestions
-          if (onSearch != null) {
-            onSearch!(null);
-          }
-          // CometChatUIEvents.hidePanel(
-          //     composerId, CustomUIPosition.composerPreview);
+          // Do not reset mentionTracker or search keyword here so user can
+          // backspace to refresh suggestions. Calling onSearch(null) would
+          // clear _currentSearchKeyword in the composer controller, which
+          // prevents the suggestion panel from showing even when a later
+          // keystroke returns valid results.
+          CometChatUIEvents.hidePanel(
+              composerId, CustomUIPosition.composerPreview);
         }
       } else {
         if (listItems.isEmpty && disableMentionAll && suggestions.isEmpty) {
@@ -533,13 +529,14 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
                 onTap: () {
                   try {
                     String mention = "@${user.name}";
-                    
+
                     // Safety check for selection
                     if (textEditingController.selection.base.offset == -1) {
-                      textEditingController.selection = TextSelection.fromPosition(
-                          TextPosition(offset: textEditingController.text.length));
+                      textEditingController.selection =
+                          TextSelection.fromPosition(TextPosition(
+                              offset: textEditingController.text.length));
                     }
-                    
+
                     int cursorPos = textEditingController.selection.base.offset;
 
                     // Safety check for bounds
@@ -620,20 +617,19 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
                     }
 
                     String textOnRightOfMention =
-                    textEditingController.text.substring(cursorPos);
+                        textEditingController.text.substring(cursorPos);
 
                     textEditingController.text =
-                    "$textOnLeftOfMention$mention $textOnRightOfMention";
+                        "$textOnLeftOfMention$mention $textOnRightOfMention";
 
                     updatePreviousText(textEditingController.text);
 
                     // Calculate the new cursor position and clamp to valid range
-                    int newCursorPos = cursorPos -
-                        mentionTracker.length +
-                        mention.length +
-                        1;
-                    newCursorPos = newCursorPos.clamp(0, textEditingController.text.length);
-                    
+                    int newCursorPos =
+                        cursorPos - mentionTracker.length + mention.length + 1;
+                    newCursorPos = newCursorPos.clamp(
+                        0, textEditingController.text.length);
+
                     textEditingController.selection = TextSelection(
                       baseOffset: newCursorPos,
                       extentOffset: newCursorPos,
@@ -653,7 +649,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
 
       if (suggestionListEventSink != null) {
         // Prevent sending empty updates on pagination to avoid auto-scroll
-        bool isPaginationWithNoResults = !firstTimeFetch && users.isEmpty && suggestions.isEmpty;
+        bool isPaginationWithNoResults =
+            !firstTimeFetch && users.isEmpty && suggestions.isEmpty;
         if (!isPaginationWithNoResults) {
           suggestionListEventSink?.add(suggestions);
         }
@@ -695,11 +692,14 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
 
     for (var match in combinedPattern.allMatches(text)) {
       String type = match.group(1)!; // 'all' or 'uid'
-      String value = match.group(1)! == 'uid' ? match.group(2)! : match.group(2)!; // labelId or uid
+      String value = match.group(1)! == 'uid'
+          ? match.group(2)!
+          : match.group(2)!; // labelId or uid
 
       if (type == 'all' && value == allLabelId) {
         // This is an @all mention
-        String mention = "@${mentionAllLabel ?? (context != null ? cc.Translations.of(context!).notifyAll : 'all')}";
+        String mention =
+            "@${mentionAllLabel ?? (context != null ? cc.Translations.of(context!).notifyAll : 'all')}";
         replacements.add({
           'start': match.start,
           'end': match.end,
@@ -711,7 +711,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       } else if (type == 'uid') {
         // This is a user mention
         String uid = value;
-        int index = mentionedUsers.indexWhere((userElement) => userElement.uid == uid);
+        int index =
+            mentionedUsers.indexWhere((userElement) => userElement.uid == uid);
 
         if (index != -1) {
           String mention = "@${mentionedUsers[index].name}";
@@ -732,20 +733,20 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
     replacements.sort((a, b) => a['start'].compareTo(b['start']));
 
     int lengthDelta = 0;
-    
+
     // Pass 1: Calculate final positions and update tracking maps
     for (var replacement in replacements) {
       int originalStart = replacement['start'];
       String mention = replacement['mention'];
       String originalText = replacement['original'];
       String type = replacement['type'];
-      
+
       // Calculate where this mention will be in the final string
       int finalStart = originalStart + lengthDelta;
-      
+
       // Update tracking maps with the FINAL position
       trackedMentionPositions[finalStart] = mention;
-      
+
       if (mentionTextToPositions.containsKey(mention)) {
         mentionTextToPositions[mention]!.add(finalStart);
       } else {
@@ -770,7 +771,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
           mentionCount.add(user.uid);
         }
       }
-      
+
       // Update delta for next mention
       // (Length of new replacement) - (Length of original tag)
       lengthDelta += (mention.length - originalText.length);
@@ -779,17 +780,17 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
     // Pass 2: Replace text in reverse order so indices remain valid
     // Sort descending by start position
     replacements.sort((a, b) => b['start'].compareTo(a['start']));
-    
+
     for (var replacement in replacements) {
       int start = replacement['start'];
       int end = replacement['end'];
       String mention = replacement['mention'];
-      
+
       text = text.replaceRange(start, end, mention);
     }
-    
+
     // No need to recalculate positions again!
-    
+
     textEditingController.text = text;
     updatePreviousText(textEditingController.text);
     textEditingController.selection = TextSelection(
@@ -835,21 +836,21 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
         // Check if we're deleting at the end of a mention
         if (previousText.length > textEditingController.text.length &&
             match.end == cursorPosition) {
-
           if (i < users.length) {
-             // Remove this specific mention occurrence so it can be re-added/edited
+            // Remove this specific mention occurrence so it can be re-added/edited
             final uidToRemove = users[i]?.uid;
             mentionedUsersMapCopy[mention]!.removeAt(i);
 
             if (uidToRemove != null) {
               // Only decrement count if no other instances of this user exist
-               bool userStillMentioned = false;
-               mentionedUsersMapCopy.forEach((_, uList) {
-                  if (uList.any((u) => u?.uid == uidToRemove)) userStillMentioned = true;
-               });
-               if (!userStillMentioned) {
-                 mentionCount.remove(uidToRemove);
-               }
+              bool userStillMentioned = false;
+              mentionedUsersMapCopy.forEach((_, uList) {
+                if (uList.any((u) => u?.uid == uidToRemove))
+                  userStillMentioned = true;
+              });
+              if (!userStillMentioned) {
+                mentionCount.remove(uidToRemove);
+              }
             }
 
             if (mentionedUsersMapCopy[mention]!.isEmpty) {
@@ -857,8 +858,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
             }
 
             cursorAtEndOfMention = true;
-            mentionTracker =
-                textEditingController.text.substring(match.start, cursorPosition);
+            mentionTracker = textEditingController.text
+                .substring(match.start, cursorPosition);
             searchOnActiveMention = true;
 
             // Set indices for robustness
@@ -948,18 +949,19 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
     // if text is empty then we will clear the listItems and hide the panel
     if (textEditingController.text.isEmpty) {
       // Always hide the error panel when text is cleared (e.g., message sent)
-      CometChatUIEvents.hidePanel(
-          composerId, CustomUIPosition.composerTop);
+      CometChatUIEvents.hidePanel(composerId, CustomUIPosition.composerTop);
       if (listItems.isNotEmpty || mentionTracker.isNotEmpty) {
         resetMentionsTracker();
         mentionedUsersMap.clear();
         mentionCount.clear();
         mentionAllPositions.clear();
         if (previousText.length != textEditingController!.text.length) {
-          int lengthDelta = textEditingController!.text.length - previousText.length;
+          int lengthDelta =
+              textEditingController!.text.length - previousText.length;
           if (lengthDelta > 0) {
             // Text was added - find actual insertion position
-            int changePosition = _findInsertionPosition(previousText, textEditingController!.text);
+            int changePosition = _findInsertionPosition(
+                previousText, textEditingController!.text);
             _updateTrackedPositions(changePosition, lengthDelta);
           }
         }
@@ -973,12 +975,13 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
     // Check for text insertion (typing, paste, newlines)
     if (textEditingController.text.length > previousText.length) {
       int lengthDelta = textEditingController.text.length - previousText.length;
-      
+
       // Find the actual position where the text differs
       // This is important for formatting operations (like blockquote) that insert
       // text at the beginning of a line, not at the cursor position
-      int changePosition = _findInsertionPosition(previousText, textEditingController.text);
-      
+      int changePosition =
+          _findInsertionPosition(previousText, textEditingController.text);
+
       // Update positions of all mentions that come after the insertion point
       _updateTrackedPositions(changePosition, lengthDelta);
     }
@@ -1002,20 +1005,22 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       }
 
       int extraCharactersStartIndex = cursorPosition - extraCharactersLength;
-      
+
       // Bounds check to prevent RangeError
-      if (extraCharactersStartIndex < 0 || extraCharactersStartIndex > textEditingController.text.length) {
+      if (extraCharactersStartIndex < 0 ||
+          extraCharactersStartIndex > textEditingController.text.length) {
         lastCursorPos = cursorPosition;
         return;
       }
-      
+
       // Ensure cursorPosition is within bounds
-      int safeEndIndex = cursorPosition.clamp(0, textEditingController.text.length);
+      int safeEndIndex =
+          cursorPosition.clamp(0, textEditingController.text.length);
       if (extraCharactersStartIndex >= safeEndIndex) {
         lastCursorPos = cursorPosition;
         return;
       }
-      
+
       String newText = textEditingController.text
           .substring(extraCharactersStartIndex, safeEndIndex);
 
@@ -1066,17 +1071,16 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
           CometChatUIEvents.hidePanel(
               composerId, CustomUIPosition.composerPreview);
           // Also hide the error panel in case it was shown due to mention limit
-          CometChatUIEvents.hidePanel(
-              composerId, CustomUIPosition.composerTop);
+          CometChatUIEvents.hidePanel(composerId, CustomUIPosition.composerTop);
         } else {
           //if the cursor position is between the start and end of the mentionTracker
           //it means the user is deleting the mentionTracker
           if (cursorPosition > mentionStartIndex &&
               cursorPosition <= mentionEndIndex) {
             // Ensure bounds are valid before substring
-            final substringEnd = (cursorPosition - mentionStartIndex).clamp(0, mentionTracker.length);
-            mentionTracker =
-                mentionTracker.substring(0, substringEnd);
+            final substringEnd = (cursorPosition - mentionStartIndex)
+                .clamp(0, mentionTracker.length);
+            mentionTracker = mentionTracker.substring(0, substringEnd);
             mentionEndIndex = cursorPosition - 1;
             if (mentionTracker.isEmpty && onSearch != null) {
               onSearch!(null);
@@ -1092,12 +1096,14 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
         }
       } else {
         // Add bounds check to prevent RangeError
-        if (cursorPosition < previousText.length && previousText[cursorPosition] == trackingCharacter) {
+        if (cursorPosition < previousText.length &&
+            previousText[cursorPosition] == trackingCharacter) {
           cursorInMentionTracker(
               cursorPosition, textEditingController, previousText);
         } else {
           // Ensure cursorPosition doesn't exceed text length
-          final safeEndPosition = cursorPosition.clamp(0, textEditingController.text.length);
+          final safeEndPosition =
+              cursorPosition.clamp(0, textEditingController.text.length);
           int lastIndexOfTrackingChar = textEditingController.text
               .substring(0, safeEndPosition)
               .lastIndexOf(trackingCharacter!);
@@ -1157,7 +1163,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
           lastCursorPos = cursorPosition;
           return;
         }
-        
+
         // Don't start new mention tracking if limit is already reached
         if (mentionCount.length >= mentionsLimit) {
           // Show the error panel
@@ -1181,7 +1187,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
                   Padding(
                     padding: EdgeInsets.only(left: spacing.padding2 ?? 8),
                     child: Text(
-                      cc.Translations.of(context).mentionsMaxLimitHitWithCount(mentionsLimit),
+                      cc.Translations.of(context)
+                          .mentionsMaxLimitHitWithCount(mentionsLimit),
                       style: TextStyle(
                         color: colorPalette.white,
                         fontSize: typography.button?.medium?.fontSize,
@@ -1204,7 +1211,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
           !isSpace &&
           !searchOnActiveMention) {
         // Ensure cursorPosition doesn't exceed text length
-        final safeEndPos = cursorPosition.clamp(0, textEditingController.text.length);
+        final safeEndPos =
+            cursorPosition.clamp(0, textEditingController.text.length);
         int lastIndexOfTrackingChar = textEditingController.text
             .substring(0, safeEndPos)
             .lastIndexOf(trackingCharacter!);
@@ -1244,14 +1252,17 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
           mentionEndIndex = mentionEndIndex +
               (textEditingController.text.length - previousText.length);
           // Ensure bounds are valid before substring
-          final safeStart = mentionStartIndex.clamp(0, textEditingController.text.length);
-          final safeEnd = (mentionEndIndex + 1).clamp(safeStart, textEditingController.text.length);
-          mentionTracker = textEditingController.text
-              .substring(safeStart, safeEnd);
+          final safeStart =
+              mentionStartIndex.clamp(0, textEditingController.text.length);
+          final safeEnd = (mentionEndIndex + 1)
+              .clamp(safeStart, textEditingController.text.length);
+          mentionTracker =
+              textEditingController.text.substring(safeStart, safeEnd);
         }
       } else {
         // Ensure cursorPosition doesn't exceed text length
-        final safeEndPosition2 = cursorPosition.clamp(0, textEditingController.text.length);
+        final safeEndPosition2 =
+            cursorPosition.clamp(0, textEditingController.text.length);
         int lastIndexOfTrackingChar = textEditingController.text
             .substring(0, safeEndPosition2)
             .lastIndexOf(trackingCharacter!);
@@ -1302,7 +1313,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       String mention = mentionTracker;
       if (mentionedUsersMap.containsKey(mention)) {
         // Ensure bounds are valid before substring
-        final substringEnd = (cursorPosition - mentionTracker.length).clamp(0, textEditingController.text.length);
+        final substringEnd = (cursorPosition - mentionTracker.length)
+            .clamp(0, textEditingController.text.length);
         int matchesFound = textEditingController.text
             .substring(0, substringEnd)
             .allMatches(mention)
@@ -1343,7 +1355,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
                 Padding(
                   padding: EdgeInsets.only(left: spacing.padding2 ?? 8),
                   child: Text(
-                    cc.Translations.of(context).mentionsMaxLimitHitWithCount(mentionsLimit),
+                    cc.Translations.of(context)
+                        .mentionsMaxLimitHitWithCount(mentionsLimit),
                     style: TextStyle(
                       color: colorPalette.white,
                       fontSize: typography.button?.medium?.fontSize,
@@ -1361,7 +1374,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
         if (onSearch != null) {
           onSearch!(null);
         }
-        CometChatUIEvents.hidePanel(composerId, CustomUIPosition.composerPreview);
+        CometChatUIEvents.hidePanel(
+            composerId, CustomUIPosition.composerPreview);
       } else {
         String searchKeyword = mentionTracker.substring(1);
 
@@ -1449,19 +1463,19 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   @override
   List<AttributedText> buildInputFieldText(
       {required BuildContext context,
-        TextStyle? style,
-        required bool withComposing,
-        required String text,
-        List<AttributedText>? existingAttributes}) {
+      TextStyle? style,
+      required bool withComposing,
+      required String text,
+      List<AttributedText>? existingAttributes}) {
     // Store context for use in other methods
     this.context = context;
 
     List<AttributedText> attributedTexts = [];
     final mentionsStyle = CometChatThemeHelper.getTheme<CometChatMentionsStyle>(
-        context: context, defaultTheme: CometChatMentionsStyle.of)
+            context: context, defaultTheme: CometChatMentionsStyle.of)
         .merge(this.style);
     CometChatColorPalette colorPalette =
-    CometChatThemeHelper.getColorPalette(context);
+        CometChatThemeHelper.getColorPalette(context);
     CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
 
     // Use position-based tracking instead of pattern matching
@@ -1469,7 +1483,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       int endPos = startPos + mentionText.length;
 
       // Verify the mention still exists at this position
-      if (endPos <= text.length && text.substring(startPos, endPos) == mentionText) {
+      if (endPos <= text.length &&
+          text.substring(startPos, endPos) == mentionText) {
         bool isAllMention = mentionAllPositions.contains(mentionText);
         bool isLoggedInUser = false;
 
@@ -1492,9 +1507,11 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
             end: endPos,
             underlyingText: mentionText,
             backgroundColor: (shouldStyleAsLoggedIn
-                ? mentionsStyle.mentionSelfTextBackgroundColor
-                : mentionsStyle.mentionTextBackgroundColor) ??
-                (shouldStyleAsLoggedIn ? colorPalette.warning : colorPalette.primary)
+                    ? mentionsStyle.mentionSelfTextBackgroundColor
+                    : mentionsStyle.mentionTextBackgroundColor) ??
+                (shouldStyleAsLoggedIn
+                        ? colorPalette.warning
+                        : colorPalette.primary)
                     ?.withOpacity(.2) ??
                 Colors.transparent,
             borderRadius: mentionsStyle.borderRadius ?? spacing.radius ?? 0,
@@ -1530,7 +1547,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
     // Handle @all mentions - replace <@all:labelId> with @all
     final allMentionPattern = RegExp(r'<@all:[^>]+>');
     text = text.replaceAll(allMentionPattern, '@all');
-    
+
     // Handle user mentions
     if (mentionedUsers.isNotEmpty) {
       for (var user in mentionedUsers) {
@@ -1632,22 +1649,22 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       Function(String)? onTap,
       bool forConversation = false}) {
     this.context = context;
-    
+
     List<AttributedText> attributedTexts = [];
     final matches = pattern!.allMatches(text);
     List<User> mentionedUsers = message?.mentionedUsers ?? [];
-    
+
     final configuredAllLabelId = mentionAllLabelId ?? "all";
 
     for (var match in matches) {
       int start = match.start;
       int end = match.end;
-      
+
       // Handle both old format <@uid:id> and new format <@(uid|all):id>
       // group(1) is the type (uid or all), group(2) is the id
       String mentionType = match.group(1) ?? '';
       String mentionId = '';
-      
+
       // Check if group(2) exists (new format) or use group(1) as id (old format compatibility)
       try {
         mentionId = match.group(2) ?? '';
@@ -1656,11 +1673,11 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
         mentionId = mentionType;
         mentionType = 'uid';
       }
-      
+
       String underlyingText;
       bool isLoggedInUser = false;
       bool shouldCreateAttributedText = true;
-      
+
       // Determine if this @all mention should be formatted
       // Always use a default ID of "all" if not configured
       bool isMatchingAllMention = false;
@@ -1669,7 +1686,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
         // Only match if the mention ID matches the configured (or default) ID
         isMatchingAllMention = (mentionId == configuredAllLabelId);
       }
-      
+
       if (isMatchingAllMention) {
         // Handle @all mention - format it with the configured or default label
         // Use localized text if available, otherwise fall back to custom or default label
@@ -1692,7 +1709,7 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
         isLoggedInUser = userIndex != -1 &&
             mentionedUsers[userIndex].uid == CometChatUIKit.loggedInUser?.uid;
       }
-      
+
       // Only create AttributedText if we should format this mention
       if (shouldCreateAttributedText) {
         final mentionsStyle =
@@ -1708,7 +1725,8 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
             end: end,
             underlyingText: underlyingText,
             style: getMessageBubbleTextStyle(context, alignment,
-                isLoggedInUser: isLoggedInUser, forConversation: forConversation),
+                isLoggedInUser: isLoggedInUser,
+                forConversation: forConversation),
             backgroundColor: (isLoggedInUser
                     ? mentionsStyle.mentionSelfTextBackgroundColor
                     : mentionsStyle.mentionTextBackgroundColor) ??
@@ -1726,10 +1744,11 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
                 horizontal: spacing.padding ?? 0, vertical: 0),
             onTap: (text) {
               if (onMentionTap != null && mentionType == 'uid') {
-                int userIndex =
-                    mentionedUsers.indexWhere((element) => element.uid == mentionId);
+                int userIndex = mentionedUsers
+                    .indexWhere((element) => element.uid == mentionId);
                 if (userIndex != -1) {
-                  onMentionTap!(text, mentionedUsers[userIndex], message: message);
+                  onMentionTap!(text, mentionedUsers[userIndex],
+                      message: message);
                 }
               }
             }));
@@ -1743,18 +1762,19 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
     }
   }
 
-  void _removeMentionIfDeleted(TextEditingController? controller, String previousText) {
+  void _removeMentionIfDeleted(
+      TextEditingController? controller, String previousText) {
     if (controller == null || controller.text.isEmpty) return;
 
     String currentText = controller.text;
-    
+
     // Only handle deletion
     if (currentText.length >= previousText.length) return;
 
     // Check bounds
     final diffIndex = _findDiffIndex(previousText, currentText);
     if (diffIndex == null) return;
-    
+
     int deletionsCount = previousText.length - currentText.length;
     int deleteStart = diffIndex;
     int deleteEnd = diffIndex + deletionsCount;
@@ -1763,30 +1783,32 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
     List<int> overlappingMentionStarts = [];
     int finalDeleteStart = deleteStart;
     int finalDeleteEnd = deleteEnd;
-    
+
     trackedMentionPositions.forEach((startPos, mentionText) {
       int endPos = startPos + mentionText.length;
-      
+
       // Validate that the mention text actually exists at the tracked position
       // in previousText. If positions are stale (e.g., after internal formatting
       // operations like inline code conversion), skip this mention.
-      if (startPos < 0 || endPos > previousText.length ||
+      if (startPos < 0 ||
+          endPos > previousText.length ||
           previousText.substring(startPos, endPos) != mentionText) {
         return; // Skip — position is stale or out of bounds
       }
-      
+
       // Check for overlap [startPos, endPos) vs [deleteStart, deleteEnd)
       if (startPos < deleteEnd && endPos > deleteStart) {
         overlappingMentionStarts.add(startPos);
-        
+
         // Expand deletion range to include this mention
         if (startPos < finalDeleteStart) finalDeleteStart = startPos;
         if (endPos > finalDeleteEnd) {
-           finalDeleteEnd = endPos;
-           // Check for trailing space logic: if we are auto-deleting the rest of the mention
-           if (finalDeleteEnd < previousText.length && previousText[finalDeleteEnd] == ' ') {
-             finalDeleteEnd++;
-           }
+          finalDeleteEnd = endPos;
+          // Check for trailing space logic: if we are auto-deleting the rest of the mention
+          if (finalDeleteEnd < previousText.length &&
+              previousText[finalDeleteEnd] == ' ') {
+            finalDeleteEnd++;
+          }
         }
       }
     });
@@ -1795,9 +1817,9 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       // 2. Remove mentions from maps
       for (int startPos in overlappingMentionStarts) {
         String mentionText = trackedMentionPositions[startPos]!;
-        
+
         trackedMentionPositions.remove(startPos);
-        
+
         // Clean up mentionedUsersMap
         if (mentionedUsersMap.containsKey(mentionText)) {
           if (mentionAllPositions.contains(mentionText)) {
@@ -1813,16 +1835,17 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
               // Try to be smart about which user to remove if possible, or just remove first
               // Since we don't have easy index mapping here, we remove first.
               // Logic can be improved if duplicates of same name exist but map to different users
-              var removedUser = users.removeAt(0); 
+              var removedUser = users.removeAt(0);
               if (removedUser != null) {
-                  // Only decrement count if no other instances of this user exist
-                  bool userStillMentioned = false;
-                  mentionedUsersMap.forEach((_, uList) {
-                     if (uList.any((u) => u?.uid == removedUser.uid)) userStillMentioned = true;
-                  });
-                  if (!userStillMentioned) {
-                    mentionCount.remove(removedUser.uid);
-                  }
+                // Only decrement count if no other instances of this user exist
+                bool userStillMentioned = false;
+                mentionedUsersMap.forEach((_, uList) {
+                  if (uList.any((u) => u?.uid == removedUser.uid))
+                    userStillMentioned = true;
+                });
+                if (!userStillMentioned) {
+                  mentionCount.remove(removedUser.uid);
+                }
               }
             }
             if (users.isEmpty) {
@@ -1844,22 +1867,24 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
       // We must use previousText to reconstruct, because currentText is partial
       // Clamp finalDeleteEnd to previousText length to prevent RangeError
       // when tracked mention positions are stale after formatting operations
-      if (finalDeleteStart > previousText.length) finalDeleteStart = previousText.length;
-      if (finalDeleteEnd > previousText.length) finalDeleteEnd = previousText.length;
+      if (finalDeleteStart > previousText.length)
+        finalDeleteStart = previousText.length;
+      if (finalDeleteEnd > previousText.length)
+        finalDeleteEnd = previousText.length;
       if (finalDeleteStart > finalDeleteEnd) finalDeleteStart = finalDeleteEnd;
-      String newText = previousText.replaceRange(finalDeleteStart, finalDeleteEnd, '');
-      
+      String newText =
+          previousText.replaceRange(finalDeleteStart, finalDeleteEnd, '');
+
       controller.text = newText;
       controller.selection = TextSelection.collapsed(offset: finalDeleteStart);
-      
+
       // Reset tracker and hide panel since we just deleted a formatted mention
       resetMentionsTracker();
       CometChatUIEvents.hidePanel(composerId, CustomUIPosition.composerPreview);
-      
+
       // Recalculate delta based on the FULL deletion
       int totalDelta = newText.length - previousText.length;
       _updateTrackedPositions(finalDeleteStart, totalDelta);
-      
     } else {
       // Just a normal text deletion, no mentions affected
       _updateTrackedPositions(diffIndex, -deletionsCount);
@@ -1867,14 +1892,15 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
   }
 
   /// Finds the position where text was inserted by comparing old and new text.
-  /// 
+  ///
   /// This is more accurate than assuming insertion happened at cursor position,
   /// especially for formatting operations (like blockquote) that insert text
   /// at the beginning of a line.
   int _findInsertionPosition(String oldText, String newText) {
     // Find the first position where the texts differ
     int i = 0;
-    while (i < oldText.length && i < newText.length && oldText[i] == newText[i]) {
+    while (
+        i < oldText.length && i < newText.length && oldText[i] == newText[i]) {
       i++;
     }
     return i;
@@ -1894,9 +1920,9 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
 
     // Helper to check if a mention was just inserted (shouldn't be shifted)
     bool wasJustInserted(int pos, String mention) {
-      return pos == changePosition && 
-             lengthDelta > 0 && 
-             mention.length + 1 == lengthDelta;
+      return pos == changePosition &&
+          lengthDelta > 0 &&
+          mention.length + 1 == lengthDelta;
     }
 
     // Update trackedMentionPositions
@@ -1914,13 +1940,16 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
     // Update mentionTextToPositions
     Map<String, List<int>> updatedTextToPos = {};
     mentionTextToPositions.forEach((mention, positions) {
-      List<int> newPositions = positions.map((pos) {
-        if (pos < changePosition || wasJustInserted(pos, mention)) {
-          return pos;
-        }
-        return pos + lengthDelta;
-      }).where((pos) => pos >= 0).toList();
-      
+      List<int> newPositions = positions
+          .map((pos) {
+            if (pos < changePosition || wasJustInserted(pos, mention)) {
+              return pos;
+            }
+            return pos + lengthDelta;
+          })
+          .where((pos) => pos >= 0)
+          .toList();
+
       if (newPositions.isNotEmpty) {
         updatedTextToPos[mention] = newPositions;
       }

@@ -116,11 +116,17 @@ class CustomTextEditingController extends TextEditingController {
       style: (attr.style ?? defaultStyle).copyWith(
         backgroundColor: attr.backgroundColor,
       ),
-      recognizer: TapGestureRecognizer()
-        ..onTap = () {
-          final tappedText = attr.underlyingText ?? text.substring(attr.start, attr.end);
-          if (onTap != null) onTap(tappedText);
-        },
+      // Only attach a recognizer when onTap is provided.
+      // Flutter's RenderEditable asserts readOnly && !obscureText when any
+      // TextSpan has a recognizer, so adding one in an editable field crashes.
+      recognizer: onTap != null
+          ? (TapGestureRecognizer()
+            ..onTap = () {
+              final tappedText =
+                  attr.underlyingText ?? text.substring(attr.start, attr.end);
+              onTap(tappedText);
+            })
+          : null,
     );
   }
 

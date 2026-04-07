@@ -321,7 +321,9 @@ Widget _getList(
       itemCount: value.hasMoreItems ? value.list.length + 1 : value.list.length,
       itemBuilder: (context, index) {
         if (index >= value.list.length) {
-          value.loadMoreElements();
+          WidgetsBinding.instance.addPostFrameCallback(
+                (_) => value.loadMoreElements(),
+          );
           return _getLoadingIndicator(
             context,
             colorPalette,

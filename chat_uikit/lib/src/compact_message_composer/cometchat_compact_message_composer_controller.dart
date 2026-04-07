@@ -118,18 +118,19 @@ class CometChatCompactMessageComposerController extends GetxController
           return {FormatType.codeBlock};
         }
         if (focused.controller is RichTextEditingController) {
-          return (focused.controller as RichTextEditingController).activeFormats;
+          return (focused.controller as RichTextEditingController)
+              .activeFormats;
         }
       }
       return {};
     }
-    
+
     if (_richTextController != null) {
       return _richTextController!.activeFormats;
     }
     return _activeFormats;
   }
-  
+
   /// [disabledFormats] returns the set of formats that should be disabled
   /// When code block is active, inline formats are disabled but block formats
   /// (orderedList, bulletList, blockquote) remain available
@@ -149,25 +150,25 @@ class CometChatCompactMessageComposerController extends GetxController
         };
       }
     }
-    
+
     if (_richTextController != null) {
       return _richTextController!.disabledFormats;
     }
     return {};
   }
-  
+
   /// [mentionsEnabled] returns whether mentions should be enabled based on active format.
-  /// 
+  ///
   /// Mentions are disabled when code block or inline code is active, as these
   /// formats should display mentions as plain text (@username/@all) without
   /// formatting or styling.
-  /// 
+  ///
   /// Mentions are enabled for all other formats including:
   /// - No block format active (normal text)
   /// - Ordered list
   /// - Bullet list
   /// - Quote block (blockquote)
-  /// 
+  ///
   /// _Bug_Condition: isBugCondition(input) where activeFormat IN ["codeBlock", "inlineCode"] AND mentionSuggestionShown_
   /// _Expected_Behavior: mentionsEnabled = false when code block or inline code is active_
   /// _Preservation: mentionsEnabled = true for all other formats_
@@ -182,19 +183,20 @@ class CometChatCompactMessageComposerController extends GetxController
       }
       // For normal segments, delegate to the segment's controller
       if (focused != null && focused.controller is RichTextEditingController) {
-        return (focused.controller as RichTextEditingController).mentionsEnabled;
+        return (focused.controller as RichTextEditingController)
+            .mentionsEnabled;
       }
       // Default to enabled if no focused segment
       return true;
     }
-    
+
     if (_richTextController != null) {
       return _richTextController!.mentionsEnabled;
     }
     // Default to enabled when not using RichTextEditingController
     return true;
   }
-  
+
   /// Internal storage for active formats when not using RichTextEditingController
   final Set<FormatType> _activeFormats = {};
 
@@ -215,6 +217,11 @@ class CometChatCompactMessageComposerController extends GetxController
 
   /// [_previousText] holds the state of the last typed text
   String _previousText = "";
+
+  /// Guards against double-notifying formatters when both the
+  /// RichTextEditingController listener and TextField.onChanged fire
+  /// for the same keystroke.
+  bool _formatterNotifiedForCurrentChange = false;
 
   /// [_isTyping] state of typing events
   bool _isTyping = false;
@@ -258,6 +265,12 @@ class CometChatCompactMessageComposerController extends GetxController
 
   /// [_searchKeywordChanged] flag to track if search keyword changed
   bool _searchKeywordChanged = true;
+
+  /// [_lastAppliedSearchKeyword] tracks the keyword that was last used to
+  /// replace (not append) the suggestions list. This detects stale fetch
+  /// responses that consumed [_searchKeywordChanged] before the current
+  /// fetch response arrived.
+  String? _lastAppliedSearchKeyword;
 
   /// [hasMoreSuggestions] flag to track if there are more suggestions to load
   bool hasMoreSuggestions = true;
@@ -371,7 +384,7 @@ class CometChatCompactMessageComposerController extends GetxController
 
   /// [onSendButtonTap] callback when send button is tapped
   final Function(BuildContext, BaseMessage, PreviewMessageMode?)?
-      onSendButtonTap;
+  onSendButtonTap;
 
   /// [onError] callback triggered in case any error happens
   final OnError? onError;
@@ -457,7 +470,8 @@ class CometChatCompactMessageComposerController extends GetxController
   SegmentedComposerController? _segmentedController;
 
   /// Returns true if segmented mode is active (has code blocks)
-  bool get isSegmentedMode => _segmentedController != null && _segmentedController!.hasCodeBlocks;
+  bool get isSegmentedMode =>
+      _segmentedController != null && _segmentedController!.hasCodeBlocks;
 
   /// Gets the segmented composer controller
   SegmentedComposerController? get segmentedController => _segmentedController;
@@ -483,8 +497,9 @@ class CometChatCompactMessageComposerController extends GetxController
     _previousTextStream = _previousTextController.stream;
 
     // Subscribe to suggestion list stream
-    _suggestionSubscription =
-        _suggestionListStream.listen((List<SuggestionListItem> value) {
+    _suggestionSubscription = _suggestionListStream.listen((
+      List<SuggestionListItem> value,
+    ) {
       _handleSuggestionListUpdate(value);
     });
 
@@ -507,12 +522,15 @@ class CometChatCompactMessageComposerController extends GetxController
         textEditingController = richController;
         _richTextController = richController;
       } else {
-        textEditingController = CustomTextEditingController(text: text, formatters: _formatters);
+        textEditingController = CustomTextEditingController(
+          text: text,
+          formatters: _formatters,
+        );
       }
     } else if (textEditingController is RichTextEditingController) {
       _richTextController = textEditingController as RichTextEditingController;
     }
-    
+
     // Wire up onLinkLongPress callback for link editing
     // _Requirements: 4.1_
     if (_richTextController != null) {
@@ -521,24 +539,24 @@ class CometChatCompactMessageComposerController extends GetxController
           showLinkEditMenu(_context!, linkSpan);
         }
       };
-      
+
       // Wire up onLinkTap callback for link editing when tapping on a link
       _richTextController!.onLinkTap = (RichTextSpan linkSpan) {
         if (_context != null) {
           showLinkEditMenu(_context!, linkSpan);
         }
       };
-      
+
       // Listen to RichTextEditingController changes to update toolbar state
       // This ensures the toolbar reflects the correct active formats when
       // text is modified programmatically (e.g., list continuation on Enter)
       _richTextController!.addListener(_onRichTextControllerChanged);
     }
-    
+
     // Initialize focus node for keyboard navigation
     // _Requirements: 11.2_
     focusNode ??= FocusNode();
-    
+
     // Add focus listener to hide sticker panel when keyboard appears
     focusNode!.addListener(_onFocusChange);
 
@@ -546,7 +564,9 @@ class CometChatCompactMessageComposerController extends GetxController
     CometChatUIEvents.addUiListener(_uiEventListener, this);
     CometChatUserEvents.addUsersListener(_uiEventListener, this);
     CometChatStreamCallBackEvents.addStreamCallBackListener(
-        _streamCallbackListenerId, this);
+      _streamCallbackListenerId,
+      this,
+    );
 
     if (stateCallBack != null) {
       stateCallBack!(this);
@@ -591,50 +611,59 @@ class CometChatCompactMessageComposerController extends GetxController
     CometChatUIEvents.removeUiListener(_uiEventListener);
     CometChatUserEvents.removeUsersListener(_uiEventListener);
     CometChatStreamCallBackEvents.removeStreamCallBackListener(
-        _streamCallbackListenerId);
+      _streamCallbackListenerId,
+    );
     super.onClose();
   }
-  
+
   /// Callback for RichTextEditingController changes.
   /// Updates the UI when text is modified programmatically.
   /// Also notifies formatters to preserve mention tracking when text is modified
   /// by formatting operations (e.g., adding blockquote prefix).
-  /// 
+  ///
   /// Additionally, updates the mentions formatter's enabled state based on
   /// the current active format (code block/inline code disables mentions).
   /// _Requirements: 2.5, 2.6, 2.7_
   void _onRichTextControllerChanged() {
     // Get the current text
     final currentText = textEditingController?.text ?? '';
-    
+
     // Only notify formatters if the text actually changed
     // This prevents unnecessary processing when only selection changes
     if (currentText != _previousText) {
+      // Mark that the controller listener already handled this text change.
+      // This prevents onTextChanged (fired by TextField.onChanged for the
+      // same keystroke) from calling _notifyFormattersOnChange a second time,
+      // which would double-process the mention tracker.
+      _formatterNotifiedForCurrentChange = true;
+
       // Notify formatters of the text change to update mention tracking
       // This is important when formatting operations modify the text
       // (e.g., adding "> " prefix for blockquote)
       _notifyFormattersOnChange();
-      
+
       // Update _previousText to reflect the new text state
       _previousText = currentText;
     }
-    
+
     // Update mentions formatter enabled state based on active format
     // This ensures mentions are disabled when code block or inline code is active
     _updateMentionsFormatterState();
-    
+
     update();
   }
-  
+
   /// Updates the mentions formatter's enabled state based on the current
   /// mentionsEnabled property.
-  /// 
+  ///
   /// This method should be called whenever the active format changes to ensure
   /// the mentions formatter respects the code block/inline code state.
-  /// 
+  ///
   /// _Requirements: 2.5, 2.6, 2.7_
   void _updateMentionsFormatterState() {
-    final mentionFormatter = _formatters.whereType<CometChatMentionsFormatter>().firstOrNull;
+    final mentionFormatter = _formatters
+        .whereType<CometChatMentionsFormatter>()
+        .firstOrNull;
     if (mentionFormatter != null) {
       mentionFormatter.setMentionsEnabled(mentionsEnabled);
     }
@@ -667,7 +696,7 @@ class CometChatCompactMessageComposerController extends GetxController
     if (isSegmentedMode) {
       return _segmentedController!.hasSegmentContent;
     }
-    
+
     final currentText = textEditingController?.text ?? '';
     final hasActualContent = _hasActualContent(currentText);
 
@@ -681,7 +710,8 @@ class CometChatCompactMessageComposerController extends GetxController
         final originalText = (oldMessage as TextMessage).text;
         // When using RichTextEditingController, compare markdown representation
         // to detect formatting changes (e.g., applying bold to plain text)
-        final currentMarkdown = _richTextController?.toMarkdown() ?? currentText;
+        final currentMarkdown =
+            _richTextController?.toMarkdown() ?? currentText;
         return currentMarkdown != originalText;
       }
     }
@@ -754,7 +784,9 @@ class CometChatCompactMessageComposerController extends GetxController
   ///
   /// Returns the configured limit or default value of 10.
   int get mentionsLimit {
-    final mentionFormatter = _formatters.whereType<CometChatMentionsFormatter>().firstOrNull;
+    final mentionFormatter = _formatters
+        .whereType<CometChatMentionsFormatter>()
+        .firstOrNull;
     return mentionFormatter?.mentionsLimit ?? 10;
   }
 
@@ -769,15 +801,15 @@ class CometChatCompactMessageComposerController extends GetxController
     if (_richTextController != null) {
       // Use WYSIWYG formatting - activate the format
       _richTextController!.activateFormat(formatType);
-      
+
       // Hide suggestion list if it's showing (formatting may have removed '@')
       _hideSuggestionListIfMentionTrackerInvalid();
-      
+
       requestFocus();
       update();
       return;
     }
-    
+
     // Fallback to markdown-based formatting
     if (textEditingController == null) return;
 
@@ -805,10 +837,12 @@ class CometChatCompactMessageComposerController extends GetxController
 
     // Update active formats
     _activeFormats.clear();
-    _activeFormats.addAll(RichTextFormatterManager.detectActiveFormats(
-      result.text,
-      result.newCursorEnd,
-    ));
+    _activeFormats.addAll(
+      RichTextFormatterManager.detectActiveFormats(
+        result.text,
+        result.newCursorEnd,
+      ),
+    );
 
     // Request focus back to the text field so user can continue typing
     requestFocus();
@@ -825,15 +859,15 @@ class CometChatCompactMessageComposerController extends GetxController
     if (_richTextController != null) {
       // Use WYSIWYG formatting - deactivate the format
       _richTextController!.deactivateFormat(formatType);
-      
+
       // Hide suggestion list if it's showing (formatting may have removed '@')
       _hideSuggestionListIfMentionTrackerInvalid();
-      
+
       requestFocus();
       update();
       return;
     }
-    
+
     // Fallback to markdown-based formatting
     if (textEditingController == null) return;
 
@@ -861,10 +895,12 @@ class CometChatCompactMessageComposerController extends GetxController
 
     // Update active formats
     _activeFormats.clear();
-    _activeFormats.addAll(RichTextFormatterManager.detectActiveFormats(
-      result.text,
-      result.newCursorEnd,
-    ));
+    _activeFormats.addAll(
+      RichTextFormatterManager.detectActiveFormats(
+        result.text,
+        result.newCursorEnd,
+      ),
+    );
 
     // Request focus back to the text field so user can continue typing
     requestFocus();
@@ -888,20 +924,20 @@ class CometChatCompactMessageComposerController extends GetxController
       _showLinkDialog();
       return;
     }
-    
+
     // Handle code block format with segmented composer
     if (formatType == FormatType.codeBlock) {
       _toggleCodeBlock();
       return;
     }
-    
+
     // If in segmented mode and focused on a code segment, handle specially
     if (isSegmentedMode) {
       final focused = _segmentedController!.focusedSegment;
       if (focused != null && focused.type == SegmentType.code) {
         // For list/blockquote formats, convert code segment to normal and apply format
-        if (formatType == FormatType.bulletList || 
-            formatType == FormatType.orderedList || 
+        if (formatType == FormatType.bulletList ||
+            formatType == FormatType.orderedList ||
             formatType == FormatType.blockquote) {
           _convertCodeSegmentToNormalWithFormat(formatType);
           return;
@@ -916,7 +952,11 @@ class CometChatCompactMessageComposerController extends GetxController
           final rtc = focused.controller as RichTextEditingController;
           final sel = rtc.selection;
           if (!sel.isCollapsed) {
-            final isRemoving = rtc.hasFormatInRange(sel.start, sel.end, FormatType.inlineCode);
+            final isRemoving = rtc.hasFormatInRange(
+              sel.start,
+              sel.end,
+              FormatType.inlineCode,
+            );
             if (isRemoving) {
               _restoreMentionsInSelection(focused.controller);
             } else {
@@ -925,7 +965,9 @@ class CometChatCompactMessageComposerController extends GetxController
             }
           }
         }
-        (focused.controller as RichTextEditingController).toggleFormat(formatType);
+        (focused.controller as RichTextEditingController).toggleFormat(
+          formatType,
+        );
         _hideSuggestionListIfMentionTrackerInvalid();
         // Update mentions formatter state based on new active format
         // _Requirements: 2.5, 2.6, 2.7_
@@ -934,13 +976,17 @@ class CometChatCompactMessageComposerController extends GetxController
         return;
       }
     }
-    
+
     if (_richTextController != null) {
       // Handle inline code toggle with mention save/restore
       if (formatType == FormatType.inlineCode) {
         final sel = _richTextController!.selection;
         if (!sel.isCollapsed) {
-          final isRemoving = _richTextController!.hasFormatInRange(sel.start, sel.end, FormatType.inlineCode);
+          final isRemoving = _richTextController!.hasFormatInRange(
+            sel.start,
+            sel.end,
+            FormatType.inlineCode,
+          );
           if (isRemoving) {
             _restoreMentionsInSelection(_richTextController!);
           } else {
@@ -949,24 +995,24 @@ class CometChatCompactMessageComposerController extends GetxController
           }
         }
       }
-      
+
       // Use WYSIWYG formatting via RichTextEditingController
       _richTextController!.toggleFormat(formatType);
-      
+
       // Hide suggestion list if it's showing (formatting may have removed '@')
       _hideSuggestionListIfMentionTrackerInvalid();
-      
+
       // Update mentions formatter state based on new active format
       // This ensures mentions are disabled when code block or inline code is active
       // _Requirements: 2.5, 2.6, 2.7_
       _updateMentionsFormatterState();
-      
+
       // Request focus back to the text field so user can continue typing
       requestFocus();
       update();
       return;
     }
-    
+
     // Fallback to markdown-based formatting
     if (textEditingController == null) return;
 
@@ -994,10 +1040,12 @@ class CometChatCompactMessageComposerController extends GetxController
 
     // Update active formats
     _activeFormats.clear();
-    _activeFormats.addAll(RichTextFormatterManager.detectActiveFormats(
-      result.text,
-      result.newCursorEnd,
-    ));
+    _activeFormats.addAll(
+      RichTextFormatterManager.detectActiveFormats(
+        result.text,
+        result.newCursorEnd,
+      ),
+    );
 
     // Request focus back to the text field so user can continue typing
     requestFocus();
@@ -1006,7 +1054,7 @@ class CometChatCompactMessageComposerController extends GetxController
   }
 
   /// Toggles code block mode using the segmented composer.
-  /// 
+  ///
   /// If not in segmented mode, initializes the segmented controller and
   /// transfers the current text to it.
   void _toggleCodeBlock() {
@@ -1023,22 +1071,22 @@ class CometChatCompactMessageComposerController extends GetxController
         initialMarkdown = textEditingController!.text;
         selection = textEditingController!.selection;
       }
-      
+
       _segmentedController = SegmentedComposerController(
         formatters: _formatters,
         richTextStyle: richTextFormatterStyle,
         initialMarkdown: initialMarkdown,
       );
-      
+
       // Listen to segmented controller changes
       _segmentedController!.addListener(_onSegmentedControllerChanged);
-      
+
       // Initialize segment previous texts for mention tracking
       _segmentPreviousTexts.clear();
       for (final segment in _segmentedController!.segments) {
         _segmentPreviousTexts[segment.id] = segment.text;
       }
-      
+
       // Request focus on the first segment and set selection
       if (_segmentedController!.segments.isNotEmpty) {
         final firstSegment = _segmentedController!.segments.first;
@@ -1057,7 +1105,7 @@ class CometChatCompactMessageComposerController extends GetxController
     } else if (!isSegmentedMode) {
       // Segmented controller exists but not in segmented mode (no code blocks)
       // This means we removed a code block and are now adding a new one
-      // We need to sync both the text content and selection from the 
+      // We need to sync both the text content and selection from the
       // rich text controller to the segmented controller's first segment
       // Use markdown to preserve formatting
       String currentMarkdown = '';
@@ -1069,14 +1117,16 @@ class CometChatCompactMessageComposerController extends GetxController
         currentMarkdown = textEditingController!.text;
         selection = textEditingController!.selection;
       }
-      
+
       // Update the text and selection in the segmented controller's first segment
       if (_segmentedController!.segments.isNotEmpty) {
         final firstSegment = _segmentedController!.segments.first;
         if (firstSegment.type == SegmentType.normal) {
           // Sync the text content from rich text controller (with markdown formatting)
           if (firstSegment.controller is RichTextEditingController) {
-            (firstSegment.controller as RichTextEditingController).loadMarkdown(currentMarkdown);
+            (firstSegment.controller as RichTextEditingController).loadMarkdown(
+              currentMarkdown,
+            );
           } else {
             firstSegment.controller.text = currentMarkdown;
           }
@@ -1093,33 +1143,38 @@ class CometChatCompactMessageComposerController extends GetxController
         }
       }
     }
-    
+
     // Toggle code block
     _segmentedController!.toggleCodeBlock();
-    
+
     update();
   }
 
   /// Converts a code segment to a normal segment and applies the specified format.
-  /// 
+  ///
   /// This is called when the user clicks on bullet list, ordered list, or blockquote
   /// while focused on a code segment. Only the current line is extracted from the
   /// code block and converted to the selected format. The rest of the text remains
   /// in code blocks.
   void _convertCodeSegmentToNormalWithFormat(FormatType formatType) {
     if (_segmentedController == null) return;
-    
+
     final focused = _segmentedController!.focusedSegment;
     if (focused == null || focused.type != SegmentType.code) return;
-    
+
     // Extract only the current line from the code segment
-    final extractedSegment = _segmentedController!.extractLineFromCodeSegment(focused);
-    
-    if (extractedSegment != null && extractedSegment.controller is RichTextEditingController) {
+    final extractedSegment = _segmentedController!.extractLineFromCodeSegment(
+      focused,
+    );
+
+    if (extractedSegment != null &&
+        extractedSegment.controller is RichTextEditingController) {
       // Apply the format to the extracted line
-      (extractedSegment.controller as RichTextEditingController).toggleFormat(formatType);
+      (extractedSegment.controller as RichTextEditingController).toggleFormat(
+        formatType,
+      );
     }
-    
+
     _hideSuggestionListIfMentionTrackerInvalid();
     _updateMentionsFormatterState();
     update();
@@ -1131,7 +1186,7 @@ class CometChatCompactMessageComposerController extends GetxController
   }
 
   /// Initializes the segmented controller for editing a message with code blocks.
-  /// 
+  ///
   /// This parses the markdown text and creates appropriate segments for
   /// normal text and code blocks.
   void _initializeSegmentedControllerForEdit(
@@ -1144,96 +1199,101 @@ class CometChatCompactMessageComposerController extends GetxController
       _segmentedController!.removeListener(_onSegmentedControllerChanged);
       _segmentedController!.dispose();
     }
-    
+
     // Create new segmented controller
     _segmentedController = SegmentedComposerController(
       formatters: _formatters,
       richTextStyle: richTextFormatterStyle,
     );
-    
+
     // Load the markdown with code blocks
     _segmentedController!.loadFromMarkdown(markdownText);
-    
+
     // Listen to changes
     _segmentedController!.addListener(_onSegmentedControllerChanged);
-    
+
     // Update previous text for change detection
     _previousText = _segmentedController!.plainText;
-    
+
     // Initialize segment previous texts for mention tracking
     // Each segment tracks its own previous text for mention detection
     _segmentPreviousTexts.clear();
     for (final segment in _segmentedController!.segments) {
       _segmentPreviousTexts[segment.id] = segment.text;
     }
-    
+
     // Set up mention tracking for each normal segment
     // The mentions formatter uses trackedMentionPositions to style mentions
     if (mentionFormatterIndex != -1) {
-      final mentionsFormatter = _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
-      
+      final mentionsFormatter =
+          _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
+
       // Set the mentioned users so the formatter knows about them
       if (mentionedUsers.isNotEmpty) {
         mentionsFormatter.setMentionedUsers(mentionedUsers);
       }
-      
+
       // For each normal segment, set up mention tracking
       for (final segment in _segmentedController!.segments) {
         if (segment.type == SegmentType.normal) {
           final segmentText = segment.text;
-          
+
           // Find @all mentions in this segment
           final allLabel = mentionAllLabel ?? '@all';
           int searchStart = 0;
           while (true) {
             int pos = segmentText.indexOf(allLabel, searchStart);
             if (pos == -1) break;
-            
+
             mentionsFormatter.trackedMentionPositions[pos] = allLabel;
             if (!mentionsFormatter.mentionAllPositions.contains(allLabel)) {
               mentionsFormatter.mentionAllPositions.add(allLabel);
             }
-            
-            if (mentionsFormatter.mentionTextToPositions.containsKey(allLabel)) {
+
+            if (mentionsFormatter.mentionTextToPositions.containsKey(
+              allLabel,
+            )) {
               mentionsFormatter.mentionTextToPositions[allLabel]!.add(pos);
             } else {
               mentionsFormatter.mentionTextToPositions[allLabel] = [pos];
             }
-            
+
             searchStart = pos + allLabel.length;
           }
-          
+
           // Find user mentions in this segment
           for (var user in mentionedUsers) {
             final mention = '@${user.name}';
             searchStart = 0;
-            
+
             while (true) {
               int pos = segmentText.indexOf(mention, searchStart);
               if (pos == -1) break;
-              
+
               mentionsFormatter.trackedMentionPositions[pos] = mention;
-              
-              if (mentionsFormatter.mentionTextToPositions.containsKey(mention)) {
+
+              if (mentionsFormatter.mentionTextToPositions.containsKey(
+                mention,
+              )) {
                 mentionsFormatter.mentionTextToPositions[mention]!.add(pos);
               } else {
                 mentionsFormatter.mentionTextToPositions[mention] = [pos];
               }
-              
+
               if (!mentionsFormatter.mentionCount.contains(user.uid)) {
                 mentionsFormatter.mentionCount.add(user.uid);
               }
-              
+
               searchStart = pos + mention.length;
             }
           }
-          
+
           // Update the formatter's previous text to match this segment
           mentionsFormatter.updatePreviousText(segmentText);
         }
       }
     }
-    
+
     update();
   }
 
@@ -1241,18 +1301,18 @@ class CometChatCompactMessageComposerController extends GetxController
   /// Returns true if handled, false otherwise.
   bool handleSegmentedBackspace() {
     if (_segmentedController == null) return false;
-    
+
     final focused = _segmentedController!.focusedSegment;
     if (focused == null) return false;
-    
+
     if (focused.type == SegmentType.code && focused.isEmpty) {
       return _segmentedController!.handleBackspaceOnEmptyCodeBlock();
     }
-    
+
     if (focused.type == SegmentType.normal && focused.isEmpty) {
       return _segmentedController!.handleBackspaceOnEmptyNormalSegment();
     }
-    
+
     return false;
   }
 
@@ -1266,19 +1326,22 @@ class CometChatCompactMessageComposerController extends GetxController
   /// If only URL is provided, the URL itself will be displayed.
   void _showLinkDialog() {
     if (_context == null) return;
-    
+
     // Save the current selection/cursor position before showing dialog
     // because the text field will lose focus when dialog opens
     final savedSelection = textEditingController?.selection;
     final savedText = textEditingController?.text ?? '';
-    
+
     // Get selected text to pre-populate the text field
     String? selectedText;
-    if (savedSelection != null && 
+    if (savedSelection != null &&
         !savedSelection.isCollapsed &&
         savedSelection.start >= 0 &&
         savedSelection.end <= savedText.length) {
-      selectedText = savedText.substring(savedSelection.start, savedSelection.end);
+      selectedText = savedText.substring(
+        savedSelection.start,
+        savedSelection.end,
+      );
     }
 
     // Check if the selection already contains a link — if so, open edit dialog
@@ -1286,7 +1349,8 @@ class CometChatCompactMessageComposerController extends GetxController
       RichTextEditingController? rtc;
       if (isSegmentedMode) {
         final focused = _segmentedController!.focusedSegment;
-        if (focused != null && focused.controller is RichTextEditingController) {
+        if (focused != null &&
+            focused.controller is RichTextEditingController) {
           rtc = focused.controller as RichTextEditingController;
         }
       } else {
@@ -1306,7 +1370,7 @@ class CometChatCompactMessageComposerController extends GetxController
         }
       }
     }
-    
+
     CometChatLinkDialog(
       context: _context!,
       initialText: selectedText,
@@ -1418,7 +1482,9 @@ class CometChatCompactMessageComposerController extends GetxController
                     _showLinkDialogForEdit(linkSpan, displayText, url);
                   },
                   style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                    backgroundColor: WidgetStateProperty.all(
+                      Colors.transparent,
+                    ),
                     side: WidgetStateProperty.all(
                       BorderSide(
                         color: colorPalette.borderDark ?? Colors.transparent,
@@ -1427,7 +1493,9 @@ class CometChatCompactMessageComposerController extends GetxController
                     ),
                     shape: WidgetStateProperty.all(
                       RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(spacing.radius2 ?? 8),
+                        borderRadius: BorderRadius.circular(
+                          spacing.radius2 ?? 8,
+                        ),
                       ),
                     ),
                     padding: WidgetStateProperty.all(
@@ -1454,14 +1522,21 @@ class CometChatCompactMessageComposerController extends GetxController
                 child: TextButton(
                   onPressed: () {
                     Navigator.pop(ctx);
-                    _richTextController?.removeLink(linkSpan.start, linkSpan.end);
+                    _richTextController?.removeLink(
+                      linkSpan.start,
+                      linkSpan.end,
+                    );
                     update();
                   },
                   style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(colorPalette.error),
+                    backgroundColor: WidgetStateProperty.all(
+                      colorPalette.error,
+                    ),
                     shape: WidgetStateProperty.all(
                       RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(spacing.radius2 ?? 8),
+                        borderRadius: BorderRadius.circular(
+                          spacing.radius2 ?? 8,
+                        ),
                       ),
                     ),
                     padding: WidgetStateProperty.all(
@@ -1492,7 +1567,11 @@ class CometChatCompactMessageComposerController extends GetxController
   /// Shows the link dialog pre-populated with existing link data for editing.
   ///
   /// _Requirements: 4.3_
-  void _showLinkDialogForEdit(RichTextSpan linkSpan, String displayText, String url) {
+  void _showLinkDialogForEdit(
+    RichTextSpan linkSpan,
+    String displayText,
+    String url,
+  ) {
     if (_context == null) return;
 
     CometChatLinkDialog(
@@ -1503,17 +1582,22 @@ class CometChatCompactMessageComposerController extends GetxController
       onDone: (result) {
         // Remove the old link and insert the new one
         _richTextController?.removeLink(linkSpan.start, linkSpan.end);
-        
+
         // Set cursor position to the start of the old link
-        textEditingController?.selection = TextSelection.collapsed(offset: linkSpan.start);
-        
+        textEditingController?.selection = TextSelection.collapsed(
+          offset: linkSpan.start,
+        );
+
         // Delete the old text
         final currentText = textEditingController?.text ?? '';
-        final newText = currentText.substring(0, linkSpan.start) +
+        final newText =
+            currentText.substring(0, linkSpan.start) +
             currentText.substring(linkSpan.end);
         textEditingController?.text = newText;
-        textEditingController?.selection = TextSelection.collapsed(offset: linkSpan.start);
-        
+        textEditingController?.selection = TextSelection.collapsed(
+          offset: linkSpan.start,
+        );
+
         // Insert the new link
         _insertLink(displayText: result.text, url: result.url);
       },
@@ -1536,31 +1620,33 @@ class CometChatCompactMessageComposerController extends GetxController
       update();
       return;
     }
-    
+
     // Fallback to markdown-based formatting
     if (textEditingController == null) return;
 
     final text = textEditingController!.text;
     final selection = textEditingController!.selection;
-    
+
     // Create the markdown link
     final linkText = displayText ?? url;
     final markdownLink = '[$linkText]($url)';
-    
+
     String newText;
     int newCursorPosition;
-    
+
     if (selection.isCollapsed) {
       // No selection - insert at cursor position
-      newText = text.substring(0, selection.baseOffset) + 
-                markdownLink + 
-                text.substring(selection.baseOffset);
+      newText =
+          text.substring(0, selection.baseOffset) +
+          markdownLink +
+          text.substring(selection.baseOffset);
       newCursorPosition = selection.baseOffset + markdownLink.length;
     } else {
       // Has selection - replace selected text
-      newText = text.substring(0, selection.start) + 
-                markdownLink + 
-                text.substring(selection.end);
+      newText =
+          text.substring(0, selection.start) +
+          markdownLink +
+          text.substring(selection.end);
       newCursorPosition = selection.start + markdownLink.length;
     }
 
@@ -1592,7 +1678,7 @@ class CometChatCompactMessageComposerController extends GetxController
     if (isAiBusy) {
       return;
     }
-    
+
     // In segmented mode, check segmented controller for content
     if (isSegmentedMode) {
       if (!_segmentedController!.hasContent) return;
@@ -1601,11 +1687,14 @@ class CometChatCompactMessageComposerController extends GetxController
       final text = textEditingController!.text;
       if (text.trim().isEmpty) return;
     }
-    
+
     if (previewMessageMode == PreviewMessageMode.edit) {
       _editTextMessage(context);
     } else if (previewMessageMode == PreviewMessageMode.reply) {
-      _sendTextMessage(context, metadata: {"reply-message": quotedMessage?.toJson()});
+      _sendTextMessage(
+        context,
+        metadata: {"reply-message": quotedMessage?.toJson()},
+      );
     } else {
       _sendTextMessage(context);
     }
@@ -1616,9 +1705,12 @@ class CometChatCompactMessageComposerController extends GetxController
   /// If in reply mode, includes the quoted message reference in the sent message.
   ///
   /// _Requirements: 3.3, 3.4, 13.4_
-  void _sendTextMessage(BuildContext context, {Map<String, dynamic>? metadata}) {
+  void _sendTextMessage(
+    BuildContext context, {
+    Map<String, dynamic>? metadata,
+  }) {
     if (textEditingController == null && !isSegmentedMode) return;
-    
+
     // Get the message text - use segmented controller if in segmented mode
     String messagesText;
     if (isSegmentedMode) {
@@ -1637,7 +1729,7 @@ class CometChatCompactMessageComposerController extends GetxController
     // Replace emoji characters inside inline code and code blocks with their
     // Unicode code point representation so they are shown as codes, not glyphs.
     messagesText = _replaceEmojisInCodeRegions(messagesText);
-    
+
     TextMessage textMessage = TextMessage(
       sender: loggedInUser,
       text: messagesText,
@@ -1650,14 +1742,14 @@ class CometChatCompactMessageComposerController extends GetxController
       category: CometChatMessageCategory.message,
       sentAt: DateTime.now(),
     );
-    
+
     // Include quoted message reference if in reply mode
     // _Requirements: 13.4_
     if (quotedMessage != null) {
       textMessage.quotedMessageId = quotedMessage!.id;
       textMessage.quotedMessage = quotedMessage;
     }
-    
+
     // Process mentions before sending - converts @Name to <@uid:123> format
     // Note: For rich text, mentions are already converted above, but this handles
     // non-rich-text cases and sets mentionedUsers on the message
@@ -1667,13 +1759,14 @@ class CometChatCompactMessageComposerController extends GetxController
     // as this would break empty list item formatting
     final trimmedText = textMessage.text.trim();
     // Check if trimming would break list formatting (e.g., "- " -> "-")
-    if (trimmedText.isNotEmpty && !_wouldBreakListFormatting(textMessage.text, trimmedText)) {
+    if (trimmedText.isNotEmpty &&
+        !_wouldBreakListFormatting(textMessage.text, trimmedText)) {
       textMessage.text = trimmedText;
     }
-    
+
     // Store reference to quoted message for event emission after clearing state
     final messageBeingRepliedTo = quotedMessage;
-    
+
     // Clear state before sending
     final currentPreviewMode = previewMessageMode;
     oldMessage = null;
@@ -1694,7 +1787,7 @@ class CometChatCompactMessageComposerController extends GetxController
     _segmentPreviousTexts.clear();
     mentionCount = 0;
     update();
-    
+
     // Emit reply event to clear reply preview in other components
     // _Requirements: 13.4_
     if (messageBeingRepliedTo != null) {
@@ -1703,7 +1796,7 @@ class CometChatCompactMessageComposerController extends GetxController
         MessageStatus.sent,
       );
     }
-    
+
     // Invoke callback if provided, otherwise send via SDK
     if (onSendButtonTap != null) {
       onSendButtonTap!(context, textMessage, currentPreviewMode);
@@ -1712,7 +1805,7 @@ class CometChatCompactMessageComposerController extends GetxController
         textMessage,
         MessageStatus.inProgress,
       );
-      
+
       CometChat.sendMessage(
         textMessage,
         onSuccess: (TextMessage message) {
@@ -1725,18 +1818,20 @@ class CometChatCompactMessageComposerController extends GetxController
           _playSound();
           CometChatMessageEvents.ccMessageSent(message, MessageStatus.sent);
         },
-        onError: onError ?? (CometChatException e) {
-          if (textMessage.metadata != null) {
-            textMessage.metadata!["error"] = e;
-          } else {
-            textMessage.metadata = {"error": e};
-          }
-          CometChatMessageEvents.ccMessageSent(
-            textMessage,
-            MessageStatus.error,
-          );
-          debugPrint("Message sending failed with exception: ${e.message}");
-        },
+        onError:
+            onError ??
+            (CometChatException e) {
+              if (textMessage.metadata != null) {
+                textMessage.metadata!["error"] = e;
+              } else {
+                textMessage.metadata = {"error": e};
+              }
+              CometChatMessageEvents.ccMessageSent(
+                textMessage,
+                MessageStatus.error,
+              );
+              debugPrint("Message sending failed with exception: ${e.message}");
+            },
       );
     }
   }
@@ -1746,7 +1841,7 @@ class CometChatCompactMessageComposerController extends GetxController
   /// _Requirements: 6.5_
   void _editTextMessage(BuildContext context) {
     if (oldMessage == null || oldMessage is! TextMessage) return;
-    
+
     // Get the message text - use segmented controller if in segmented mode
     String newText;
     if (isSegmentedMode) {
@@ -1768,19 +1863,19 @@ class CometChatCompactMessageComposerController extends GetxController
     newText = _replaceEmojisInCodeRegions(newText);
 
     final originalText = (oldMessage as TextMessage).text;
-    
+
     // Check if there's any meaningful difference
     if (newText.trim() == originalText.trim()) return;
-    
+
     TextMessage editedMessage = oldMessage as TextMessage;
     editedMessage.text = newText;
-    
+
     // Process mentions before sending - converts @Name to <@uid:123> format
     // Note: For rich text, mentions are already converted above, but this handles
     // non-rich-text cases and sets mentionedUsers on the message
     _handlePreMessageSend(context, editedMessage);
     editedMessage.text = editedMessage.text.trim();
-    
+
     // Clear state before sending
     previewMessageMode = PreviewMessageMode.none;
     oldMessage = null;
@@ -1799,7 +1894,7 @@ class CometChatCompactMessageComposerController extends GetxController
     _segmentPreviousTexts.clear();
     mentionCount = 0;
     update();
-    
+
     // Invoke callback if provided, otherwise edit via SDK
     if (onSendButtonTap != null) {
       onSendButtonTap!(context, editedMessage, PreviewMessageMode.edit);
@@ -1813,18 +1908,20 @@ class CometChatCompactMessageComposerController extends GetxController
             MessageEditStatus.success,
           );
         },
-        onError: onError ?? (CometChatException e) {
-          if (editedMessage.metadata != null) {
-            editedMessage.metadata!["error"] = e;
-          } else {
-            editedMessage.metadata = {"error": e};
-          }
-          CometChatMessageEvents.ccMessageSent(
-            editedMessage,
-            MessageStatus.error,
-          );
-          debugPrint("Message editing failed with exception: ${e.message}");
-        },
+        onError:
+            onError ??
+            (CometChatException e) {
+              if (editedMessage.metadata != null) {
+                editedMessage.metadata!["error"] = e;
+              } else {
+                editedMessage.metadata = {"error": e};
+              }
+              CometChatMessageEvents.ccMessageSent(
+                editedMessage,
+                MessageStatus.error,
+              );
+              debugPrint("Message editing failed with exception: ${e.message}");
+            },
       );
     }
   }
@@ -1835,7 +1932,8 @@ class CometChatCompactMessageComposerController extends GetxController
       CometChatUIKit.soundManager.play(
         sound: Sound.outgoingMessage,
         customSound: customSoundForMessage,
-        packageName: customSoundForMessage == null || customSoundForMessage == ""
+        packageName:
+            customSoundForMessage == null || customSoundForMessage == ""
             ? UIConstants.packageName
             : customSoundForMessagePackage,
       );
@@ -1856,8 +1954,9 @@ class CometChatCompactMessageComposerController extends GetxController
       // Populate text field with original message text
       if (message is TextMessage) {
         // Use the formatter's onMessageEdit which handles position tracking
-        int mentionFormatterIndex = _formatters
-            .indexWhere((element) => element is CometChatMentionsFormatter);
+        int mentionFormatterIndex = _formatters.indexWhere(
+          (element) => element is CometChatMentionsFormatter,
+        );
 
         String editText = message.text;
 
@@ -1873,7 +1972,9 @@ class CometChatCompactMessageComposerController extends GetxController
         // Handle user mentions
         if (message.mentionedUsers.isNotEmpty) {
           editText = CometChatMentionsFormatter.getTextWithMentions(
-              editText, message.mentionedUsers);
+            editText,
+            message.mentionedUsers,
+          );
         }
 
         // Step 2: Check if the text contains fenced code blocks
@@ -1882,24 +1983,29 @@ class CometChatCompactMessageComposerController extends GetxController
 
         if (hasCodeBlocks) {
           // Use segmented composer for messages with code blocks
-          _initializeSegmentedControllerForEdit(editText, mentionFormatterIndex, message.mentionedUsers);
+          _initializeSegmentedControllerForEdit(
+            editText,
+            mentionFormatterIndex,
+            message.mentionedUsers,
+          );
         } else if (_richTextController != null) {
           // No code blocks - use regular RichTextEditingController
           _richTextController!.loadMarkdown(editText);
           _previousText = _richTextController!.text;
-          
+
           // Re-initialize mention tracking on the final text
           if (mentionFormatterIndex != -1) {
             CometChatMentionsFormatter mentionsFormatter =
-                _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
-            
+                _formatters[mentionFormatterIndex]
+                    as CometChatMentionsFormatter;
+
             // Clear existing tracking and rebuild based on the final text
             _rebuildMentionTracking(
               mentionsFormatter,
               _richTextController!.text,
               message.mentionedUsers,
             );
-            
+
             // Update the formatter's previous text to match the controller
             mentionsFormatter.updatePreviousText(_richTextController!.text);
           }
@@ -1907,14 +2013,15 @@ class CometChatCompactMessageComposerController extends GetxController
           // For non-RichTextEditingController, we need to:
           // 1. First let onMessageEdit process the ORIGINAL text with <@uid:xxx> patterns
           // 2. This will convert them to @username and track positions
-          
+
           if (mentionFormatterIndex != -1 && textEditingController != null) {
             CometChatMentionsFormatter mentionsFormatter =
-                _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
+                _formatters[mentionFormatterIndex]
+                    as CometChatMentionsFormatter;
 
             // Set the original text first (with <@uid:xxx> patterns)
             textEditingController?.text = message.text;
-            
+
             // Let the formatter handle the conversion and tracking
             // onMessageEdit expects text with <@uid:xxx> patterns
             mentionsFormatter.onMessageEdit(
@@ -1932,14 +2039,14 @@ class CometChatCompactMessageComposerController extends GetxController
       }
     } else if (mode == PreviewMessageMode.reply) {
       quotedMessage = message;
-      
+
       // Reset _previousText to match the current text field state (empty for reply)
       _previousText = textEditingController?.text ?? '';
     }
 
     update();
   }
-  
+
   /// Rebuilds mention tracking for the given text after markdown has been stripped.
   ///
   /// This method finds all @username patterns in the text and updates the
@@ -1956,68 +2063,68 @@ class CometChatCompactMessageComposerController extends GetxController
     mentionsFormatter.mentionAllPositions.clear();
     mentionsFormatter.trackedMentionPositions.clear();
     mentionsFormatter.mentionTextToPositions.clear();
-    
+
     // Reset mention tracker state without sending empty list to sink
     mentionsFormatter.mentionTracker = "";
     mentionsFormatter.mentionStartIndex = 0;
     mentionsFormatter.mentionEndIndex = 0;
     mentionsFormatter.listItems.clear();
-    
+
     // Update lastCursorPos to the end of the text
     mentionsFormatter.lastCursorPos = text.length;
-    
+
     // Find @all mentions
     final allLabel = mentionAllLabel ?? '@all';
     int searchStart = 0;
     while (true) {
       int pos = text.indexOf(allLabel, searchStart);
       if (pos == -1) break;
-      
+
       mentionsFormatter.trackedMentionPositions[pos] = allLabel;
       mentionsFormatter.mentionAllPositions.add(allLabel);
-      
+
       if (mentionsFormatter.mentionTextToPositions.containsKey(allLabel)) {
         mentionsFormatter.mentionTextToPositions[allLabel]!.add(pos);
       } else {
         mentionsFormatter.mentionTextToPositions[allLabel] = [pos];
       }
-      
+
       if (mentionsFormatter.mentionedUsersMap.containsKey(allLabel)) {
         mentionsFormatter.mentionedUsersMap[allLabel]!.add(null);
       } else {
         mentionsFormatter.mentionedUsersMap[allLabel] = [null];
       }
-      
+
       searchStart = pos + allLabel.length;
     }
-    
+
     // Find user mentions
     for (var user in mentionedUsers) {
       final mention = '@${user.name}';
       searchStart = 0;
-      
+
       while (true) {
         int pos = text.indexOf(mention, searchStart);
         if (pos == -1) break;
-        
+
         mentionsFormatter.trackedMentionPositions[pos] = mention;
-        
+
         if (mentionsFormatter.mentionTextToPositions.containsKey(mention)) {
           mentionsFormatter.mentionTextToPositions[mention]!.add(pos);
         } else {
           mentionsFormatter.mentionTextToPositions[mention] = [pos];
         }
-        
+
         if (mentionsFormatter.mentionedUsersMap.containsKey(mention)) {
           mentionsFormatter.mentionedUsersMap[mention]!.add(user);
         } else {
           mentionsFormatter.mentionedUsersMap[mention] = [user];
         }
-        
+
         if (!mentionsFormatter.mentionCount.contains(user.uid)) {
           mentionsFormatter.mentionCount.add(user.uid);
         }
-        
+
         searchStart = pos + mention.length;
       }
     }
@@ -2038,17 +2145,18 @@ class CometChatCompactMessageComposerController extends GetxController
     if (wasEditMode) {
       textEditingController?.clear();
       _previousText = "";
-      
+
       // Clear rich text formatting state
       _richTextController?.clearFormatting();
-      
+
       // Reset formatter state when cancelling edit
       for (var element in _formatters) {
-        if (element is CometChatMentionsFormatter && textEditingController != null) {
+        if (element is CometChatMentionsFormatter &&
+            textEditingController != null) {
           element.onMessageEdit(textEditingController!, mentionedUsers: []);
         }
       }
-      
+
       onEditCancel?.call();
     }
 
@@ -2066,7 +2174,7 @@ class CometChatCompactMessageComposerController extends GetxController
       // Notify formatters of text change for mention detection
       _notifyFormattersOnChangeForSegment(segment);
     }
-    
+
     _handleTypingIndicator();
     _updateMentionCount();
 
@@ -2085,18 +2193,22 @@ class CometChatCompactMessageComposerController extends GetxController
     // Notify formatters of text change for mention detection FIRST
     // This must happen before _handleTypingIndicator updates _previousText
     // _Requirements: 5.1, 5.2_
-    // Skip if _onRichTextControllerChanged already notified formatters
-    // (it updates _previousText after notifying, so if they match, it was already handled)
-    final currentText = textEditingController?.text ?? '';
-    if (currentText != _previousText) {
+    //
+    // Skip if the RichTextEditingController listener already notified
+    // formatters for this same text change. Both the controller listener
+    // and TextField.onChanged fire for the same keystroke — calling
+    // onChange twice would double-process the mention tracker.
+    if (_formatterNotifiedForCurrentChange) {
+      _formatterNotifiedForCurrentChange = false;
+    } else {
       _notifyFormattersOnChange();
     }
-    
+
     // Handle newline continuation for lists/blockquotes in markdown mode
     if (_richTextController == null) {
       _handleMarkdownNewlineContinuation();
     }
-    
+
     _handleTypingIndicator();
     _updateMentionCount();
     _updateActiveFormats();
@@ -2142,11 +2254,11 @@ class CometChatCompactMessageComposerController extends GetxController
   /// they tapped on a link.
   void checkLinkTapAtCursor() {
     if (_richTextController == null || _context == null) return;
-    
+
     final linkSpan = _richTextController!.getLinkSpanAtPosition(
       _richTextController!.selection.baseOffset,
     );
-    
+
     if (linkSpan != null) {
       showLinkEditMenu(_context!, linkSpan);
     }
@@ -2325,7 +2437,8 @@ class CometChatCompactMessageComposerController extends GetxController
         _playSound();
         CometChatMessageEvents.ccMessageSent(message, MessageStatus.sent);
       },
-      onError: onError ??
+      onError:
+          onError ??
           (CometChatException e) {
             if (mediaMessage.metadata != null) {
               mediaMessage.metadata!["error"] = e;
@@ -2336,7 +2449,9 @@ class CometChatCompactMessageComposerController extends GetxController
               mediaMessage,
               MessageStatus.error,
             );
-            debugPrint("Media message sending failed with exception: ${e.message}");
+            debugPrint(
+              "Media message sending failed with exception: ${e.message}",
+            );
           },
     );
   }
@@ -2354,28 +2469,38 @@ class CometChatCompactMessageComposerController extends GetxController
   ) {
     final defaultAttachmentOptionSheetStyle =
         CometChatThemeHelper.getTheme<CometChatAttachmentOptionSheetStyle>(
-      context: context,
-      defaultTheme: CometChatAttachmentOptionSheetStyle.of,
-    ).merge(attachmentOptionSheetStyle);
+          context: context,
+          defaultTheme: CometChatAttachmentOptionSheetStyle.of,
+        ).merge(attachmentOptionSheetStyle);
 
     if (attachmentOptions != null) {
       // Use custom attachment options
-      List<CometChatMessageComposerAction> actionList =
-          attachmentOptions!(context, user, group, composerId);
+      List<CometChatMessageComposerAction> actionList = attachmentOptions!(
+        context,
+        user,
+        group,
+        composerId,
+      );
 
       for (CometChatMessageComposerAction attachmentOption in actionList) {
         _actionStyle = CometChatAttachmentOptionSheetStyle(
-          border: attachmentOption.style?.border ??
+          border:
+              attachmentOption.style?.border ??
               defaultAttachmentOptionSheetStyle.border,
-          borderRadius: attachmentOption.style?.borderRadius ??
+          borderRadius:
+              attachmentOption.style?.borderRadius ??
               defaultAttachmentOptionSheetStyle.borderRadius,
-          titleColor: attachmentOption.style?.titleColor ??
+          titleColor:
+              attachmentOption.style?.titleColor ??
               defaultAttachmentOptionSheetStyle.titleColor,
-          backgroundColor: attachmentOption.style?.backgroundColor ??
+          backgroundColor:
+              attachmentOption.style?.backgroundColor ??
               defaultAttachmentOptionSheetStyle.backgroundColor,
-          iconColor: attachmentOption.style?.iconColor ??
+          iconColor:
+              attachmentOption.style?.iconColor ??
               defaultAttachmentOptionSheetStyle.iconColor,
-          titleTextStyle: attachmentOption.style?.titleTextStyle ??
+          titleTextStyle:
+              attachmentOption.style?.titleTextStyle ??
               defaultAttachmentOptionSheetStyle.titleTextStyle,
         );
         _actionItems.add(
@@ -2403,24 +2528,21 @@ class CometChatCompactMessageComposerController extends GetxController
       // Use default attachment options from data source
       AdditionalConfigurations additionalConfigurations =
           AdditionalConfigurations(
-        attachmentOptionSheetStyle: defaultAttachmentOptionSheetStyle,
-        hideAudioAttachmentOption: hideAudioAttachmentOption,
-        hideFileAttachmentOption: hideFileAttachmentOption,
-        hideImageAttachmentOption: hideImageAttachmentOption,
-        hideVideoAttachmentOption: hideVideoAttachmentOption,
-        hidePollsOption: hidePollsOption,
-        hideCollaborativeDocumentOption: hideCollaborativeDocumentOption,
-        hideCollaborativeWhiteboardOption: hideCollaborativeWhiteboardOption,
-        hideTakPhotoOption: hideTakePhotoOption,
-        hideStickersButton: hideStickersButton,
-      );
+            attachmentOptionSheetStyle: defaultAttachmentOptionSheetStyle,
+            hideAudioAttachmentOption: hideAudioAttachmentOption,
+            hideFileAttachmentOption: hideFileAttachmentOption,
+            hideImageAttachmentOption: hideImageAttachmentOption,
+            hideVideoAttachmentOption: hideVideoAttachmentOption,
+            hidePollsOption: hidePollsOption,
+            hideCollaborativeDocumentOption: hideCollaborativeDocumentOption,
+            hideCollaborativeWhiteboardOption:
+                hideCollaborativeWhiteboardOption,
+            hideTakPhotoOption: hideTakePhotoOption,
+            hideStickersButton: hideStickersButton,
+          );
 
-      final defaultOptions =
-          CometChatUIKit.getDataSource().getAttachmentOptions(
-        context,
-        composerId,
-        additionalConfigurations,
-      );
+      final defaultOptions = CometChatUIKit.getDataSource()
+          .getAttachmentOptions(context, composerId, additionalConfigurations);
 
       for (CometChatMessageComposerAction defaultAttachmentOption
           in defaultOptions) {
@@ -2463,13 +2585,12 @@ class CometChatCompactMessageComposerController extends GetxController
   void initAuxiliaryOptions(BuildContext context) {
     // Store context for panel rendering
     _context = context;
-    
+
     if (_auxiliaryOptionsInitialized) return;
-    
-    AdditionalConfigurations additionalConfigurations = AdditionalConfigurations(
-      hideStickersButton: hideStickersButton,
-    );
-    
+
+    AdditionalConfigurations additionalConfigurations =
+        AdditionalConfigurations(hideStickersButton: hideStickersButton);
+
     auxiliaryOptions = CometChatUIKit.getDataSource().getAuxiliaryOptions(
       user,
       group,
@@ -2478,7 +2599,7 @@ class CometChatCompactMessageComposerController extends GetxController
       auxiliaryButtonIconColor,
       additionalConfigurations: additionalConfigurations,
     );
-    
+
     _auxiliaryOptionsInitialized = true;
     update();
   }
@@ -2544,7 +2665,8 @@ class CometChatCompactMessageComposerController extends GetxController
       previewMessage(message, PreviewMessageMode.reply);
       quotedMessage = message;
       update();
-    } else if ((status == MessageStatus.sent || status == MessageStatus.error) &&
+    } else if ((status == MessageStatus.sent ||
+            status == MessageStatus.error) &&
         previewMessageMode == PreviewMessageMode.reply) {
       // Clear the reply preview when message is sent or on error
       // _Requirements: 13.3_
@@ -2578,15 +2700,19 @@ class CometChatCompactMessageComposerController extends GetxController
   }
 
   @override
-  void showPanel(Map<String, dynamic>? id, CustomUIPosition uiPosition,
-      WidgetBuilder child) {
+  void showPanel(
+    Map<String, dynamic>? id,
+    CustomUIPosition uiPosition,
+    WidgetBuilder child,
+  ) {
     if (_isForThisWidget(id) == false) return;
-    
+
     if (uiPosition == CustomUIPosition.composerBottom && _context != null) {
       footer = child(_context!);
     } else if (uiPosition == CustomUIPosition.composerTop && _context != null) {
       header = child(_context!);
-    } else if (uiPosition == CustomUIPosition.composerPreview && _context != null) {
+    } else if (uiPosition == CustomUIPosition.composerPreview &&
+        _context != null) {
       preview = child(_context!);
     }
     update();
@@ -2595,7 +2721,7 @@ class CometChatCompactMessageComposerController extends GetxController
   @override
   void hidePanel(Map<String, dynamic>? id, CustomUIPosition uiPosition) {
     if (_isForThisWidget(id) == false) return;
-    
+
     if (uiPosition == CustomUIPosition.composerBottom) {
       footer = null;
     } else if (uiPosition == CustomUIPosition.composerTop) {
@@ -2748,10 +2874,9 @@ class CometChatCompactMessageComposerController extends GetxController
 
     if (cursorPosition >= 0) {
       _activeFormats.clear();
-      _activeFormats.addAll(RichTextFormatterManager.detectActiveFormats(
-        text,
-        cursorPosition,
-      ));
+      _activeFormats.addAll(
+        RichTextFormatterManager.detectActiveFormats(text, cursorPosition),
+      );
     }
   }
 
@@ -2810,7 +2935,11 @@ class CometChatCompactMessageComposerController extends GetxController
         final content = orderedMatch.group(2) ?? '';
         final currentNumber = int.tryParse(orderedMatch.group(1) ?? '1') ?? 1;
         if (content.isEmpty) {
-          _removeMarkdownLinePrefixAndNewline(lineStart, newlinePosition, '$currentNumber. ');
+          _removeMarkdownLinePrefixAndNewline(
+            lineStart,
+            newlinePosition,
+            '$currentNumber. ',
+          );
           return;
         }
         continuationPrefix = '${currentNumber + 1}. ';
@@ -2834,7 +2963,8 @@ class CometChatCompactMessageComposerController extends GetxController
 
     // Insert the continuation prefix after the newline
     final insertPos = newlinePosition + 1;
-    final newText = currentText.substring(0, insertPos) +
+    final newText =
+        currentText.substring(0, insertPos) +
         continuationPrefix +
         currentText.substring(insertPos);
 
@@ -2858,7 +2988,8 @@ class CometChatCompactMessageComposerController extends GetxController
     final removeStart = lineStart;
     final removeEnd = newlinePosition + 1; // include the newline character
 
-    final newText = currentText.substring(0, removeStart) +
+    final newText =
+        currentText.substring(0, removeStart) +
         currentText.substring(removeEnd);
 
     textEditingController!.value = TextEditingValue(
@@ -2884,11 +3015,11 @@ class CometChatCompactMessageComposerController extends GetxController
   /// that would be broken by trimming (e.g., "- " -> "-").
   bool _wouldBreakListFormatting(String original, String trimmed) {
     if (original == trimmed) return false;
-    
+
     // Check if any line in the original ends with a list marker that would be broken
     final originalLines = original.split('\n');
     final trimmedLines = trimmed.split('\n');
-    
+
     // If the last line was completely removed by trimming, check if it was a list marker
     if (originalLines.length > trimmedLines.length) {
       final removedLine = originalLines.last;
@@ -2897,23 +3028,24 @@ class CometChatCompactMessageComposerController extends GetxController
         return true;
       }
     }
-    
+
     // Check if the last line's trailing space was removed, breaking a list marker
     if (trimmedLines.isNotEmpty && originalLines.isNotEmpty) {
       final originalLast = originalLines.last;
       final trimmedLast = trimmedLines.last;
-      
+
       // Check if original ends with "- " but trimmed ends with "-"
       if (originalLast.endsWith('- ') && trimmedLast.endsWith('-')) {
         return true;
       }
-      
+
       // Check if original ends with "N. " but trimmed ends with "N."
-      if (RegExp(r'\d+\. $').hasMatch(originalLast) && RegExp(r'\d+\.$').hasMatch(trimmedLast)) {
+      if (RegExp(r'\d+\. $').hasMatch(originalLast) &&
+          RegExp(r'\d+\.$').hasMatch(trimmedLast)) {
         return true;
       }
     }
-    
+
     return false;
   }
 
@@ -2922,64 +3054,68 @@ class CometChatCompactMessageComposerController extends GetxController
   /// This is needed because when rich text formatting is applied, the positions
   /// of mentions shift due to markdown syntax being added. Instead of tracking
   /// positions, we search for the mention text itself and replace it.
-  /// 
+  ///
   /// Note: Mentions inside code blocks are NOT converted - they remain as plain text.
   String _convertMentionsInMarkdown(String markdownText) {
     // Find the mentions formatter
     final mentionFormatterIndex = _formatters.indexWhere(
       (element) => element is CometChatMentionsFormatter,
     );
-    
+
     if (mentionFormatterIndex == -1) {
       return markdownText;
     }
-    
-    final mentionsFormatter = _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
-    
+
+    final mentionsFormatter =
+        _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
+
     // Extract code blocks and process only non-code-block parts
     // Code blocks are wrapped with ``` and should not have mentions converted
     final codeBlockPattern = RegExp(r'```[\w]*[\s\S]*?```', multiLine: true);
-    
+
     // Find all code blocks and their positions
     final codeBlocks = <_CodeBlockMatch>[];
     for (final match in codeBlockPattern.allMatches(markdownText)) {
       codeBlocks.add(_CodeBlockMatch(match.start, match.end, match.group(0)!));
     }
-    
+
     // If no code blocks, process the entire text
     if (codeBlocks.isEmpty) {
       return _replaceMentionsInText(markdownText, mentionsFormatter);
     }
-    
+
     // Process text in parts, skipping code blocks
     final result = StringBuffer();
     int lastEnd = 0;
-    
+
     for (final codeBlock in codeBlocks) {
       // Process text before this code block
       if (codeBlock.start > lastEnd) {
         final textPart = markdownText.substring(lastEnd, codeBlock.start);
         result.write(_replaceMentionsInText(textPart, mentionsFormatter));
       }
-      
+
       // Add code block as-is (no mention conversion)
       result.write(codeBlock.content);
       lastEnd = codeBlock.end;
     }
-    
+
     // Process remaining text after last code block
     if (lastEnd < markdownText.length) {
       final textPart = markdownText.substring(lastEnd);
       result.write(_replaceMentionsInText(textPart, mentionsFormatter));
     }
-    
+
     return result.toString();
   }
-  
+
   /// Helper method to replace mentions in a text segment.
-  String _replaceMentionsInText(String text, CometChatMentionsFormatter mentionsFormatter) {
+  String _replaceMentionsInText(
+    String text,
+    CometChatMentionsFormatter mentionsFormatter,
+  ) {
     String result = text;
-    
+
     // Process @all mentions first
     for (final mentionText in mentionsFormatter.mentionAllPositions) {
       final allLabelId = mentionsFormatter.mentionAllLabelId ?? "all";
@@ -2987,15 +3123,15 @@ class CometChatCompactMessageComposerController extends GetxController
       // Replace all occurrences of this @all mention text
       result = result.replaceAll(mentionText, replacement);
     }
-    
+
     // Process user mentions - we need to handle each unique mention text
     // and replace all occurrences with the corresponding user tag
     final processedMentions = <String>{};
-    
+
     mentionsFormatter.mentionedUsersMap.forEach((mentionText, users) {
       if (processedMentions.contains(mentionText)) return;
       processedMentions.add(mentionText);
-      
+
       // Find the first non-null user for this mention text
       User? mentionedUser;
       for (var user in users) {
@@ -3004,14 +3140,14 @@ class CometChatCompactMessageComposerController extends GetxController
           break;
         }
       }
-      
+
       if (mentionedUser != null) {
         final replacement = "<@uid:${mentionedUser.uid}>";
         // Replace all occurrences of this mention text
         result = result.replaceAll(mentionText, replacement);
       }
     });
-    
+
     return result;
   }
 
@@ -3021,11 +3157,12 @@ class CometChatCompactMessageComposerController extends GetxController
   /// It creates a MediaMessage with the audio file path and sends it via CometChat SDK.
   ///
   /// _Requirements: 7.1, 7.2_
-  void sendMediaRecording(BuildContext context, String path, List<double> waveform) {
-    final metadata = <String, dynamic>{
-      'localPath': path,
-      'waveform': waveform,
-    };
+  void sendMediaRecording(
+    BuildContext context,
+    String path,
+    List<double> waveform,
+  ) {
+    final metadata = <String, dynamic>{'localPath': path, 'waveform': waveform};
 
     // Hide the inline audio recorder after sending
     hideInlineAudioRecorder();
@@ -3088,63 +3225,78 @@ class CometChatCompactMessageComposerController extends GetxController
   void _initializeFormatters() {
     _formatters = textFormatters ?? [];
 
-    int mentionFormatterIndex = _formatters.indexWhere(
-        (element) => element is CometChatMentionsFormatter);
+    // Check if a custom subclass of CometChatMentionsFormatter was provided
+    bool hasCustomMentionsFormatter = _formatters.any(
+      (element) =>
+          element is CometChatMentionsFormatter &&
+          element.runtimeType != CometChatMentionsFormatter,
+    );
 
-    // Only add/update mentions formatter if mentions are not completely disabled
-    if (!disableMentions || !disableMentionAll) {
+    // If a custom subclass exists, remove any default CometChatMentionsFormatter
+    // instances so they don't conflict
+    if (hasCustomMentionsFormatter) {
+      _formatters.removeWhere(
+        (element) => element.runtimeType == CometChatMentionsFormatter,
+      );
+    }
+
+    int mentionFormatterIndex = _formatters.indexWhere(
+      (element) => element is CometChatMentionsFormatter,
+    );
+
+    if (disableMentions != true || disableMentionAll != true) {
       if (mentionFormatterIndex != -1) {
-        // Preserve mentionsLimit from existing formatter if provided
-        final existingFormatter = _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
-        final existingMentionsLimit = existingFormatter.mentionsLimit;
-        
-        // Update existing mentions formatter with controller properties
-        _formatters[mentionFormatterIndex] = CometChatMentionsFormatter(
-          style: mentionsStyle ?? existingFormatter.style,
-          disableMentions: disableMentions,
-          disableMentionAll: disableMentionAll,
-          mentionAllLabel: mentionAllLabel ?? existingFormatter.mentionAllLabel,
-          mentionAllLabelId: mentionAllLabelId ?? existingFormatter.mentionAllLabelId,
-          mentionsLimit: existingMentionsLimit,
-        );
-      } else {
-        // Add new mentions formatter
+        // Only replace if it's the exact base type, not a custom subclass
+        if (_formatters[mentionFormatterIndex].runtimeType ==
+            CometChatMentionsFormatter) {
+          _formatters[mentionFormatterIndex] = CometChatMentionsFormatter(
+            style: mentionsStyle,
+            disableMentions: disableMentions,
+            disableMentionAll: disableMentionAll,
+            mentionAllLabel: mentionAllLabel,
+            mentionAllLabelId: mentionAllLabelId,
+          );
+        }
+      } else if (!hasCustomMentionsFormatter) {
         var formatter = CometChatMentionsFormatter(
           style: mentionsStyle,
           disableMentions: disableMentions,
           disableMentionAll: disableMentionAll,
-          mentionAllLabel: mentionAllLabel,
           mentionAllLabelId: mentionAllLabelId,
+          mentionAllLabel: mentionAllLabel,
         );
         _formatters.add(formatter);
       }
-    } else {
-      // Remove mentions formatter if both mentions and mention all are disabled
-      _formatters.removeWhere((element) => element is CometChatMentionsFormatter);
     }
 
     // Add rich text formatter if rich text editing is enabled
     if (enableRichTextEditor) {
       int richTextFormatterIndex = _formatters.indexWhere(
-          (element) => element is CometChatRichTextFormatter);
-      
+        (element) => element is CometChatRichTextFormatter,
+      );
+
       if (richTextFormatterIndex == -1) {
         // Add new rich text formatter with enabled formats based on hideRichTextFormattingOptions
         Set<FormatType>? enabledFormats;
-        if (hideRichTextFormattingOptions != null && hideRichTextFormattingOptions!.isNotEmpty) {
+        if (hideRichTextFormattingOptions != null &&
+            hideRichTextFormattingOptions!.isNotEmpty) {
           // Create enabled formats by excluding hidden ones
           enabledFormats = FormatType.values.toSet()
             ..removeAll(hideRichTextFormattingOptions!);
         }
-        
-        _formatters.add(CometChatRichTextFormatter(
-          enabledFormats: enabledFormats,
-          style: richTextFormatterStyle,
-        ));
+
+        _formatters.add(
+          CometChatRichTextFormatter(
+            enabledFormats: enabledFormats,
+            style: richTextFormatterStyle,
+          ),
+        );
       }
     } else {
       // Remove rich text formatter if rich text editing is disabled
-      _formatters.removeWhere((element) => element is CometChatRichTextFormatter);
+      _formatters.removeWhere(
+        (element) => element is CometChatRichTextFormatter,
+      );
     }
 
     // Configure all formatters with the necessary properties
@@ -3188,11 +3340,20 @@ class CometChatCompactMessageComposerController extends GetxController
       if (_searchKeywordChanged) {
         suggestions = value;
         _searchKeywordChanged = false;
+        _lastAppliedSearchKeyword = _currentSearchKeyword;
       } else {
-        // Add new suggestions that aren't already in the list
-        for (var element in value) {
-          if (!suggestions.contains(element)) {
-            suggestions.add(element);
+        // Check if the search keyword changed since we last applied results.
+        // This handles the race where a stale fetch response consumed
+        // _searchKeywordChanged before the current fetch response arrived.
+        if (_lastAppliedSearchKeyword != _currentSearchKeyword) {
+          suggestions = value;
+          _lastAppliedSearchKeyword = _currentSearchKeyword;
+        } else {
+          // Add new suggestions that aren't already in the list
+          for (var element in value) {
+            if (!suggestions.contains(element)) {
+              suggestions.add(element);
+            }
           }
         }
       }
@@ -3204,7 +3365,12 @@ class CometChatCompactMessageComposerController extends GetxController
         final colorPalette = CometChatThemeHelper.getColorPalette(_context!);
         final spacing = CometChatThemeHelper.getSpacing(_context!);
         final typography = CometChatThemeHelper.getTypography(_context!);
-        preview = getSuggestionList(_context!, colorPalette, spacing, typography);
+        preview = getSuggestionList(
+          _context!,
+          colorPalette,
+          spacing,
+          typography,
+        );
       } else {
         // Fallback to event system
         CometChatUIEvents.showPanel(
@@ -3214,17 +3380,22 @@ class CometChatCompactMessageComposerController extends GetxController
             final colorPalette = CometChatThemeHelper.getColorPalette(context);
             final spacing = CometChatThemeHelper.getSpacing(context);
             final typography = CometChatThemeHelper.getTypography(context);
-            return getSuggestionList(context, colorPalette, spacing, typography);
+            return getSuggestionList(
+              context,
+              colorPalette,
+              spacing,
+              typography,
+            );
           },
         );
       }
-      
+
       // Show the overlay portal first, then update to trigger rebuild
       // This ensures the overlay is visible and will be rebuilt with the new suggestions
       if (!overlayPortalController.isShowing) {
         overlayPortalController.show();
       }
-      
+
       // Update after showing to ensure the overlay rebuilds with the new suggestions
       update();
     } else {
@@ -3232,7 +3403,9 @@ class CometChatCompactMessageComposerController extends GetxController
         // Clear the preview widget directly
         preview = null;
         CometChatUIEvents.hidePanel(
-            composerId, CustomUIPosition.composerPreview);
+          composerId,
+          CustomUIPosition.composerPreview,
+        );
         suggestions.clear();
       }
       hasMoreSuggestions = false;
@@ -3264,34 +3437,39 @@ class CometChatCompactMessageComposerController extends GetxController
   void _notifyFormattersOnChangeForSegment(ComposerSegment segment) {
     // Get the segment's previous text (stored in the segment or use empty string)
     final segmentPreviousText = _segmentPreviousTexts[segment.id] ?? '';
-    
+
     // For mentions formatter, we need special handling in segmented mode
     // to preserve mentions from other segments
     for (var formatter in _formatters) {
       if (formatter is CometChatMentionsFormatter) {
         // Save the current tracked positions from other segments
-        final savedPositions = Map<int, String>.from(formatter.trackedMentionPositions);
-        final savedMentionTextToPositions = Map<String, List<int>>.from(
-          formatter.mentionTextToPositions.map((k, v) => MapEntry(k, List<int>.from(v)))
+        final savedPositions = Map<int, String>.from(
+          formatter.trackedMentionPositions,
         );
-        
+        final savedMentionTextToPositions = Map<String, List<int>>.from(
+          formatter.mentionTextToPositions.map(
+            (k, v) => MapEntry(k, List<int>.from(v)),
+          ),
+        );
+
         // Call onChange for this segment
         formatter.onChange(segment.controller, segmentPreviousText);
-        
+
         // Restore positions from other segments that are still valid
         // The positions in this segment may have been updated by onChange
         // We need to merge them with positions from other segments
-        
+
         // Get all normal segments and their texts
         if (_segmentedController != null) {
           // Rebuild tracked positions for all segments
           final newTrackedPositions = <int, String>{};
           final newMentionTextToPositions = <String, List<int>>{};
-          
+
           // First, keep any new positions that onChange added for this segment
           formatter.trackedMentionPositions.forEach((pos, text) {
             // Check if this position is valid in the current segment
-            if (pos >= 0 && pos + text.length <= segment.text.length &&
+            if (pos >= 0 &&
+                pos + text.length <= segment.text.length &&
                 segment.text.substring(pos, pos + text.length) == text) {
               newTrackedPositions[pos] = text;
               if (newMentionTextToPositions.containsKey(text)) {
@@ -3301,14 +3479,17 @@ class CometChatCompactMessageComposerController extends GetxController
               }
             }
           });
-          
+
           // Then, restore positions from other segments
           for (final otherSegment in _segmentedController!.segments) {
-            if (otherSegment.id != segment.id && otherSegment.type == SegmentType.normal) {
+            if (otherSegment.id != segment.id &&
+                otherSegment.type == SegmentType.normal) {
               // Check saved positions that belong to this other segment
               savedPositions.forEach((pos, text) {
-                if (pos >= 0 && pos + text.length <= otherSegment.text.length &&
-                    otherSegment.text.substring(pos, pos + text.length) == text) {
+                if (pos >= 0 &&
+                    pos + text.length <= otherSegment.text.length &&
+                    otherSegment.text.substring(pos, pos + text.length) ==
+                        text) {
                   // This position is valid in the other segment
                   newTrackedPositions[pos] = text;
                   if (newMentionTextToPositions.containsKey(text)) {
@@ -3322,7 +3503,7 @@ class CometChatCompactMessageComposerController extends GetxController
               });
             }
           }
-          
+
           // Update the formatter's tracking maps
           formatter.trackedMentionPositions.clear();
           formatter.trackedMentionPositions.addAll(newTrackedPositions);
@@ -3333,7 +3514,7 @@ class CometChatCompactMessageComposerController extends GetxController
         formatter.onChange(segment.controller, segmentPreviousText);
       }
     }
-    
+
     // Update the previous text for this segment
     _segmentPreviousTexts[segment.id] = segment.text;
   }
@@ -3375,12 +3556,14 @@ class CometChatCompactMessageComposerController extends GetxController
         maxHeight: suggestions.length > 4
             ? 220
             : suggestions.isEmpty
-                ? 66
-                : suggestions.length * 55.0,
+            ? 66
+            : suggestions.length * 55.0,
       ),
       decoration: BoxDecoration(
-        color: suggestionListStyle?.backgroundColor ?? colorPalette?.background1,
-        borderRadius: suggestionListStyle?.borderRadius ??
+        color:
+            suggestionListStyle?.backgroundColor ?? colorPalette?.background1,
+        borderRadius:
+            suggestionListStyle?.borderRadius ??
             BorderRadius.circular(spacing?.radius2 ?? 8),
         border: suggestionListStyle?.border,
         boxShadow: [
@@ -3472,7 +3655,9 @@ class CometChatCompactMessageComposerController extends GetxController
                   Text(
                     item.title ?? '',
                     style: TextStyle(
-                      color: suggestionListStyle?.textColor ?? colorPalette?.textPrimary,
+                      color:
+                          suggestionListStyle?.textColor ??
+                          colorPalette?.textPrimary,
                       fontSize: typography?.body?.medium?.fontSize,
                       fontWeight: typography?.body?.medium?.fontWeight,
                     ).merge(suggestionListStyle?.textStyle),
@@ -3510,25 +3695,27 @@ class CometChatCompactMessageComposerController extends GetxController
   }
 
   /// Hides the suggestion list if the mention tracker's '@' character is no longer valid.
-  /// 
+  ///
   /// This is called after formatting operations to ensure the mention suggestion list
   /// is hidden if the '@' character that triggered the mention was removed by formatting.
   /// Clears mentions within the current selection when applying inline code.
-  /// 
+  ///
   /// When inline code is applied to text containing mentions, the mentions
   /// should be converted to normal text (lose their special formatting).
   void _clearMentionsInSelection(TextEditingController controller) {
     final selection = controller.selection;
     if (selection.isCollapsed) return; // No selection, nothing to clear
-    
+
     final start = selection.start;
     final end = selection.end;
     final text = controller.text;
-    
+
     // Find the mentions formatter
-    final mentionFormatter = _formatters.whereType<CometChatMentionsFormatter>().firstOrNull;
+    final mentionFormatter = _formatters
+        .whereType<CometChatMentionsFormatter>()
+        .firstOrNull;
     if (mentionFormatter == null) return;
-    
+
     // Find all mentions that overlap with the selection and remove them
     final positionsToRemove = <int>[];
     mentionFormatter.trackedMentionPositions.forEach((pos, mentionText) {
@@ -3538,14 +3725,14 @@ class CometChatCompactMessageComposerController extends GetxController
         positionsToRemove.add(pos);
       }
     });
-    
+
     // Remove the mentions from tracking
     for (final pos in positionsToRemove) {
       final mentionText = mentionFormatter.trackedMentionPositions[pos];
       if (mentionText != null) {
         // Remove from trackedMentionPositions
         mentionFormatter.trackedMentionPositions.remove(pos);
-        
+
         // Remove from mentionTextToPositions
         if (mentionFormatter.mentionTextToPositions.containsKey(mentionText)) {
           mentionFormatter.mentionTextToPositions[mentionText]!.remove(pos);
@@ -3553,15 +3740,16 @@ class CometChatCompactMessageComposerController extends GetxController
             mentionFormatter.mentionTextToPositions.remove(mentionText);
           }
         }
-        
+
         // Remove from mentionAllPositions if it's an @all mention
         if (mentionFormatter.mentionAllPositions.contains(mentionText)) {
           // Only remove if no other instances exist
-          if (mentionFormatter.mentionTextToPositions[mentionText]?.isEmpty ?? true) {
+          if (mentionFormatter.mentionTextToPositions[mentionText]?.isEmpty ??
+              true) {
             mentionFormatter.mentionAllPositions.remove(mentionText);
           }
         }
-        
+
         // Update mentionedUsersMap
         if (mentionFormatter.mentionedUsersMap.containsKey(mentionText)) {
           final users = mentionFormatter.mentionedUsersMap[mentionText]!;
@@ -3596,7 +3784,9 @@ class CometChatCompactMessageComposerController extends GetxController
     final start = selection.start;
     final end = selection.end;
 
-    final mentionFormatter = _formatters.whereType<CometChatMentionsFormatter>().firstOrNull;
+    final mentionFormatter = _formatters
+        .whereType<CometChatMentionsFormatter>()
+        .firstOrNull;
     if (mentionFormatter == null) return;
 
     final saved = <_SavedMention>[];
@@ -3611,7 +3801,9 @@ class CometChatCompactMessageComposerController extends GetxController
             user = users.first;
           }
         }
-        saved.add(_SavedMention(position: pos, mentionText: mentionText, user: user));
+        saved.add(
+          _SavedMention(position: pos, mentionText: mentionText, user: user),
+        );
       }
     });
 
@@ -3623,7 +3815,9 @@ class CometChatCompactMessageComposerController extends GetxController
     final saved = _savedMentionsForInlineCode;
     if (saved == null || saved.isEmpty) return;
 
-    final mentionFormatter = _formatters.whereType<CometChatMentionsFormatter>().firstOrNull;
+    final mentionFormatter = _formatters
+        .whereType<CometChatMentionsFormatter>()
+        .firstOrNull;
     if (mentionFormatter == null) return;
 
     final currentText = controller.text;
@@ -3639,16 +3833,19 @@ class CometChatCompactMessageComposerController extends GetxController
       mentionFormatter.trackedMentionPositions[pos] = m.mentionText;
 
       // Restore mentionTextToPositions
-      mentionFormatter.mentionTextToPositions
-          .putIfAbsent(m.mentionText, () => []);
-      if (!mentionFormatter.mentionTextToPositions[m.mentionText]!.contains(pos)) {
+      mentionFormatter.mentionTextToPositions.putIfAbsent(
+        m.mentionText,
+        () => [],
+      );
+      if (!mentionFormatter.mentionTextToPositions[m.mentionText]!.contains(
+        pos,
+      )) {
         mentionFormatter.mentionTextToPositions[m.mentionText]!.add(pos);
       }
 
       // Restore mentionedUsersMap
       if (m.user != null) {
-        mentionFormatter.mentionedUsersMap
-            .putIfAbsent(m.mentionText, () => []);
+        mentionFormatter.mentionedUsersMap.putIfAbsent(m.mentionText, () => []);
         mentionFormatter.mentionedUsersMap[m.mentionText]!.add(m.user);
 
         // Restore mentionCount
@@ -3664,10 +3861,11 @@ class CometChatCompactMessageComposerController extends GetxController
   void _hideSuggestionListIfMentionTrackerInvalid() {
     // Only proceed if suggestion list is showing
     if (!overlayPortalController.isShowing) return;
-    
+
     // Get the current text
-    final currentText = _richTextController?.text ?? textEditingController?.text ?? '';
-    
+    final currentText =
+        _richTextController?.text ?? textEditingController?.text ?? '';
+
     // Check if there's an active mention being tracked by looking for '@' in the text
     // If the suggestion list is showing but there's no '@' followed by the search keyword,
     // then the mention tracker is invalid and we should hide the list
@@ -3685,7 +3883,9 @@ class CometChatCompactMessageComposerController extends GetxController
       for (int i = 0; i < currentText.length; i++) {
         if (currentText[i] == '@') {
           // Check if this '@' is at start or after a space/newline
-          if (i == 0 || currentText[i - 1] == ' ' || currentText[i - 1] == '\n') {
+          if (i == 0 ||
+              currentText[i - 1] == ' ' ||
+              currentText[i - 1] == '\n') {
             hasValidMentionTrigger = true;
             break;
           }
@@ -3747,7 +3947,9 @@ class CometChatCompactMessageComposerController extends GetxController
         final emoji = emojiMatch.group(0)!;
         // Build "U+XXXX" for each code unit in the emoji
         final codePoints = emoji.runes
-            .map((r) => 'U+${r.toRadixString(16).toUpperCase().padLeft(4, '0')}')
+            .map(
+              (r) => 'U+${r.toRadixString(16).toUpperCase().padLeft(4, '0')}',
+            )
             .join('');
         return codePoints;
       });
@@ -3755,12 +3957,11 @@ class CometChatCompactMessageComposerController extends GetxController
   }
 }
 
-
 /// Helper class to store code block match information.
 class _CodeBlockMatch {
   final int start;
   final int end;
   final String content;
-  
+
   _CodeBlockMatch(this.start, this.end, this.content);
 }

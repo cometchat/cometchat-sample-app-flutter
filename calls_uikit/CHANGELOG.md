@@ -1,3 +1,11 @@
+## 5.0.14
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.2.3`
+- Improved stability by safely handling API calls to avoid conflicts during UI rebuilds.
+- Enhanced the handling in 1-on-1 calls ensuring calls close as expected when the other participant leaves.
+
+
 ## 5.0.13
 
 ## Enhancements

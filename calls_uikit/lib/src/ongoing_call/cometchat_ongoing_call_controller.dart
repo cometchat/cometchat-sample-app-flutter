@@ -214,7 +214,14 @@ class CometChatOngoingCallController extends GetxController
   void onUserJoined(RTCUser user) {}
 
   @override
-  void onUserLeft(RTCUser user) {}
+  void onUserLeft(RTCUser user) {
+  // For 1-on-1 (default) calls: when the remote user leaves and only the
+  // local user remains, end the session. In v4, the native SDK did this
+  // automatically. In v5, the SDK gives the app control over when to leave.
+  if (callWorkFlow == CallWorkFlow.defaultCalling && _usersList.length <= 1) {
+    _endSession();
+  }
+}
 
   @override
   void onUserMuted(RTCMutedUser muteObj) {}

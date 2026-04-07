@@ -35,8 +35,6 @@ class CometChatMessageHeaderController extends GetxController
 
   int? membersCount;
 
-  User? loggedInUser;
-
   CometChatMessageHeaderController({
     this.userObject,
     this.groupObject,
@@ -78,13 +76,6 @@ class CometChatMessageHeaderController extends GetxController
     CometChat.removeGroupListener(groupListenerId);
     CometChatGroupEvents.removeGroupsListener(_uiGroupListener);
     super.onClose();
-  }
-
-  initializeLoggedInUser() async {
-    if (loggedInUser == null) {
-      loggedInUser = await CometChat.getLoggedInUser();
-      update();
-    }
   }
 
   @override
@@ -154,7 +145,10 @@ class CometChatMessageHeaderController extends GetxController
 
   @override
   void onGroupMemberJoined(
-      cc.Action action, User joinedUser, Group joinedGroup) {
+    cc.Action action,
+    User joinedUser,
+    Group joinedGroup,
+  ) {
     updateMemberCount(joinedGroup);
   }
 
@@ -165,30 +159,42 @@ class CometChatMessageHeaderController extends GetxController
 
   @override
   void onGroupMemberKicked(
-      cc.Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    cc.Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     updateMemberCount(kickedFrom);
   }
 
   @override
   void onGroupMemberBanned(
-      cc.Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    cc.Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     updateMemberCount(bannedFrom);
   }
 
   @override
-  void onGroupMemberUnbanned(cc.Action action, User unbannedUser,
-      User unbannedBy, Group unbannedFrom) {}
+  void onGroupMemberUnbanned(
+    cc.Action action,
+    User unbannedUser,
+    User unbannedBy,
+    Group unbannedFrom,
+  ) {}
 
   @override
   void onGroupMemberScopeChanged(
-      cc.Action action,
-      User updatedBy,
-      User updatedUser,
-      String scopeChangedTo,
-      String scopeChangedFrom,
-      Group group) {
-    if (group.guid == groupObject?.guid &&
-        updatedUser.uid == loggedInUser?.uid) {
+    cc.Action action,
+    User updatedBy,
+    User updatedUser,
+    String scopeChangedTo,
+    String scopeChangedFrom,
+    Group group,
+  ) {
+    if (group.guid == groupObject?.guid) {
       groupObject?.scope = scopeChangedTo;
       update();
     }
@@ -196,13 +202,21 @@ class CometChatMessageHeaderController extends GetxController
 
   @override
   void onMemberAddedToGroup(
-      cc.Action action, User addedby, User userAdded, Group addedTo) {
+    cc.Action action,
+    User addedby,
+    User userAdded,
+    Group addedTo,
+  ) {
     updateMemberCount(addedTo);
   }
 
   @override
   void ccGroupMemberBanned(
-      cc.Action message, User bannedUser, User bannedBy, Group bannedFrom) {
+    cc.Action message,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     updateMemberCount(bannedFrom);
   }
 
@@ -216,13 +230,21 @@ class CometChatMessageHeaderController extends GetxController
 
   @override
   void ccGroupMemberKicked(
-      cc.Action message, User kickedUser, User kickedBy, Group kickedFrom) {
+    cc.Action message,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     updateMemberCount(kickedFrom);
   }
 
   @override
-  void ccGroupMemberAdded(List<cc.Action> messages, List<User> usersAdded,
-      Group groupAddedIn, User addedBy) {
+  void ccGroupMemberAdded(
+    List<cc.Action> messages,
+    List<User> usersAdded,
+    Group groupAddedIn,
+    User addedBy,
+  ) {
     if (groupObject != null && groupAddedIn.guid == groupObject?.guid) {
       updateMemberCount(groupAddedIn);
     }
@@ -300,10 +322,14 @@ class CometChatMessageHeaderController extends GetxController
   String getMinutes(Duration difference, DateTime date, BuildContext context) {
     int diffInMinutes = difference.inMinutes;
     if (dateTimeFormatterCallback?.minutes(
-            diffInMinutes, date.millisecondsSinceEpoch) !=
+          diffInMinutes,
+          date.millisecondsSinceEpoch,
+        ) !=
         null) {
       return dateTimeFormatterCallback?.minutes(
-              diffInMinutes, date.millisecondsSinceEpoch) ??
+            diffInMinutes,
+            date.millisecondsSinceEpoch,
+          ) ??
           "${cc.Translations.of(context).lastSeen} ${difference.inMinutes} ${cc.Translations.of(context).minutesAgo}";
     } else {
       return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
@@ -323,13 +349,21 @@ class CometChatMessageHeaderController extends GetxController
     }
   }
 
-  String getHours(Duration difference, int diffInHours, DateTime date,
-      BuildContext context) {
+  String getHours(
+    Duration difference,
+    int diffInHours,
+    DateTime date,
+    BuildContext context,
+  ) {
     if (dateTimeFormatterCallback?.hours(
-            diffInHours, date.millisecondsSinceEpoch) !=
+          diffInHours,
+          date.millisecondsSinceEpoch,
+        ) !=
         null) {
       return dateTimeFormatterCallback?.hours(
-              diffInHours, date.millisecondsSinceEpoch) ??
+            diffInHours,
+            date.millisecondsSinceEpoch,
+          ) ??
           "${cc.Translations.of(context).lastSeen} ${difference.inHours} ${cc.Translations.of(context).hoursAgo}";
     } else {
       return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback
@@ -346,11 +380,13 @@ class CometChatMessageHeaderController extends GetxController
     String formattedDate = DateFormat(datePattern).format(lastActiveAt);
     String formattedTime = DateFormat.jm().format(lastActiveAt);
 
-    if (dateTimeFormatterCallback
-            ?.otherDays(lastActiveAt.millisecondsSinceEpoch) !=
+    if (dateTimeFormatterCallback?.otherDays(
+          lastActiveAt.millisecondsSinceEpoch,
+        ) !=
         null) {
-      return dateTimeFormatterCallback
-              ?.otherDays(lastActiveAt.millisecondsSinceEpoch) ??
+      return dateTimeFormatterCallback?.otherDays(
+            lastActiveAt.millisecondsSinceEpoch,
+          ) ??
           "${cc.Translations.of(context).lastSeen} $formattedDate ${cc.Translations.of(context).at} $formattedTime";
     } else {
       return CometChatUIKit.authenticationSettings?.dateTimeFormatterCallback

@@ -429,10 +429,17 @@ class _CometChatSearchState extends State<CometChatSearch> {
                                         if (searchController
                                                 .selectedFilters.isNotEmpty &&
                                             index >= ctrl.list.length) {
-                                          ctrl.loadMoreElements();
-                                          if (widget.loadingStateView != null) {
+                                                WidgetsBinding.instance
+                                                    .addPostFrameCallback(
+                                                      (_) => ctrl
+                                                          .loadMoreElements(),
+                                                    );
+                                                if (widget.loadingStateView !=
+                                                    null) {
                                             return widget
-                                                .loadingStateView!(context);
+                                                      .loadingStateView!(
+                                                    context,
+                                                  );
                                           } else {
                                             return SearchUtils.loadingView(
                                               context: context,
@@ -733,10 +740,17 @@ class _CometChatSearchState extends State<CometChatSearch> {
                                         if (searchController
                                                 .selectedFilters.isNotEmpty &&
                                             index >= ctrl.list.length) {
-                                          ctrl.loadMoreElements();
-                                          if (widget.loadingStateView != null) {
+WidgetsBinding.instance
+                                                    .addPostFrameCallback(
+                                                      (_) => ctrl
+                                                          .loadMoreElements(),
+                                                    );
+                                                if (widget.loadingStateView !=
+                                                    null) {
                                             return widget
-                                                .loadingStateView!(context);
+                                                      .loadingStateView!(
+                                                    context,
+                                                  );
                                           } else {
                                             return SearchUtils.loadingView(
                                               context: context,

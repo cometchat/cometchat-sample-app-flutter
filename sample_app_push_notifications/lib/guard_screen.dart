@@ -21,12 +21,15 @@ class _GuardScreenState extends State<GuardScreen> {
 
   final ValueNotifier<bool?> shouldGoToHomeScreen = ValueNotifier<bool?>(null);
   late CometChatColorPalette colorPalette;
+  bool _initialized = false;
 
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
     // Initialize typography, color palette, and spacing
     colorPalette = CometChatThemeHelper.getColorPalette(context);
+    if (_initialized) return;
+    _initialized = true;
     if (AppCredentials.appId.isNotEmpty &&
         AppCredentials.authKey.isNotEmpty &&
         AppCredentials.region.isNotEmpty) {
@@ -50,7 +53,7 @@ class _GuardScreenState extends State<GuardScreen> {
 
   init() async {
     bool isInitialized = await InitializeCometChat.init();
-    if (isInitialized) {
+    if (isInitialized && mounted) {
       await alreadyLoggedIn(context);
     } else {
       shouldGoToHomeScreen.value = false;
@@ -102,7 +105,7 @@ class _GuardScreenState extends State<GuardScreen> {
                 builder: (context) =>
                 value ? const MyHomePage() : const LoginSampleUsers(),
               ),
-              (route) => false,
+                  (route) => false,
             );
           });
 

@@ -25,7 +25,7 @@ class CometChatStreamBubbleController extends GetxController {
   void onInit() {
     super.onInit();
     text = streamMessage.text ?? "";
-    final runId = streamMessage.id;
+    final runId = streamMessage.runId ?? streamMessage.id;
     debugPrint(
         "[StreamBubble] onInit called for runId: $runId, initial text: $text");
 

@@ -329,7 +329,9 @@ class _CometChatReactionListState extends State<CometChatReactionList> {
         padding: EdgeInsets.zero,
         itemBuilder: (context, index) {
           if (index >= reactions.length) {
-            value.fetchReactions(value.selectedReaction);
+WidgetsBinding.instance.addPostFrameCallback(
+                (_) => value.fetchReactions(value.selectedReaction));
+
             return Container(
               height: 150,
               alignment: Alignment.center,

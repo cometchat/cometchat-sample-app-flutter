@@ -548,7 +548,7 @@ class _MyPageViewState extends State<MyPageView>
                         child: Padding(
                           padding: EdgeInsets.all(spacing.padding4 ?? 0),
                           child: Text(
-                            "v5.2.12",
+                            "v5.2.13",
                             style: TextStyle(
                               fontSize:
                               typography.body?.regular?.fontSize,

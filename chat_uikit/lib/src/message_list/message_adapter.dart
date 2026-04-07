@@ -46,6 +46,8 @@ class MessageAdapter {
       displayText = baseMessage.text;
     } else if (baseMessage is MediaMessage) {
       displayText = '[${baseMessage.type} message]';
+    } else if (baseMessage is AIAssistantMessage) {
+      displayText = baseMessage.text ?? '';
     } else if (baseMessage is CustomMessage) {
       metadata['customType'] = baseMessage.type;
       metadata['customData'] = baseMessage.customData;

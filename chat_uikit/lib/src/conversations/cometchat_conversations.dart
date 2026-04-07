@@ -605,10 +605,10 @@ class _CometChatConversationsState extends State<CometChatConversations> {
                 value.hasMoreItems ? value.list.length + 1 : value.list.length,
             itemBuilder: (context, index) {
               if (index >= value.list.length) {
-                value.loadMoreElements();
-                return _getLoadingIndicator(
-                  context,
+                WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => value.loadMoreElements(),
                 );
+                return _getLoadingIndicator(context);
               }
 
               final conversation = value.list[index];

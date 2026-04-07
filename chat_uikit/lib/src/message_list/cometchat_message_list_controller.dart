@@ -3894,11 +3894,15 @@ class CometChatMessageListController
       int indexOfMentionsFormatter = textFormatters
           .indexWhere((element) => element is CometChatMentionsFormatter);
       if (indexOfMentionsFormatter != -1) {
-        textFormatters[indexOfMentionsFormatter] = CometChatMentionsFormatter(
-          style: mentionsStyle,
-          mentionAllLabel: mentionAllLabel,
-          mentionAllLabelId: mentionAllLabelId,
-        );
+        // Only replace if it's the exact base type, not a custom subclass
+        if (textFormatters[indexOfMentionsFormatter].runtimeType ==
+            CometChatMentionsFormatter) {
+          textFormatters[indexOfMentionsFormatter] = CometChatMentionsFormatter(
+            style: mentionsStyle,
+            mentionAllLabel: mentionAllLabel,
+            mentionAllLabelId: mentionAllLabelId,
+          );
+        }
       }
     } else if (textFormatters.indexWhere(
             (element) => element is CometChatMentionsFormatter) ==
@@ -4099,6 +4103,11 @@ class CometChatMessageListController
       await Future.delayed(_queueManager.streamDelay);
       if (aiAssistantBaseEvent.type == AgenticKeys.runStarted) {
         _handleRunStarted(aiAssistantBaseEvent as AIAssistantRunStartedEvent);
+      } else if (aiAssistantBaseEvent.type == AgenticKeys.textMessageStart ||
+          aiAssistantBaseEvent.type == AgenticKeys.textMessageContent) {
+        // Ensure thinking bubble exists when streaming text events arrive
+        // (run_started may not always be received before these events)
+        _createThinkingMessage(runId);
       } else if (aiAssistantBaseEvent.type == AgenticKeys.runFinished) {
         _handleRunFinished(aiAssistantBaseEvent as AIAssistantRunFinishedEvent);
       } else if (aiAssistantBaseEvent.type == AgenticKeys.toolCallEnd) {
@@ -4109,8 +4118,10 @@ class CometChatMessageListController
 
   void _createThinkingMessage(int runId) {
     // Create a thinking bubble for new run
+    // Use negative runId to avoid collision with the parent message that has the same ID
+    final thinkingMessageId = -runId;
     final thinkingMessage = StreamMessage(
-      id: runId,
+      id: thinkingMessageId,
       text: cc.Translations.of(context).thinking,
       sender: user,
       receiver: loggedInUser,
@@ -4124,7 +4135,7 @@ class CometChatMessageListController
     // Use queue manager instead of direct map access
     _queueManager.setMessageIdForRun(runId, thinkingMessage.id);
     _queueManager.getOrCreateBuffer(runId); // Initialize buffer
-    if (!_queueManager.checkMessageExists(runId)) {
+    if (!_queueManager.checkMessageExists(thinkingMessageId)) {
       _queueManager.registerMessage(thinkingMessage);
       addElement(thinkingMessage);
     }
@@ -4133,6 +4144,7 @@ class CometChatMessageListController
   Future<void> _handleRunStarted(AIAssistantRunStartedEvent event) async {
     final runId = event.id;
     if (runId == null) return;
+    _createThinkingMessage(runId);
   }
 
   Future<void> _handleToolCallEnd(AIAssistantToolEndedEvent event) async {
@@ -4239,8 +4251,10 @@ class CometChatMessageListController
 
   void updateStreamMessageIntoAssistantMessage(
       AIAssistantMessage aiAssistantMessage) {
+    final runId = aiAssistantMessage.runId;
     for (int i = list.length - 1; i >= 0; i--) {
-      if (list[i].id == aiAssistantMessage.runId && list[i] is StreamMessage) {
+      if (list[i] is StreamMessage &&
+          (list[i].id == runId || list[i].id == -(runId ?? 0))) {
         list.removeAt(i);
         addElement(aiAssistantMessage);
         break;

@@ -1,3 +1,13 @@
+# 5.2.13
+
+## Enhancements
+- Updated `cometchat_uikit_shared` to version `5.2.3`.
+
+## Fixes
+- Resolved an issue where the AI thinking bubble was not displaying and `StreamMessage` was rendering as an unsupported message type in `CometChatMessageList`.
+- Fixed a double-notification issue in the message composer, where both `RichTextEditingController` listener and `TextField.onChanged` were firing simultaneously, causing stale suggestion handling.
+- Corrected an issue where custom `CometChatMentionsFormatter` subclasses were being silently overwritten during controller updates. Custom formatter implementations are now preserved.
+
 # 5.2.12
 
 ## New
