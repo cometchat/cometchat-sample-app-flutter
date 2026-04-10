@@ -1,0 +1,4 @@
+enum CallWorkFlow {
+  defaultCalling,
+  directCalling,
+}

@@ -1,0 +1,5 @@
+name: cometchat_uikit_flutter
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
