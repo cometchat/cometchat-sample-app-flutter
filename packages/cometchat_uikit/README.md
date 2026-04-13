@@ -100,8 +100,8 @@ test/
 
 ## Documentation
 
-Refer to our [official documentation](https://www.cometchat.com/docs/ui-kit/flutter/overview) for detailed usage guides and component references.
+Refer to our [official documentation](https://www.cometchat.com/docs/ui-kit/flutter/v6/overview) for detailed usage guides and component references.
 
 ## Help and Support
 
-For issues, consult our [documentation](https://www.cometchat.com/docs/ui-kit/flutter/overview) or create a [support ticket](https://help.cometchat.com/hc/en-us) or seek real-time support via the [CometChat Dashboard](https://app.cometchat.com/).
+For issues, consult our [documentation](https://www.cometchat.com/docs/ui-kit/flutter/v6/overview) or create a [support ticket](https://help.cometchat.com/hc/en-us) or seek real-time support via the [CometChat Dashboard](https://app.cometchat.com/).

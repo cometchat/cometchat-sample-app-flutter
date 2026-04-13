@@ -58,11 +58,11 @@ flutter pub get
 
 ## Documentation
 
-Refer to our [official documentation](https://www.cometchat.com/docs/ui-kit/flutter/overview) for detailed setup and usage guides.
+Refer to our [official documentation](https://www.cometchat.com/docs/ui-kit/flutter/v6/overview) for detailed setup and usage guides.
 
 ## Help and Support
 
-For issues running the project or integrating with our UI Kit, consult our [documentation](https://www.cometchat.com/docs/ui-kit/flutter/overview) or create a [support ticket](https://help.cometchat.com/hc/en-us) or seek real-time support via the [CometChat Dashboard](https://app.cometchat.com/).
+For issues running the project or integrating with our UI Kit, consult our [documentation](https://www.cometchat.com/docs/ui-kit/flutter/v6/overview) or create a [support ticket](https://help.cometchat.com/hc/en-us) or seek real-time support via the [CometChat Dashboard](https://app.cometchat.com/).
 
 ## License
 

@@ -73,4 +73,4 @@ lib/
 
 ## Help and Support
 
-For issues running the project, consult our [documentation](https://www.cometchat.com/docs/ui-kit/flutter/overview) or create a [support ticket](https://help.cometchat.com/hc/en-us).
+For issues running the project, consult our [documentation](https://www.cometchat.com/docs/ui-kit/flutter/v6/overview) or create a [support ticket](https://help.cometchat.com/hc/en-us).
