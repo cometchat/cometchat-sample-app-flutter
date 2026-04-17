@@ -118,79 +118,87 @@ class CometChatOutgoingCall extends StatelessWidget {
       },
       child: Scaffold(
         backgroundColor: colorPalette.transparent,
-        body: Container(
-          height: height ?? double.infinity,
-          width: width ?? double.infinity,
-          decoration: BoxDecoration(
-            color: style.backgroundColor ?? colorPalette.background1,
-            border: style.border,
-            borderRadius: style.borderRadius,
-          ),
-          child: GetBuilder(
-            init: _outgoingCallController,
-            global: false,
-            dispose: (GetBuilderState<CometChatOutgoingCallController> state) =>
-                state.controller?.onClose(),
-            builder: (CometChatOutgoingCallController viewModel) {
-              viewModel.context = context;
-              return Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: spacing.padding5 ?? 0,
-                  vertical: spacing.padding5 ?? 0,
-                ),
-                child: CometChatCard(
-                  title: user?.name,
-                  avatarName: user?.name,
-                  avatarUrl: user?.avatar,
-                  titleView: _getTitleView(context, viewModel.activeCall),
-                  avatarHeight: 120,
-                  avatarWidth: 120,
-                  titlePadding: EdgeInsets.only(
-                    bottom: spacing.padding2 ?? 0,
+        body: SafeArea(
+          child: Container(
+            height: height ?? double.infinity,
+            width: width ?? double.infinity,
+            decoration: BoxDecoration(
+              color: style.backgroundColor ?? colorPalette.background1,
+              border: style.border,
+              borderRadius: style.borderRadius,
+            ),
+            child: GetBuilder(
+              init: _outgoingCallController,
+              global: false,
+              dispose:
+                  (GetBuilderState<CometChatOutgoingCallController> state) =>
+                      state.controller?.onClose(),
+              builder: (CometChatOutgoingCallController viewModel) {
+                viewModel.context = context;
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: spacing.padding5 ?? 0,
+                    vertical: spacing.padding5 ?? 0,
                   ),
-                  subtitleView: _getSubtitleView(context, viewModel.activeCall,
-                      spacing, typography, colorPalette, style),
-                  avatarView: _getAvatarView(context, viewModel.activeCall),
-                  cardStyle: CardStyle(
-                    titleStyle: TextStyle(
-                      fontSize: typography.heading1?.bold?.fontSize,
-                      fontWeight: typography.heading1?.bold?.fontWeight,
-                      fontFamily: typography.heading1?.bold?.fontFamily,
-                      color: style.titleColor ?? colorPalette.textPrimary,
-                    )
-                        .merge(
-                          style.titleTextStyle,
-                        )
-                        .copyWith(
-                          color: style.titleColor,
-                        ),
-                    avatarStyle: CometChatAvatarStyle(
-                      placeHolderTextStyle: TextStyle(
+                  child: CometChatCard(
+                    title: user?.name,
+                    avatarName: user?.name,
+                    avatarUrl: user?.avatar,
+                    titleView: _getTitleView(context, viewModel.activeCall),
+                    avatarHeight: 120,
+                    avatarWidth: 120,
+                    titlePadding: EdgeInsets.only(
+                      bottom: spacing.padding2 ?? 0,
+                    ),
+                    subtitleView: _getSubtitleView(
+                        context,
+                        viewModel.activeCall,
+                        spacing,
+                        typography,
+                        colorPalette,
+                        style),
+                    avatarView: _getAvatarView(context, viewModel.activeCall),
+                    cardStyle: CardStyle(
+                      titleStyle: TextStyle(
                         fontSize: typography.heading1?.bold?.fontSize,
                         fontWeight: typography.heading1?.bold?.fontWeight,
                         fontFamily: typography.heading1?.bold?.fontFamily,
-                      ).merge(
-                        style.avatarStyle?.placeHolderTextStyle,
+                        color: style.titleColor ?? colorPalette.textPrimary,
+                      )
+                          .merge(
+                            style.titleTextStyle,
+                          )
+                          .copyWith(
+                            color: style.titleColor,
+                          ),
+                      avatarStyle: CometChatAvatarStyle(
+                        placeHolderTextStyle: TextStyle(
+                          fontSize: typography.heading1?.bold?.fontSize,
+                          fontWeight: typography.heading1?.bold?.fontWeight,
+                          fontFamily: typography.heading1?.bold?.fontFamily,
+                        ).merge(
+                          style.avatarStyle?.placeHolderTextStyle,
+                        ),
+                        backgroundColor: style.avatarStyle?.backgroundColor,
+                        placeHolderTextColor:
+                            style.avatarStyle?.placeHolderTextColor,
+                        borderRadius: style.avatarStyle?.borderRadius,
+                        border: style.avatarStyle?.border,
                       ),
-                      backgroundColor: style.avatarStyle?.backgroundColor,
-                      placeHolderTextColor:
-                          style.avatarStyle?.placeHolderTextColor,
-                      borderRadius: style.avatarStyle?.borderRadius,
-                      border: style.avatarStyle?.border,
+                    ),
+                    bottomView: _getCancelledView(
+                      context,
+                      viewModel.activeCall,
+                      spacing,
+                      typography,
+                      colorPalette,
+                      style,
+                      viewModel,
                     ),
                   ),
-                  bottomView: _getCancelledView(
-                    context,
-                    viewModel.activeCall,
-                    spacing,
-                    typography,
-                    colorPalette,
-                    style,
-                    viewModel,
-                  ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),

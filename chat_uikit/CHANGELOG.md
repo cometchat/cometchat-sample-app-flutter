@@ -1,3 +1,14 @@
+# 5.2.14
+
+## New
+- None
+
+## Enhancements
+- None
+
+## Fixes
+- Added `textFormatters` parameter to `CometChatThreadedHeader` to allow passing custom text formatters from the consumer app, enabling mention style customization (e.g., text color, background color) in the threaded header bubble.
+
 # 5.2.13
 
 ## Enhancements

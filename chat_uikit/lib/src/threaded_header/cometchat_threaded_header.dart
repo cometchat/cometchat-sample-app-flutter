@@ -23,6 +23,7 @@ class CometChatThreadedHeader extends StatefulWidget {
     this.height,
     this.width,
     this.receiptsVisibility = true,
+    this.textFormatters,
   });
 
   ///[parentMessage] parent message for thread
@@ -48,6 +49,9 @@ class CometChatThreadedHeader extends StatefulWidget {
 
   ///[receiptsVisibility] controls visibility of receipts
   final bool? receiptsVisibility;
+
+  ///[textFormatters] custom text formatters for the threaded header
+  final List<CometChatTextFormatter>? textFormatters;
 
   @override
   State<CometChatThreadedHeader> createState() =>
@@ -154,7 +158,7 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
         outgoingMessageBubbleStyle: threadedHeaderStyle
             .outgoingMessageBubbleStyle,
         incomingMessageBubbleStyle: threadedHeaderStyle.incomingMessageBubbleStyle,
-        textFormatters: CometChatUIKit.getDataSource().getDefaultTextFormatters(),
+        textFormatters: widget.textFormatters ?? CometChatUIKit.getDataSource().getDefaultTextFormatters(),
         key: key,
         receiptsVisibility: widget.receiptsVisibility,
     );

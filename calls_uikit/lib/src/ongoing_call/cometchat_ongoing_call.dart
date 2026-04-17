@@ -41,17 +41,19 @@ class CometChatOngoingCall extends StatelessWidget {
               state.controller?.onClose(),
           builder: (CometChatOngoingCallController viewModel) {
             viewModel.context = context;
-            return viewModel.callingWidget ??
-                Material(
-                  child: DecoratedBox(
-                    decoration: const BoxDecoration(color: Colors.black),
-                    child: Center(
-                        child: Text(
-                      kit.Translations.of(context).connecting,
-                      style: const TextStyle(color: Colors.white),
-                    )),
+            return SafeArea(
+              child: viewModel.callingWidget ??
+                  Material(
+                    child: DecoratedBox(
+                      decoration: const BoxDecoration(color: Colors.black),
+                      child: Center(
+                          child: Text(
+                        kit.Translations.of(context).connecting,
+                        style: const TextStyle(color: Colors.white),
+                      )),
+                    ),
                   ),
-                );
+            );
           }),
     );
   }
