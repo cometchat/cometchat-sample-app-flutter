@@ -374,12 +374,22 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
           widget.subtitleView!(state.group, state.user, context);
     } else if (state.user != null) {
       if (widget.usersStatusVisibility == true && state.userIsNotBlocked) {
-        subtitle = CometChatMarquee(
-          velocity: 30,
-          text: state.isUserOnline
-              ? cc.Translations.of(context).online
-              : _getUserActivityStatus(context, state),
-          style: subtitleStyle,
+        final statusText = state.isUserOnline
+            ? cc.Translations.of(context).online
+            : _getUserActivityStatus(context, state);
+        // Wrap in LayoutBuilder so the marquee is constrained to the
+        // available width and does not overflow into trailing widgets.
+        subtitle = LayoutBuilder(
+          builder: (context, constraints) {
+            return SizedBox(
+              width: constraints.maxWidth,
+              child: CometChatMarquee(
+                velocity: 30,
+                text: statusText,
+                style: subtitleStyle,
+              ),
+            );
+          },
         );
       } else {
         subtitle = null;
@@ -388,6 +398,8 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
       subtitle = Text(
         '${state.memberCount} ${state.memberCount == 1 ? cc.Translations.of(context).member : cc.Translations.of(context).members}',
         style: subtitleStyle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       );
     }
     return subtitle;

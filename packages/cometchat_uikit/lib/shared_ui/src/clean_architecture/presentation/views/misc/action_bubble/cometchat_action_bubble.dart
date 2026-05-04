@@ -98,6 +98,12 @@ class _CometChatActionBubbleState extends State<CometChatActionBubble> {
   @override
   Widget build(BuildContext context) {
     String? text = widget.text;
+    if (text == null) {
+      return const SizedBox(
+        height: 0,
+        width: 0,
+      );
+    }
 
     return Container(
       height: widget.height,
@@ -124,7 +130,7 @@ class _CometChatActionBubbleState extends State<CometChatActionBubble> {
           if (widget.leadingIcon != null) widget.leadingIcon!,
           Flexible(
             child: Text(
-              _sanitizeUtf16(text ?? ''),
+              _sanitizeUtf16(text),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
               style:

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
+import 'widgets/cometchat_new_message_indicator_style.dart';
 
 /// [CometChatMessageListStyle] is a data class that has styling-related properties
 /// to customize the appearance of [CometChatMessageList]

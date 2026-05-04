@@ -20,7 +20,8 @@ class MessageReceiptUtils {
 
     if (message.metadata != null &&
         message.metadata!.containsKey("error") &&
-        message.metadata?["error"] is Exception) {
+        (message.metadata?["error"] is Exception ||
+         message.metadata?["error"] is String)) {
       receiptStatus = ReceiptStatus.error;
     } else if (message.readAt != null) {
       receiptStatus = ReceiptStatus.read;

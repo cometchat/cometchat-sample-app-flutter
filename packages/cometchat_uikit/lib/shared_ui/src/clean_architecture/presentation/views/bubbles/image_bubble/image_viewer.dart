@@ -76,7 +76,7 @@ class _ImageViewerState extends State<ImageViewer> {
         backgroundColor: colorPalette.background1,
         iconTheme: IconThemeData(color: colorPalette.iconPrimary),
       ),
-      body: SizedBox(
+      body: Container(
         width: double.infinity,
         height: double.infinity,
         child: Stack(

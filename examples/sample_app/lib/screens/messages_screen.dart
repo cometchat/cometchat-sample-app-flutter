@@ -10,12 +10,16 @@ class MessagesScreen extends StatefulWidget {
   final User? user;
   final Group? group;
   final int? goToMessageId;
+  final BaseMessage? parentMessage;
+  final bool isHistory;
 
   const MessagesScreen({
     super.key,
     this.user,
     this.group,
     this.goToMessageId,
+    this.parentMessage,
+    this.isHistory = false,
   }) : assert(user != null || group != null);
 
   @override
@@ -191,10 +195,26 @@ class _MessagesScreenState extends State<MessagesScreen>
 
   Widget _buildMessageList() {
     final t = _toggles;
+    final isAIUser = _user?.role == 'ai' || _user?.role == '@agentic';
+
+    // When coming from AI chat history, scope messages to the parent message
+    MessagesRequestBuilder? requestBuilder;
+    int? parentMessageId;
+    if (widget.parentMessage != null && widget.isHistory) {
+      parentMessageId = widget.parentMessage!.id;
+      requestBuilder = MessagesRequestBuilder()
+        ..parentMessageId = widget.parentMessage!.id
+        ..withParent = true
+        ..hideReplies = false; // Show all messages in the thread (user + AI)
+    }
+
     return CometChatMessageList(
-      user: widget.user,
-      group: widget.group,
+      user: _user,
+      group: _group,
       goToMessageId: widget.goToMessageId,
+      parentMessageId: parentMessageId,
+      messagesRequestBuilder: requestBuilder,
+      hideReplies: (widget.isHistory) ? false : true,
       showMarkAsUnreadOption: t.showMarkAsUnreadOption.value,
       startFromUnreadMessages: t.startFromUnreadMessages.value,
       hideDeletedMessages: t.hideDeletedMessages.value,
@@ -202,11 +222,11 @@ class _MessagesScreenState extends State<MessagesScreen>
       avatarVisibility: t.avatarVisibility.value,
       hideDateSeparator: t.hideDateSeparator.value,
       hideStickyDate: t.hideStickyDate.value,
-      disableReactions: t.disableReactions.value,
-      enableSwipeToReply: t.enableSwipeToReply.value,
+      disableReactions: isAIUser || t.disableReactions.value,
+      enableSwipeToReply: isAIUser ? false : t.enableSwipeToReply.value,
       hideGroupActionMessages: t.hideGroupActionMessages.value,
-      enableSmartReplies: t.enableSmartReplies.value,
-      enableConversationStarters: t.enableConversationStarters.value,
+      enableSmartReplies: isAIUser || t.enableSmartReplies.value,
+      enableConversationStarters: isAIUser || t.enableConversationStarters.value,
       hideCopyMessageOption: t.hideCopyMessageOption.value,
       hideDeleteMessageOption: t.hideDeleteMessageOption.value,
       hideEditMessageOption: t.hideEditMessageOption.value,
@@ -216,7 +236,7 @@ class _MessagesScreenState extends State<MessagesScreen>
       hideTranslateMessageOption: t.hideTranslateMessageOption.value,
       hideShareMessageOption: t.hideShareMessageOption.value,
       textFormatters: [
-        CometChatMentionsFormatter(user: widget.user, group: widget.group),
+        CometChatMentionsFormatter(user: _user, group: _group),
         MarkdownTextFormatter(),
         CometChatUrlFormatter(),
         CometChatPhoneNumberFormatter(),
@@ -229,8 +249,8 @@ class _MessagesScreenState extends State<MessagesScreen>
             transitionDuration: const Duration(milliseconds: 280),
             reverseTransitionDuration: const Duration(milliseconds: 220),
             pageBuilder: (_, animation, __) => ThreadScreen(
-              user: widget.user,
-              group: widget.group,
+              user: _user,
+              group: _group,
               message: message,
               template: template,
             ),
@@ -256,66 +276,191 @@ class _MessagesScreenState extends State<MessagesScreen>
 
   Widget _buildComposer() {
     final t = _toggles;
+    final isAI = _user?.role == 'ai' || _user?.role == '@agentic';
     return CometChatMessageComposer(
-      user: widget.user,
-      group: widget.group,
-      disableTypingEvents: t.disableTypingEvents.value,
-      hideVoiceRecordingButton: t.hideVoiceRecordingButton.value,
+      user: _user,
+      group: _group,
+      parentMessageId: widget.parentMessage?.id ?? 0,
+      placeholderText: isAI ? 'Ask anything...' : null,
+      disableTypingEvents: isAI || t.disableTypingEvents.value,
+      hideVoiceRecordingButton: isAI || t.hideVoiceRecordingButton.value,
       hideSendButton: t.hideSendButton.value,
-      hideAttachmentButton: t.hideAttachmentButton.value,
-      hideStickersButton: t.hideStickersButton.value,
-      disableMentions: t.disableMentions.value,
+      hideAttachmentButton: isAI || t.hideAttachmentButton.value,
+      hideStickersButton: isAI || t.hideStickersButton.value,
+      disableMentions: isAI || t.disableMentions.value,
       hideBottomSafeArea: t.hideBottomSafeArea.value,
-      textFormatters: [
-        CometChatMentionsFormatter(user: widget.user, group: widget.group),
-        MarkdownTextFormatter(),
-        CometChatUrlFormatter(),
-        CometChatPhoneNumberFormatter(),
-        CometChatEmailFormatter(),
-      ],
+      resizeToAvoidBottomInset: true,
+      textFormatters: isAI
+          ? [] // No formatters for AI chat
+          : [
+              CometChatMentionsFormatter(user: _user, group: _group),
+              MarkdownTextFormatter(),
+              CometChatUrlFormatter(),
+              CometChatPhoneNumberFormatter(),
+              CometChatEmailFormatter(),
+            ],
+      richTextConfiguration: isAI
+          ? const RichTextConfiguration(
+              toolbarMode: RichTextToolbarMode.disabled,
+            )
+          : const RichTextConfiguration(
+              toolbarMode: RichTextToolbarMode.alwaysVisible,
+            ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorPalette = CometChatThemeHelper.getColorPalette(context);
-    final typography = CometChatThemeHelper.getTypography(context);
+    final _colorPalette = CometChatThemeHelper.getColorPalette(context);
+    final _typography = CometChatThemeHelper.getTypography(context);
+    final _isAI = _user?.role == 'ai' || _user?.role == '@agentic';
     return Scaffold(
-      backgroundColor: colorPalette.background1,
-      resizeToAvoidBottomInset: false,
+      backgroundColor: _colorPalette.background1,
+      resizeToAvoidBottomInset: true,
       appBar: CometChatMessageHeader(
-        user: widget.user,
-        group: widget.group,
+        user: _user,
+        group: _group,
         onBack: () => Navigator.pop(context),
-        hideVideoCallButton: _toggles.hideVideoCallButton.value,
-        hideVoiceCallButton: _toggles.hideVoiceCallButton.value,
+        hideVideoCallButton: _isAI || _toggles.hideVideoCallButton.value,
+        hideVoiceCallButton: _isAI || _toggles.hideVoiceCallButton.value,
         usersStatusVisibility: _toggles.headerUsersStatusVisibility.value,
+        chatHistoryButtonClick: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CometChatAIAssistantChatHistory(
+                user: _user,
+                group: _group,
+                onNewChatButtonClicked: () {
+                  if (widget.isHistory) {
+                    Navigator.of(context).pop();
+                  }
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => MessagesScreen(
+                        user: _user,
+                        group: _group,
+                      ),
+                    ),
+                  );
+                },
+                onMessageClicked: (message) {
+                  if (message != null) {
+                    Navigator.of(context)
+                      ..pop()
+                      ..pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MessagesScreen(
+                          user: _user,
+                          group: _group,
+                          parentMessage: message,
+                          isHistory: true,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                onClose: () => Navigator.of(context).pop(),
+              ),
+            ),
+          );
+        },
         messageHeaderStyle: CometChatMessageHeaderStyle(
-          backgroundColor: colorPalette.background1,
+          backgroundColor: _colorPalette.background1,
           border: Border(
             bottom: BorderSide(
-              color: colorPalette.borderLight ?? Colors.transparent,
+              color: _colorPalette.borderLight ?? Colors.transparent,
               width: 1.0,
             ),
           ),
         ),
         trailingView: (user, group, ctx) => [
-          IconButton(
-            icon: Icon(Icons.info_outline, color: colorPalette.iconPrimary),
-            tooltip: widget.group != null ? 'Group Info' : 'User Info',
-            onPressed: () {
-              if (widget.group != null) {
-                Navigator.push(
+          if (user?.role == 'ai' || user?.role == '@agentic') ...[
+            IconButton(
+              icon: Icon(Icons.add, color: _colorPalette.iconPrimary),
+              tooltip: 'New Chat',
+              onPressed: () {
+                Navigator.pushReplacement(
                   ctx,
                   MaterialPageRoute(
-                    builder: (_) => GroupInfoScreen(group: widget.group!),
+                    builder: (_) => MessagesScreen(
+                      user: _user,
+                      group: _group,
+                    ),
                   ),
                 );
-              } else if (widget.user != null) {
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.history, color: _colorPalette.iconPrimary),
+              tooltip: 'AI Chat History',
+              onPressed: () {
                 Navigator.push(
                   ctx,
                   MaterialPageRoute(
-                    builder: (_) => UserInfoScreen(user: widget.user!),
+                    builder: (_) => CometChatAIAssistantChatHistory(
+                      user: _user,
+                      group: _group,
+                      onNewChatButtonClicked: () {
+                        // Pop history, then replace current messages with fresh one
+                        if (widget.isHistory) {
+                          Navigator.of(ctx).pop();
+                        }
+                        Navigator.pushReplacement(
+                          ctx,
+                          MaterialPageRoute(
+                            builder: (_) => MessagesScreen(
+                              user: _user,
+                              group: _group,
+                            ),
+                          ),
+                        );
+                      },
+                      onMessageClicked: (message) {
+                        if (message != null) {
+                          Navigator.of(ctx)
+                            ..pop()
+                            ..pop();
+                          Navigator.push(
+                            ctx,
+                            MaterialPageRoute(
+                              builder: (_) => MessagesScreen(
+                                user: _user,
+                                group: _group,
+                                parentMessage: message,
+                                isHistory: true,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      onClose: () => Navigator.of(ctx).pop(),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ], // end AI buttons spread
+          if (!_isAI)
+            IconButton(
+              icon: Icon(Icons.info_outline, color: _colorPalette.iconPrimary),
+              tooltip: _group != null ? 'Group Info' : 'User Info',
+            onPressed: () {
+              if (_group != null) {
+                Navigator.push(
+                  ctx,
+                  MaterialPageRoute(
+                    builder: (_) => GroupInfoScreen(group: _group!),
+                  ),
+                );
+              } else if (_user != null) {
+                Navigator.push(
+                  ctx,
+                  MaterialPageRoute(
+                    builder: (_) => UserInfoScreen(user: _user!),
                   ),
                 );
               }
@@ -323,71 +468,67 @@ class _MessagesScreenState extends State<MessagesScreen>
           ),
         ],
       ),
-      body: Container(
-        color: colorPalette.background3,
-        child: Column(
-          children: [
-            // Blocked user banner
-            if (_isUserBlocked && _user != null)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 10),
-                color: colorPalette.warning?.withValues(alpha: 0.15),
-                child: Row(
-                  children: [
-                    Icon(Icons.block, color: colorPalette.warning, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _user!.blockedByMe == true
-                            ? 'You have blocked this user.'
-                            : 'This user has blocked you.',
-                        style: TextStyle(
-                          fontSize: typography.body?.regular?.fontSize,
-                          color: colorPalette.textPrimary,
+      body: SafeArea(
+        child: Container(
+          color: _colorPalette.background3,
+          child: Column(
+            children: [
+              // Blocked user banner
+              if (_isUserBlocked && _user != null)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 10),
+                  color: _colorPalette.warning?.withValues(alpha: 0.15),
+                  child: Row(
+                    children: [
+                      Icon(Icons.block, color: _colorPalette.warning, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _user!.blockedByMe == true
+                              ? 'You have blocked this user.'
+                              : 'This user has blocked you.',
+                          style: TextStyle(
+                            fontSize: _typography.body?.regular?.fontSize,
+                            color: _colorPalette.textPrimary,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            // Kicked/banned banner
-            if (_kickedOrBanned && _group != null)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 10),
-                color: colorPalette.error?.withValues(alpha: 0.15),
-                child: Row(
-                  children: [
-                    Icon(Icons.remove_circle_outline,
-                        color: colorPalette.error, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'You have been removed from this group.',
-                        style: TextStyle(
-                          fontSize: typography.body?.regular?.fontSize,
-                          color: colorPalette.textPrimary,
+              // Kicked/banned banner
+              if (_kickedOrBanned && _group != null)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 10),
+                  color: _colorPalette.error?.withValues(alpha: 0.15),
+                  child: Row(
+                    children: [
+                      Icon(Icons.remove_circle_outline,
+                          color: _colorPalette.error, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'You have been removed from this group.',
+                          style: TextStyle(
+                            fontSize: _typography.body?.regular?.fontSize,
+                            color: _colorPalette.textPrimary,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+              Expanded(
+                child: _buildMessageList(),
               ),
-            Expanded(
-              child: ValueListenableBuilder<int>(
-                valueListenable: _toggles.revision,
-                builder: (context, _, __) => _buildMessageList(),
-              ),
-            ),
-            if (!_kickedOrBanned)
-              ValueListenableBuilder<int>(
-                valueListenable: _toggles.revision,
-                builder: (context, _, __) => _buildComposer(),
-              ),
-          ],
+              if (!_kickedOrBanned)
+                _buildComposer(),
+            ],
+          ),
         ),
       ),
     );

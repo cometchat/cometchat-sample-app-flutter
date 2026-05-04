@@ -1,0 +1,41 @@
+{
+  "skill_name": "cometchat-flutter-events",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to show a toast notification when a new message arrives while the user is on a different screen. How do I listen for incoming messages?",
+      "expected_output": "The response must show registering a MessageListener with a unique ID in initState and removing it in dispose.",
+      "files": [],
+      "assertions": [
+        "Uses CometChat.addMessageListener with a unique timestamp-based ID",
+        "Mixes in MessageListener on the State class",
+        "Overrides onTextMessageReceived (and optionally onMediaMessageReceived)",
+        "Removes listener in dispose() with the same ID",
+        "Does NOT use a hardcoded listener ID"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm listening to ccMessageSent but my message appears 3 times in my custom list. What's happening?",
+      "expected_output": "The response must explain that ccMessageSent fires three times (inProgress, sent, error) and the handler must filter by MessageStatus.",
+      "files": [],
+      "assertions": [
+        "Explains ccMessageSent fires for inProgress, sent, and error statuses",
+        "Shows filtering: if (status == MessageStatus.sent) { addToList(msg); }",
+        "Explains the purpose of each status (optimistic UI, confirmation, error handling)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I registered a message listener with CometChat.addMessageListener('messages', this) in two different screens. The first screen stopped receiving events. Why?",
+      "expected_output": "The response must explain that using the same listener ID silently overwrites the previous registration.",
+      "files": [],
+      "assertions": [
+        "Identifies that duplicate listener IDs cause silent overwrite",
+        "Explains no error is thrown — the old listener just stops receiving",
+        "Shows using unique IDs with timestamp suffix per instance",
+        "Shows the pattern: 'screen_name_${DateTime.now().millisecondsSinceEpoch}'"
+      ]
+    }
+  ]
+}

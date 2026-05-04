@@ -128,16 +128,20 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
     add(const CallCancelled());
   }
 
-  /// Called when an outgoing call is rejected (dismiss overlay)
+  /// Called when an outgoing call is rejected.
+  /// This is an outgoing call event — do NOT dismiss the incoming call
+  /// overlay here. The SDK broadcasts this to all CallListeners, but it's
+  /// only relevant to the outgoing call screen.
   @override
   void onOutgoingCallRejected(Call call) {
-    IncomingCallOverlay.dismiss();
+    // No-op for incoming call — only onIncomingCallCancelled matters
   }
 
-  /// Called when an outgoing call is accepted (dismiss overlay)
+  /// Called when an outgoing call is accepted.
+  /// Same as above — outgoing call event, not relevant to incoming overlay.
   @override
   void onOutgoingCallAccepted(Call call) {
-    IncomingCallOverlay.dismiss();
+    // No-op for incoming call
   }
 
   // ============================================================
@@ -252,7 +256,7 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
         developer.log(
           'IncomingCallBloc: call.type="${call.type}", '
           'acceptedCall.type="${acceptedCall.type}", '
-          'sessionId="$sessionId", acceptedCall.sessionId="${acceptedCall.sessionId}"',
+          'sessionId="${sessionId}", acceptedCall.sessionId="${acceptedCall.sessionId}"',
         );
 
         // Check both the original incoming call and the accepted call.
@@ -281,22 +285,13 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
           }
         }
 
-        // Navigate to ongoing call screen
-        final navigatorContext =
-            CallNavigationContext.navigatorKey.currentContext;
-        developer.log('IncomingCallBloc: navigating to CometChatOngoingCall with sessionId=$sessionId');
-        if (navigatorContext != null && navigatorContext.mounted) {
-          Navigator.push(
-            navigatorContext,
-            MaterialPageRoute(
-              builder: (context) => CometChatOngoingCall(
-                sessionSettingsBuilder: defaultSessionSettingsBuilder,
-                sessionId: sessionId,
-                callWorkFlow: CallWorkFlow.defaultCalling,
-              ),
-            ),
-          );
-        }
+        // Navigate to ongoing call screen via isolated overlay
+        developer.log('IncomingCallBloc: showing CallScreenOverlay with sessionId=$sessionId');
+        CallScreenOverlay.show(
+          sessionId: sessionId,
+          sessionSettingsBuilder: defaultSessionSettingsBuilder,
+          callWorkFlow: CallWorkFlow.defaultCalling,
+        );
 
         if (kDebugMode) {
           debugPrint('Call has been accepted successfully');

@@ -1,0 +1,27 @@
+name: ai_sample_app
+description: "CometChat Flutter AI Sample App"
+publish_to: 'none'
+version: 6.0.0-beta2
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cometchat_chat_uikit:
+    hosted: https://dart.cloudsmith.io/cometchat/cometchat/
+    version: 6.0.0-beta2
+  http: ^1.2.0
+  intl: ^0.20.2
+  shared_preferences: ^2.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/

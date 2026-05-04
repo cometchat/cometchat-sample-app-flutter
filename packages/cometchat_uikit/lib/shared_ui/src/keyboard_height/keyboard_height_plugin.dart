@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 
 /// Callback type for keyboard height changes.
@@ -73,6 +74,10 @@ class KeyboardHeightPlugin {
   /// The callback receives the keyboard height and safe area bottom in logical pixels.
   /// When the keyboard is hidden, the keyboard height will be 0.
   void onKeyboardHeightChanged(KeyboardHeightCallback callback) {
+    // Platform channels are not available on web — skip registration.
+    // The composer falls back to viewInsets on web.
+    if (kIsWeb) return;
+
     if (_keyboardHeightSubscription != null) {
       _keyboardHeightSubscription!.cancel();
       _listenerCount--;

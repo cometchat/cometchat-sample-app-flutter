@@ -46,6 +46,7 @@ class CometchatChatUikitPlugin :
         private const val CHANNEL = "cometchat_chat_uikit"
         private const val KEYBOARD_HEIGHT_CHANNEL = "com.cometchat.keyboard_height_channel"
         private const val REQ_CAMERA = 201
+        private const val REQ_AUDIO_RECORD = AudioRecorder.REQ_AUDIO_RECORD
     }
 
     private lateinit var channel: MethodChannel
@@ -54,6 +55,7 @@ class CometchatChatUikitPlugin :
 
     private var filePickerDelegate: CometChatFilePickerDelegate? = null
     private var cameraPermissionResult: MethodChannel.Result? = null
+    private var audioRecordPermissionResult: MethodChannel.Result? = null
     
     // Keyboard height tracking
     private var keyboardHeightEventChannel: EventChannel? = null
@@ -134,9 +136,15 @@ class CometchatChatUikitPlugin :
             "startRecordingAudio" -> {
                 AudioRecorderEventHandler.audioRecorder =
                     AudioRecorder(context, activity)
-                result.success(
-                    AudioRecorderEventHandler.audioRecorder?.startRecording()
-                )
+                val started = AudioRecorderEventHandler.audioRecorder?.startRecording()
+                if (started == true) {
+                    result.success(true)
+                } else if (AudioRecorderEventHandler.audioRecorder?.isPermissionPending() == true) {
+                    // Permission dialog is showing — defer the result until granted/denied
+                    audioRecordPermissionResult = result
+                } else {
+                    result.success(false)
+                }
             }
 
             "stopRecordingAudio" ->
@@ -387,6 +395,18 @@ class CometchatChatUikitPlugin :
                         grantResults[0] == PackageManager.PERMISSION_GRANTED
             cameraPermissionResult?.success(granted)
             cameraPermissionResult = null
+        } else if (requestCode == REQ_AUDIO_RECORD) {
+            val granted =
+                grantResults.isNotEmpty() &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED
+            if (granted) {
+                // Permission granted — actually start recording now
+                val started = AudioRecorderEventHandler.audioRecorder?.startRecording() ?: false
+                audioRecordPermissionResult?.success(started)
+            } else {
+                audioRecordPermissionResult?.success(false)
+            }
+            audioRecordPermissionResult = null
         }
         return true
     }

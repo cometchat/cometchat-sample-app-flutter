@@ -34,10 +34,11 @@ class ConversationSubtitleUtils {
         .merge(subtitleStyle);
 
     BaseMessage? lastMessage = conversation.lastMessage;
+    String? messageCategory = lastMessage?.category;
 
     final spacing = CometChatThemeHelper.getSpacing(context);
 
-    if (lastMessage == null) {
+    if (messageCategory == null || lastMessage == null) {
       return Text(
         Translations.of(context).tapToStartConversation,
         maxLines: 1,

@@ -83,7 +83,7 @@ void main() {
     test('falls back to cache when remote fails', () async {
       final cached = [FakeConversation('cached_conv')];
       when(() => remote.getConversations(limit: any(named: 'limit')))
-          .thenThrow(const RemoteDataSourceException(message: 'Network error'));
+          .thenThrow(RemoteDataSourceException(message: 'Network error'));
       when(() => local.getCachedConversations()).thenAnswer((_) async => cached);
 
       final result = await repo.getConversations();
@@ -94,9 +94,9 @@ void main() {
 
     test('returns failure when both remote and cache fail', () async {
       when(() => remote.getConversations(limit: any(named: 'limit')))
-          .thenThrow(const RemoteDataSourceException(message: 'Network error'));
+          .thenThrow(RemoteDataSourceException(message: 'Network error'));
       when(() => local.getCachedConversations())
-          .thenThrow(const LocalDataSourceException(message: 'Cache miss'));
+          .thenThrow(LocalDataSourceException(message: 'Cache miss'));
 
       final result = await repo.getConversations();
 
@@ -153,7 +153,7 @@ void main() {
 
     test('returns failure when remote delete throws', () async {
       when(() => remote.deleteConversation(any(), any()))
-          .thenThrow(const RemoteDataSourceException(message: 'Delete failed', code: 'DEL_ERR'));
+          .thenThrow(RemoteDataSourceException(message: 'Delete failed', code: 'DEL_ERR'));
 
       final result = await repo.deleteConversation('user_uid123');
 

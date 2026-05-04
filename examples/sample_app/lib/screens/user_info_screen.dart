@@ -315,15 +315,21 @@ class _UserInfoScreenState extends State<UserInfoScreen>
       onSuccess: (Call returnedCall) {
         returnedCall.category = MessageCategoryConstants.call;
         CometChatCallEvents.ccOutgoingCall(returnedCall);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CometChatOutgoingCall(
-              call: returnedCall,
-              user: _user,
+        // Use CallNavigationContext.navigatorKey so the outgoing call screen
+        // is on the same navigator that OutgoingCallBloc uses for pushReplacement
+        // when the receiver accepts. Using local context causes a mismatch.
+        final navContext = CallNavigationContext.navigatorKey.currentContext;
+        if (navContext != null && navContext.mounted) {
+          Navigator.push(
+            navContext,
+            MaterialPageRoute(
+              builder: (_) => CometChatOutgoingCall(
+                call: returnedCall,
+                user: _user,
+              ),
             ),
-          ),
-        );
+          );
+        }
       },
       onError: (e) => debugPrint('Error initiating call: ${e.message}'),
     );

@@ -25,10 +25,11 @@ abstract class CallOperationsRepository {
   /// Generate a call token for joining a session.
   Future<Result<String>> generateCallToken(String sessionId);
 
-  /// Start a call session with the given token and settings.
+  /// Start a call session with the given session ID and settings.
+  /// The SDK generates the call token internally.
   /// Returns the calling widget on success.
   Future<Result<Widget>> startSession(
-      String callToken, SessionSettings settings);
+      String sessionId, SessionSettings settings);
 
   /// End the current WebRTC session.
   Future<Result<void>> endSession();

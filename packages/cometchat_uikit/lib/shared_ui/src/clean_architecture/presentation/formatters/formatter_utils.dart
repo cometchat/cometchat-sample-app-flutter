@@ -371,7 +371,62 @@ class FormatterUtils {
               ),
             ),
           ));
+        } else if (!attributedText.isBlockElement && attributedText.border == null) {
+          // Inline elements with background/padding (mentions, inline code)
+          final displayText = attributedText.underlyingText ??
+              (attributedText.start >= 0 &&
+                      attributedText.end <= text.length &&
+                      attributedText.start <= attributedText.end
+                  ? text.substring(attributedText.start, attributedText.end)
+                  : '');
+
+        textSpan.add(WidgetSpan(
+            child: Container(
+          padding: attributedText.padding,
+          decoration: BoxDecoration(
+            color: attributedText.backgroundColor,
+            borderRadius: BorderRadius.circular(attributedText.borderRadius ?? 0),
+          ),
+          child: attributedText.onTap != null
+              ? GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    if (attributedText.start >= 0 && 
+                        attributedText.end <= text.length && 
+                        attributedText.start <= attributedText.end) {
+                      attributedText.onTap!(
+                          text.substring(attributedText.start, attributedText.end));
+                    }
+                  },
+                  child: Text(
+                    displayText,
+                    style: attributedText.style ??
+                        textStyle?.merge(TextStyle(
+                          color: alignment == BubbleAlignment.right
+                              ? colorPalette.white
+                              : colorPalette.textPrimary,
+                          fontWeight: typography.body?.regular?.fontWeight,
+                          fontSize: typography.body?.regular?.fontSize,
+                          fontFamily: typography.body?.regular?.fontFamily,
+                        )),
+                  ),
+                )
+              : Text(
+                  displayText,
+                  style: attributedText.style ??
+                      textStyle?.merge(TextStyle(
+                        color: alignment == BubbleAlignment.right
+                            ? colorPalette.white
+                            : colorPalette.textPrimary,
+                        fontWeight: typography.body?.regular?.fontWeight,
+                        fontSize: typography.body?.regular?.fontSize,
+                        fontFamily: typography.body?.regular?.fontFamily,
+                      )),
+                ),
+        )));
         } else {
+          // Block elements (code blocks, blockquotes) — need WidgetSpan for
+          // full-width layout, borders, and multi-line content
         textSpan.add(WidgetSpan(
             child: Container(
           padding: attributedText.padding,
@@ -381,8 +436,9 @@ class FormatterUtils {
             border: attributedText.border,
           ),
           child: attributedText.onTap != null
-              ? InkWell(
-                  onTap: () async {
+              ? GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
                     // Add safety check for substring operation
                     if (attributedText.start >= 0 && 
                         attributedText.end <= text.length && 
@@ -454,6 +510,7 @@ class FormatterUtils {
         } else if (attributedText.onTap != null) {
           textSpan.add(WidgetSpan(
             child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
               onTap: () => attributedText.onTap!(displayText),
               child: Text(
                 displayText,

@@ -1,0 +1,42 @@
+{
+  "skill_name": "cometchat-contributor-rich-text",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "There's a bug where ordered list numbers don't renumber correctly when you delete a line in the middle. Which file do I fix this in?",
+      "expected_output": "The response must point to rich_text_editing_controller.dart and specifically the _renumberOrderedListLines method, NOT the clean architecture module.",
+      "files": [],
+      "assertions": [
+        "Points to chat_ui/src/message_composer/widgets/rich_text_toolbar/rich_text_editing_controller.dart",
+        "Identifies _renumberOrderedListLines or _maybeContinueLineFormat as the relevant methods",
+        "Does NOT point to shared_ui/src/rich_text_formatting/data/datasources/ordered_list_formatter_datasource.dart",
+        "Explains that the clean architecture module is not wired to the composer at runtime"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I need to add a new 'highlight' format type to the rich text toolbar. What files do I need to touch?",
+      "expected_output": "The response must list format_type.dart (shared), format_compatibility.dart (shared), rich_text_editing_controller.dart (WYSIWYG), and cometchat_message_composer.dart (toolbar dispatch).",
+      "files": [],
+      "assertions": [
+        "Lists format_type.dart for adding the new FormatType enum value",
+        "Lists format_compatibility.dart for defining which formats are compatible",
+        "Lists rich_text_editing_controller.dart for format application logic",
+        "Lists cometchat_message_composer.dart for toolbar button dispatch",
+        "Warns to run BOTH test suites since format_type.dart is shared"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I found a bold formatting bug and fixed it in shared_ui/src/formatter/rich_text/bold_text_formatter.dart. But the fix doesn't seem to work at runtime. What's going on?",
+      "expected_output": "The response must explain that bold_text_formatter.dart is in the deprecated legacy system that's never hit when the toolbar is enabled.",
+      "files": [],
+      "assertions": [
+        "Identifies that the file is in the deprecated legacy formatter system",
+        "Explains the runtime priority chain — WYSIWYG runs first, legacy is fallback only",
+        "Redirects to rich_text_editing_controller.dart for the actual fix",
+        "Mentions the @Deprecated annotation on RichTextFormatterManager"
+      ]
+    }
+  ]
+}

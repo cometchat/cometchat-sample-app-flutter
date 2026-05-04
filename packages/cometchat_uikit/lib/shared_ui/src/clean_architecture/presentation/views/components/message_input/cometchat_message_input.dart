@@ -341,7 +341,7 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
     final hintColor = colorPalette.textTertiary ?? Colors.grey;
 
     return Container(
-      constraints: const BoxConstraints(
+      constraints: BoxConstraints(
         maxHeight: 200, // Max height before scrolling
       ),
       decoration: BoxDecoration(

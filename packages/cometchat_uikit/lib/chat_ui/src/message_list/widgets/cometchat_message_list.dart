@@ -45,6 +45,7 @@ class CometChatMessageList extends StatefulWidget {
     this.templates,
     this.addTemplate,
     this.parentMessageId,
+    this.withParent = true,
     this.hideDeletedMessages = false,
     this.disableSoundForMessages = false,
     this.disableReceipts = false,
@@ -103,6 +104,7 @@ class CometChatMessageList extends StatefulWidget {
     this.hideMessagePrivatelyOption = false,
     this.hideReactionOption = false,
     this.hideReplyInThreadOption = false,
+    this.hideReplyOption = false,
     this.hideTranslateMessageOption = false,
     this.hideShareMessageOption = false,
     this.hideModerationView,
@@ -129,6 +131,7 @@ class CometChatMessageList extends StatefulWidget {
   final List<CometChatMessageTemplate>? templates;
   final List<CometChatMessageTemplate>? addTemplate;
   final int? parentMessageId;
+  final bool withParent;
   final bool hideDeletedMessages;
   final bool disableSoundForMessages;
   final bool disableReceipts;
@@ -187,6 +190,7 @@ class CometChatMessageList extends StatefulWidget {
   final bool? hideMessagePrivatelyOption;
   final bool? hideReactionOption;
   final bool? hideReplyInThreadOption;
+  final bool? hideReplyOption;
   final bool? hideTranslateMessageOption;
   final bool? hideShareMessageOption;
   final bool? hideModerationView;
@@ -220,7 +224,7 @@ class CometChatMessageList extends StatefulWidget {
 }
 
 class _CometChatMessageListState extends State<CometChatMessageList>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, CometChatUIEventListener {
   late MessageListBloc _messageListBloc;
   late AnimatedMessageListBloc _animatedBloc;
   bool _isExternalBloc = false;
@@ -246,17 +250,24 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   // Sticky date notifier for the floating date header
   final ValueNotifier<DateTime?> _stickyDateNotifier = ValueNotifier<DateTime?>(null);
 
-  // Jump-to-message shimmer overlay
+  // Shimmer overlay — covers the list during initial load, jump-to-message,
+  // and load-from-unread. Fades out smoothly via AnimatedOpacity.
   final ValueNotifier<bool> _isJumpingToMessage = ValueNotifier<bool>(false);
 
   // Highlighted message ID for glow effect after jump-to-message
   final ValueNotifier<int?> _highlightedMessageId = ValueNotifier<int?>(null);
   Timer? _highlightTimer;
 
+  // AI panel widget shown at the bottom of the message list
+  final ValueNotifier<Widget?> _bottomPanelWidget = ValueNotifier<Widget?>(null);
+  late final String _uiEventListenerId;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _uiEventListenerId = 'message_list_${DateTime.now().millisecondsSinceEpoch}';
+    CometChatUIEvents.addUiListener(_uiEventListenerId, this);
     _scrollController = widget.scrollController ?? ScrollController();
     _initializeBlocs();
     _initializeTemplates();
@@ -268,11 +279,24 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       _messageListBloc.add(JumpToMessage(messageId: widget.goToMessageId!));
       _waitForJumpTarget(widget.goToMessageId!);
     } else {
-      // Show shimmer overlay while loading from unread position
-      if (widget.startFromUnreadMessages && widget.parentMessageId == null) {
+      // For AI users with no active thread (fresh chat), skip loading messages
+      // entirely — show the empty state with AI greeting view.
+      // This matches v5 behavior: isUserAgentic() && threadMessageParentId == 0 → return
+      if (_isAIUser && widget.parentMessageId == null) {
+        _isJumpingToMessage.value = false;
+        // Emit empty state directly
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _messageListBloc.add(const ForceEmptyState());
+          }
+        });
+      } else {
+        // Always show shimmer overlay during initial load so the user sees
+        // a loading indicator instead of a blank screen while messages are
+        // fetched from the SDK.
         _isJumpingToMessage.value = true;
+        _loadMessages();
       }
-      _loadMessages();
     }
   }
 
@@ -324,10 +348,10 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       }
       List<String>? types;
       List<String>? categories;
-      if (widget.messagesRequestBuilder == null) {
-        categories = MessageTemplateUtils.getAllMessageCategories();
-        types = MessageTemplateUtils.getAllMessageTypes();
-      }
+      // Always provide types/categories so the BLoC can filter properly
+      // Even with custom request builders, we need the full list for real-time message filtering
+      categories = MessageTemplateUtils.getAllMessageCategories();
+      types = MessageTemplateUtils.getAllMessageTypes();
       _messageListBloc = MessageListBloc(
         user: widget.user,
         group: widget.group,
@@ -338,6 +362,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         disableSoundForMessages: widget.disableSoundForMessages,
         disableReceipts: widget.disableReceipts,
         hideReplies: widget.hideReplies,
+        withParent: widget.withParent,
       );
       _isExternalBloc = false;
     }
@@ -394,6 +419,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         case MessageOperationType.insert:
           if (op.message != null) {
             _animatedBloc.add(InsertMessage(op.message!, index: op.index, animated: op.animated));
+            // Trigger smart replies for incoming text messages
+            _checkForSmartReplies(op.message!);
           }
           break;
         case MessageOperationType.insertAll:
@@ -431,6 +458,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
 
   @override
   void dispose() {
+    CometChatUIEvents.removeUiListener(_uiEventListenerId);
     WidgetsBinding.instance.removeObserver(this);
     _operationsSubscription?.cancel();
     // Clear all audio states and release memory
@@ -443,10 +471,114 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     _isJumpingToMessage.dispose();
     _highlightTimer?.cancel();
     _highlightedMessageId.dispose();
+    _bottomPanelWidget.dispose();
     if (widget.scrollController == null) {
       _scrollController.dispose();
     }
     super.dispose();
+  }
+
+  // ============================================================
+  // UI Event Listener — showPanel / hidePanel for AI panels
+  // ============================================================
+
+  bool _isForThisWidget(Map<String, dynamic>? id) {
+    if (id == null) return false;
+    if (widget.user != null && id['uid'] == widget.user!.uid) return true;
+    if (widget.group != null && id['guid'] == widget.group!.guid) return true;
+    return false;
+  }
+
+  @override
+  void showPanel(Map<String, dynamic>? id, CustomUIPosition uiPosition,
+      WidgetBuilder child) {
+    if (!_isForThisWidget(id)) return;
+    if (uiPosition == CustomUIPosition.messageListBottom) {
+      _bottomPanelWidget.value = child(context);
+    }
+  }
+
+  @override
+  void hidePanel(Map<String, dynamic>? id, CustomUIPosition uiPosition) {
+    if (!_isForThisWidget(id)) return;
+    if (uiPosition == CustomUIPosition.messageListBottom) {
+      _bottomPanelWidget.value = null;
+    }
+  }
+
+  // ============================================================
+  // AI Feature Triggers
+  // ============================================================
+
+  /// Show conversation starters when the message list is empty.
+  void _showConversationStarters() {
+    if (widget.enableConversationStarters != true) return;
+    if (widget.parentMessageId != null) return; // Not in threads
+
+    final id = <String, dynamic>{};
+    if (widget.user != null) {
+      id['uid'] = widget.user!.uid;
+    } else if (widget.group != null) {
+      id['guid'] = widget.group!.guid;
+    }
+
+    CometChatUIEvents.showPanel(
+      id,
+      CustomUIPosition.messageListBottom,
+      (context) => CometChatAIConversationStarterView(
+        user: widget.user,
+        group: widget.group,
+      ),
+    );
+  }
+
+  /// Check if a received text message should trigger smart replies.
+  void _checkForSmartReplies(BaseMessage message) {
+    if (widget.enableSmartReplies != true) return;
+    if (message is! TextMessage) return;
+
+    // Don't show smart replies for own messages
+    final loggedInUid = _messageListBloc.state.loggedInUser?.uid;
+    if (message.sender?.uid == loggedInUid) return;
+
+    final keywords = widget.smartRepliesKeywords ?? [];
+    final delay = widget.smartRepliesDelayDuration ?? 10000;
+
+    // If keywords are specified, check if message contains any
+    if (keywords.isNotEmpty) {
+      final textLower = message.text.toLowerCase();
+      final hasKeyword = keywords.any(
+        (kw) => textLower.contains(kw.toLowerCase()),
+      );
+      if (!hasKeyword) return;
+    }
+
+    // Debounce: show smart replies after delay
+    Future.delayed(Duration(milliseconds: delay), () {
+      if (!mounted) return;
+
+      User? user;
+      Group? group;
+      if (message.receiverType == ReceiverTypeConstants.user) {
+        user = message.sender as User?;
+      } else {
+        group = message.receiver as Group?;
+      }
+
+      final id = <String, dynamic>{};
+      id[AIUtils.extensionKey] = AIFeatureConstants.aiSmartReplies;
+      if (user != null) id['uid'] = user.uid;
+      if (group != null) id['guid'] = group.guid;
+
+      CometChatUIEvents.showPanel(
+        id,
+        CustomUIPosition.messageListBottom,
+        (context) => CometChatAISmartRepliesView(
+          user: user,
+          group: group,
+        ),
+      );
+    });
   }
 
   @override
@@ -463,14 +595,43 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           border: _style.border,
           borderRadius: _style.borderRadius ?? BorderRadius.circular(0),
         ),
-        child: BlocConsumer<MessageListBloc, MessageListState>(
-          listener: _handleStateChanges,
-          listenWhen: (previous, current) =>
-              previous.status != current.status ||
-              (!previous.markedAsUnreadInSession && current.markedAsUnreadInSession),
-          // Only rebuild when status changes, not on every state update
-          buildWhen: (previous, current) => previous.status != current.status,
-          builder: (context, state) => _buildContent(context, state),
+        child: Stack(
+          children: [
+            // Main content — rebuilt by BlocConsumer on status changes
+            BlocConsumer<MessageListBloc, MessageListState>(
+              listener: _handleStateChanges,
+              listenWhen: (previous, current) =>
+                  previous.status != current.status ||
+                  (!previous.markedAsUnreadInSession && current.markedAsUnreadInSession),
+              // Only rebuild when status changes, not on every state update
+              buildWhen: (previous, current) => previous.status != current.status,
+              builder: (context, state) => _buildContent(context, state),
+            ),
+            // Shimmer overlay — lives OUTSIDE the BlocConsumer so it's never
+            // reconstructed by status rebuilds. This prevents the glitch where
+            // the shimmer animation restarts when buildWhen fires.
+            Positioned.fill(
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _isJumpingToMessage,
+                builder: (context, isJumping, child) {
+                  return IgnorePointer(
+                    ignoring: !isJumping,
+                    child: AnimatedOpacity(
+                      opacity: isJumping ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 300),
+                      child: child!,
+                    ),
+                  );
+                },
+                child: Container(
+                  color: _colorPalette.background3 ?? Colors.white,
+                  child: widget.loadingStateView != null
+                      ? Center(child: widget.loadingStateView!(context))
+                      : _buildJumpShimmer(),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -490,6 +651,17 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     if (state.status == MessageListStatus.empty && widget.onEmpty != null) {
       widget.onEmpty!();
     }
+    // Trigger conversation starters when the list is empty
+    if (state.status == MessageListStatus.empty) {
+      _showConversationStarters();
+    }
+    // Hide shimmer on empty or error — no content to wait for
+    if ((state.status == MessageListStatus.empty ||
+            state.status == MessageListStatus.error) &&
+        _isJumpingToMessage.value &&
+        mounted) {
+      _isJumpingToMessage.value = false;
+    }
     // When mark-as-unread succeeds, trigger a re-render of the animated list
     // so the "New Messages" indicator appears above the marked message.
     if (state.markedAsUnreadInSession && mounted) {
@@ -504,14 +676,30 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         mounted) {
       _scrollToMessageAfterLayout(state.unreadMessageAnchorId!);
     }
-    // If LoadFromUnread fell back to normal load (no anchor), hide shimmer
-    // But NOT when goToMessageId is set — _waitForJumpTarget handles that
+    // Hide shimmer overlay when messages finish loading.
+    // Skip when goToMessageId is set — _waitForJumpTarget handles that.
     if (state.status == MessageListStatus.loaded &&
-        state.unreadMessageAnchorId == null &&
         widget.goToMessageId == null &&
         _isJumpingToMessage.value &&
         mounted) {
-      _isJumpingToMessage.value = false;
+      // For unread loads with an anchor, _scrollToMessageAfterLayout will
+      // hide the shimmer after scrolling. For normal loads, wait one frame
+      // so the animated list fully paints before the shimmer fades out.
+      if (state.unreadMessageAnchorId == null || state.markedAsUnreadInSession) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          // Wait one more frame for SliverSpacing and layout to settle
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              // Ensure we're at the bottom after a refresh
+              if (_scrollController.hasClients && _scrollController.offset != 0) {
+                _scrollController.jumpTo(0);
+              }
+              _isJumpingToMessage.value = false;
+            }
+          });
+        });
+      }
     }
   }
 
@@ -535,17 +723,17 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   /// If the list already has the latest messages (hasMoreNewer == false),
   /// just scroll to offset 0. Otherwise, refresh to load from the latest.
   void _handleScrollToBottomTap() {
+    // Clear the "New Messages" indicator — user is scrolling to bottom
+    _messageListBloc.add(const ResetUnreadState());
+
     if (_messageListBloc.state.hasMoreNewer) {
-      // List doesn't have the latest messages — refresh from the latest
+      // List doesn't have the latest messages — show shimmer and refresh
+      _isJumpingToMessage.value = true;
       _messageListBloc.add(const RefreshMessages());
     } else {
-      // List has the latest messages — just scroll to bottom
+      // List has the latest messages — jump directly to bottom (no animation)
       if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.linearToEaseOut,
-        );
+        _scrollController.jumpTo(0);
       }
     }
   }
@@ -554,11 +742,11 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     switch (state.status) {
       case MessageListStatus.initial:
       case MessageListStatus.loading:
-        // When jumping to a message, show shimmer instead of circular loader
-        if (widget.goToMessageId != null) {
-          return _buildJumpShimmer();
-        }
-        return _buildLoadingState(context);
+        // Build the message list content underneath the shimmer overlay.
+        // The overlay (controlled by _isJumpingToMessage) provides the
+        // visual loading state and fades out smoothly when messages arrive.
+        // This avoids the jarring instant-swap from shimmer to content.
+        return _buildMessageListContent(context, state);
       case MessageListStatus.empty:
         return _buildEmptyState(context);
       case MessageListStatus.error:
@@ -568,21 +756,151 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     }
   }
 
-  Widget _buildLoadingState(BuildContext context) {
-    if (widget.loadingStateView != null) {
-      return Center(child: widget.loadingStateView!(context));
-    }
-    return _buildJumpShimmer();
-  }
-
   Widget _buildEmptyState(BuildContext context) {
     if (widget.emptyChatGreetingView != null) {
       return Center(child: widget.emptyChatGreetingView!(context));
+    }
+    // AI user greeting: avatar + greeting message + suggested messages from user metadata
+    if (_isAIUser) {
+      return _buildAIGreetingView();
     }
     if (widget.emptyStateView != null) {
       return Center(child: widget.emptyStateView!(context));
     }
     return const SizedBox(width: double.infinity);
+  }
+
+  /// Whether the current user is an AI agent.
+  bool get _isAIUser =>
+      widget.user?.role == 'ai' || widget.user?.role == AIConstants.aiRole;
+
+  /// Builds the AI greeting view matching v5 pattern:
+  /// Avatar + greeting message + introductory message + suggested message chips.
+  /// Data comes from user.metadata fields set on the CometChat dashboard.
+  Widget _buildAIGreetingView() {
+    final user = widget.user;
+    final greetingMessage =
+        user?.metadata?[AIConstants.greetingMessage]?.toString() ??
+            user?.name ??
+            '';
+    final introMessage =
+        user?.metadata?[AIConstants.introductoryMessage]?.toString() ?? '';
+    final suggestedMessages = List<String>.from(
+        user?.metadata?[AIConstants.suggestedMessages] ?? []);
+
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(_spacing.padding3 ?? 12),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 60,
+                height: 60,
+                child: CometChatAvatar(
+                  image: user?.avatar,
+                  name: user?.name,
+                ),
+              ),
+              SizedBox(height: _spacing.spacing5 ?? 20),
+              if (greetingMessage.isNotEmpty)
+                Text(
+                  greetingMessage,
+                  style: TextStyle(
+                    fontSize: _typography.heading4?.medium?.fontSize,
+                    fontWeight: _typography.heading4?.medium?.fontWeight,
+                    color: _colorPalette.textPrimary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              if (introMessage.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(top: _spacing.padding1 ?? 4),
+                  child: Text(
+                    introMessage,
+                    style: TextStyle(
+                      fontSize: _typography.body?.regular?.fontSize,
+                      fontWeight: _typography.body?.regular?.fontWeight,
+                      color: _colorPalette.textTertiary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              SizedBox(height: _spacing.spacing5 ?? 20),
+              if (suggestedMessages.isNotEmpty &&
+                  widget.hideSuggestedMessages != true)
+                Wrap(
+                  spacing: _spacing.spacing2 ?? 8,
+                  runSpacing: _spacing.spacing2 ?? 8,
+                  alignment: WrapAlignment.center,
+                  children: suggestedMessages.map((msg) {
+                    return Material(
+                      color: Colors.transparent,
+                      borderRadius:
+                          BorderRadius.circular(_spacing.radiusMax ?? 20),
+                      child: InkWell(
+                        borderRadius:
+                            BorderRadius.circular(_spacing.radiusMax ?? 20),
+                        onTap: () {
+                          CometChatUIEvents.ccComposeMessage(
+                            msg,
+                            MessageEditStatus.inProgress,
+                          );
+                        },
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            color: _colorPalette.background1,
+                            borderRadius: BorderRadius.circular(
+                                _spacing.radiusMax ?? 20),
+                            border: Border.all(
+                              color: _colorPalette.borderDefault ??
+                                  Colors.transparent,
+                              width: 1,
+                            ),
+                          ),
+                          padding: EdgeInsets.only(
+                            top: _spacing.padding2 ?? 8,
+                            bottom: _spacing.padding2 ?? 8,
+                            left: _spacing.padding4 ?? 16,
+                            right: _spacing.padding3 ?? 12,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  msg,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize:
+                                        _typography.body?.regular?.fontSize,
+                                    fontWeight:
+                                        _typography.body?.regular?.fontWeight,
+                                    color: _colorPalette.textSecondary,
+                                  ),
+                                  softWrap: true,
+                                ),
+                              ),
+                              SizedBox(width: _spacing.spacing2 ?? 8),
+                              Icon(
+                                Icons.arrow_forward_outlined,
+                                size: 16,
+                                color: _colorPalette.iconSecondary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildErrorState(BuildContext context, String? errorMessage) {
@@ -635,7 +953,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
                     : ScrollViewKeyboardDismissBehavior.manual,
                 findMessageIndex: _messageListBloc.findMessageIndex,
                 loggedInUserId: _messageListBloc.state.loggedInUser?.uid,
-                onTopVisibleDateChanged: widget.hideStickyDate == true
+                onTopVisibleDateChanged: (widget.hideStickyDate == true || _isAIUser)
                     ? null
                     : (date) {
                         _stickyDateNotifier.value = date;
@@ -659,32 +977,13 @@ class _CometChatMessageListState extends State<CometChatMessageList>
                   );
                 },
                 onScrollToBottomTap: _handleScrollToBottomTap,
+                hasMoreNewer: _messageListBloc.state.hasMoreNewer,
               ),
-              // Sticky date header
-              if (widget.hideStickyDate != true)
+              // Sticky date header — hidden for AI users
+              if (widget.hideStickyDate != true && !_isAIUser)
                 _buildStickyDateHeader(),
-              // Shimmer overlay during jump-to-message (fades out smoothly)
-              Positioned.fill(
-          child: ValueListenableBuilder<bool>(
-            valueListenable: _isJumpingToMessage,
-            builder: (context, isJumping, child) {
-              return IgnorePointer(
-                ignoring: !isJumping,
-                child: AnimatedOpacity(
-                  opacity: isJumping ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: child!,
-                ),
-              );
-            },
-            child: Container(
-              color: _colorPalette.background3 ?? Colors.white,
-              child: _buildJumpShimmer(),
-            ),
+            ],
           ),
-        ),
-      ],
-    ),
         ),
         // Footer view
         if (widget.footerView != null)
@@ -694,6 +993,14 @@ class _CometChatMessageListState extends State<CometChatMessageList>
             group: widget.group,
             parentMessageId: widget.parentMessageId,
           ) ?? const SizedBox.shrink(),
+        // AI bottom panel (smart replies, conversation starters, etc.)
+        ValueListenableBuilder<Widget?>(
+          valueListenable: _bottomPanelWidget,
+          builder: (context, panel, _) {
+            if (panel == null) return const SizedBox.shrink();
+            return panel;
+          },
+        ),
       ],
     );
   }
@@ -788,11 +1095,25 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     final isOutgoing = message.sender?.uid == _messageListBloc.state.loggedInUser?.uid;
     final bool isCenterAligned = message.category == MessageCategoryConstants.action ||
         message.category == MessageCategoryConstants.call;
-    final alignment = isCenterAligned
-        ? BubbleAlignment.center
-        : isOutgoing
-            ? BubbleAlignment.right
-            : BubbleAlignment.left;
+
+    // Agentic messages: AI assistant responses are always left-aligned (incoming)
+    // Tool result/arguments messages are hidden
+    BubbleAlignment alignment;
+    if (message.category == CometChatMessageCategory.categoryAgentic &&
+        (message.type == CometChatMessageType.toolResult ||
+            message.type == CometChatMessageType.toolArguments)) {
+      return const SizedBox.shrink(); // Hide tool messages
+    } else if (message.category == CometChatMessageCategory.categoryAgentic &&
+        message.type == CometChatMessageType.assistant) {
+      alignment = BubbleAlignment.left; // AI responses always left
+    } else if (message.category == CometChatMessageCategory.streamMessage &&
+        message.type == CometChatMessageType.runStarted) {
+      alignment = BubbleAlignment.left; // Stream bubbles always left
+    } else if (isCenterAligned) {
+      alignment = BubbleAlignment.center;
+    } else {
+      alignment = isOutgoing ? BubbleAlignment.right : BubbleAlignment.left;
+    }
 
     // Use cached bubble styles instead of expensive lookups
     final outgoingMessageBubbleStyle = _cachedOutgoingStyle;
@@ -810,6 +1131,14 @@ class _CometChatMessageListState extends State<CometChatMessageList>
 
     Color? backgroundColor = bubbleStyleData?.backgroundColor;
 
+    // AI assistant messages have transparent background (no bubble)
+    final isAgenticMessage =
+        message.category == CometChatMessageCategory.categoryAgentic ||
+        message.category == CometChatMessageCategory.streamMessage;
+    if (isAgenticMessage) {
+      backgroundColor = _colorPalette.transparent;
+    }
+
     // Sticker messages with a reply need a solid background so the reply
     // text (white for outgoing) is visible against the sticker's normally
     // transparent background.
@@ -822,16 +1151,41 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           : (_colorPalette.neutral300 ?? _colorPalette.background2);
     }
 
+    // Detect emoji-only messages for WhatsApp-style scaled rendering
+    int emojiCount = 0;
+    if (message is TextMessage &&
+        message.deletedAt == null &&
+        message.quotedMessage == null) {
+      emojiCount = EmojiUtils.emojiOnlyCount(message.text);
+      if (emojiCount > 0 && emojiCount <= EmojiUtils.maxScaledCount) {
+        backgroundColor = _colorPalette.transparent;
+      } else {
+        emojiCount = 0; // Reset — render as normal text
+      }
+    }
+
     // Check if template has custom bubbleView
     final templateKey = '${message.category}_${message.type}';
     final template = _templateMap[templateKey];
 
     Widget bubbleView;
+    Widget overlayBubbleView;
     if (message.deletedAt == null && template?.bubbleView != null) {
       bubbleView = template!.bubbleView!(message, context, alignment) ?? const SizedBox();
+      overlayBubbleView = bubbleView; // Custom bubbleView — use as-is for overlay
     } else {
       // Build content view from template
-      Widget? contentView = _getContentView(message, context, backgroundColor, alignment);
+      Widget? contentView;
+      if (emojiCount > 0 && message is TextMessage) {
+        // Emoji-only: render scaled emoji bubble directly, skip formatters/link preview
+        contentView = CometChatTextBubble(
+          text: message.text,
+          alignment: alignment,
+          emojiCount: emojiCount,
+        );
+      } else {
+        contentView = _getContentView(message, context, backgroundColor, alignment);
+      }
 
       final bool isDeleted = message.deletedAt != null;
 
@@ -841,21 +1195,26 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         headerView = _getHeaderView(message, bubbleStyleData);
       }
 
-      // Build leading view (avatar) — only in group chats
+      // Build leading view (avatar) — in group chats or for AI assistant messages
       Widget? leadingView;
-      if (!isCenterAligned && !isOutgoing && widget.avatarVisibility == true && widget.group != null) {
+      final showAvatarForAI = _isAIUser &&
+          !isOutgoing &&
+          (message.category == CometChatMessageCategory.categoryAgentic ||
+           message.category == CometChatMessageCategory.streamMessage);
+      if (!isCenterAligned && !isOutgoing && widget.avatarVisibility == true &&
+          (widget.group != null || showAvatarForAI)) {
         leadingView = _getAvatar(message.sender, bubbleStyleData?.messageBubbleAvatarStyle);
       }
 
-      // Build footer view (timestamp, receipts) — skip for center-aligned messages
+      // Build footer view (timestamp, receipts) — skip for center-aligned and agentic messages
       Widget? footerView;
-      if (!isCenterAligned) {
+      if (!isCenterAligned && !isAgenticMessage) {
         footerView = _getFooterView(message, alignment, bubbleStyleData);
       }
 
-      // Build status info view — skip for center-aligned messages
+      // Build status info view — skip for center-aligned and agentic messages
       Widget? statusInfoView;
-      if (!isCenterAligned) {
+      if (!isCenterAligned && !isAgenticMessage) {
         statusInfoView = _getStatusInfoView(message, alignment, bubbleStyleData);
       }
 
@@ -875,9 +1234,10 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         style: CometChatMessageBubbleStyle(
           backgroundColor: backgroundColor,
           backgroundImage: isDeleted ? null : bubbleStyleData?.messageBubbleBackgroundImage,
-          border: bubbleStyleData?.border,
+          border: emojiCount > 0 ? null : bubbleStyleData?.border,
           borderRadius: bubbleStyleData?.borderRadius,
         ),
+        contentPadding: emojiCount > 0 ? EdgeInsets.zero : null,
         alignment: alignment,
         headerView: headerView,
         replyView: isDeleted ? null : _getReplyView(message, alignment),
@@ -885,15 +1245,22 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         footerView: footerView,
         leadingView: leadingView,
         statusInfoView: statusInfoView,
-        threadView: !isDeleted && widget.hideThreadView != true
+        threadView: !isDeleted && widget.hideThreadView != true && !_isAIUser
             ? _getThreadView(message, alignment, bubbleStyleData)
             : null,
       );
+
+      // Build a separate content view for the overlay to avoid sharing widget instances
+      // (Flutter can't render the same widget instance in two places simultaneously)
+      // NOTE: Built lazily in _showMessageActions to avoid shared formatter mutation
+      // (building all overlay views eagerly overwrites formatter.message for each message)
+      // Pass null for now — _showMessageActions will build the overlay bubble on demand
+      overlayBubbleView = const SizedBox(); // Placeholder — replaced lazily in _showMessageActions
     }
 
-    // Date separator logic
+    // Date separator logic — hidden for AI users (matches v5 behavior)
     Widget? dateSeparator;
-    if (widget.hideDateSeparator != true) {
+    if (widget.hideDateSeparator != true && !_isAIUser) {
       final messageDate = message.sentAt ?? message.updatedAt;
       if (messageDate != null) {
         bool showSeparator = false;
@@ -903,7 +1270,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         } else {
           // Compare with previous message's date
           final messages = _animatedBloc.state.messages;
-          if (index < messages.length) {
+          if (index > 0 && index < messages.length) {
             final prevMessage = messages[index - 1];
             final prevDate = prevMessage.sentAt ?? prevMessage.updatedAt;
             if (prevDate == null ||
@@ -971,6 +1338,16 @@ class _CometChatMessageListState extends State<CometChatMessageList>
             },
             child: GestureDetector(
             onLongPress: () {
+              // Don't show actions for AI messages
+              if (_isAIUser) return;
+
+              // Don't show actions for action messages (deletes, timestamps),
+              // call messages (1-on-1), and group call/meeting messages (custom+meeting)
+              if (message.category == MessageCategoryConstants.action ||
+                  message.category == MessageCategoryConstants.call ||
+                  (message.category == MessageCategoryConstants.custom &&
+                      message.type == MessageTypeConstants.meeting)) return;
+              
               // Measure the actual bubble size using the GlobalKey
               Size? bubbleSize;
               bool isFullyVisible = false;
@@ -997,7 +1374,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
               // Only pass heroTag if bubble is fully visible, otherwise pass null
               _showMessageActions(
                 message, 
-                bubbleView, 
+                overlayBubbleView, 
                 alignment, 
                 isFullyVisible ? heroTag : null, 
                 bubbleSize,
@@ -1014,36 +1391,10 @@ class _CometChatMessageListState extends State<CometChatMessageList>
                 // heroTag is set to the actual tag only when fully visible, null otherwise
                 Builder(
                   builder: (context) {
-                    final bubbleWidget = Material(
+                    return Material(
                       key: bubbleKey,
                       color: Colors.transparent,
                       child: bubbleView,
-                    );
-                    
-                    // Hero is always present but tag changes based on visibility
-                    // When not fully visible, we use a unique non-matching tag
-                    return Hero(
-                      tag: heroTag,
-                      flightShuttleBuilder: (
-                        BuildContext flightContext,
-                        Animation<double> animation,
-                        HeroFlightDirection flightDirection,
-                        BuildContext fromHeroContext,
-                        BuildContext toHeroContext,
-                      ) {
-                        return OverflowBox(
-                          alignment: Alignment.center,
-                          minWidth: 0,
-                          minHeight: 0,
-                          maxWidth: double.infinity,
-                          maxHeight: double.infinity,
-                          child: Material(
-                            color: Colors.transparent,
-                            child: bubbleView,
-                          ),
-                        );
-                      },
-                      child: bubbleWidget,
                     );
                   },
                 ),
@@ -1175,7 +1526,12 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     final BaseMessage? quoted = message.quotedMessage;
     if (quoted == null) return null;
 
-    final String title = quoted.sender?.name ?? '';
+    // Check if the quoted message has been deleted
+    final bool isQuotedDeleted = quoted.deletedAt != null;
+
+    final String title = isQuotedDeleted
+        ? ''
+        : (quoted.sender?.name ?? '');
     final String type = quoted.type;
 
     // For stickers, show a thumbnail image inside the reply bubble
@@ -1185,16 +1541,18 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       stickerUrl = quoted.customData?['sticker_url'] as String?;
     }
 
-    final String subtitle = type == MessageTypeConstants.text
-        ? ConversationUtils.stripMarkdownSyntax(
-            (quoted is TextMessage) ? quoted.text : '')
-        : isSticker
-            ? Translations.of(context).customMessageSticker
-            : _getReplySubtitleForType(type, context);
+    final String subtitle = isQuotedDeleted
+        ? Translations.of(context).thisMessageDeleted
+        : type == MessageTypeConstants.text
+            ? ConversationUtils.stripMarkdownSyntax(
+                (quoted is TextMessage) ? quoted.text : '')
+            : isSticker
+                ? Translations.of(context).customMessageSticker
+                : _getReplySubtitleForType(type, context);
 
     // Build a formatted single-line RichText for text message reply previews
     Widget? formattedSubtitleWidget;
-    if (type == MessageTypeConstants.text && quoted is TextMessage) {
+    if (!isQuotedDeleted && type == MessageTypeConstants.text && quoted is TextMessage) {
       final rawText = quoted.text;
       final formatters = FormatterUtils.ensureMarkdownFormatter(widget.textFormatters);
       final isOutgoing = alignment == BubbleAlignment.right;
@@ -1312,11 +1670,11 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       return;
     }
 
-    // Message exists in list — smooth animated scroll (no shimmer needed)
+    // Message exists in list — scroll to it (no shimmer needed)
     await _animatedBloc.scrollToMessage(
       messageId,
       alignment: 0.0,
-      duration: const Duration(milliseconds: 300),
+      duration: Duration.zero,
     );
     _triggerHighlight(messageId);
   }
@@ -1338,15 +1696,21 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       }
       final success = await _animatedBloc.scrollToMessage(
         messageId,
-        alignment: 0.0,
+        alignment: 0.1,
         duration: Duration.zero,
       );
       if (!success && mounted) {
         _scrollToMessageAfterLayout(messageId, framesWaited + 1);
       } else if (mounted) {
-        // Scroll succeeded — hide shimmer and highlight the target message
-        _isJumpingToMessage.value = false;
-        _triggerHighlight(messageId);
+        // Scroll succeeded — wait one more frame so the animated list fully
+        // paints the messages before the shimmer starts fading. Without this,
+        // the empty state or partially-rendered messages flash through the
+        // semi-transparent shimmer during the 300ms fade-out.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _isJumpingToMessage.value = false;
+          _triggerHighlight(messageId);
+        });
       }
     });
   }
@@ -1420,6 +1784,58 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     );
   }
 
+  /// Build content view for the overlay with fresh formatters that have message set.
+  /// This ensures mention resolution works (<@uid:123> → @Username) even when
+  /// widget.additionalConfigurations is provided without message-bound formatters.
+  Widget? _getOverlayContentView(
+    BaseMessage message,
+    BuildContext context,
+    Color? backgroundColor,
+    BubbleAlignment alignment,
+  ) {
+    if (message.deletedAt != null) {
+      return MessageTemplateUtils.getDeleteMessageBubble(
+        message,
+        context,
+        widget.additionalConfigurations?.deletedBubbleStyle,
+      );
+    }
+
+    final templateKey = '${message.category}_${message.type}';
+    final template = _templateMap[templateKey];
+
+    if (template?.contentView != null) {
+      // Always create fresh formatters with message set for the overlay
+      final formatters = widget.textFormatters?.map((f) => f).toList() ??
+          MessageTemplateUtils.getDefaultTextFormatters();
+      if (message is TextMessage) {
+        for (final formatter in formatters) {
+          formatter.message = message;
+        }
+      }
+      final configurations = AdditionalConfigurations(
+        textFormatters: formatters,
+        textBubbleStyle: widget.additionalConfigurations?.textBubbleStyle,
+        linkPreviewBubbleStyle: widget.additionalConfigurations?.linkPreviewBubbleStyle,
+        deletedBubbleStyle: widget.additionalConfigurations?.deletedBubbleStyle,
+        showMarkAsUnreadOption: widget.showMarkAsUnreadOption,
+      );
+      return template!.contentView!(message, context, alignment,
+          additionalConfigurations: configurations);
+    }
+
+    if (message is TextMessage) {
+      return _buildTextContent(message, alignment);
+    } else if (message is MediaMessage) {
+      return _buildMediaContent(message, alignment);
+    }
+
+    return Text(
+      '[${message.type}]',
+      style: TextStyle(color: _colorPalette.textPrimary),
+    );
+  }
+
   /// Build text message content
   Widget _buildTextContent(TextMessage message, BubbleAlignment alignment) {
     final isOutgoing = alignment == BubbleAlignment.right;
@@ -1447,8 +1863,28 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           metadata: message.metadata,
         );
       case MessageTypeConstants.video:
+        // Extract thumbnail URL from extension metadata
+        String? videoThumbnailUrl;
+        if (message.metadata != null) {
+          final injected = message.metadata?["@injected"];
+          if (injected != null && injected is Map && injected.containsKey("extensions")) {
+            final extensions = injected["extensions"];
+            if (extensions is Map && extensions.containsKey("thumbnail-generation")) {
+              final thumbnailData = extensions["thumbnail-generation"];
+              if (thumbnailData is Map) {
+                videoThumbnailUrl = thumbnailData["url_small"] as String? ??
+                    thumbnailData["url_medium"] as String? ??
+                    thumbnailData["url_large"] as String?;
+              }
+            }
+          }
+          // Fallback to simple metadata key
+          videoThumbnailUrl ??= message.metadata?["thumbnail"] as String?;
+        }
         return CometChatVideoBubble(
           videoUrl: message.attachment?.fileUrl,
+          thumbnailUrl: videoThumbnailUrl,
+          metadata: message.metadata,
           style: alignment == BubbleAlignment.right
               ? _style.outgoingMessageBubbleStyle?.videoBubbleStyle
               : _style.incomingMessageBubbleStyle?.videoBubbleStyle,
@@ -1753,6 +2189,114 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     return '$hour12:$minute $period';
   }
 
+  /// Build overlay bubble lazily with fresh formatters that have message set.
+  /// This avoids the shared formatter mutation issue where building overlay
+  /// content eagerly during list build overwrites formatter.message for each message.
+  Widget _buildOverlayBubble(BaseMessage message, BubbleAlignment alignment) {
+    final templateKey = '${message.category}_${message.type}';
+    final template = _templateMap[templateKey];
+
+    // If template has custom bubbleView, use it directly
+    if (message.deletedAt == null && template?.bubbleView != null) {
+      return template!.bubbleView!(message, context, alignment) ?? const SizedBox();
+    }
+
+    // Determine bubble style data (same as list build)
+    final isOutgoing = alignment == BubbleAlignment.right;
+    final bubbleStyleData = BubbleUIBuilder.getBubbleStyle(
+      message,
+      _cachedOutgoingStyle,
+      _cachedIncomingStyle,
+      _colorPalette,
+      _typography,
+      _spacing,
+    );
+
+    Color? backgroundColor = bubbleStyleData?.backgroundColor;
+
+    final bool isStickerWithReply = message.category == MessageCategoryConstants.custom &&
+        message.type == ExtensionType.sticker &&
+        message.quotedMessage != null;
+    if (isStickerWithReply) {
+      backgroundColor = isOutgoing
+          ? _colorPalette.primary
+          : (_colorPalette.neutral300 ?? _colorPalette.background2);
+    }
+
+    final bool isDeleted = message.deletedAt != null;
+    final bool isCenterAligned = alignment == BubbleAlignment.center;
+
+    // Detect emoji-only messages (same logic as list build)
+    int emojiCount = 0;
+    if (message is TextMessage &&
+        message.deletedAt == null &&
+        message.quotedMessage == null) {
+      emojiCount = EmojiUtils.emojiOnlyCount(message.text);
+      if (emojiCount > 0 && emojiCount <= EmojiUtils.maxScaledCount) {
+        backgroundColor = _colorPalette.transparent;
+      } else {
+        emojiCount = 0;
+      }
+    }
+
+    // Build content view with fresh formatters
+    Widget? contentView;
+    if (emojiCount > 0 && message is TextMessage) {
+      contentView = CometChatTextBubble(
+        text: message.text,
+        alignment: alignment,
+        emojiCount: emojiCount,
+      );
+    } else {
+      contentView = _getOverlayContentView(message, context, backgroundColor, alignment);
+    }
+
+    Widget? finalContentView = contentView;
+    if (isStickerWithReply && contentView != null) {
+      finalContentView = Align(
+        alignment: Alignment.center,
+        child: contentView,
+      );
+    }
+
+    // Build header view (sender name for group messages)
+    Widget? headerView;
+    if (!isDeleted && !isCenterAligned && !isOutgoing && widget.group != null) {
+      headerView = _getHeaderView(message, bubbleStyleData);
+    }
+
+    // Build footer view
+    Widget? footerView;
+    if (!isCenterAligned) {
+      footerView = _getFooterView(message, alignment, bubbleStyleData);
+    }
+
+    // Build status info view
+    Widget? statusInfoView;
+    if (!isCenterAligned) {
+      statusInfoView = _getStatusInfoView(message, alignment, bubbleStyleData);
+    }
+
+    return CometChatMessageBubble(
+      style: CometChatMessageBubbleStyle(
+        backgroundColor: backgroundColor,
+        backgroundImage: isDeleted ? null : bubbleStyleData?.messageBubbleBackgroundImage,
+        border: emojiCount > 0 ? null : bubbleStyleData?.border,
+        borderRadius: bubbleStyleData?.borderRadius,
+      ),
+      contentPadding: emojiCount > 0 ? EdgeInsets.zero : null,
+      alignment: alignment,
+      headerView: headerView,
+      replyView: isDeleted ? null : _getReplyView(message, alignment),
+      contentView: finalContentView,
+      footerView: footerView,
+      statusInfoView: statusInfoView,
+      threadView: !isDeleted && widget.hideThreadView != true && !_isAIUser
+          ? _getThreadView(message, alignment, bubbleStyleData)
+          : null,
+    );
+  }
+
   /// Show message action overlay on long press
   Future<void> _showMessageActions(
     BaseMessage message,
@@ -1763,6 +2307,11 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   ) async {
     // Don't show actions for deleted messages
     if (message.deletedAt != null) return;
+
+    // Build the overlay bubble lazily to avoid shared formatter mutation.
+    // When built eagerly during list build, formatter.message gets overwritten
+    // by each subsequent message, breaking mention resolution.
+    final overlayBubble = _buildOverlayBubble(message, alignment);
 
     // Unfocus the current focus (e.g. composer text field) before pushing the overlay.
     // This prevents Flutter from restoring focus to the text field when the overlay
@@ -1787,6 +2336,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
               hideMessageInfoOption: widget.hideMessageInfoOption,
               hideMessagePrivatelyOption: widget.hideMessagePrivatelyOption,
               hideReplyInThreadOption: widget.hideReplyInThreadOption,
+              hideReplyOption: widget.hideReplyOption,
               hideShareMessageOption: widget.hideShareMessageOption,
               hideReactionOption: widget.hideReactionOption,
               hideTranslateMessageOption: widget.hideTranslateMessageOption,
@@ -1806,7 +2356,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     final result = await showMessageActionOverlay(
       context: context,
       message: message,
-      bubbleWidget: bubbleWidget,
+      bubbleWidget: overlayBubble,
       actionItems: actionItems,
       bubbleAlignment: alignment,
       heroTag: heroTag,
@@ -1866,6 +2416,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         case MessageOptionConstants.replyInThreadMessage:
           debugPrint('[MessageList] replyInThreadMessage filter: hideReplyInThreadOption=${widget.hideReplyInThreadOption}');
           return widget.hideReplyInThreadOption != true;
+        case MessageOptionConstants.replyMessage:
+          return widget.hideReplyOption != true;
         case MessageOptionConstants.shareMessage:
           return widget.hideShareMessageOption != true;
         case MessageOptionConstants.markAsUnread:
@@ -1893,6 +2445,13 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         ),
         onItemClick: () {
           debugPrint('[MessageList] Option clicked: ${option.id}');
+          // Handle inline reply option
+          if (option.id == MessageOptionConstants.replyMessage) {
+            debugPrint('[MessageList] Inline reply clicked for message id=${message.id}');
+            CometChatMessageEvents.ccReplyToMessage(message);
+            return;
+          }
+          
           // Handle reply in thread option specially
           if (option.id == MessageOptionConstants.replyInThreadMessage) {
             debugPrint('[MessageList] Reply in thread clicked, onThreadRepliesClick: ${widget.onThreadRepliesClick != null}, mounted: $mounted');
@@ -1972,38 +2531,48 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   }
 
   /// Handle share message action
-  void _handleShareMessage(BaseMessage message) {
+  Future<void> _handleShareMessage(BaseMessage message) async {
     String textToShare = '';
     String? fileUrl;
-    String? mimeType;
-    String? mediaName;
     
     if (message is TextMessage) {
       textToShare = message.text;
     } else if (message is MediaMessage) {
       fileUrl = message.attachment?.fileUrl;
-      mimeType = message.attachment?.fileMimeType;
-      mediaName = message.attachment?.fileName;
     }
     
     // Use platform share functionality via MethodChannel
     const channel = MethodChannel('cometchat_chat_uikit');
     try {
       if (message is TextMessage && textToShare.isNotEmpty) {
-        channel.invokeMethod('shareMessage', {
+        await channel.invokeMethod('shareMessage', {
           'type': 'text',
           'message': textToShare,
         });
       } else if (message is MediaMessage && fileUrl != null) {
-        channel.invokeMethod('shareMessage', {
-          'type': 'media',
-          'fileUrl': fileUrl,
-          'mimeType': mimeType ?? 'application/octet-stream',
-          'mediaName': mediaName ?? 'media',
+        // Share the media URL as text — native media download + share
+        // is unreliable across platforms (Android Glide only handles images,
+        // iOS only handles text). Sharing the URL is the most reliable approach.
+        await channel.invokeMethod('shareMessage', {
+          'type': 'text',
+          'message': fileUrl,
         });
       }
     } catch (e) {
       debugPrint('[MessageList] Share failed: $e');
+      // Fallback: copy to clipboard if share fails
+      final text = textToShare.isNotEmpty ? textToShare : (fileUrl ?? '');
+      if (text.isNotEmpty) {
+        Clipboard.setData(ClipboardData(text: text));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(Translations.of(context).copyText),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
     }
   }
 

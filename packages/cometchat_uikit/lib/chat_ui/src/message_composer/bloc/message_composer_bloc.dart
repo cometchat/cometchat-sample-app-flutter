@@ -12,7 +12,8 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
     with
         CometChatMessageEventListener,
         CometChatUIEventListener,
-        CometChatUserEventListener {
+        CometChatUserEventListener,
+        CometChatStreamCallbackListener {
   // ============================================================================
   // Use Cases
   // ============================================================================
@@ -127,6 +128,8 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
     on<HidePanel>(_onHidePanel);
     on<MessageEditedExternally>(_onMessageEditedExternally);
     on<ComposeMessageReceived>(_onComposeMessageReceived);
+    on<ClearComposeText>(_onClearComposeText);
+    on<SetStreamingState>(_onSetStreamingState);
     on<UserBlockedStatusChanged>(_onUserBlockedStatusChanged);
     on<StartAudioRecording>(_onStartAudioRecording);
     on<CancelAudioRecording>(_onCancelAudioRecording);
@@ -207,6 +210,7 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
     CometChatMessageEvents.addMessagesListener(_messageListenerKey, this);
     CometChatUIEvents.addUiListener(_uiEventListenerKey, this);
     CometChatUserEvents.addUsersListener(_userEventListenerKey, this);
+    CometChatStreamCallBackEvents.addStreamCallBackListener(_uiEventListenerKey, this);
   }
 
   // ============================================================================
@@ -765,6 +769,20 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
     emit(state.copyWith(composeText: event.text));
   }
 
+  void _onClearComposeText(
+    ClearComposeText event,
+    Emitter<MessageComposerState> emit,
+  ) {
+    emit(state.copyWith(composeText: ''));
+  }
+
+  void _onSetStreamingState(
+    SetStreamingState event,
+    Emitter<MessageComposerState> emit,
+  ) {
+    emit(state.copyWith(isActiveStreaming: event.isStreaming));
+  }
+
   void _onUserBlockedStatusChanged(
     UserBlockedStatusChanged event,
     Emitter<MessageComposerState> emit,
@@ -851,7 +869,12 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
             message.sender?.uid == state.user!.uid);
     final isForGroup = state.group != null &&
         message.receiverUid == state.group!.guid;
-    if (isForUser || isForGroup) {
+
+    // Also check parentMessageId so thread replies don't leak into the
+    // main conversation composer (and vice versa).
+    final isForSameThread = message.parentMessageId == state.parentMessageId;
+
+    if ((isForUser || isForGroup) && isForSameThread) {
       add(SetReplyMessage(message));
     }
   }
@@ -882,6 +905,29 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
   @override
   void ccComposeMessage(String text, MessageEditStatus status) {
     add(ComposeMessageReceived(text: text));
+  }
+
+  // ============================================================
+  // Stream Callback Overrides (AI streaming state)
+  // ============================================================
+
+  @override
+  void ccStreamInProgress(bool isInProgress) {
+    add(const SetStreamingState(isStreaming: true));
+  }
+
+  @override
+  void ccStreamCompleted(bool isCompleted) {
+    if (isCompleted) {
+      add(const SetStreamingState(isStreaming: false));
+    }
+  }
+
+  @override
+  void ccStreamInterrupted(bool isInterrupted) {
+    if (isInterrupted) {
+      add(const SetStreamingState(isStreaming: false));
+    }
   }
 
   @override
@@ -936,6 +982,7 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
     CometChatMessageEvents.removeMessagesListener(_messageListenerKey);
     CometChatUIEvents.removeUiListener(_uiEventListenerKey);
     CometChatUserEvents.removeUsersListener(_userEventListenerKey);
+    CometChatStreamCallBackEvents.removeStreamCallBackListener(_uiEventListenerKey);
 
     // Dispose typing notifier
     _typingNotifier.dispose();

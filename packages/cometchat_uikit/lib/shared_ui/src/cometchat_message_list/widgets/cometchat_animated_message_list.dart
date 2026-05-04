@@ -148,6 +148,11 @@ class CometChatAnimatedMessageList extends StatefulWidget {
   /// scroll or refresh accordingly.
   final VoidCallback? onScrollToBottomTap;
 
+  /// Whether there are more newer messages to fetch.
+  /// When true, the scroll-to-bottom button stays visible even at scroll offset 0
+  /// because the list doesn't contain the latest messages yet.
+  final bool hasMoreNewer;
+
   const CometChatAnimatedMessageList({
     super.key,
     required this.itemBuilder,
@@ -181,6 +186,7 @@ class CometChatAnimatedMessageList extends StatefulWidget {
     this.loggedInUserId,
     this.onTopVisibleDateChanged,
     this.onScrollToBottomTap,
+    this.hasMoreNewer = false,
   });
 
   @override
@@ -644,6 +650,17 @@ class _CometChatAnimatedMessageListState
         setState(() {
           _listKey = GlobalKey<SliverAnimatedListState>();
         });
+        // For reversed lists, jump to offset 0 (bottom/newest) after the
+        // list rebuilds. The scroll controller retains the old offset from
+        // when the user was scrolled up, which can land at the top (oldest)
+        // of the new shorter list.
+        if (widget.reversed) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && _scrollController.hasClients && _scrollController.offset != 0) {
+              _scrollController.jumpTo(0);
+            }
+          });
+        }
       }
       _triggerDateObservation();
       return;
@@ -738,6 +755,9 @@ class _CometChatAnimatedMessageListState
 
   /// Whether scroll-to-bottom button should be shown
   bool get _shouldShowScrollToBottomButton {
+    // Always show if the list doesn't have the latest messages
+    if (widget.hasMoreNewer) return true;
+    
     final scrollOffsetFromBottom = widget.reversed
         ? _scrollController.offset
         : _chatEndScrollPosition - _scrollController.offset;
@@ -1062,8 +1082,10 @@ class _CometChatAnimatedMessageListState
   /// Returns true if the scroll was initiated, false if context wasn't ready.
   ///
   /// [alignment] controls where the item appears in the viewport:
-  /// - 0.0 = bottom of viewport (leading edge in reversed list)
-  /// - 1.0 = top of viewport
+  /// [alignment] controls where the item appears in the viewport:
+  /// - 0.0 = leading edge (bottom in reversed list, top in normal list)
+  /// - Higher values push the item further from the leading edge
+  ///
   /// For reversed lists, the observer's native alignment doesn't respect the
   /// reversed direction, so we jump to alignment 0 then manually adjust offset.
   /// Both jumpTo calls execute in the same frame — no visible flicker.

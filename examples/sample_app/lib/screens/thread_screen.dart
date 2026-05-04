@@ -30,7 +30,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
 
     return Scaffold(
       backgroundColor: colorPalette.background1,
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: CometChatMessageHeader(
         user: widget.user,
         group: widget.group,
@@ -75,9 +75,10 @@ class _ThreadScreenState extends State<ThreadScreen> {
           ),
         ),
       ),
-      body: Container(
-        color: colorPalette.background3,
-        child: Column(
+      body: SafeArea(
+        child: Container(
+          color: colorPalette.background3,
+          child: Column(
           children: [
             CometChatThreadedHeader(
               parentMessage: widget.message,
@@ -100,6 +101,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                   group: widget.group,
                   parentMessageId: widget.message.id,
                   messagesRequestBuilder: requestBuilder,
+                  withParent: false,
                   textFormatters: [
                     CometChatMentionsFormatter(
                         user: widget.user, group: widget.group),
@@ -116,6 +118,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
               user: widget.user,
               group: widget.group,
               parentMessageId: widget.message.id,
+              resizeToAvoidBottomInset: true,
               textFormatters: [
                 CometChatMentionsFormatter(
                     user: widget.user, group: widget.group),
@@ -130,6 +133,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

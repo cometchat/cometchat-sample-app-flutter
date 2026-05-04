@@ -96,11 +96,10 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
 
   /// Initialize logged in user and register all SDK listeners
   Future<void> _initializeAndRegisterListeners() async {
-    final result = await getLoggedInUserUseCase();
-
-    if (result is Success<User?> && !isClosed) {
-      // Use add() to dispatch an internal event instead of calling emit directly
-      add(InitializeLoggedInUser(result.data));
+    // Use cached logged-in user from UIKit level (avoids redundant platform channel calls)
+    final cachedUser = CometChatUIKit.loggedInUser;
+    if (cachedUser != null && !isClosed) {
+      add(InitializeLoggedInUser(cachedUser));
     }
 
     // Skip SDK listeners if disabled

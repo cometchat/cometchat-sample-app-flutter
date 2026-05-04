@@ -42,6 +42,7 @@ class AudioRecorder (private val context: Context, private val activity: Activit
 
     private var audioManager: AudioManager? = null // AudioManager for managing audio focus
     private var hasAudioFocus = false // To track audio focus status
+    private var permissionPending = false // Track if permission dialog is showing
 
 //    private var timer: Timer? = null
 
@@ -102,6 +103,7 @@ class AudioRecorder (private val context: Context, private val activity: Activit
         // check permission method is used to check
         // that the user has granted permission
         // to record and store the audio.
+        permissionPending = false
         if (checkPermissions()) {
             // we are here initializing our filename variable
             // with the path of the recorded audio file.
@@ -153,10 +155,13 @@ class AudioRecorder (private val context: Context, private val activity: Activit
 //             ask for runtime permission for mic and storage.
 
             requestPermissions()
+            permissionPending = true
             Log.e("AudioRecorder","permission not granted for audio recording or write to external storage so request permission")
             return false
         }
     }
+
+    fun isPermissionPending(): Boolean = permissionPending
 
 
     private fun requestPermissions() {
@@ -164,9 +169,13 @@ class AudioRecorder (private val context: Context, private val activity: Activit
         // the permission for audio recording and storage.
         if (ContextCompat.checkSelfPermission(context, RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             Log.e("AudioRecorder","in requestPermissions permission not granted for audio recording so request permission")
-            ActivityCompat.requestPermissions(activity,  arrayOf<String>(RECORD_AUDIO), 101);
+            ActivityCompat.requestPermissions(activity,  arrayOf<String>(RECORD_AUDIO), REQ_AUDIO_RECORD);
         }
 
+    }
+
+    companion object {
+        const val REQ_AUDIO_RECORD = 101
     }
 
     private  fun checkPermissions(): Boolean {

@@ -81,6 +81,14 @@ class ConversationsTrailingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Hide trailing view (timestamp + unread) for AI agent conversations
+    if (conversation.conversationWith is User) {
+      final user = conversation.conversationWith as User;
+      if (user.role == AIConstants.aiRole || user.role == 'ai') {
+        return const SizedBox();
+      }
+    }
+
     return Padding(
       padding: EdgeInsets.only(
         left: spacing.padding2 ?? 0,
@@ -108,6 +116,7 @@ class ConversationsTrailingView extends StatelessWidget {
   Widget _getTime(BuildContext context) {
     DateTime? lastMessageTime =
         conversation.lastMessage?.updatedAt ?? conversation.lastMessage?.sentAt;
+    if (lastMessageTime == null) return const SizedBox();
 
     String? customDateString;
 

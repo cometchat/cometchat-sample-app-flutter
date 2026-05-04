@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' hide Action;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';

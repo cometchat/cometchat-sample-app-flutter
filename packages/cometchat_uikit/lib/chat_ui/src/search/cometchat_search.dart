@@ -464,7 +464,16 @@ class _CometChatSearchState extends State<CometChatSearch> {
     }
 
     return GestureDetector(
-      onTap: () => widget.onConversationClicked?.call(conversation),
+      onTap: () async {
+        widget.onConversationClicked?.call(conversation);
+        // After the user returns from the conversation, re-trigger the search
+        // to refresh results (e.g., unread filter should exclude now-read chats).
+        // Wait for the next frame to ensure navigation has completed.
+        await WidgetsBinding.instance.endOfFrame;
+        if (mounted && !_searchBloc.isClosed) {
+          _searchBloc.add(RefreshCurrentSearch());
+        }
+      },
       child: CometChatListItem(
         avatarHeight: 48,
         avatarWidth: 48,

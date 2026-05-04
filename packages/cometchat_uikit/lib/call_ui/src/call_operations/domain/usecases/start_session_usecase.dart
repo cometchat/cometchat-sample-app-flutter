@@ -3,15 +3,16 @@ import 'package:flutter/widgets.dart';
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/call_operations_repository.dart';
 
-/// Use case for starting a call session with a token and settings.
+/// Use case for starting a call session with a session ID and settings.
+/// The SDK generates the call token internally.
 class StartSessionUseCase {
   final CallOperationsRepository repository;
   const StartSessionUseCase(this.repository);
 
-  Future<Result<Widget>> call(String callToken, SessionSettings settings) async {
-    if (callToken.isEmpty) {
-      return const Failure(message: 'Call token is required', code: 'MISSING_CALL_TOKEN');
+  Future<Result<Widget>> call(String sessionId, SessionSettings settings) async {
+    if (sessionId.isEmpty) {
+      return const Failure(message: 'Session ID is required', code: 'MISSING_SESSION_ID');
     }
-    return repository.startSession(callToken, settings);
+    return repository.startSession(sessionId, settings);
   }
 }

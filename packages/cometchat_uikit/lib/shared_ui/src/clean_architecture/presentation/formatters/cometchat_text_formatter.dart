@@ -168,7 +168,7 @@ abstract class CometChatTextFormatter implements Formatter {
         // Helper: compute the display text for a sub-range of lastElement.
         // If lastElement has underlyingText (e.g., bold stripped markers),
         // extract the corresponding portion. Otherwise use null (raw text).
-        String? subUnderlyingText(int subStart, int subEnd) {
+        String? _subUnderlyingText(int subStart, int subEnd) {
           if (lastElement.underlyingText == null) return null;
           // lastElement.underlyingText replaces raw range [lastElement.start, lastElement.end].
           // Map sub-range positions into the underlyingText string.
@@ -190,7 +190,7 @@ abstract class CometChatTextFormatter implements Formatter {
             start: lastElement.start,
             end: element.start,
             style: lastElement.style,
-            underlyingText: subUnderlyingText(lastElement.start, element.start),
+            underlyingText: _subUnderlyingText(lastElement.start, element.start),
             onTap: lastElement.onTap,
           ));
         }
@@ -223,7 +223,7 @@ abstract class CometChatTextFormatter implements Formatter {
             start: overlapEnd,
             end: lastElement.end,
             style: lastElement.style,
-            underlyingText: subUnderlyingText(overlapEnd, lastElement.end),
+            underlyingText: _subUnderlyingText(overlapEnd, lastElement.end),
             onTap: lastElement.onTap,
           ));
         }

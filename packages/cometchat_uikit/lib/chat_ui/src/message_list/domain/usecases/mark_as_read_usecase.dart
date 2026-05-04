@@ -21,6 +21,13 @@ class MarkAsReadUseCase {
       );
     }
 
+    if (message.sender == null) {
+      return const Failure(
+        message: 'Message sender cannot be null',
+        code: 'INVALID_MESSAGE_SENDER',
+      );
+    }
+
     return await repository.markAsRead(message);
   }
 }

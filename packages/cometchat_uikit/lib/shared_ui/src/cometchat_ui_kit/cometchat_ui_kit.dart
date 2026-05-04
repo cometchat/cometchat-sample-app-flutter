@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../../cometchat_uikit_shared.dart';
@@ -61,7 +60,7 @@ class CometChatUIKit {
         }
       }
 
-      CometChat.setSource(SetSourceConstant.uiKitVersion, Platform.operatingSystem, SetSourceConstant.platform);
+      CometChat.setSource(SetSourceConstant.uiKitVersion, kIsWeb ? 'web' : _nativePlatformName(), SetSourceConstant.platform);
     }, onError: (CometChatException exception) {
       //executing custom onError handler when CometChat SDK could not be initialized
       if (onError != null) {
@@ -431,7 +430,7 @@ class CometChatUIKit {
         receiverType: message.receiverType,
         type: message.type,
         receiverUid: message.receiverUid,
-        file: (Platform.isIOS &&
+        file: (!kIsWeb && _isIOS() &&
                 message.file != null &&
                 (!message.file!.startsWith('file://')))
             ? 'file://${message.file}'
@@ -452,7 +451,7 @@ class CometChatUIKit {
       //executing the custom onSuccess handler
 
       if (replacePathForIOS == true) {
-        if (Platform.isIOS) {
+        if (!kIsWeb && _isIOS()) {
           if (message.file != null) {
             sentMessage.file = message.file?.replaceAll("file://", '');
           }
@@ -893,5 +892,32 @@ class CometChatUIKit {
           CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.error);
         });
     return result;
+  }
+
+  /// Returns the native platform name, web-safe via defaultTargetPlatform.
+  static String _nativePlatformName() {
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return 'android';
+      case TargetPlatform.iOS:
+        return 'ios';
+      case TargetPlatform.macOS:
+        return 'macos';
+      case TargetPlatform.windows:
+        return 'windows';
+      case TargetPlatform.linux:
+        return 'linux';
+      case TargetPlatform.fuchsia:
+        return 'fuchsia';
+    }
+  }
+
+  /// Returns true if running on iOS (safe to call only when !kIsWeb).
+  static bool _isIOS() {
+    try {
+      return defaultTargetPlatform == TargetPlatform.iOS;
+    } catch (_) {
+      return false;
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:flutter/services.dart';
 
 /// Utility class for generating audio waveform data

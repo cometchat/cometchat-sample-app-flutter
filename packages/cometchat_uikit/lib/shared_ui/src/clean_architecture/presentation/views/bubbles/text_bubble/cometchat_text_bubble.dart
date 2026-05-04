@@ -25,6 +25,7 @@ class CometChatTextBubble extends StatefulWidget {
     this.colorPalette,
     this.spacing,
     this.typography,
+    this.emojiCount = 0,
   });
 
   ///[text] if message object is not passed then text should be passed
@@ -53,6 +54,12 @@ class CometChatTextBubble extends StatefulWidget {
 
   /// [typography] optional pre-cached typography to avoid expensive lookups during keyboard animation
   final CometChatTypography? typography;
+
+  /// Number of emojis when the message is emoji-only (1–3).
+  /// 0 means normal text rendering. When > 0, the bubble renders
+  /// emojis at a scaled-up font size with no background/padding
+  /// (WhatsApp-style).
+  final int emojiCount;
 
   @override
   State<CometChatTextBubble> createState() => _CometChatTextBubbleState();
@@ -126,6 +133,25 @@ class _CometChatTextBubbleState extends State<CometChatTextBubble> {
     final typography = _typography!;
     final colorPalette = _colorPalette!;
     final spacing = _spacing!;
+
+    // Emoji-only rendering: large emoji text, no background, no formatters
+    if (widget.emojiCount > 0) {
+      final emojiFontSize = EmojiUtils.emojiFontSize(widget.emojiCount);
+      return Padding(
+        padding: widget.padding ?? EdgeInsets.fromLTRB(
+          spacing.padding2 ?? 0, spacing.padding1 ?? 0,
+          spacing.padding2 ?? 0, 0,
+        ),
+        child: Text(
+          message,
+          style: TextStyle(
+            fontSize: emojiFontSize,
+            height: 1.3,
+            letterSpacing: 2.0,
+          ),
+        ),
+      );
+    }
 
     final textStyle = TextStyle(
         color: (widget.alignment == BubbleAlignment.right

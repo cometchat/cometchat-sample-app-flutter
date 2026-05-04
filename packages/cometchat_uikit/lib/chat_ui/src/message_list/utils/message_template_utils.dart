@@ -6,7 +6,7 @@ import '../../../../call_ui/src/call_bubble/cometchat_call_bubble.dart';
 import '../../../../call_ui/src/calling_configuration.dart';
 import '../../../../call_ui/src/utils/call_utils.dart';
 import '../../../../call_ui/src/utils/call_extension_constants.dart';
-import '../../../../call_ui/src/ongoing_call/cometchat_ongoing_call.dart';
+import '../../../../call_ui/src/ongoing_call/call_screen_overlay.dart';
 import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' show SessionSettingsBuilder, LayoutType;
 import '../../extensions/extension_constants.dart';
 import '../../extensions/polls/cometchat_polls_bubble.dart';
@@ -81,6 +81,36 @@ class MessageTemplateUtils {
     );
   }
 
+  static CometChatMessageOption getReplyOption(
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatMessageOptionSheetStyle? messageOptionSheetStyle,
+  ) {
+    return CometChatMessageOption(
+      id: MessageOptionConstants.replyMessage,
+      title: Translations.of(context).reply,
+      icon: Icon(
+        Icons.reply,
+        color: messageOptionSheetStyle?.iconColor ?? colorPalette.iconSecondary,
+        size: 24,
+      ),
+      messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
+        titleTextStyle: TextStyle(
+          color: messageOptionSheetStyle?.titleColor,
+          fontFamily: typography.body?.regular?.fontFamily,
+          fontWeight: typography.body?.regular?.fontWeight,
+          fontSize: typography.body?.regular?.fontSize,
+        ).merge(messageOptionSheetStyle?.titleTextStyle),
+        borderRadius: messageOptionSheetStyle?.borderRadius,
+        border: messageOptionSheetStyle?.border,
+        backgroundColor: messageOptionSheetStyle?.backgroundColor,
+        iconColor: messageOptionSheetStyle?.iconColor,
+        titleColor: messageOptionSheetStyle?.titleColor,
+      ),
+    );
+  }
+
   static CometChatMessageOption getReplyInThreadOption(
     BuildContext context,
     CometChatColorPalette colorPalette,
@@ -89,7 +119,7 @@ class MessageTemplateUtils {
   ) {
     return CometChatMessageOption(
       id: MessageOptionConstants.replyInThreadMessage,
-      title: Translations.of(context).reply,
+      title: Translations.of(context).replyInThread,
       icon: Icon(
         Icons.subdirectory_arrow_right,
         color: messageOptionSheetStyle?.iconColor ?? colorPalette.iconSecondary,
@@ -305,6 +335,11 @@ class MessageTemplateUtils {
       }
 
       return messageOptionList;
+    }
+
+    if (additionalConfigurations?.hideReplyOption != true) {
+      messageOptionList.add(
+          getReplyOption(context, colorPalette, typography, style));
     }
 
     if (additionalConfigurations?.hideReplyInThreadOption != true &&
@@ -694,6 +729,9 @@ class MessageTemplateUtils {
       templates.add(_getDefaultVoiceCallTemplate());
       templates.add(_getDefaultVideoCallTemplate());
     }
+    // AI message templates
+    templates.add(getAIAssistantMessageTemplate());
+    templates.add(getStreamMessageTemplate());
     return templates;
   }
 
@@ -914,6 +952,11 @@ class MessageTemplateUtils {
       return messageOptionList; // ✅ Only delete option is returned
     }
 
+    if (additionalConfigurations?.hideReplyOption != true) {
+      messageOptionList.add(
+          getReplyOption(context, colorPalette, typography, style));
+    }
+
     if (additionalConfigurations?.hideReplyInThreadOption != true &&
         _validateOption(loggedInUser, messageObject, context, group,
             MessageOptionConstants.replyInThreadMessage)) {
@@ -975,6 +1018,8 @@ class MessageTemplateUtils {
       ExtensionType.sticker,
       ExtensionType.document,
       ExtensionType.whiteboard,
+      CometChatMessageType.assistant,
+      CometChatMessageType.runStarted,
     ];
     if (CometChatUIKit.authenticationSettings?.enableCalls == true) {
       if (!types.contains(MessageTypeConstants.audio)) {
@@ -996,6 +1041,8 @@ class MessageTemplateUtils {
       CometChatMessageCategory.action,
       CometChatMessageCategory.interactive,
       MessageCategoryConstants.custom,
+      CometChatMessageCategory.categoryAgentic,
+      CometChatMessageCategory.streamMessage,
     ];
     if (CometChatUIKit.authenticationSettings?.enableCalls == true) {
       if (!categories.contains(MessageCategoryConstants.call)) {
@@ -1069,33 +1116,35 @@ class MessageTemplateUtils {
       {AdditionalConfigurations? additionalConfigurations}) {
     String? thumbnailUrl;
     Map<String, dynamic>? metadata = message.metadata;
-    Map? injectedObject = metadata != null ? metadata["@injected"] : null;
-    if (injectedObject != null && injectedObject.containsKey("extensions")) {
-      Map extensionsObject = injectedObject["extensions"];
-      if (extensionsObject.containsKey("thumbnail-generation")) {
-        Map thumbnailData = extensionsObject["thumbnail-generation"];
-        // First try to get from root level of thumbnail-generation
-        thumbnailUrl = thumbnailData["url_small"] ??
-            thumbnailData["url_medium"] ??
-            thumbnailData["url_large"];
-        // Fallback to attachments array if not found at root level
-        if (thumbnailUrl == null && thumbnailData["attachments"] != null) {
-          List attachments = thumbnailData["attachments"];
-          for (var attachment in attachments) {
-            if (attachment["error"] == null && attachment["data"] != null) {
-              var thumbnails = attachment["data"]["thumbnails"];
-              if (thumbnails != null) {
-                thumbnailUrl = thumbnails["url_small"] ??
-                    thumbnails["url_medium"] ??
-                    thumbnails["url_large"];
-                if (thumbnailUrl != null) break;
+    if (metadata != null) {
+      Map? injectedObject = metadata["@injected"];
+      if (injectedObject != null && injectedObject.containsKey("extensions")) {
+        Map extensionsObject = injectedObject["extensions"];
+        if (extensionsObject.containsKey("thumbnail-generation")) {
+          Map thumbnailData = extensionsObject["thumbnail-generation"];
+          // First try to get from root level of thumbnail-generation
+          thumbnailUrl = thumbnailData["url_small"] ??
+              thumbnailData["url_medium"] ??
+              thumbnailData["url_large"];
+          // Fallback to attachments array if not found at root level
+          if (thumbnailUrl == null && thumbnailData["attachments"] != null) {
+            List attachments = thumbnailData["attachments"];
+            for (var attachment in attachments) {
+              if (attachment["error"] == null && attachment["data"] != null) {
+                var thumbnails = attachment["data"]["thumbnails"];
+                if (thumbnails != null) {
+                  thumbnailUrl = thumbnails["url_small"] ??
+                      thumbnails["url_medium"] ??
+                      thumbnails["url_large"];
+                  if (thumbnailUrl != null) break;
+                }
               }
             }
           }
         }
       }
     }
-      return MessageTemplateUtils.getVideoMessageBubble(
+    return MessageTemplateUtils.getVideoMessageBubble(
         message.attachment?.fileUrl,
         thumbnailUrl,
         message,
@@ -1544,6 +1593,57 @@ class MessageTemplateUtils {
 
   // -------- Call Message Templates (used when enableCalls == true) --------
 
+  /// Template for AI assistant messages (category: agentic, type: assistant).
+  /// Renders using [CometChatAIAssistantBubble] with full markdown support.
+  static CometChatMessageTemplate getAIAssistantMessageTemplate() {
+    return CometChatMessageTemplate(
+      type: CometChatMessageType.assistant,
+      category: CometChatMessageCategory.categoryAgentic,
+      contentView:
+          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
+              {AdditionalConfigurations? additionalConfigurations}) {
+        if (message.deletedAt != null) {
+          return getDeleteMessageBubble(
+              message, context, additionalConfigurations?.deletedBubbleStyle);
+        }
+        if (message is AIAssistantMessage) {
+          return CometChatAIAssistantBubble(
+            message: message,
+            alignment: alignment,
+          );
+        }
+        // Fallback: render as text if somehow not AIAssistantMessage
+        return Text(message.toString());
+      },
+      options: (loggedInUser, messageObject, context, group,
+              additionalConfigurations) =>
+          [], // No long-press options for AI messages
+    );
+  }
+
+  /// Template for stream messages (category: streamMessage, type: run_started).
+  /// Renders using [CometChatStreamBubble] with shimmer streaming effect.
+  static CometChatMessageTemplate getStreamMessageTemplate() {
+    return CometChatMessageTemplate(
+      type: CometChatMessageType.runStarted,
+      category: CometChatMessageCategory.streamMessage,
+      contentView:
+          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
+              {AdditionalConfigurations? additionalConfigurations}) {
+        if (message is StreamMessage) {
+          return CometChatStreamBubble(
+            message: message,
+            alignment: alignment,
+          );
+        }
+        return const SizedBox.shrink();
+      },
+      options: (loggedInUser, messageObject, context, group,
+              additionalConfigurations) =>
+          [], // No long-press options for stream messages
+    );
+  }
+
   static CometChatMessageTemplate _getGroupCallTemplate() {
     return CometChatMessageTemplate(
       type: MessageTypeConstants.meeting,
@@ -1641,15 +1741,11 @@ class MessageTemplateUtils {
         .hideSwitchCameraButton(true)
         .hideToggleVideoButton(true);
     }
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CometChatOngoingCall(
-            sessionSettingsBuilder: defaultSessionSettingsBuilder,
-            sessionId: sessionId ?? sessionID,
-            callWorkFlow: CallWorkFlow.directCalling,
-          ),
-        ));
+    CallScreenOverlay.show(
+      sessionId: sessionId ?? sessionID,
+      sessionSettingsBuilder: defaultSessionSettingsBuilder,
+      callWorkFlow: CallWorkFlow.directCalling,
+    );
   }
 
   static CometChatMessageTemplate _getDefaultVoiceCallTemplate() {

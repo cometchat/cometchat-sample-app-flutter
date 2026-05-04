@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,10 @@ import '../../../../cometchat_calls_uikit.dart';
 import '../../../../cometchat_chat_uikit.dart';
 import '../../../../shared_ui/src/clean_architecture/core/constants/enums.dart'
     as core_enums;
+import '../../call_settings/call_navigation_context.dart';
+import '../../outgoing_call/cometchat_outgoing_call.dart';
+import 'call_buttons_event.dart';
+import 'call_buttons_state.dart';
 
 /// BLoC for managing call buttons state and call initiation workflow
 ///
@@ -238,21 +243,13 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
       }
     }
 
-    // Navigate to ongoing call screen
-    final navigatorContext = CallNavigationContext.navigatorKey.currentContext;
-    if (navigatorContext != null && navigatorContext.mounted) {
-      Navigator.push(
-        navigatorContext,
-        MaterialPageRoute(
-          builder: (context) => CometChatOngoingCall(
-            sessionSettingsBuilder: defaultSessionSettingsBuilder,
-            sessionId: _receiverId,
-            callWorkFlow: CallWorkFlow.directCalling,
-            onError: errorCallback,
-          ),
-        ),
-      );
-    }
+    // Navigate to ongoing call screen via isolated overlay
+    CallScreenOverlay.show(
+      sessionId: _receiverId,
+      sessionSettingsBuilder: defaultSessionSettingsBuilder,
+      callWorkFlow: CallWorkFlow.directCalling,
+      onError: errorCallback,
+    );
 
     if (kDebugMode) {
       debugPrint('Navigated to CometChatOngoingCall screen for meeting');

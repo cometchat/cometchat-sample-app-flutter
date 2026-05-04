@@ -42,6 +42,12 @@ class ClearSearch extends SearchEvent {
   const ClearSearch();
 }
 
+/// Re-trigger the current search to refresh results
+/// (e.g., after returning from a conversation where messages were read)
+class RefreshCurrentSearch extends SearchEvent {
+  const RefreshCurrentSearch();
+}
+
 // ============================================================
 // Internal events — dispatched by async fetch methods.
 // Public because Dart private is per-file; only used by SearchBloc.

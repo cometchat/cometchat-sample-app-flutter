@@ -79,6 +79,9 @@ class IncomingCallOverlay {
 
   // Dismiss incoming call overlay
   static void dismiss() {
+    if (_overlayEntry != null) {
+      debugPrint('IncomingCallOverlay.dismiss() stack: ${StackTrace.current}');
+    }
     _overlayEntry?.remove();
     _overlayEntry = null;
   }

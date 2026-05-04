@@ -176,7 +176,16 @@ class OutgoingCallBloc extends Bloc<OutgoingCallEvent, OutgoingCallState>
       return;
     }
 
-    // Cancel call via use case
+    // Cancel call via use case.
+    // Use 'cancelled' status so the receiver gets onIncomingCallCancelled
+    // and dismisses the incoming call overlay. Using 'rejected' caused the
+    // receiver's overlay to stay visible because the server treated it as
+    // a receiver-side rejection (triggering onOutgoingCallRejected on the
+    // caller instead of onIncomingCallCancelled on the receiver).
+    //
+    // Historical note: 'rejected' was used as a workaround for a V4 race
+    // condition where cancelCall() checked getActiveCall() which could be
+    // null. The V5 SDK's rejectCall with 'cancelled' status works correctly.
     final rejectCallUseCase = CallOperationsServiceLocator.instance.rejectCallUseCase;
     final result = await rejectCallUseCase.call(sessionId, CallStatusConstants.cancelled);
 
@@ -247,20 +256,13 @@ class OutgoingCallBloc extends Bloc<OutgoingCallEvent, OutgoingCallState>
       }
     }
 
-    // Navigate to ongoing call screen
-    final navigatorContext = CallNavigationContext.navigatorKey.currentContext;
-    if (navigatorContext != null && navigatorContext.mounted) {
-      Navigator.pushReplacement(
-        navigatorContext,
-        MaterialPageRoute(
-          builder: (context) => CometChatOngoingCall(
-            sessionSettingsBuilder: defaultSessionSettingsBuilder,
-            sessionId: event.call.sessionId!,
-            callWorkFlow: CallWorkFlow.defaultCalling,
-          ),
-        ),
-      );
-    }
+    // Pop the outgoing call screen, then show ongoing call in isolated overlay
+    _popScreen();
+    CallScreenOverlay.show(
+      sessionId: event.call.sessionId!,
+      sessionSettingsBuilder: defaultSessionSettingsBuilder,
+      callWorkFlow: CallWorkFlow.defaultCalling,
+    );
 
     developer.log('Outgoing call was accepted');
   }

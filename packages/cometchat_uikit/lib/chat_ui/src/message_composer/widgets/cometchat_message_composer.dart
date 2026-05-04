@@ -18,6 +18,7 @@ import 'attachment_options_overlay.dart';
 // Import rich text formatting
 import '../../../../../shared_ui/src/rich_text_formatting/domain/entities/format_type.dart';
 
+
 // Import inline audio recorder
 import 'inline_audio_recorder/inline_audio_recorder.dart';
 import '../utils/composer_attachment_utils.dart';
@@ -1711,6 +1712,9 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   }
 
   void _onSendButtonClick() {
+    // Block sending while AI is streaming
+    if (_bloc.state.isActiveStreaming) return;
+
     // Get text from segment controller or text editing controller
     String? text;
     if (_useSegmentBasedCodeBlocks && _segmentComposerController != null) {
@@ -2906,6 +2910,26 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     if (widget.hideSendButton == true) {
       return const SizedBox();
     }
+
+    // AI streaming: show stop button (visual only, no tap action)
+    if (state.isActiveStreaming) {
+      return Container(
+        height: 32,
+        width: 32,
+        decoration: BoxDecoration(
+          color: _colorPalette.textPrimary ?? Colors.black,
+          borderRadius: _style.sendButtonBorderRadius ??
+              BorderRadius.circular(_spacing.radiusMax ?? 20),
+        ),
+        alignment: Alignment.center,
+        child: Icon(
+          Icons.stop_rounded,
+          color: _colorPalette.white ?? Colors.white,
+          size: 20,
+        ),
+      );
+    }
+
     if (widget.sendButtonView != null) {
       return GestureDetector(
         onTap: _onSendButtonClick,
@@ -3125,7 +3149,18 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           child: RepaintBoundary(
           child: BlocProvider.value(
             value: _bloc,
-        child: BlocConsumer<MessageComposerBloc, MessageComposerState>(
+        child: BlocListener<MessageComposerBloc, MessageComposerState>(
+          listenWhen: (previous, current) =>
+              previous.composeText != current.composeText &&
+              current.composeText.isNotEmpty,
+          listener: (context, state) {
+            final controller = _getActiveTextController();
+            if (controller != null && controller.text != state.composeText) {
+              controller.text = state.composeText;
+              _bloc.add(const ClearComposeText());
+            }
+          },
+          child: BlocConsumer<MessageComposerBloc, MessageComposerState>(
           // Only rebuild when state properties that affect UI change
           // This prevents rebuilds during keyboard animation
           buildWhen: (previous, current) {
@@ -3137,7 +3172,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
               previous.headerPanel != current.headerPanel ||
               previous.footerPanel != current.footerPanel ||
               previous.previewPanel != current.previewPanel ||
-              previous.lockedBottomPadding != current.lockedBottomPadding;
+              previous.lockedBottomPadding != current.lockedBottomPadding ||
+              previous.isActiveStreaming != current.isActiveStreaming;
           return shouldRebuild;
           },
           listener: (context, state) {
@@ -3240,7 +3276,11 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                         // Combined bottom area: footer panel (sticker keyboard) + safe area padding
                         // This is a single widget to minimize rebuilds
                         if (!widget.hideBottomSafeArea && !widget.resizeToAvoidBottomInset)
-                          _buildBottomArea(state),
+                          _buildBottomArea(state)
+                        // When resizeToAvoidBottomInset is true, the Scaffold handles keyboard
+                        // insets but we still need to render the sticker panel if it's open.
+                        else if (widget.resizeToAvoidBottomInset && state.footerPanel != null)
+                          _buildStickerPanelOnly(state),
                       ],
                     ),
                   ),
@@ -3249,6 +3289,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
             );
           },
         ),
+        ),  // Close BlocListener
         ),  // Close BlocProvider
       ),  // Close RepaintBoundary
     ),  // Close PopScope
@@ -3533,6 +3574,72 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     );
   }
 
+  /// Renders the sticker panel without keyboard-height-based bottom padding.
+  /// Used when [resizeToAvoidBottomInset] is true — the Scaffold handles
+  /// keyboard insets, but we still need to show the sticker keyboard.
+  Widget _buildStickerPanelOnly(MessageComposerState state) {
+    final double stickerContentHeight = CometChatStickerKeyboard.defaultHeight;
+    const double dragHandleHeight = 16.0;
+    final double screenHeight = MediaQuery.sizeOf(context).height;
+    final double maxTotalContent = screenHeight * 0.6;
+    final double maxExtra =
+        (maxTotalContent - stickerContentHeight).clamp(0.0, double.infinity);
+    final double minExtra = -(stickerContentHeight - dragHandleHeight);
+
+    return ValueListenableBuilder<double>(
+      valueListenable: _stickerExtraHeight,
+      builder: (context, extraHeight, _) {
+        final double contentHeight =
+            (stickerContentHeight - dragHandleHeight + extraHeight)
+                .clamp(0.0, double.infinity);
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag handle
+            GestureDetector(
+              onVerticalDragUpdate: (details) {
+                final newExtra =
+                    (_stickerExtraHeight.value - details.delta.dy)
+                        .clamp(minExtra, maxExtra);
+                _stickerExtraHeight.value = newExtra;
+              },
+              onVerticalDragEnd: (details) {
+                if (_stickerExtraHeight.value < minExtra * 0.5) {
+                  _stickerExtraHeight.value = 0;
+                  CometChatUIEvents.hidePanel(
+                      _composerId, CustomUIPosition.composerBottom);
+                } else if (_stickerExtraHeight.value < 0) {
+                  _stickerExtraHeight.value = 0;
+                }
+              },
+              child: Container(
+                color: Colors.transparent,
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: _colorPalette.neutral400 ?? Colors.grey[400],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: contentHeight,
+              child: state.footerPanel!,
+            ),
+            // Safe area below sticker content
+            SizedBox(height: _safeAreaBottom),
+          ],
+        );
+      },
+    );
+  }
+
   /// Builds the message input with an attached toolbar (if enabled).
   /// The toolbar and input share a unified visual container with:
   /// - Shared background color
@@ -3667,7 +3774,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                     },
                     activeFormats: activeFormats,
                     hiddenFormats: _getHiddenFormats(),
-                    style: const CometChatRichTextToolbarStyle(
+                    style: CometChatRichTextToolbarStyle(
                       backgroundColor: Colors.transparent,
                       border: null,
                       borderRadius: BorderRadius.zero,

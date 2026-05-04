@@ -39,6 +39,7 @@ abstract class MessageListRepository {
     List<String>? types,
     List<String>? categories,
     bool hideReplies = true,
+    bool withParent = true,
   });
 
   /// Fetch older messages for pagination (scroll up).

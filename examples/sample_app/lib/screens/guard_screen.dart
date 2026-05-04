@@ -51,10 +51,7 @@ class _GuardScreenState extends State<GuardScreen> {
   }
 
   Future<void> _initCallsSdk() async {
-    // Delegate entirely to CallEventService which handles both the Calls SDK
-    // initialization AND registering call event listeners. Calling
-    // CometChatUIKitCalls.init() separately before this caused double-init
-    // which reset the SDK's internal auth token state.
+    if (kIsWeb) return; // Calls SDK not supported on web
     await CallEventService.instance.init(
       configuration: CallingConfiguration(),
     );

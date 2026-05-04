@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../cometchat_calls_uikit.dart';
 import '../../../cometchat_chat_uikit.dart';
+import 'bloc/ongoing_call_bloc.dart';
+import 'bloc/ongoing_call_state.dart';
 
 /// [CometChatOngoingCall] is a widget that displays the ongoing call screen.
 ///
@@ -80,9 +82,11 @@ class _CometChatOngoingCallState extends State<CometChatOngoingCall> {
               previous.callingWidget != current.callingWidget,
           builder: (context, state) {
             if (state.status == OngoingCallStatus.error) {
-              // Pop back on error after a brief delay to show the error
+              // Dismiss after a brief delay to show the error
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (context.mounted && Navigator.of(context).canPop()) {
+                if (CallScreenOverlay.isShowing) {
+                  CallScreenOverlay.dismiss();
+                } else if (context.mounted && Navigator.of(context).canPop()) {
                   Navigator.of(context).pop();
                 }
               });

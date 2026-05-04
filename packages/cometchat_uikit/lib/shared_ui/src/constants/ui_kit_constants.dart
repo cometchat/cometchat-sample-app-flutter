@@ -54,7 +54,7 @@ class MessageOptionConstants {
   static const String shareMessage = "shareMessage";
   static const String copyMessage = "copyMessage";
   static const String forwardMessage = "forwardMessage";
-  // static const String replyMessage = "replyMessage";
+  static const String replyMessage = "replyMessage";
   static const String replyInThreadMessage = "replyInThreadMessage";
   // static const String reactToMessage = "reactToMessage";
   // static const String translateMessage = "translateMessage";

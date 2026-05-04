@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../cometchat_calls_uikit.dart';
 import '../../../../cometchat_chat_uikit.dart';
+import '../cometchat_call_logs/call_logs_style.dart';
 
 /// A widget that displays a single call log item in the list.
 ///

@@ -19,6 +19,7 @@ class GetMessagesUseCase {
     List<String>? types,
     List<String>? categories,
     bool hideReplies = true,
+    bool withParent = true,
   }) async {
     if (conversationWith.isEmpty) {
       return const Failure(
@@ -56,6 +57,7 @@ class GetMessagesUseCase {
       types: types,
       categories: categories,
       hideReplies: hideReplies,
+      withParent: withParent,
     );
   }
 }

@@ -26,7 +26,6 @@ class _BannedMembersScreenState extends State<BannedMembersScreen>
   bool _isLoading = true;
   bool _hasMore = true;
   bool _hasError = false;
-  // ignore: unused_field
   bool _isUnbanning = false;
 
   late BannedGroupMembersRequest _request;

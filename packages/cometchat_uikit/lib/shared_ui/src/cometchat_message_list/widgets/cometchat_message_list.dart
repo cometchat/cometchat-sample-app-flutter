@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' hide CometChatMessageListStyle;
 
 import '../cometchat_message_list_style.dart';
+import 'cometchat_new_message_indicator.dart';
 
 // Re-export MessageItemBuilder from animated message list for convenience
 // (it's already defined there, so we don't duplicate it)
@@ -708,6 +709,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       onLoadOlder: _handleLoadOlder,
       onLoadNewer: _handleLoadNewer,
       onScrollToBottomTap: _handleScrollToBottomTap,
+      hasMoreNewer: state.hasMoreNewer,
     );
   }
 
@@ -831,7 +833,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
           constraints: BoxConstraints(
             maxWidth: _cachedMaxBubbleWidth,
           ),
-          child: const CometChatDeletedBubble(),
+          child: CometChatDeletedBubble(),
         ),
       );
     }

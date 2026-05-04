@@ -25,6 +25,7 @@ class _JoinProtectedGroupScreenState extends State<JoinProtectedGroupScreen> {
   bool _isLoading = false;
   bool _isEmpty = false;
   bool _isError = false;
+  String _errorMessage = '';
 
   @override
   void didChangeDependencies() {
@@ -81,6 +82,7 @@ class _JoinProtectedGroupScreenState extends State<JoinProtectedGroupScreen> {
         setState(() {
           _isLoading = false;
           _isError = true;
+          _errorMessage = e.message ?? 'Something went wrong. Please try again.';
         });
       },
     );
@@ -297,7 +299,9 @@ class _JoinProtectedGroupScreenState extends State<JoinProtectedGroupScreen> {
               child: Text(
                 _isEmpty
                     ? 'Please fill in all required fields before joining a group.'
-                    : 'Something went wrong. Please try again.',
+                    : _errorMessage.isNotEmpty
+                        ? _errorMessage
+                        : 'Something went wrong. Please try again.',
                 style: TextStyle(
                   color: _colorPalette.error,
                   fontSize: _typography.caption1?.regular?.fontSize,

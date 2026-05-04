@@ -31,12 +31,12 @@ class StatusIndicatorUtils {
             color: selectIconTint ?? Colors.white,
             size: 12,
           );
-    } else if (user != null && usersStatusVisibility != true) {
+    } else if (user != null && usersStatusVisibility == true) {
       backgroundColor =
           user.status != null && user.status == UserStatusConstants.online
               ? (onlineStatusIndicatorColor)
               : null;
-    } else if (group != null && groupTypeVisibility != true) {
+    } else if (group != null && groupTypeVisibility == true) {
       if (group.type == GroupTypeConstants.password) {
         backgroundColor = protectedGroupIconBackground ?? colorPalette.success;
         icon = protectedGroupIcon ??

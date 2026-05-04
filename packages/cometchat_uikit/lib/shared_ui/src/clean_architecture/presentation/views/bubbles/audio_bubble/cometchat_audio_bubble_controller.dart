@@ -19,10 +19,20 @@ class AudioStateManager {
   /// Get or create audio state for a specific audio bubble
   AudioBubbleState getAudioState(int id, String? audioUrl, String? localPath) {
     if (!_audioStates.containsKey(id)) {
-      _audioStates[id] = AudioBubbleState(id: id, audioUrl: audioUrl, localPath: localPath);
+      _audioStates[id] = AudioBubbleState(
+        id: id,
+        audioUrl: audioUrl,
+        localPath: localPath,
+      );
+    } else {
+      final state = _audioStates[id]!;
+      if (localPath != null && localPath.isNotEmpty) {
+        state.updateLocalPath(localPath);
+      }
     }
     return _audioStates[id]!;
   }
+
 
   /// Remove audio state when bubble is permanently disposed
   void removeAudioState(int id) {
@@ -63,7 +73,7 @@ class AudioStateManager {
 class AudioBubbleState {
   final int id;
   final String? audioUrl;
-  final String? localPath;
+  String? localPath;
 
   VideoPlayerController? _controller;
   PlayStates _playState = PlayStates.init;
@@ -88,38 +98,65 @@ class AudioBubbleState {
   Duration get currentPosition => _currentPosition;
 
   Future<void> initializeController() async {
+    debugPrint("initializeController: $id");
+
+    // Do not re-initialize if already initialized
     if (_controller != null) return;
 
     try {
       _isInitializing = true;
       _notifyStateUpdate();
 
-      if (localPath != null && localPath!.isNotEmpty) {
+      /// ✅ Check if local file REALLY exists
+      final bool hasValidLocalFile =
+          localPath != null &&
+              localPath!.isNotEmpty &&
+              File(localPath!).existsSync();
+
+      if (hasValidLocalFile) {
+        debugPrint("Using LOCAL audio file: $localPath");
+
         if (Platform.isIOS) {
           await _setAudioSessionToSpeaker();
         }
+
         _controller = VideoPlayerController.file(
           File(localPath!),
-          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+          videoPlayerOptions: VideoPlayerOptions(
+            mixWithOthers: true,
+          ),
         );
       } else if (audioUrl != null && audioUrl!.isNotEmpty) {
+        debugPrint("Using NETWORK audio url: $audioUrl");
+
         if (Platform.isIOS) {
           await _resetAudioSession();
         }
+
         _controller = VideoPlayerController.networkUrl(
           Uri.parse(audioUrl!),
-          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+          videoPlayerOptions: VideoPlayerOptions(
+            mixWithOthers: true,
+          ),
         );
+      } else {
+        debugPrint("No valid audio source found for id: $id");
+        _isInitializing = false;
+        _notifyStateUpdate();
+        return;
       }
 
-      if (_controller != null) {
-        await _controller!.initialize();
-        _totalDuration = _controller!.value.duration;
+      /// ✅ Initialize controller
+      await _controller!.initialize();
 
-        _controller!.addListener(_onControllerUpdate);
-      }
-    } catch (e) {
+      _totalDuration = _controller!.value.duration;
+
+      /// ✅ Listen for progress & completion
+      _controller!.addListener(_onControllerUpdate);
+
+    } catch (e, stack) {
       debugPrint("Error initializing audio controller: $e");
+      debugPrintStack(stackTrace: stack);
     } finally {
       _isInitializing = false;
       _notifyStateUpdate();
@@ -142,28 +179,31 @@ class AudioBubbleState {
       await initializeController();
     }
 
-    if (_controller != null && _controller!.value.isInitialized) {
+    final controller = _controller;
+    if (controller != null && controller.value.isInitialized) {
       // Pause all other audio bubbles
       AudioStateManager().pauseAllExcept(id);
 
       _playState = PlayStates.playing;
-      await _controller!.play();
+      await controller.play();
       _notifyStateUpdate();
     }
   }
 
   Future<void> pauseAudio() async {
-    if (_controller != null && _controller!.value.isInitialized) {
-      await _controller!.pause();
+    final controller = _controller;
+    if (controller != null && controller.value.isInitialized) {
+      await controller.pause();
       _playState = PlayStates.paused;
       _notifyStateUpdate();
     }
   }
 
   Future<void> stopAudio() async {
-    if (_controller != null && _controller!.value.isInitialized) {
-      await _controller!.pause();
-      await _controller!.seekTo(Duration.zero);
+    final controller = _controller;
+    if (controller != null && controller.value.isInitialized) {
+      await controller.pause();
+      await controller.seekTo(Duration.zero);
       _playState = PlayStates.stopped;
       _currentPosition = Duration.zero;
       _notifyStateUpdate();
@@ -226,6 +266,21 @@ class AudioBubbleState {
       debugPrint('Error resetting audio session: $e');
     }
   }
+
+  void updateLocalPath(String path) {
+    localPath = path;
+    _playState = PlayStates.init;
+    _disposeController();
+    _notifyStateUpdate();
+  }
+
+
+  void _disposeController() {
+    _controller?.removeListener(_onControllerUpdate);
+    _controller?.dispose();
+    _controller = null;
+  }
+
 
   void dispose() {
     _controller?.removeListener(_onControllerUpdate);

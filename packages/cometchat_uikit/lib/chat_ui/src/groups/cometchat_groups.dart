@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../cometchat_chat_uikit.dart';
 import '../../../cometchat_chat_uikit.dart' as cc;
+import 'bloc/bloc.dart';
 
 /// [CometChatGroups] is a component that displays a list of groups available in the app
 /// using Clean Architecture with BLoC pattern.

@@ -1,14 +1,4 @@
 include: package:flutter_lints/flutter.yaml
 
-analyzer:
-  errors:
-    deprecated_member_use: ignore
-    deprecated_member_use_from_same_package: ignore
-
-linter:
-  rules:
-    file_names: false
-    prefer_interpolation_to_compose_strings: false
-
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

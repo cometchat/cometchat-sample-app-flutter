@@ -87,7 +87,7 @@ void main() {
             conversationType: any(named: 'conversationType'),
             limit: any(named: 'limit'),
             hideReplies: any(named: 'hideReplies'),
-          )).thenThrow(const MessageListRemoteDataSourceException(
+          )).thenThrow(MessageListRemoteDataSourceException(
         message: 'Network error',
         code: 'NET_ERR',
       ));
@@ -154,7 +154,7 @@ void main() {
     test('returns failure when remote throws', () async {
       final request = FakeMessagesRequest();
       when(() => remote.fetchPreviousMessages(request: any(named: 'request')))
-          .thenThrow(const MessageListRemoteDataSourceException(
+          .thenThrow(MessageListRemoteDataSourceException(
         message: 'Fetch failed',
         code: 'FETCH_ERR',
       ));
@@ -199,7 +199,7 @@ void main() {
     test('returns failure when remote throws', () async {
       final msg = FakeBaseMessage(5);
       when(() => remote.markAsRead(any()))
-          .thenThrow(const MessageListRemoteDataSourceException(
+          .thenThrow(MessageListRemoteDataSourceException(
         message: 'Mark read failed',
         code: 'READ_ERR',
       ));
@@ -225,7 +225,7 @@ void main() {
     test('returns failure when remote throws', () async {
       final msg = FakeBaseMessage(5);
       when(() => remote.markAsDelivered(any()))
-          .thenThrow(const MessageListRemoteDataSourceException(
+          .thenThrow(MessageListRemoteDataSourceException(
         message: 'Mark delivered failed',
       ));
 
@@ -248,7 +248,7 @@ void main() {
 
     test('returns failure when remote throws', () async {
       when(() => remote.getLoggedInUser())
-          .thenThrow(const MessageListRemoteDataSourceException(
+          .thenThrow(MessageListRemoteDataSourceException(
         message: 'Not logged in',
         code: 'AUTH_ERR',
       ));

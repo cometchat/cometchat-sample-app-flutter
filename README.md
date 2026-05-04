@@ -15,7 +15,9 @@ CometChat UIKit for Flutter provides pre-built UI components to quickly add chat
 | Directory | Description |
 |-----------|-------------|
 | [packages/cometchat_uikit](packages/cometchat_uikit#readme) | The open source UIKit package (local setup, structure, tests) |
+| [packages/cometchat_uikit/skills](packages/cometchat_uikit/skills#readme) | Kiro AI skills for consumers and contributors |
 | [examples/sample_app](examples/sample_app#readme) | Sample app demonstrating UIKit usage |
+| [examples/ai_sample_app](examples/ai_sample_app#readme) | AI-powered sample app with CometChat AI agents |
 
 ## Prerequisites
 
@@ -47,7 +49,7 @@ Add the UIKit to your project's `pubspec.yaml`:
 dependencies:
   cometchat_chat_uikit:
     hosted: https://dart.cloudsmith.io/cometchat/cometchat/
-    version: ^6.0.0-beta1
+    version: ^6.0.0-beta2
 ```
 
 Then run:

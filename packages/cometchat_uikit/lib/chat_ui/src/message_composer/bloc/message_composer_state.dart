@@ -75,6 +75,9 @@ class MessageComposerState extends Equatable {
   /// When set, this overrides the keyboard-based bottom padding
   final double? lockedBottomPadding;
 
+  /// Whether the AI is currently streaming a response
+  final bool isActiveStreaming;
+
   const MessageComposerState({
     this.status = MessageComposerStatus.idle,
     this.user,
@@ -92,6 +95,7 @@ class MessageComposerState extends Equatable {
     this.previewPanel,
     this.composerId = const {},
     this.lockedBottomPadding,
+    this.isActiveStreaming = false,
   });
 
   // ============================================================================
@@ -143,6 +147,7 @@ class MessageComposerState extends Equatable {
     Widget? previewPanel,
     Map<String, dynamic>? composerId,
     double? lockedBottomPadding,
+    bool? isActiveStreaming,
     // Special flags to clear nullable fields
     bool clearEditMessage = false,
     bool clearReplyMessage = false,
@@ -175,6 +180,7 @@ class MessageComposerState extends Equatable {
           clearPreviewPanel ? null : (previewPanel ?? this.previewPanel),
       composerId: composerId ?? this.composerId,
       lockedBottomPadding: clearLockedBottomPadding ? null : (lockedBottomPadding ?? this.lockedBottomPadding),
+      isActiveStreaming: isActiveStreaming ?? this.isActiveStreaming,
     );
   }
 
@@ -196,5 +202,6 @@ class MessageComposerState extends Equatable {
         previewPanel,
         composerId,
         lockedBottomPadding,
+        isActiveStreaming,
       ];
 }

@@ -1,0 +1,40 @@
+{
+  "skill_name": "cometchat-flutter-users-groups",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Show me how to display a contacts list that only shows friends and navigates to chat when tapped",
+      "expected_output": "The response must show CometChatUsers with friendsOnly UsersRequestBuilder and onItemTap navigation.",
+      "files": [],
+      "assertions": [
+        "Uses CometChatUsers widget",
+        "Configures UsersRequestBuilder with friendsOnly: true",
+        "onItemTap navigates to messages screen with the selected User",
+        "onItemTap callback includes BuildContext as first parameter"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "When I tap a password-protected group in CometChatGroups, it crashes because the user hasn't joined yet. How do I handle this?",
+      "expected_output": "The response must show checking group.hasJoined and group.type before navigating, with a password entry screen for protected groups.",
+      "files": [],
+      "assertions": [
+        "Checks group.hasJoined before navigating to messages",
+        "Checks group.type for GroupTypeConstants.password",
+        "Shows routing to a join/password screen for unjoined password groups",
+        "Handles public groups by joining first then navigating"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm comparing group member scope with the string 'admin' but it's not matching. What's wrong?",
+      "expected_output": "The response must recommend using GroupMemberScope constants instead of hardcoded strings.",
+      "files": [],
+      "assertions": [
+        "Identifies that hardcoded string comparison is fragile",
+        "Shows using GroupMemberScope.admin (or equivalent SDK constant)",
+        "Lists available scope constants: owner, admin, participant"
+      ]
+    }
+  ]
+}

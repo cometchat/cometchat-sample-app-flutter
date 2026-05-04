@@ -207,6 +207,7 @@ class CometChatListItem extends StatelessWidget {
             subtitle: getSubtitle(),
             trailing: tailView,
             titlePadding: titlePadding,
+            contentPadding: contentPadding,
           ),
           if (hideSeparator == false)
             Divider(
@@ -232,6 +233,7 @@ class _CometChatListTile extends StatelessWidget {
     this.trailing,
     this.height,
     this.titlePadding,
+    this.contentPadding,
   }) : super(key: key);
 
   ///[leading] widget to be shown at the start of the tile
@@ -252,12 +254,15 @@ class _CometChatListTile extends StatelessWidget {
   ///[titlePadding] set title padding
   final EdgeInsetsGeometry? titlePadding;
 
+  ///[contentPadding] set content padding
+  final EdgeInsetsGeometry? contentPadding;
+
   @override
   Widget build(BuildContext context) {
     final spacing = CometChatThemeHelper.getSpacing(context);
     return Container(
       color: Colors.transparent,
-      padding: const EdgeInsets.symmetric(horizontal: 0),
+      padding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 0),
       child: Row(
         children: [
           if (leading != null) leading!,

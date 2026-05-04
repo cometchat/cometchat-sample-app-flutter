@@ -185,7 +185,7 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
   @override
   void initState() {
     super.initState();
-    _favoriteReactions = widget.favoriteReactions ?? ['😍', '👍', '🔥', '😊', '❤️'];
+    _favoriteReactions = widget.favoriteReactions ?? ['😍', '🔥', '🤧', '👍', '❤️'];
     
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
@@ -286,11 +286,11 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
     final safeAreaPadding = MediaQuery.paddingOf(context);
     
     // Calculate available height for the bubble
-    // Reserve space for: reactions row (~56), options (~200 max), spacing, safe area
+    // Reserve space for: reactions row (~56), options (~280 max), spacing, safe area
     final reactionsHeight = widget.hideReactions ? 0.0 : 56.0;
-    const optionsMaxHeight = 200.0;
+    const optionsMaxHeight = 280.0;
     final verticalPadding = (spacing.padding6 ?? 24) * 2;
-    final spacingBetween = (spacing.padding2 ?? 8) * 2;
+    final spacingBetween = (spacing.padding1 ?? 4) * 2;
     final reservedHeight = reactionsHeight + optionsMaxHeight + verticalPadding + 
         spacingBetween + safeAreaPadding.top + safeAreaPadding.bottom;
     final maxBubbleHeight = screenHeight - reservedHeight;
@@ -300,8 +300,8 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
     final bool isLargeBubble = widget.bubbleSize != null && 
         widget.bubbleSize!.height > effectiveMaxHeight;
     
-    // Build the bubble widget, optionally wrapped in Hero
-    // Hero animation is only used when heroTag is provided (bubble is fully visible)
+    // Build the bubble widget — no Hero animation to avoid WidgetSpan
+    // reparenting issues that break formatted text (mentions, inline code)
     Widget bubbleContent = GestureDetector(
       onTap: () {}, // Prevent tap from dismissing
       child: Material(
@@ -309,33 +309,6 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
         child: widget.bubbleWidget,
       ),
     );
-    
-    // Wrap in Hero only if heroTag is provided (bubble was fully visible in viewport)
-    if (widget.heroTag != null && !isLargeBubble) {
-      bubbleContent = Hero(
-        tag: widget.heroTag!,
-        flightShuttleBuilder: (
-          BuildContext flightContext,
-          Animation<double> animation,
-          HeroFlightDirection flightDirection,
-          BuildContext fromHeroContext,
-          BuildContext toHeroContext,
-        ) {
-          return OverflowBox(
-            alignment: Alignment.center,
-            minWidth: 0,
-            minHeight: 0,
-            maxWidth: double.infinity,
-            maxHeight: double.infinity,
-            child: Material(
-              color: Colors.transparent,
-              child: widget.bubbleWidget,
-            ),
-          );
-        },
-        child: bubbleContent,
-      );
-    }
     
     // Wrap bubble in a constrained scrollable container for large messages
     Widget constrainedBubble = ConstrainedBox(
@@ -373,27 +346,19 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
               child: _buildReactionsRow(colorPalette, spacing, typography, overlayStyle),
             ),
           
-          SizedBox(height: spacing.padding2 ?? 8),
+          SizedBox(height: spacing.padding1 ?? 4),
           
-          // Message bubble - only this is scrollable for large messages
-          if (isLargeBubble)
-            Expanded(
-              child: Align(
-                alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
-                child: displayBubble,
-              ),
-            )
-          else
-            Align(
-              alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
-              child: displayBubble,
-            ),
-          
-          SizedBox(height: spacing.padding2 ?? 8),
-          
-          // Action options - aligned OPPOSITE to bubble
+          // Message bubble - constrained and scrollable for large messages
           Align(
-            alignment: isLeftAligned ? Alignment.centerRight : Alignment.centerLeft,
+            alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
+            child: displayBubble,
+          ),
+          
+          SizedBox(height: spacing.padding1 ?? 4),
+          
+          // Action options - aligned same side as bubble
+          Align(
+            alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
             child: _buildOptionsContainer(colorPalette, spacing, typography, overlayStyle),
           ),
           
@@ -422,9 +387,16 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
             BorderRadius.circular(spacing.radiusMax ?? 24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 16,
+            spreadRadius: 0,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 4,
+            spreadRadius: 0,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -500,19 +472,11 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
         }
       },
       child: Padding(
-        padding: EdgeInsets.only(left: spacing.padding2 ?? 8),
-        child: Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: colorPalette.background3,
-            shape: BoxShape.circle,
-          ),
-          child: widget.addReactionIcon ?? Icon(
-            Icons.add_reaction_outlined,
-            size: 18,
-            color: colorPalette.iconSecondary,
-          ),
+        padding: EdgeInsets.symmetric(horizontal: spacing.padding1 ?? 4),
+        child: widget.addReactionIcon ?? Icon(
+          Icons.add_circle_outline,
+          size: 24,
+          color: colorPalette.iconSecondary,
         ),
       ),
     );
@@ -528,7 +492,8 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
 
     return Container(
       constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width * 0.7,
+        maxWidth: MediaQuery.sizeOf(context).width * 0.72,
+        maxHeight: 400,
       ),
       decoration: BoxDecoration(
         color: overlayStyle.optionsBackgroundColor ?? colorPalette.background1,
@@ -536,35 +501,45 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
             BorderRadius.circular(spacing.radius4 ?? 16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 16,
+            spreadRadius: 0,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 4,
+            spreadRadius: 0,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
       child: ClipRRect(
         borderRadius: overlayStyle.optionsBorderRadius ?? 
             BorderRadius.circular(spacing.radius4 ?? 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: widget.actionItems.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            final isLast = index == widget.actionItems.length - 1;
-            
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildOptionItem(item, colorPalette, spacing, typography, overlayStyle),
-                if (!isLast)
-                  Divider(
-                    height: 1,
-                    thickness: 1,
-                    color: overlayStyle.dividerColor ?? colorPalette.borderLight,
-                  ),
-              ],
-            );
-          }).toList(),
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: widget.actionItems.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              final isLast = index == widget.actionItems.length - 1;
+              
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildOptionItem(item, colorPalette, spacing, typography, overlayStyle),
+                  if (!isLast)
+                    Divider(
+                      height: 0.5,
+                      thickness: 0.5,
+                      color: overlayStyle.dividerColor ?? colorPalette.borderLight,
+                    ),
+                ],
+              );
+            }).toList(),
+          ),
         ),
       ),
     );
@@ -577,6 +552,34 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
     CometChatTypography typography,
     CometChatMessageActionOverlayStyle overlayStyle,
   ) {
+    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
+    final iconColor = overlayStyle.optionIconColor ?? 
+        item.style?.iconColor ?? 
+        colorPalette.iconSecondary;
+
+    final iconWidget = item.icon != null
+        ? IconTheme(
+            data: IconThemeData(
+              color: iconColor,
+              size: 22,
+            ),
+            child: item.icon!,
+          )
+        : null;
+
+    final titleWidget = Expanded(
+      child: Text(
+        item.title,
+        style: overlayStyle.optionTitleStyle ?? TextStyle(
+          fontSize: typography.body?.regular?.fontSize ?? 16,
+          fontWeight: typography.body?.regular?.fontWeight,
+          fontFamily: typography.body?.regular?.fontFamily,
+          color: item.style?.titleColor ?? colorPalette.textPrimary,
+        ),
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -584,36 +587,26 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: spacing.padding4 ?? 16,
-            vertical: spacing.padding3 ?? 12,
+            vertical: spacing.padding3 != null ? spacing.padding3! + 2 : 14,
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (item.icon != null) ...[
-                IconTheme(
-                  data: IconThemeData(
-                    color: overlayStyle.optionIconColor ?? 
-                        item.style?.iconColor ?? 
-                        colorPalette.iconSecondary,
-                    size: 20,
-                  ),
-                  child: item.icon!,
-                ),
-                SizedBox(width: spacing.padding3 ?? 12),
-              ],
-              Flexible(
-                child: Text(
-                  item.title,
-                  style: overlayStyle.optionTitleStyle ?? TextStyle(
-                    fontSize: typography.body?.regular?.fontSize,
-                    fontWeight: typography.body?.regular?.fontWeight,
-                    fontFamily: typography.body?.regular?.fontFamily,
-                    color: item.style?.titleColor ?? colorPalette.textPrimary,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+            children: isIOS
+                ? [
+                    // iOS: title left, icon right
+                    titleWidget,
+                    if (iconWidget != null) ...[
+                      SizedBox(width: spacing.padding3 ?? 12),
+                      iconWidget,
+                    ],
+                  ]
+                : [
+                    // Android: icon left, title right
+                    if (iconWidget != null) ...[
+                      iconWidget,
+                      SizedBox(width: spacing.padding3 ?? 12),
+                    ],
+                    titleWidget,
+                  ],
           ),
         ),
       ),

@@ -77,7 +77,12 @@ class _CometChatMarqueeState extends State<CometChatMarquee>
 
   @override
   Widget build(BuildContext context) {
-    final textWidget = Text(widget.text, style: widget.style);
+    final textWidget = Text(
+      widget.text,
+      style: widget.style,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
 
     // If text doesn't require scrolling, return just the text
     if (widget.text == Translations.of(context).online || !_needsScrolling) return textWidget;

@@ -432,6 +432,14 @@ class CometChatConversationListItem extends StatelessWidget {
       return customView ?? const SizedBox.shrink();
     }
 
+    // Hide subtitle for AI agent conversations
+    if (conversation.conversationWith is User) {
+      final user = conversation.conversationWith as User;
+      if (user.role == AIConstants.aiRole || user.role == 'ai') {
+        return const SizedBox.shrink();
+      }
+    }
+
     if (typingIndicators.isNotEmpty) {
       final typingText = _getTypingText(context);
 
@@ -584,6 +592,14 @@ class CometChatConversationListItem extends StatelessWidget {
       return customView ?? const SizedBox.shrink();
     }
 
+    // Hide trailing view (timestamp + unread) for AI agent conversations
+    if (conversation.conversationWith is User) {
+      final user = conversation.conversationWith as User;
+      if (user.role == AIConstants.aiRole || user.role == 'ai') {
+        return const SizedBox.shrink();
+      }
+    }
+
     return Padding(
       padding: EdgeInsets.only(
         left: effectiveSpacing.padding2 ?? 0,
@@ -616,6 +632,7 @@ class CometChatConversationListItem extends StatelessWidget {
   ) {
     DateTime? lastMessageTime =
         conversation.lastMessage?.updatedAt ?? conversation.lastMessage?.sentAt;
+    if (lastMessageTime == null) return const SizedBox();
 
     return CometChatDate(
       date: lastMessageTime,

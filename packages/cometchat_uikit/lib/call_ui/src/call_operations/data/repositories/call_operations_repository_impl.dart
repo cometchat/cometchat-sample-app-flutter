@@ -75,9 +75,9 @@ class CallOperationsRepositoryImpl implements CallOperationsRepository {
 
   @override
   Future<Result<Widget>> startSession(
-      String callToken, SessionSettings settings) async {
+      String sessionId, SessionSettings settings) async {
     try {
-      final widget = await dataSource.startSession(callToken, settings);
+      final widget = await dataSource.startSession(sessionId, settings);
       return Success(widget);
     } on CallOperationsException catch (e) {
       return Failure(message: e.message, code: e.code, exception: e.originalException);

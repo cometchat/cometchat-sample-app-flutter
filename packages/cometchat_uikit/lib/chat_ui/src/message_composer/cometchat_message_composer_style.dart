@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'widgets/rich_text_toolbar/cometchat_rich_text_toolbar_style.dart';
 import 'widgets/inline_audio_recorder/inline_audio_recorder_style.dart';
 
 ///[CometChatMessageComposerStyle] is a data class that has styling-related properties

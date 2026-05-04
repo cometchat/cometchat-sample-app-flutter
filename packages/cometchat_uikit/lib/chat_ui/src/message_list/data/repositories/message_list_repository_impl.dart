@@ -25,6 +25,7 @@ class MessageListRepositoryImpl implements MessageListRepository {
     List<String>? types,
     List<String>? categories,
     bool hideReplies = true,
+    bool withParent = true,
   }) async {
     try {
       final result = await remoteDataSource.getMessages(
@@ -35,6 +36,7 @@ class MessageListRepositoryImpl implements MessageListRepository {
         types: types,
         categories: categories,
         hideReplies: hideReplies,
+        withParent: withParent,
       );
 
       final messages = result.messages;

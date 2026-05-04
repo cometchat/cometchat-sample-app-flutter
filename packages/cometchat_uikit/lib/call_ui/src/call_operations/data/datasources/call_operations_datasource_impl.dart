@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
+import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../../../../cometchat_calls_uikit.dart';
 import '../../../../../cometchat_chat_uikit.dart';
+import 'call_operations_datasource.dart';
 
 /// Implementation of [CallOperationsDataSource] using CometChat SDK.
 ///
@@ -82,71 +85,43 @@ class CallOperationsDataSourceImpl implements CallOperationsDataSource {
 
   @override
   Future<String> generateCallToken(String sessionId) async {
-    // The Calls SDK may briefly report !isInitialized if loginWithAuthToken
-    // triggered an internal logout+re-login cycle (token rotation).
-    // Retry a few times to ride out that window.
-    const maxAttempts = 5;
-    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-      final completer = Completer<String>();
-      CometChatUIKitCalls.generateToken(
-        sessionId,
-        onSuccess: (callToken) {
-          final token = callToken.callToken;
-          if (token == null) {
-            completer.completeError(const CallOperationsException(
-              message: 'Call token is null',
-              code: 'NULL_TOKEN',
-            ));
-          } else {
-            completer.complete(token);
-          }
-        },
-        onError: (CometChatCallsException e) => completer.completeError(
-          CallOperationsException(
-            message: e.message ?? 'Failed to generate call token',
-            code: e.code,
-            originalException: e,
-          ),
-        ),
-      );
-
-      try {
-        return await completer.future;
-      } catch (e) {
-        final isInitError = e is CallOperationsException &&
-            (e.message.contains('CometChatCalls.init') == true ||
-             e.code == 'ERR_CALLS_SDK_NOT_INITIALIZED');
-        if (isInitError && attempt < maxAttempts) {
-          developer.log(
-            'CallOperationsDataSource: generateCallToken attempt $attempt '
-            'failed (SDK not ready), retrying in 500ms...',
-          );
-          await Future.delayed(const Duration(milliseconds: 500));
-          // Re-wait for the SDK to be fully ready before retrying
-          await CallEventService.instance.waitForCallsSdk();
-          continue;
+    final completer = Completer<String>();
+    CometChatUIKitCalls.generateToken(
+      sessionId,
+      onSuccess: (callToken) {
+        final token = callToken.callToken;
+        if (token == null) {
+          completer.completeError(const CallOperationsException(
+            message: 'Call token is null',
+            code: 'NULL_TOKEN',
+          ));
+        } else {
+          completer.complete(token);
         }
-        rethrow;
-      }
-    }
-    throw const CallOperationsException(
-      message: 'Failed to generate call token after retries',
-      code: 'MAX_RETRIES_EXCEEDED',
+      },
+      onError: (CometChatCallsException e) => completer.completeError(
+        CallOperationsException(
+          message: e.message ?? 'Failed to generate call token',
+          code: e.code,
+          originalException: e,
+        ),
+      ),
     );
+    return completer.future;
   }
 
   @override
   Future<Widget> startSession(
-      String callToken, SessionSettings settings) async {
+      String sessionId, SessionSettings settings) async {
     final completer = Completer<Widget>();
     CometChatUIKitCalls.startSession(
-      callToken,
+      sessionId,
       settings,
       onSuccess: (dynamic screen) {
         developer.log('CallOperationsDataSource: startSession onSuccess, screen=$screen, platform=${defaultTargetPlatform.name}');
         // On Android, joinSession returns null — the call UI is rendered
-        // natively by the Calls SDK (React Native layer). Return a transparent
-        // widget so the bloc can emit active status.
+        // natively by the Calls SDK. Return a transparent widget so the
+        // bloc can emit active status.
         // On iOS, screen is a Flutter Widget.
         if (screen != null) {
           completer.complete(screen as Widget);

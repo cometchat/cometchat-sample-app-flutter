@@ -91,6 +91,14 @@ class ConversationsSubtitleView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Hide subtitle for AI agent conversations
+    if (conversation.conversationWith is User) {
+      final user = conversation.conversationWith as User;
+      if (user.role == AIConstants.aiRole || user.role == 'ai') {
+        return const SizedBox();
+      }
+    }
+
     // Calculate prefix for thread indicator
     String prefix = "";
     if (hideThreadIndicator != null && hideThreadIndicator == false) {

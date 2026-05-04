@@ -97,13 +97,11 @@ class CallLogsServiceLocator {
     return _repository;
   }
 
-  /// Ensure service locator is initialized before accessing dependencies
+  /// Ensure service locator is initialized before accessing dependencies.
+  /// Auto-initializes with default datasources on first access.
   void _ensureInitialized() {
     if (!_isInitialized) {
-      throw StateError(
-        'CallLogsServiceLocator is not initialized. '
-        'Call setup() before accessing dependencies.',
-      );
+      setup();
     }
   }
 

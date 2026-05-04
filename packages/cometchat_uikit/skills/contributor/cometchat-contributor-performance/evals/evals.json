@@ -1,0 +1,42 @@
+{
+  "skill_name": "cometchat-contributor-performance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm adding a new CometChatLocationBubble widget. It needs to use the color palette and spacing. What's the correct pattern to avoid jank during keyboard animation?",
+      "expected_output": "The response must show the hybrid theme caching pattern with optional colorPalette/spacing params, didChangeDependencies with _themeInitialized, and didUpdateWidget.",
+      "files": [],
+      "assertions": [
+        "Shows optional colorPalette and spacing constructor parameters",
+        "Caches in didChangeDependencies with _themeInitialized flag",
+        "Falls back to CometChatThemeHelper lookup if params not passed",
+        "Shows didUpdateWidget to handle parent passing new theme values",
+        "Does NOT put theme lookup in build()"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The message list is janky during keyboard open/close. Frame times are 50ms+. The BlocBuilder rebuilds on every state change. How do I fix this?",
+      "expected_output": "The response must show buildWhen optimization to limit rebuilds to meaningful state changes only.",
+      "files": [],
+      "assertions": [
+        "Identifies that BlocBuilder without buildWhen rebuilds on every state emission",
+        "Shows buildWhen comparing only meaningful fields (status, not every property)",
+        "Explains that listener still fires for all changes (side effects)",
+        "Mentions checking for theme lookups in build() as another jank source"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm using indexWhere in findChildIndexCallback of SliverAnimatedList and scroll performance is bad with 500+ messages. What's the fix?",
+      "expected_output": "The response must show replacing O(n) indexWhere with O(1) Map lookup.",
+      "files": [],
+      "assertions": [
+        "Identifies indexWhere as O(n) per call, called per frame during scroll",
+        "Shows maintaining a Map<int, int> (messageId → index) alongside the list",
+        "Shows passing the BLoC's findMessageIndex function to the widget",
+        "Mentions that findChildIndexCallback fires frequently during scroll/animation"
+      ]
+    }
+  ]
+}

@@ -69,6 +69,7 @@ class AdditionalConfigurations {
     this.hideMessageInfoOption,
     this.hideTranslateMessageOption,
     this.hideReplyInThreadOption,
+    this.hideReplyOption,
     this.hideShareMessageOption,
     this.showMarkAsUnreadOption,
   });
@@ -166,6 +167,9 @@ class AdditionalConfigurations {
 
   ///[hideReplyInThreadOption] This prop defines whether Reply In Thread option should be visible or not.
   final bool? hideReplyInThreadOption;
+
+  ///[hideReplyOption] This prop defines whether the inline Reply option should be visible or not.
+  final bool? hideReplyOption;
 
   ///[hideTranslateMessageOption] This prop defines whether Reply In Thread option should be visible or not.
   final bool? hideTranslateMessageOption;

@@ -19,6 +19,7 @@ export 'detail_utils.dart';
 export 'conversation_utils.dart';
 export 'ai_utils.dart';
 export 'action_element_utils.dart';
+export 'emoji_utils.dart';
 export 'moderation_check_util.dart';
 
 // Misc utilities

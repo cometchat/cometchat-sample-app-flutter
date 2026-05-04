@@ -34,8 +34,8 @@ class ComponentToggles {
   final hideGroupActionMessages = ValueNotifier<bool>(false);
   final enableSmartReplies = ValueNotifier<bool>(false);
   final enableConversationStarters = ValueNotifier<bool>(false);
-  final startFromUnreadMessages = ValueNotifier<bool>(true);
-  final showMarkAsUnreadOption = ValueNotifier<bool>(true);
+  final startFromUnreadMessages = ValueNotifier<bool>(false);
+  final showMarkAsUnreadOption = ValueNotifier<bool>(false);
 
   // ── Message List — hide options ────────────────────────────────
   final hideCopyMessageOption = ValueNotifier<bool>(false);

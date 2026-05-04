@@ -8,6 +8,7 @@ import 'dart:developer' as developer;
 
 import '../../../../cometchat_calls_uikit.dart';
 import '../../../../cometchat_chat_uikit.dart';
+import '../call_screen_overlay.dart';
 
 /// Session status listener for the ongoing call
 class _OngoingCallSessionListener extends SessionStatusListeners {
@@ -131,70 +132,34 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
 
   /// Handle load calling screen event.
   ///
-  /// Uses [Completer]s to bridge the nested callback-based SDK calls
-  /// (generateToken → joinSession) so that [emit] stays within the handler scope.
+  /// Uses the V5 sessionId-based joinSession API. The SDK generates the
+  /// call token internally — no separate generateCallToken step needed.
   Future<void> _onLoadCallingScreen(
     LoadCallingScreen event,
     Emitter<OngoingCallState> emit,
   ) async {
     emit(state.copyWith(status: OngoingCallStatus.loading));
 
-    // Ensure the Calls SDK is fully initialized before generating a token.
+    // Ensure the Calls SDK is fully initialized and logged in.
     await CallOperationsServiceLocator.instance.repository.waitForCallsSdk();
 
-    // Wait for auth token to be available
-    String? authToken;
-    final authTokenUseCase = CallOperationsServiceLocator.instance.getUserAuthTokenUseCase;
-    for (int attempt = 0; attempt < 10; attempt++) {
-      final tokenResult = await authTokenUseCase.call();
-      tokenResult.onSuccess((token) => authToken = token);
-      if (authToken != null && authToken!.isNotEmpty) break;
-      developer.log(
-        'OngoingCallBloc: auth token not available yet, '
-        'retrying (${attempt + 1}/10)...',
-      );
-      await Future.delayed(const Duration(milliseconds: 500));
-    }
-
-    if (authToken == null || authToken!.isEmpty) {
-      developer.log('OngoingCallBloc: auth token still null after retries');
-      if (isClosed) return;
+    // Guard: if the SDK still isn't ready after waiting, fail with a clear
+    // message instead of letting the native SDK throw a cryptic error.
+    if (!CallEventService.instance.isCallsSdkReady) {
+      developer.log('OngoingCallBloc: Calls SDK not ready after waitForCallsSdk — cannot start session');
       emit(state.copyWith(
         status: OngoingCallStatus.error,
-        errorMessage: 'User auth token is not available. '
-            'Please ensure you are logged in.',
+        errorMessage: 'Call service is not ready. Please try again.',
       ));
       return;
     }
 
-    developer.log('OngoingCallBloc: Generating token for session $sessionId');
+    developer.log('OngoingCallBloc: Joining session $sessionId');
 
-    // Step 1: Generate token via use case
-    final generateTokenUseCase = CallOperationsServiceLocator.instance.generateCallTokenUseCase;
-    final tokenResult = await generateTokenUseCase.call(sessionId);
-
-    final String callToken;
-    if (tokenResult.isFailure) {
-      if (isClosed) return;
-      final failure = tokenResult as Failure;
-      emit(state.copyWith(
-        status: OngoingCallStatus.error,
-        errorMessage: failure.message,
-      ));
-      return;
-    }
-    callToken = (tokenResult as Success<String>).data;
-
-    // Guard: bloc may have been closed while awaiting token
-    if (isClosed) {
-      developer.log('OngoingCallBloc: closed during token generation, aborting');
-      return;
-    }
-
-    // Step 2: Join session via use case
+    // Join session directly with sessionId — SDK handles token internally
     final startSessionUseCase = CallOperationsServiceLocator.instance.startSessionUseCase;
     final SessionSettings sessionSettings = sessionSettingsBuilder.build();
-    final sessionResult = await startSessionUseCase.call(callToken, sessionSettings);
+    final sessionResult = await startSessionUseCase.call(sessionId, sessionSettings);
 
     if (isClosed) return;
 
@@ -228,11 +193,16 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
     if (callWorkFlow == CallWorkFlow.directCalling) {
       await _endSession(emit);
     } else {
-      if (_participantsList.length <= 1) {
-        await _endCall(emit);
-      }
-      // Always end the WebRTC session after ending the CometChat call
+      // Per CometChat docs: leave the WebRTC session first, then notify
+      // the server via endCall. This ensures the other participant receives
+      // the "call ended" event only after the session is torn down.
       await _endSessionQuietly();
+      // Always end the call on the server for 1-on-1 calls so the other
+      // participant gets the "call ended" event. The participant count
+      // check was unreliable — the list may still show 2 participants
+      // at this point because the leave hasn't propagated yet, causing
+      // _endCall to be skipped and the receiver to stay in the call.
+      await _endCall(emit);
       if (!isClosed) {
         emit(state.copyWith(isCallEndedByMe: true));
       }
@@ -339,11 +309,17 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
       CometChatCallEvents.ccCallEnded(call);
     }
 
-    final navigatorContext = CallNavigationContext.navigatorKey.currentContext;
-    if (navigatorContext != null && navigatorContext.mounted) {
-      final navigator = Navigator.of(navigatorContext);
-      if (navigator.canPop()) {
-        navigator.pop();
+    // Dismiss the isolated overlay if showing, otherwise fall back to
+    // Navigator.pop for backward compatibility (e.g. standalone usage).
+    if (CallScreenOverlay.isShowing) {
+      CallScreenOverlay.dismiss();
+    } else {
+      final navigatorContext = CallNavigationContext.navigatorKey.currentContext;
+      if (navigatorContext != null && navigatorContext.mounted) {
+        final navigator = Navigator.of(navigatorContext);
+        if (navigator.canPop()) {
+          navigator.pop();
+        }
       }
     }
   }
@@ -396,6 +372,10 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
 
     // Update CallStateService
     CallStateService.instance.setActiveCallValue(false);
+
+    // Re-initialize the Calls SDK after session ends.
+    // Per V5 SDK: internal state can get cleared after a session.
+    CallEventService.instance.reinitializeAfterSession();
 
     developer.log('OngoingCallBloc closed');
 

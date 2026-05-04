@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:cometchat_chat_uikit/cometchat_calls_uikit.dart';
 
 import 'package:sample_app/app_credentials.dart';
@@ -31,6 +33,33 @@ class SampleApp extends StatelessWidget {
       title: 'Sample App',
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
+      supportedLocales: const [
+        Locale('en'),
+        Locale('en', 'GB'),
+        Locale('ar'),
+        Locale('de'),
+        Locale('es'),
+        Locale('fr'),
+        Locale('hi'),
+        Locale('hu'),
+        Locale('ja'),
+        Locale('ko'),
+        Locale('lt'),
+        Locale('ms'),
+        Locale('nl'),
+        Locale('pt'),
+        Locale('ru'),
+        Locale('sv'),
+        Locale('tr'),
+        Locale('zh'),
+        Locale('zh', 'TW'),
+      ],
+      localizationsDelegates: const [
+        cc.Translations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

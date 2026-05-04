@@ -229,6 +229,19 @@ class ComposeMessageReceived extends MessageComposerEvent {
   List<Object?> get props => [text, id];
 }
 
+/// Internal event: Clear compose text after it's been applied to the text controller
+class ClearComposeText extends MessageComposerEvent {
+  const ClearComposeText();
+}
+
+/// Internal event: Set AI streaming state
+class SetStreamingState extends MessageComposerEvent {
+  final bool isStreaming;
+  const SetStreamingState({required this.isStreaming});
+  @override
+  List<Object?> get props => [isStreaming];
+}
+
 /// Internal event: User blocked status changed
 class UserBlockedStatusChanged extends MessageComposerEvent {
   final User user;

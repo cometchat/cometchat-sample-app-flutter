@@ -26,9 +26,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen>
   User? _loggedInUser;
   Conversation? _conversation;
   String? _conversationId;
-  // ignore: unused_field
   bool _isLeaveLoading = false;
-  // ignore: unused_field
   bool _isDeleteLoading = false;
 
   late final String _groupListenerId;

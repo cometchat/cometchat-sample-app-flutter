@@ -6,6 +6,7 @@ import '../di/conversations_service_locator.dart';
 import 'conversations_event.dart';
 import 'conversations_state.dart';
 import '../../../../shared_ui/cometchat_uikit_shared.dart';
+import '../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../shared/list_base.dart';
 
 /// BLoC for managing conversations list
@@ -840,7 +841,7 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
     // Receipts are cumulative: "delivered/read up to messageId".
     // If receipt.messageId >= lastMessage.id, the lastMessage is also covered.
-    if (lastMessage.id > receipt.messageId) return;
+    if (lastMessage.id > receipt.messageId!) return;
 
     bool shouldUpdate = false;
 

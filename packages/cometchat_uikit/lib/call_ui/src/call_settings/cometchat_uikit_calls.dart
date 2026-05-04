@@ -190,17 +190,20 @@ class CometChatUIKitCalls {
     });
   }
 
-  ///[startSession] is the method to start a call session. It takes [callToken] and [sessionSettings] as input. And an optional [onSuccess] and [onError] callback.
+  ///[startSession] starts a call session using the V5 sessionId-based API.
+  /// The SDK generates the call token internally.
   static void startSession(
-    String callToken,
+    String sessionId,
     SessionSettings sessionSettings, {
     dynamic Function(Widget?)? onSuccess,
     dynamic Function(CometChatCallsException)? onError,
   }) {
     CometChatCalls.joinSession(
-        callToken: CallToken(token: callToken),
+        sessionId: sessionId,
         sessionSettings: sessionSettings,
         onSuccess: (Widget? callingWidget) {
+      // Launch the ongoing call foreground service (Android notification)
+      CometChatOngoingCallService.launch();
       try {
         if (onSuccess != null) {
           onSuccess(callingWidget);
@@ -234,6 +237,8 @@ class CometChatUIKitCalls {
       {dynamic Function(String)? onSuccess,
       dynamic Function(CometChatCallsException)? onError}) async {
     try {
+      // Abort the ongoing call foreground service (Android notification)
+      await CometChatOngoingCallService.abort();
       await CallSession.getInstance()?.leaveSession();
       CometChat.clearActiveCall();
       try {

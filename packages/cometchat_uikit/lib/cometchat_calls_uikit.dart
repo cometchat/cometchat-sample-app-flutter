@@ -1,7 +1,7 @@
 library cometchat_calls_uikit;
 
 export 'package:cometchat_sdk/cometchat_sdk.dart';
-export 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
+export 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User, LoginListener;
 export 'package:cometchat_sdk/handlers/call_listener.dart';
 export 'call_ui/src/call_bubble/cometchat_call_bubble.dart';
 
@@ -36,6 +36,7 @@ export 'call_ui/src/call_settings/call_navigation_context.dart';
 
 //ongoing call
 export 'call_ui/src/ongoing_call/cometchat_ongoing_call.dart';
+export 'call_ui/src/ongoing_call/call_screen_overlay.dart';
 export 'call_ui/src/ongoing_call/bloc/bloc.dart';
 
 //call logs

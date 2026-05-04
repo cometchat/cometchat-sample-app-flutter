@@ -1,0 +1,41 @@
+{
+  "skill_name": "cometchat-flutter-uikit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to add chat to my Flutter app using CometChat. Show me the minimal setup.",
+      "expected_output": "The response must show UIKitSettingsBuilder with appId, region, authKey, subscriptionType, then CometChatUIKit.init, login, and a basic CometChatConversations widget.",
+      "files": [],
+      "assertions": [
+        "Shows UIKitSettingsBuilder with all required fields including subscriptionType",
+        "Shows CometChatUIKit.init() with await or onSuccess callback",
+        "Shows login via loginWithAuthToken or login",
+        "Shows CometChatConversations as the entry point widget",
+        "Region is lowercase"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm getting 'Authentication null' error when trying to show CometChatConversations",
+      "expected_output": "The response must identify that CometChatUIKit.init() was not called before using components.",
+      "files": [],
+      "assertions": [
+        "Identifies missing CometChatUIKit.init() call",
+        "Shows the correct init sequence: init → login → use components",
+        "Shows checking for cached session with getLoggedInUser()"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "What's the difference between CometChat.addMessageListener and CometChatMessageEvents? When do I use which?",
+      "expected_output": "The response must explain SDK listeners are for remote events and UI events are for local user actions through UIKit components.",
+      "files": [],
+      "assertions": [
+        "Explains SDK listeners fire for remote/server events",
+        "Explains UI events fire for local user actions via UIKit",
+        "Gives concrete examples of when to use each",
+        "Mentions that UIKit BLoCs handle their own SDK listeners automatically"
+      ]
+    }
+  ]
+}

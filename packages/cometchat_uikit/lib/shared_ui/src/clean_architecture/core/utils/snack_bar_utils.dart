@@ -10,11 +10,9 @@ class SnackBarUtils {
       margin: snackBarConfiguration?.margin,
       padding: snackBarConfiguration?.padding,
       duration: snackBarConfiguration?.duration ?? const Duration(seconds: 2),
-      content: Center(
-        child: Text(
-          text,
-          style: snackBarConfiguration?.contentTextStyle,
-        ),
+      content: Text(
+        text,
+        style: snackBarConfiguration?.contentTextStyle,
       ),
     );
 

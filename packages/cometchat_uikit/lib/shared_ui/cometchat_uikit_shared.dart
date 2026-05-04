@@ -41,6 +41,20 @@ export 'src/events/conversation_events/cometchat_conversation_event_listener.dar
 export 'src/events/conversation_events/cometchat_conversation_events.dart';
 export 'src/events/call_events/cometchat_call_events.dart';
 export 'src/events/call_events/cometchat_call_event_listener.dart';
+export 'src/events/ai_assistant_events/cometchat_ai_assistant_events.dart';
+export 'src/events/ai_assistant_events/cometchat_ai_assistant_events_listener.dart';
+
+// AI constants
+export 'src/constants/ai_constants.dart';
+export 'src/constants/ai_feature_constants.dart';
+
+// AI models
+export 'src/models/ai/stream_message.dart';
+export 'src/models/ai_option_style.dart';
+
+// AI services
+export 'src/services/cometchat_stream_service.dart';
+export 'src/services/cometchat_stream_callback.dart';
 
 
 // Export helpers (not duplicated in clean architecture)
@@ -154,3 +168,33 @@ export 'src/cometchat_message_list/widgets/cometchat_new_message_indicator.dart'
 export 'src/cometchat_message_list/widgets/cometchat_new_message_indicator_style.dart';
 export 'src/cometchat_message_list/utils/keyboard_mixin.dart';
 export 'src/cometchat_message_list/utils/composer_height_notifier.dart';
+
+// AI Agent View Builders
+export 'src/views/ai_agent_view_builders/stream_viewer_helper.dart';
+export 'src/views/ai_agent_view_builders/cometchat_code_block.dart';
+export 'src/views/ai_agent_view_builders/cometchat_table_builder.dart';
+export 'src/views/ai_agent_view_builders/cometchat_link_builder.dart';
+export 'src/views/ai_agent_view_builders/cometchat_highlight_builder.dart';
+
+// AI Assistant Bubble
+export 'src/views/ai_assistant_bubble/cometchat_ai_assistant_bubble.dart';
+export 'src/views/ai_assistant_bubble/cometchat_ai_assistant_bubble_style.dart';
+
+// Stream Bubble
+export 'src/views/stream_bubble/cometchat_stream_bubble.dart';
+
+// AI Smart Replies
+export 'src/views/ai_smart_replies/cometchat_ai_smart_replies_view.dart';
+export 'src/views/ai_smart_replies/cometchat_ai_smart_replies_style.dart';
+
+// AI Conversation Starter
+export 'src/views/ai_conversation_starter/cometchat_ai_conversation_starter_view.dart';
+export 'src/views/ai_conversation_starter/cometchat_ai_conversation_starter_style.dart';
+
+// AI Conversation Summary
+export 'src/views/ai_conversation_summary/cometchat_ai_conversation_summary_view.dart';
+export 'src/views/ai_conversation_summary/cometchat_ai_conversation_summary_style.dart';
+
+// AI Option Sheet
+export 'src/views/ai_option_sheet/cometchat_ai_option_sheet.dart';
+export 'src/views/ai_option_sheet/cometchat_ai_option_sheet_style.dart';

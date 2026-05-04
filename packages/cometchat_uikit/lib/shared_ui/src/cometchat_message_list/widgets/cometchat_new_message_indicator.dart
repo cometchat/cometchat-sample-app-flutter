@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
+import 'cometchat_new_message_indicator_style.dart';
 
 /// A horizontal divider with centered "New Messages" text.
 ///

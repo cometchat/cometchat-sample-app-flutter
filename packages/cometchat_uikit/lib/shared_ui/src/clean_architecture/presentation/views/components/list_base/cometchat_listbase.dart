@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import "../../../../clean_architecture.dart";
 import 'list_base_bloc.dart';
+import '../../../../../../l10n/translations.dart';
 
 ///[CometChatListBase] is a top level container widget
 ///used internally by components like [CometChatUsers], [CometChatGroups], [CometChatConversations], [CometChatGroupMembers]
@@ -34,10 +35,10 @@ class CometChatListBase extends StatefulWidget {
     this.searchContentPadding,
     this.titleSpacing,
     this.titleView,
-    this.leadingWidth,
-    this.leadingIconPadding,
     this.onSearchTap,
     this.searchReadOnly = false,
+    this.leadingWidth,
+    this.leadingIconPadding,
   });
 
   ///[style] styling properties
@@ -94,17 +95,17 @@ class CometChatListBase extends StatefulWidget {
   ///[titleView] to specify title view
   final Widget? titleView;
 
+  ///[searchReadOnly] to specify if search box is read only
+  final bool searchReadOnly;
+
+  ///[onSearchTap] callback triggered on search box tap
+  final GestureTapCallback? onSearchTap;
+
   ///[leadingWidth] to specify leading width
   final double? leadingWidth;
 
   ///[leadingIconPadding] to specify leading icon padding
   final EdgeInsetsGeometry? leadingIconPadding;
-
-  ///[onSearchTap] callback triggered when search box is tapped (useful for read-only search that opens a separate screen)
-  final GestureTapCallback? onSearchTap;
-
-  ///[searchReadOnly] when true, the search box is read-only and taps are handled by [onSearchTap]
-  final bool searchReadOnly;
 
   @override
   State<CometChatListBase> createState() => _CometChatListBaseState();
@@ -229,6 +230,7 @@ class _CometChatListBaseState extends State<CometChatListBase> {
                             onChanged: widget.onSearch,
                             readOnly: widget.searchReadOnly,
                             style: widget.style.searchTextStyle,
+                            onTap: widget.onSearchTap,
                             //-----------------------------------------
                             //----------search box decoration----------
                             decoration: InputDecoration(

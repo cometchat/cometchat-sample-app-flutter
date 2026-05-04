@@ -68,6 +68,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<LoadMoreConversationResults>(_onLoadMoreConversations);
     on<LoadMoreMessageResults>(_onLoadMoreMessages);
     on<ClearSearch>(_onClearSearch);
+    on<RefreshCurrentSearch>(_onRefreshCurrentSearch);
     on<ConversationsResultReceived>(_onConversationsResult);
     on<ConversationsErrorReceived>(_onConversationsError);
     on<MessagesResultReceived>(_onMessagesResult);
@@ -242,6 +243,24 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     ));
   }
 
+  /// Re-trigger the current search with existing text and filters.
+  /// Called when returning from a conversation to refresh stale results
+  /// (e.g., unread filter should exclude now-read chats).
+  void _onRefreshCurrentSearch(
+    RefreshCurrentSearch event,
+    Emitter<SearchState> emit,
+  ) {
+    final text = state.searchText;
+    final filters = state.selectedFilters;
+
+    // Nothing to refresh if no active search
+    if (text.isEmpty && filters.isEmpty) return;
+
+    // Show loading and re-fetch
+    _invalidateAndShowLoading(emit);
+    _handleSearchAndFilters();
+  }
+
   // ============================================================
   // Internal result event handlers
   // ============================================================
@@ -396,10 +415,40 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     _messageRequestVersion++;
     final version = _messageRequestVersion;
 
-    // Always create a fresh builder to avoid stale state
+    debugPrint('[SearchBloc] _searchMessages: text="$text", filters=$filters, version=$version');
+
+    // Count how many attachment filters are active
+    final attachmentFilterLabels = <String>[];
+    if (filters.contains('Photos')) attachmentFilterLabels.add('Photos');
+    if (filters.contains('Videos')) attachmentFilterLabels.add('Videos');
+    if (filters.contains('Audio')) attachmentFilterLabels.add('Audio');
+    if (filters.contains('Documents')) attachmentFilterLabels.add('Documents');
+
+    // Server only supports ONE attachmentType per request.
+    // When multiple attachment filters are selected, fire separate requests
+    // and merge results client-side.
+    if (attachmentFilterLabels.length > 1) {
+      debugPrint('[SearchBloc] _searchMessages: multiple attachment filters, firing ${attachmentFilterLabels.length} separate requests');
+      _searchMessagesMultiFilter(text, filters, attachmentFilterLabels, version);
+      return;
+    }
+
+    // Single filter or no attachment filters — use normal single request path
+    final builder = _buildMessagesRequest(text, filters);
+
+    debugPrint('[SearchBloc] _searchMessages: builder.types=${builder.types}, builder.attachmentTypes=${builder.attachmentTypes}, builder.hasLinks=${builder.hasLinks}');
+    debugPrint('[SearchBloc] _searchMessages: builder.uid=${builder.uid}, builder.guid=${builder.guid}, builder.searchKeyword=${builder.searchKeyword}');
+    debugPrint('[SearchBloc] _searchMessages: builder.limit=${builder.limit}, builder.categories=${builder.categories}');
+
+    _messagesRequest = builder.build();
+    _isFetchingMessages = false;
+    _fetchMessages(version, append: false);
+  }
+
+  /// Builds a MessagesRequestBuilder with common settings.
+  MessagesRequestBuilder _buildMessagesRequest(String text, Set<String> filters) {
     final builder = MessagesRequestBuilder();
 
-    // Copy over any user-provided settings
     if (messagesRequestBuilder != null) {
       builder.uid = messagesRequestBuilder!.uid;
       builder.guid = messagesRequestBuilder!.guid;
@@ -409,19 +458,16 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     builder.limit = filters.isNotEmpty ? _filteredLimit : _defaultLimit;
 
-    // SDK-level text search
     if (text.isNotEmpty) {
       builder.searchKeyword = text;
     }
 
-    // Scope to user/group if provided
     if (user != null) {
       builder.uid = user!.uid;
     } else if (group != null) {
       builder.guid = group!.guid;
     }
 
-    // Default types when no custom builder and no attachment filters
     if (messagesRequestBuilder == null && filters.isEmpty) {
       builder.types = [
         MessageTypeConstants.text,
@@ -432,12 +478,80 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       ];
     }
 
-    // SDK-level attachment/link filters
     _applyMessageFilters(builder, filters);
+    return builder;
+  }
 
-    _messagesRequest = builder.build();
-    _isFetchingMessages = false;
-    _fetchMessages(version, append: false);
+  /// Fires separate requests per attachment filter and merges results.
+  /// The CometChat server only supports one attachmentType per request.
+  void _searchMessagesMultiFilter(
+    String text,
+    Set<String> allFilters,
+    List<String> attachmentFilterLabels,
+    int version,
+  ) async {
+    _isFetchingMessages = true;
+
+    try {
+      final allResults = <BaseMessage>[];
+      final seenIds = <int>{};
+
+      for (final filterLabel in attachmentFilterLabels) {
+        if (version != _messageRequestVersion || isClosed) return;
+
+        // Build a request with just this one attachment filter
+        final singleFilter = <String>{filterLabel};
+        // Also include Links if it was selected
+        if (allFilters.contains('Links')) singleFilter.add('Links');
+
+        final builder = _buildMessagesRequest(text, singleFilter);
+        debugPrint('[SearchBloc] _searchMessagesMultiFilter: fetching for filter=$filterLabel, attachmentTypes=${builder.attachmentTypes}');
+
+        final request = builder.build();
+        final completer = Completer<List<BaseMessage>>();
+        request.fetchPrevious(
+          onSuccess: (List<BaseMessage> messages) {
+            if (!completer.isCompleted) completer.complete(messages);
+          },
+          onError: (CometChatException e) {
+            if (!completer.isCompleted) completer.completeError(e);
+          },
+        );
+
+        final results = await completer.future;
+        debugPrint('[SearchBloc] _searchMessagesMultiFilter: filter=$filterLabel returned ${results.length} results');
+
+        for (final msg in results) {
+          if (!seenIds.contains(msg.id)) {
+            seenIds.add(msg.id);
+            allResults.add(msg);
+          }
+        }
+      }
+
+      if (version != _messageRequestVersion || isClosed) return;
+
+      // Sort merged results by sentAt descending (newest first)
+      allResults.sort((a, b) {
+        final aTime = a.sentAt?.millisecondsSinceEpoch ?? 0;
+        final bTime = b.sentAt?.millisecondsSinceEpoch ?? 0;
+        return bTime.compareTo(aTime);
+      });
+
+      debugPrint('[SearchBloc] _searchMessagesMultiFilter: merged ${allResults.length} unique results');
+
+      add(MessagesResultReceived(
+        messages: allResults,
+        hasMore: false, // Pagination not supported for merged results
+        append: false,
+      ));
+    } catch (e) {
+      debugPrint('[SearchBloc] _searchMessagesMultiFilter: ERROR: $e');
+      if (version != _messageRequestVersion || isClosed) return;
+      add(MessagesErrorReceived(e.toString()));
+    } finally {
+      _isFetchingMessages = false;
+    }
   }
 
   /// Applies SDK-native filter properties based on selected filter chips.
@@ -445,6 +559,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   void _applyMessageFilters(
       MessagesRequestBuilder builder, Set<String> filters) {
     if (filters.isEmpty) return;
+
+    debugPrint('[SearchBloc] _applyMessageFilters: filters=$filters');
 
     final attachmentTypes = <String>[];
     if (filters.contains('Photos')) {
@@ -461,10 +577,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
     if (attachmentTypes.isNotEmpty) {
       builder.attachmentTypes = attachmentTypes;
+      debugPrint('[SearchBloc] _applyMessageFilters: set attachmentTypes=$attachmentTypes');
     }
 
     if (filters.contains('Links')) {
       builder.hasLinks = true;
+      debugPrint('[SearchBloc] _applyMessageFilters: set hasLinks=true');
     }
   }
 
@@ -486,6 +604,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final results = await completer.future;
       if (version != _messageRequestVersion || isClosed) return;
 
+      debugPrint('[SearchBloc] _fetchMessages: got ${results.length} results, version=$version, currentVersion=$_messageRequestVersion');
+      for (final msg in results) {
+        debugPrint('[SearchBloc] _fetchMessages: msg id=${msg.id}, type=${msg.type}, category=${msg.category}');
+      }
+
       final reversed = results.reversed.toList();
       final limit =
           state.selectedFilters.isNotEmpty ? _filteredLimit : _defaultLimit;
@@ -495,6 +618,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         append: append,
       ));
     } catch (e) {
+      debugPrint('[SearchBloc] _fetchMessages: ERROR: $e');
       if (version != _messageRequestVersion || isClosed) return;
       add(MessagesErrorReceived(e.toString()));
     } finally {

@@ -300,3 +300,9 @@ class MessageSentByUser extends MessageListEvent {
   @override
   List<Object?> get props => [message, status];
 }
+
+/// Force the message list into empty state without loading messages.
+/// Used for AI users with no active thread (fresh chat).
+class ForceEmptyState extends MessageListEvent {
+  const ForceEmptyState();
+}

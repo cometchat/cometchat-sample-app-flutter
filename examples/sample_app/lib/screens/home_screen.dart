@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
@@ -6,8 +7,13 @@ import 'package:sample_app/utils/feature_flags.dart';
 import 'package:sample_app/utils/component_toggles.dart';
 import 'package:sample_app/screens/messages_screen.dart';
 import 'package:sample_app/screens/contacts_screen.dart';
+import 'package:sample_app/screens/create_group_screen.dart';
 import 'package:sample_app/screens/call_log_details_screen.dart';
+import 'package:sample_app/screens/join_protected_group_screen.dart';
 import 'package:sample_app/screens/login_screen.dart';
+
+// Note: Push notification services (Firebase, APNs, VoIP) are not included
+// in this sample app. See CometChat documentation for push notification setup.
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,12 +27,13 @@ class _HomeScreenState extends State<HomeScreen> {
   final _toggles = ComponentToggles.instance;
   late CometChatColorPalette _colorPalette;
 
-  static const _tabTitles = ['Chats', 'Calls', 'Users', 'Groups'];
+  static const _tabTitlesMobile = ['Chats', 'Calls', 'Users', 'Groups'];
+  static const _tabTitlesWeb = ['Chats', 'Users', 'Groups'];
+  static List<String> get _tabTitles => kIsWeb ? _tabTitlesWeb : _tabTitlesMobile;
 
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
@@ -45,17 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
-          // New chat button
-          if (FeatureFlags.showNewChatButton)
-            IconButton(
-              icon: Icon(Icons.edit_square,
-                  color: _colorPalette.iconPrimary),
-              tooltip: cc.Translations.of(context).newChat,
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ContactsScreen()),
-              ),
-            ),
           // Profile popup menu
           if (FeatureFlags.showProfileMenu)
             _buildProfileMenu(),
@@ -69,23 +65,24 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: _colorPalette.primary,
         unselectedItemColor: _colorPalette.textSecondary,
         type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.chat_outlined),
             activeIcon: Icon(Icons.chat_rounded),
             label: 'Chats',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.call_outlined),
-            activeIcon: Icon(Icons.call_rounded),
-            label: 'Calls',
-          ),
-          BottomNavigationBarItem(
+          if (!kIsWeb)
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.call_outlined),
+              activeIcon: Icon(Icons.call_rounded),
+              label: 'Calls',
+            ),
+          const BottomNavigationBarItem(
             icon: Icon(Icons.person_outline_rounded),
             activeIcon: Icon(Icons.person_rounded),
             label: 'Users',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.people_alt_outlined),
             activeIcon: Icon(Icons.people_alt_rounded),
             label: 'Groups',
@@ -97,72 +94,153 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProfileMenu() {
     final loggedInUser = CometChatUIKit.loggedInUser;
+    final typography = CometChatThemeHelper.getTypography(context);
+    final spacing = CometChatThemeHelper.getSpacing(context);
+
     return PopupMenuButton<String>(
-      icon: CometChatAvatar(
-        name: loggedInUser?.name ?? '',
-        image: loggedInUser?.avatar ?? '',
-        height: 32,
-        width: 32,
-      ),
-      offset: const Offset(0, 48),
-      color: _colorPalette.background1,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(spacing.radius2 ?? 8),
         side: BorderSide(
           color: _colorPalette.borderLight ?? Colors.transparent,
+          width: 1,
+        ),
+      ),
+      color: _colorPalette.background1,
+      elevation: 4,
+      menuPadding: EdgeInsets.zero,
+      padding: EdgeInsets.zero,
+      icon: Padding(
+        padding: EdgeInsets.only(
+          left: spacing.padding3 ?? 0,
+          right: spacing.padding4 ?? 0,
+        ),
+        child: CometChatAvatar(
+          width: 40,
+          height: 40,
+          image: loggedInUser?.avatar ?? '',
+          name: loggedInUser?.name ?? '',
         ),
       ),
       onSelected: (value) async {
-        if (value == 'logout') {
-          await CometChatUIKit.logout(
-            onSuccess: (_) {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (route) => false,
-              );
-            },
-            onError: (e) {
-              debugPrint('Logout error: ${e.message}');
-            },
-          );
+        switch (value) {
+          case '/create':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ContactsScreen()),
+            );
+            break;
+          case '/logout':
+            await CometChatUIKit.logout(
+              onSuccess: (_) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              },
+              onError: (e) {
+                debugPrint('Logout error: ${e.message}');
+              },
+            );
+            break;
         }
       },
-      itemBuilder: (context) => [
+      position: PopupMenuPosition.under,
+      enableFeedback: false,
+      itemBuilder: (BuildContext bc) => [
         PopupMenuItem(
-          enabled: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          height: 44,
+          padding: EdgeInsets.all(spacing.padding4 ?? 16),
+          value: '/create',
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                loggedInUser?.name ?? '',
-                style: TextStyle(
-                  color: _colorPalette.textPrimary,
-                  fontWeight: FontWeight.w600,
+              Padding(
+                padding: EdgeInsets.only(right: spacing.padding2 ?? 8),
+                child: Icon(
+                  Icons.add_comment_outlined,
+                  color: _colorPalette.iconSecondary,
+                  size: 24,
                 ),
               ),
               Text(
-                loggedInUser?.uid ?? '',
+                'Create Conversation',
                 style: TextStyle(
-                  color: _colorPalette.textSecondary,
-                  fontSize: 12,
+                  fontSize: typography.body?.regular?.fontSize,
+                  fontFamily: typography.body?.regular?.fontFamily,
+                  fontWeight: typography.body?.regular?.fontWeight,
+                  color: _colorPalette.textPrimary,
                 ),
               ),
             ],
           ),
         ),
-        const PopupMenuDivider(),
         PopupMenuItem(
-          value: 'logout',
+          height: 44,
+          padding: EdgeInsets.all(spacing.padding4 ?? 16),
+          enabled: false,
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.logout, color: _colorPalette.error, size: 20),
-              const SizedBox(width: 8),
+              Padding(
+                padding: EdgeInsets.only(right: spacing.padding2 ?? 8),
+                child: Icon(
+                  Icons.account_circle_outlined,
+                  color: _colorPalette.iconSecondary,
+                  size: 24,
+                ),
+              ),
               Text(
-                'Logout',
-                style: TextStyle(color: _colorPalette.error),
+                loggedInUser?.name ?? '',
+                style: TextStyle(
+                  fontSize: typography.body?.regular?.fontSize,
+                  fontFamily: typography.body?.regular?.fontFamily,
+                  fontWeight: typography.body?.regular?.fontWeight,
+                  color: _colorPalette.textPrimary,
+                ),
               ),
             ],
+          ),
+        ),
+        PopupMenuItem(
+          height: 44,
+          padding: EdgeInsets.all(spacing.padding4 ?? 16),
+          value: '/logout',
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(right: spacing.padding2 ?? 8),
+                child: Icon(
+                  Icons.logout,
+                  color: _colorPalette.error,
+                  size: 24,
+                ),
+              ),
+              Text(
+                'Logout',
+                style: TextStyle(
+                  fontSize: typography.body?.regular?.fontSize,
+                  fontFamily: typography.body?.regular?.fontFamily,
+                  fontWeight: typography.body?.regular?.fontWeight,
+                  color: _colorPalette.error,
+                ),
+              ),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          height: 44,
+          padding: EdgeInsets.all(spacing.padding4 ?? 16),
+          enabled: false,
+          child: Text(
+            'v6.0.0-beta3',
+            style: TextStyle(
+              fontSize: typography.caption1?.regular?.fontSize,
+              fontFamily: typography.caption1?.regular?.fontFamily,
+              fontWeight: typography.caption1?.regular?.fontWeight,
+              color: _colorPalette.textTertiary,
+            ),
           ),
         ),
       ],
@@ -170,8 +248,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
-    // Calls tab built on-demand with proper error handling
-    if (_currentIndex == 1) {
+    // On web: no Calls tab. Indices: 0=Chats, 1=Users, 2=Groups
+    // On mobile: 0=Chats, 1=Calls, 2=Users, 3=Groups
+    if (!kIsWeb && _currentIndex == 1) {
       return CometChatCallLogs(
         hideAppbar: true,
         onItemClick: (callLog) => _openCallLogDetails(context, callLog),
@@ -265,7 +344,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     // Wrap in ValueListenableBuilder so toggle changes rebuild tabs instantly
-    final stackIndex = _currentIndex == 0 ? 0 : _currentIndex - 1;
+    // On web: 0=Chats, 1=Users, 2=Groups (no Calls offset)
+    // On mobile: 0=Chats, 2=Users, 3=Groups → subtract 1 for Calls gap
+    final int stackIndex;
+    if (kIsWeb) {
+      stackIndex = _currentIndex; // 0=Chats, 1=Users, 2=Groups
+    } else {
+      stackIndex = _currentIndex == 0 ? 0 : _currentIndex - 1;
+    }
     return ValueListenableBuilder<int>(
       valueListenable: _toggles.revision,
       builder: (context, _, __) {
@@ -313,11 +399,30 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildGroupsTab() {
-    return CometChatGroups(
-      hideAppbar: true,
-      onItemTap: (_, group) => _openGroupChat(context, group),
-      hideSearch: _toggles.groupsHideSearch.value,
-      groupTypeVisibility: _toggles.groupsGroupTypeVisibility.value,
+    return Stack(
+      children: [
+        CometChatGroups(
+          hideAppbar: true,
+          onItemTap: (_, group) => _openGroupChat(context, group),
+          hideSearch: _toggles.groupsHideSearch.value,
+          groupTypeVisibility: _toggles.groupsGroupTypeVisibility.value,
+        ),
+        Positioned(
+          bottom: 16,
+          right: 16,
+          child: FloatingActionButton(
+            heroTag: 'create_group',
+            backgroundColor: _colorPalette.primary,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreateGroupScreen()),
+              );
+            },
+            child: Icon(Icons.group_add, color: _colorPalette.white),
+          ),
+        ),
+      ],
     );
   }
 
@@ -366,6 +471,20 @@ class _HomeScreenState extends State<HomeScreen> {
     final group = conversation.conversationType != 'user'
         ? conversation.conversationWith as Group
         : null;
+
+    // Protected group that user hasn't joined → show password screen
+    if (group != null &&
+        !group.hasJoined &&
+        group.type == GroupTypeConstants.password) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => JoinProtectedGroupScreen(group: group),
+        ),
+      );
+      return;
+    }
+
     _pushMessages(context, user: user, group: group);
   }
 
@@ -381,8 +500,19 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openUserChat(BuildContext context, User user) =>
       _pushMessages(context, user: user);
 
-  void _openGroupChat(BuildContext context, Group group) =>
-      _pushMessages(context, group: group);
+  void _openGroupChat(BuildContext context, Group group) {
+    // Protected group that user hasn't joined → show password screen
+    if (!group.hasJoined && group.type == GroupTypeConstants.password) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => JoinProtectedGroupScreen(group: group),
+        ),
+      );
+      return;
+    }
+    _pushMessages(context, group: group);
+  }
 
   void _pushMessages(BuildContext context, {User? user, Group? group, int? scrollToMessageId}) {
     Navigator.push(
@@ -394,4 +524,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

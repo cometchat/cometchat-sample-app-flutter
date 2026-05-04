@@ -4,6 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../cometchat_calls_uikit.dart';
 import '../../../../cometchat_chat_uikit.dart' as cc;
 import '../../../../cometchat_chat_uikit.dart';
+import '../bloc/call_logs_bloc.dart';
+import '../bloc/call_logs_event.dart';
+import '../bloc/call_logs_state.dart';
+import '../di/call_logs_service_locator.dart';
 
 ///[CometChatCallLogs] is a component that displays a list of callLogs with the help of [CometChatListBase] and [CometChatListItem]
 ///fetched callLogs are listed down in order of recent activity

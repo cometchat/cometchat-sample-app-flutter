@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
+import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../../../../cometchat_calls_uikit.dart';
@@ -26,7 +28,7 @@ abstract class CallOperationsDataSource {
   Future<Call> rejectCall(String sessionId, String status);
   Future<Call> endCall(String sessionId);
   Future<String> generateCallToken(String sessionId);
-  Future<Widget> startSession(String callToken, SessionSettings settings);
+  Future<Widget> startSession(String sessionId, SessionSettings settings);
   Future<void> endSession();
   Future<CustomMessage> sendCustomMessage(CustomMessage message);
   Future<User?> getLoggedInUser();

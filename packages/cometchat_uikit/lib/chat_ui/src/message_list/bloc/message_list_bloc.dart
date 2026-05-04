@@ -6,7 +6,12 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' show
     CometChatMessageEvents, 
     CometChatMessageEventListener,
     CometChatUIKitHelper,
-    ExtensionType;
+    CometChatUIKit,
+    ExtensionType,
+    AIConstants,
+    StreamMessage,
+    CometChatStreamService,
+    CometChatStreamCallBackEvents;
 
 import 'message_list_event.dart';
 import 'message_list_state.dart';
@@ -22,17 +27,6 @@ import '../domain/usecases/get_logged_in_user_usecase.dart';
 import '../../../../shared_ui/src/clean_architecture/core/constants/enums.dart' as core_enums;
 import '../../../../shared_ui/src/constants/ui_kit_constants.dart' show MessageCategoryConstants;
 import '../../shared/list_base.dart';
-
-// ============================================================================
-// Debug Logging Helper
-// ============================================================================
-
-/// Conditional debug print that only logs in debug mode
-void _debugLog(String message) {
-  if (kDebugMode) {
-    debugPrint(message);
-  }
-}
 
 // ============================================================================
 // Message Receipt Status
@@ -133,6 +127,10 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   /// Parent message ID for thread replies (null for main conversation)
   final int? parentMessageId;
 
+  /// Whether to include the parent message in thread results (default: false).
+  /// Set to true for AI chat history where the parent message should appear in the list.
+  final bool withParent;
+
   /// Message types to include (null means all types)
   final List<String>? types;
 
@@ -224,6 +222,9 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   /// Unique ID for connection listener
   late final String _connectionListenerId;
 
+  /// Unique ID for AI assistant event listener
+  late final String _aiAssistantListenerId;
+
   /// Unique ID for UI message events listener (ccMessageSent, ccMessageEdited, etc.)
   late final String _uiMessageListenerId;
 
@@ -244,8 +245,16 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   /// Logged in user (cached after first fetch)
   User? _loggedInUser;
 
+  /// Stream service for AI streaming events
+  final CometChatStreamService _streamService = CometChatStreamService();
+
   /// Flag to track if index maps need full rebuild
   bool _mapNeedsRebuild = true;
+
+  /// Flag to skip unread anchor re-detection on the next LoadMessages.
+  /// Set by ResetUnreadState so that a subsequent refresh doesn't
+  /// re-fetch stale conversation metadata and re-set the indicator.
+  bool _skipNextUnreadDetection = false;
 
   // ============================================================
   // CONSTRUCTOR
@@ -299,6 +308,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     this.disableReceipts = false,
     this.hideReplies = true,
     this.disableSDKListeners = false,
+    this.withParent = true,
   })  : getMessagesUseCase =
             getMessagesUseCase ?? _getServiceLocator().getMessagesUseCase,
         loadOlderMessagesUseCase = loadOlderMessagesUseCase ??
@@ -321,6 +331,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     _callListenerId = 'message_list_bloc_call_$timestamp';
     _connectionListenerId = 'message_list_bloc_connection_$timestamp';
     _uiMessageListenerId = 'message_list_bloc_ui_message_$timestamp';
+    _aiAssistantListenerId = 'message_list_bloc_ai_$timestamp';
 
     // Register event handlers (implementations in Task 9)
     on<LoadMessages>(_onLoadMessages);
@@ -344,6 +355,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     on<LoadFromUnread>(_onLoadFromUnread);
     on<ResetUnreadState>(_onResetUnreadState);
     on<MessageSentByUser>(_onMessageSentByUser);
+    on<ForceEmptyState>(_onForceEmptyState);
 
     // List base hook events
     on<_ListMessageAdded>(_onListMessageAdded);
@@ -660,11 +672,22 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   /// Increment thread reply count for a parent message
   /// 
   /// Called when a new thread reply is received.
+  /// Also updates the underlying BaseMessage.replyCount so that
+  /// re-seeding from the model (e.g. on widget rebuild) doesn't
+  /// overwrite the live-incremented value.
   /// 
   /// **Validates: Requirements 15.4**
   void _incrementThreadReplyCount(int parentMessageId) {
     final notifier = getThreadReplyCountNotifier(parentMessageId);
     notifier.value = notifier.value + 1;
+
+    // Keep the BaseMessage.replyCount in sync so that
+    // initializeThreadReplyCount (called on widget rebuild) doesn't
+    // overwrite the notifier with a stale value.
+    final index = findMessageIndex(parentMessageId);
+    if (index != null && index < state.messages.length) {
+      state.messages[index].replyCount = notifier.value;
+    }
   }
 
   // ============================================================
@@ -673,16 +696,8 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
 
   /// Initialize logged in user and register all SDK listeners
   Future<void> _initializeAndRegisterListeners() async {
-    // Fetch logged in user
-    final result = await getLoggedInUserUseCase();
-    result.fold(
-      (failure) {
-        _debugLog('Warning: Failed to get logged-in user: ${failure.message}');
-      },
-      (user) {
-        _loggedInUser = user;
-      },
-    );
+    // Use cached logged-in user from UIKit level (avoids redundant platform channel calls)
+    _loggedInUser = CometChatUIKit.loggedInUser;
 
     // Register SDK listeners if not disabled
     if (!disableSDKListeners) {
@@ -708,6 +723,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         onMediaMessageReceivedCallback: _handleMessageReceived,
         onCustomMessageReceivedCallback: _handleMessageReceived,
         onInteractiveMessageReceivedCallback: _handleMessageReceived,
+        onAIAssistantMessageReceivedCallback: _handleMessageReceived,
         onMessageEditedCallback: _handleMessageEdited,
         onMessageDeletedCallback: _handleMessageDeleted,
         onMessagesDeliveredCallback: _handleMessagesDelivered,
@@ -755,6 +771,16 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         onDisconnectedCallback: _handleDisconnected,
       ),
     );
+
+    // Register AI assistant event listener (for streaming/thinking bubbles)
+    if (user?.role == 'ai' || user?.role == AIConstants.aiRole) {
+      CometChat.addAIAssistantListener(
+        _aiAssistantListenerId,
+        _MessageListAIAssistantListener(
+          onAIAssistantEventReceivedCallback: _handleAIAssistantEvent,
+        ),
+      );
+    }
 
     // Register UI message events listener (for messages sent by logged-in user)
     CometChatMessageEvents.addMessagesListener(
@@ -1086,7 +1112,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     if (isClosed) return;
     // Could emit a state indicating disconnection if needed
     // For now, we just log it
-    _debugLog('MessageListBloc: Connection disconnected');
   }
 
   // ============================================================
@@ -1132,6 +1157,78 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     ));
   }
 
+  // ============================================================
+  // AI ASSISTANT EVENT HANDLING
+  // ============================================================
+
+  /// Handle AI assistant streaming events.
+  /// Creates thinking bubble on run_started, routes content to stream service.
+  /// The CometChatStreamBubble widget handles word-by-word rendering.
+  void _handleAIAssistantEvent(AIAssistantBaseEvent event) {
+    if (isClosed) return;
+    final runId = event.id;
+    if (runId == null) return;
+
+    _streamService.handleIncomingEvent(runId, event);
+
+    if (event.type == AgenticKeys.runStarted ||
+        event.type == AgenticKeys.textMessageStart) {
+      _createThinkingMessage(runId);
+    }
+  }
+
+  /// Create a thinking/streaming bubble for a new AI run.
+  /// Uses negative runId to avoid collision with the parent message ID.
+  /// Initial text is empty — the CometChatStreamBubble widget shows shimmer
+  /// via metadata[aiShimmer]=true, then updates text as content arrives.
+  void _createThinkingMessage(int runId) {
+    final thinkingMessageId = -runId;
+    // Don't create duplicate thinking bubbles
+    for (final msg in state.messages) {
+      if (msg.id == thinkingMessageId) return;
+    }
+
+    final thinkingMessage = StreamMessage(
+      id: thinkingMessageId,
+      text: 'Thinking...', // Shown with shimmer effect until content arrives
+      sender: user,
+      receiver: _loggedInUser,
+      receiverUid: _loggedInUser?.uid ?? '',
+      receiverType: CometChatReceiverType.user,
+      sentAt: DateTime.now(),
+      runId: runId,
+      muid: 'run_$runId',
+      metadata: {AIConstants.aiShimmer: true},
+      parentMessageId: parentMessageId ?? 0,
+    );
+
+    _streamService.setMessageIdForRun(runId, thinkingMessage.id);
+    _streamService.getOrCreateBuffer(runId);
+    _streamService.registerMessage(thinkingMessage);
+
+    // Notify composer that AI is streaming (shows stop button)
+    CometChatStreamCallBackEvents.ccStreamInProgress(true);
+
+    add(MessageReceived(thinkingMessage));
+  }
+
+  /// Force the message list into empty state without loading messages.
+  /// Used for AI users with no active thread (fresh chat).
+  Future<void> _onForceEmptyState(
+    ForceEmptyState event,
+    Emitter<MessageListState> emit,
+  ) async {
+    // Use cached logged-in user from UIKit level
+    _loggedInUser ??= CometChatUIKit.loggedInUser;
+    emit(state.copyWith(
+      status: MessageListStatus.empty,
+      messages: [],
+      hasMoreOlder: false,
+      hasMoreNewer: false,
+      loggedInUser: _loggedInUser,
+    ));
+  }
+
   /// Handle MessageSentByUser event
   ///
   /// Processes the full inProgress → sent/error lifecycle inside the BLoC
@@ -1147,20 +1244,19 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     final isSent = statusStr == core_enums.MessageStatus.sent.toString();
     final isError = statusStr == core_enums.MessageStatus.error.toString();
 
-    _debugLog('[MessageListBloc] _onMessageSentByUser: status=$statusStr, '
-        'id=${message.id}, muid=${message.muid}, '
-        'currentMessageCount=${state.messages.length}, '
-        'muidIndex=${message.muid.isNotEmpty ? findMessageIndexByMuid(message.muid) : "empty_muid"}, '
-        'idIndex=${message.id > 0 ? findMessageIndex(message.id) : "id<=0"}');
-
     if (isInProgress) {
+      // Clear the "New Messages" indicator — user is actively sending,
+      // so they've seen the conversation.
+      if (state.unreadMessageAnchorId != null) {
+        _skipNextUnreadDetection = true;
+        emit(state.copyWithCleared(clearUnreadState: true));
+      }
+
       // Check if message already exists
       if (message.muid.isNotEmpty && findMessageIndexByMuid(message.muid) != null) {
-        _debugLog('[MessageListBloc] _onMessageSentByUser: SKIPPING inProgress - muid already exists');
         return;
       }
       if (message.id > 0 && findMessageIndex(message.id) != null) {
-        _debugLog('[MessageListBloc] _onMessageSentByUser: SKIPPING inProgress - id already exists');
         return;
       }
 
@@ -1208,8 +1304,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         for (int i = 0; i < state.messages.length; i++) {
           if (state.messages[i].muid == message.muid) {
             existingIndex = i;
-            _debugLog('[MessageListBloc] _onMessageSentByUser SENT: '
-                'O(n) fallback found muid=${message.muid} at index=$i');
             break;
           }
         }
@@ -1222,19 +1316,10 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         for (int i = state.messages.length - 1; i >= 0; i--) {
           if (state.messages[i].id <= 0) {
             existingIndex = i;
-            _debugLog('[MessageListBloc] _onMessageSentByUser SENT: '
-                'empty-muid fallback found pending at index=$i '
-                'with muid=${state.messages[i].muid}');
             break;
           }
         }
       }
-
-      _debugLog('[MessageListBloc] _onMessageSentByUser SENT: '
-          'muid=${message.muid}, id=${message.id}, '
-          'existingIndex=$existingIndex, '
-          'muidMapKeys=${_muidIndexMap.keys.toList()}, '
-          'messageCount=${state.messages.length}');
 
       if (existingIndex != null && existingIndex < state.messages.length) {
         // Update the pending message in place
@@ -1270,8 +1355,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         // Pending message not found — check by ID to avoid adding a duplicate
         final existingById = message.id > 0 ? findMessageIndex(message.id) : null;
         if (existingById != null) {
-          _debugLog('[MessageListBloc] _onMessageSentByUser SENT: '
-              'SKIPPING add — already exists by id=${message.id} at index=$existingById');
           return;
         }
 
@@ -1279,8 +1362,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         if (message.id > 0) {
           for (int i = 0; i < state.messages.length; i++) {
             if (state.messages[i].id == message.id) {
-              _debugLog('[MessageListBloc] _onMessageSentByUser SENT: '
-                  'SKIPPING add — O(n) found id=${message.id} at index=$i');
               return;
             }
           }
@@ -1289,9 +1370,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         // Check filters
         if (!_passesTypeAndCategoryFilters(message)) return;
         if (state.hasMoreNewer) return;
-
-        _debugLog('[MessageListBloc] _onMessageSentByUser SENT: '
-            'adding as NEW message (no pending found)');
 
         // Add as new sent message
         final insertIndex = state.messages.length;
@@ -1361,13 +1439,10 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   /// Handle message edited by logged-in user (from UI events)
   void _handleCCMessageEdited(BaseMessage message, dynamic status) {
     if (isClosed) return;
-    _debugLog('[MessageListBloc] _handleCCMessageEdited called with message.id=${message.id}, status=$status');
     // Use string comparison for reliable dynamic type comparison
     final statusStr = status.toString();
     final expectedStatus = core_enums.MessageEditStatus.success.toString();
-    _debugLog('[MessageListBloc] statusStr=$statusStr, expectedStatus=$expectedStatus, match=${statusStr == expectedStatus}');
     if (statusStr == expectedStatus) {
-      _debugLog('[MessageListBloc] Adding MessageEdited event');
       add(MessageEdited(message));
     }
   }
@@ -1400,18 +1475,8 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     // Emit loading state
     emit(state.copyWith(status: MessageListStatus.loading));
 
-    // Fetch logged in user if not already cached
-    if (_loggedInUser == null) {
-      final userResult = await getLoggedInUserUseCase();
-      userResult.fold(
-        (failure) {
-          _debugLog('Warning: Failed to get logged-in user: ${failure.message}');
-        },
-        (user) {
-          _loggedInUser = user;
-        },
-      );
-    }
+    // Use cached logged-in user from UIKit level (avoids redundant platform channel calls)
+    _loggedInUser ??= CometChatUIKit.loggedInUser;
 
     // Call getMessagesUseCase
     final result = await getMessagesUseCase(
@@ -1421,9 +1486,12 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
       types: event.types ?? types,
       categories: event.categories ?? categories,
       hideReplies: hideReplies,
+      withParent: withParent,
     );
 
     // Handle Success/Failure results
+    // Extract messages from result for post-fold async processing
+    List<BaseMessage>? _loadedMessages;
     result.fold(
       (failure) {
         // Emit error state
@@ -1433,6 +1501,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         ));
       },
       (messages) {
+        _loadedMessages = messages;
         if (messages.isEmpty) {
           // Emit empty state
           emit(state.copyWith(
@@ -1466,21 +1535,13 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
           ));
 
           // Emit set operation for animated list
-          _operationsController.add(
-            MessageOperation.set(intercepted, animated: true),
-          );
+          if (!_operationsController.isClosed) {
+            _operationsController.add(
+              MessageOperation.set(intercepted, animated: true),
+            );
+          }
 
           onAfterMessagesSet(intercepted);
-        }
-
-        // Mark the conversation as read up to the latest message.
-        // messages.last is the newest (list is sorted oldest-first).
-        // The SDK marks everything up to this message as read.
-        if (!disableReceipts && messages.isNotEmpty && _loggedInUser != null) {
-          final newest = messages.last;
-          if (newest.id > 0) {
-            add(MarkMessageAsRead(newest));
-          }
         }
 
         // Initialize MessagesRequest for pagination
@@ -1495,6 +1556,68 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         );
       },
     );
+
+    // Post-fold async processing: unread anchor detection + mark as read.
+    // This runs in the async _onLoadMessages context where await works.
+    final loadedMessages = _loadedMessages;
+    if (loadedMessages == null || loadedMessages.isEmpty) {
+      return;
+    }
+
+    // Detect unread anchor BEFORE marking as read so we get accurate
+    // server-side unread counts. After MarkMessageAsRead the server
+    // clears the count, but we need the pre-read values for the
+    // "New Messages" indicator on first open.
+    if (_skipNextUnreadDetection) {
+      _skipNextUnreadDetection = false;
+    } else if (state.status == MessageListStatus.loaded &&
+        _loggedInUser != null &&
+        parentMessageId == null &&
+        state.unreadMessageAnchorId == null) {
+      final convResult = await getMessagesUseCase.repository.getConversation(
+        conversationWith: event.conversationWith,
+        conversationType: event.conversationType,
+      );
+      convResult.fold(
+        (_) {}, // ignore failure — indicator is optional
+        (conversation) {
+          final lastReadId = conversation.lastReadMessageId ?? 0;
+          final unreadCnt = conversation.unreadMessageCount ?? 0;
+          if (lastReadId > 0 && unreadCnt > 0) {
+            BaseMessage? anchor;
+            for (final msg in state.messages) {
+              if (msg.sender?.uid == _loggedInUser?.uid) continue;
+              if (msg.deletedAt != null) continue;
+              if (msg.parentMessageId > 0) continue;
+              if (msg.category == MessageCategoryConstants.action) continue;
+              if (msg.id > lastReadId) {
+                anchor = msg;
+                break;
+              }
+            }
+            if (anchor != null) {
+              emit(state.copyWith(
+                unreadMessageAnchor: anchor,
+                unreadMessageAnchorId: anchor.id,
+                lastReadMessageId: lastReadId,
+                unreadCount: unreadCnt,
+                conversation: conversation,
+              ));
+              // Notify the animated list to rebuild so the indicator appears
+              notifyListChanged();
+            }
+          }
+        },
+      );
+    }
+
+    // Now mark as read — this clears the server-side unread count.
+    if (!disableReceipts && _loggedInUser != null) {
+      final newest = loadedMessages.last;
+      if (newest.id > 0) {
+        add(MarkMessageAsRead(newest));
+      }
+    }
   }
 
   /// Initialize MessagesRequest objects for pagination
@@ -1629,9 +1752,11 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
           ));
 
           // Emit insertAll operation for animated list (prepend at index 0)
-          _operationsController.add(
-            MessageOperation.insertAll(olderMessages, 0, animated: false),
-          );
+          if (!_operationsController.isClosed) {
+            _operationsController.add(
+              MessageOperation.insertAll(olderMessages, 0, animated: false),
+            );
+          }
 
           onAfterMessagesSet(intercepted);
         }
@@ -1704,9 +1829,11 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
           ));
 
           // Emit insertAll operation for animated list (append at end)
-          _operationsController.add(
-            MessageOperation.insertAll(newerMessages, state.messages.length - newerMessages.length, animated: false),
-          );
+          if (!_operationsController.isClosed) {
+            _operationsController.add(
+              MessageOperation.insertAll(newerMessages, state.messages.length - newerMessages.length, animated: false),
+            );
+          }
 
           onAfterMessagesSet(intercepted);
         }
@@ -1748,8 +1875,10 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     SyncMessages event,
     Emitter<MessageListState> emit,
   ) async {
-    // If list isn't loaded yet, fall back to normal load
-    if (state.status != MessageListStatus.loaded || state.messages.isEmpty) {
+    // If list isn't loaded yet, fall back to normal load.
+    // But if the list is loaded and simply empty (e.g., new conversation with
+    // conversation starters), do NOT re-fetch — the empty state is intentional.
+    if (state.status != MessageListStatus.loaded) {
       if (conversationWith != null) {
         add(LoadMessages(
           conversationWith: conversationWith!,
@@ -1759,6 +1888,12 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
           categories: categories,
         ));
       }
+      return;
+    }
+
+    // List is loaded but empty — nothing to sync from, and the empty state
+    // is intentional (new conversation). Don't trigger a full re-fetch.
+    if (state.messages.isEmpty) {
       return;
     }
 
@@ -1796,7 +1931,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
 
     result.fold(
       (failure) {
-        _debugLog('SyncMessages failed: ${failure.message}');
       },
       (newerMessages) {
         if (newerMessages.isEmpty) return;
@@ -1831,9 +1965,11 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         onAfterMessagesSet(intercepted);
 
         // Emit insert operation for animated list (silent, no animation)
-        _operationsController.add(
-          MessageOperation.set(intercepted, animated: false),
-        );
+        if (!_operationsController.isClosed) {
+          _operationsController.add(
+            MessageOperation.set(intercepted, animated: false),
+          );
+        }
 
         // Mark the newest message as read
         if (!disableReceipts && _loggedInUser != null && intercepted.isNotEmpty) {
@@ -1862,20 +1998,8 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     final convWith = conversationWith;
     if (convWith == null) return;
 
-    // Fetch logged in user if not already cached
-    if (_loggedInUser == null) {
-      final userResult = await getLoggedInUserUseCase();
-      userResult.fold(
-        (failure) {
-          _debugLog('Warning: Failed to get logged-in user: ${failure.message}');
-        },
-        (user) {
-          _loggedInUser = user;
-        },
-      );
-    }
-
-    _debugLog('🔍 [JUMP] Fetching messages around message $targetId');
+    // Use cached logged-in user from UIKit level
+    _loggedInUser ??= CometChatUIKit.loggedInUser;
 
     // 1. Get the target message details first
     BaseMessage? targetMessage;
@@ -1884,15 +2008,12 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         targetId,
         onSuccess: (message) => message,
         onError: (e) {
-          _debugLog('🔍 [JUMP] Error getting message details: ${e.message}');
         },
       );
     } catch (e) {
-      _debugLog('🔍 [JUMP] Exception getting message details: $e');
     }
 
     if (targetMessage == null) {
-      _debugLog('🔍 [JUMP] Target message $targetId not found');
       return;
     }
 
@@ -1923,7 +2044,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     List<BaseMessage> newerMessages = [];
     newerResult.fold(
       (failure) {
-        _debugLog('🔍 [JUMP] Error fetching newer messages: ${failure.message}');
       },
       (messages) {
         newerMessages = messages;
@@ -1953,9 +2073,11 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
       loggedInUser: _loggedInUser,
     ));
 
-    _operationsController.add(
-      MessageOperation.set(intercepted, animated: false),
-    );
+    if (!_operationsController.isClosed) {
+      _operationsController.add(
+        MessageOperation.set(intercepted, animated: false),
+      );
+    }
 
     onAfterMessagesSet(intercepted);
 
@@ -1986,7 +2108,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     List<BaseMessage> olderMessages = [];
     olderResult.fold(
       (failure) {
-        _debugLog('🔍 [JUMP] Error fetching older messages: ${failure.message}');
       },
       (messages) {
         olderMessages = messages;
@@ -2012,17 +2133,17 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
           hasMoreOlder: olderMessages.length >= 30,
         ));
 
-        _operationsController.add(
-          MessageOperation.insertAll(olderMessages, 0, animated: false),
-        );
+        if (!_operationsController.isClosed) {
+          _operationsController.add(
+            MessageOperation.insertAll(olderMessages, 0, animated: false),
+          );
+        }
 
         onAfterMessagesSet(interceptedCombined);
       }
     } else {
       emit(state.copyWith(hasMoreOlder: false));
     }
-
-    _debugLog('🔍 [JUMP] Loaded ${olderMessages.length} older + 1 target + ${newerMessages.length} newer');
 
     // 6. Reinitialize pagination
     final allMessages = state.messages;
@@ -2059,6 +2180,32 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   ) async {
     final message = event.message;
 
+    // For AI assistant messages, replace the thinking/stream bubble
+    if (message is AIAssistantMessage && message.runId != null) {
+      final thinkingId = -(message.runId!);
+      // Scan for thinking bubble (negative IDs may not be in index map)
+      for (int i = 0; i < state.messages.length; i++) {
+        if (state.messages[i].id == thinkingId) {
+          final thinkingMsg = state.messages[i];
+          _streamService.removeMessageById(thinkingId);
+          _streamService.stopStreamingForRunId(message.runId!);
+          final updatedMessages = List<BaseMessage>.from(state.messages);
+          updatedMessages[i] = message;
+          emit(state.copyWith(
+            messages: updatedMessages,
+            status: MessageListStatus.loaded,
+          ));
+          _rebuildIndexMaps();
+          _operationsController.add(
+            MessageOperation.update(thinkingMsg, message, i),
+          );
+          // Notify composer that streaming is complete (restore send button)
+          CometChatStreamCallBackEvents.ccStreamCompleted(true);
+          return;
+        }
+      }
+    }
+
     // Check if message belongs to current conversation
     if (!_isMessageForCurrentConversation(message)) {
       return;
@@ -2073,13 +2220,18 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     } else {
       // In main conversation mode
       if (message.parentMessageId > 0) {
-        // This is a thread reply - increment the parent message's reply count
-        // **Validates: Requirements 15.4**
-        _incrementThreadReplyCount(message.parentMessageId);
-        
-        // Skip adding to list if hideReplies is true
-        if (hideReplies) {
-          return;
+        // For AI users, accept all messages regardless of parentMessageId
+        // (AI conversations use threading but display flat in the main view)
+        final isAI = user?.role == 'ai' || user?.role == AIConstants.aiRole;
+        if (!isAI) {
+          // This is a thread reply - increment the parent message's reply count
+          // **Validates: Requirements 15.4**
+          _incrementThreadReplyCount(message.parentMessageId);
+          
+          // Skip adding to list if hideReplies is true
+          if (hideReplies) {
+            return;
+          }
         }
       }
     }
@@ -2163,6 +2315,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     // Mark incoming message as read since the conversation is open
     if (!disableReceipts && intercepted.sender?.uid != _loggedInUser?.uid && intercepted.id > 0) {
       add(MarkMessageAsRead(intercepted));
+    } else {
     }
   }
 
@@ -2179,24 +2332,19 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     Emitter<MessageListState> emit,
   ) async {
     final editedMessage = event.message;
-    _debugLog('[MessageListBloc] _onMessageEdited called with message.id=${editedMessage.id}');
     // First try to find message by ID using O(1) lookup
     int? index = findMessageIndex(editedMessage.id);
-    _debugLog('[MessageListBloc] findMessageIndex(${editedMessage.id}) = $index');
     
     // If not found by ID, try by muid (for inProgress -> sent transitions)
     if ((index == null || index >= state.messages.length) && editedMessage.muid.isNotEmpty) {
       index = findMessageIndexByMuid(editedMessage.muid);
-      _debugLog('[MessageListBloc] findMessageIndexByMuid(${editedMessage.muid}) = $index');
     }
     
     if (index == null || index >= state.messages.length) {
-      _debugLog('[MessageListBloc] Message not found in list, returning');
       return;
     }
 
     final oldMessage = state.messages[index];
-    _debugLog('[MessageListBloc] Found message at index $index, updating...');
 
     // Interceptor: allow subclass to filter/transform
     final intercepted = onBeforeMessageUpdated(oldMessage, editedMessage);
@@ -2213,7 +2361,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     updatedMessages[index] = intercepted;
 
     emit(state.copyWith(messages: updatedMessages));
-    _debugLog('[MessageListBloc] Emitted updated state with edited message');
 
     // Emit update operation for animated list
     _operationsController.add(
@@ -2295,6 +2442,28 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
 
       onAfterMessageUpdated(oldMessage, intercepted, index);
     }
+
+    // Update quotedMessage on any replies that reference the deleted message.
+    // This ensures reply previews show "This message was deleted" instead of
+    // going blank when the parent message is deleted.
+    final deletedId = deletedMessage.id;
+    if (deletedId > 0) {
+      final currentMessages = state.messages;
+      bool anyUpdated = false;
+      for (int i = 0; i < currentMessages.length; i++) {
+        final msg = currentMessages[i];
+        if (msg.quotedMessage != null && msg.quotedMessage!.id == deletedId) {
+          msg.quotedMessage!.deletedAt ??= deletedMessage.deletedAt ?? DateTime.now();
+          anyUpdated = true;
+          _operationsController.add(
+            MessageOperation.update(msg, msg, i),
+          );
+        }
+      }
+      if (anyUpdated) {
+        emit(state.copyWith(messages: List<BaseMessage>.from(state.messages)));
+      }
+    }
   }
 
   /// Handle DeliveryReceiptReceived event
@@ -2314,7 +2483,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     // Update all outgoing messages with id <= receipt.messageId.
     for (final message in state.messages) {
       if (message.id <= 0) continue;
-      if (message.id > receipt.messageId) continue;
+      if (message.id > receipt.messageId!) continue;
       if (message.sender?.uid != _loggedInUser?.uid) continue;
       if (message.deliveredAt != null) continue; // already delivered
 
@@ -2343,7 +2512,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     // Update all outgoing messages with id <= receipt.messageId.
     for (final message in state.messages) {
       if (message.id <= 0) continue;
-      if (message.id > receipt.messageId) continue;
+      if (message.id > receipt.messageId!) continue;
       if (message.sender?.uid != _loggedInUser?.uid) continue;
       if (message.readAt != null) continue; // already read
 
@@ -2364,6 +2533,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     MarkMessageAsRead event,
     Emitter<MessageListState> emit,
   ) async {
+
     // Skip if receipts are disabled
     if (disableReceipts) {
       return;
@@ -2374,11 +2544,26 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
 
     result.fold(
       (failure) {
-        _debugLog('Warning: Failed to mark message as read: ${failure.message}');
       },
       (_) {
         // Notify conversations list (and other listeners) so unread count resets
         CometChatMessageEvents.ccMessageRead(event.message);
+
+        // Also clear the server-side unread count for this conversation.
+        // markAsRead marks the individual message but does NOT reset the
+        // conversation's unreadMessageCount on the server. Without this,
+        // refreshing the conversations list will show stale unread badges.
+        final convWith = conversationWith;
+        if (convWith != null) {
+          CometChat.markConversationAsRead(
+            convWith,
+            conversationType,
+            onSuccess: (String result) {
+            },
+            onError: (CometChatException e) {
+            },
+          );
+        }
       },
     );
   }
@@ -2403,8 +2588,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     final message = event.message;
     final reaction = event.reaction;
 
-    _debugLog('[MessageListBloc] _onAddReaction called for message.id=${message.id}, reaction=$reaction');
-
     try {
       // Use Completer to wait for the SDK callback
       final completer = Completer<BaseMessage?>();
@@ -2413,11 +2596,9 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         message.id,
         reaction,
         onSuccess: (BaseMessage updatedMessage) {
-          _debugLog('[MessageListBloc] addReaction onSuccess, updatedMessage.id=${updatedMessage.id}');
           completer.complete(updatedMessage);
         },
         onError: (CometChatException e) {
-          _debugLog('[MessageListBloc] Failed to add reaction: ${e.message}');
           completer.complete(null);
         },
       );
@@ -2426,16 +2607,12 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
       if (updatedMessage != null) {
         // Update the message in the list
         final index = findMessageIndex(message.id);
-        _debugLog('[MessageListBloc] findMessageIndex(${message.id}) = $index');
         if (index != null && index < state.messages.length) {
           _updateMessageAtIndex(index, message, updatedMessage, emit);
-          _debugLog('[MessageListBloc] Updated state with reaction');
         } else {
-          _debugLog('[MessageListBloc] Message not found in list, cannot update');
         }
       }
     } catch (e) {
-      _debugLog('[MessageListBloc] Error adding reaction: $e');
     }
   }
 
@@ -2449,8 +2626,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     final message = event.message;
     final reaction = event.reaction;
 
-    _debugLog('[MessageListBloc] _onRemoveReaction called for message.id=${message.id}, reaction=$reaction');
-
     try {
       // Use Completer to wait for the SDK callback
       final completer = Completer<BaseMessage?>();
@@ -2459,11 +2634,9 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         message.id,
         reaction,
         onSuccess: (BaseMessage updatedMessage) {
-          _debugLog('[MessageListBloc] removeReaction onSuccess, updatedMessage.id=${updatedMessage.id}');
           completer.complete(updatedMessage);
         },
         onError: (CometChatException e) {
-          _debugLog('[MessageListBloc] Failed to remove reaction: ${e.message}');
           completer.complete(null);
         },
       );
@@ -2472,16 +2645,12 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
       if (updatedMessage != null) {
         // Update the message in the list
         final index = findMessageIndex(message.id);
-        _debugLog('[MessageListBloc] findMessageIndex(${message.id}) = $index');
         if (index != null && index < state.messages.length) {
           _updateMessageAtIndex(index, message, updatedMessage, emit);
-          _debugLog('[MessageListBloc] Updated state after removing reaction');
         } else {
-          _debugLog('[MessageListBloc] Message not found in list, cannot update');
         }
       }
     } catch (e) {
-      _debugLog('[MessageListBloc] Error removing reaction: $e');
     }
   }
 
@@ -2503,8 +2672,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
 
     // Check if reaction is for current conversation
     if (!_isReactionForCurrentConversation(reactionEvent)) return;
-
-    _debugLog('[MessageListBloc] _handleMessageReactionAdded for message.id=$messageId');
 
     add(ReactionAddedFromSDK(
       messageId: messageId,
@@ -2528,8 +2695,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
 
     // Check if reaction is for current conversation
     if (!_isReactionForCurrentConversation(reactionEvent)) return;
-
-    _debugLog('[MessageListBloc] _handleMessageReactionRemoved for message.id=$messageId');
 
     add(ReactionRemovedFromSDK(
       messageId: messageId,
@@ -2568,11 +2733,8 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     final messageId = event.messageId;
     final reaction = event.reaction;
 
-    _debugLog('[MessageListBloc] _onReactionAddedFromSDK for message.id=$messageId');
-
     final index = findMessageIndex(messageId);
     if (index == null || index >= state.messages.length) {
-      _debugLog('[MessageListBloc] Message not found in list, cannot update reaction');
       return;
     }
 
@@ -2580,7 +2742,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     final updatedMessage = _addReactionToMessage(message, reaction);
 
     _updateMessageAtIndex(index, message, updatedMessage, emit);
-    _debugLog('[MessageListBloc] Updated state after adding reaction from SDK');
   }
 
   /// Handle ReactionRemovedFromSDK event
@@ -2593,11 +2754,8 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     final messageId = event.messageId;
     final reaction = event.reaction;
 
-    _debugLog('[MessageListBloc] _onReactionRemovedFromSDK for message.id=$messageId');
-
     final index = findMessageIndex(messageId);
     if (index == null || index >= state.messages.length) {
-      _debugLog('[MessageListBloc] Message not found in list, cannot update reaction');
       return;
     }
 
@@ -2605,7 +2763,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     final updatedMessage = _removeReactionFromMessage(message, reaction);
 
     _updateMessageAtIndex(index, message, updatedMessage, emit);
-    _debugLog('[MessageListBloc] Updated state after removing reaction from SDK');
   }
 
   /// Add a reaction to a message's reaction list
@@ -2697,7 +2854,9 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   /// Check if a message belongs to the current conversation
   bool _isMessageForCurrentConversation(BaseMessage message) {
     if (user != null) {
-      // 1-on-1 conversation
+      // 1-on-1 conversation — only accept user-type messages
+      if (message.receiverType != CometChatReceiverType.user) return false;
+
       final senderUid = message.sender?.uid;
       final receiverUid = message.receiverUid;
       final userUid = user!.uid;
@@ -2707,7 +2866,9 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
       // - Receiver is the target user (outgoing message)
       return senderUid == userUid || receiverUid == userUid;
     } else if (group != null) {
-      // Group conversation
+      // Group conversation — only accept group-type messages
+      if (message.receiverType != CometChatReceiverType.group) return false;
+
       return message.receiverUid == group!.guid;
     }
     return false;
@@ -2956,6 +3117,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
       CometChat.removeGroupListener(_groupListenerId);
       CometChat.removeCallListener(_callListenerId);
       CometChat.removeConnectionListener(_connectionListenerId);
+      CometChat.removeAIAssistantListener(_aiAssistantListenerId);
     }
 
     // Remove UI message events listener
@@ -3012,7 +3174,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     final result = await markAsUnreadUseCase(message: message);
     result.fold(
       (failure) {
-        _debugLog('MarkMessageAsUnread failed: ${failure.message}');
       },
       (conversation) {
         CometChatUIKitHelper.onConversationUpdate(conversation);
@@ -3088,7 +3249,6 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         }
 
         final olderRequest = olderBuilder.build();
-        final olderResult = await loadOlderMessagesUseCase(request: olderRequest);
 
         // ── Fetch newer messages (after lastReadId) ──
         final newerBuilder = MessagesRequestBuilder()
@@ -3109,7 +3269,15 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         }
 
         final newerRequest = newerBuilder.build();
-        final newerResult = await loadNewerMessagesUseCase(request: newerRequest);
+
+        // Fetch older and newer messages in parallel for faster load
+        final results = await Future.wait([
+          loadOlderMessagesUseCase(request: olderRequest),
+          loadNewerMessagesUseCase(request: newerRequest),
+        ]);
+
+        final olderResult = results[0];
+        final newerResult = results[1];
 
         final olderMessages = olderResult.fold(
           (failure) => <BaseMessage>[],
@@ -3182,9 +3350,11 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
           conversation: conversation,
         ));
 
-        _operationsController.add(
-          MessageOperation.set(interceptedDeduped, animated: false),
-        );
+        if (!_operationsController.isClosed) {
+          _operationsController.add(
+            MessageOperation.set(interceptedDeduped, animated: false),
+          );
+        }
 
         onAfterMessagesSet(interceptedDeduped);
 
@@ -3213,6 +3383,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     ResetUnreadState event,
     Emitter<MessageListState> emit,
   ) async {
+    _skipNextUnreadDetection = true;
     emit(state.copyWithCleared(clearUnreadState: true));
   }
 
@@ -3463,24 +3634,18 @@ class AnimatedMessageListBloc extends Bloc<MessageListEvent, AnimatedMessageList
     UpdateMessage event,
     Emitter<AnimatedMessageListState> emit,
   ) {
-    debugPrint('[AnimatedMessageListBloc] _onUpdateMessage called: oldMessage.id=${event.oldMessage.id}, newMessage.id=${event.newMessage.id}');
-    debugPrint('[AnimatedMessageListBloc] state.messages.length=${state.messages.length}');
     
     // Try to find by ID first, then by muid
     int? index = event.oldMessage.id > 0
         ? findMessageIndex(event.oldMessage.id)
         : null;
 
-    debugPrint('[AnimatedMessageListBloc] findMessageIndex(${event.oldMessage.id}) = $index');
-
     final oldMuid = event.oldMessage.muid;
     if (index == null && oldMuid.isNotEmpty) {
       index = findMessageIndexByMuid(oldMuid);
-      debugPrint('[AnimatedMessageListBloc] findMessageIndexByMuid($oldMuid) = $index');
     }
 
     if (index == null || index >= state.messages.length) {
-      debugPrint('[AnimatedMessageListBloc] Message not found, returning early');
       return;
     }
 
@@ -3490,7 +3655,6 @@ class AnimatedMessageListBloc extends Bloc<MessageListEvent, AnimatedMessageList
     // Emit state first, then rebuild maps
     emit(state.copyWith(messages: messages));
     _rebuildIndexMaps();
-    debugPrint('[AnimatedMessageListBloc] Emitted updated state');
 
     // Emit operation for animated list
     _operationsController.add(
@@ -3500,7 +3664,6 @@ class AnimatedMessageListBloc extends Bloc<MessageListEvent, AnimatedMessageList
         index,
       ),
     );
-    debugPrint('[AnimatedMessageListBloc] Emitted MessageOperation.update');
   }
 
   /// Handle remove message event
@@ -3623,6 +3786,7 @@ class _MessageListMessageListener with MessageListener {
   final void Function(BaseMessage) onMediaMessageReceivedCallback;
   final void Function(BaseMessage) onCustomMessageReceivedCallback;
   final void Function(BaseMessage) onInteractiveMessageReceivedCallback;
+  final void Function(BaseMessage) onAIAssistantMessageReceivedCallback;
   final void Function(BaseMessage) onMessageEditedCallback;
   final void Function(BaseMessage) onMessageDeletedCallback;
   final void Function(MessageReceipt) onMessagesDeliveredCallback;
@@ -3639,6 +3803,7 @@ class _MessageListMessageListener with MessageListener {
     required this.onMediaMessageReceivedCallback,
     required this.onCustomMessageReceivedCallback,
     required this.onInteractiveMessageReceivedCallback,
+    required this.onAIAssistantMessageReceivedCallback,
     required this.onMessageEditedCallback,
     required this.onMessageDeletedCallback,
     required this.onMessagesDeliveredCallback,
@@ -3669,6 +3834,11 @@ class _MessageListMessageListener with MessageListener {
   @override
   void onInteractiveMessageReceived(InteractiveMessage interactiveMessage) {
     onInteractiveMessageReceivedCallback(interactiveMessage);
+  }
+
+  @override
+  void onAIAssistantMessageReceived(AIAssistantMessage aiAssistantMessage) {
+    onAIAssistantMessageReceivedCallback(aiAssistantMessage);
   }
 
   @override
@@ -3868,6 +4038,20 @@ class _MessageListConnectionListener with ConnectionListener {
   }
 }
 
+/// AI assistant event listener for streaming events (thinking bubbles, content)
+class _MessageListAIAssistantListener with AIAssistantListener {
+  final void Function(AIAssistantBaseEvent) onAIAssistantEventReceivedCallback;
+
+  _MessageListAIAssistantListener({
+    required this.onAIAssistantEventReceivedCallback,
+  });
+
+  @override
+  void onAIAssistantEventReceived(AIAssistantBaseEvent event) {
+    onAIAssistantEventReceivedCallback(event);
+  }
+}
+
 /// UI message event listener for messages sent/edited/deleted by logged-in user
 /// 
 /// Handles UI-triggered message events:
@@ -3900,7 +4084,6 @@ class _MessageListUIEventListener with CometChatMessageEventListener {
     onCCMessageDeletedCallback(message, messageStatus);
   }
 }
-
 
 // ============================================================================
 // Internal ListBase Hook Events

@@ -106,6 +106,15 @@ export 'package:cometchat_sdk/handlers/call_listener.dart';
 
 export 'chat_ui/src/message_composer/cometchat_suggestion_list_style.dart';
 
+// AI Assistant Chat History
+export 'chat_ui/src/ai_assistant_chat_history/cometchat_ai_assistant_chat_history_style.dart';
+export 'chat_ui/src/ai_assistant_chat_history/cometchat_uikit_chat_ai_features.dart';
+export 'chat_ui/src/ai_assistant_chat_history/widgets/widgets.dart';
+export 'chat_ui/src/ai_assistant_chat_history/bloc/bloc.dart';
+export 'chat_ui/src/ai_assistant_chat_history/di/di.dart';
+export 'chat_ui/src/ai_assistant_chat_history/domain/domain.dart' hide
+    GetLoggedInUserUseCase;
+
 
 // Rich Text Formatting
 export 'shared_ui/src/formatter/rich_text/rich_text.dart';

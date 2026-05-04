@@ -1,0 +1,38 @@
+{
+  "skill_name": "cometchat-flutter-theming",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I change the primary color of all CometChat components to my brand color #FF6B35?",
+      "expected_output": "The response must show registering CometChatColorPalette as a ThemeExtension on ThemeData with the custom primary color.",
+      "files": [],
+      "assertions": [
+        "Shows CometChatColorPalette with primary: Color(0xFFFF6B35) as ThemeExtension",
+        "Registers it on MaterialApp's theme and darkTheme",
+        "Does NOT suggest hardcoding colors in individual components"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I set CometChatThemeMode.mode = ThemeMode.dark but nothing changed. The components still show light colors.",
+      "expected_output": "The response must explain that CometChatThemeMode.mode is a static field that doesn't trigger rebuilds, and that ThemeData brightness must also be set.",
+      "files": [],
+      "assertions": [
+        "Explains that CometChatThemeMode.mode is static and doesn't trigger rebuilds",
+        "Shows that ThemeData brightness or MaterialApp themeMode must also change",
+        "Mentions calling setState on the MaterialApp or using ThemeMode.system"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want to override just the background color of CometChatConversations without affecting other components. How?",
+      "expected_output": "The response must show using CometChatConversationsStyle with backgroundColor, not modifying the global theme.",
+      "files": [],
+      "assertions": [
+        "Shows CometChatConversationsStyle with backgroundColor override",
+        "Passes it via the conversationsStyle parameter",
+        "Does NOT modify the global CometChatColorPalette for a single component"
+      ]
+    }
+  ]
+}

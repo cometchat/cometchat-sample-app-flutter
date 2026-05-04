@@ -51,7 +51,6 @@ class _StickerAuxiliaryButtonState extends State<StickerAuxiliaryButton>
   late CometChatSpacing spacing;
   bool _themeInitialized = false;
   Brightness? _cachedBrightness;
-  @override
   void initState() {
     super.initState();
     _listenerId = "StickerAuxiliaryButtonListener";
