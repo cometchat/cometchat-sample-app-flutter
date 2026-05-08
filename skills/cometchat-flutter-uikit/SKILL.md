@@ -439,3 +439,4 @@ buildTypes {
 ```
 
 Without these rules, release builds crash with `ClassNotFoundException` for CometChat classes.
+
