@@ -9,7 +9,7 @@ description: >
   send message, edit message, delete message, reply, thread, reactions, receipts,
   typing indicators, mentions, markdown formatting, text formatters, scroll to bottom,
   unread messages, mark as read, goToMessageId, message options, swipe to reply,
-  smart replies, conversation starters, or resizeToAvoidBottomInset. Also use when
+  smart replies, or conversation starters. Also use when
   the user asks about building a chat screen, message input, or message display.
 license: "MIT"
 compatibility: "cometchat_chat_uikit ^6.0.0; flutter_bloc ^8.1.0"
@@ -28,7 +28,6 @@ The messages screen is composed of three components: `CometChatMessageHeader`, `
 
 ```dart
 Scaffold(
-  resizeToAvoidBottomInset: false, // REQUIRED — composer handles keyboard internally
   appBar: CometChatMessageHeader(
     user: user,
     group: group,
@@ -172,12 +171,10 @@ CometChatMessageHeader(
 
 ## Keyboard-Aware Spacing
 
-`SliverSpacing` handles keyboard interaction:
+`SliverSpacing` handles keyboard interaction inside the message list:
 - At bottom: keyboard pushes list up (normal behavior)
 - Scrolled up: list stays still, only composer moves
 - Safe area: only added when keyboard is closed
-
-This is why `resizeToAvoidBottomInset: false` is mandatory.
 
 ## Message Bubbles
 
@@ -232,7 +229,6 @@ CometChatMessageList(
   onThreadRepliesClick: (message, ctx, {template}) {
     Navigator.push(context, MaterialPageRoute(
       builder: (_) => Scaffold(
-        resizeToAvoidBottomInset: false,
         body: Column(
           children: [
             CometChatThreadedHeader(
@@ -257,7 +253,6 @@ CometChatMessageList(
 
 ## Gotchas
 
-- Forgetting `resizeToAvoidBottomInset: false` causes double keyboard compensation — the most common bug when integrating the messages screen. This applies to thread screens too — any Scaffold containing a `CometChatMessageComposer` must set it to `false`.
 - `textFormatters` should be the same list for both `CometChatMessageList` and `CometChatMessageComposer` to ensure consistent rendering.
 - The rich text system has 3 implementations but only WYSIWYG is active at runtime. Bug fixes go in `rich_text_editing_controller.dart`, not the clean architecture module.
 - `goToMessageId` loads messages around that ID, not from the beginning. The list may not have older messages loaded.
@@ -270,35 +265,6 @@ CometChatMessageList(
   This is especially common when mixing `GroupListener` into a messages screen State class.
 
 ## Anti-Patterns
-
-```dart
-// ❌ WRONG — missing resizeToAvoidBottomInset
-Scaffold(
-  body: Column(children: [
-    Expanded(child: CometChatMessageList(user: user)),
-    CometChatMessageComposer(user: user),
-  ]),
-)
-
-// ❌ WRONG — thread screen with resizeToAvoidBottomInset: true
-Scaffold(
-  resizeToAvoidBottomInset: true, // Double compensation!
-  body: Column(children: [
-    CometChatThreadedHeader(parentMessage: message, loggedInUser: user),
-    Expanded(child: CometChatMessageList(user: user, parentMessageId: message.id)),
-    CometChatMessageComposer(user: user, parentMessageId: message.id),
-  ]),
-)
-
-// ✅ CORRECT — both messages and thread screens
-Scaffold(
-  resizeToAvoidBottomInset: false,
-  body: Column(children: [
-    Expanded(child: CometChatMessageList(user: user)),
-    CometChatMessageComposer(user: user),
-  ]),
-)
-```
 
 ```dart
 // ❌ WRONG — passing immutable widget params to UIKit components
@@ -323,11 +289,9 @@ CometChatMessageComposer(textFormatters: formatters)
 
 ## Checklist
 
-- [ ] Scaffold has `resizeToAvoidBottomInset: false`
 - [ ] Both list and composer have matching `textFormatters`
 - [ ] Mutable `_user`/`_group` state copies, not `widget.user`/`widget.group`
 - [ ] `onThreadRepliesClick` navigates to thread screen with `parentMessageId`
-- [ ] Thread screen Scaffold also has `resizeToAvoidBottomInset: false` (same rule as messages screen)
 - [ ] SDK listeners update `_user`/`_group` for block/kick/scope changes
 - [ ] Colors from `CometChatThemeHelper`, cached in `didChangeDependencies()`
 - [ ] If using SDK listener mixins with `Action`, import UIKit `as cc` to avoid Flutter name conflict

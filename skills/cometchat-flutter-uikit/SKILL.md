@@ -152,9 +152,8 @@ CometChatConversations(
   },
 )
 
-// 4. Messages screen (MUST use resizeToAvoidBottomInset: false)
+// 4. Messages screen
 Scaffold(
-  resizeToAvoidBottomInset: false, // REQUIRED
   appBar: CometChatMessageHeader(
     user: user,
     group: group,
@@ -341,7 +340,6 @@ class MessagesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false, // REQUIRED — composer handles keyboard
       appBar: CometChatMessageHeader(
         user: user,
         group: group,
@@ -362,7 +360,6 @@ Key points in this scaffold:
 - `CometChatUIKit.loggedInUser` is checked synchronously after `init()` — no separate `getLoggedInUser()` call
 - State is managed at the `MyApp` level so login/logout transitions are clean
 - `LoginScreen` uses `CometChatUIKit.login(uid)` with auth key (set in UIKitSettings)
-- `MessagesScreen` has `resizeToAvoidBottomInset: false`
 - Logout calls `CometChatUIKit.logout()` and resets state
 
 ## Top 10 Error Debugging
@@ -371,7 +368,6 @@ Key points in this scaffold:
 |---------|-------|-----|
 | "Authentication null" | `CometChatUIKit.init()` not called | Call init before login/components |
 | "APP ID null" | appId not set in UIKitSettingsBuilder | Set `..appId = 'YOUR_APP_ID'` |
-| Double keyboard compensation | Scaffold `resizeToAvoidBottomInset` is true | Set to `false` when using composer |
 | No typing indicators / presence | `subscriptionType` not set | Set `..subscriptionType = CometChatSubscriptionType.allUsers` |
 | Theme jank during keyboard | Theme looked up in `build()` | Cache in `didChangeDependencies()` with `_themeInitialized` flag |
 | Listener leak / duplicate events | Listener not removed in `dispose()` | Always remove with same ID used to register |
@@ -389,7 +385,7 @@ Key points in this scaffold:
 
 - If `pubspec.yaml` has `cometchat_chat_uikit` → proceed without asking
 - If credentials exist in code → reuse them, don't ask
-- If user says "messages screen" → generate Scaffold + Header + List + Composer with `resizeToAvoidBottomInset: false`
+- If user says "messages screen" → generate Scaffold + Header + List + Composer
 - Always add `subscriptionType` to UIKitSettingsBuilder
 - Always use `CometChatThemeHelper` for colors, never hardcode
 

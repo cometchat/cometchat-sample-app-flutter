@@ -4,7 +4,7 @@ description: >
   Use when deciding WHERE to put CometChat in a Flutter app. Covers placement patterns:
   tab-based home (IndexedStack), Navigator.push messages screen, modal/bottom sheet chat,
   thread overlay, embedded panel, and floating widget. Includes Scaffold configuration,
-  resizeToAvoidBottomInset, SafeArea, and keyboard-aware spacing patterns.
+  SafeArea, and keyboard-aware spacing patterns.
   Triggers on "add chat to my app", "where to put chat", "messages screen layout",
   "tab bar with chat", "chat in modal", "chat in drawer", "embedded chat",
   "Scaffold layout", or "keyboard handling".
@@ -145,14 +145,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false, // REQUIRED — composer handles keyboard
       appBar: CometChatMessageHeader(
         user: _user,
         group: _group,
         onBack: () => Navigator.pop(context),
       ),
       body: SafeArea(
-        bottom: false, // Composer handles bottom safe area
+        bottom: false, // Scaffold handles keyboard inset
         child: Column(
           children: [
             Expanded(child: CometChatMessageList(user: _user, group: _group)),
@@ -167,9 +166,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
 ### Critical Scaffold Rules
 
-1. `resizeToAvoidBottomInset: false` — MANDATORY on any Scaffold with `CometChatMessageComposer`. The composer uses `SliverSpacing` internally to handle keyboard. Setting `true` causes double-compensation.
-2. `SafeArea(bottom: false)` — The composer handles bottom safe area internally.
-3. Mutable `_user`/`_group` — Keep mutable copies in State, not `widget.user`/`widget.group`. Update from SDK listeners for block/kick/scope changes.
+1. `SafeArea(bottom: false)` — The Scaffold's `resizeToAvoidBottomInset` (default `true`) handles the bottom keyboard inset for you, so don't re-apply bottom safe area.
+2. Mutable `_user`/`_group` — Keep mutable copies in State, not `widget.user`/`widget.group`. Update from SDK listeners for block/kick/scope changes.
 
 ---
 
@@ -192,7 +190,6 @@ class ThreadScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false, // REQUIRED — same rule as messages
       appBar: CometChatMessageHeader(
         user: user, group: group,
         onBack: () => Navigator.pop(context),
@@ -254,7 +251,6 @@ void _openChatModal(BuildContext context, User user) {
     builder: (_) => SizedBox(
       height: MediaQuery.sizeOf(context).height * 0.85,
       child: Scaffold(
-        resizeToAvoidBottomInset: false, // Still required!
         appBar: CometChatMessageHeader(
           user: user,
           onBack: () => Navigator.pop(context),
@@ -274,7 +270,6 @@ void _openChatModal(BuildContext context, User user) {
 **Key details:**
 - `isScrollControlled: true` — allows the sheet to be taller than half screen
 - `useSafeArea: true` — respects notch/status bar
-- Inner `Scaffold` still needs `resizeToAvoidBottomInset: false`
 - Use `MediaQuery.sizeOf(context)` not `MediaQuery.of(context).size`
 
 ---
@@ -291,7 +286,6 @@ class SplitView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       body: Row(
         children: [
           // Left: your app content
@@ -354,14 +348,6 @@ MaterialApp(
 ## Anti-Patterns
 
 ```dart
-// ❌ WRONG — resizeToAvoidBottomInset not set (defaults to true)
-Scaffold(
-  body: Column(children: [
-    Expanded(child: CometChatMessageList(user: user)),
-    CometChatMessageComposer(user: user),
-  ]),
-)
-
 // ❌ WRONG — passing widget.user directly (stale after block/kick)
 CometChatMessageList(user: widget.user)
 
@@ -387,12 +373,10 @@ onItemTap: (conv) {
 
 ## Checklist
 
-- [ ] `resizeToAvoidBottomInset: false` on every Scaffold with `CometChatMessageComposer`
-- [ ] `SafeArea(bottom: false)` when using composer (it handles safe area internally)
+- [ ] `SafeArea(bottom: false)` when using composer (Scaffold handles bottom inset)
 - [ ] Mutable `_user`/`_group` state copies, not `widget.user`/`widget.group`
 - [ ] `onItemTap` extracts `User`/`Group` from `conversation.conversationWith`
 - [ ] Protected groups handled (check `group.hasJoined` and `group.type`)
 - [ ] Incoming call handler mounted at app root level
-- [ ] Thread screen also has `resizeToAvoidBottomInset: false`
 - [ ] `hideAppbar: true` when parent provides its own AppBar
 - [ ] `IndexedStack` used for tab-based home (preserves tab state)

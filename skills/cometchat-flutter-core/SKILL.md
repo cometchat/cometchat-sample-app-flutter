@@ -3,8 +3,8 @@ name: cometchat-flutter-core
 description: >
   Use when writing any code that uses cometchat_chat_uikit. Contains hard rules that prevent
   silent failures, crashes, and subtle bugs. Covers CometChatUIKit.init, login, logout,
-  UIKitSettings, UIKitSettingsBuilder, listener lifecycle, theme caching, Scaffold
-  resizeToAvoidBottomInset, subscriptionType, region, muid preservation, and the
+  UIKitSettings, UIKitSettingsBuilder, listener lifecycle, theme caching,
+  subscriptionType, region, muid preservation, and the
   Clean Architecture + BLoC component pattern. Also use when seeing errors like
   "Authentication null", "APP ID null", ERR_ALREADY_LOGGED_IN, or StateError from
   uninitialized ServiceLocator. Make sure to use this skill for any CometChat Flutter
@@ -88,33 +88,6 @@ CometChatUIKit.init(
 
 // ❌ ALSO WRONG — raw SDK getLoggedInUser (bypasses UIKit, unreliable)
 User? existingUser = await CometChat.getLoggedInUser();
-```
-
-## Rule: SCAFFOLD_NO_RESIZE
-
-Any `Scaffold` containing `CometChatMessageComposer` MUST set `resizeToAvoidBottomInset: false`. The composer handles keyboard spacing internally via `SliverSpacing`. Leaving it `true` causes double-compensation and layout jumps.
-
-```dart
-// ✅ CORRECT
-Scaffold(
-  resizeToAvoidBottomInset: false,
-  body: Column(
-    children: [
-      Expanded(child: CometChatMessageList(user: user)),
-      CometChatMessageComposer(user: user),
-    ],
-  ),
-)
-
-// ❌ WRONG — default is true, causes double keyboard compensation
-Scaffold(
-  body: Column(
-    children: [
-      Expanded(child: CometChatMessageList(user: user)),
-      CometChatMessageComposer(user: user),
-    ],
-  ),
-)
 ```
 
 ## Rule: LISTENER_LIFECYCLE
@@ -298,7 +271,6 @@ Every component follows this structure:
 - [ ] Auth check uses `CometChatUIKit.loggedInUser` after init, not `CometChat.getLoggedInUser()`
 - [ ] `subscriptionType` set in UIKitSettingsBuilder
 - [ ] `region` is lowercase
-- [ ] Scaffold has `resizeToAvoidBottomInset: false` if composer is present
 - [ ] Theme cached in `didChangeDependencies()`, not `build()`
 - [ ] SDK listeners registered with unique ID, removed in `dispose()`
 - [ ] Colors from `CometChatThemeHelper`, never hardcoded
