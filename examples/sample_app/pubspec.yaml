@@ -1,7 +1,7 @@
 name: sample_app
 description: "A sample app showcasing CometChat Flutter UIKit"
 publish_to: 'none'
-version: 6.0.0-beta2
+version: 6.0.0
 
 environment:
   sdk: ^3.6.0
@@ -16,9 +16,7 @@ dependencies:
   permission_handler: ^11.3.1
   flutter_localizations:
     sdk: flutter
-  cometchat_chat_uikit:
-    hosted: https://dart.cloudsmith.io/cometchat/cometchat/
-    version: 6.0.0-beta2
+  cometchat_chat_uikit: ^6.0.0
 
 
 dev_dependencies:

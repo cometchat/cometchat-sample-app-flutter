@@ -79,12 +79,13 @@ class CometChatRichTextToolbar extends StatelessWidget {
         borderRadius: toolbarStyle.borderRadius ??
             BorderRadius.circular(spacing.radius2 ?? 8),
       ),
-      padding: EdgeInsets.only(
-        left: spacing.padding3 ?? 12,
-        right: spacing.padding3 ?? 12,
-        top: spacing.padding1 ?? 4,
-        bottom: spacing.padding1 ?? 4,
-      ),
+      padding: toolbarStyle.padding ??
+          EdgeInsets.only(
+            left: spacing.padding3 ?? 12,
+            right: spacing.padding3 ?? 12,
+            top: spacing.padding1 ?? 4,
+            bottom: spacing.padding1 ?? 4,
+          ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(

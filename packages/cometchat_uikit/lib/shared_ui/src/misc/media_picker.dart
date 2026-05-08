@@ -163,9 +163,8 @@ class MediaPicker {
             name.substring(name.lastIndexOf(".") + 1).toLowerCase();
         String? fileType = _getFileType(extension);
         String path = file["path"];
-        if (Platform.isIOS && path.contains(" ")) {
-          path = Uri.encodeFull(path);
-        }
+        debugPrint('[MediaPicker] picked file — path: $path, name: $name, ext: $extension, type: $fileType');
+        debugPrint('[MediaPicker] file exists: ${File(path).existsSync()}');
         return PickedFile(
             name: name,
             path: path,

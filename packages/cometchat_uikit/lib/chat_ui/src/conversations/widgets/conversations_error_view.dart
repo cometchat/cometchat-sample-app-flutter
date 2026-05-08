@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../../cometchat_chat_uikit.dart';
 import '../../../../cometchat_chat_uikit.dart' as cc;
@@ -44,6 +45,13 @@ class ConversationsErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) {
+      debugPrint('[ConversationsErrorView] build');
+      debugPrint('[ConversationsErrorView]   hasError: true (this view only renders on error)');
+      debugPrint('[ConversationsErrorView]   errorMessage: $errorMessage');
+      debugPrint('[ConversationsErrorView]   hasCustomView: ${customView != null}');
+    }
+
     // If a custom view is provided, render it instead
     if (customView != null) {
       return Center(child: customView!(context));

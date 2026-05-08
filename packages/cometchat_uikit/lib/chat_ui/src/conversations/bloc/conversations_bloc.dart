@@ -432,6 +432,11 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
           replaceAll(conversations);
         }
       } else if (result is Failure && !isSilentRefresh) {
+        if (kDebugMode) {
+          debugPrint('[ConversationsBloc] _onLoadConversations useCase Failure');
+          debugPrint('[ConversationsBloc]   message: ${result.message}');
+          debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
+        }
         emit(ConversationsError(message: result.message));
       }
     } else {
@@ -459,11 +464,22 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
         }
       } on CometChatException catch (e) {
         if (!isSilentRefresh) {
+          if (kDebugMode) {
+            debugPrint('[ConversationsBloc] _onLoadConversations CometChatException');
+            debugPrint('[ConversationsBloc]   code:    ${e.code}');
+            debugPrint('[ConversationsBloc]   message: ${e.message}');
+            debugPrint('[ConversationsBloc]   details: ${e.details}');
+            debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
+          }
           emit(ConversationsError(
               message: e.message ?? 'Failed to load conversations'));
         }
       } catch (e) {
         if (!isSilentRefresh) {
+          if (kDebugMode) {
+            debugPrint('[ConversationsBloc] _onLoadConversations generic catch: $e');
+            debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
+          }
           emit(ConversationsError(message: 'Failed to load conversations: $e'));
         }
       }
@@ -518,6 +534,11 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
         replaceAll(allConversations);
       } else if (result is Failure) {
+        if (kDebugMode) {
+          debugPrint('[ConversationsBloc] _onLoadMoreConversations useCase Failure');
+          debugPrint('[ConversationsBloc]   message: ${result.message}');
+          debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
+        }
         emit(ConversationsError(
           message: result.message,
           previousConversations: currentState.conversations,
@@ -553,12 +574,23 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
         replaceAll(allConversations);
       } on CometChatException catch (e) {
         _isLoadingMore = false;
+        if (kDebugMode) {
+          debugPrint('[ConversationsBloc] _onLoadMoreConversations CometChatException');
+          debugPrint('[ConversationsBloc]   code:    ${e.code}');
+          debugPrint('[ConversationsBloc]   message: ${e.message}');
+          debugPrint('[ConversationsBloc]   details: ${e.details}');
+          debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
+        }
         emit(ConversationsError(
           message: e.message ?? 'Failed to load more conversations',
           previousConversations: currentState.conversations,
         ));
       } catch (e) {
         _isLoadingMore = false;
+        if (kDebugMode) {
+          debugPrint('[ConversationsBloc] _onLoadMoreConversations generic catch: $e');
+          debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
+        }
         emit(ConversationsError(
           message: 'Failed to load more conversations: $e',
           previousConversations: currentState.conversations,
@@ -1873,6 +1905,15 @@ class _ConversationMessageListener with MessageListener {
   @override
   void onMessageDeleted(BaseMessage message) {
     onMessageDeletedCallback(message);
+  }
+
+  @override
+  void onMessageModerated(BaseMessage message) {
+    // Moderation state change on a message — route through the edit callback
+    // so the conversation's `lastMessage` picks up the new `moderationStatus`.
+    // The conversation list row will then render the red error icon in place
+    // of the sent/delivered tick via ModerationCheckUtil.
+    onMessageEditedCallback(message);
   }
 }
 

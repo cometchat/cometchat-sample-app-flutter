@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'cometchat_flag_message_dialog.dart';
 import 'cometchat_message_action_overlay.dart';
 import 'cometchat_message_swipe.dart';
 
@@ -121,6 +122,9 @@ class CometChatMessageList extends StatefulWidget {
     this.goToMessageId,
     this.showMarkAsUnreadOption = false,
     this.startFromUnreadMessages = false,
+    this.hideFlagOption = false,
+    this.flagReasonLocalizer,
+    this.hideFlagRemarkField = false,
   }) : assert(user != null || group != null, "One of user or group should be passed"),
        assert(user == null || group == null, "Only one of user or group should be passed");
 
@@ -219,6 +223,19 @@ class CometChatMessageList extends StatefulWidget {
   /// Default: false
   final bool startFromUnreadMessages;
 
+  /// Hides the Flag/Report option from message long-press actions.
+  /// Default: false
+  final bool hideFlagOption;
+
+  /// Custom localizer function for flag reason IDs.
+  /// If provided, this function is called with the reason ID and should return
+  /// the localized display string.
+  final String Function(String reasonId)? flagReasonLocalizer;
+
+  /// Hides the optional remark/additional context text field in the flag dialog.
+  /// Default: false
+  final bool hideFlagRemarkField;
+
   @override
   State<CometChatMessageList> createState() => _CometChatMessageListState();
 }
@@ -257,6 +274,12 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   // Highlighted message ID for glow effect after jump-to-message
   final ValueNotifier<int?> _highlightedMessageId = ValueNotifier<int?>(null);
   Timer? _highlightTimer;
+
+  // Safety timer for the scroll-to-bottom shimmer.
+  // If the bloc never settles to loaded/empty/error (e.g. two refreshes race
+  // and the hide branch is skipped), force the shimmer off so the user isn't
+  // stuck on the loading overlay.
+  Timer? _scrollShimmerSafetyTimer;
 
   // AI panel widget shown at the bottom of the message list
   final ValueNotifier<Widget?> _bottomPanelWidget = ValueNotifier<Widget?>(null);
@@ -315,6 +338,20 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       _themeInitialized = true;
     }
     _blocAdapter.updateContext(context);
+    // Sync moderation visibility flag so shared utilities that consult the
+    // singleton (e.g. bubble radius helpers) stay in step with the widget
+    // prop. v5 parity: CometChatMessageListController did the same.
+    ModerationCheckUtil.instance.hideModerationStatus =
+        widget.hideModerationView ?? false;
+  }
+
+  @override
+  void didUpdateWidget(covariant CometChatMessageList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.hideModerationView != oldWidget.hideModerationView) {
+      ModerationCheckUtil.instance.hideModerationStatus =
+          widget.hideModerationView ?? false;
+    }
   }
 
   void _initializeTheme() {
@@ -352,6 +389,17 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       // Even with custom request builders, we need the full list for real-time message filtering
       categories = MessageTemplateUtils.getAllMessageCategories();
       types = MessageTemplateUtils.getAllMessageTypes();
+      // Include types/categories from addTemplate so the SDK fetches them
+      if (widget.addTemplate != null) {
+        for (final t in widget.addTemplate!) {
+          if (!types.contains(t.type)) {
+            types.add(t.type);
+          }
+          if (!categories.contains(t.category)) {
+            categories.add(t.category);
+          }
+        }
+      }
       _messageListBloc = MessageListBloc(
         user: widget.user,
         group: widget.group,
@@ -470,6 +518,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     _stickyDateNotifier.dispose();
     _isJumpingToMessage.dispose();
     _highlightTimer?.cancel();
+    _scrollShimmerSafetyTimer?.cancel();
     _highlightedMessageId.dispose();
     _bottomPanelWidget.dispose();
     if (widget.scrollController == null) {
@@ -602,6 +651,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
               listener: _handleStateChanges,
               listenWhen: (previous, current) =>
                   previous.status != current.status ||
+                  previous.unreadMessageAnchorId != current.unreadMessageAnchorId ||
                   (!previous.markedAsUnreadInSession && current.markedAsUnreadInSession),
               // Only rebuild when status changes, not on every state update
               buildWhen: (previous, current) => previous.status != current.status,
@@ -610,17 +660,16 @@ class _CometChatMessageListState extends State<CometChatMessageList>
             // Shimmer overlay — lives OUTSIDE the BlocConsumer so it's never
             // reconstructed by status rebuilds. This prevents the glitch where
             // the shimmer animation restarts when buildWhen fires.
+            // Hidden instantly (no fade) to avoid the underlying empty/loading
+            // state bleeding through during a cross-fade.
             Positioned.fill(
               child: ValueListenableBuilder<bool>(
                 valueListenable: _isJumpingToMessage,
                 builder: (context, isJumping, child) {
+                  if (!isJumping) return const SizedBox.shrink();
                   return IgnorePointer(
-                    ignoring: !isJumping,
-                    child: AnimatedOpacity(
-                      opacity: isJumping ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 300),
-                      child: child!,
-                    ),
+                    ignoring: false,
+                    child: child!,
                   );
                 },
                 child: Container(
@@ -655,17 +704,40 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     if (state.status == MessageListStatus.empty) {
       _showConversationStarters();
     }
-    // Hide shimmer on empty or error — no content to wait for
-    if ((state.status == MessageListStatus.empty ||
-            state.status == MessageListStatus.error) &&
+    // Hide shimmer on error — no content to wait for
+    if (state.status == MessageListStatus.error &&
         _isJumpingToMessage.value &&
         mounted) {
+      _scrollShimmerSafetyTimer?.cancel();
       _isJumpingToMessage.value = false;
     }
-    // When mark-as-unread succeeds, trigger a re-render of the animated list
-    // so the "New Messages" indicator appears above the marked message.
-    if (state.markedAsUnreadInSession && mounted) {
-      _messageListBloc.notifyListChanged();
+    // Hide shimmer on empty — but only after a short settling window
+    // so transient empty states (that precede a loaded state with messages)
+    // don't flash the empty view before the chat renders.
+    if (state.status == MessageListStatus.empty &&
+        _isJumpingToMessage.value &&
+        mounted) {
+      final statusAtSchedule = state.status;
+      Future.delayed(const Duration(milliseconds: 120), () {
+        if (!mounted) return;
+        // Only hide if we're still empty — if messages arrived in the
+        // meantime, the loaded branch below will handle hiding.
+        if (_messageListBloc.state.status == statusAtSchedule &&
+            _isJumpingToMessage.value) {
+          _scrollShimmerSafetyTimer?.cancel();
+          _isJumpingToMessage.value = false;
+        }
+      });
+    }
+    // When mark-as-unread succeeds, rebuild only the anchor message item
+    // so the "New Messages" indicator appears above it. Using
+    // notifyMessageChanged instead of notifyListChanged preserves scroll
+    // position — notifyListChanged emits a set operation that resets the
+    // list key and jumps scroll to the bottom.
+    if (state.markedAsUnreadInSession &&
+        state.unreadMessageAnchorId != null &&
+        mounted) {
+      _messageListBloc.notifyMessageChanged(state.unreadMessageAnchorId!);
     }
     // When LoadFromUnread finishes, scroll to the unread anchor message
     // so the "New Messages" indicator is visible on screen.
@@ -695,6 +767,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
               if (_scrollController.hasClients && _scrollController.offset != 0) {
                 _scrollController.jumpTo(0);
               }
+              _scrollShimmerSafetyTimer?.cancel();
               _isJumpingToMessage.value = false;
             }
           });
@@ -726,9 +799,27 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // Clear the "New Messages" indicator — user is scrolling to bottom
     _messageListBloc.add(const ResetUnreadState());
 
+    // In-flight guard — if a shimmer-backed refresh is already running,
+    // ignore the tap rather than kicking off a second LoadMessages that
+    // would race and leave the shimmer stuck.
+    if (_isJumpingToMessage.value) return;
+
     if (_messageListBloc.state.hasMoreNewer) {
       // List doesn't have the latest messages — show shimmer and refresh
       _isJumpingToMessage.value = true;
+
+      // Safety timeout — if the bloc never emits a terminal state
+      // (loaded/empty/error) for this refresh (e.g. identical messages
+      // short-circuit the listener), force the shimmer off after 8s so
+      // the user isn't stuck on the loading overlay.
+      _scrollShimmerSafetyTimer?.cancel();
+      _scrollShimmerSafetyTimer = Timer(const Duration(seconds: 8), () {
+        if (!mounted) return;
+        if (_isJumpingToMessage.value) {
+          _isJumpingToMessage.value = false;
+        }
+      });
+
       _messageListBloc.add(const RefreshMessages());
     } else {
       // List has the latest messages — jump directly to bottom (no animation)
@@ -1218,6 +1309,12 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         statusInfoView = _getStatusInfoView(message, alignment, bubbleStyleData);
       }
 
+      // Moderation banner — for disapproved messages the sender sees a bottom
+      // banner explaining the block. v5 parity.
+      final bool isModerated = _isMessageModerated(message);
+      final Widget? bottomView =
+          isModerated ? _buildModerationView(alignment) : null;
+
       // contentPadding is no longer needed — each bubble handles its own padding
       // For sticker messages with a reply, wrap the content in Align so the
       // sticker image stays its natural size instead of stretching to match
@@ -1235,7 +1332,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           backgroundColor: backgroundColor,
           backgroundImage: isDeleted ? null : bubbleStyleData?.messageBubbleBackgroundImage,
           border: emojiCount > 0 ? null : bubbleStyleData?.border,
-          borderRadius: bubbleStyleData?.borderRadius,
+          borderRadius: isModerated
+              ? _topOnlyBorderRadius(bubbleStyleData?.borderRadius)
+              : bubbleStyleData?.borderRadius,
         ),
         contentPadding: emojiCount > 0 ? EdgeInsets.zero : null,
         alignment: alignment,
@@ -1245,6 +1344,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         footerView: footerView,
         leadingView: leadingView,
         statusInfoView: statusInfoView,
+        bottomView: bottomView,
         threadView: !isDeleted && widget.hideThreadView != true && !_isAIUser
             ? _getThreadView(message, alignment, bubbleStyleData)
             : null,
@@ -1442,6 +1542,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     if (message.deletedAt != null) return false;
     if (message.category == MessageCategoryConstants.action) return false;
     if (message.category == MessageCategoryConstants.call) return false;
+    // Moderated (disapproved) messages cannot be replied to — v5 parity
+    if (_isMessageModerated(message)) return false;
     return true;
   }
 
@@ -1855,32 +1957,23 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   Widget _buildMediaContent(MediaMessage message, BubbleAlignment alignment) {
     switch (message.type) {
       case MessageTypeConstants.image:
+        final imageThumbnailUrl = ThumbnailExtractionUtil.extractFromMetadata(
+          message.metadata,
+          tag: 'list.image.msg${message.id}',
+        );
         return CometChatImageBubble(
           imageUrl: message.attachment?.fileUrl,
+          thumbnailUrl: imageThumbnailUrl,
           style: alignment == BubbleAlignment.right
               ? _style.outgoingMessageBubbleStyle?.imageBubbleStyle
               : _style.incomingMessageBubbleStyle?.imageBubbleStyle,
           metadata: message.metadata,
         );
       case MessageTypeConstants.video:
-        // Extract thumbnail URL from extension metadata
-        String? videoThumbnailUrl;
-        if (message.metadata != null) {
-          final injected = message.metadata?["@injected"];
-          if (injected != null && injected is Map && injected.containsKey("extensions")) {
-            final extensions = injected["extensions"];
-            if (extensions is Map && extensions.containsKey("thumbnail-generation")) {
-              final thumbnailData = extensions["thumbnail-generation"];
-              if (thumbnailData is Map) {
-                videoThumbnailUrl = thumbnailData["url_small"] as String? ??
-                    thumbnailData["url_medium"] as String? ??
-                    thumbnailData["url_large"] as String?;
-              }
-            }
-          }
-          // Fallback to simple metadata key
-          videoThumbnailUrl ??= message.metadata?["thumbnail"] as String?;
-        }
+        final videoThumbnailUrl = ThumbnailExtractionUtil.extractFromMetadata(
+          message.metadata,
+          tag: 'list.video.msg${message.id}',
+        );
         return CometChatVideoBubble(
           videoUrl: message.attachment?.fileUrl,
           thumbnailUrl: videoThumbnailUrl,
@@ -1937,12 +2030,110 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       return template!.footerView!(message, context, alignment);
     }
 
+    // Hide reactions for moderated messages — v5 parity.
+    final isModerated = _isMessageModerated(message);
+
     // Show reactions if available
-    if (widget.disableReactions != true && message.reactions.isNotEmpty) {
+    if (widget.disableReactions != true &&
+        message.reactions.isNotEmpty &&
+        !isModerated) {
       return _getReactionsView(message, alignment);
     }
 
     return null;
+  }
+
+  /// Returns true when moderation UI should render for this message:
+  /// the message was disapproved by moderation, is not deleted, and the
+  /// widget is not explicitly hiding the moderation view.
+  bool _isMessageModerated(BaseMessage message) {
+    if (widget.hideModerationView == true) return false;
+    if (message.deletedAt != null) return false;
+    final disapproved = ModerationCheckUtil.instance
+        .isMessageDisapprovedFromModeration(message);
+    return disapproved;
+  }
+
+  /// Build the moderation banner shown at the bottom of a disapproved bubble.
+  /// Visually matches v5's `getModerationView` (warning icon + localized text,
+  /// error100 background, bottom-rounded to fuse with the bubble).
+  Widget _buildModerationView(BubbleAlignment alignment) {
+    final moderationStyle =
+        CometChatThemeHelper.getTheme<CometChatModerationStyle>(
+                context: context,
+                defaultTheme: CometChatModerationStyle.of)
+            .merge(_cachedOutgoingStyle?.moderationStyle);
+
+    final radius = Radius.circular(_spacing.radius3 ?? 0);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: moderationStyle.moderationBackgroundColor ??
+            _colorPalette.error100,
+        borderRadius: BorderRadius.only(
+          bottomLeft: radius,
+          bottomRight: radius,
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          _spacing.padding3 ?? 12,
+          _spacing.padding1 ?? 4,
+          _spacing.padding3 ?? 12,
+          _spacing.padding1 ?? 4,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Icon(
+                Icons.warning,
+                color: moderationStyle.moderationIconTint ??
+                    _colorPalette.error,
+                size: 16,
+              ),
+            ),
+            SizedBox(width: _spacing.padding1 ?? 4),
+            Flexible(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width * 0.5,
+                ),
+                child: Text(
+                  Translations.of(context).messageBlockedByModeration,
+                  style: moderationStyle.moderationTextStyle ??
+                      TextStyle(
+                        color: _colorPalette.error,
+                        fontSize: _typography.body?.regular?.fontSize,
+                        fontWeight: _typography.body?.regular?.fontWeight,
+                        fontFamily: _typography.body?.regular?.fontFamily,
+                      ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Returns a top-only BorderRadius (bottom corners squared) so the moderation
+  /// banner's bottom-rounded corners form the bubble's full outline. Matches v5
+  /// `MessageUtils.getSentTextMediaBorderRadiusGeometry` behavior.
+  BorderRadiusGeometry _topOnlyBorderRadius(BorderRadiusGeometry? existing) {
+    // Preserve the existing radius magnitude if it resolves to a BorderRadius;
+    // otherwise fall back to the theme's radius3.
+    if (existing is BorderRadius) {
+      return BorderRadius.only(
+        topLeft: existing.topLeft,
+        topRight: existing.topRight,
+      );
+    }
+    final radius = Radius.circular(_spacing.radius3 ?? 0);
+    return BorderRadius.only(topLeft: radius, topRight: radius);
   }
 
   /// Get reactions view
@@ -2084,26 +2275,34 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   /// Get receipt icon based on message status
   /// Uses ValueListenableBuilder for isolated rebuilds when receipt status changes
   Widget _getReceiptIcon(BaseMessage message, CometChatMessageBubbleStyleData? bubbleStyleData) {
+    // Moderated messages always show the error icon regardless of delivery
+    // receipts — sender needs to see the send actually failed. v5 parity.
+    final bool isModerated = _isMessageModerated(message);
+
     return ValueListenableBuilder<MessageReceiptStatus>(
       valueListenable: _messageListBloc.getReceiptNotifierForMessage(message),
       builder: (context, notifierStatus, child) {
         final ReceiptStatus status;
-        switch (notifierStatus) {
-          case MessageReceiptStatus.sending:
-            status = ReceiptStatus.waiting;
-            break;
-          case MessageReceiptStatus.sent:
-            status = ReceiptStatus.sent;
-            break;
-          case MessageReceiptStatus.delivered:
-            status = ReceiptStatus.delivered;
-            break;
-          case MessageReceiptStatus.read:
-            status = ReceiptStatus.read;
-            break;
-          case MessageReceiptStatus.error:
-            status = ReceiptStatus.error;
-            break;
+        if (isModerated) {
+          status = ReceiptStatus.error;
+        } else {
+          switch (notifierStatus) {
+            case MessageReceiptStatus.sending:
+              status = ReceiptStatus.waiting;
+              break;
+            case MessageReceiptStatus.sent:
+              status = ReceiptStatus.sent;
+              break;
+            case MessageReceiptStatus.delivered:
+              status = ReceiptStatus.delivered;
+              break;
+            case MessageReceiptStatus.read:
+              status = ReceiptStatus.read;
+              break;
+            case MessageReceiptStatus.error:
+              status = ReceiptStatus.error;
+              break;
+          }
         }
         return CometChatReceipt(
           status: status,
@@ -2277,12 +2476,19 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       statusInfoView = _getStatusInfoView(message, alignment, bubbleStyleData);
     }
 
+    // Moderation banner — v5 parity (also shown in the long-press overlay).
+    final bool isModerated = _isMessageModerated(message);
+    final Widget? bottomView =
+        isModerated ? _buildModerationView(alignment) : null;
+
     return CometChatMessageBubble(
       style: CometChatMessageBubbleStyle(
         backgroundColor: backgroundColor,
         backgroundImage: isDeleted ? null : bubbleStyleData?.messageBubbleBackgroundImage,
         border: emojiCount > 0 ? null : bubbleStyleData?.border,
-        borderRadius: bubbleStyleData?.borderRadius,
+        borderRadius: isModerated
+            ? _topOnlyBorderRadius(bubbleStyleData?.borderRadius)
+            : bubbleStyleData?.borderRadius,
       ),
       contentPadding: emojiCount > 0 ? EdgeInsets.zero : null,
       alignment: alignment,
@@ -2291,6 +2497,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       contentView: finalContentView,
       footerView: footerView,
       statusInfoView: statusInfoView,
+      bottomView: bottomView,
       threadView: !isDeleted && widget.hideThreadView != true && !_isAIUser
           ? _getThreadView(message, alignment, bubbleStyleData)
           : null,
@@ -2422,6 +2629,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           return widget.hideShareMessageOption != true;
         case MessageOptionConstants.markAsUnread:
           return widget.showMarkAsUnreadOption == true;
+        case MessageOptionConstants.reportMessage:
+          return widget.hideFlagOption != true;
         default:
           return true;
       }
@@ -2501,6 +2710,12 @@ class _CometChatMessageListState extends State<CometChatMessageList>
             _handleMessageInformation(message);
             return;
           }
+
+          // Handle report/flag message option
+          if (option.id == MessageOptionConstants.reportMessage) {
+            _handleFlagMessage(message);
+            return;
+          }
           
           if (option.onItemClick != null) {
             option.onItemClick!(message, _blocAdapter);
@@ -2528,6 +2743,20 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         );
       }
     }
+  }
+
+  /// Handle flag/report message action
+  void _handleFlagMessage(BaseMessage message) {
+    showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return CometChatFlagMessageDialog(
+          message: message,
+          flagReasonLocalizer: widget.flagReasonLocalizer,
+          hideFlagRemarkField: widget.hideFlagRemarkField,
+        );
+      },
+    );
   }
 
   /// Handle share message action

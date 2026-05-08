@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
 import '../../../../core/constants/enums.dart';
+import '../../../../core/utils/thumbnail_extraction_util.dart';
 import '../../../theme/colors/cometchat_color_palette.dart';
 import '../../../theme/typography/cometchat_typography.dart';
 import '../../../theme/spacing/cometchat_spacing.dart';
@@ -31,8 +32,12 @@ class ImageBubbleFactory extends BubbleFactory<MediaMessage> {
     CometChatTypography? typography,
     CometChatSpacing? spacing,
   }) {
+    final thumbnailUrl =
+        ThumbnailExtractionUtil.extractFromMetadata(message.metadata);
+
     return CometChatImageBubble(
       imageUrl: message.attachment?.fileUrl,
+      thumbnailUrl: thumbnailUrl,
       style: style,
       placeholderImage: placeholderImage,
       placeHolderImagePackageName: placeholderImagePackageName,

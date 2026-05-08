@@ -27,6 +27,7 @@ class MessageComposerAuxiliaryButtons extends StatefulWidget {
     this.auxiliaryButtonBorderRadius,
     this.colorPalette,
     this.spacing,
+    this.voiceFirst = false,
   });
 
   final VoidCallback onVoiceRecordingTap;
@@ -39,6 +40,13 @@ class MessageComposerAuxiliaryButtons extends StatefulWidget {
   final BorderRadiusGeometry? auxiliaryButtonBorderRadius;
   final CometChatColorPalette? colorPalette;
   final CometChatSpacing? spacing;
+
+  /// When true, renders the mic button BEFORE [auxiliaryOptions] (stickers).
+  /// Default false keeps the existing single-line order: `[stickers][mic]`.
+  /// Set this to true when the composer is in double-line layout with
+  /// `auxiliaryButtonsAlignment: left` so the visual order becomes
+  /// `[+][mic][stickers] ... [send]` — matching v5 and the Figma spec.
+  final bool voiceFirst;
 
   @override
   State<MessageComposerAuxiliaryButtons> createState() =>
@@ -124,23 +132,52 @@ class _MessageComposerAuxiliaryButtonsState
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (hasAuxOptions) widget.auxiliaryOptions!,
-            // Animated mic button — slides toward send button while width collapses
-            SizeTransition(
-              axis: Axis.horizontal,
-              sizeFactor: _sizeAnimation,
-              axisAlignment: 1.0, // Collapse toward the right (send button)
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: FadeTransition(
-                  opacity: _opacityAnimation,
-                  child: _buildVoiceRecordingButton(
-                    effectiveColorPalette,
-                    needsLeftMargin: hasAuxOptions,
+            // Default order: [stickers][mic]. When voiceFirst is true, flip to
+            // [mic][stickers] so the double-line + left-alignment layout shows
+            // [+][mic][stickers] ... [send] matching v5 / the Figma spec.
+            if (widget.voiceFirst) ...[
+              // Animated mic button first; trailing gap lives inside the
+              // SizeTransition so it collapses together with the mic when text
+              // is typed (no phantom spacing left behind).
+              SizeTransition(
+                axis: Axis.horizontal,
+                sizeFactor: _sizeAnimation,
+                axisAlignment: -1.0, // Collapse toward the left (+ button)
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: FadeTransition(
+                    opacity: _opacityAnimation,
+                    child: Padding(
+                      padding:
+                          EdgeInsets.only(right: hasAuxOptions ? 12.0 : 0.0),
+                      child: _buildVoiceRecordingButton(
+                        effectiveColorPalette,
+                        needsLeftMargin: false,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+              if (hasAuxOptions) widget.auxiliaryOptions!,
+            ] else ...[
+              if (hasAuxOptions) widget.auxiliaryOptions!,
+              // Animated mic button — slides toward send button while width collapses
+              SizeTransition(
+                axis: Axis.horizontal,
+                sizeFactor: _sizeAnimation,
+                axisAlignment: 1.0, // Collapse toward the right (send button)
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: FadeTransition(
+                    opacity: _opacityAnimation,
+                    child: _buildVoiceRecordingButton(
+                      effectiveColorPalette,
+                      needsLeftMargin: hasAuxOptions,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

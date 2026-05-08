@@ -104,10 +104,23 @@ class _CometChatSearchState extends State<CometChatSearch> {
   @override
   void initState() {
     super.initState();
+    // Derive initial scope from searchIn (matches v5 sample_app behavior):
+    //   [messages]       → SearchScope.messages
+    //   [conversations]  → SearchScope.conversations
+    //   both / null      → SearchScope.both
+    SearchScope _derivedScope;
+    final scopes = widget.searchIn;
+    if (scopes == null || scopes.isEmpty || scopes.length >= 2) {
+      _derivedScope = SearchScope.both;
+    } else if (scopes.first == SearchScope.messages) {
+      _derivedScope = SearchScope.messages;
+    } else {
+      _derivedScope = SearchScope.conversations;
+    }
     _searchBloc = SearchBloc(
       user: widget.user,
       group: widget.group,
-      initialScope: SearchScope.both,
+      initialScope: _derivedScope,
       conversationsRequestBuilder: widget.conversationsRequestBuilder,
       messagesRequestBuilder: widget.messagesRequestBuilder,
       searchFilters: widget.searchFilters,
@@ -708,13 +721,13 @@ class _CometChatSearchState extends State<CometChatSearch> {
   /// Routes each message to the correct visual layout based on message.type.
   /// Matches the legacy SearchUtils.buildMessageTypeBubble pattern.
   Widget _buildMessageTypeBubble(BaseMessage message) {
-    final senderName = _getMessageSenderName(message);
+    final conversationTitle = _getConversationTitle(message);
 
     switch (message.type) {
       case MessageTypeConstants.text:
         return _buildSearchItem(
           message: message,
-          title: senderName,
+          title: conversationTitle,
           subtitle: (message as TextMessage).text,
           trailing: _buildMessageDate(message),
         );
@@ -722,13 +735,16 @@ class _CometChatSearchState extends State<CometChatSearch> {
       case MessageTypeConstants.image:
         final mediaMsg = message as MediaMessage;
         final imageUrl = mediaMsg.attachment?.fileUrl;
+        final imageThumbnailUrl =
+            ThumbnailExtractionUtil.extractFromMetadata(mediaMsg.metadata);
         return _buildSearchItem(
           message: message,
-          title: senderName,
+          title: conversationTitle,
           subtitle: mediaMsg.attachment?.fileName ?? cc.Translations.of(context).messageImage,
           trailing: imageUrl != null
               ? CometChatImageBubble(
                   imageUrl: imageUrl,
+                  thumbnailUrl: imageThumbnailUrl,
                   width: 80,
                   height: 80,
                   style: const CometChatImageBubbleStyle(
@@ -743,52 +759,31 @@ class _CometChatSearchState extends State<CometChatSearch> {
       case MessageTypeConstants.video:
         final mediaMsg = message as MediaMessage;
         final videoUrl = mediaMsg.attachment?.fileUrl;
-        final thumbnailUrl = _getThumbnailUrl(mediaMsg);
+        final thumbnailUrl =
+            ThumbnailExtractionUtil.extractFromMetadata(mediaMsg.metadata);
         return _buildSearchItem(
           message: message,
-          title: senderName,
+          title: conversationTitle,
           subtitle: mediaMsg.attachment?.fileName ?? cc.Translations.of(context).messageVideo,
           trailing: videoUrl != null
-              ? SizedBox(
+              ? CometChatVideoBubble(
+                  videoUrl: videoUrl,
+                  thumbnailUrl: thumbnailUrl,
                   width: 80,
                   height: 80,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CometChatVideoBubble(
-                        videoUrl: videoUrl,
-                        thumbnailUrl: thumbnailUrl,
-                        width: 80,
-                        height: 80,
-                        colorPalette: colorPalette,
-                        spacing: spacing,
-                        placeHolder: thumbnailUrl == null
-                            ? Container(
-                                color: colorPalette.background3,
-                                alignment: Alignment.center,
-                                child: Icon(
-                                  Icons.videocam,
-                                  color: colorPalette.iconSecondary,
-                                  size: 32,
-                                ),
-                              )
-                            : null,
-                      ),
-                      Container(
-                        height: 38,
-                        width: 38,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: colorPalette.neutral900?.withOpacity(0.6),
-                        ),
-                        child: Icon(
-                          Icons.play_arrow,
-                          size: 25,
-                          color: colorPalette.white,
-                        ),
-                      ),
-                    ],
-                  ),
+                  colorPalette: colorPalette,
+                  spacing: spacing,
+                  placeHolder: thumbnailUrl == null
+                      ? Container(
+                          color: colorPalette.background3,
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.videocam,
+                            color: colorPalette.iconSecondary,
+                            size: 32,
+                          ),
+                        )
+                      : null,
                 )
               : _buildMessageDate(message),
         );
@@ -797,10 +792,10 @@ class _CometChatSearchState extends State<CometChatSearch> {
         final mediaMsg = message as MediaMessage;
         return _buildSearchItem(
           message: message,
-          title: senderName,
+          title: conversationTitle,
           subtitle: mediaMsg.attachment?.fileName ?? cc.Translations.of(context).messageFile,
           leading: Image.asset(
-            _getFileIconForUrl(mediaMsg.attachment?.fileUrl),
+            _getFileIconForAttachment(mediaMsg.attachment),
             height: 32,
             width: 32,
             package: UIConstants.packageName,
@@ -812,7 +807,7 @@ class _CometChatSearchState extends State<CometChatSearch> {
         final mediaMsg = message as MediaMessage;
         return _buildSearchItem(
           message: message,
-          title: senderName,
+          title: conversationTitle,
           subtitle: mediaMsg.attachment?.fileName ?? cc.Translations.of(context).messageAudio,
           leading: Container(
             height: 32,
@@ -837,74 +832,132 @@ class _CometChatSearchState extends State<CometChatSearch> {
     }
   }
 
-  /// Gets the sender/receiver name for a message row title.
-  String _getMessageSenderName(BaseMessage message) {
-    return message.sender?.name ?? '';
+  /// Returns the name of the **conversation** the [message] belongs to —
+  /// used as the search row title.
+  ///
+  /// Rules:
+  /// - Group message → the group name (from `message.receiver` as [Group]).
+  /// - 1:1 message →
+  ///   - If the logged-in user sent it, show the recipient (`message.receiver` as [User]).
+  ///   - Otherwise, show the sender (the other person who messaged us).
+  ///
+  /// Falls back gracefully when the expected objects aren't populated:
+  /// we use `receiverUid` / sender uid so the row never renders with a
+  /// blank title.
+  String _getConversationTitle(BaseMessage message) {
+    if (message.receiverType == ReceiverTypeConstants.group) {
+      final group = message.receiver;
+      if (group is Group && group.name.isNotEmpty) {
+        return group.name;
+      }
+      return message.receiverUid;
+    }
+
+    // 1:1 conversation — show the "other" party, not whichever side sent it.
+    final loggedInUid = CometChatUIKit.loggedInUser?.uid;
+    final senderUid = message.sender?.uid;
+    final sentByMe = loggedInUid != null && senderUid == loggedInUid;
+
+    if (sentByMe) {
+      final receiver = message.receiver;
+      if (receiver is User && receiver.name.isNotEmpty) {
+        return receiver.name;
+      }
+      return message.receiverUid;
+    }
+
+    return message.sender?.name ?? message.sender?.uid ?? '';
   }
 
-  /// Extracts thumbnail URL from video message metadata.
-  /// Checks the thumbnail-generation extension data for available thumbnails.
-  String? _getThumbnailUrl(MediaMessage message) {
-    final metadata = message.metadata;
-    if (metadata == null) return null;
+  /// Resolves the correct file type icon asset based on attachment metadata.
+  /// Prefers `fileExtension` / `fileMimeType` from the attachment since
+  /// parsing the URL is unreliable (query strings, signed URLs, etc.).
+  /// Falls back to extracting the extension from `fileName` or `fileUrl`.
+  String _getFileIconForAttachment(Attachment? attachment) {
+    if (attachment == null) return AssetConstants.fileUnknown;
 
-    final injectedObject = metadata["@injected"] as Map<String, dynamic>?;
-    if (injectedObject == null) return null;
+    String ext = (attachment.fileExtension).toLowerCase().trim();
+    if (ext.startsWith('.')) ext = ext.substring(1);
 
-    final extensions = injectedObject["extensions"] as Map<String, dynamic>?;
-    if (extensions == null) return null;
-
-    final thumbnailData = extensions["thumbnail-generation"] as Map<String, dynamic>?;
-    if (thumbnailData == null) return null;
-
-    // First try to get from root level of thumbnail-generation
-    String? thumbnailUrl = thumbnailData["url_small"] as String? ??
-        thumbnailData["url_medium"] as String? ??
-        thumbnailData["url_large"] as String?;
-
-    // Fallback to attachments array if not found at root level
-    if (thumbnailUrl == null && thumbnailData["attachments"] != null) {
-      final attachments = thumbnailData["attachments"] as List<dynamic>?;
-      if (attachments != null) {
-        for (final attachment in attachments) {
-          if (attachment is Map<String, dynamic> &&
-              attachment["error"] == null &&
-              attachment["data"] != null) {
-            final data = attachment["data"] as Map<String, dynamic>?;
-            final thumbnails = data?["thumbnails"] as Map<String, dynamic>?;
-            if (thumbnails != null) {
-              thumbnailUrl = thumbnails["url_small"] as String? ??
-                  thumbnails["url_medium"] as String? ??
-                  thumbnails["url_large"] as String?;
-              if (thumbnailUrl != null) break;
-            }
-          }
+    // If fileExtension is missing, try to derive it from fileName, then fileUrl.
+    if (ext.isEmpty) {
+      final name = attachment.fileName;
+      if (name.isNotEmpty && name.contains('.')) {
+        ext = name.split('.').last.toLowerCase().trim();
+      }
+    }
+    if (ext.isEmpty) {
+      final url = attachment.fileUrl;
+      if (url.isNotEmpty) {
+        // Strip query string/fragment before extracting extension.
+        final clean = url.split('?').first.split('#').first;
+        final decoded = Uri.decodeFull(clean);
+        final last = decoded.split('/').last;
+        if (last.contains('.')) {
+          ext = last.split('.').last.toLowerCase().trim();
         }
       }
     }
 
-    return thumbnailUrl;
+    final byExt = _iconAssetForExtension(ext);
+    if (byExt != null) return byExt;
+
+    // Final fallback: use MIME type for broad category mapping.
+    final mime = (attachment.fileMimeType).toLowerCase();
+    if (mime == 'application/pdf') return AssetConstants.filePdf;
+    if (mime.contains('word') ||
+        mime.contains('msword') ||
+        mime.contains('officedocument.wordprocessing')) {
+      return AssetConstants.fileDoc;
+    }
+    if (mime.contains('excel') ||
+        mime.contains('spreadsheet') ||
+        mime == 'text/csv') {
+      return AssetConstants.fileSpreadsheet;
+    }
+    if (mime.contains('powerpoint') || mime.contains('presentation')) {
+      return AssetConstants.filePresentation;
+    }
+    if (mime.contains('zip') ||
+        mime.contains('compressed') ||
+        mime.contains('x-tar') ||
+        mime.contains('gzip')) {
+      return AssetConstants.fileZip;
+    }
+    if (mime.startsWith('audio/')) return AssetConstants.fileAudio;
+    if (mime.startsWith('video/')) return AssetConstants.fileVideo;
+    if (mime.startsWith('image/')) return AssetConstants.fileImage;
+    if (mime.startsWith('text/')) return AssetConstants.fileText;
+
+    return AssetConstants.fileUnknown;
   }
 
-  /// Resolves the correct file type icon asset based on file URL extension.
-  /// Mirrors the logic from CometChatFileBubble._getFileIcon().
-  String _getFileIconForUrl(String? fileUrl) {
-    if (fileUrl == null || fileUrl.isEmpty) return AssetConstants.fileUnknown;
-    final decoded = Uri.decodeFull(fileUrl);
-    final fileName = decoded.split('/').last;
-    final parts = fileName.split('.');
-    if (parts.length < 2) return AssetConstants.fileUnknown;
-    final ext = parts.last.toLowerCase();
+  /// Maps a lowercase extension (no leading dot) to its icon asset.
+  /// Returns null when the extension is unknown so callers can fall back
+  /// to MIME-type-based resolution.
+  String? _iconAssetForExtension(String ext) {
+    if (ext.isEmpty) return null;
 
-    const docExts = ['doc', 'docx', 'md', 'odt', 'abw', 'dot', 'dotx'];
-    const sheetExts = ['csv', 'xls', 'xlsx', 'ods', 'tsv', 'xlt', 'xltx', 'numbers'];
-    const pdfExts = ['pdf', 'ps', 'eps', 'ai'];
-    const audioExts = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'wma', 'aiff', 'm4a', 'mid', 'midi'];
-    const videoExts = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpg', 'mpeg', '3gp'];
-    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'tiff', 'psd', 'heif', 'heic'];
-    const zipExts = ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz'];
-    const pptExts = ['ppt', 'pptx', 'odp', 'key', 'pps', 'ppsx'];
-    const txtExts = ['txt', 'wps', 'rtf', 'tex', 'log', 'json', 'xml', 'yaml', 'yml'];
+    const docExts = {'doc', 'docx', 'md', 'odt', 'abw', 'dot', 'dotx'};
+    const sheetExts = {
+      'csv', 'xls', 'xlsx', 'ods', 'tsv', 'xlt', 'xltx', 'numbers'
+    };
+    const pdfExts = {'pdf', 'ps', 'eps', 'ai'};
+    const audioExts = {
+      'mp3', 'wav', 'ogg', 'flac', 'aac', 'wma', 'aiff', 'm4a', 'mid', 'midi'
+    };
+    const videoExts = {
+      'mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpg', 'mpeg', '3gp'
+    };
+    const imageExts = {
+      'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'tiff', 'psd',
+      'heif', 'heic'
+    };
+    const zipExts = {'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz'};
+    const pptExts = {'ppt', 'pptx', 'odp', 'key', 'pps', 'ppsx'};
+    const txtExts = {
+      'txt', 'wps', 'rtf', 'tex', 'log', 'json', 'xml', 'yaml', 'yml'
+    };
 
     if (docExts.contains(ext)) return AssetConstants.fileDoc;
     if (sheetExts.contains(ext)) return AssetConstants.fileSpreadsheet;
@@ -915,8 +968,7 @@ class _CometChatSearchState extends State<CometChatSearch> {
     if (zipExts.contains(ext)) return AssetConstants.fileZip;
     if (pptExts.contains(ext)) return AssetConstants.filePresentation;
     if (txtExts.contains(ext)) return AssetConstants.fileText;
-
-    return AssetConstants.fileUnknown;
+    return null;
   }
 
   /// Builds a CometChatDate widget for message trailing.

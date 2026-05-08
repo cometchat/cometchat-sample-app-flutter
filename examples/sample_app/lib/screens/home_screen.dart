@@ -234,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.all(spacing.padding4 ?? 16),
           enabled: false,
           child: Text(
-            'v6.0.0-beta3',
+            'v6.0.0',
             style: TextStyle(
               fontSize: typography.caption1?.regular?.fontSize,
               fontFamily: typography.caption1?.regular?.fontFamily,

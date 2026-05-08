@@ -5,6 +5,8 @@ import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' show 
     CometChatMessageEvents, 
     CometChatMessageEventListener,
+    CometChatGroupEvents,
+    CometChatGroupEventListener,
     CometChatUIKitHelper,
     CometChatUIKit,
     ExtensionType,
@@ -198,12 +200,35 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   /// Push a no-op set operation so the animated list re-renders all items.
   /// Used when state changes (e.g. unread anchor) need to be reflected
   /// without modifying the message list itself.
+  ///
+  /// Note: this triggers a full list re-render which resets scroll position
+  /// to the bottom for reversed lists. Prefer [notifyMessageChanged] when
+  /// only a single item needs to rebuild (e.g. showing the unread indicator
+  /// above a specific message) — it preserves scroll offset.
   void notifyListChanged() {
     if (!_operationsController.isClosed) {
       _operationsController.add(
         MessageOperation.set(state.messages, animated: false),
       );
     }
+  }
+
+  /// Push an update operation for a single message so only that item rebuilds.
+  /// Unlike [notifyListChanged], this preserves scroll position because the
+  /// animated list's `_onUpdated` handler just bumps the update notifier
+  /// without resetting the list key or jumping scroll.
+  ///
+  /// Used when state-driven per-item decorations (e.g. the "New Messages"
+  /// indicator above the unread anchor) need to re-render without touching
+  /// the list structure.
+  void notifyMessageChanged(int messageId) {
+    if (_operationsController.isClosed) return;
+    final index = findMessageIndex(messageId);
+    if (index == null) return;
+    final message = state.messages[index];
+    _operationsController.add(
+      MessageOperation.update(message, message, index),
+    );
   }
 
   // ============================================================
@@ -227,6 +252,10 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
 
   /// Unique ID for UI message events listener (ccMessageSent, ccMessageEdited, etc.)
   late final String _uiMessageListenerId;
+
+  /// Unique ID for UI group events listener (ccGroupMemberAdded, ccGroupMemberKicked, etc.)
+  /// Fires when the logged-in user performs group actions.
+  late final String _uiGroupListenerId;
 
   // ============================================================
   // PAGINATION STATE
@@ -331,6 +360,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     _callListenerId = 'message_list_bloc_call_$timestamp';
     _connectionListenerId = 'message_list_bloc_connection_$timestamp';
     _uiMessageListenerId = 'message_list_bloc_ui_message_$timestamp';
+    _uiGroupListenerId = 'message_list_bloc_ui_group_$timestamp';
     _aiAssistantListenerId = 'message_list_bloc_ai_$timestamp';
 
     // Register event handlers (implementations in Task 9)
@@ -726,6 +756,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         onAIAssistantMessageReceivedCallback: _handleMessageReceived,
         onMessageEditedCallback: _handleMessageEdited,
         onMessageDeletedCallback: _handleMessageDeleted,
+        onMessageModeratedCallback: _handleMessageModerated,
         onMessagesDeliveredCallback: _handleMessagesDelivered,
         onMessagesReadCallback: _handleMessagesRead,
         onMessagesDeliveredToAllCallback: _handleMessagesDeliveredToAll,
@@ -789,6 +820,18 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         onCCMessageSentCallback: _handleCCMessageSent,
         onCCMessageEditedCallback: _handleCCMessageEdited,
         onCCMessageDeletedCallback: _handleCCMessageDeleted,
+      ),
+    );
+
+    // Register UI group events listener (for group actions by logged-in user)
+    // SDK group listeners only fire for OTHER users' actions — we need UI events
+    // to catch action messages when the logged-in user adds/kicks/bans members.
+    CometChatGroupEvents.addGroupsListener(
+      _uiGroupListenerId,
+      _MessageListUIGroupEventListener(
+        onCCGroupMemberAddedCallback: _handleCCGroupMemberAdded,
+        onCCGroupMemberKickedCallback: _handleCCGroupMemberKicked,
+        onCCGroupMemberBannedCallback: _handleCCGroupMemberBanned,
       ),
     );
   }
@@ -862,6 +905,66 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   void _handleMessageDeleted(BaseMessage message) {
     if (isClosed) return;
     add(MessageDeleted(message));
+  }
+
+  /// Handle moderation status change from SDK.
+  ///
+  /// The SDK emits this when a message's moderation state changes after send
+  /// (e.g., moderation pipeline marks it `disapproved`). We route it through
+  /// the same `MessageEdited` pipeline since the update mechanics — locate by
+  /// id/muid and replace — are identical. The next bubble rebuild will see
+  /// the new `moderationStatus` and render the moderation banner + error
+  /// receipt icon.
+  void _handleMessageModerated(BaseMessage message) {
+    if (isClosed) return;
+    // Broadcast to any other UI surface (e.g. the conversation list row) so
+    // they can flip their own representation (sent tick → error icon).
+    CometChatMessageEvents.onMessageModerated(message);
+    add(MessageEdited(message));
+  }
+
+  /// When replacing `oldMessage` with `newMessage`, keep whichever has the
+  /// stronger moderation verdict. Prevents race conditions where an older
+  /// snapshot (e.g. a later-arriving `sent` event carrying `pending`)
+  /// overwrites a newer terminal state (`disapproved` / `approved`) that
+  /// already arrived via the moderation stream.
+  BaseMessage _preserveModerationStatus(
+      BaseMessage oldMessage, BaseMessage newMessage) {
+    final oldStatus = _extractModerationStatus(oldMessage);
+    final newStatus = _extractModerationStatus(newMessage);
+    if (oldStatus == null) return newMessage;
+    if (_moderationRank(oldStatus) <= _moderationRank(newStatus)) {
+      return newMessage;
+    }
+    // oldStatus is stronger — copy it onto the new message.
+    if (newMessage is TextMessage && oldMessage is TextMessage) {
+      newMessage.moderationStatus = oldMessage.moderationStatus;
+    } else if (newMessage is MediaMessage && oldMessage is MediaMessage) {
+      newMessage.moderationStatus = oldMessage.moderationStatus;
+    }
+    return newMessage;
+  }
+
+  ModerationStatusEnum? _extractModerationStatus(BaseMessage m) {
+    if (m is TextMessage) return m.moderationStatus;
+    if (m is MediaMessage) return m.moderationStatus;
+    return null;
+  }
+
+  /// Higher rank = more terminal / more authoritative. `pending` is weakest;
+  /// `approved` and `disapproved` are terminal.
+  int _moderationRank(ModerationStatusEnum? s) {
+    if (s == null) return 0;
+    switch (s.value) {
+      case 'pending':
+        return 1;
+      case 'unmoderated':
+        return 2;
+      case 'approved':
+      case 'disapproved':
+        return 3;
+    }
+    return 0;
   }
 
   /// Handle delivery receipt (1-on-1 conversations)
@@ -1037,6 +1140,53 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     Group addedTo,
   ) {
     if (isClosed) return;
+    _handleGroupActionMessage(action);
+  }
+
+  // ============================================================
+  // UI GROUP EVENT CALLBACKS (CometChatGroupEvents)
+  // ============================================================
+  // These fire when the LOGGED-IN user performs group actions.
+  // SDK listeners only fire for OTHER users in the group.
+
+  /// Handle member(s) added to group by the logged-in user
+  /// 
+  /// Adds each action message to the list so "X added Y" appears immediately.
+  void _handleCCGroupMemberAdded(
+    List<Action> messages,
+    List<User> usersAdded,
+    Group groupAddedIn,
+    User addedBy,
+  ) {
+    if (isClosed) return;
+    // Only handle events for the current group
+    if (group?.guid != groupAddedIn.guid) return;
+    for (final action in messages) {
+      _handleGroupActionMessage(action);
+    }
+  }
+
+  /// Handle member kicked by the logged-in user
+  void _handleCCGroupMemberKicked(
+    Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
+    if (isClosed) return;
+    if (group?.guid != kickedFrom.guid) return;
+    _handleGroupActionMessage(action);
+  }
+
+  /// Handle member banned by the logged-in user
+  void _handleCCGroupMemberBanned(
+    Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
+    if (isClosed) return;
+    if (group?.guid != bannedFrom.guid) return;
     _handleGroupActionMessage(action);
   }
 
@@ -1325,8 +1475,14 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         // Update the pending message in place
         final oldMessage = state.messages[existingIndex];
 
+        // Race-condition guard: the moderation socket event may arrive and
+        // update `moderationStatus` to `disapproved` before the `sent` UI
+        // event fires with its older snapshot (still `pending`). Carry the
+        // stronger moderation state forward so we don't regress.
+        final preservedMessage = _preserveModerationStatus(oldMessage, message);
+
         // Interceptor: allow subclass to filter/transform
-        final intercepted = onBeforeMessageUpdated(oldMessage, message);
+        final intercepted = onBeforeMessageUpdated(oldMessage, preservedMessage);
         if (intercepted == null) return;
 
         // Migrate receipt notifier
@@ -2346,8 +2502,12 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
 
     final oldMessage = state.messages[index];
 
+    // Race-condition guard: never regress from a terminal moderation state
+    // (approved/disapproved) back to pending or null.
+    final preservedMessage = _preserveModerationStatus(oldMessage, editedMessage);
+
     // Interceptor: allow subclass to filter/transform
-    final intercepted = onBeforeMessageUpdated(oldMessage, editedMessage);
+    final intercepted = onBeforeMessageUpdated(oldMessage, preservedMessage);
     if (intercepted == null) return;
 
     // Update index maps if the message ID changed (pending -> sent)
@@ -3123,6 +3283,9 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     // Remove UI message events listener
     CometChatMessageEvents.removeMessagesListener(_uiMessageListenerId);
 
+    // Remove UI group events listener
+    CometChatGroupEvents.removeGroupsListener(_uiGroupListenerId);
+
     // Dispose all receipt notifiers (by ID)
     for (final notifier in _receiptNotifiers.values) {
       notifier.dispose();
@@ -3789,6 +3952,7 @@ class _MessageListMessageListener with MessageListener {
   final void Function(BaseMessage) onAIAssistantMessageReceivedCallback;
   final void Function(BaseMessage) onMessageEditedCallback;
   final void Function(BaseMessage) onMessageDeletedCallback;
+  final void Function(BaseMessage) onMessageModeratedCallback;
   final void Function(MessageReceipt) onMessagesDeliveredCallback;
   final void Function(MessageReceipt) onMessagesReadCallback;
   final void Function(MessageReceipt) onMessagesDeliveredToAllCallback;
@@ -3806,6 +3970,7 @@ class _MessageListMessageListener with MessageListener {
     required this.onAIAssistantMessageReceivedCallback,
     required this.onMessageEditedCallback,
     required this.onMessageDeletedCallback,
+    required this.onMessageModeratedCallback,
     required this.onMessagesDeliveredCallback,
     required this.onMessagesReadCallback,
     required this.onMessagesDeliveredToAllCallback,
@@ -3849,6 +4014,11 @@ class _MessageListMessageListener with MessageListener {
   @override
   void onMessageDeleted(BaseMessage message) {
     onMessageDeletedCallback(message);
+  }
+
+  @override
+  void onMessageModerated(BaseMessage message) {
+    onMessageModeratedCallback(message);
   }
 
   @override
@@ -4082,6 +4252,42 @@ class _MessageListUIEventListener with CometChatMessageEventListener {
   @override
   void ccMessageDeleted(BaseMessage message, dynamic messageStatus) {
     onCCMessageDeletedCallback(message, messageStatus);
+  }
+}
+
+/// UI group event listener for group actions performed by logged-in user
+/// 
+/// SDK group listeners only fire for actions by OTHER users. When the
+/// logged-in user performs actions (add/kick/ban), we rely on these
+/// CometChatGroupEvents to generate action messages in the message list.
+class _MessageListUIGroupEventListener with CometChatGroupEventListener {
+  final void Function(List<Action>, List<User>, Group, User)
+      onCCGroupMemberAddedCallback;
+  final void Function(Action, User, User, Group) onCCGroupMemberKickedCallback;
+  final void Function(Action, User, User, Group) onCCGroupMemberBannedCallback;
+
+  _MessageListUIGroupEventListener({
+    required this.onCCGroupMemberAddedCallback,
+    required this.onCCGroupMemberKickedCallback,
+    required this.onCCGroupMemberBannedCallback,
+  });
+
+  @override
+  void ccGroupMemberAdded(List<Action> messages, List<User> usersAdded,
+      Group groupAddedIn, User addedBy) {
+    onCCGroupMemberAddedCallback(messages, usersAdded, groupAddedIn, addedBy);
+  }
+
+  @override
+  void ccGroupMemberKicked(
+      Action message, User kickedUser, User kickedBy, Group kickedFrom) {
+    onCCGroupMemberKickedCallback(message, kickedUser, kickedBy, kickedFrom);
+  }
+
+  @override
+  void ccGroupMemberBanned(
+      Action message, User bannedUser, User bannedBy, Group bannedFrom) {
+    onCCGroupMemberBannedCallback(message, bannedUser, bannedBy, bannedFrom);
   }
 }
 

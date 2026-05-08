@@ -394,11 +394,10 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
   ) async {
     final muid = DateTime.now().microsecondsSinceEpoch.toString();
 
-    // Handle iOS file path prefixing
-    String filePath = event.path;
-    if (Platform.isIOS && !filePath.startsWith('file://')) {
-      filePath = 'file://$filePath';
-    }
+    // Use raw filesystem path — file:// prefix breaks MultipartFile.fromFile()
+    final filePath = event.path;
+    debugPrint('[MessageComposerBloc] sendMedia — path: $filePath, type: ${event.messageType}');
+    debugPrint('[MessageComposerBloc] sendMedia — file exists: ${File(filePath).existsSync()}');
 
     final mediaMessage = MediaMessage(
       receiverType: state.receiverType,
@@ -451,12 +450,8 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
         ));
       },
       (sentMessage) {
-        // Fix file path for iOS
-        if (Platform.isIOS && sentMessage.file != null) {
-          sentMessage.file = sentMessage.file?.replaceAll('file://', '');
-        } else {
-          sentMessage.file = event.path;
-        }
+        // Preserve original local path on sent message
+        sentMessage.file = event.path;
         _playSound();
         // Preserve muid from the original message
         if (sentMessage.muid.isEmpty && mediaMessage.muid.isNotEmpty) {

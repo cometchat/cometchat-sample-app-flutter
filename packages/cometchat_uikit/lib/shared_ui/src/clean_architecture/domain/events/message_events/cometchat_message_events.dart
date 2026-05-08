@@ -1,5 +1,4 @@
 import "package:cometchat_sdk/cometchat_sdk.dart";
-import 'package:flutter/foundation.dart';
 import '../../../core/constants/enums.dart';
 import '../../../data/models/interactive_message/form_message.dart';
 import '../../../data/models/interactive_message/card_message.dart';
@@ -13,12 +12,10 @@ class CometChatMessageEvents {
 
   static addMessagesListener(
       String listenerId, CometChatMessageEventListener listenerClass) {
-    debugPrint('[CometChatMessageEvents] addMessagesListener: $listenerId');
     messagesListener[listenerId] = listenerClass;
   }
 
   static removeMessagesListener(String listenerId) {
-    debugPrint('[CometChatMessageEvents] removeMessagesListener: $listenerId');
     messagesListener.remove(listenerId);
   }
 
@@ -29,9 +26,7 @@ class CometChatMessageEvents {
   }
 
   static ccMessageEdited(BaseMessage message, MessageEditStatus status) {
-    debugPrint('[CometChatMessageEvents] ccMessageEdited called with message.id=${message.id}, status=$status, listeners=${messagesListener.keys.toList()}');
     messagesListener.forEach((key, value) {
-      debugPrint('[CometChatMessageEvents] Notifying listener: $key');
       value.ccMessageEdited(message, status);
     });
   }

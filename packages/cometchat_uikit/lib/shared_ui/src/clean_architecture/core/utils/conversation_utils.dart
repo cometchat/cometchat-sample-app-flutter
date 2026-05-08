@@ -168,15 +168,56 @@ class ConversationUtils {
         subtitle = Translations.of(context).messageVideo;
         break;
       case MessageTypeConstants.file:
-        subtitle = Translations.of(context).messageFile;
+        subtitle = _getFileMessageSubtitle(message, context);
         break;
       case MessageTypeConstants.audio:
-        subtitle = Translations.of(context).messageAudio;
+        subtitle = _getAudioMessageSubtitle(message, context);
         break;
       default:
         subtitle = messageType;
     }
     return subtitle;
+  }
+
+  /// Returns the subtitle text for a file message.
+  /// Prefers the attachment's file name when available so the preview shows
+  /// e.g. "report.pdf" instead of the generic "File".
+  static String _getFileMessageSubtitle(
+      BaseMessage message, BuildContext context) {
+    if (message is MediaMessage) {
+      final fileName = message.attachment?.fileName;
+      if (fileName != null && fileName.trim().isNotEmpty) {
+        return fileName;
+      }
+    }
+    return Translations.of(context).messageFile;
+  }
+
+  /// Returns the subtitle text for an audio message.
+  /// Uses the attachment's file name for non-voice-note audio (e.g. music
+  /// files); falls back to the localized "Audio" string for voice notes or
+  /// when no attachment name is present.
+  static String _getAudioMessageSubtitle(
+      BaseMessage message, BuildContext context) {
+    if (message is MediaMessage) {
+      final fileName = message.attachment?.fileName;
+      if (fileName != null &&
+          fileName.trim().isNotEmpty &&
+          !_isVoiceNoteName(fileName)) {
+        return fileName;
+      }
+    }
+    return Translations.of(context).messageAudio;
+  }
+
+  /// Heuristic: treat recordings produced by the composer as voice notes so
+  /// the subtitle shows "Audio" rather than a timestamped filename.
+  static bool _isVoiceNoteName(String fileName) {
+    final lower = fileName.toLowerCase();
+    return lower.startsWith('audio-recording') ||
+        lower.startsWith('voice-recording') ||
+        lower.startsWith('recording') ||
+        lower.startsWith('voicenote');
   }
 
   /// Truncates long URLs in text to make them more readable in conversation subtitles.
@@ -431,23 +472,106 @@ class ConversationUtils {
         );
         break;
       case MessageTypeConstants.file:
-        subtitle = Icon(
-          Icons.description,
-          color: iconColor ?? colorPalette.iconSecondary,
-          size: 16,
-        );
+        subtitle = _getFileIconWidget(message, iconColor, colorPalette);
         break;
       case MessageTypeConstants.audio:
-        subtitle = Icon(
-          Icons.mic,
-          color: iconColor ?? colorPalette.iconSecondary,
-          size: 16,
-        );
+        subtitle = _getAudioIconWidget(message, iconColor, colorPalette);
         break;
       default:
         subtitle = const SizedBox();
     }
     return subtitle;
+  }
+
+  /// Returns a file-type-specific icon based on the attachment's extension
+  /// or MIME type. Falls back to the generic document icon when no
+  /// attachment information is available.
+  static Widget _getFileIconWidget(
+    BaseMessage message,
+    Color? iconColor,
+    CometChatColorPalette colorPalette,
+  ) {
+    const size = 16.0;
+    final color = iconColor ?? colorPalette.iconSecondary;
+
+    IconData icon = Icons.description;
+
+    if (message is MediaMessage) {
+      final ext = (message.attachment?.fileExtension ?? '').toLowerCase();
+      final mime = (message.attachment?.fileMimeType ?? '').toLowerCase();
+
+      if (ext == 'pdf' || mime == 'application/pdf') {        icon = Icons.picture_as_pdf;
+      } else if (ext == 'doc' ||
+          ext == 'docx' ||
+          mime.contains('word') ||
+          mime.contains('msword') ||
+          mime.contains('officedocument.wordprocessing')) {
+        icon = Icons.article;
+      } else if (ext == 'xls' ||
+          ext == 'xlsx' ||
+          ext == 'csv' ||
+          mime.contains('excel') ||
+          mime.contains('spreadsheet') ||
+          mime == 'text/csv') {
+        icon = Icons.table_chart;
+      } else if (ext == 'ppt' ||
+          ext == 'pptx' ||
+          mime.contains('powerpoint') ||
+          mime.contains('presentation')) {
+        icon = Icons.slideshow;
+      } else if (ext == 'zip' ||
+          ext == 'rar' ||
+          ext == '7z' ||
+          ext == 'tar' ||
+          ext == 'gz' ||
+          mime.contains('zip') ||
+          mime.contains('compressed') ||
+          mime.contains('x-tar') ||
+          mime.contains('gzip')) {
+        icon = Icons.folder_zip;
+      } else if (ext == 'txt' ||
+          ext == 'md' ||
+          ext == 'log' ||
+          mime.startsWith('text/')) {
+        icon = Icons.text_snippet;
+      } else if (mime.startsWith('image/')) {
+        icon = Icons.photo;
+      } else if (mime.startsWith('video/')) {
+        icon = Icons.videocam;
+      } else if (mime.startsWith('audio/')) {
+        icon = Icons.audiotrack;
+      }
+    }
+
+    return Icon(icon, color: color, size: size);
+  }
+
+  /// Returns an audio icon that distinguishes voice notes (mic) from music
+  /// or other audio files (audiotrack), using the attachment's file name
+  /// and extension as hints.
+  static Widget _getAudioIconWidget(
+    BaseMessage message,
+    Color? iconColor,
+    CometChatColorPalette colorPalette,
+  ) {
+    const size = 16.0;
+    final color = iconColor ?? colorPalette.iconSecondary;
+
+    IconData icon = Icons.mic;
+
+    if (message is MediaMessage) {
+      final fileName = message.attachment?.fileName ?? '';
+      final ext = (message.attachment?.fileExtension ?? '').toLowerCase();
+      const musicExtensions = {'mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac', 'wma'};
+
+      // Only switch to music icon when the attachment clearly isn't a
+      // composer-generated voice recording.
+      if (musicExtensions.contains(ext) && !_isVoiceNoteName(fileName)) {
+        icon = Icons.audiotrack;
+      }
+    }
+
+    return Icon(icon, color: color, size: size);
   }
 
   static Widget _getLastTextMessageWidget(

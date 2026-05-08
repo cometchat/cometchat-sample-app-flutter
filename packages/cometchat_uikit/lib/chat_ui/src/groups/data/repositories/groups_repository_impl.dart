@@ -18,6 +18,11 @@ class GroupsRepositoryImpl implements GroupsRepository {
   });
 
   @override
+  void resetRequest() {
+    remoteDataSource.resetRequest();
+  }
+
+  @override
   Future<Result<List<Group>>> getGroups({
     int limit = 30,
     String? searchKeyword,

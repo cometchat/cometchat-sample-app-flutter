@@ -211,7 +211,21 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     return usedByMediaRecorder ? 130 : 43;
   }
 
+  /// Deterministic bar heights used for the idle (non-playing) waveform.
+  /// Using a fixed-seed PRNG keyed by index gives a believable waveform shape
+  /// that is stable across rebuilds and across State recreations (e.g. when
+  /// the message list recreates bubbles on keyboard open). This prevents the
+  /// "static → random" flicker when `isFileExists` flips asynchronously.
+  double _staticBarHeight(int index) {
+    final rng = Random(index * 1103515245 + 12345);
+    return minHeight + rng.nextDouble() * (maxHeight - minHeight);
+  }
+
   setAudioBarHeights() {
+    // Always use deterministic heights for the idle bar list so the waveform
+    // is visually stable across rebuilds (download state flip, keyboard open,
+    // theme change, etc.). Playback-time animation is handled by a separate
+    // inline builder in `build()` and still uses random heights for liveness.
     audioBars = List.generate(
       getBarCount(),
       (index) {
@@ -219,7 +233,7 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
           duration: const Duration(milliseconds: 400),
           margin: const EdgeInsets.only(right: 2.69),
           width: barWidth,
-          height: randomHeight(),
+          height: _staticBarHeight(index),
           decoration: BoxDecoration(
             color: audioBubbleStyle.audioBarColor ??
                 (widget.alignment == BubbleAlignment.right
@@ -420,11 +434,19 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                             ? List.generate(
                                 getBarCount(),
                                 (index) {
+                                  // During playback, prefer the timer-driven
+                                  // `barHeights` (lively animation). Fall back
+                                  // to the deterministic static height so the
+                                  // waveform doesn't flicker on unrelated
+                                  // rebuilds (keyboard, theme, scroll).
+                                  final h = index < barHeights.length
+                                      ? barHeights[index]
+                                      : _staticBarHeight(index);
                                   return AnimatedContainer(
                                     duration: const Duration(milliseconds: 400),
                                     margin: const EdgeInsets.only(right: 2.69),
                                     width: barWidth,
-                                    height: randomHeight(),
+                                    height: h,
                                     decoration: BoxDecoration(
                                       color: audioBubbleStyle.audioBarColor ??
                                           (widget.alignment ==

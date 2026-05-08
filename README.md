@@ -47,9 +47,7 @@ Add the UIKit to your project's `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cometchat_chat_uikit:
-    hosted: https://dart.cloudsmith.io/cometchat/cometchat/
-    version: ^6.0.0-beta2
+  cometchat_chat_uikit: ^6.0.0
 ```
 
 Then run:

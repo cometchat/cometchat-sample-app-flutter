@@ -8,6 +8,12 @@ class GetUsersUseCase {
 
   const GetUsersUseCase(this.repository);
 
+  /// Reset the internal SDK pagination cursor.
+  /// Call before a fresh load or when search keyword changes.
+  void resetRequest() {
+    repository.resetRequest();
+  }
+
   /// Execute the use case to get users
   ///
   /// [limit] - Maximum number of users to fetch (default: 30)

@@ -307,6 +307,36 @@ class MessageTemplateUtils {
     return loggedInUser.uid == message.sender?.uid;
   }
 
+  static CometChatMessageOption getReportOption(
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatMessageOptionSheetStyle? messageOptionSheetStyle,
+  ) {
+    return CometChatMessageOption(
+      id: MessageOptionConstants.reportMessage,
+      title: Translations.of(context).report,
+      icon: Icon(
+        Icons.error_outline,
+        color: messageOptionSheetStyle?.iconColor ?? colorPalette.iconSecondary,
+        size: 24,
+      ),
+      messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
+        titleTextStyle: TextStyle(
+          color: messageOptionSheetStyle?.titleColor,
+          fontFamily: typography.body?.regular?.fontFamily,
+          fontWeight: typography.body?.regular?.fontWeight,
+          fontSize: typography.body?.regular?.fontSize,
+        ).merge(messageOptionSheetStyle?.titleTextStyle),
+        borderRadius: messageOptionSheetStyle?.borderRadius,
+        border: messageOptionSheetStyle?.border,
+        backgroundColor: messageOptionSheetStyle?.backgroundColor,
+        iconColor: messageOptionSheetStyle?.iconColor,
+        titleColor: messageOptionSheetStyle?.titleColor,
+      ),
+    );
+  }
+
 
   static List<CometChatMessageOption> getTextMessageOptions(
       User loggedInUser,
@@ -393,6 +423,13 @@ class MessageTemplateUtils {
             MessageOptionConstants.markAsUnread)) {
       messageOptionList.add(
           getMarkAsUnreadOption(context, colorPalette, typography, style));
+    }
+
+    if (additionalConfigurations?.hideFlagOption != true &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.reportMessage)) {
+      messageOptionList.add(
+          getReportOption(context, colorPalette, typography, style));
     }
 
     return messageOptionList;
@@ -918,6 +955,11 @@ class MessageTemplateUtils {
       return true;
     }
 
+    if (MessageOptionConstants.reportMessage == optionId &&
+        loggedInUser.uid != messageObject.sender?.uid) {
+      return true;
+    }
+
     if (MessageOptionConstants.markAsUnread == optionId &&
         loggedInUser.uid != messageObject.sender?.uid &&
         messageObject.parentMessageId == 0) {
@@ -997,6 +1039,13 @@ class MessageTemplateUtils {
             MessageOptionConstants.markAsUnread)) {
       messageOptionList.add(
           getMarkAsUnreadOption(context, colorPalette, typography, style));
+    }
+
+    if (additionalConfigurations?.hideFlagOption != true &&
+        _validateOption(loggedInUser, messageObject, context, group,
+            MessageOptionConstants.reportMessage)) {
+      messageOptionList.add(
+          getReportOption(context, colorPalette, typography, style));
     }
 
     return messageOptionList;
@@ -1083,6 +1132,10 @@ class MessageTemplateUtils {
   static Widget getImageMessageContentView(
       MediaMessage message, BuildContext context, BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
+    final imageThumbnailUrl = ThumbnailExtractionUtil.extractFromMetadata(
+      message.metadata,
+      tag: 'template.image.msg${message.id}',
+    );
     return MessageTemplateUtils.getImageMessageBubble(
       message.attachment?.fileUrl,
       AssetConstants.imagePlaceholder,
@@ -1091,6 +1144,7 @@ class MessageTemplateUtils {
       message,
       null,
       context,
+      thumbnailUrl: imageThumbnailUrl,
     );
   }
 
@@ -1114,36 +1168,10 @@ class MessageTemplateUtils {
   static Widget getVideoMessageContentView(
       MediaMessage message, BuildContext context, BubbleAlignment alignment,
       {AdditionalConfigurations? additionalConfigurations}) {
-    String? thumbnailUrl;
-    Map<String, dynamic>? metadata = message.metadata;
-    if (metadata != null) {
-      Map? injectedObject = metadata["@injected"];
-      if (injectedObject != null && injectedObject.containsKey("extensions")) {
-        Map extensionsObject = injectedObject["extensions"];
-        if (extensionsObject.containsKey("thumbnail-generation")) {
-          Map thumbnailData = extensionsObject["thumbnail-generation"];
-          // First try to get from root level of thumbnail-generation
-          thumbnailUrl = thumbnailData["url_small"] ??
-              thumbnailData["url_medium"] ??
-              thumbnailData["url_large"];
-          // Fallback to attachments array if not found at root level
-          if (thumbnailUrl == null && thumbnailData["attachments"] != null) {
-            List attachments = thumbnailData["attachments"];
-            for (var attachment in attachments) {
-              if (attachment["error"] == null && attachment["data"] != null) {
-                var thumbnails = attachment["data"]["thumbnails"];
-                if (thumbnails != null) {
-                  thumbnailUrl = thumbnails["url_small"] ??
-                      thumbnails["url_medium"] ??
-                      thumbnails["url_large"];
-                  if (thumbnailUrl != null) break;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    final thumbnailUrl = ThumbnailExtractionUtil.extractFromMetadata(
+      message.metadata,
+      tag: 'template.video.msg${message.id}',
+    );
     return MessageTemplateUtils.getVideoMessageBubble(
         message.attachment?.fileUrl,
         thumbnailUrl,
@@ -1220,11 +1248,13 @@ class MessageTemplateUtils {
     CometChatImageBubbleStyle? style,
     MediaMessage message,
     Function()? onClick,
-    BuildContext context,
-  ) {
+    BuildContext context, {
+    String? thumbnailUrl,
+  }) {
     return CometChatImageBubble(
         key: UniqueKey(),
         imageUrl: imageUrl,
+        thumbnailUrl: thumbnailUrl,
         placeholderImage: placeholderImage,
         style: (style ?? const CometChatImageBubbleStyle()) as dynamic,
         onClick: onClick,

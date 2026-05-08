@@ -343,8 +343,23 @@ class RichTextSpanManager {
     
     String result = text;
     
-    // Apply formats in consistent order
-    final sortedFormats = formats.toList()..sort((a, b) => a.index.compareTo(b.index));
+    // Wrap formats from innermost to outermost. Italic (_) must be the
+    // innermost marker so that two adjacent spans with overlapping
+    // format sets don't collide at the boundary.
+    //
+    // Example without this ordering (bug ENG-34742):
+    //   span [0,4) {italic}       → "_uhku_"
+    //   span [4,12) {italic,bold} → "_**oiuhiouh**_"
+    //   concatenated              → "_uhku__**oiuhiouh**_"
+    // The "__" boundary is misread by the receiver as a broken
+    // double-underscore pattern and the outer "_"s render as literal
+    // characters, leaving only the inner "**...**" bold.
+    //
+    // With italic innermost the same spans serialize to:
+    //   "_uhku_" + "**_oiuhiouh_**" = "_uhku_**_oiuhiouh_**"
+    // which parses cleanly: italic(uhku) + bold+italic(oiuhiouh).
+    final sortedFormats = formats.toList()
+      ..sort((a, b) => _wrapPriority(a).compareTo(_wrapPriority(b)));
     
     for (final format in sortedFormats) {
       final markers = _getMarkers(format, metadata: metadata);
@@ -352,6 +367,30 @@ class RichTextSpanManager {
     }
     
     return result;
+  }
+
+  /// Wrap priority — lower values are applied FIRST (innermost markers),
+  /// higher values are applied LAST (outermost markers).
+  ///
+  /// Italic must be innermost so adjacent `_` markers never touch each
+  /// other when spans concatenate. See [_wrapSingleLine] for details.
+  int _wrapPriority(FormatType format) {
+    switch (format) {
+      case FormatType.italic:
+        return 0;
+      case FormatType.inlineCode:
+        return 1;
+      case FormatType.strikethrough:
+        return 2;
+      case FormatType.underline:
+        return 3;
+      case FormatType.bold:
+        return 4;
+      case FormatType.link:
+        return 5;
+      default:
+        return 100;
+    }
   }
   
   _FormatMarkerPair _getMarkers(FormatType format, {Map<String, String>? metadata}) {

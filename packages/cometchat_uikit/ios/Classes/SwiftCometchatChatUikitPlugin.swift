@@ -246,6 +246,9 @@ UINavigationControllerDelegate {
             } else if type == "video" {
                 self.imagePicker.mediaTypes = ["public.movie"]
                 controller.present(self.imagePicker, animated: true)
+            } else if type == "imagevideo" {
+                self.imagePicker.mediaTypes = ["public.image", "public.movie"]
+                controller.present(self.imagePicker, animated: true)
             } else {
                 controller.present(self.documentPicker, animated: true)
             }
@@ -256,10 +259,28 @@ UINavigationControllerDelegate {
     didPickDocumentsAt urls: [URL]) {
         var files = [[String: String]]()
         for url in urls {
-            files.append([
-                "path": url.path,
-                "name": url.lastPathComponent
-            ])
+            // Security-scoped resource: copy to app's tmp dir so the file
+            // remains accessible after the picker dismisses.
+            let accessing = url.startAccessingSecurityScopedResource()
+            defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+
+            let tmpDir = FileManager.default.temporaryDirectory
+            let dest = tmpDir.appendingPathComponent(url.lastPathComponent)
+            // Remove stale copy if present
+            try? FileManager.default.removeItem(at: dest)
+            do {
+                try FileManager.default.copyItem(at: url, to: dest)
+                files.append([
+                    "path": dest.path,
+                    "name": dest.lastPathComponent
+                ])
+            } catch {
+                // Fallback to original path if copy fails
+                files.append([
+                    "path": url.path,
+                    "name": url.lastPathComponent
+                ])
+            }
         }
         filePickerResult?(files)
         filePickerResult = nil
@@ -270,14 +291,58 @@ UINavigationControllerDelegate {
         var file: [String: String] = [:]
 
         if let url = info[.imageURL] as? URL {
-            file = ["path": url.path, "name": url.lastPathComponent]
+            let copied = copyToAppTmp(url)
+            file = ["path": copied.path, "name": copied.lastPathComponent]
         } else if let url = info[.mediaURL] as? URL {
-            file = ["path": url.path, "name": url.lastPathComponent]
+            let copied = copyToAppTmp(url)
+            file = ["path": copied.path, "name": copied.lastPathComponent]
+        } else if let image = info[.originalImage] as? UIImage {
+            // Fallback: .imageURL is nil (e.g. HEIC from iCloud) — write to tmp
+            let tmpDir = FileManager.default.temporaryDirectory
+            let dest = tmpDir.appendingPathComponent("picked_\(Int(Date().timeIntervalSince1970 * 1000)).jpg")
+            if let data = image.jpegData(compressionQuality: 0.9) {
+                try? data.write(to: dest)
+                file = ["path": dest.path, "name": dest.lastPathComponent]
+            }
         }
 
         picker.dismiss(animated: true)
         filePickerResult?([file])
         filePickerResult = nil
+    }
+
+    /// Copy a picker URL into the app's own tmp directory so it survives
+    /// after the picker's sandbox is torn down.
+    private func copyToAppTmp(_ url: URL) -> URL {
+        let tmpDir = FileManager.default.temporaryDirectory
+        let dest = tmpDir.appendingPathComponent(url.lastPathComponent)
+
+        // Guard against same-path destruction.
+        //
+        // When `UIImagePickerController` returns a picked image, the URL is
+        // already inside the app's own `tmp/` directory
+        // (e.g. `.../Application/<APP>/tmp/<UUID>.png`). In that case
+        // `dest == url`, so the `removeItem` below would delete the source
+        // file — and the subsequent `copyItem` would throw because its
+        // source no longer exists. The `catch` branch then returns the
+        // original `url`, but the file at that path is gone, producing a
+        // path that points to nothing and a silent upload failure.
+        //
+        // Resolve symlinks on both sides before comparing because on iOS
+        // `NSTemporaryDirectory()` may return a `/var/...` path that the
+        // system later aliases to `/private/var/...` (and vice-versa).
+        if url.resolvingSymlinksInPath().path ==
+           dest.resolvingSymlinksInPath().path {
+            return url
+        }
+
+        try? FileManager.default.removeItem(at: dest)
+        do {
+            try FileManager.default.copyItem(at: url, to: dest)
+            return dest
+        } catch {
+            return url // fallback to original
+        }
     }
 
     // MARK: - Audio Recording

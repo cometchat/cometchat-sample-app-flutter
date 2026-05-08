@@ -21,6 +21,7 @@ export 'ai_utils.dart';
 export 'action_element_utils.dart';
 export 'emoji_utils.dart';
 export 'moderation_check_util.dart';
+export 'thumbnail_extraction_util.dart';
 
 // Misc utilities
 export 'audio_bubble_events.dart';

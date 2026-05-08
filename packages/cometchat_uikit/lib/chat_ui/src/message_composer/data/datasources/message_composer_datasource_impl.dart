@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'message_composer_datasource.dart';
 
@@ -32,12 +33,8 @@ class MessageComposerDataSourceImpl implements MessageComposerDataSource {
   Future<MediaMessage> sendMediaMessage(MediaMessage message) async {
     final completer = Completer<MediaMessage>();
 
-    // Handle iOS file path prefixing
-    String filePath = message.file ?? '';
-    if (Platform.isIOS && !filePath.startsWith('file://')) {
-      filePath = 'file://$filePath';
-      message.file = filePath;
-    }
+    // Pass raw filesystem path — file:// prefix breaks MultipartFile.fromFile()
+    debugPrint('[ComposerDatasource] sendMediaMessage — file: ${message.file}, type: ${message.type}');
 
     await CometChat.sendMediaMessage(
       message,

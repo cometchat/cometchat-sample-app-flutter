@@ -117,7 +117,6 @@ export 'chat_ui/src/ai_assistant_chat_history/domain/domain.dart' hide
 
 
 // Rich Text Formatting
-export 'shared_ui/src/formatter/rich_text/rich_text.dart';
 export 'chat_ui/src/message_composer/widgets/rich_text_toolbar/rich_text_toolbar.dart';
 
 // Search

@@ -1457,11 +1457,16 @@ class CometChatMentionsFormatter extends CometChatTextFormatter {
             padding: EdgeInsets.symmetric(
                 horizontal: spacing.padding ?? 0, vertical: 0),
             onTap: (text) {
-              if (onMentionTap != null && mentionType == 'uid') {
+              if (mentionType == 'uid') {
                 int userIndex =
                     mentionedUsers.indexWhere((element) => element.uid == mentionId);
                 if (userIndex != -1) {
-                  onMentionTap!(text, mentionedUsers[userIndex], message: message);
+                  if (onMentionTap != null) {
+                    onMentionTap!(text, mentionedUsers[userIndex], message: message);
+                  } else {
+                    // Default: fire openChat UI event so apps can navigate
+                    CometChatUIEvents.openChat(mentionedUsers[userIndex], null);
+                  }
                 }
               }
             }));

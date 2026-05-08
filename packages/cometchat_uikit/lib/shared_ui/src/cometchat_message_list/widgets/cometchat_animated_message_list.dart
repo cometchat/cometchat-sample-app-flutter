@@ -215,6 +215,10 @@ class _CometChatAnimatedMessageListState
   late ValueNotifier<bool> _isEmptyNotifier;
   late StreamSubscription<MessageOperation> _operationsSubscription;
 
+  // Notifier to trigger targeted rebuilds of the animated list sliver only
+  // (not the entire widget including scroll-to-bottom, empty state, load indicators)
+  final ValueNotifier<int> _messageUpdateNotifier = ValueNotifier<int>(0);
+
   // Operation queue
   final List<MessageOperation> _operationsQueue = [];
   bool _isProcessingOperations = false;
@@ -593,7 +597,7 @@ class _CometChatAnimatedMessageListState
     );
   }
 
-  /// Handle message update (no animation, just rebuild)
+  /// Handle message update (no animation, just rebuild the list sliver)
   void _onUpdated(MessageOperation operation) {
     final newMessage = operation.message;
     final index = operation.index;
@@ -604,10 +608,8 @@ class _CometChatAnimatedMessageListState
       _messages[index] = newMessage;
     }
 
-    // Trigger rebuild by updating state
-    if (mounted) {
-      setState(() {});
-    }
+    // Trigger targeted rebuild of the animated list sliver only
+    _messageUpdateNotifier.value++;
   }
 
 
@@ -622,7 +624,7 @@ class _CometChatAnimatedMessageListState
     if (listState == null) {
       _messages = List.from(newMessages);
       _isEmptyNotifier.value = _messages.isEmpty;
-      if (mounted) setState(() {});
+      if (mounted) _messageUpdateNotifier.value++;
       _triggerDateObservation();
       return;
     }
@@ -720,7 +722,7 @@ class _CometChatAnimatedMessageListState
       );
     }
 
-    if (mounted) setState(() {});
+    if (mounted) _messageUpdateNotifier.value++;
     _triggerDateObservation();
   }
 
@@ -1489,8 +1491,19 @@ class _CometChatAnimatedMessageListState
     }
   }
 
-  /// Build the SliverAnimatedList
+  /// Build the SliverAnimatedList wrapped in ValueListenableBuilder
+  /// so message updates only rebuild the list sliver, not the entire widget
   Widget _buildAnimatedList() {
+    return ValueListenableBuilder<int>(
+      valueListenable: _messageUpdateNotifier,
+      builder: (context, _, __) {
+        return _buildAnimatedListContent();
+      },
+    );
+  }
+
+  /// Build the actual SliverAnimatedList content
+  Widget _buildAnimatedListContent() {
     return SliverAnimatedList(
       key: _listKey,
       initialItemCount: _messages.length,
@@ -1592,6 +1605,7 @@ class _CometChatAnimatedMessageListState
     _scrollController.removeListener(_onScrollForDateTracking);
     _isEmptyNotifier.dispose();
     _newerInsertOpacity.dispose();
+    _messageUpdateNotifier.dispose();
     _scrollToBottomShowTimer?.cancel();
     _scrollToBottomController.dispose();
     _scrollAnimationController.removeListener(_linkAnimationToScroll);

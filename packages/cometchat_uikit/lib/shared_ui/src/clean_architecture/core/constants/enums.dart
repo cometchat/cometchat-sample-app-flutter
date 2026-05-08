@@ -39,6 +39,19 @@ enum ActivateSelection { onClick, onLongClick }
 ///[AuxiliaryButtonsAlignment] is an enum that defines the position of the auxiliary buttons in the [CometChatMessageComposer]
 enum AuxiliaryButtonsAlignment { left, right }
 
+/// [CometChatComposerLayout] controls the skeleton layout of [CometChatMessageComposer].
+///
+/// * [singleLine] (default) — text field and all buttons share a single row,
+///   matching the v6 default layout.
+/// * [doubleLine] — text field sits on its own row with the secondary /
+///   auxiliary / primary buttons on a second row below a divider, matching
+///   the classic v5 layout.
+///
+/// The layout choice does not affect any of the composer's features (mentions,
+/// rich text formatting, voice recording, attachments, AI options, reply/edit
+/// preview) — all existing props continue to work in both layouts.
+enum CometChatComposerLayout { singleLine, doubleLine }
+
 ///[PreviewMessageMode] is an enum that defines the nature of the message preview that needs to be shown in the [CometChatMessageComposer]
 enum PreviewMessageMode { edit, reply, none }
 

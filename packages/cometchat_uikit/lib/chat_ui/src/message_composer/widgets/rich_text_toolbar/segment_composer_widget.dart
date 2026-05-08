@@ -284,6 +284,20 @@ class _NormalSegmentWidgetState extends State<_NormalSegmentWidget> {
     );
   }
 
+  /// Invoked by the TextField's `onTap` callback. Schedules a post-frame
+  /// link-at-cursor check on the segment's [RichTextEditingController].
+  /// The controller's selection-change listener does not reliably fire on
+  /// iOS when the user taps an unfocused field, so we use the tap callback
+  /// as a more reliable trigger on both platforms.
+  void _handleTap() {
+    final controller = widget.segment.controller;
+    if (controller is! RichTextEditingController) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      controller.checkLinkAtCursor();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -302,6 +316,7 @@ class _NormalSegmentWidgetState extends State<_NormalSegmentWidget> {
       maxLines: null,
       minLines: 1,
       onChanged: widget.onChange,
+      onTap: _handleTap,
       contextMenuBuilder: _buildContextMenu,
       style: widget.textStyle ?? TextStyle(
         fontSize: widget.typography.body?.regular?.fontSize ?? 15,

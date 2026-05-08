@@ -511,7 +511,7 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
             onlineStatusIndicatorColor: statusIndicatorStyle.backgroundColor ??
                 headerStyle.onlineStatusColor ??
                 colorPalette.success,
-            usersStatusVisibility: _hideUserPresence(state),
+            usersStatusVisibility: !_hideUserPresence(state),
             privateGroupIconBackground: headerStyle.privateGroupBadgeIconColor,
             protectedGroupIconBackground:
                 headerStyle.passwordProtectedGroupBadgeIconColor);

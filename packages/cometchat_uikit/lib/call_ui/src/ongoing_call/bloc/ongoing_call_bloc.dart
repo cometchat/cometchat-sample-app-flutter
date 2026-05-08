@@ -126,6 +126,23 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
     }
   }
 
+  /// Infer whether a call session is audio-only.
+  ///
+  /// The codebase uses two equivalent conventions:
+  /// 1. `SessionType.audio` (native AUDIO value) when supported by the SDK.
+  /// 2. A workaround used across UIKit code where `SessionType.video` is
+  ///    combined with `startVideoPaused=true` + `hideToggleVideoButton=true`
+  ///    — this works around a beta-SDK bug where Android ignores
+  ///    `SessionType.audio` and logs "Invalid session type: AUDIO".
+  ///
+  /// Both are treated as audio-only here so we don't ask for the camera
+  /// runtime permission on calls that never use the camera.
+  static bool _isAudioOnlySession(SessionSettings s) {
+    if (s.type == SessionType.audio) return true;
+    if (s.startVideoPaused && s.hideToggleVideoButton) return true;
+    return false;
+  }
+
   // ============================================================
   // EVENT HANDLERS
   // ============================================================
@@ -154,11 +171,37 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
       return;
     }
 
+    // Android 14+ (targetSdk 34+) blocks starting the OngoingCallService
+    // foreground service with SecurityException if RECORD_AUDIO / CAMERA
+    // are not granted at runtime. The calls plugin's OngoingCallService
+    // declares FGS types `mediaPlayback|microphone|camera` and the OS
+    // validates each required runtime permission when startForeground()
+    // is called. Path-level checks elsewhere (OutgoingCallBloc,
+    // IncomingCallBloc, VoipCallHandler) can be bypassed by cold-boot
+    // VOIP accepts (pendingCallNavigation jumps straight here). Do the
+    // final check here so no path reaches startSession without mic+camera.
+    final SessionSettings sessionSettings = sessionSettingsBuilder.build();
+    final bool isAudioOnly = _isAudioOnlySession(sessionSettings);
+    final permissionGranted = await CallPermissions.requestForCallType(
+      isVideoCall: !isAudioOnly,
+    );
+    if (isClosed) return;
+    if (!permissionGranted) {
+      developer.log(
+        'OngoingCallBloc: permissions denied (audioOnly=$isAudioOnly), aborting session',
+      );
+      emit(state.copyWith(
+        status: OngoingCallStatus.error,
+        errorMessage:
+            'Microphone${isAudioOnly ? '' : ' and camera'} permission is required to join the call.',
+      ));
+      return;
+    }
+
     developer.log('OngoingCallBloc: Joining session $sessionId');
 
     // Join session directly with sessionId — SDK handles token internally
     final startSessionUseCase = CallOperationsServiceLocator.instance.startSessionUseCase;
-    final SessionSettings sessionSettings = sessionSettingsBuilder.build();
     final sessionResult = await startSessionUseCase.call(sessionId, sessionSettings);
 
     if (isClosed) return;

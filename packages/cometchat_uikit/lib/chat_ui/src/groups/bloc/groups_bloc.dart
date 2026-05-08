@@ -207,11 +207,12 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   @override
   void onListReplaced(List<Group> previousList, List<Group> newList) {
     _mapNeedsRebuild = true;
+    // Don't set hasMore here — let the caller (_onLoadGroups / _onLoadMoreGroups)
+    // control hasMore based on the actual page size, not total list length.
     if (!isClosed) {
       add(_ListStateChanged(
         groups: newList,
         isEmpty: newList.isEmpty,
-        hasMore: newList.length >= 30,
       ));
     }
   }
@@ -544,6 +545,9 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
     _isLoadingMore = false;
     _currentSearchKeyword = event.searchKeyword;
 
+    // Reset the SDK request cursor for a fresh load
+    getGroupsUseCase.resetRequest();
+
     if (_loggedInUser == null) {
       final userResult = await getLoggedInUserUseCase();
       if (userResult is Success<User?>) {
@@ -601,7 +605,12 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
       }
 
       final allGroups = [...currentState.groups, ...newGroups];
+      final hasMorePages = newGroups.length >= 30;
       replaceAll(allGroups);
+      // Always emit the correct hasMore and isLoadingMore after replaceAll
+      if (state is GroupsLoaded) {
+        emit((state as GroupsLoaded).copyWith(hasMore: hasMorePages, isLoadingMore: false));
+      }
     } else if (result is Failure) {
       emit(GroupsError(
         message: result.message,
@@ -678,6 +687,9 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   ) async {
     _currentSearchKeyword = event.keyword;
 
+    // Reset the SDK request cursor for a new search
+    getGroupsUseCase.resetRequest();
+
     // Emit loading state while searching
     emit(const GroupsLoading());
 
@@ -710,6 +722,8 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
     _RestoreOriginalGroups event,
     Emitter<GroupsState> emit,
   ) {
+    // Reset the SDK request cursor so next pagination uses the non-search request
+    getGroupsUseCase.resetRequest();
     replaceAll(event.groups);
   }
 
@@ -955,13 +969,12 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
       if (currentState is GroupsLoaded) {
         emit(currentState.copyWith(
           groups: event.groups,
-          hasMore: event.hasMore ?? currentState.hasMore,
           isLoadingMore: false,
         ));
       } else {
         emit(GroupsLoaded(
           groups: event.groups,
-          hasMore: event.hasMore ?? true,
+          hasMore: true,
         ));
       }
     }
@@ -990,16 +1003,14 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
 class _ListStateChanged extends GroupsEvent {
   final List<Group> groups;
   final bool isEmpty;
-  final bool? hasMore;
 
   const _ListStateChanged({
     required this.groups,
     required this.isEmpty,
-    this.hasMore,
   });
 
   @override
-  List<Object?> get props => [groups, isEmpty, hasMore];
+  List<Object?> get props => [groups, isEmpty];
 }
 
 /// Internal event for executing search after debounce

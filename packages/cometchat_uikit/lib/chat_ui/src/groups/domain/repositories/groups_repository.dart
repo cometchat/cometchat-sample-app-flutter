@@ -22,6 +22,10 @@ abstract class GroupsRepository {
     bool? joinedOnly,
   });
 
+  /// Reset the internal SDK pagination cursor.
+  /// Call before a fresh load or when search keyword changes.
+  void resetRequest();
+
   /// Get a specific group by its GUID
   ///
   /// [guid] - The unique identifier of the group

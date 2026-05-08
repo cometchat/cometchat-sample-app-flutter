@@ -148,9 +148,6 @@ export 'src/models/extension_bubble_styles/cometchat_message_translation_bubble_
 export 'src/models/extension_bubble_styles/cometchat_moderation_style.dart';
 export 'src/models/extension_bubble_styles/cometchat_exception_style.dart';
 
-// Export rich text formatters
-export 'src/formatter/rich_text/rich_text.dart';
-
 // Export unified markdown formatter (replaces legacy rich text formatters for bubble display)
 export 'src/formatter/markdown/markdown_text_formatter.dart';
 

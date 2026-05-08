@@ -15,15 +15,10 @@ class MockMessageListRepository extends Mock implements MessageListRepository {}
 
 class FakeBaseMessage extends Fake implements BaseMessage {
   final int _id;
-  final User? _sender;
-  FakeBaseMessage([this._id = 1, User? sender])
-      : _sender = sender ?? User(name: 'test', uid: 'test_uid');
+  FakeBaseMessage([this._id = 1]);
 
   @override
   int get id => _id;
-
-  @override
-  User? get sender => _sender;
 }
 
 class FakeMessagesRequest extends Fake implements MessagesRequest {}

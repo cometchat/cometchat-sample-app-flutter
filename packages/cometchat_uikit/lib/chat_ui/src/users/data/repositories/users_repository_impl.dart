@@ -16,6 +16,11 @@ class UsersRepositoryImpl implements UsersRepository {
   });
 
   @override
+  void resetRequest() {
+    remoteDataSource.resetRequest();
+  }
+
+  @override
   Future<Result<List<User>>> getUsers({
     int limit = 30,
     String? searchKeyword,

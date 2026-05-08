@@ -8,3 +8,4 @@
 /// `widgets/cometchat_message_composer.dart`
 
 export 'widgets/cometchat_message_composer.dart';
+export 'utils/cometchat_keyboard_diagnostics.dart';

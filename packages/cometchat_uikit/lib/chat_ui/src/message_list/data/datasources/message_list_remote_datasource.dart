@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
-import 'package:flutter/foundation.dart';
 
 /// Exception thrown when remote data source operations fail.
 class MessageListRemoteDataSourceException implements Exception {
@@ -164,22 +163,13 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
   @override
   Future<void> markAsRead(BaseMessage message) async {
     try {
-      debugPrint('[MessageListRemoteDataSource] markAsRead CALLED — '
-          'messageId=${message.id}, type=${message.type}, '
-          'sender=${message.sender?.uid}, receiverUid=${message.receiverUid}, '
-          'receiverType=${message.receiverType}');
       final completer = Completer<void>();
       await CometChat.markAsRead(
         message,
         onSuccess: (dynamic result) {
-          debugPrint('[MessageListRemoteDataSource] markAsRead SDK SUCCESS — '
-              'messageId=${message.id}, result=$result');
           if (!completer.isCompleted) completer.complete();
         },
         onError: (CometChatException exception) {
-          debugPrint('[MessageListRemoteDataSource] markAsRead SDK ERROR — '
-              'messageId=${message.id}, code=${exception.code}, '
-              'message=${exception.message}, details=${exception.details}');
           if (!completer.isCompleted) {
             completer.completeError(MessageListRemoteDataSourceException(
               message: exception.message ?? 'Failed to mark message as read',
@@ -191,15 +181,12 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
       );
       return await completer.future;
     } on CometChatException catch (e) {
-      debugPrint('[MessageListRemoteDataSource] markAsRead CometChatException — '
-          'code=${e.code}, message=${e.message}');
       throw MessageListRemoteDataSourceException(
         message: e.message ?? 'Failed to mark message as read',
         code: e.code,
         originalException: e,
       );
     } catch (e) {
-      debugPrint('[MessageListRemoteDataSource] markAsRead UNEXPECTED ERROR — $e');
       if (e is MessageListRemoteDataSourceException) rethrow;
       throw MessageListRemoteDataSourceException(
         message: 'Unexpected error while marking message as read: ${e.toString()}',

@@ -56,12 +56,20 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     this.messagesRequestBuilder,
     List<SearchFilter>? searchFilters,
     List<SearchScope>? searchScopes,
-  })  : allFilters = searchFilters ?? defaultFilters,
+  })  : allFilters = _resolveAllowedFilters(
+          searchFilters,
+          searchScopes,
+          initialScope,
+        ),
         super(SearchState(
           scope: initialScope,
           showConversations: initialScope != SearchScope.messages,
           showMessages: initialScope != SearchScope.conversations,
-          visibleFilters: searchFilters ?? defaultFilters,
+          visibleFilters: _resolveAllowedFilters(
+            searchFilters,
+            searchScopes,
+            initialScope,
+          ),
         )) {
     on<SearchTextChanged>(_onSearchTextChanged);
     on<SearchFilterToggled>(_onFilterToggled);
@@ -73,6 +81,43 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<ConversationsErrorReceived>(_onConversationsError);
     on<MessagesResultReceived>(_onMessagesResult);
     on<MessagesErrorReceived>(_onMessagesError);
+  }
+
+  /// Selects which filter chips to expose based on the scope.
+  ///
+  /// Mirrors the v5 sample_app `getAllowedLabels()` rule:
+  /// - messages-only       → drop conversation-only chips (Unread, Groups)
+  /// - conversations-only  → keep only conversation chips (Unread, Groups)
+  /// - both / unspecified  → keep all chips
+  ///
+  /// Caller-provided `searchFilters` take precedence — if the caller supplies
+  /// an explicit list, we trust it and don't re-filter.
+  static List<SearchFilter> _resolveAllowedFilters(
+    List<SearchFilter>? searchFilters,
+    List<SearchScope>? searchScopes,
+    SearchScope initialScope,
+  ) {
+    final base = searchFilters ?? defaultFilters;
+    if (searchFilters != null) return base;
+
+    // Derive effective scope: explicit searchScopes override initialScope.
+    final bool allowConversations;
+    final bool allowMessages;
+    if (searchScopes != null && searchScopes.isNotEmpty) {
+      allowConversations = searchScopes.contains(SearchScope.conversations);
+      allowMessages = searchScopes.contains(SearchScope.messages);
+    } else {
+      allowConversations = initialScope != SearchScope.messages;
+      allowMessages = initialScope != SearchScope.conversations;
+    }
+
+    return base.where((f) {
+      final isConversationChip = _conversationFilterGroups.contains(f.group);
+      final isMessageChip = _messageFilterGroups.contains(f.group);
+      if (isConversationChip && !allowConversations) return false;
+      if (isMessageChip && !allowMessages) return false;
+      return true;
+    }).toList();
   }
 
   // ============================================================
@@ -151,11 +196,17 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     if (currentSelected.isNotEmpty) {
       if (_conversationFilterGroups.contains(tappedGroup)) {
-        showConv = true;
-        showMsg = false;
+        // Only activate the conversations section if the widget isn't locked
+        // to messages-only (e.g., searchIn: [SearchScope.messages]).
+        if (state.scope != SearchScope.messages) {
+          showConv = true;
+          showMsg = false;
+        }
       } else if (_messageFilterGroups.contains(tappedGroup)) {
-        showConv = false;
-        showMsg = true;
+        if (state.scope != SearchScope.conversations) {
+          showConv = false;
+          showMsg = true;
+        }
       }
     } else {
       showConv = state.scope != SearchScope.messages;
@@ -415,8 +466,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     _messageRequestVersion++;
     final version = _messageRequestVersion;
 
-    debugPrint('[SearchBloc] _searchMessages: text="$text", filters=$filters, version=$version');
-
     // Count how many attachment filters are active
     final attachmentFilterLabels = <String>[];
     if (filters.contains('Photos')) attachmentFilterLabels.add('Photos');
@@ -428,17 +477,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     // When multiple attachment filters are selected, fire separate requests
     // and merge results client-side.
     if (attachmentFilterLabels.length > 1) {
-      debugPrint('[SearchBloc] _searchMessages: multiple attachment filters, firing ${attachmentFilterLabels.length} separate requests');
       _searchMessagesMultiFilter(text, filters, attachmentFilterLabels, version);
       return;
     }
 
     // Single filter or no attachment filters — use normal single request path
     final builder = _buildMessagesRequest(text, filters);
-
-    debugPrint('[SearchBloc] _searchMessages: builder.types=${builder.types}, builder.attachmentTypes=${builder.attachmentTypes}, builder.hasLinks=${builder.hasLinks}');
-    debugPrint('[SearchBloc] _searchMessages: builder.uid=${builder.uid}, builder.guid=${builder.guid}, builder.searchKeyword=${builder.searchKeyword}');
-    debugPrint('[SearchBloc] _searchMessages: builder.limit=${builder.limit}, builder.categories=${builder.categories}');
 
     _messagesRequest = builder.build();
     _isFetchingMessages = false;
@@ -505,7 +549,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         if (allFilters.contains('Links')) singleFilter.add('Links');
 
         final builder = _buildMessagesRequest(text, singleFilter);
-        debugPrint('[SearchBloc] _searchMessagesMultiFilter: fetching for filter=$filterLabel, attachmentTypes=${builder.attachmentTypes}');
 
         final request = builder.build();
         final completer = Completer<List<BaseMessage>>();
@@ -519,7 +562,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         );
 
         final results = await completer.future;
-        debugPrint('[SearchBloc] _searchMessagesMultiFilter: filter=$filterLabel returned ${results.length} results');
 
         for (final msg in results) {
           if (!seenIds.contains(msg.id)) {
@@ -538,15 +580,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         return bTime.compareTo(aTime);
       });
 
-      debugPrint('[SearchBloc] _searchMessagesMultiFilter: merged ${allResults.length} unique results');
-
       add(MessagesResultReceived(
         messages: allResults,
         hasMore: false, // Pagination not supported for merged results
         append: false,
       ));
     } catch (e) {
-      debugPrint('[SearchBloc] _searchMessagesMultiFilter: ERROR: $e');
       if (version != _messageRequestVersion || isClosed) return;
       add(MessagesErrorReceived(e.toString()));
     } finally {
@@ -559,8 +598,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   void _applyMessageFilters(
       MessagesRequestBuilder builder, Set<String> filters) {
     if (filters.isEmpty) return;
-
-    debugPrint('[SearchBloc] _applyMessageFilters: filters=$filters');
 
     final attachmentTypes = <String>[];
     if (filters.contains('Photos')) {
@@ -577,12 +614,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
     if (attachmentTypes.isNotEmpty) {
       builder.attachmentTypes = attachmentTypes;
-      debugPrint('[SearchBloc] _applyMessageFilters: set attachmentTypes=$attachmentTypes');
     }
 
     if (filters.contains('Links')) {
       builder.hasLinks = true;
-      debugPrint('[SearchBloc] _applyMessageFilters: set hasLinks=true');
     }
   }
 
@@ -604,11 +639,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final results = await completer.future;
       if (version != _messageRequestVersion || isClosed) return;
 
-      debugPrint('[SearchBloc] _fetchMessages: got ${results.length} results, version=$version, currentVersion=$_messageRequestVersion');
-      for (final msg in results) {
-        debugPrint('[SearchBloc] _fetchMessages: msg id=${msg.id}, type=${msg.type}, category=${msg.category}');
-      }
-
       final reversed = results.reversed.toList();
       final limit =
           state.selectedFilters.isNotEmpty ? _filteredLimit : _defaultLimit;
@@ -618,7 +648,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         append: append,
       ));
     } catch (e) {
-      debugPrint('[SearchBloc] _fetchMessages: ERROR: $e');
       if (version != _messageRequestVersion || isClosed) return;
       add(MessagesErrorReceived(e.toString()));
     } finally {

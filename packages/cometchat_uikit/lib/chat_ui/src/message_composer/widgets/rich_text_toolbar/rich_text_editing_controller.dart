@@ -115,31 +115,7 @@ class RichTextEditingController extends CustomTextEditingController {
         }
 
         // Check if user tapped inside a link span — fire onLinkTap callback.
-        // First check _spanManager (toolbar-created links), then fall back
-        // to checking markdown-typed links via _parseInlineMarkdown.
-        if (onLinkTap != null && newSelection.isCollapsed) {
-          final cursorPos = newSelection.baseOffset;
-          final linkSpan = _spanManager.getLinkSpanAt(cursorPos);
-          if (linkSpan != null) {
-            final url = linkSpan.metadata?['url'] ?? '';
-            final linkText = text.substring(
-              linkSpan.start,
-              linkSpan.end.clamp(0, text.length),
-            );
-            onLinkTap?.call(LinkTapDetails(
-              displayText: linkText,
-              url: url,
-              start: linkSpan.start,
-              end: linkSpan.end,
-            ));
-          } else {
-            // Fallback: detect markdown-typed links [text](url)
-            final mdLink = _findMarkdownLinkAt(cursorPos);
-            if (mdLink != null) {
-              onLinkTap?.call(mdLink);
-            }
-          }
-        }
+        checkLinkAtCursor();
         
         // Snap cursor out of hidden marker sequences.
         // When markdown is rendered with hidden markers (fontSize: 0), the user
@@ -164,7 +140,45 @@ class RichTextEditingController extends CustomTextEditingController {
     
     _previousSelection = newSelection;
   }
-  
+
+  /// Fire [onLinkTap] if the cursor sits inside a link span or a markdown
+  /// link pattern. Safe to call from anywhere (e.g. a `TextField.onTap`
+  /// handler) — the selection-change listener is unreliable on iOS because
+  /// the first tap on an unfocused field does not always move the cursor.
+  ///
+  /// Does nothing when [onLinkTap] is unset or the current selection is
+  /// not collapsed.
+  void checkLinkAtCursor() {
+    if (onLinkTap == null) return;
+    final currentSelection = selection;
+    if (!currentSelection.isCollapsed) return;
+
+    final cursorPos = currentSelection.baseOffset;
+    if (cursorPos < 0) return;
+
+    final linkSpan = _spanManager.getLinkSpanAt(cursorPos);
+    if (linkSpan != null) {
+      final url = linkSpan.metadata?['url'] ?? '';
+      final linkText = text.substring(
+        linkSpan.start,
+        linkSpan.end.clamp(0, text.length),
+      );
+      onLinkTap?.call(LinkTapDetails(
+        displayText: linkText,
+        url: url,
+        start: linkSpan.start,
+        end: linkSpan.end,
+      ));
+      return;
+    }
+
+    // Fallback: detect markdown-typed links [text](url)
+    final mdLink = _findMarkdownLinkAt(cursorPos);
+    if (mdLink != null) {
+      onLinkTap?.call(mdLink);
+    }
+  }
+
   /// If [cursorPos] is inside a markdown marker sequence, return the nearest
   /// content boundary. Otherwise return [cursorPos] unchanged.
   int _snapCursorOutOfMarkers(int cursorPos) {
@@ -1478,6 +1492,90 @@ class RichTextEditingController extends CustomTextEditingController {
     _log('Converting to markdown: "$text" -> "$markdown"');
     return markdown;
   }
+
+  /// Populate the controller from a markdown source string (e.g. when
+  /// entering edit mode on a message that contains `[display](url)` links).
+  ///
+  /// Raw `[display](url)` text is ugly to edit — the URL portion is long and
+  /// the hidden-marker WYSIWYG rendering makes it unclear where the link
+  /// begins and ends. This converts every inline markdown link pattern into
+  /// a real `FormatType.link` span with URL metadata, stripping the `[…]( … )`
+  /// markers from the visible text. After hydration:
+  ///
+  /// * the user sees just the display text, styled as a link
+  /// * tapping the link fires `onLinkTap` → shows Edit/Remove popup
+  /// * `toMarkdown()` re-emits the link as `[display](url)` on send, so the
+  ///   URL is preserved even if the user never interacts with it
+  ///
+  /// Other markdown patterns (`**bold**`, `_italic_`, etc.) are left as raw
+  /// markdown in the buffer and handled by the existing
+  /// `_addMarkdownRenderedText` hidden-marker rendering path. That path works
+  /// correctly for short markers; only links had the usability gap because
+  /// the URL half is hidden but long.
+  void hydrateFromMarkdown(String markdown) {
+    _isUpdating = true;
+    _spanManager.clear();
+    _pendingFormats.clear();
+    _disabledFormats.clear();
+
+    // Find link matches in the raw markdown text. Work through them right-to-
+    // left so earlier offsets remain valid as we splice out `](url)` chunks.
+    final matches = _parseInlineMarkdown(markdown)
+        .where((m) => m.format == FormatType.link)
+        .toList()
+      ..sort((a, b) => b.start.compareTo(a.start));
+
+    String workingText = markdown;
+    // Spans to add after text is finalized — each entry is (start, end, url).
+    final pendingLinks = <List<Object>>[];
+
+    for (final match in matches) {
+      final displayText = markdown.substring(match.contentStart, match.contentEnd);
+      final closingMarker = markdown.substring(match.contentEnd, match.end);
+      String url = '';
+      if (closingMarker.startsWith('](') && closingMarker.endsWith(')')) {
+        url = closingMarker.substring(2, closingMarker.length - 1);
+      }
+
+      // Replace the full `[display](url)` region with just the display text.
+      workingText = workingText.substring(0, match.start) +
+          displayText +
+          workingText.substring(match.end);
+
+      // Remember where the link now sits in the stripped text so we can add
+      // its span once all replacements are done. Since we process right-to-
+      // left, later (earlier-position) entries aren't shifted by later edits.
+      pendingLinks.add([match.start, match.start + displayText.length, url]);
+    }
+
+    // Apply the final text value atomically so the listener doesn't try to
+    // process it as a user edit.
+    value = TextEditingValue(
+      text: workingText,
+      selection: TextSelection.collapsed(offset: workingText.length),
+      composing: TextRange.empty,
+    );
+    _previousText = workingText;
+
+    // Now add link spans. Positions were captured in stripped-text coordinates
+    // during the right-to-left pass, so they're already correct.
+    for (final entry in pendingLinks) {
+      final start = entry[0] as int;
+      final end = entry[1] as int;
+      final url = entry[2] as String;
+      _spanManager.addFormat(
+        start,
+        end,
+        FormatType.link,
+        metadata: {'url': url},
+      );
+    }
+
+    _isUpdating = false;
+    _log('hydrateFromMarkdown: ${matches.length} links rehydrated, '
+        'text="$workingText", spans=${_spanManager.spans}');
+    notifyListeners();
+  }
   
   /// Get plain text (without markdown markers)
   String get plainText => text;
@@ -2558,12 +2656,22 @@ class RichTextEditingController extends CustomTextEditingController {
 
   /// Regex that matches inline markdown patterns.
   /// Order matters: longer markers first to avoid partial matches.
-  /// Patterns: **bold**, __bold__, *italic*, _italic_, ~~strikethrough~~, `code`, [text](url), <u>underline</u>
+  ///
+  /// NOTE: `*italic*` (single-asterisk italic) is intentionally NOT parsed.
+  /// Asterisks are common in user input (e.g. redacted text `****`, bullets,
+  /// emphasis markers in copy/paste) and auto-converting them to italic
+  /// caused bugs where typing or selecting bare asterisks turned into
+  /// implicit italic formatting that then duplicated markers on send
+  /// (ENG-34767). Only `_italic_` is recognised. The receive-side
+  /// `MarkdownTextFormatter` also only parses underscore-italic, so the two
+  /// sides stay in sync.
+  ///
+  /// Patterns: **bold**, __bold__, ~~strikethrough~~, _italic_, `code`,
+  /// [text](url), <u>underline</u>
   static final _inlineMarkdownRegex = RegExp(
     r'(\*\*(.+?)\*\*)'       // **bold**
     r'|(__(.+?)__)'           // __bold__
     r'|(~~(.+?)~~)'           // ~~strikethrough~~
-    r'|(\*(.+?)\*)'           // *italic*
     r'|(_(.+?)_)'             // _italic_
     r'|(`([^`]+)`)'           // `code`
     r'|(\[([^\]]+)\]\([^)]+\))'  // [text](url)
@@ -2626,35 +2734,34 @@ class RichTextEditingController extends CustomTextEditingController {
         contentStart = m.start + markerLen;
         contentEnd = m.end - markerLen;
       } else if (m.group(7) != null) {
-        // *italic*
-        format = FormatType.italic;
-        markerLen = 1;
-        contentStart = m.start + markerLen;
-        contentEnd = m.end - markerLen;
-      } else if (m.group(9) != null) {
         // _italic_
         format = FormatType.italic;
         markerLen = 1;
         contentStart = m.start + markerLen;
         contentEnd = m.end - markerLen;
-      } else if (m.group(11) != null) {
+      } else if (m.group(9) != null) {
         // `code`
         format = FormatType.inlineCode;
         markerLen = 1;
         contentStart = m.start + markerLen;
         contentEnd = m.end - markerLen;
-      } else if (m.group(13) != null) {
+      } else if (m.group(11) != null) {
         // [text](url) — link
         format = FormatType.link;
         // Opening marker is "[", content is the display text, closing marker is "](url)"
-        final fullMatch = m.group(13)!;
+        final fullMatch = m.group(11)!;
         final closeBracket = fullMatch.indexOf('](');
         if (closeBracket < 0) continue;
-        // openMarkerLen = 1 for "["
-        // closeMarkerLen = length of "](url)" portion
-        contentStart = m.start + 1; // after "["
-        contentEnd = m.start + 1 + closeBracket; // before "]("
-        // We use asymmetric marker lengths
+        // `closeBracket` is the index of `]` within `fullMatch`. Since
+        // `fullMatch` starts at `m.start` in the full text, the absolute
+        // position of `]` is `m.start + closeBracket`. Content is the range
+        // between `[` (exclusive) and `]` (exclusive), so:
+        //   contentStart = m.start + 1   (char after `[`)
+        //   contentEnd   = m.start + closeBracket   (char at `]`, exclusive)
+        // openMarkerLen = 1 (the `[`).
+        // closeMarkerLen = m.end - contentEnd, covering `](url)`.
+        contentStart = m.start + 1;
+        contentEnd = m.start + closeBracket;
         matches.add(_InlineMarkdownMatch(
           start: m.start,
           end: m.end,
@@ -2665,7 +2772,7 @@ class RichTextEditingController extends CustomTextEditingController {
           closeMarkerLen: m.end - contentEnd,
         ));
         continue; // skip the common add below
-      } else if (m.group(15) != null) {
+      } else if (m.group(13) != null) {
         // <u>underline</u>
         format = FormatType.underline;
         // openMarkerLen = 3 for "<u>", closeMarkerLen = 4 for "</u>"
@@ -2692,6 +2799,14 @@ class RichTextEditingController extends CustomTextEditingController {
       final contentStr = fullText.substring(contentStart, contentEnd);
       if (_emojiOnlyRegex.hasMatch(contentStr)) continue;
 
+      // Skip if content is purely whitespace or only marker characters. Typing
+      // runs of markers like "****", "_____", or "~~~~~" can produce spurious
+      // bold/italic/strikethrough matches where the inner content is itself a
+      // marker character (e.g. `**(*)**` against "*****"). The user's intent
+      // is literal text, not formatting.
+      final markerChar = fullText[m.start]; // '*', '_', or '~'
+      if (_isFormattingNoise(contentStr, markerChar)) continue;
+
       matches.add(_InlineMarkdownMatch(
         start: m.start,
         end: m.end,
@@ -2715,6 +2830,32 @@ class RichTextEditingController extends CustomTextEditingController {
     }
 
     return matches;
+  }
+
+  /// Returns true if [content] is pure formatting noise — either whitespace-only
+  /// or consisting entirely of the outer [markerChar] character.
+  ///
+  /// Without this check, typing runs of marker characters produces spurious
+  /// markdown matches:
+  ///
+  /// - `****` → regex matches `**(*)**` (wait, only 4 chars → won't match)
+  /// - `*****` → regex matches `**(*)**` with content = "*" → BOLD activates
+  /// - `______` → regex matches `__(_)__` with content = "_" → BOLD activates
+  /// - `**  **` → bold with whitespace content → visually empty, no intent
+  ///
+  /// The user types these as literal characters, not to apply formatting.
+  /// Filtering them out keeps the toolbar from lighting up and prevents the
+  /// WYSIWYG layer from treating them as formatted regions.
+  bool _isFormattingNoise(String content, String markerChar) {
+    if (content.trim().isEmpty) return true;
+    // If every non-whitespace character equals the marker character, the
+    // "content" is really just more of the same marker the user is typing.
+    for (final rune in content.runes) {
+      final ch = String.fromCharCode(rune);
+      if (ch.trim().isEmpty) continue;
+      if (ch != markerChar) return false;
+    }
+    return true;
   }
 
   /// Render a text range with markdown matches applied.

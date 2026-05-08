@@ -87,6 +87,14 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
     super.initState();
     _tag = widget.id ?? DateTime.now().millisecondsSinceEpoch;
     _waveformData = WaveformUtils.generatePlaceholder(barCount: widget.barCount);
+
+    // Use metadata duration as initial display if available
+    final metaDurationMs = widget.metadata?['audioDurationMs'] as int?;
+    if (metaDurationMs != null && metaDurationMs > 0) {
+      final dur = Duration(milliseconds: metaDurationMs);
+      _durationNotifier.value = '00:00 / ${_formatDuration(dur)}';
+    }
+
     _checkFileExists();
     _setupEventStreams();
   }

@@ -261,7 +261,9 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
   /// Update user status (online/offline)
   void _onUpdateUserStatus(
       UpdateUserStatus event, Emitter<MessageHeaderState> emit) {
-    if (state.user == null || state.user!.uid != event.userId) return;
+    if (state.user == null || state.user!.uid != event.userId) {
+      return;
+    }
 
     final updatedUser = User(
       uid: state.user!.uid,

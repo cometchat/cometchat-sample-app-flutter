@@ -552,6 +552,19 @@ class CometChatConversationListItem extends StatelessWidget {
   }
 
   Widget _buildReceiptIndicator(CometChatColorPalette effectiveColorPalette) {
+    // If the last message was disapproved by moderation, show the error
+    // receipt icon (matches message-bubble behavior).
+    final lastMessage = conversation.lastMessage;
+    if (lastMessage != null &&
+        ModerationCheckUtil.instance
+            .isMessageDisapprovedFromModeration(lastMessage)) {
+      return Icon(
+        Icons.error_outline,
+        size: 16,
+        color: effectiveColorPalette.error,
+      );
+    }
+
     final receiptStatus = _getReceiptStatus();
     IconData? receiptIcon;
     Color? receiptColor;

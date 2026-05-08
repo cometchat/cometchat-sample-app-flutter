@@ -1,4 +1,3 @@
-import '../../formatter/rich_text/rich_text_configuration.dart';
 import '../domain/repositories/rich_text_repository.dart';
 import '../domain/usecases/apply_format_usecase.dart';
 import '../domain/usecases/detect_active_formats_usecase.dart';
@@ -41,63 +40,71 @@ class RichTextServiceLocator {
 
   bool _isInitialized = false;
 
-  /// Initialize all dependencies based on configuration
-  /// Call this once during app startup or before using rich text formatting module
+  /// All format types the locator knows how to wire up.
+  static const Set<FormatType> _allFormatTypes = {
+    FormatType.bold,
+    FormatType.italic,
+    FormatType.underline,
+    FormatType.strikethrough,
+    FormatType.inlineCode,
+    FormatType.codeBlock,
+    FormatType.link,
+    FormatType.bulletList,
+    FormatType.orderedList,
+    FormatType.blockquote,
+  };
+
+  /// Initialize all dependencies.
   ///
-  /// Parameters:
-  /// - [configuration]: Rich text configuration specifying which formatters to enable
-  void setup(RichTextConfiguration configuration) {
+  /// Pass [enabledFormats] to restrict the formatters to a specific subset.
+  /// When omitted, every supported format is enabled (matches the
+  /// composer's default "all on" rich-text model).
+  ///
+  /// Safe to call repeatedly — only the first call wires up the dependency
+  /// graph; subsequent calls are no-ops. Use [reset] if you need to change
+  /// the enabled set mid-app (typically only in tests).
+  void setup({Set<FormatType>? enabledFormats}) {
     if (_isInitialized) {
-      return; // Already initialized
+      return;
     }
 
-    // Initialize formatters based on configuration flags
+    final enabled = enabledFormats ?? _allFormatTypes;
+
     final Map<FormatType, FormatterDataSource> formatters = {};
 
-    if (configuration.enableBold) {
+    if (enabled.contains(FormatType.bold)) {
       formatters[FormatType.bold] = BoldFormatterDataSource();
     }
-
-    if (configuration.enableItalic) {
+    if (enabled.contains(FormatType.italic)) {
       formatters[FormatType.italic] = ItalicFormatterDataSource();
     }
-
-    if (configuration.enableUnderline) {
+    if (enabled.contains(FormatType.underline)) {
       formatters[FormatType.underline] = UnderlineFormatterDataSource();
     }
-
-    if (configuration.enableStrikethrough) {
+    if (enabled.contains(FormatType.strikethrough)) {
       formatters[FormatType.strikethrough] = StrikethroughFormatterDataSource();
     }
-
-    if (configuration.enableInlineCode) {
+    if (enabled.contains(FormatType.inlineCode)) {
       formatters[FormatType.inlineCode] = InlineCodeFormatterDataSource();
     }
-
-    if (configuration.enableCodeBlock) {
+    if (enabled.contains(FormatType.codeBlock)) {
       formatters[FormatType.codeBlock] = CodeBlockFormatterDataSource();
     }
-
-    if (configuration.enableLinks) {
+    if (enabled.contains(FormatType.link)) {
       formatters[FormatType.link] = LinkFormatterDataSource();
     }
-
-    if (configuration.isBulletListEnabled) {
+    if (enabled.contains(FormatType.bulletList)) {
       formatters[FormatType.bulletList] = BulletListFormatterDataSource();
     }
-
-    if (configuration.isOrderedListEnabled) {
+    if (enabled.contains(FormatType.orderedList)) {
       formatters[FormatType.orderedList] = OrderedListFormatterDataSource();
     }
-
-    if (configuration.isBlockquoteEnabled) {
+    if (enabled.contains(FormatType.blockquote)) {
       formatters[FormatType.blockquote] = BlockquoteFormatterDataSource();
     }
 
-    // Initialize repository with formatters map
     _repository = RichTextRepositoryImpl(formatters: formatters);
 
-    // Initialize use cases with repository
     _applyFormatUseCase = ApplyFormatUseCase(_repository);
     _detectActiveFormatsUseCase = DetectActiveFormatsUseCase(_repository);
     _validateLinkUseCase = ValidateLinkUseCase(_repository);
@@ -108,8 +115,6 @@ class RichTextServiceLocator {
 
   /// Check if service locator is initialized
   bool get isInitialized => _isInitialized;
-
-  // Use case getters
 
   /// Get use case for applying text formatting
   ApplyFormatUseCase get applyFormatUseCase {
@@ -135,20 +140,17 @@ class RichTextServiceLocator {
     return _parseFormattedTextUseCase;
   }
 
-  // Repository getter (for advanced use cases)
-
   /// Get rich text repository
   RichTextRepository get repository {
     _ensureInitialized();
     return _repository;
   }
 
-  /// Ensure service locator is initialized before accessing dependencies
   void _ensureInitialized() {
     if (!_isInitialized) {
       throw StateError(
         'RichTextServiceLocator is not initialized. '
-        'Call setup() with RichTextConfiguration before accessing dependencies.',
+        'Call setup() before accessing dependencies.',
       );
     }
   }
@@ -156,6 +158,5 @@ class RichTextServiceLocator {
   /// Reset all services (useful for testing)
   Future<void> reset() async {
     _isInitialized = false;
-    // Dependencies will be re-initialized on next setup() call
   }
 }

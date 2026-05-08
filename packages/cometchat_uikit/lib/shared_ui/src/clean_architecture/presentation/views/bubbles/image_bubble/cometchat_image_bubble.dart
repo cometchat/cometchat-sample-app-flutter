@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -23,6 +24,7 @@ class CometChatImageBubble extends StatefulWidget {
   const CometChatImageBubble({
     super.key,
     this.imageUrl,
+    this.thumbnailUrl,
     this.style,
     this.placeholderImage,
     this.placeHolderImagePackageName,
@@ -38,6 +40,12 @@ class CometChatImageBubble extends StatefulWidget {
 
   ///[imageUrl] image url should be passed
   final String? imageUrl;
+
+  ///[thumbnailUrl] optional lightweight preview URL (typically from the
+  /// `thumbnail-generation` extension). When provided, the bubble renders
+  /// this URL instead of [imageUrl]. The full-resolution [imageUrl] is
+  /// still used when the bubble is tapped to open [ImageViewer].
+  final String? thumbnailUrl;
 
   ///[style] manages appearance of this widget
   final CometChatImageBubbleStyle? style;
@@ -143,10 +151,39 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
         lowerUrl.contains('/svg/');
   }
 
-  /// Whether this message contains a GIF (either local or remote)
+  /// Whether this message contains a GIF (either local or remote).
+  /// Checks both the full-resolution [imageUrl] and [thumbnailUrl] so that
+  /// a GIF attachment is still recognised even when a generated thumbnail
+  /// is used for display.
   bool get _messageIsGif {
     final localPath = FileUtils.getLocalFilePath(widget.metadata) ?? '';
-    return _isGif(widget.imageUrl) || _isGif(localPath);
+    return _isGif(widget.imageUrl) ||
+        _isGif(widget.thumbnailUrl) ||
+        _isGif(localPath);
+  }
+
+  /// Resolves which remote URL to render in the bubble.
+  ///
+  /// Prefers [widget.thumbnailUrl] (smaller, faster) when available,
+  /// falling back to [widget.imageUrl]. GIFs skip the thumbnail so the
+  /// bubble keeps animating. HEIC/HEIF and SVG thumbnails are ignored as
+  /// they can't be decoded here; the viewer/placeholder handles them.
+  String? _resolveDisplayUrl() {
+    final thumb = widget.thumbnailUrl;
+    final full = widget.imageUrl;
+    final hasThumb = thumb != null && thumb.isNotEmpty;
+    final hasFull = full != null && full.isNotEmpty;
+
+    if (hasThumb) {
+      // Don't use thumbnail for GIFs (thumbnail is usually a still frame).
+      final fullIsGif = hasFull && _isGif(full);
+      if (!fullIsGif &&
+          !_isHeicOrHeif(thumb) &&
+          !_isSvg(thumb)) {
+        return thumb;
+      }
+    }
+    return hasFull ? full : null;
   }
 
   Widget _buildImage() {
@@ -168,8 +205,11 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
 
     if (FileUtils.isLocalFileAvailable(localPath)) {
       return _buildLocalImage(localPath);
-    } else if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
-      return _buildNetworkImage(widget.imageUrl!);
+    }
+
+    final displayUrl = _resolveDisplayUrl();
+    if (displayUrl != null && displayUrl.isNotEmpty) {
+      return _buildNetworkImage(displayUrl);
     }
     return _buildPlaceholderImage();
   }
@@ -191,8 +231,9 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
         return _buildLoadingIndicator();
       },
       errorBuilder: (context, error, stackTrace) {
-        if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
-          return _buildNetworkImage(widget.imageUrl!);
+        final displayUrl = _resolveDisplayUrl();
+        if (displayUrl != null && displayUrl.isNotEmpty) {
+          return _buildNetworkImage(displayUrl);
         }
         return _buildPlaceholderImage();
       },
@@ -200,6 +241,23 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
   }
 
   Widget _buildNetworkImage(String imageUrl) {
+    // On web, CachedNetworkImage uses XHR which is subject to CORS.
+    // Image.network uses an HTML <img> tag that bypasses CORS restrictions.
+    if (kIsWeb) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.medium,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return _buildLoadingIndicator();
+        },
+        errorBuilder: (context, error, stackTrace) {
+          debugPrint('Image.network error: $error');
+          return _buildPlaceholderImage();
+        },
+      );
+    }
     return CachedNetworkImage(
       imageUrl: imageUrl,
       fit: BoxFit.cover,
@@ -253,8 +311,9 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
 
   @override
   Widget build(BuildContext context) {
+    final displayUrl = _resolveDisplayUrl();
     final bool showPlaceholder = _isUnsupportedFormat() ||
-        (widget.imageUrl == null || widget.imageUrl!.isEmpty);
+        (displayUrl == null || displayUrl.isEmpty);
 
     final imageContent = Container(
       height: widget.height ?? 232,

@@ -21,7 +21,9 @@ class GroupsRemoteDataSourceException implements Exception {
 /// Abstract interface for groups remote data source
 /// Handles all interactions with CometChat SDK for groups
 abstract class GroupsRemoteDataSource {
-  /// Get groups with optional pagination and search
+  /// Get groups with optional pagination and search.
+  /// On the first call (or after [resetRequest]) a new SDK request is built;
+  /// subsequent calls reuse the same request so the SDK cursor advances.
   /// 
   /// [limit] - Maximum number of groups to fetch (default: 30)
   /// [searchKeyword] - Optional keyword to filter groups by name
@@ -31,6 +33,10 @@ abstract class GroupsRemoteDataSource {
     String? searchKeyword,
     bool? joinedOnly,
   });
+
+  /// Reset the internal SDK request so the next [getGroups] call starts fresh.
+  /// Call this when doing a fresh load or when the search keyword changes.
+  void resetRequest();
 
   /// Get a specific group by GUID
   /// 
@@ -63,23 +69,31 @@ class GroupsRemoteDataSourceImpl implements GroupsRemoteDataSource {
   GroupsRequest? _currentRequest;
 
   @override
+  void resetRequest() {
+    _currentRequest = null;
+  }
+
+  @override
   Future<List<Group>> getGroups({
     int limit = 30,
     String? searchKeyword,
     bool? joinedOnly,
   }) async {
     try {
-      final requestBuilder = GroupsRequestBuilder()..limit = limit;
+      // Build a new request only if we don't have one yet (first call or after reset)
+      if (_currentRequest == null) {
+        final requestBuilder = GroupsRequestBuilder()..limit = limit;
 
-      if (searchKeyword != null && searchKeyword.isNotEmpty) {
-        requestBuilder.searchKeyword = searchKeyword;
+        if (searchKeyword != null && searchKeyword.isNotEmpty) {
+          requestBuilder.searchKeyword = searchKeyword;
+        }
+
+        if (joinedOnly != null) {
+          requestBuilder.joinedOnly = joinedOnly;
+        }
+
+        _currentRequest = requestBuilder.build();
       }
-
-      if (joinedOnly != null) {
-        requestBuilder.joinedOnly = joinedOnly;
-      }
-
-      _currentRequest = requestBuilder.build();
 
       final completer = Completer<List<Group>>();
 

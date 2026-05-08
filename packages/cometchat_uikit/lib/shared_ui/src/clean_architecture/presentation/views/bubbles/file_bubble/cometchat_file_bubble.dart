@@ -272,8 +272,13 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
 
   String? _getFileExtension() {
     final fileUrl = widget.fileUrl ?? '';
-    final decodedUrl = Uri.decodeFull(fileUrl);
+    if (fileUrl.isEmpty) return null;
+    // Strip query string / fragment so signed URLs (e.g.
+    // "report.pdf?token=...") still yield the right extension.
+    final clean = fileUrl.split('?').first.split('#').first;
+    final decodedUrl = Uri.decodeFull(clean);
     final fileName = decodedUrl.split('/').last;
+    if (!fileName.contains('.')) return null;
     return fileName.split('.').last.toLowerCase();
   }
 

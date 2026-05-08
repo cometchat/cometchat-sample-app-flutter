@@ -38,6 +38,3 @@ export 'bloc/bloc.dart';
 
 // DI layer exports
 export 'di/di.dart';
-
-// Presentation layer exports (includes backward compatibility adapter)
-export 'presentation/presentation.dart';

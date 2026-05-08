@@ -221,6 +221,21 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
   ) async {
     final bool isAudioOnly = callType == CallTypeConstants.audioCall;
 
+    // Same Android 14+ FGS permission gate as direct calls.
+    final permissionGranted = await CallPermissions.requestForCallType(
+      isVideoCall: !isAudioOnly,
+    );
+    if (isClosed) return;
+    if (!permissionGranted) {
+      emit(state.copyWith(
+        isDisabled: false,
+        isCallInProgress: false,
+        errorMessage:
+            'Microphone${isAudioOnly ? '' : ' and camera'} permission is required to start the meeting.',
+      ));
+      return;
+    }
+
     // Build call settings
     final SessionSettingsBuilder defaultSessionSettingsBuilder;
     if (callSettingsBuilder != null) {
@@ -329,6 +344,24 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
     Emitter<CallButtonsState> emit,
   ) async {
     final bool isAudioOnly = callType == CallTypeConstants.audioCall;
+
+    // Android 14+ requires RECORD_AUDIO (and CAMERA for video) granted at
+    // runtime BEFORE the Calls SDK registers the session and starts its
+    // foreground service. Request here so the dialog shows before we hit
+    // the network; this is the earliest point we know the call type.
+    final permissionGranted = await CallPermissions.requestForCallType(
+      isVideoCall: !isAudioOnly,
+    );
+    if (isClosed) return;
+    if (!permissionGranted) {
+      emit(state.copyWith(
+        isDisabled: false,
+        isCallInProgress: false,
+        errorMessage:
+            'Microphone${isAudioOnly ? '' : ' and camera'} permission is required to start the call.',
+      ));
+      return;
+    }
 
     // Build call settings
     final SessionSettingsBuilder defaultSessionSettingsBuilder;

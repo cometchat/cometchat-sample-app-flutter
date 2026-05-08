@@ -184,8 +184,10 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
   @override
   void onListReplaced(List<User> previousList, List<User> newList) {
     _mapNeedsRebuild = true;
+    // Don't set hasMore here — let the caller (_onLoadUsers / _onLoadMoreUsers)
+    // control hasMore based on the actual page size, not total list length.
     if (!isClosed) {
-      add(_ListStateChanged(users: newList, isEmpty: newList.isEmpty, hasMore: newList.length >= 30));
+      add(_ListStateChanged(users: newList, isEmpty: newList.isEmpty));
     }
   }
 
@@ -298,6 +300,9 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
     _isLoadingMore = false;
     _currentSearchKeyword = event.searchKeyword;
 
+    // Reset the SDK request cursor for a fresh load
+    getUsersUseCase.resetRequest();
+
     if (_loggedInUser == null) {
       final userResult = await getLoggedInUserUseCase();
       if (userResult is Success<User?>) {
@@ -370,7 +375,13 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
       }
 
       final allUsers = [...currentState.users, ...newUsers];
+      final hasMorePages = newUsers.length >= 30;
       replaceAll(allUsers);
+      // Always emit the correct hasMore and isLoadingMore after replaceAll,
+      // since onListReplaced no longer sets hasMore.
+      if (state is UsersLoaded) {
+        emit((state as UsersLoaded).copyWith(hasMore: hasMorePages, isLoadingMore: false));
+      }
     } else if (result is Failure) {
       emit(UsersError(
         message: result.message,
@@ -440,6 +451,9 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
       ) async {
     _currentSearchKeyword = event.keyword;
 
+    // Reset the SDK request cursor for a new search
+    getUsersUseCase.resetRequest();
+
     // Emit loading state while searching
     emit(const UsersLoading());
 
@@ -478,6 +492,8 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
       _RestoreOriginalUsers event,
       Emitter<UsersState> emit,
       ) {
+    // Reset the SDK request cursor so next pagination uses the non-search request
+    getUsersUseCase.resetRequest();
     replaceAll(event.users);
   }
 
@@ -599,12 +615,11 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
       if (currentState is UsersLoaded) {
         emit(currentState.copyWith(
           users: event.users,
-          hasMore: event.hasMore ?? currentState.hasMore,
         ));
       } else {
         emit(UsersLoaded(
           users: event.users,
-          hasMore: event.hasMore ?? true,
+          hasMore: true,
         ));
       }
     }
@@ -673,16 +688,14 @@ class _UserUnblockedUpdate extends UsersEvent {
 class _ListStateChanged extends UsersEvent {
   final List<User> users;
   final bool isEmpty;
-  final bool? hasMore;
 
   const _ListStateChanged({
     required this.users,
     required this.isEmpty,
-    this.hasMore,
   });
 
   @override
-  List<Object?> get props => [users, isEmpty, hasMore];
+  List<Object?> get props => [users, isEmpty];
 }
 
 class _ExecuteSearch extends UsersEvent {

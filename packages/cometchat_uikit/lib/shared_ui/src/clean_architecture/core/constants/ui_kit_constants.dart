@@ -63,6 +63,7 @@ class MessageOptionConstants {
   static const String sendMessagePrivately = "sendMessagePrivately";
   // static const String replyMessagePrivately = "replyMessagePrivately";
   static const String markAsUnread = "markAsUnread";
+  static const String reportMessage = "reportMessage";
 }
 
 ///[MetadataConstants] is a utility class that stores String constants to use in the [metadata] property of a [BaseMessage]

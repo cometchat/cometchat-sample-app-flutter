@@ -255,17 +255,16 @@ class UsersList extends StatelessWidget {
     return ValueListenableBuilder<String>(
       valueListenable: usersBloc.getStatusNotifier(user.uid),
       builder: (context, status, child) {
-        final statusIndicatorUtils =
-            StatusIndicatorUtils.getStatusIndicatorFromParams(
-          context: context,
-          user: user,
-          usersStatusVisibility: usersStatusVisibility != false &&
-              user.blockedByMe != true &&
-              user.hasBlockedMe != true,
-          onlineStatusIndicatorColor:
-              statusIndicatorStyle?.backgroundColor ?? colorPalette.success,
-          isSelected: false,
-        );
+        // Use the real-time status from ValueNotifier (not stale user.status)
+        final isStatusVisible = usersStatusVisibility != false &&
+            user.blockedByMe != true &&
+            user.hasBlockedMe != true;
+        final isOnline = isStatusVisible &&
+            status == UserStatusConstants.online;
+
+        final statusColor = isOnline
+            ? (statusIndicatorStyle?.backgroundColor ?? colorPalette.success)
+            : null;
 
         return Container(
           decoration: BoxDecoration(
@@ -317,8 +316,8 @@ class UsersList extends StatelessWidget {
                     avatarStyle:
                         avatarStyle ?? CometChatAvatarStyle.of(context),
                     statusIndicatorColor:
-                        statusIndicatorUtils.statusIndicatorColor,
-                    statusIndicatorIcon: statusIndicatorUtils.icon,
+                        statusColor,
+                    statusIndicatorIcon: null,
                     statusIndicatorStyle: CometChatStatusIndicatorStyle(
                       border: statusIndicatorStyle?.border ??
                           Border.all(

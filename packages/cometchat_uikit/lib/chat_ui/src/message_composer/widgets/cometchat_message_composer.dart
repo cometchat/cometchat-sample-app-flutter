@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import '../../../../shared_ui/src/keyboard_height/keyboard_height_plugin.dart';
+import '../utils/cometchat_keyboard_diagnostics.dart';
 
 // Import extracted widgets
 import 'message_composer_send_button.dart';
@@ -38,6 +39,21 @@ import '../utils/composer_attachment_utils.dart';
 ///        placeholderText: 'Message',
 ///      );
 ///
+/// ```
+///
+/// ### Layout
+///
+/// The composer skeleton supports two layouts via the [layout] prop:
+/// * [CometChatComposerLayout.singleLine] (default) — text field and buttons
+///   share a single row.
+/// * [CometChatComposerLayout.doubleLine] — classic v5 look with the text
+///   field on its own row and buttons on a second row below a divider.
+///
+/// ```dart
+/// CometChatMessageComposer(
+///   user: User(uid: 'uid', name: 'name'),
+///   layout: CometChatComposerLayout.doubleLine,
+/// );
 /// ```
 ///
 ///
@@ -100,11 +116,15 @@ class CometChatMessageComposer extends StatefulWidget {
     this.disableMentionAll = false,
     this.mentionAllLabel,
     this.mentionAllLabelId,
-    this.richTextConfiguration,
+    this.enableRichTextFormatting = true,
+    this.showRichTextFormattingOptions = true,
+    this.hideRichTextFormattingOptions = const {},
     this.richTextToolbarView,
     this.onRichTextFormatApplied,
     this.hideBottomSafeArea = false,
-    this.resizeToAvoidBottomInset = false,
+    this.resizeToAvoidBottomInset = true,
+    this.layout = CometChatComposerLayout.singleLine,
+    this.onKeyboardDiagnostics,
   })  : assert(
   user != null || group != null,
   "One of user or group should be passed",
@@ -284,29 +304,94 @@ class CometChatMessageComposer extends StatefulWidget {
   ///[mentionAllLabelId] is a String which is used to set a custom label ID for @all mentions
   final String? mentionAllLabelId;
 
-  ///[richTextConfiguration] configuration for rich text formatting toolbar
-  final RichTextConfiguration? richTextConfiguration;
+  /// Master switch for rich text formatting (markdown detection, toolbar
+  /// buttons, WYSIWYG rendering inside the composer).
+  ///
+  /// When `false`, the composer behaves as a plain text field — no markdown
+  /// is parsed, no toolbar is shown, regardless of [showRichTextFormattingOptions].
+  ///
+  /// Defaults to `true`.
+  final bool enableRichTextFormatting;
 
-  ///[richTextToolbarView] custom view for rich text toolbar
+  /// Whether the rich text formatting toolbar UI is visible.
+  ///
+  /// Takes effect only when [enableRichTextFormatting] is true.
+  ///
+  /// Behavior per layout:
+  /// * [CometChatComposerLayout.doubleLine] — renders an `Aa` toggle in the
+  ///   composer's action row. Tapping swaps the row for the toolbar.
+  /// * [CometChatComposerLayout.singleLine] — renders the toolbar in a
+  ///   persistent row directly below the text input.
+  ///
+  /// When `false`, the composer still parses markdown in typed text but
+  /// shows no toolbar UI. Defaults to `true`.
+  final bool showRichTextFormattingOptions;
+
+  /// Format buttons to hide from the toolbar.
+  ///
+  /// Example:
+  /// ```dart
+  /// hideRichTextFormattingOptions: const {
+  ///   FormatType.strikethrough,
+  ///   FormatType.codeBlock,
+  /// }
+  /// ```
+  ///
+  /// Has no effect if [showRichTextFormattingOptions] is `false`.
+  final Set<FormatType> hideRichTextFormattingOptions;
+
+  ///[richTextToolbarView] custom view for rich text toolbar.
+  ///
+  /// Receives the active text controller so the custom view can apply
+  /// formats directly via [RichTextEditingController.applyFormat]. The
+  /// legacy formatter manager argument has been removed.
   final Widget Function(
       BuildContext context,
       TextEditingController controller,
-      RichTextFormatterManager manager,
       )? richTextToolbarView;
 
-  ///[onRichTextFormatApplied] callback when rich text format is applied
-  final void Function(RichTextFormatType formatType)? onRichTextFormatApplied;
+  ///[onRichTextFormatApplied] callback when a rich-text format is applied
+  ///from the toolbar. The format type uses the active [FormatType] enum.
+  final void Function(FormatType formatType)? onRichTextFormatApplied;
 
   ///[hideBottomSafeArea] when true, hides the bottom safe area padding.
   ///Use this when the parent widget handles safe area/keyboard positioning.
   final bool hideBottomSafeArea;
 
-  ///[resizeToAvoidBottomInset] when true, indicates the parent Scaffold has
-  ///`resizeToAvoidBottomInset: true` and will handle keyboard insets itself.
-  ///The composer will skip its internal keyboard height tracking and bottom
-  ///padding. Defaults to false — the composer manages keyboard spacing
-  ///internally and the parent Scaffold should set `resizeToAvoidBottomInset: false`.
+  ///[resizeToAvoidBottomInset] when true (default), indicates the parent
+  ///Scaffold has `resizeToAvoidBottomInset: true` and will handle keyboard
+  ///insets itself. The composer skips its internal keyboard height tracking
+  ///and bottom padding. Set to false only if you are opting into the
+  ///composer's internal keyboard-aware spacing and your parent Scaffold has
+  ///`resizeToAvoidBottomInset: false`.
   final bool resizeToAvoidBottomInset;
+
+  ///[layout] controls the skeleton layout of the composer.
+  ///
+  /// * [CometChatComposerLayout.singleLine] (default) — text field and all
+  ///   buttons share a single row.
+  /// * [CometChatComposerLayout.doubleLine] — text field on its own row, with
+  ///   the secondary / auxiliary / primary buttons on a second row below a
+  ///   divider (classic v5 look).
+  ///
+  /// All existing props (hide flags, slots, style, mentions, rich text,
+  /// voice recording, reply/edit preview, AI options) work identically in
+  /// both layouts.
+  final CometChatComposerLayout layout;
+
+  /// Optional diagnostics callback fired whenever the composer's internal
+  /// keyboard state changes (native plugin event, viewInsets change, app
+  /// resume, or widget activate).
+  ///
+  /// Use this to debug device-specific keyboard spacing issues — for example
+  /// an unexpected gap between the composer and the keyboard on a particular
+  /// OEM / gesture-nav setup. The callback receives a
+  /// [CometChatKeyboardDiagnostics] snapshot containing every value the
+  /// composer considers when deciding its bottom padding.
+  ///
+  /// Leave `null` in production — this is a debugging hook, not a layout
+  /// primitive.
+  final CometChatKeyboardDiagnosticsCallback? onKeyboardDiagnostics;
 
   @override
   State<CometChatMessageComposer> createState() =>
@@ -443,10 +528,63 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   // ============================================================================
   // Rich Text Formatting
   // ============================================================================
-  RichTextFormatterManager? _richTextFormatterManager;
   /// Single unified markdown formatter for bubble display (replaces 10+ legacy formatter instances)
   MarkdownTextFormatter? _markdownFormatter;
   bool _showRichTextToolbar = false;
+
+  /// Tracks whether the user has tapped the `Aa` format toggle in the
+  /// double-line layout. When true, the composer's action row is swapped
+  /// for `[✕] + <toolbar>`. See [_isToolbarSwapActive] for the derived
+  /// gate that also enforces the double-line + formatting-enabled
+  /// requirements.
+  bool _isToolbarToggleOpen = false;
+
+  /// Whether the composer should use the WYSIWYG [RichTextEditingController]
+  /// instead of a plain TextEditingController. Rich text rendering (bold
+  /// spans, lists, etc. while typing) requires this controller even when the
+  /// toolbar UI is hidden.
+  bool get _useRichTextEditingController =>
+      widget.enableRichTextFormatting && _hasAnyFormatEnabled;
+
+  /// Whether the stacked (singleLine) rich-text toolbar should render below
+  /// the composer. True when formatting is enabled, the options flag is on,
+  /// and we're in singleLine layout.
+  bool get _useStackedToolbar =>
+      widget.enableRichTextFormatting &&
+      widget.showRichTextFormattingOptions &&
+      widget.layout == CometChatComposerLayout.singleLine;
+
+  /// Whether the toggleable (doubleLine) toolbar flow is active. The `Aa`
+  /// button is visible in the action row, and tapping swaps in the toolbar.
+  bool get _useToggleableToolbar =>
+      widget.enableRichTextFormatting &&
+      widget.showRichTextFormattingOptions &&
+      widget.layout == CometChatComposerLayout.doubleLine;
+  /// Whether any rich-text format is enabled after applying the user's
+  /// `hideRichTextFormattingOptions` filter.
+  bool get _hasAnyFormatEnabled {
+    if (!widget.enableRichTextFormatting) return false;
+    final hide = widget.hideRichTextFormattingOptions;
+    // If every format is in the hide set, none are enabled.
+    const all = <FormatType>{
+      FormatType.bold,
+      FormatType.italic,
+      FormatType.underline,
+      FormatType.strikethrough,
+      FormatType.inlineCode,
+      FormatType.codeBlock,
+      FormatType.link,
+      FormatType.bulletList,
+      FormatType.orderedList,
+      FormatType.blockquote,
+    };
+    return all.any((f) => !hide.contains(f));
+  }
+
+  /// Whether a specific format is enabled given the current props.
+  bool _isFormatEnabled(FormatType format) =>
+      widget.enableRichTextFormatting &&
+      !widget.hideRichTextFormattingOptions.contains(format);
   
   /// ValueNotifier for active formats - only rebuilds toolbar when formats change
   final ValueNotifier<Set<FormatType>> _activeFormatsNotifier = 
@@ -529,12 +667,43 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     _keyboardHeightPlugin.onKeyboardHeightChanged((double keyboardHeight, double safeAreaBottom) {
       // Skip updates during disposal to prevent jumps during navigation
       if (_isDisposing) return;
-      
-      // Update safe area from native (more reliable than Flutter's MediaQuery during animations)
+
+      // Cache latest raw native values for diagnostics (regardless of layout path)
+      _lastNativeKeyboardHeight = keyboardHeight;
       if (safeAreaBottom > 0) {
-        _safeAreaBottom = safeAreaBottom;
+        _lastNativeSafeAreaBottom = safeAreaBottom;
       }
-      
+
+      // Clamp native keyboardHeight to Flutter's viewInsets (ENG-34434).
+      // Some Android OEMs (MIUI, ColorOS, etc.) report an `ime()` inset that
+      // includes the system nav bar, making the native height ~48dp larger
+      // than the space Flutter actually reclaims from content. Using the raw
+      // native value as bottom padding produces a persistent gap between the
+      // composer and the visible keyboard.
+      //
+      // If Flutter already sees the keyboard (viewInsets > 0), cap to that.
+      // On the first native event viewInsets may still be 0 — the reconcile
+      // step in `didChangeMetrics` below corrects that case once Flutter
+      // catches up.
+      if (keyboardHeight > 0) {
+        final view = WidgetsBinding.instance.platformDispatcher.views.first;
+        final flutterKbHeight =
+            view.viewInsets.bottom / view.devicePixelRatio;
+        if (flutterKbHeight > 0 && keyboardHeight > flutterKbHeight) {
+          keyboardHeight = flutterKbHeight;
+        }
+      }
+
+      // NOTE: Deliberately do NOT overwrite `_safeAreaBottom` from the native
+      // plugin's `safeAreaBottom` field. It's captured once in
+      // didChangeDependencies from `MediaQuery.paddingOf(context).bottom`,
+      // which is the correct source of truth — it respects any `SafeArea`
+      // ancestor and display-cutout consumption. The native value can differ
+      // (iPads, gesture-nav, split-screen, `SafeArea(bottom: false)` wrappers)
+      // and overwriting it here causes a visible gap when the keyboard is
+      // closed. See bug notes `composer-big-safe-area-some-devices` and
+      // `extra-space-composer-keyboard` (ENG-34434).
+
       // Track keyboard visibility
       final wasKeyboardVisible = _isKeyboardVisible;
       _isKeyboardVisible = keyboardHeight > 0;
@@ -634,10 +803,56 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         // Normal update (not transitioning)
         _applyBottomPadding(targetPadding);
       }
+
+      // Fire diagnostic — captures padding just written + native values.
+      _emitKeyboardDiagnostics(
+        CometChatKeyboardDiagnosticsSource.nativePlugin,
+        nativeKeyboardHeight: keyboardHeight,
+        nativeSafeAreaBottom: safeAreaBottom > 0 ? safeAreaBottom : null,
+      );
     });
     } // end if (!widget.resizeToAvoidBottomInset)
   }
-  
+
+  /// Latest raw values received from the native `KeyboardHeightPlugin`.
+  /// Cached so diagnostics sourced from non-plugin paths (viewInsets, resume,
+  /// activate) can still report the last native sample alongside their own
+  /// values.
+  double _lastNativeKeyboardHeight = 0;
+  double _lastNativeSafeAreaBottom = 0;
+
+  /// Emits a keyboard diagnostics snapshot to the consumer callback.
+  /// Safe to call during any phase — captures all current state and the most
+  /// recently reported native values.
+  void _emitKeyboardDiagnostics(
+    CometChatKeyboardDiagnosticsSource source, {
+    double? nativeKeyboardHeight,
+    double? nativeSafeAreaBottom,
+  }) {
+    final callback = widget.onKeyboardDiagnostics;
+    if (callback == null) return;
+    if (_isDisposing || !mounted) return;
+
+    final view = WidgetsBinding.instance.platformDispatcher.views.first;
+    final dpr = view.devicePixelRatio;
+    final viewInsetsBottom = view.viewInsets.bottom / dpr;
+    final mqSafeBottom = MediaQuery.maybeOf(context)?.padding.bottom ?? 0.0;
+
+    callback(CometChatKeyboardDiagnostics(
+      source: source,
+      nativeKeyboardHeight: nativeKeyboardHeight ?? _lastNativeKeyboardHeight,
+      nativeSafeAreaBottom: nativeSafeAreaBottom ?? _lastNativeSafeAreaBottom,
+      viewInsetsBottom: viewInsetsBottom,
+      mediaQuerySafeAreaBottom: mqSafeBottom,
+      appliedBottomPadding: _bottomPaddingNotifier.value,
+      isKeyboardVisible: _isKeyboardVisible,
+      stableKeyboardHeight: _stableKeyboardHeight,
+      maxBottomHeight: _maxBottomHeight,
+      devicePixelRatio: dpr,
+      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+    ));
+  }
+
   /// Applies the bottom padding with change capping to prevent sudden jumps
   void _applyBottomPadding(double targetPadding) {
     double newPadding = targetPadding;
@@ -714,8 +929,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     // Initialize text editing controller with formatters
     // Use RichTextEditingController for WYSIWYG mode when rich text is enabled
     if (_textEditingController == null) {
-      if (widget.richTextConfiguration != null && 
-          widget.richTextConfiguration!.shouldShowToolbar) {
+      if (_useRichTextEditingController) {
         _textEditingController = RichTextEditingController(
           text: widget.text,
           formatters: _formatters,
@@ -772,8 +986,14 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       _auxiliaryOptions = _initAuxiliaryOptions();
     }
 
-    // Reinitialize rich text formatting if configuration changed
-    if (widget.richTextConfiguration != oldWidget.richTextConfiguration) {
+    // Reinitialize rich text formatting if any rich-text-related prop changed
+    final richTextPropsChanged =
+        widget.enableRichTextFormatting != oldWidget.enableRichTextFormatting ||
+        widget.showRichTextFormattingOptions !=
+            oldWidget.showRichTextFormattingOptions ||
+        !_setsEqual(widget.hideRichTextFormattingOptions,
+            oldWidget.hideRichTextFormattingOptions);
+    if (richTextPropsChanged) {
       _initializeRichTextFormatting();
     }
 
@@ -784,7 +1004,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
 
     // Force rebuild if any visual property changed
     if (widget.messageComposerStyle != oldWidget.messageComposerStyle ||
-        widget.richTextConfiguration != oldWidget.richTextConfiguration ||
+        richTextPropsChanged ||
         widget.hideStickersButton != oldWidget.hideStickersButton ||
         widget.hideSendButton != oldWidget.hideSendButton ||
         widget.hideAttachmentButton != oldWidget.hideAttachmentButton ||
@@ -795,6 +1015,13 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         setState(() {});
       }
     }
+  }
+
+  /// Cheap equality for [Set]s used by rich-text prop diffing.
+  static bool _setsEqual(Set<FormatType> a, Set<FormatType> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    return a.containsAll(b);
   }
 
   @override
@@ -821,6 +1048,34 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     if (bottomInset == 0 && _bottomPaddingNotifier.value > _safeAreaBottom && !_isKeyboardVisible) {
       _bottomPaddingNotifier.value = _safeAreaBottom;
     }
+
+    // Reconcile padding with Flutter's viewInsets when the keyboard is open
+    // (ENG-34434). On some Android OEMs, the native plugin reports a
+    // keyboardHeight that includes the gesture-nav / system bar, which is
+    // larger than the actual space Flutter reclaims (viewInsets). The
+    // in-callback clamp inside the native plugin handler caps
+    // `keyboardHeight` to `viewInsets.bottom` BEFORE applying it — that
+    // handles the Android overshoot case directly, because Android fires
+    // `keyboardHeight` events AFTER Flutter's viewInsets have already
+    // updated.
+    //
+    // A `didChangeMetrics` reconcile was tried here as a second safety net
+    // for the case where native fires before viewInsets catch up. It was
+    // removed (2026-05-06) because it regressed iOS. `didChangeMetrics` fires
+    // on every animation frame; iOS `keyboardWillShow` arrives before
+    // Flutter animates viewInsets 0 → final, and any gate short enough to
+    // let the reconcile correct a legitimate overshoot is also short enough
+    // to fire during the iOS animation tail — latching intermediate values
+    // into `_stableKeyboardHeight` and leaving the composer 10-34 px below
+    // the keyboard on subsequent opens.
+    //
+    // If a future OEM fires `keyboardHeight` before viewInsets, re-evaluate
+    // — but only with a strict "N consecutive identical viewInsets readings"
+    // settled-signal, never a timer/debouncer.
+
+    // Fire diagnostic — helps catch cases where viewInsets disagree with the
+    // native plugin (e.g. OEMs where ime() inset includes the gesture-nav bar).
+    _emitKeyboardDiagnostics(CometChatKeyboardDiagnosticsSource.viewInsets);
   }
 
   @override
@@ -853,6 +1108,9 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           _isKeyboardVisible = false;
           _applyBottomPadding(_safeAreaBottom);
         }
+
+        _emitKeyboardDiagnostics(
+            CometChatKeyboardDiagnosticsSource.appResumed);
 
         // Defer clearing the protection flag to a second post-frame callback.
         // The keyboard height plugin may fire spurious close events during the
@@ -909,6 +1167,9 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         _isKeyboardVisible = false;
         _applyBottomPadding(_safeAreaBottom);
       }
+
+      _emitKeyboardDiagnostics(
+          CometChatKeyboardDiagnosticsSource.widgetActivate);
     });
   }
 
@@ -1168,60 +1429,57 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       _formatters.remove(_markdownFormatter);
       _markdownFormatter = null;
     }
-    // Remove old legacy rich text formatters if any remain
-    if (_richTextFormatterManager != null) {
-      final oldFormatters = _richTextFormatterManager!.activeFormatters;
-      _formatters.removeWhere((f) => oldFormatters.contains(f));
-      _richTextFormatterManager = null;
-    }
-    
+
     // Dispose old segment controller if exists
     _segmentComposerController?.dispose();
     _segmentComposerController = null;
 
-    // Use provided configuration or default configuration with all formats enabled
-    final config = widget.richTextConfiguration ?? const RichTextConfiguration(
-      toolbarMode: RichTextToolbarMode.disabled, // No toolbar by default
-      previewMode: RichTextPreviewMode.disabled, // No preview by default
-      enableBold: true,
-      enableItalic: true,
-      enableStrikethrough: true,
-      enableInlineCode: true,
-      enableCodeBlock: true,
-      enableLinks: true,
-      enableBulletList: true,
-      enableOrderedList: true,
-      enableBlockquote: true,
-    );
+    // Derive configuration from public props
+    final enableBold = _isFormatEnabled(FormatType.bold);
+    final enableItalic = _isFormatEnabled(FormatType.italic);
+    final enableUnderline = _isFormatEnabled(FormatType.underline);
+    final enableStrikethrough = _isFormatEnabled(FormatType.strikethrough);
+    final enableInlineCode = _isFormatEnabled(FormatType.inlineCode);
+    final enableCodeBlock = _isFormatEnabled(FormatType.codeBlock);
+    final enableLinks = _isFormatEnabled(FormatType.link);
+    final enableBulletList = _isFormatEnabled(FormatType.bulletList);
+    final enableOrderedList = _isFormatEnabled(FormatType.orderedList);
+    final enableBlockquote = _isFormatEnabled(FormatType.blockquote);
 
-    if (config.hasAnyFormatEnabled) {
+    // Bullet/ordered/blockquote implicitly enabled when code-block is enabled
+    // (mirrors the old config's computed getters so list rendering keeps
+    // working when only codeBlock is on).
+    final effectiveBulletList = enableBulletList || enableCodeBlock;
+    final effectiveOrderedList = enableOrderedList || enableCodeBlock;
+    final effectiveBlockquote = enableBlockquote || enableCodeBlock;
+
+    if (_hasAnyFormatEnabled) {
       // Use unified MarkdownTextFormatter for bubble display (replaces 10+ legacy classes)
       _markdownFormatter = MarkdownTextFormatter(
-        enableBold: config.enableBold,
-        enableItalic: config.enableItalic,
-        enableStrikethrough: config.enableStrikethrough,
-        enableUnderline: config.enableUnderline,
-        enableInlineCode: config.enableInlineCode,
-        enableCodeBlock: config.enableCodeBlock,
-        enableLink: config.enableLinks,
-        enableBulletList: config.isBulletListEnabled,
-        enableOrderedList: config.isOrderedListEnabled,
-        enableBlockquote: config.isBlockquoteEnabled,
+        enableBold: enableBold,
+        enableItalic: enableItalic,
+        enableStrikethrough: enableStrikethrough,
+        enableUnderline: enableUnderline,
+        enableInlineCode: enableInlineCode,
+        enableCodeBlock: enableCodeBlock,
+        enableLink: enableLinks,
+        enableBulletList: effectiveBulletList,
+        enableOrderedList: effectiveOrderedList,
+        enableBlockquote: effectiveBlockquote,
       );
       _formatters.add(_markdownFormatter!);
 
-      // Keep legacy manager for composer-side operations (toolbar, link dialog, preview, Enter handling)
-      _richTextFormatterManager = RichTextFormatterManager(
-        configuration: config,
-      );
-
-      // Set up callback
-      _richTextFormatterManager!.onFormatApplied = (formatType, newText) {
-        widget.onRichTextFormatApplied?.call(formatType);
-      };
-      
-      // Initialize segment-based code blocks if code blocks are enabled and toolbar is visible
-      if (config.enableCodeBlock && config.shouldShowToolbar) {
+      // Initialize segment-based code blocks when:
+      // - code block is enabled, AND
+      // - toolbar is visible in single-line layout (segment widget needs the
+      //   stacked toolbar's persistent space).
+      //
+      // Skip in toggleable (double-line) mode: the toolbar-swap flow has its
+      // own controller-binding rules and mixing a segment controller in
+      // causes text-loss bugs (see [[toggleable-toolbar-text-lost-on-toggle]]).
+      // Code block still works there via the backtick fallback in
+      // `_wrapSelectionWithCodeBlockMarkdown`.
+      if (enableCodeBlock && _useStackedToolbar) {
         _segmentComposerController = SegmentComposerController();
         // Pass text formatters (mentions, etc.) so normal segments use
         // CustomTextEditingController for styled text display
@@ -1266,33 +1524,51 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   }
 
   void _updateRichTextToolbarVisibility() {
-    if (_richTextFormatterManager == null) {
+    if (!_useRichTextEditingController) {
       _showRichTextToolbar = false;
       return;
     }
 
-    // Use provided configuration or check if toolbar should be hidden by default
-    final config = widget.richTextConfiguration;
-    if (config == null) {
-      // No explicit configuration - toolbar is disabled by default
-      _showRichTextToolbar = false;
-      return;
-    }
+    // Stacked toolbar is only shown in single-line layout. Double-line uses
+    // the toggleable swap-row flow instead.
+    _showRichTextToolbar = _useStackedToolbar;
+  }
 
-    final mode = config.toolbarMode;
-    switch (mode) {
-      case RichTextToolbarMode.disabled:
-        _showRichTextToolbar = false;
-        break;
-      case RichTextToolbarMode.alwaysVisible:
-        _showRichTextToolbar = true;
-        break;
-      case RichTextToolbarMode.onSelection:
-      // Show toolbar when text is typed (not empty)
-        _showRichTextToolbar = _textEditingController != null &&
-            _textEditingController!.text.trim().isNotEmpty;
-        break;
+  /// Whether the format-toggle swap row is currently active.
+  ///
+  /// True when:
+  /// 1. The toggleable (double-line) toolbar flow is enabled, AND
+  /// 2. The user has tapped the `Aa` toggle and not dismissed it yet.
+  ///
+  /// When this is true the composer hides the usual action row (divider +
+  /// buttons) and renders `[✕] + <toolbar>` in its place.
+  bool get _isToolbarSwapActive =>
+      _useToggleableToolbar && _isToolbarToggleOpen;
+
+  /// Whether the `Aa` format toggle should be shown in the auxiliary cluster.
+  bool get _shouldShowFormatToggle =>
+      _useToggleableToolbar && _hasAnyFormatEnabled;
+
+  void _toggleRichTextSwap() {
+    // When closing the swap row, keep already-formatted text intact but
+    // disable formatting for any future typing. Use `clearPendingFormats()`
+    // (not `clearFormatting()`) so existing bold/italic/etc. spans stay as
+    // they are and only new insertions revert to plain.
+    final closing = _isToolbarToggleOpen;
+    if (closing) {
+      if (_textEditingController is RichTextEditingController) {
+        (_textEditingController as RichTextEditingController)
+            .clearPendingFormats();
+      }
+      // Reset toolbar's active-format notifier so any highlighted buttons
+      // deactivate immediately (they'll light up again on their own if the
+      // cursor later lands inside an existing formatted span).
+      _previousActiveFormats = const {};
+      _activeFormatsNotifier.value = const {};
     }
+    setState(() {
+      _isToolbarToggleOpen = !_isToolbarToggleOpen;
+    });
   }
 
   void _getAttachmentOptions() {
@@ -1631,54 +1907,6 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     // Determine the active text controller for formatter operations
     final activeController = _getActiveTextController();
 
-    // Check if Enter was pressed (newline added) and handle list continuation
-    // Only for non-segment mode (segment mode handles code blocks differently)
-    if (!_useSegmentBasedCodeBlocks &&
-        _textEditingController != null && _richTextFormatterManager != null) {
-      final currentText = _textEditingController!.text;
-      final selection = _textEditingController!.selection;
-
-      // Detect if a newline was just inserted
-      if (currentText.length > _previousText.length) {
-        final insertedLength = currentText.length - _previousText.length;
-        if (insertedLength == 1 && selection.isCollapsed) {
-          final insertedChar = currentText.substring(
-            selection.start - 1,
-            selection.start,
-          );
-
-          if (insertedChar == '\n') {
-            // A newline was just inserted - check if we need to continue a list
-            // We need to check the line BEFORE the newline was inserted
-            final textBeforeNewline = currentText.substring(0, selection.start - 1);
-            final selectionBeforeNewline = TextSelection.collapsed(
-              offset: selection.start - 1,
-            );
-
-            final result = _richTextFormatterManager!.handleEnter(
-              textBeforeNewline,
-              selectionBeforeNewline,
-            );
-
-            if (result != null) {
-              // List continuation was handled - update the text
-              // Remove the newline we just added and apply the formatter's result
-              _textEditingController!.text = result.newText;
-              _textEditingController!.selection = result.newSelection;
-              _previousText = result.newText;
-
-              // Notify about the change
-              if (widget.onChange != null) {
-                widget.onChange!(result.newText);
-              }
-              _bloc.add(UpdateComposeText(result.newText));
-              return;
-            }
-          }
-        }
-      }
-    }
-
     // Get the text from the active controller for BLoC updates
     final activeText = activeController?.text ?? _textEditingController?.text ?? '';
 
@@ -1687,18 +1915,6 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     }
     _onTyping();
     _bloc.add(UpdateComposeText(activeText));
-
-    // Update rich text toolbar visibility for onSelection mode
-    // Show toolbar when text is typed (not empty)
-    if (widget.richTextConfiguration?.toolbarMode ==
-        RichTextToolbarMode.onSelection) {
-      final shouldShow = activeText.trim().isNotEmpty;
-      if (_showRichTextToolbar != shouldShow) {
-        setState(() {
-          _showRichTextToolbar = shouldShow;
-        });
-      }
-    }
   }
 
   // ============================================================================
@@ -2003,18 +2219,32 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           }
           // Clear and populate segment controller
           _segmentComposerController!.clear();
-          // Set the text in the first normal segment
+          // Set the text in the first normal segment, hydrating any markdown
+          // links into FormatType.link spans so the URL is preserved.
           final segments = _segmentComposerController!.segments;
           if (segments.isNotEmpty) {
-            segments.first.controller.text = editText;
-            _previousText = editText;
+            final segController = segments.first.controller;
+            if (segController is RichTextEditingController) {
+              segController.hydrateFromMarkdown(editText);
+            } else {
+              segController.text = editText;
+            }
+            _previousText = segController.text;
           }
         } else if (mentionFormatterIndex != -1) {
           CometChatMentionsFormatter mentionsFormatter =
           _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
 
-          _textEditingController?.text = message.text;
-          _previousText = message.text;
+          // Hydrate markdown links ([text](url)) into FormatType.link spans so
+          // the URL portion doesn't disappear into hidden markers. Falls back
+          // to a plain text assignment for non-rich controllers.
+          final controller = _textEditingController;
+          if (controller is RichTextEditingController) {
+            controller.hydrateFromMarkdown(message.text);
+          } else {
+            controller?.text = message.text;
+          }
+          _previousText = _textEditingController!.text;
 
           mentionsFormatter.onMessageEdit(
             _textEditingController!,
@@ -2025,8 +2255,13 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         } else {
           String editText = message.text;
           editText = _processEditText(editText, message);
-          _textEditingController?.text = editText;
-          _previousText = editText;
+          final controller = _textEditingController;
+          if (controller is RichTextEditingController) {
+            controller.hydrateFromMarkdown(editText);
+          } else {
+            controller?.text = editText;
+          }
+          _previousText = _textEditingController?.text ?? editText;
         }
       }
     } else if (mode == PreviewMessageMode.reply) {
@@ -2097,8 +2332,22 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   /// The keyboard stays open so the user can continue typing after
   /// dismissing the overlay without needing to tap the text field again.
   void _showAttachmentOverlay() {
-    _attachmentOverlayController.show();
     _attachmentOpenNotifier.value = true;
+    // Show the overlay on the next frame so the attachment button's
+    // `CompositedTransformTarget` has completed a layout pass and
+    // the `LayerLink` has a valid leader offset. Otherwise the
+    // follower (overlay) can read `(0,0)` as the leader position
+    // and paint off-screen — especially when the button is nested
+    // inside `Flexible`/`Row` layouts (double-line composer).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _attachmentOverlayController.show();
+      // Request another frame to force the follower to re-resolve the
+      // leader geometry now that the overlay is in the tree.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    });
   }
 
   /// Hides the attachment options overlay popup.
@@ -2482,11 +2731,27 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         );
       }
 
-      widget.onRichTextFormatApplied?.call(RichTextFormatType.link);
+      widget.onRichTextFormatApplied?.call(FormatType.link);
     });
   }
 
   /// Called when a link span is tapped in the text field.
+  /// Called by the input's `onTap` callback whenever the user taps the
+  /// TextField. Schedules a post-frame link-at-cursor check on the active
+  /// [RichTextEditingController]. This complements the controller's internal
+  /// selection-change listener, which does not reliably fire on iOS when the
+  /// user taps an unfocused field (iOS prioritises focus acquisition over
+  /// cursor movement on the first tap).
+  void _handleComposerTap() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final ctrl = _getActiveTextController();
+      if (ctrl is RichTextEditingController) {
+        ctrl.checkLinkAtCursor();
+      }
+    });
+  }
+
   /// Shows a popup with Edit and Remove options.
   void _onLinkTapped(LinkTapDetails details) {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
@@ -2739,9 +3004,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   }
 
   Widget? _buildRichTextToolbar() {
-    if (!_showRichTextToolbar ||
-        _richTextFormatterManager == null ||
-        _textEditingController == null) {
+    if (!_showRichTextToolbar || _textEditingController == null) {
       return null;
     }
 
@@ -2750,124 +3013,20 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       return widget.richTextToolbarView!(
         context,
         _textEditingController!,
-        _richTextFormatterManager!,
       );
     }
 
     // Get active formats - use centralized helper that handles segment mode
     final activeFormats = _getActiveFormats();
-
     // Get hidden formats from configuration
-    final hiddenFormats = <FormatType>{};
-    final config = widget.richTextConfiguration;
-    if (config != null) {
-      if (!config.enableBold) hiddenFormats.add(FormatType.bold);
-      if (!config.enableItalic) hiddenFormats.add(FormatType.italic);
-      if (!config.enableUnderline) hiddenFormats.add(FormatType.underline);
-      if (!config.enableStrikethrough) hiddenFormats.add(FormatType.strikethrough);
-      if (!config.enableInlineCode) hiddenFormats.add(FormatType.inlineCode);
-      if (!config.enableCodeBlock) hiddenFormats.add(FormatType.codeBlock);
-      if (!config.enableLinks) hiddenFormats.add(FormatType.link);
-      if (!config.enableBulletList) hiddenFormats.add(FormatType.bulletList);
-      if (!config.enableOrderedList) hiddenFormats.add(FormatType.orderedList);
-      if (!config.enableBlockquote) hiddenFormats.add(FormatType.blockquote);
-    }
+    final hiddenFormats = _getHiddenFormats();
 
     return CometChatRichTextToolbar(
-      onFormatTap: (formatType) {
-        // Handle link format specially
-        if (formatType == FormatType.link) {
-          _showLinkEditDialog();
-          return;
-        }
-
-        // Ensure a segment has focus before applying format
-        _ensureSegmentFocus();
-
-        // Apply format using segment controller, WYSIWYG controller, or formatter manager
-        if (_useSegmentBasedCodeBlocks && _segmentComposerController != null) {
-          _segmentComposerController!.applyFormat(formatType);
-        } else if (_textEditingController is RichTextEditingController) {
-          (_textEditingController as RichTextEditingController).applyFormat(formatType);
-        } else {
-          // Legacy mode - use formatter manager
-          final legacyFormatType = RichTextFormatType.values.firstWhere(
-            (t) => t.name == formatType.name,
-            orElse: () => RichTextFormatType.bold,
-          );
-          _richTextFormatterManager!.applyFormat(
-            formatType: legacyFormatType,
-            controller: _textEditingController!,
-          );
-        }
-
-        // Notify callback
-        if (widget.onRichTextFormatApplied != null) {
-          final legacyType = RichTextFormatType.values.firstWhere(
-            (t) => t.name == formatType.name,
-            orElse: () => RichTextFormatType.bold,
-          );
-          widget.onRichTextFormatApplied!(legacyType);
-        }
-
-        // Trigger rebuild to update active formats
-        if (mounted) {
-          setState(() {});
-        }
-      },
+      onFormatTap: _applyToolbarFormat,
       activeFormats: activeFormats,
       hiddenFormats: hiddenFormats,
       style: _style.richTextToolbarStyle,
     );
-  }
-
-  /// Build the rich text preview panel that shows formatted text
-  Widget? _buildRichTextPreview() {
-    if (widget.richTextConfiguration == null ||
-        _richTextFormatterManager == null ||
-        _textEditingController == null) {
-      return null;
-    }
-
-    final previewMode = widget.richTextConfiguration!.previewMode;
-    if (previewMode == RichTextPreviewMode.disabled) {
-      return null;
-    }
-
-    final text = _textEditingController!.text;
-    if (text.trim().isEmpty) {
-      return null;
-    }
-
-    // Check if text has any formatting
-    final hasFormatting = _hasAnyFormatting(text);
-
-    // For onFormatting mode, only show if there's formatting
-    if (previewMode == RichTextPreviewMode.onFormatting && !hasFormatting) {
-      return null;
-    }
-
-    return _RichTextPreviewPanel(
-      text: text,
-      formatters: _richTextFormatterManager!.activeFormatters
-          .whereType<RichTextFormatterBase>()
-          .toList(),
-      colorPalette: _colorPalette,
-      typography: _typography,
-      spacing: _spacing,
-    );
-  }
-
-  /// Check if text contains any rich text formatting
-  bool _hasAnyFormatting(String text) {
-    if (_richTextFormatterManager == null) return false;
-
-    for (final formatter in _richTextFormatterManager!.activeFormatters) {
-      if (formatter.pattern != null && formatter.pattern!.hasMatch(text)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   // ============================================================================
@@ -3061,6 +3220,26 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     );
   }
 
+  /// Resolves the effective auxiliary buttons alignment used internally.
+  ///
+  /// Rules:
+  /// 1. If the caller passed [CometChatMessageComposer.auxiliaryButtonsAlignment],
+  ///    that wins.
+  /// 2. Otherwise, in [CometChatComposerLayout.doubleLine] the auxiliary
+  ///    cluster (mic + stickers) defaults to the LEFT side of the toolbar row
+  ///    so the visual order is `[+][mic][stickers] ... [send]`, matching v5
+  ///    and the Figma spec.
+  /// 3. In [CometChatComposerLayout.singleLine] it defaults to the RIGHT side,
+  ///    next to the send button — the historical v6 behaviour.
+  AuxiliaryButtonsAlignment get _effectiveAuxiliaryAlignment {
+    if (widget.auxiliaryButtonsAlignment != null) {
+      return widget.auxiliaryButtonsAlignment!;
+    }
+    return widget.layout == CometChatComposerLayout.doubleLine
+        ? AuxiliaryButtonsAlignment.left
+        : AuxiliaryButtonsAlignment.right;
+  }
+
   Widget _buildAuxiliaryButtonView(MessageComposerState state) {
     if (widget.auxiliaryButtonView != null) {
       return widget.auxiliaryButtonView!(
@@ -3077,7 +3256,15 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         _textEditingController!.text.isNotEmpty) ||
         (_segmentComposerController != null && _segmentComposerController!.hasContent);
 
-    return MessageComposerAuxiliaryButtons(
+    // In double-line mode with left-aligned auxiliary, the visual row is
+    // `[+][mic][stickers] ... [send]`. Inside the auxiliary cluster we
+    // therefore want mic BEFORE stickers. In all other cases keep the
+    // existing `[stickers][mic]` order so single-line layout is unchanged.
+    final voiceFirst =
+        widget.layout == CometChatComposerLayout.doubleLine &&
+            _effectiveAuxiliaryAlignment == AuxiliaryButtonsAlignment.left;
+
+    final aux = MessageComposerAuxiliaryButtons(
       onVoiceRecordingTap: _showVoiceRecordingSheet,
       hideVoiceRecordingButton: (widget.hideVoiceRecordingButton ?? false) || hasText,
       auxiliaryOptions: _auxiliaryOptions,
@@ -3087,6 +3274,82 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       auxiliaryButtonBorderRadius: _style.auxiliaryButtonBorderRadius,
       colorPalette: _colorPalette,
       spacing: _spacing,
+      voiceFirst: voiceFirst,
+    );
+
+    // When in toggleable rich-text mode (double-line only), append the `Aa`
+    // format-toggle button after the auxiliary cluster so the visual order
+    // is `[mic][stickers][Aa]`. The toggle swaps the entire action row for
+    // `[✕] + <toolbar>` — see [_buildToolbarSwapRow].
+    if (_shouldShowFormatToggle) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          aux,
+          SizedBox(width: _spacing.margin4 ?? 4),
+          _buildFormatToggleButton(),
+        ],
+      );
+    }
+
+    return aux;
+  }
+
+  /// Builds the `Aa` format-toggle button used in the toggleable
+  /// (double-line) toolbar flow. Matches the mic icon colour
+  /// (`iconSecondary`) in both tapped and untapped states so it blends with
+  /// the rest of the auxiliary cluster — no highlight on active.
+  Widget _buildFormatToggleButton() {
+    final iconColor = _colorPalette.iconSecondary ?? Colors.grey;
+    return Semantics(
+      label: 'Rich text formatting toolbar',
+      button: true,
+      toggled: _isToolbarToggleOpen,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(_spacing.radius2 ?? 8),
+          onTap: _toggleRichTextSwap,
+          child: Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.text_format,
+              size: 22,
+              color: iconColor,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds the close button used inside the toolbar swap row.
+  /// Same colour as mic/`Aa` (`iconSecondary`) in both idle and tapped states.
+  Widget _buildToolbarCloseButton() {
+    final iconColor = _colorPalette.iconSecondary ?? Colors.grey;
+    return Semantics(
+      label: 'Close formatting toolbar',
+      button: true,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(_spacing.radius2 ?? 8),
+          onTap: _toggleRichTextSwap,
+          child: Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.close,
+              size: 22,
+              color: iconColor,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -3243,20 +3506,6 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                           messagePreviewTitle,
                           messagePreviewSubtitle,
                         ),
-
-                        // Rich text formatting toolbar
-
-
-                        // Rich text preview panel
-                        if (_buildRichTextPreview() != null)
-                          Padding(
-                            padding: EdgeInsets.only(
-                              left: _spacing.padding2 ?? 0,
-                              right: _spacing.padding2 ?? 0,
-                              bottom: _spacing.padding2 ?? 8,
-                            ),
-                            child: _buildRichTextPreview()!,
-                          ),
 
                         // Message input or Inline Audio Recorder
                         if (state.isRecordingMode)
@@ -3645,21 +3894,34 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   /// - Shared background color
   /// - Shared border
   /// - Divider between input and toolbar
+  ///
+  /// When the toggleable toolbar flow is active and the user has tapped
+  /// the `Aa` format toggle ([_isToolbarSwapActive]), the regular button row
+  /// is replaced by `[✕] + <rich-text-toolbar>`.
   Widget _buildMessageInputWithToolbar(MessageComposerState state) {
     final toolbar = _buildRichTextToolbar();
     final hasToolbar = toolbar != null;
+    final showSwapRow = _isToolbarSwapActive;
+
+    // In toggleable mode, always use the unified container even when the swap
+    // is closed. Switching the ancestor chain between "unified" and the plain
+    // `_buildMessageInput` tears down the TextField subtree, dropping focus
+    // and, on some platforms, resetting the WYSIWYG controller's visible
+    // text. Keeping the container stable avoids the rebuild pain.
+    final isToggleableMode = _useToggleableToolbar;
 
     // When preview is showing (or animating out), the input visually connects to the preview container above
     final hasPreview = (state.isEditMode && state.editMessage != null) ||
         (state.isReplyMode && state.replyMessage != null) ||
         _previewAnimController.value > 0;
 
-    // If no toolbar, just return the regular message input
-    if (!hasToolbar) {
+    // If nothing extra is expected (no toolbar, no swap, not toggleable), fall
+    // back to the plain message input (no unified container).
+    if (!hasToolbar && !showSwapRow && !isToggleableMode) {
       return _buildMessageInput(state);
     }
 
-    // Build unified container with input + divider + toolbar
+    // Build unified container with input + (divider + toolbar/swap row OR nothing)
     final topRadius = hasPreview ? Radius.zero : Radius.circular(_spacing.radius2 ?? 0);
     final bottomRadius = Radius.circular(_spacing.radius2 ?? 0);
 
@@ -3708,84 +3970,193 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Message input (without its own border/background)
+              // Message input (without its own border/background).
               _buildMessageInputContent(state),
-              // Divider
-              Divider(
-                height: 1,
-                thickness: 1,
-                color: _colorPalette.borderLight ?? _colorPalette.borderDefault,
-                indent: _spacing.padding3 ?? 12,
-                endIndent: _spacing.padding3 ?? 12,
-              ),
-              // Toolbar with ValueListenableBuilder for optimized rebuilds
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: ValueListenableBuilder<Set<FormatType>>(
-                valueListenable: _activeFormatsNotifier,
-                builder: (context, activeFormats, _) {
-                  return CometChatRichTextToolbar(
-                    onFormatTap: (formatType) {
-                      // Handle link format specially
-                      if (formatType == FormatType.link) {
-                        _showLinkEditDialog();
-                        return;
-                      }
-
-                      // Ensure a segment has focus before applying format
-                      _ensureSegmentFocus();
-
-                      // Route through segment controller when active
-                      if (_useSegmentBasedCodeBlocks && _segmentComposerController != null) {
-                        if (formatType == FormatType.codeBlock) {
-                          _segmentComposerController!.toggleCodeBlock();
-                        } else {
-                          _segmentComposerController!.applyFormat(formatType);
-                        }
-                      } else if (_textEditingController is RichTextEditingController) {
-                        (_textEditingController as RichTextEditingController).applyFormat(formatType);
-                      } else if (_richTextFormatterManager != null) {
-                        // Legacy mode - use formatter manager
-                        final legacyFormatType = RichTextFormatType.values.firstWhere(
-                          (t) => t.name == formatType.name,
-                          orElse: () => RichTextFormatType.bold,
-                        );
-                        _richTextFormatterManager!.applyFormat(
-                          formatType: legacyFormatType,
-                          controller: _textEditingController!,
-                        );
-                      }
-
-                      // Notify callback
-                      if (widget.onRichTextFormatApplied != null) {
-                        final legacyType = RichTextFormatType.values.firstWhere(
-                          (t) => t.name == formatType.name,
-                          orElse: () => RichTextFormatType.bold,
-                        );
-                        widget.onRichTextFormatApplied!(legacyType);
-                      }
-
-                      // Update active formats notifier
-                      final currentFormats = _getActiveFormats();
-                      if (!_setEquals(currentFormats, _previousActiveFormats)) {
-                        _previousActiveFormats = currentFormats;
-                        _activeFormatsNotifier.value = currentFormats;
-                      }
+              // Divider + toolbar/swap row only when something is attached
+              // below the input.
+              if (showSwapRow) ...[
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: _colorPalette.borderLight ?? _colorPalette.borderDefault,
+                  indent: _spacing.padding3 ?? 12,
+                  endIndent: _spacing.padding3 ?? 12,
+                ),
+                _buildToolbarSwapRow(),
+              ] else if (hasToolbar) ...[
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: _colorPalette.borderLight ?? _colorPalette.borderDefault,
+                  indent: _spacing.padding3 ?? 12,
+                  endIndent: _spacing.padding3 ?? 12,
+                ),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: ValueListenableBuilder<Set<FormatType>>(
+                    valueListenable: _activeFormatsNotifier,
+                    builder: (context, activeFormats, _) {
+                      return _buildInlineRichTextToolbar(activeFormats);
                     },
-                    activeFormats: activeFormats,
-                    hiddenFormats: _getHiddenFormats(),
-                    style: CometChatRichTextToolbarStyle(
-                      backgroundColor: Colors.transparent,
-                      border: null,
-                      borderRadius: BorderRadius.zero,
-                    ).merge(_style.richTextToolbarStyle),
-                  );
-                },
-              ),
-              ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// Extracted inline toolbar builder. Shared by the stacked toolbar and the
+  /// swap row so format dispatch logic lives in exactly one place.
+  ///
+  /// Set [tightLeading] to true when the toolbar is rendered right next to
+  /// another icon (e.g. the close button in the swap row) — removes the
+  /// toolbar's own horizontal padding so the first format icon sits snug.
+  Widget _buildInlineRichTextToolbar(
+    Set<FormatType> activeFormats, {
+    bool tightLeading = false,
+  }) {
+    return CometChatRichTextToolbar(
+      onFormatTap: _applyToolbarFormat,
+      activeFormats: activeFormats,
+      hiddenFormats: _getHiddenFormats(),
+      style: CometChatRichTextToolbarStyle(
+        backgroundColor: Colors.transparent,
+        border: null,
+        borderRadius: BorderRadius.zero,
+        // Tighter spacing between format icons (default is 16)
+        buttonSpacing: 4,
+        // Kill the toolbar's own horizontal padding when rendering in the
+        // swap row so `[✕]` sits directly next to the first format icon.
+        padding: tightLeading
+            ? const EdgeInsets.symmetric(horizontal: 0, vertical: 4)
+            : null,
+      ).merge(_style.richTextToolbarStyle),
+    );
+  }
+
+  /// Shared format-tap handler used by both the stacked toolbar and the
+  /// toggleable swap row. Mirrors the routing logic from the original
+  /// inline handler (segment controller → WYSIWYG controller → legacy
+  /// formatter manager).
+  void _applyToolbarFormat(FormatType formatType) {
+    // Handle link format specially
+    if (formatType == FormatType.link) {
+      _showLinkEditDialog();
+      return;
+    }
+
+    // Ensure a segment has focus before applying format
+    _ensureSegmentFocus();
+
+    // Route through segment controller when active
+    if (_useSegmentBasedCodeBlocks && _segmentComposerController != null) {
+      if (formatType == FormatType.codeBlock) {
+        _segmentComposerController!.toggleCodeBlock();
+      } else {
+        _segmentComposerController!.applyFormat(formatType);
+      }
+    } else if (formatType == FormatType.codeBlock &&
+        _textEditingController is RichTextEditingController) {
+      // Code block fallback when no segment controller exists (e.g.
+      // toggleable mode). The WYSIWYG controller's `_applyCodeBlockFormat`
+      // is a no-op without `onInsertCodeBlock`, so wrap the selection (or
+      // insert an empty pair at the cursor) with triple backticks. The
+      // markdown formatter on the receiving side renders the code block
+      // correctly.
+      _wrapSelectionWithCodeBlockMarkdown();
+    } else if (_textEditingController is RichTextEditingController) {
+      (_textEditingController as RichTextEditingController)
+          .applyFormat(formatType);
+    }
+
+    // Notify callback
+    widget.onRichTextFormatApplied?.call(formatType);
+
+    // Update active formats notifier
+    final currentFormats = _getActiveFormats();
+    if (!_setEquals(currentFormats, _previousActiveFormats)) {
+      _previousActiveFormats = currentFormats;
+      _activeFormatsNotifier.value = currentFormats;
+    }
+  }
+
+  /// Wraps the current selection with triple-backtick code block markers.
+  /// If the selection is collapsed, inserts an empty ``` ``` pair and places
+  /// the cursor between the fences. Used as the code-block fallback when the
+  /// segment-based controller is unavailable (e.g. toggleable mode).
+  void _wrapSelectionWithCodeBlockMarkdown() {
+    final controller = _textEditingController;
+    if (controller == null) return;
+
+    final currentText = controller.text;
+    final sel = controller.selection;
+    if (!sel.isValid) return;
+
+    final start = sel.start;
+    final end = sel.end;
+
+    const opener = '```\n';
+    const closer = '\n```';
+    final inner = currentText.substring(start, end);
+
+    final newText = currentText.substring(0, start) +
+        opener +
+        inner +
+        closer +
+        currentText.substring(end);
+
+    // Place cursor between the fences when inserting an empty block, otherwise
+    // keep the selection around the wrapped content.
+    final TextSelection newSel;
+    if (inner.isEmpty) {
+      final caret = start + opener.length;
+      newSel = TextSelection.collapsed(offset: caret);
+    } else {
+      newSel = TextSelection(
+        baseOffset: start + opener.length,
+        extentOffset: start + opener.length + inner.length,
+      );
+    }
+
+    controller.value = TextEditingValue(text: newText, selection: newSel);
+  }
+
+  /// Builds the row used when [_isToolbarSwapActive] is true.
+  ///
+  /// Renders `[✕] + <toolbar>`. The close button dismisses the swap row
+  /// (same effect as re-tapping `Aa` — which is hidden while the swap is
+  /// active because the auxiliary row is suppressed).
+  Widget _buildToolbarSwapRow() {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: _spacing.padding2 ?? 8,
+        vertical: _spacing.padding1 ?? 4,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Close button — dismisses the swap row
+          _buildToolbarCloseButton(),
+          // Toolbar takes remaining space (scrollable if it overflows).
+          // No extra SizedBox gap here — the toolbar's internal horizontal
+          // padding is also removed so the first format icon sits snug
+          // next to the close icon.
+          Expanded(
+            child: ValueListenableBuilder<Set<FormatType>>(
+              valueListenable: _activeFormatsNotifier,
+              builder: (context, activeFormats, _) {
+                return _buildInlineRichTextToolbar(
+                  activeFormats,
+                  tightLeading: true,
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -3796,42 +4167,37 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     if (_useSegmentBasedCodeBlocks && _segmentComposerController != null) {
       return _segmentComposerController!.getActiveFormats();
     }
-    
+
     if (_textEditingController is RichTextEditingController) {
       return (_textEditingController as RichTextEditingController).getActiveFormats();
-    } else if (_richTextFormatterManager != null && _textEditingController != null) {
-      // Legacy mode - get from formatter manager
-      final legacyFormats = _richTextFormatterManager!.getActiveFormats(
-        _textEditingController!.text,
-        _textEditingController!.selection.baseOffset,
-      );
-      return legacyFormats.map((legacyFormat) {
-        return FormatType.values.firstWhere(
-          (f) => f.name == legacyFormat.name,
-          orElse: () => FormatType.bold,
-        );
-      }).toSet();
     }
     return {};
   }
 
-  /// Get hidden formats for the toolbar
+  /// Get hidden formats for the toolbar.
+  ///
+  /// Returns the union of:
+  /// * formats the user explicitly hid via
+  ///   [CometChatMessageComposer.hideRichTextFormattingOptions], AND
+  /// * formats implicitly disabled by [enableRichTextFormatting] being off
+  ///   (in that case everything is hidden — but the toolbar itself is also
+  ///   not rendered, so the set is academic).
   Set<FormatType> _getHiddenFormats() {
-    final hiddenFormats = <FormatType>{};
-    final config = widget.richTextConfiguration;
-    if (config != null) {
-      if (!config.enableBold) hiddenFormats.add(FormatType.bold);
-      if (!config.enableItalic) hiddenFormats.add(FormatType.italic);
-      if (!config.enableUnderline) hiddenFormats.add(FormatType.underline);
-      if (!config.enableStrikethrough) hiddenFormats.add(FormatType.strikethrough);
-      if (!config.enableInlineCode) hiddenFormats.add(FormatType.inlineCode);
-      if (!config.enableCodeBlock) hiddenFormats.add(FormatType.codeBlock);
-      if (!config.enableLinks) hiddenFormats.add(FormatType.link);
-      if (!config.enableBulletList) hiddenFormats.add(FormatType.bulletList);
-      if (!config.enableOrderedList) hiddenFormats.add(FormatType.orderedList);
-      if (!config.enableBlockquote) hiddenFormats.add(FormatType.blockquote);
+    if (!widget.enableRichTextFormatting) {
+      return const {
+        FormatType.bold,
+        FormatType.italic,
+        FormatType.underline,
+        FormatType.strikethrough,
+        FormatType.inlineCode,
+        FormatType.codeBlock,
+        FormatType.link,
+        FormatType.bulletList,
+        FormatType.orderedList,
+        FormatType.blockquote,
+      };
     }
-    return hiddenFormats;
+    return widget.hideRichTextFormattingOptions;
   }
 
   /// Builds just the message input content without the outer container styling.
@@ -3841,11 +4207,17 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     if (_useSegmentBasedCodeBlocks && _segmentComposerController != null) {
       return _buildSegmentBasedInput(state);
     }
-    
+
+    // In double-line mode the text row, divider, and button row need more
+    // vertical space than 120 — so lift the cap for that layout while keeping
+    // the existing single-line cap for backward-compat.
+    final isDoubleLine = widget.layout == CometChatComposerLayout.doubleLine;
+    final maxHeight = isDoubleLine ? 220.0 : 120.0;
+
     // Wrap in ConstrainedBox to limit max height and enable scrolling
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxHeight: 120, // Max height before scrolling (approximately 4-5 lines)
+      constraints: BoxConstraints(
+        maxHeight: maxHeight,
       ),
       child: CometChatMessageInput(
         text: widget.text,
@@ -3854,11 +4226,16 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         maxLine: widget.maxLine,
         onChange: _onChange,
         onContentInserted: _handleKeyboardContentInserted,
+        onTap: _handleComposerTap,
         primaryButtonView: _buildSendButton(state),
         secondaryButtonView: _buildSecondaryButtonView(state),
-        auxiliaryButtonsAlignment:
-            widget.auxiliaryButtonsAlignment ?? AuxiliaryButtonsAlignment.right,
+        auxiliaryButtonsAlignment: _effectiveAuxiliaryAlignment,
         auxiliaryButtonView: _buildAuxiliaryButtonView(state),
+        layout: widget.layout,
+        // In toggleable mode, when the `Aa` swap is active, suppress the
+        // input's built-in divider + button row — the swap row (Aa +
+        // toolbar) takes its place.
+        hideBottomView: _isToolbarSwapActive,
         // Code block is now inline - no special indicator needed
         showCodeBlockIndicator: false,
         codeBlockIndicatorColor: _colorPalette.primary,
@@ -3894,8 +4271,16 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
 
   /// Builds segment-based input for Slack-style code blocks.
   /// Each segment (normal text or code block) has its own text field.
-  /// This matches the layout of CometChatMessageInput.
+  /// Layout-aware — matches [CometChatMessageInput]'s single/double-line shape.
   Widget _buildSegmentBasedInput(MessageComposerState state) {
+    final isDoubleLine = widget.layout == CometChatComposerLayout.doubleLine;
+    return isDoubleLine
+        ? _buildSegmentBasedInputDoubleLine(state)
+        : _buildSegmentBasedInputSingleLine(state);
+  }
+
+  /// Single-row segment layout — existing behavior (all buttons inline).
+  Widget _buildSegmentBasedInputSingleLine(MessageComposerState state) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
@@ -3916,7 +4301,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
             ),
 
           // Auxiliary buttons (left alignment option)
-          if (widget.auxiliaryButtonsAlignment == AuxiliaryButtonsAlignment.left)
+          if (_effectiveAuxiliaryAlignment == AuxiliaryButtonsAlignment.left)
             Padding(
               padding: const EdgeInsets.only(top: 12, bottom: 17),
               child: _buildAuxiliaryButtonView(state),
@@ -3933,7 +4318,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
               ),
               child: SegmentComposerWidget(
                 controller: _segmentComposerController!,
-                placeholder: widget.placeholderText ?? 
+                placeholder: widget.placeholderText ??
                     Translations.of(context).typeYourMessage,
                 colorPalette: _colorPalette,
                 spacing: _spacing,
@@ -3962,8 +4347,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           ),
 
           // Auxiliary buttons (right alignment - default)
-          if (widget.auxiliaryButtonsAlignment == AuxiliaryButtonsAlignment.right ||
-              widget.auxiliaryButtonsAlignment == null)
+          if (_effectiveAuxiliaryAlignment == AuxiliaryButtonsAlignment.right)
             Padding(
               padding: const EdgeInsets.only(top: 12, bottom: 17),
               child: _buildAuxiliaryButtonView(state),
@@ -3976,6 +4360,118 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           ),
         ],
       ),
+    );
+  }
+
+  /// Double-line segment layout — text on row 1, buttons on row 2 separated by
+  /// a divider. Mirrors `CometChatMessageInput._buildDoubleLineLayout`.
+  Widget _buildSegmentBasedInputDoubleLine(MessageComposerState state) {
+    final horizontalPadding = _spacing.padding3 ?? 12.0;
+    final toolbarVerticalPadding = _spacing.padding2 ?? 8.0;
+    final clusterIconGap = _spacing.margin4 ?? 4.0;
+    final isLeftAligned =
+        _effectiveAuxiliaryAlignment == AuxiliaryButtonsAlignment.left;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // ── Row 1: Segment text input ──
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: ConstrainedBox(
+            // Give the segment text field at least 48dp of height (matches
+            // Material's default TextField intrinsic height and v5).
+            // SegmentComposerWidget uses `isDense: true` internally which
+            // otherwise collapses it to ~20dp.
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: SegmentComposerWidget(
+                controller: _segmentComposerController!,
+                placeholder: widget.placeholderText ??
+                    Translations.of(context).typeYourMessage,
+                colorPalette: _colorPalette,
+                spacing: _spacing,
+                typography: _typography,
+                textStyle: TextStyle(
+                  color: _colorPalette.textPrimary,
+                  fontSize: _typography.body?.regular?.fontSize,
+                  fontWeight: _typography.body?.regular?.fontWeight,
+                  fontFamily: _typography.body?.regular?.fontFamily,
+                ).merge(_style.textStyle).copyWith(color: _style.textColor),
+                placeholderStyle: TextStyle(
+                  color: _colorPalette.textTertiary,
+                  fontSize: _typography.body?.regular?.fontSize,
+                  fontWeight: _typography.body?.regular?.fontWeight,
+                  fontFamily: _typography.body?.regular?.fontFamily,
+                ).merge(_style.placeHolderTextStyle).copyWith(
+                      color: _style.placeHolderTextColor,
+                    ),
+                maxHeight: 120,
+                onContentInserted: _handleKeyboardContentInserted,
+                onChange: (text) {
+                  _onChange(text);
+                },
+              ),
+            ),
+          ),
+        ),
+
+        // ── Divider ──
+        if (!_isToolbarSwapActive)
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: _colorPalette.borderLight ?? _colorPalette.borderDefault,
+            indent: horizontalPadding,
+            endIndent: horizontalPadding,
+          ),
+
+        // ── Row 2: Button toolbar ──
+        if (!_isToolbarSwapActive)
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: toolbarVerticalPadding,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // LEFT cluster: secondary + left-aligned auxiliary
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildSecondaryButtonView(state),
+                      if (isLeftAligned)
+                        Padding(
+                          padding: EdgeInsets.only(left: clusterIconGap),
+                          child: _buildAuxiliaryButtonView(state),
+                        ),
+                    ],
+                  ),
+                ),
+
+                // RIGHT cluster: right-aligned auxiliary + send
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (!isLeftAligned) _buildAuxiliaryButtonView(state),
+                      Padding(
+                        padding: EdgeInsets.only(left: clusterIconGap),
+                        child: _buildSendButton(state),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
@@ -4005,11 +4501,12 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           placeholderText: widget.placeholderText,
           maxLine: widget.maxLine,
           onChange: _onChange,
+          onTap: _handleComposerTap,
           primaryButtonView: _buildSendButton(state),
           secondaryButtonView: _buildSecondaryButtonView(state),
-          auxiliaryButtonsAlignment:
-          widget.auxiliaryButtonsAlignment ?? AuxiliaryButtonsAlignment.right,
+          auxiliaryButtonsAlignment: _effectiveAuxiliaryAlignment,
           auxiliaryButtonView: _buildAuxiliaryButtonView(state),
+          layout: widget.layout,
           // Code block is now inline - no special indicator needed
           showCodeBlockIndicator: false,
           codeBlockIndicatorColor: _colorPalette.primary,
@@ -4095,518 +4592,4 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       ),
     );
   }
-}
-
-/// Internal widget for displaying rich text preview
-class _RichTextPreviewPanel extends StatelessWidget {
-  const _RichTextPreviewPanel({
-    required this.text,
-    required this.formatters,
-    required this.colorPalette,
-    required this.typography,
-    required this.spacing,
-  });
-
-  final String text;
-  final List<RichTextFormatterBase> formatters;
-  final CometChatColorPalette colorPalette;
-  final CometChatTypography typography;
-  final CometChatSpacing spacing;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(spacing.padding3 ?? 12),
-      decoration: BoxDecoration(
-        color: colorPalette.primary ?? Colors.purple,
-        borderRadius: BorderRadius.circular(spacing.radius2 ?? 8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Header
-          Row(
-            children: [
-              Icon(
-                Icons.preview_outlined,
-                size: 14,
-                color: colorPalette.white?.withValues(alpha: 0.7),
-              ),
-              SizedBox(width: spacing.padding1 ?? 4),
-              Text(
-                'Preview',
-                style: TextStyle(
-                  fontSize: typography.caption1?.medium?.fontSize ?? 11,
-                  fontWeight: typography.caption1?.medium?.fontWeight ?? FontWeight.w500,
-                  color: colorPalette.white?.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: spacing.padding2 ?? 8),
-          // Formatted text
-          _buildFormattedText(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFormattedText(BuildContext context) {
-    // Check if there are any block-level elements (code blocks, blockquotes)
-    final hasBlockElements = formatters.any((f) =>
-    f.formatType == RichTextFormatType.codeBlock ||
-        f.formatType == RichTextFormatType.blockquote);
-
-    if (hasBlockElements) {
-      // Use Column-based rendering for block elements
-      return _buildBlockFormattedText(context);
-    }
-
-    // Use RichText for inline-only formatting
-    final spans = _buildTextSpans(context);
-
-    return RichText(
-      text: TextSpan(
-        style: TextStyle(
-          fontSize: typography.body?.regular?.fontSize ?? 14,
-          fontWeight: typography.body?.regular?.fontWeight,
-          fontFamily: typography.body?.regular?.fontFamily,
-          color: colorPalette.white,
-          height: 1.5,
-        ),
-        children: spans,
-      ),
-    );
-  }
-
-  /// Builds formatted text with proper block-level rendering for code blocks and blockquotes
-  Widget _buildBlockFormattedText(BuildContext context) {
-    final List<Widget> widgets = [];
-    final List<_PreviewFormatMatch> allMatches = [];
-
-    // Collect all matches
-    for (final formatter in formatters) {
-      if (formatter.pattern == null) continue;
-
-      // Handle code blocks specially - use custom parsing for multi-line support
-      if (formatter.formatType == RichTextFormatType.codeBlock) {
-        final codeBlocks = _findCodeBlocks(text);
-        for (final block in codeBlocks) {
-          allMatches.add(_PreviewFormatMatch(
-            start: block.start,
-            end: block.end,
-            fullMatch: text.substring(block.start, block.end),
-            content: block.content,
-            formatter: formatter,
-          ));
-        }
-        continue;
-      }
-
-      for (final match in formatter.pattern!.allMatches(text)) {
-        String content;
-
-        // Handle blockquote specially - extract content from all lines
-        if (formatter.formatType == RichTextFormatType.blockquote) {
-          content = _extractBlockquoteContent(match.group(0) ?? '');
-        } else {
-          // For other formats, use group 1 if available
-          content = match.groupCount > 0 ? (match.group(1) ?? match.group(0) ?? '') : match.group(0) ?? '';
-        }
-
-        allMatches.add(_PreviewFormatMatch(
-          start: match.start,
-          end: match.end,
-          fullMatch: match.group(0) ?? '',
-          content: content,
-          formatter: formatter,
-        ));
-      }
-    }
-
-    // Sort by start position
-    allMatches.sort((a, b) => a.start.compareTo(b.start));
-
-    // Remove overlapping matches
-    final List<_PreviewFormatMatch> nonOverlapping = [];
-    int lastEnd = 0;
-    for (final match in allMatches) {
-      if (match.start >= lastEnd) {
-        nonOverlapping.add(match);
-        lastEnd = match.end;
-      }
-    }
-
-    // White text on purple background
-    final defaultStyle = TextStyle(
-      fontSize: typography.body?.regular?.fontSize ?? 14,
-      fontWeight: typography.body?.regular?.fontWeight,
-      fontFamily: typography.body?.regular?.fontFamily,
-      color: colorPalette.white,
-    );
-
-    int currentIndex = 0;
-
-    for (final match in nonOverlapping) {
-      // Add text before this match
-      if (match.start > currentIndex) {
-        final beforeText = text.substring(currentIndex, match.start).trim();
-        if (beforeText.isNotEmpty) {
-          widgets.add(
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(beforeText, style: defaultStyle),
-            ),
-          );
-        }
-      }
-
-      // Check if this is a block-level element
-      final isBlockElement = match.formatter.formatType == RichTextFormatType.codeBlock ||
-          match.formatter.formatType == RichTextFormatType.blockquote;
-
-      if (isBlockElement) {
-        // Render as block widget with left accent bar
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: _buildBlockWidget(context, match),
-          ),
-        );
-      } else {
-        // Render as inline text
-        final formatStyle = _getPreviewStyleForFormatter(context, match.formatter);
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Text(
-              match.content.trim(),
-              style: defaultStyle.merge(formatStyle),
-            ),
-          ),
-        );
-      }
-
-      currentIndex = match.end;
-    }
-
-    // Add remaining text
-    if (currentIndex < text.length) {
-      final afterText = text.substring(currentIndex).trim();
-      if (afterText.isNotEmpty) {
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(afterText, style: defaultStyle),
-          ),
-        );
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: widgets.isEmpty ? [const SizedBox.shrink()] : widgets,
-    );
-  }
-
-  /// Builds a Slack-style block widget
-  /// Code block: full-width dark background, no left bar
-  /// Blockquote: left accent bar with background
-  Widget _buildBlockWidget(BuildContext context, _PreviewFormatMatch match) {
-    final isCodeBlock = match.formatter.formatType == RichTextFormatType.codeBlock;
-
-    final content = match.content.trim();
-
-    if (isCodeBlock) {
-      // Slack-style code block: contrasting background
-      // Light mode: dark background + white text
-      // Dark mode: light background + black text
-      final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-      final backgroundColor = isDarkMode
-          ? (colorPalette.neutral200 ?? const Color(0xFFE0E0E0))
-          : (colorPalette.neutral800 ?? const Color(0xFF1E1E1E));
-      final textColor = isDarkMode
-          ? (colorPalette.neutral900 ?? Colors.black)
-          : (colorPalette.white ?? Colors.white);
-
-      return Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Text(
-            content,
-            style: TextStyle(
-              fontFamily: 'monospace',
-              fontSize: typography.body?.regular?.fontSize ?? 14,
-              color: textColor,
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Blockquote: just left accent bar, no background, white text on purple preview
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(
-            color: colorPalette.white?.withValues(alpha: 0.6) ?? Colors.white70,
-            width: 3,
-          ),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 12, right: 12, top: 4, bottom: 4),
-        child: Text(
-          content,
-          style: TextStyle(
-            fontSize: typography.body?.regular?.fontSize ?? 14,
-            color: colorPalette.white,
-          ),
-        ),
-      ),
-    );
-  }
-
-  List<InlineSpan> _buildTextSpans(BuildContext context) {
-    // Collect all matches from all formatters
-    final List<_PreviewFormatMatch> allMatches = [];
-
-    for (final formatter in formatters) {
-      if (formatter.pattern == null) continue;
-
-      for (final match in formatter.pattern!.allMatches(text)) {
-        allMatches.add(_PreviewFormatMatch(
-          start: match.start,
-          end: match.end,
-          fullMatch: match.group(0) ?? '',
-          content: match.groupCount > 0 ? (match.group(1) ?? match.group(0) ?? '') : match.group(0) ?? '',
-          formatter: formatter,
-        ));
-      }
-    }
-
-    // Sort by start position
-    allMatches.sort((a, b) => a.start.compareTo(b.start));
-
-    // Remove overlapping matches (keep the first one)
-    final List<_PreviewFormatMatch> nonOverlapping = [];
-    int lastEnd = 0;
-    for (final match in allMatches) {
-      if (match.start >= lastEnd) {
-        nonOverlapping.add(match);
-        lastEnd = match.end;
-      }
-    }
-
-    // Build spans
-    final List<InlineSpan> spans = [];
-    int currentIndex = 0;
-
-    final defaultStyle = TextStyle(
-      fontSize: typography.body?.regular?.fontSize ?? 14,
-      fontWeight: typography.body?.regular?.fontWeight,
-      fontFamily: typography.body?.regular?.fontFamily,
-      color: colorPalette.textPrimary,
-    );
-
-    for (final match in nonOverlapping) {
-      // Add text before this match
-      if (match.start > currentIndex) {
-        spans.add(TextSpan(
-          text: text.substring(currentIndex, match.start),
-          style: defaultStyle,
-        ));
-      }
-
-      // Add formatted text (content without markers)
-      final formatStyle = _getPreviewStyleForFormatter(context, match.formatter);
-
-      spans.add(TextSpan(
-        text: match.content,
-        style: defaultStyle.merge(formatStyle),
-      ));
-
-      currentIndex = match.end;
-    }
-
-    // Add remaining text
-    if (currentIndex < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(currentIndex),
-        style: defaultStyle,
-      ));
-    }
-
-    return spans;
-  }
-
-  TextStyle _getPreviewStyleForFormatter(BuildContext context, RichTextFormatterBase formatter) {
-    switch (formatter.formatType) {
-      case RichTextFormatType.bold:
-        return TextStyle(
-          fontWeight: FontWeight.bold,
-          color: colorPalette.textPrimary,
-        );
-      case RichTextFormatType.italic:
-        return TextStyle(
-          fontStyle: FontStyle.italic,
-          color: colorPalette.textPrimary,
-        );
-      case RichTextFormatType.strikethrough:
-        return TextStyle(
-          decoration: TextDecoration.lineThrough,
-          color: colorPalette.textPrimary,
-        );
-      case RichTextFormatType.inlineCode:
-        return TextStyle(
-          fontFamily: 'monospace',
-          backgroundColor: colorPalette.background3,
-          color: colorPalette.textPrimary,
-        );
-      case RichTextFormatType.codeBlock:
-        return TextStyle(
-          fontFamily: 'monospace',
-          backgroundColor: colorPalette.background3,
-          color: colorPalette.textPrimary,
-        );
-      case RichTextFormatType.blockquote:
-        return TextStyle(
-          backgroundColor: colorPalette.background3,
-          color: colorPalette.textPrimary,
-        );
-      case RichTextFormatType.link:
-        return TextStyle(
-          decoration: TextDecoration.underline,
-          color: colorPalette.primary,
-        );
-      default:
-        return const TextStyle();
-    }
-  }
-
-  /// Extract content from blockquote lines, stripping > markers
-  /// Joins multiple lines into one block content
-  String _extractBlockquoteContent(String matchedText) {
-    final lines = matchedText.split('\n');
-    final contentLines = <String>[];
-
-    for (final line in lines) {
-      // Remove > and optional space from start of line
-      String content = line;
-      if (content.startsWith('> ')) {
-        content = content.substring(2);
-      } else if (content.startsWith('>')) {
-        content = content.substring(1);
-      }
-      contentLines.add(content);
-    }
-
-    return contentLines.join('\n');
-  }
-
-  /// Find all code blocks in text (both complete and open-ended)
-  List<_CodeBlockInfo> _findCodeBlocks(String text) {
-    final List<_CodeBlockInfo> blocks = [];
-    int i = 0;
-
-    while (i < text.length) {
-      // Look for opening ```
-      if (i + 3 <= text.length && text.substring(i, i + 3) == '```') {
-        final blockStart = i;
-        i += 3;
-
-        // Skip optional newline after opening ```
-        if (i < text.length && text[i] == '\n') {
-          i++;
-        }
-
-        final contentStart = i;
-
-        // Find closing ``` or end of text
-        int? closingPos;
-        while (i < text.length) {
-          if (i + 3 <= text.length && text.substring(i, i + 3) == '```') {
-            closingPos = i;
-            break;
-          }
-          i++;
-        }
-
-        if (closingPos != null) {
-          // Complete block - content is between opening and closing
-          String content = text.substring(contentStart, closingPos);
-          // Remove trailing newline if present
-          if (content.endsWith('\n')) {
-            content = content.substring(0, content.length - 1);
-          }
-          if (content.isNotEmpty) {
-            blocks.add(_CodeBlockInfo(
-              start: blockStart,
-              end: closingPos + 3,
-              content: content,
-            ));
-          }
-          i = closingPos + 3;
-        } else {
-          // Open block (no closing ```) - content is from opening to end of text
-          String content = text.substring(contentStart);
-          // Remove trailing newline if present
-          if (content.endsWith('\n')) {
-            content = content.substring(0, content.length - 1);
-          }
-          if (content.isNotEmpty) {
-            blocks.add(_CodeBlockInfo(
-              start: blockStart,
-              end: text.length,
-              content: content,
-            ));
-          }
-          break;
-        }
-      } else {
-        i++;
-      }
-    }
-
-    return blocks;
-  }
-}
-
-/// Helper class for code block info in preview
-class _CodeBlockInfo {
-  final int start;
-  final int end;
-  final String content;
-
-  _CodeBlockInfo({
-    required this.start,
-    required this.end,
-    required this.content,
-  });
-}
-
-/// Helper class to store format match information for preview
-class _PreviewFormatMatch {
-  final int start;
-  final int end;
-  final String fullMatch;
-  final String content;
-  final RichTextFormatterBase formatter;
-
-  _PreviewFormatMatch({
-    required this.start,
-    required this.end,
-    required this.fullMatch,
-    required this.content,
-    required this.formatter,
-  });
 }

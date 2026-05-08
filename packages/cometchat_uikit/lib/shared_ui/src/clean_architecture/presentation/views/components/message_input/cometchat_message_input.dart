@@ -3,12 +3,24 @@ import "../../../../clean_architecture.dart";
 
 ///[CometChatMessageInput] is a component that provides a skeleton layout for contents of [CometChatMessageComposer] like TextField, auxiliary options, primary button view and attachment options.
 ///
-/// The default layout is a single-row inline layout:
+/// Two layout modes are supported, controlled by [layout]:
+///
+/// * [CometChatComposerLayout.singleLine] (default) — single-row inline layout:
 /// ```
 /// ┌─────────────────────────────────────────────────────────────┐
 /// │ [+] │ Type your message...          │ [😊] [🎤] [✨] │ [➤] │
 /// └─────────────────────────────────────────────────────────────┘
 ///   Sec    Text Input                      Auxiliary      Send
+/// ```
+///
+/// * [CometChatComposerLayout.doubleLine] — classic v5 two-row layout: text
+///   field on its own row, buttons on a second row below a divider:
+/// ```
+/// ┌─────────────────────────────────────────────────────────────┐
+/// │ Type your message...                                        │
+/// ├─────────────────────────────────────────────────────────────┤
+/// │ [+] [🎤]                              [😊] [✨]      [➤]   │
+/// └─────────────────────────────────────────────────────────────┘
 /// ```
 ///
 /// ```dart
@@ -23,6 +35,7 @@ import "../../../../clean_architecture.dart";
 ///      children: <Widget>[],
 ///    ),
 ///    auxiliaryButtonsAlignment: AuxiliaryButtonsAlignment.right,
+///    layout: CometChatComposerLayout.doubleLine,
 ///  );
 /// ```
 class CometChatMessageInput extends StatefulWidget {
@@ -48,7 +61,9 @@ class CometChatMessageInput extends StatefulWidget {
       this.showCodeBlockIndicator = false,
       this.codeBlockIndicatorColor,
       this.codeBlockContent,
-      this.onContentInserted});
+      this.onContentInserted,
+      this.onTap,
+      this.layout = CometChatComposerLayout.singleLine});
 
   ///[text] initial text for the input field
   final String? text;
@@ -115,6 +130,21 @@ class CometChatMessageInput extends StatefulWidget {
 
   ///[onContentInserted] callback when keyboard inserts media content (e.g. GIF)
   final ValueChanged<KeyboardInsertedContent>? onContentInserted;
+
+  ///[onTap] callback invoked when the text field is tapped. Used by the
+  ///composer to detect taps on link-formatted spans on iOS, where the
+  ///selection-change listener does not reliably fire on the first tap.
+  final VoidCallback? onTap;
+
+  ///[layout] controls the skeleton layout of the input.
+  ///
+  /// Defaults to [CometChatComposerLayout.singleLine] — the text field and all
+  /// buttons share a single row.
+  ///
+  /// Pass [CometChatComposerLayout.doubleLine] for the classic v5 layout where
+  /// the text field occupies its own row and the buttons sit on a second row
+  /// below a divider.
+  final CometChatComposerLayout layout;
 
   @override
   State<CometChatMessageInput> createState() => _CometChatMessageInputState();
@@ -208,70 +238,172 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
 
   @override
   Widget build(BuildContext context) {
+    final isDoubleLine = widget.layout == CometChatComposerLayout.doubleLine;
     return Container(
       height: widget.height,
       width: widget.width,
       margin: widget.margin,
-      padding: widget.padding ?? const EdgeInsets.symmetric(
-        horizontal: 16,
-      ),
+      // Figma spec (double-line): outer padding = 0; single-line keeps 16h inline padding.
+      padding: widget.padding ??
+          (isDoubleLine
+              ? EdgeInsets.zero
+              : const EdgeInsets.symmetric(horizontal: 16)),
       decoration: BoxDecoration(
         color: messageInputStyle.backgroundColor,
         border: messageInputStyle.border,
         borderRadius: messageInputStyle.borderRadius ??
             BorderRadius.circular(spacing.radius2 ?? 0),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // Secondary buttons (left side - attachment button)
-          if (widget.secondaryButtonView != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 17),
-              child: widget.secondaryButtonView!,
-            ),
+      child: isDoubleLine
+          ? _buildDoubleLineLayout()
+          : _buildSingleLineLayout(),
+    );
+  }
 
-          // Auxiliary buttons (left alignment option)
-          if (widget.auxiliaryButtonsAlignment == AuxiliaryButtonsAlignment.left &&
-              widget.auxiliaryButtonView != null &&
-              widget.hideBottomView != true)
-            Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 17),
-              child: widget.auxiliaryButtonView!,
-            ),
-
-          // Text input (center, expanded)
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: spacing.padding2 ?? 8,
-                right: spacing.padding2 ?? 8,
-                top: 12,
-                bottom: 12,
-              ),
-              child: _textEditingController != null
-                  ? _buildRegularInput()
-                  : const SizedBox.shrink(),
-            ),
+  /// Default single-row layout: secondary buttons | input | auxiliary | send.
+  Widget _buildSingleLineLayout() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // Secondary buttons (left side - attachment button)
+        if (widget.secondaryButtonView != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 17),
+            child: widget.secondaryButtonView!,
           ),
 
-          // Auxiliary buttons (right alignment - default)
-          if (widget.auxiliaryButtonsAlignment == AuxiliaryButtonsAlignment.right &&
-              widget.auxiliaryButtonView != null &&
-              widget.hideBottomView != true)
-            Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 17),
-              child: widget.auxiliaryButtonView!,
-            ),
+        // Auxiliary buttons (left alignment option)
+        if (widget.auxiliaryButtonsAlignment == AuxiliaryButtonsAlignment.left &&
+            widget.auxiliaryButtonView != null &&
+            widget.hideBottomView != true)
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 17),
+            child: widget.auxiliaryButtonView!,
+          ),
 
-          // Primary/Send button (far right)
-          if (widget.primaryButtonView != null && widget.hideBottomView != true)
-            Padding(
-              padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
-              child: widget.primaryButtonView!,
+        // Text input (center, expanded)
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: spacing.padding2 ?? 8,
+              right: spacing.padding2 ?? 8,
+              top: 12,
+              bottom: 12,
             ),
-        ],
-      ),
+            child: _textEditingController != null
+                ? _buildRegularInput()
+                : const SizedBox.shrink(),
+          ),
+        ),
+
+        // Auxiliary buttons (right alignment - default)
+        if (widget.auxiliaryButtonsAlignment == AuxiliaryButtonsAlignment.right &&
+            widget.auxiliaryButtonView != null &&
+            widget.hideBottomView != true)
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 17),
+            child: widget.auxiliaryButtonView!,
+          ),
+
+        // Primary/Send button (far right)
+        if (widget.primaryButtonView != null && widget.hideBottomView != true)
+          Padding(
+            padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
+            child: widget.primaryButtonView!,
+          ),
+      ],
+    );
+  }
+
+  /// Classic v5 two-row layout: text field on row 1, buttons on row 2.
+  ///
+  /// Matches v5 spacing exactly:
+  /// - Input row: `padding3` horizontal, no vertical (TextField's intrinsic padding provides height)
+  /// - Toolbar row: `padding3` horizontal, `padding2` vertical
+  /// - Icon cluster spacing: `margin4` between adjacent icons
+  Widget _buildDoubleLineLayout() {
+    final horizontalPadding = spacing.padding3 ?? 12.0;
+    final toolbarVerticalPadding = spacing.padding2 ?? 8.0;
+    final clusterIconGap = spacing.margin4 ?? 4.0;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end, // justify-content: flex-end
+      crossAxisAlignment: CrossAxisAlignment.stretch, // align-self: stretch
+      children: [
+        // ── Row 1: Text input (horizontal padding only, like v5) ──
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: _textEditingController != null
+              ? _buildRegularInput()
+              : const SizedBox.shrink(),
+        ),
+
+        // ── Divider ──
+        if (widget.hideBottomView != true)
+          Divider(
+            height: messageInputStyle.dividerHeight ?? 1,
+            thickness: messageInputStyle.dividerHeight ?? 1,
+            color: messageInputStyle.dividerTint,
+            indent: horizontalPadding,
+            endIndent: horizontalPadding,
+          ),
+
+        // ── Row 2: Button toolbar ──
+        if (widget.hideBottomView != true)
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: toolbarVerticalPadding,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // LEFT cluster: secondary buttons + (optionally) left-aligned auxiliary
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.secondaryButtonView != null)
+                        widget.secondaryButtonView!,
+                      if (widget.auxiliaryButtonsAlignment ==
+                              AuxiliaryButtonsAlignment.left &&
+                          widget.auxiliaryButtonView != null)
+                        Padding(
+                          padding: EdgeInsets.only(
+                            left: widget.secondaryButtonView != null
+                                ? clusterIconGap
+                                : 0,
+                          ),
+                          child: widget.auxiliaryButtonView!,
+                        ),
+                    ],
+                  ),
+                ),
+
+                // RIGHT cluster: right-aligned auxiliary + primary (send)
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (widget.auxiliaryButtonsAlignment ==
+                              AuxiliaryButtonsAlignment.right &&
+                          widget.auxiliaryButtonView != null)
+                        widget.auxiliaryButtonView!,
+                      if (widget.primaryButtonView != null)
+                        Padding(
+                          padding: EdgeInsets.only(left: clusterIconGap),
+                          child: widget.primaryButtonView!,
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
@@ -282,7 +414,13 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
     if (widget.showCodeBlockIndicator) {
       return _buildCodeBlockInput();
     }
-    
+
+    // In double-line mode, use Flutter's default Material input density so the
+    // TextField has its natural ~48dp intrinsic height (matches v5). In
+    // single-line mode, keep the dense decoration because the outer Row owns
+    // vertical sizing.
+    final isDoubleLine = widget.layout == CometChatComposerLayout.doubleLine;
+
     // Regular text input
     return TextFormField(
       key: ValueKey(_textEditingController.hashCode),
@@ -305,16 +443,17 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
           .merge(messageInputStyle.textStyle)
           .copyWith(color: messageInputStyle.textColor),
       onChanged: widget.onChange,
+      onTap: widget.onTap,
       controller: _textEditingController,
       minLines: 1,
       maxLines: widget.maxLine ?? 4,
       decoration: InputDecoration(
         filled: messageInputStyle.filledColor != null,
         fillColor: messageInputStyle.filledColor,
-        isDense: true,
-        contentPadding: EdgeInsets.symmetric(
-          vertical: spacing.padding1 ?? 4,
-        ),
+        isDense: !isDoubleLine,
+        contentPadding: isDoubleLine
+            ? null
+            : EdgeInsets.symmetric(vertical: spacing.padding1 ?? 4),
         hintText: widget.placeholderText ?? Translations.of(context).typeYourMessage,
         hintStyle: TextStyle(
           color: colorPalette.textTertiary,

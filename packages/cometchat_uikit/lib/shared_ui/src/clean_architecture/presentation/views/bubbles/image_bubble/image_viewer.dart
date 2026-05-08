@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import "../../../../clean_architecture.dart";
 import 'package:cached_network_image/cached_network_image.dart';
@@ -124,6 +125,75 @@ class _ImageViewerState extends State<ImageViewer> {
                     return child;
                   },
                 )
+                    : kIsWeb
+                    // On web, use Image.network (HTML <img> tag) to bypass CORS.
+                    ? Image.network(
+                        key: imageKey,
+                        widget.imageUrl,
+                        fit: BoxFit.contain,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (mounted && _isLoading) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                            });
+                            return child;
+                          }
+                          return Image(
+                            fit: BoxFit.contain,
+                            image: AssetImage(
+                              widget.placeholderImage ??
+                                  AssetConstants.imagePlaceholder,
+                              package: widget.placeHolderImagePackageName ??
+                                  UIConstants.packageName,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          if (_isLoading) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (mounted) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                            });
+                          }
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _isLoading = true;
+                                      imageKey = ValueKey(widget.imageUrl +
+                                          DateTime.now().toString());
+                                    });
+                                    Future.delayed(const Duration(seconds: 3), () {
+                                      if (mounted) {
+                                        setState(() {
+                                          _isLoading = false;
+                                        });
+                                      }
+                                    });
+                                  },
+                                  icon: Image.asset(
+                                    AssetConstants.refreshIcon,
+                                    height: 24,
+                                    width: 24,
+                                    package: UIConstants.packageName,
+                                    color: colorPalette.iconPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      )
                     : CachedNetworkImage(
                   key: imageKey,
                   imageUrl: widget.imageUrl,

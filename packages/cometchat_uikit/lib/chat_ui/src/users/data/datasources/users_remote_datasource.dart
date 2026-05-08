@@ -21,12 +21,18 @@ class UsersRemoteDataSourceException implements Exception {
 /// Abstract interface for users remote data source
 /// Handles all interactions with CometChat SDK
 abstract class UsersRemoteDataSource {
-  /// Get users with optional pagination and search
+  /// Get users with optional pagination and search.
+  /// On the first call (or after [resetRequest]) a new SDK request is built;
+  /// subsequent calls reuse the same request so the SDK cursor advances.
   Future<List<User>> getUsers({
     int limit = 30,
     String? searchKeyword,
     UsersRequestBuilder? usersRequestBuilder,
   });
+
+  /// Reset the internal SDK request so the next [getUsers] call starts fresh.
+  /// Call this when doing a fresh load or when the search keyword changes.
+  void resetRequest();
 
   /// Get a specific user by UID
   Future<User> getUser(String uid);
@@ -43,21 +49,28 @@ class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
   UsersRequest? _currentRequest;
 
   @override
+  void resetRequest() {
+    _currentRequest = null;
+  }
+
+  @override
   Future<List<User>> getUsers({
     int limit = 30,
     String? searchKeyword,
     UsersRequestBuilder? usersRequestBuilder,
   }) async {
     try {
-      // Use custom request builder if provided, otherwise create default
-      final requestBuilder = usersRequestBuilder ?? UsersRequestBuilder();
-      requestBuilder.limit = limit;
+      // Build a new request only if we don't have one yet (first call or after reset)
+      if (_currentRequest == null) {
+        final requestBuilder = usersRequestBuilder ?? UsersRequestBuilder();
+        requestBuilder.limit = limit;
 
-      if (searchKeyword != null && searchKeyword.isNotEmpty) {
-        requestBuilder.searchKeyword = searchKeyword;
+        if (searchKeyword != null && searchKeyword.isNotEmpty) {
+          requestBuilder.searchKeyword = searchKeyword;
+        }
+
+        _currentRequest = requestBuilder.build();
       }
-
-      _currentRequest = requestBuilder.build();
 
       final completer = Completer<List<User>>();
 

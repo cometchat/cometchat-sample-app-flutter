@@ -286,57 +286,63 @@ class _CometChatStickerKeyboardState extends State<CometChatStickerKeyboard> {
     CometChatColorPalette colorPalette,
     CometChatSpacing spacing,
     CometChatTypography typography,
+    double keyboardHeight,
   ) {
     if (widget.loadingStateView != null) {
       return Center(child: widget.loadingStateView!(context));
     } else {
-      return SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: spacing.padding2 ?? 0,
-            horizontal: spacing.padding3 ?? 0,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: spacing.padding2 ?? 0,
-                ),
-                child: Text(
-                  "Sticker pack name",
-                  style: TextStyle(
-                    fontSize: typography.body?.regular?.fontSize,
-                    fontWeight: typography.body?.regular?.fontWeight,
-                    fontFamily: typography.body?.regular?.fontFamily,
-                    color: colorPalette.textTertiary,
+      return Container(
+        height: keyboardHeight,
+        width: double.infinity,
+        color: colorPalette.background1,
+        child: CometChatShimmerEffect(
+          colorPalette: colorPalette,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: spacing.padding2 ?? 0,
+              horizontal: spacing.padding3 ?? 0,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: spacing.padding2 ?? 0,
+                  ),
+                  child: Container(
+                    height: 14,
+                    width: 120,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(
+                        spacing.radius2 ?? 0,
+                      ),
+                      color: colorPalette.neutral300,
+                    ),
                   ),
                 ),
-              ),
-              GridView.builder(
-                shrinkWrap: true,
-                itemCount: 6,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: spacing.padding5 ?? 0,
-                  crossAxisSpacing: spacing.padding5 ?? 0,
-                ),
-                itemBuilder: (context, index) {
-                  return CometChatShimmerEffect(
-                    child: Container(
-                      height: 80,
-                      width: 80,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          spacing.radius2 ?? 0,
-                        ),
-                        color: colorPalette.background1,
-                      ),
+                Expanded(
+                  child: GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: 6,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: spacing.padding5 ?? 0,
+                      crossAxisSpacing: spacing.padding5 ?? 0,
                     ),
-                  );
-                },
-              ),
-            ],
+                    itemBuilder: (context, index) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            spacing.radius2 ?? 0,
+                          ),
+                          color: colorPalette.neutral300,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -360,6 +366,7 @@ class _CometChatStickerKeyboardState extends State<CometChatStickerKeyboard> {
                   colorPalette,
                   spacing,
                   typography,
+                  keyboardHeight,
                 )
               //---on error---
               : isError

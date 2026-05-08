@@ -13,7 +13,14 @@ class CallPermissions {
   /// Request microphone permission (audio calls).
   /// Returns `true` if granted or already granted.
   static Future<bool> requestMicrophone() async {
+    final before = await Permission.microphone.status;
+    developer.log(
+      'CallPermissions.requestMicrophone: status before request = $before',
+    );
     final status = await Permission.microphone.request();
+    developer.log(
+      'CallPermissions.requestMicrophone: status after request = $status',
+    );
     if (!status.isGranted) {
       developer.log('CallPermissions: microphone permission denied ($status)');
     }
@@ -23,6 +30,11 @@ class CallPermissions {
   /// Request microphone + camera permissions (video calls).
   /// Returns `true` if both are granted.
   static Future<bool> requestMicrophoneAndCamera() async {
+    final micBefore = await Permission.microphone.status;
+    final camBefore = await Permission.camera.status;
+    developer.log(
+      'CallPermissions.requestMicrophoneAndCamera: before mic=$micBefore cam=$camBefore',
+    );
     final statuses = await [
       Permission.microphone,
       Permission.camera,
@@ -30,6 +42,9 @@ class CallPermissions {
 
     final micGranted = statuses[Permission.microphone]?.isGranted ?? false;
     final camGranted = statuses[Permission.camera]?.isGranted ?? false;
+    developer.log(
+      'CallPermissions.requestMicrophoneAndCamera: after mic=${statuses[Permission.microphone]} cam=${statuses[Permission.camera]}',
+    );
 
     if (!micGranted || !camGranted) {
       developer.log(

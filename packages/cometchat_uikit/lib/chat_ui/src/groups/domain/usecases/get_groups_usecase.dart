@@ -13,6 +13,12 @@ class GetGroupsUseCase {
 
   const GetGroupsUseCase(this.repository);
 
+  /// Reset the internal SDK pagination cursor.
+  /// Call before a fresh load or when search keyword changes.
+  void resetRequest() {
+    repository.resetRequest();
+  }
+
   /// Execute the use case to get groups
   ///
   /// [limit] - Maximum number of groups to fetch (default: 30)

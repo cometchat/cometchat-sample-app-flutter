@@ -229,6 +229,7 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
     final matches = pattern.allMatches(text);
     final attrs = matches
         .where((match) => !_overlapsAny(match.start, match.end, excludeRanges))
+        .where((match) => !_isFormattingNoise(match.group(1) ?? '', text[match.start]))
         .map((match) {
       String? content = match.group(1);
       if (content != null) content = _stripMarkers(content);
@@ -245,6 +246,22 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
       return mergeAttributedText(attrs, existing);
     }
     return attrs;
+  }
+
+  /// Returns true if [content] is pure formatting noise — either whitespace
+  /// only or consisting entirely of the outer [markerChar] character.
+  ///
+  /// Runs of marker characters like `****` or `______` produce spurious
+  /// matches against `**(.+?)**` or `__(.+?)__`. The user typed literal
+  /// characters, not formatting intent, so these should render plain.
+  static bool _isFormattingNoise(String content, String markerChar) {
+    if (content.trim().isEmpty) return true;
+    for (final rune in content.runes) {
+      final ch = String.fromCharCode(rune);
+      if (ch.trim().isEmpty) continue;
+      if (ch != markerChar) return false;
+    }
+    return true;
   }
 
   // ── Code block collector ────────────────────────────────────────────────────
