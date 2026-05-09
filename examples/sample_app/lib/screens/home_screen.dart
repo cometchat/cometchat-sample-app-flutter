@@ -11,9 +11,7 @@ import 'package:sample_app/screens/create_group_screen.dart';
 import 'package:sample_app/screens/call_log_details_screen.dart';
 import 'package:sample_app/screens/join_protected_group_screen.dart';
 import 'package:sample_app/screens/login_screen.dart';
-
-// Note: Push notification services (Firebase, APNs, VoIP) are not included
-// in this sample app. See CometChat documentation for push notification setup.
+import 'package:sample_app/screens/thread_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,6 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final _toggles = ComponentToggles.instance;
   late CometChatColorPalette _colorPalette;
 
+  // UI event listener for mention tap → open chat navigation
+  final String _uiListenerId = 'home_screen_ui_${DateTime.now().millisecondsSinceEpoch}';
+
   static const _tabTitlesMobile = ['Chats', 'Calls', 'Users', 'Groups'];
   static const _tabTitlesWeb = ['Chats', 'Users', 'Groups'];
   static List<String> get _tabTitles => kIsWeb ? _tabTitlesWeb : _tabTitlesMobile;
@@ -34,6 +35,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Listen for openChat UI events (e.g., mention tap → navigate to user's chat)
+    CometChatUIEvents.addUiListener(_uiListenerId, _HomeScreenUIEventListener(
+      onOpenChat: (user, group) {
+        if (mounted) {
+          _pushMessages(context, user: user, group: group);
+        }
+      },
+    ));
   }
 
   @override
@@ -129,6 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
               MaterialPageRoute(builder: (_) => const ContactsScreen()),
             );
             break;
+          case '/ai-assistant':
+            _openAiAssistantScreen();
+            break;
           case '/logout':
             await CometChatUIKit.logout(
               onSuccess: (_) {
@@ -165,6 +178,33 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Text(
                 'Create Conversation',
+                style: TextStyle(
+                  fontSize: typography.body?.regular?.fontSize,
+                  fontFamily: typography.body?.regular?.fontFamily,
+                  fontWeight: typography.body?.regular?.fontWeight,
+                  color: _colorPalette.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          height: 44,
+          padding: EdgeInsets.all(spacing.padding4 ?? 16),
+          value: '/ai-assistant',
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(right: spacing.padding2 ?? 8),
+                child: Icon(
+                  Icons.smart_toy_outlined,
+                  color: _colorPalette.iconSecondary,
+                  size: 24,
+                ),
+              ),
+              Text(
+                cc.Translations.of(context).agents,
                 style: TextStyle(
                   fontSize: typography.body?.regular?.fontSize,
                   fontFamily: typography.body?.regular?.fontFamily,
@@ -234,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.all(spacing.padding4 ?? 16),
           enabled: false,
           child: Text(
-            'v6.0.0',
+            'v6.0.0-beta3',
             style: TextStyle(
               fontSize: typography.caption1?.regular?.fontSize,
               fontFamily: typography.caption1?.regular?.fontFamily,
@@ -441,6 +481,41 @@ class _HomeScreenState extends State<HomeScreen> {
             final receiverUid = message.receiverUid;
             final receiverType = message.receiverType;
             final messageId = message.id;
+
+            // Thread reply → fetch parent and open ThreadScreen so the reply
+            // isn't injected into the main conversation's message list.
+            if (message.parentMessageId > 0) {
+              CometChatHelper.getMessageDetails(
+                message.parentMessageId,
+                onSuccess: (parent) {
+                  if (parent == null) return;
+                  User? threadUser;
+                  Group? threadGroup;
+                  if (parent.receiverType == ReceiverTypeConstants.user) {
+                    final loggedInUid = CometChatUIKit.loggedInUser?.uid;
+                    threadUser = (parent.sender?.uid == loggedInUid)
+                        ? parent.receiver as User?
+                        : parent.sender;
+                  } else {
+                    threadGroup = parent.receiver as Group?;
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ThreadScreen(
+                        user: threadUser,
+                        group: threadGroup,
+                        message: parent,
+                        goToMessageId: messageId,
+                      ),
+                    ),
+                  );
+                },
+                onError: (_) {},
+              );
+              return;
+            }
+
             if (receiverType == ReceiverTypeConstants.user) {
               final loggedInUid = CometChatUIKit.loggedInUser?.uid;
               final otherUid =
@@ -501,8 +576,14 @@ class _HomeScreenState extends State<HomeScreen> {
       _pushMessages(context, user: user);
 
   void _openGroupChat(BuildContext context, Group group) {
-    // Protected group that user hasn't joined → show password screen
-    if (!group.hasJoined && group.type == GroupTypeConstants.password) {
+    // Already a member → open chat
+    if (group.hasJoined) {
+      _pushMessages(context, group: group);
+      return;
+    }
+
+    // Password-protected group → show password prompt
+    if (group.type == GroupTypeConstants.password) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -511,7 +592,90 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       return;
     }
-    _pushMessages(context, group: group);
+
+    // Public group the user isn't in (e.g., previously kicked) → auto-rejoin
+    if (group.type == GroupTypeConstants.public) {
+      _joinPublicGroupAndOpen(context, group);
+      return;
+    }
+
+    // Private group the user isn't in → cannot self-rejoin, needs admin invite
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: const Text(
+        'You are no longer a member of this group. Ask an admin to add you back.',
+      ),
+      backgroundColor: _colorPalette.error,
+    ));
+  }
+
+  /// Attempts to (re)join a public group on tap and opens the chat on success.
+  /// Used when a user taps a public group they're not a member of — for example,
+  /// after being kicked (ENG-34445).
+  void _joinPublicGroupAndOpen(BuildContext context, Group group) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  _colorPalette.white ?? Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text('Joining ${group.name}…'),
+          ],
+        ),
+        duration: const Duration(seconds: 10),
+      ),
+    );
+
+    CometChat.joinGroup(
+      group.guid,
+      GroupTypeConstants.public,
+      onSuccess: (joinedGroup) async {
+        if (!mounted) return;
+        if (!joinedGroup.hasJoined) joinedGroup.hasJoined = true;
+        final user = await CometChat.getLoggedInUser();
+        if (user != null) {
+          CometChatGroupEvents.ccGroupMemberJoined(user, joinedGroup);
+        }
+        if (!mounted) return;
+        messenger.hideCurrentSnackBar();
+        _pushMessages(context, group: joinedGroup);
+      },
+      onError: (CometChatException e) {
+        if (!mounted) return;
+        debugPrint('Auto-join public group failed: ${e.message}');
+        messenger.hideCurrentSnackBar();
+        messenger.showSnackBar(SnackBar(
+          content: Text(
+            e.message ?? 'Unable to join group. Please try again.',
+          ),
+          backgroundColor: _colorPalette.error,
+        ));
+      },
+    );
+  }
+
+  void _openAiAssistantScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CometChatUsers(
+          title: cc.Translations.of(context).agents,
+          usersRequestBuilder: UsersRequestBuilder()
+            ..roles = [AIConstants.aiRole],
+          onItemTap: (ctx, user) => _pushMessages(ctx, user: user),
+        ),
+      ),
+    );
   }
 
   void _pushMessages(BuildContext context, {User? user, Group? group, int? scrollToMessageId}) {
@@ -526,6 +690,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    CometChatUIEvents.removeUiListener(_uiListenerId);
     super.dispose();
+  }
+}
+
+/// Listener for CometChat UI events in HomeScreen
+class _HomeScreenUIEventListener with CometChatUIEventListener {
+  final void Function(User? user, Group? group) onOpenChat;
+
+  _HomeScreenUIEventListener({required this.onOpenChat});
+
+  @override
+  void openChat(User? user, Group? group) {
+    onOpenChat(user, group);
   }
 }

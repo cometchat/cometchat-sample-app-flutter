@@ -8,12 +8,18 @@ class ThreadScreen extends StatefulWidget {
     this.group,
     required this.message,
     this.template,
+    this.goToMessageId,
   });
 
   final User? user;
   final Group? group;
   final BaseMessage message;
   final CometChatMessageTemplate? template;
+
+  /// When set, the thread's message list scrolls to and highlights this
+  /// specific reply. Used when navigating into the thread from search
+  /// results so the tapped reply is immediately visible.
+  final int? goToMessageId;
 
   @override
   State<ThreadScreen> createState() => _ThreadScreenState();
@@ -79,61 +85,60 @@ class _ThreadScreenState extends State<ThreadScreen> {
         child: Container(
           color: colorPalette.background3,
           child: Column(
-          children: [
-            CometChatThreadedHeader(
-              parentMessage: widget.message,
-              loggedInUser: CometChatUIKit.loggedInUser!,
-              template: widget.template,
-              textFormatters: [
-                CometChatMentionsFormatter(
-                    user: widget.user, group: widget.group),
-                MarkdownTextFormatter(),
-                CometChatUrlFormatter(),
-                CometChatPhoneNumberFormatter(),
-                CometChatEmailFormatter(),
-              ],
-            ),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => FocusScope.of(context).unfocus(),
-                child: CometChatMessageList(
-                  user: widget.user,
-                  group: widget.group,
-                  parentMessageId: widget.message.id,
-                  messagesRequestBuilder: requestBuilder,
-                  withParent: false,
-                  textFormatters: [
-                    CometChatMentionsFormatter(
-                        user: widget.user, group: widget.group),
-                    MarkdownTextFormatter(),
-                    CometChatUrlFormatter(),
-                    CometChatPhoneNumberFormatter(),
-                    CometChatEmailFormatter(),
-                  ],
-                  hideReplyInThreadOption: true,
+            children: [
+              CometChatThreadedHeader(
+                parentMessage: widget.message,
+                loggedInUser: CometChatUIKit.loggedInUser!,
+                template: widget.template,
+                textFormatters: [
+                  CometChatMentionsFormatter(
+                      user: widget.user, group: widget.group),
+                  MarkdownTextFormatter(),
+                  CometChatUrlFormatter(),
+                  CometChatPhoneNumberFormatter(),
+                  CometChatEmailFormatter(),
+                ],
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: CometChatMessageList(
+                    user: widget.user,
+                    group: widget.group,
+                    parentMessageId: widget.message.id,
+                    goToMessageId: widget.goToMessageId,
+                    messagesRequestBuilder: requestBuilder,
+                    withParent: false,
+                    textFormatters: [
+                      CometChatMentionsFormatter(
+                          user: widget.user, group: widget.group),
+                      MarkdownTextFormatter(),
+                      CometChatUrlFormatter(),
+                      CometChatPhoneNumberFormatter(),
+                      CometChatEmailFormatter(),
+                    ],
+                    hideReplyInThreadOption: true,
+                  ),
                 ),
               ),
-            ),
-            CometChatMessageComposer(
-              user: widget.user,
-              group: widget.group,
-              parentMessageId: widget.message.id,
-              resizeToAvoidBottomInset: true,
-              textFormatters: [
-                CometChatMentionsFormatter(
-                    user: widget.user, group: widget.group),
-                MarkdownTextFormatter(),
-                CometChatUrlFormatter(),
-                CometChatPhoneNumberFormatter(),
-                CometChatEmailFormatter(),
-              ],
-              richTextConfiguration: const RichTextConfiguration(
-                toolbarMode: RichTextToolbarMode.disabled,
+              CometChatMessageComposer(
+                user: widget.user,
+                group: widget.group,
+                parentMessageId: widget.message.id,
+                resizeToAvoidBottomInset: true,
+                textFormatters: [
+                  CometChatMentionsFormatter(
+                      user: widget.user, group: widget.group),
+                  MarkdownTextFormatter(),
+                  CometChatUrlFormatter(),
+                  CometChatPhoneNumberFormatter(),
+                  CometChatEmailFormatter(),
+                ],
+                enableRichTextFormatting: false,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

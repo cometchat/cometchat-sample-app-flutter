@@ -3,6 +3,10 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:cometchat_chat_uikit/cometchat_calls_uikit.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'messages_screen.dart';
+import 'thread_screen.dart';
 
 /// User Info screen — shows user profile, online status, call buttons,
 /// block/unblock, and delete chat actions.
@@ -304,7 +308,30 @@ class _UserInfoScreenState extends State<UserInfoScreen>
     );
   }
 
-  void _initiateCall(String callType) {
+  Future<void> _initiateCall(String callType) async {
+    // Android 14+ (API 34+) requires RECORD_AUDIO (and CAMERA for video)
+    // to be granted at runtime BEFORE the Calls SDK starts its
+    // foreground service of type `microphone`. Otherwise the OS throws
+    // SecurityException in OngoingCallService.onCreate and the app crashes.
+    final needed = callType == CallTypeConstants.videoCall
+        ? [Permission.microphone, Permission.camera]
+        : [Permission.microphone];
+    final statuses = await needed.request();
+    final allGranted = statuses.values.every((s) => s.isGranted);
+    if (!allGranted) {
+      if (!mounted) return;
+      final denied = statuses.entries
+          .where((e) => !e.value.isGranted)
+          .map((e) => e.key == Permission.camera ? 'camera' : 'microphone')
+          .join(' and ');
+      _showError('Please allow $denied access to start the call.');
+      // If user chose "Don't allow again", nudge them to Settings.
+      if (statuses.values.any((s) => s.isPermanentlyDenied)) {
+        await openAppSettings();
+      }
+      return;
+    }
+
     final call = Call(
       receiverUid: _user.uid,
       receiverType: ReceiverTypeConstants.user,
@@ -454,6 +481,8 @@ class _UserInfoScreenState extends State<UserInfoScreen>
             if (!_isBlocked) _buildCallButtons(),
             SizedBox(height: _spacing.padding3),
             Divider(color: _colorPalette.borderLight, height: 1),
+            // Search
+            _buildSearchTile(),
             // Block / Unblock
             _buildActionTile(
               _blockedByMe
@@ -481,6 +510,88 @@ class _UserInfoScreenState extends State<UserInfoScreen>
               _isDeleteLoading ? null : _showDeleteChatDialog,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchTile() {
+    return Semantics(
+      button: true,
+      label: cc.Translations.of(context).search,
+      child: ListTile(
+        enableFeedback: false,
+        minLeadingWidth: 0,
+        minTileHeight: 0,
+        minVerticalPadding: 0,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (searchCtx) => CometChatSearch(
+                user: _user,
+                searchIn: const [SearchScope.messages],
+                onBack: () => Navigator.of(searchCtx).pop(),
+                onMessageClicked: (message) {
+                  // Capture NavigatorState while Search route context is alive.
+                  // Pop Search + UserInfo, then replace Messages with a new
+                  // instance scrolled to the tapped message.
+                  final navigator = Navigator.of(searchCtx);
+                  final user = _user;
+
+                  // Thread reply → fetch parent and open ThreadScreen so the
+                  // reply isn't injected into the main conversation's list.
+                  if (message.parentMessageId > 0) {
+                    CometChatHelper.getMessageDetails(
+                      message.parentMessageId,
+                      onSuccess: (parent) {
+                        if (parent == null) return;
+                        navigator.pop(); // pop Search
+                        navigator.pop(); // pop UserInfo
+                        navigator.push(
+                          MaterialPageRoute(
+                            builder: (_) => ThreadScreen(
+                              user: user,
+                              message: parent,
+                              goToMessageId: message.id,
+                            ),
+                          ),
+                        );
+                      },
+                      onError: (_) {},
+                    );
+                    return;
+                  }
+
+                  navigator.pop(); // pop Search
+                  navigator.pop(); // pop UserInfo
+                  navigator.pushReplacement(
+                    MaterialPageRoute(
+                      settings: const RouteSettings(name: 'messages'),
+                      builder: (_) => MessagesScreen(
+                        user: user,
+                        goToMessageId: message.id,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        },
+        leading: Icon(Icons.search, color: _colorPalette.iconPrimary),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: _spacing.padding5 ?? 0,
+          vertical: _spacing.padding3 ?? 0,
+        ),
+        title: Text(
+          cc.Translations.of(context).search,
+          style: TextStyle(
+            fontSize: _typography.heading4?.regular?.fontSize,
+            fontFamily: _typography.heading4?.regular?.fontFamily,
+            fontWeight: _typography.heading4?.regular?.fontWeight,
+            color: _colorPalette.textPrimary,
+          ),
         ),
       ),
     );

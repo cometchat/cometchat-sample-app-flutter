@@ -99,10 +99,18 @@ class _MessagesScreenState extends State<MessagesScreen>
   }
 
   @override
-  void onUserOnline(User user) {}
+  void onUserOnline(User user) {
+    if (_user != null && user.uid == _user!.uid) {
+      _user = user; // Keep reference fresh; header BLoC handles its own UI update
+    }
+  }
 
   @override
-  void onUserOffline(User user) {}
+  void onUserOffline(User user) {
+    if (_user != null && user.uid == _user!.uid) {
+      _user = user;
+    }
+  }
 
   // --- Group Listeners (kicked/banned state) ---
 
@@ -179,6 +187,17 @@ class _MessagesScreenState extends State<MessagesScreen>
   }
 
   @override
+  void ccGroupMemberAdded(List<cc.Action> messages, List<User> usersAdded,
+      Group groupAddedIn, User addedBy) {
+    // UI event fires when the logged-in user adds members.
+    // SDK onMemberAddedToGroup fires only for OTHER users in the group.
+    if (_group != null && groupAddedIn.guid == _group!.guid) {
+      _group = groupAddedIn;
+      setState(() {});
+    }
+  }
+
+  @override
   void onGroupMemberScopeChanged(cc.Action action, User updatedBy,
       User updatedUser, String scopeChangedTo, String scopeChangedFrom,
       Group group) {
@@ -215,8 +234,8 @@ class _MessagesScreenState extends State<MessagesScreen>
       parentMessageId: parentMessageId,
       messagesRequestBuilder: requestBuilder,
       hideReplies: (widget.isHistory) ? false : true,
-      showMarkAsUnreadOption: t.showMarkAsUnreadOption.value,
-      startFromUnreadMessages: t.startFromUnreadMessages.value,
+      showMarkAsUnreadOption: true,
+      startFromUnreadMessages: true,
       hideDeletedMessages: t.hideDeletedMessages.value,
       disableReceipts: t.disableReceipts.value,
       avatarVisibility: t.avatarVisibility.value,
@@ -280,7 +299,8 @@ class _MessagesScreenState extends State<MessagesScreen>
     return CometChatMessageComposer(
       user: _user,
       group: _group,
-      parentMessageId: widget.parentMessage?.id ?? 0,
+     
+     parentMessageId: widget.parentMessage?.id ?? 0,
       placeholderText: isAI ? 'Ask anything...' : null,
       disableTypingEvents: isAI || t.disableTypingEvents.value,
       hideVoiceRecordingButton: isAI || t.hideVoiceRecordingButton.value,
@@ -289,7 +309,7 @@ class _MessagesScreenState extends State<MessagesScreen>
       hideStickersButton: isAI || t.hideStickersButton.value,
       disableMentions: isAI || t.disableMentions.value,
       hideBottomSafeArea: t.hideBottomSafeArea.value,
-      resizeToAvoidBottomInset: true,
+      layout: cc.CometChatComposerLayout.singleLine,
       textFormatters: isAI
           ? [] // No formatters for AI chat
           : [
@@ -299,13 +319,8 @@ class _MessagesScreenState extends State<MessagesScreen>
               CometChatPhoneNumberFormatter(),
               CometChatEmailFormatter(),
             ],
-      richTextConfiguration: isAI
-          ? const RichTextConfiguration(
-              toolbarMode: RichTextToolbarMode.disabled,
-            )
-          : const RichTextConfiguration(
-              toolbarMode: RichTextToolbarMode.alwaysVisible,
-            ),
+      enableRichTextFormatting: !isAI,
+      showRichTextFormattingOptions: !isAI,
     );
   }
 
@@ -316,7 +331,6 @@ class _MessagesScreenState extends State<MessagesScreen>
     final _isAI = _user?.role == 'ai' || _user?.role == '@agentic';
     return Scaffold(
       backgroundColor: _colorPalette.background1,
-      resizeToAvoidBottomInset: true,
       appBar: CometChatMessageHeader(
         user: _user,
         group: _group,
@@ -465,10 +479,11 @@ class _MessagesScreenState extends State<MessagesScreen>
                 );
               }
             },
-          ),
+            ),
         ],
       ),
       body: SafeArea(
+        bottom: false, // Scaffold's resizeToAvoidBottomInset handles bottom keyboard inset
         child: Container(
           color: _colorPalette.background3,
           child: Column(

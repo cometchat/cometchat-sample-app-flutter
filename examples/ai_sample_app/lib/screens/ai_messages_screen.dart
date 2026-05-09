@@ -71,7 +71,6 @@ class _AiMessagesScreenState extends State<AiMessagesScreen>
       user: widget.user,
       parentMessageId: parentMessageId,
       messagesRequestBuilder: requestBuilder,
-      withParent: widget.isHistory,
       hideReplies: widget.isHistory ? false : true,
       disableReactions: true,
       enableSwipeToReply: false,
@@ -99,9 +98,7 @@ class _AiMessagesScreenState extends State<AiMessagesScreen>
       hideStickersButton: true,
       disableMentions: true,
       textFormatters: [],
-      richTextConfiguration: const RichTextConfiguration(
-        toolbarMode: RichTextToolbarMode.disabled,
-      ),
+      enableRichTextFormatting: false,
     );
   }
 

@@ -30,4 +30,7 @@ class FeatureFlags {
   // --- Navigation ---
   static bool showNewChatButton = true;
   static bool showProfileMenu = true;
+
+  // --- AI ---
+  static bool enableAIAgents = true;
 }

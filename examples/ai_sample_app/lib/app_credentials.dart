@@ -8,9 +8,9 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 /// enter their own CometChat App ID, Auth Key, and Region. The values are
 /// persisted via SharedPreferences and loaded on subsequent launches.
 class AppCredentials {
-  static String appId = '26580020f03ff346';
-  static String authKey = '4152b0366478871f0fa8d19a287dd6f5ed5f8eff';
-  static String region = 'in';
+  static String appId = '';
+  static String authKey = '';
+  static String region = '';
 
   static bool get hasValidCredentials =>
       appId.isNotEmpty && authKey.isNotEmpty && region.isNotEmpty;

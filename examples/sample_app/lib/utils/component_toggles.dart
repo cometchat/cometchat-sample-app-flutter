@@ -35,7 +35,7 @@ class ComponentToggles {
   final enableSmartReplies = ValueNotifier<bool>(false);
   final enableConversationStarters = ValueNotifier<bool>(false);
   final startFromUnreadMessages = ValueNotifier<bool>(false);
-  final showMarkAsUnreadOption = ValueNotifier<bool>(false);
+  final showMarkAsUnreadOption = ValueNotifier<bool>(true);
 
   // ── Message List — hide options ────────────────────────────────
   final hideCopyMessageOption = ValueNotifier<bool>(false);
@@ -55,6 +55,11 @@ class ComponentToggles {
   final hideStickersButton = ValueNotifier<bool>(false);
   final disableMentions = ValueNotifier<bool>(false);
   final hideBottomSafeArea = ValueNotifier<bool>(false);
+
+  /// When true, composer renders in double-line (v5-style) layout with text on
+  /// row 1 and buttons on row 2 separated by a divider. Default false keeps
+  /// the v6 single-line layout.
+  final composerDoubleLine = ValueNotifier<bool>(false);
 
   // ── Message Header ─────────────────────────────────────────────
   final hideVideoCallButton = ValueNotifier<bool>(false);

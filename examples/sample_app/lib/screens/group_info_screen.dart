@@ -3,6 +3,8 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'add_members_screen.dart';
 import 'banned_members_screen.dart';
+import 'messages_screen.dart';
+import 'thread_screen.dart';
 import 'transfer_ownership_screen.dart';
 
 /// Group Info screen — shows group details, members, and management actions.
@@ -489,6 +491,9 @@ class _GroupInfoScreenState extends State<GroupInfoScreen>
               ),
             ),
             Divider(color: _colorPalette.borderLight, height: 1),
+            // Search
+            _buildSearchTile(),
+            Divider(color: _colorPalette.borderLight, height: 1),
             _buildSecondaryActions(),
           ],
         ),
@@ -599,6 +604,78 @@ class _GroupInfoScreenState extends State<GroupInfoScreen>
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchTile() {
+    return ListTile(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (searchCtx) => CometChatSearch(
+              group: _group,
+              searchIn: const [SearchScope.messages],
+              onBack: () => Navigator.of(searchCtx).pop(),
+              onMessageClicked: (message) {
+                // Capture NavigatorState while Search route context is alive.
+                // Then pop Search + GroupInfo and replace Messages with a new
+                // instance scrolled to the tapped message.
+                final navigator = Navigator.of(searchCtx);
+                final group = _group;
+
+                // Thread reply → fetch parent and open ThreadScreen so the
+                // reply isn't injected into the main conversation's list.
+                if (message.parentMessageId > 0) {
+                  CometChatHelper.getMessageDetails(
+                    message.parentMessageId,
+                    onSuccess: (parent) {
+                      if (parent == null) return;
+                      navigator.pop(); // pop Search
+                      navigator.pop(); // pop GroupInfo
+                      navigator.push(
+                        MaterialPageRoute(
+                          builder: (_) => ThreadScreen(
+                            group: group,
+                            message: parent,
+                            goToMessageId: message.id,
+                          ),
+                        ),
+                      );
+                    },
+                    onError: (_) {},
+                  );
+                  return;
+                }
+
+                navigator.pop(); // pop Search
+                navigator.pop(); // pop GroupInfo
+                navigator.pushReplacement(
+                  MaterialPageRoute(
+                    settings: const RouteSettings(name: 'messages'),
+                    builder: (_) => MessagesScreen(
+                      group: group,
+                      goToMessageId: message.id,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+      leading: Icon(Icons.search, color: _colorPalette.iconPrimary),
+      contentPadding:
+          EdgeInsets.symmetric(horizontal: _spacing.padding5 ?? 0),
+      title: Text(
+        cc.Translations.of(context).search,
+        style: TextStyle(
+          fontSize: _typography.heading4?.regular?.fontSize,
+          fontFamily: _typography.heading4?.regular?.fontFamily,
+          fontWeight: _typography.heading4?.regular?.fontWeight,
+          color: _colorPalette.textPrimary,
         ),
       ),
     );

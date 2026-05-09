@@ -57,6 +57,8 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
       onError: (_) {},
     );
     _conversationId = _conversation?.conversationId;
+    // Notify UI that initialization is complete
+    if (mounted) setState(() {});
   }
 
   void _addMembers() {
@@ -67,6 +69,15 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
         .where((u) => state.selectedUsers.contains(u.uid))
         .toList();
     if (selectedUsers.isEmpty) return;
+
+    // Guard: _loggedInUser must be initialized before adding members
+    if (_loggedInUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: _colorPalette.error,
+        content: const Text('Please wait, initializing...'),
+      ));
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -92,7 +103,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
     CometChat.addMembersToGroup(
       guid: widget.group.guid,
       groupMembers: members,
-      onSuccess: (Map<String?, String?> result) {
+      onSuccess: (Map<String?, String?> result) async {
         final addedMembers = <User>[];
         final messages = <cc.Action>[];
         for (final member in members) {
@@ -124,7 +135,22 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
                 'Unable to add members. They may already be in the group.'),
           ));
         } else {
-          widget.group.membersCount += addedMembers.length;
+          // Refresh group from SDK to get accurate membersCount BEFORE firing
+          // ccGroupMemberAdded. The SDK returns 'success' even for duplicate
+          // members, so we can't safely just increment locally.
+          // Awaiting here ensures listeners get the correct membersCount.
+          final refreshedGroup = await CometChat.getGroup(
+            widget.group.guid,
+            onSuccess: (g) => g,
+            onError: (_) {},
+          );
+          if (refreshedGroup != null) {
+            widget.group.membersCount = refreshedGroup.membersCount;
+          } else {
+            // Fallback: increment locally (may be inaccurate for duplicates)
+            widget.group.membersCount += addedMembers.length;
+          }
+          if (!mounted) return;
           CometChatGroupEvents.ccGroupMemberAdded(
               messages, addedMembers, widget.group, _loggedInUser!);
           setState(() => _isLoading = false);

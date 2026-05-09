@@ -152,7 +152,7 @@ class _AiAgentsScreenState extends State<AiAgentsScreen> {
           padding: EdgeInsets.all(_spacing.padding4 ?? 16),
           enabled: false,
           child: Text(
-            'v6.0.0',
+            'v6.0.0-beta3',
             style: TextStyle(
               fontSize: _typography.caption1?.regular?.fontSize,
               fontFamily: _typography.caption1?.regular?.fontFamily,
