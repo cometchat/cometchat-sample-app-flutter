@@ -1,3 +1,20 @@
+# 5.2.15 
+
+## New
+
+- None
+
+## Enhancement
+
+- None
+
+## Fixes
+
+- Fixed an issue where favicons were missing in URL preview messages for shared links.
+- Fixed an issue where the “See More” button in the search component did not behave correctly while loading additional search results.
+- Fixed an issue where received `.m4a` audio files were not immediately playable and their duration was not displayed correctly after receipt.
+- Fixed an issue where `MessagesRequestBuilder` usage caused inconsistent message retrieval behavior under certain filtering and pagination scenarios.
+
 # 5.2.14
 
 ## New

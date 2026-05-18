@@ -54,6 +54,10 @@ class CometChatMessagesSearchController
 
   Set<String> selectedFilters = {};
 
+  /// Stores the developer's original limit from the passed builder.
+  /// null means no custom limit was set — defaults to 3 (preview) / 30 (filtered).
+  int? _initialLimit;
+
   late CometChatSearchController searchController;
 
   @override
@@ -61,6 +65,8 @@ class CometChatMessagesSearchController
     isLoading = false;
     dateStamp = DateTime.now().microsecondsSinceEpoch.toString();
     _uiMessageListener = "${dateStamp}_ui_message_listener";
+    // Capture the developer's limit before handleSearchAndFilters overwrites builderProtocol
+    _initialLimit = builderProtocol.requestBuilder.limit;
     // Find the search controller instance
     // Listen to changes
     searchController = Get.find<CometChatSearchController>(tag: tag);
@@ -195,7 +201,7 @@ class CometChatMessagesSearchController
       ..guid = group?.guid;
 
     if (selectedFilters.isEmpty) {
-      builder.limit = 3;
+      builder.limit = _initialLimit ?? 3;
       builder.types = [
         MessageTypeConstants.text,
         MessageTypeConstants.image,
@@ -204,7 +210,7 @@ class CometChatMessagesSearchController
         MessageTypeConstants.file,
       ];
     } else {
-      builder.limit = 30;
+      builder.limit = _initialLimit ?? 30;
     }
 
     if (currentSearch.isNotEmpty) {
@@ -285,7 +291,8 @@ class CometChatMessagesSearchController
             onEmpty?.call();
           } else {
             isLoading = false;
-            hasMoreItems = true;
+            final limit = builderProtocol.requestBuilder.limit ?? 30;
+            hasMoreItems = fetchedList.length >= limit;
             for (var element in fetchedList.reversed) {
               if (element is InteractiveMessage) {
                 element = InteractiveMessageUtils

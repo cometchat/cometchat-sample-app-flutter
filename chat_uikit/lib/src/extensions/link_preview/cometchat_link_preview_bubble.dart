@@ -160,10 +160,13 @@ class CometChatLinkPreviewBubble extends StatelessWidget {
                                 )
                                 : null,
 
-                            trailing: (links.isNotEmpty &&
-                                      links[0]["image"] == null &&
-                                    links[0]["favicon"] != null &&
-                                    links[0]["favicon"].toString().isNotEmpty)
+                            trailing: (() {
+                                      final image = links.isNotEmpty ? links[0]["image"] : null;
+                                      final favicon = links.isNotEmpty ? links[0]["favicon"] : null;
+                                      final hasImage = image != null && image.toString().isNotEmpty;
+                                      final hasFavicon = favicon != null && favicon.toString().isNotEmpty;
+                                      return links.isNotEmpty && !hasImage && hasFavicon;
+                                    })()
                                 ? Image.network(links[0]["favicon"],
                                     height: 36, width: 36,
                                     errorBuilder: (context, object, stack) {
