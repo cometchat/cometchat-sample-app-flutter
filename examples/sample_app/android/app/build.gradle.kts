@@ -42,6 +42,8 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
         // Flutter creates a 'profile' build type. cometchat_calls_sdk pulls in
         // React Native deps that only publish 'debug'/'release' variants.

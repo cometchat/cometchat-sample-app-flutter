@@ -19,6 +19,9 @@ class FakeBaseMessage extends Fake implements BaseMessage {
 
   @override
   int get id => _id;
+
+  @override
+  User? get sender => User(uid: 'sender_1', name: 'Sender');
 }
 
 class FakeMessagesRequest extends Fake implements MessagesRequest {}

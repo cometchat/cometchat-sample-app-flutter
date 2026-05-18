@@ -7,14 +7,16 @@ plugins {
 
 configurations.all {
     resolutionStrategy {
+        // Force AndroidX instead of support library
         force("androidx.core:core:1.17.0")
     }
+    // Exclude old support library
     exclude(group = "com.android.support", module = "support-compat")
     exclude(group = "com.android.support", module = "support-v4")
 }
 
 android {
-    namespace = "com.cometchat.ai_sample_app"
+    namespace = "com.cometchat.sampleapp.flutter.android"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
@@ -29,7 +31,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.cometchat.ai_sample_app"
+        applicationId = "com.cometchat.sampleapp.flutter.android"
         minSdk = 26
         targetSdk = 36
         versionCode = flutter.versionCode
@@ -43,6 +45,9 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
         }
+        // Flutter creates a 'profile' build type. cometchat_calls_sdk pulls in
+        // React Native deps that only publish 'debug'/'release' variants.
+        // configureEach runs during evaluation so matchingFallbacks isn't locked yet.
         configureEach {
             if (name == "profile") {
                 matchingFallbacks += listOf("release")

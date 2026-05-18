@@ -121,6 +121,22 @@ class _CallLogDetailsScreenState extends State<CallLogDetailsScreen> {
                     avatarHeight: 48,
                     avatarWidth: 48,
                     padding: EdgeInsets.zero,
+                    messageHeaderStyle: CometChatMessageHeaderStyle(
+                      callButtonsStyle: CometChatCallButtonsStyle(
+                        voiceCallIconColor: _colorPalette.primary,
+                        videoCallIconColor: _colorPalette.primary,
+                        voiceCallButtonBorder: BorderSide(
+                          width: 1,
+                          color: _colorPalette.borderDefault ?? const Color(0xFFE8E8E8),
+                        ),
+                        videoCallButtonBorder: BorderSide(
+                          width: 1,
+                          color: _colorPalette.borderDefault ?? const Color(0xFFE8E8E8),
+                        ),
+                        voiceCallButtonBorderRadius: BorderRadius.circular(8),
+                        videoCallButtonBorderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
                   ),
           ),
           // Call info tile
@@ -299,7 +315,6 @@ class _CallLogDetailsScreenState extends State<CallLogDetailsScreen> {
     );
   }
 }
-
 
 // --- Participants Tab ---
 

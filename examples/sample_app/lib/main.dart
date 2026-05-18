@@ -2,100 +2,133 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import 'package:cometchat_chat_uikit/cometchat_calls_uikit.dart';
-
 import 'package:sample_app/app_credentials.dart';
-import 'package:sample_app/screens/app_credentials_screen.dart';
 import 'package:sample_app/screens/home_screen.dart';
 import 'package:sample_app/screens/guard_screen.dart';
+import 'package:sample_app/screens/app_credentials_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-/// Global navigator key for the app.
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+// Conditional imports — mobile-only services
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Share the navigator key with CometChat's call overlay system
-  CallNavigationContext.navigatorKey = navigatorKey;
-
-  // Try to load saved credentials from SharedPreferences
+  // Load credentials from SharedPreferences (sample apps use this;
+  // master_app falls back to hardcoded defaults)
   await AppCredentials.loadSavedCredentials();
 
-  runApp(const SampleApp());
-}
-
-class SampleApp extends StatelessWidget {
-  const SampleApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Sample App',
-      debugShowCheckedModeBanner: false,
-      navigatorKey: navigatorKey,
-      supportedLocales: const [
-        Locale('en'),
-        Locale('en', 'GB'),
-        Locale('ar'),
-        Locale('de'),
-        Locale('es'),
-        Locale('fr'),
-        Locale('hi'),
-        Locale('hu'),
-        Locale('ja'),
-        Locale('ko'),
-        Locale('lt'),
-        Locale('ms'),
-        Locale('nl'),
-        Locale('pt'),
-        Locale('ru'),
-        Locale('sv'),
-        Locale('tr'),
-        Locale('zh'),
-        Locale('zh', 'TW'),
-      ],
-      localizationsDelegates: const [
-        cc.Translations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-        brightness: Brightness.light,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-        brightness: Brightness.dark,
-      ),
-      themeMode: ThemeMode.system,
-      home: AppCredentials.hasValidCredentials
-          ? const SampleAppHome()
-          : const AppCredentialsScreen(),
-    );
+  // Android 14+ (targetSdk 34+) requires RECORD_AUDIO and CAMERA to be
+  // granted at runtime BEFORE the Calls SDK plugin registers its
+  // OngoingCallService (which declares FGS types microphone|camera).
+  // If a queued call push is delivered right after SDK init, the plugin
+  // auto-starts the service and Android throws SecurityException if
+  // either permission is missing — crashing the app before any
+  // Dart-level guard can run. We MUST gate all SDK init on both
+  // permissions being granted.
+  //
+  // Strategy:
+  //   1. Request mic + camera.
+  //   2. If both granted, continue to SDK init.
+  //   3. If denied once, request again (Android re-prompts automatically).
+  //   4. If permanentlyDenied, jump the user to App Settings and wait for
+  //      them to return; re-check status on resume.
+  //   5. Only when both are granted do we init Firebase / VoIP / CometChat.
+  //
+  // Still on the old (pre-crash) path if both already granted: request()
+  // returns `granted` immediately with no UI.
+  bool callPermsGranted = true;
+  if (!kIsWeb) {
+    callPermsGranted = await _ensureCallPermissions();
   }
+
+  // Only initialise the push stack when call perms are granted. If the
+  // user is still denying, skipping FCM/VoIP prevents the plugin from
+  // ever receiving a call push that would try to start its FGS and
+  // crash us. The app is still usable for messaging; call features
+  // simply stay inert until perms are granted on a later launch.
+  if (!kIsWeb && callPermsGranted) {
+  }
+
+  // Initialize Firebase (works on all platforms with proper config)
+
+  // Crashlytics — mobile only
+
+  // Share the navigator key with CometChat's call overlay system
+
+  runApp(const BlocSampleApp());
 }
 
-/// Main home that initializes CometChat and shows the appropriate screen.
+/// Ensure mic + camera are granted before we init any part of CometChat.
 ///
-/// Separated from [SampleApp] so that [AppCredentialsScreen] can navigate
-/// here after the user enters valid credentials.
-class SampleAppHome extends StatefulWidget {
-  const SampleAppHome({super.key});
+/// Android 14+ FGS rule: OngoingCallService declares `microphone|camera`
+/// FGS types, and the OS throws SecurityException at startForeground()
+/// if the matching runtime perms aren't granted. Because the plugin can
+/// auto-start that service in response to a push that arrives right
+/// after CometChat init, we MUST have these granted before SDK init.
+///
+/// Returns `true` if both perms are granted at the end of the flow,
+/// `false` otherwise. Callers use this to decide whether it is safe
+/// to bring up FCM / VoIP / the Calls SDK on this launch.
+///
+/// Behaviour:
+/// - Already granted → returns true immediately (no UI).
+/// - First deny → prompts again once.
+/// - permanentlyDenied → opens system Settings. Once the user returns,
+///   we re-check status. We keep looping while any deny is recoverable.
+/// - If user chooses to keep denying from Settings, we give up after a
+///   few tries and return false. The app stays usable for messaging;
+///   calling features stay inert until a future launch where perms get
+///   granted. No crash possible because FCM/VoIP never initialise.
+Future<bool> _ensureCallPermissions() async {
+  // Cheap path: already granted.
+  final initialMic = await Permission.microphone.status;
+  final initialCam = await Permission.camera.status;
+  if (initialMic.isGranted && initialCam.isGranted) {
+    return true;
+  }
+
+  // Try prompting up to 3 times total. Each iteration asks for whichever
+  // perm is not yet granted; if a perm is permanentlyDenied we send the
+  // user to Settings and wait for them to return.
+  for (var attempt = 0; attempt < 3; attempt++) {
+    final micStatus = await Permission.microphone.status;
+    final camStatus = await Permission.camera.status;
+    if (micStatus.isGranted && camStatus.isGranted) return true;
+
+    final needsSettings =
+        micStatus.isPermanentlyDenied || camStatus.isPermanentlyDenied;
+
+    if (needsSettings) {
+      // Opens the app's settings page; the returned Future resolves
+      // immediately (it just launches the intent). We then await a
+      // short delay and re-check on the next loop iteration so the
+      // user has time to toggle the switch and return.
+      await openAppSettings();
+      // Give the user time to act. If they take longer, the next
+      // call attempt (Layer 3 chokepoint) will re-prompt anyway.
+      await Future<void>.delayed(const Duration(seconds: 3));
+      continue;
+    }
+
+    // Normal deny — request again. Android shows the system dialog.
+    await [Permission.microphone, Permission.camera].request();
+  }
+
+  final finalMic = await Permission.microphone.status;
+  final finalCam = await Permission.camera.status;
+  return finalMic.isGranted && finalCam.isGranted;
+}
+
+class BlocSampleApp extends StatefulWidget {
+  const BlocSampleApp({super.key});
 
   @override
-  State<SampleAppHome> createState() => _SampleAppHomeState();
+  State<BlocSampleApp> createState() => _BlocSampleAppState();
 }
 
-class _SampleAppHomeState extends State<SampleAppHome> {
+class _BlocSampleAppState extends State<BlocSampleApp> {
   bool _isInitialized = false;
   bool _isLoggedIn = false;
   String? _error;
@@ -114,6 +147,10 @@ class _SampleAppHomeState extends State<SampleAppHome> {
   }
 
   Future<void> _initCometChat() async {
+    if (!AppCredentials.hasValidCredentials) {
+      if (mounted) setState(() => _isInitialized = true);
+      return;
+    }
     try {
       final settingsBuilder = UIKitSettingsBuilder()
         ..subscriptionType = CometChatSubscriptionType.allUsers
@@ -260,6 +297,28 @@ class _SampleAppHomeState extends State<SampleAppHome> {
 
   @override
   Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'CometChat Sample App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+        brightness: Brightness.dark,
+      ),
+      themeMode: ThemeMode.system,
+      home: _buildHome(),
+    );
+  }
+
+  Widget _buildHome() {
     if (_error != null) {
       return Scaffold(
         body: Center(
@@ -268,34 +327,11 @@ class _SampleAppHomeState extends State<SampleAppHome> {
             children: [
               const Icon(Icons.error, size: 48, color: Colors.red),
               const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  'Error: $_error',
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              Text('Error: $_error'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
-                  setState(() => _error = null);
-                  _initCometChat();
-                },
+                onPressed: _initCometChat,
                 child: const Text('Retry'),
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () async {
-                  await AppCredentials.clearCredentials();
-                  if (!context.mounted) return;
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (_) => const AppCredentialsScreen(),
-                    ),
-                    (_) => false,
-                  );
-                },
-                child: const Text('Change Credentials'),
               ),
             ],
           ),
@@ -318,11 +354,18 @@ class _SampleAppHomeState extends State<SampleAppHome> {
       );
     }
 
+    // Show credentials screen if not configured (sample apps with blank credentials)
+    if (!AppCredentials.hasValidCredentials) {
+      return const AppCredentialsScreen();
+    }
+
+    if (!AppCredentials.hasValidCredentials) {
+      return const AppCredentialsScreen();
+    }
     return _isLoggedIn ? const HomeScreen() : const GuardScreen();
   }
 }
 
-/// Outcome of the startup session validation probe.
 enum _SessionCheckResult {
   /// Server accepted the cached auth token.
   valid,

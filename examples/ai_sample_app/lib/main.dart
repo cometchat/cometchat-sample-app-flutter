@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:cometchat_chat_uikit/cometchat_calls_uikit.dart';
 import 'package:ai_sample_app/app_credentials.dart';
 import 'package:ai_sample_app/screens/guard_screen.dart';
+import 'package:ai_sample_app/screens/app_credentials_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  CallNavigationContext.navigatorKey = navigatorKey;
   await AppCredentials.loadSavedCredentials();
   runApp(const AISampleApp());
 }
 
 class AISampleApp extends StatefulWidget {
   const AISampleApp({super.key});
-
   @override
   State<AISampleApp> createState() => _AISampleAppState();
 }
 
 class _AISampleAppState extends State<AISampleApp> {
   bool _isInitialized = false;
+  bool _isLoggedIn = false;
   String? _error;
 
   @override
@@ -27,6 +30,8 @@ class _AISampleAppState extends State<AISampleApp> {
     super.initState();
     if (AppCredentials.hasValidCredentials) {
       _initCometChat();
+    } else {
+      setState(() => _isInitialized = true);
     }
   }
 
@@ -38,22 +43,20 @@ class _AISampleAppState extends State<AISampleApp> {
         ..autoEstablishSocketConnection = true
         ..appId = AppCredentials.appId
         ..authKey = AppCredentials.authKey;
-
-      final uiKitSettings = settingsBuilder.build();
-
       CometChatUIKit.init(
-        uiKitSettings: uiKitSettings,
-        onSuccess: (message) {
-          debugPrint('✅ CometChat initialized: $message');
-          if (mounted) setState(() => _isInitialized = true);
+        uiKitSettings: settingsBuilder.build(),
+        onSuccess: (message) async {
+          final cachedUser = await CometChatUIKit.getLoggedInUser();
+          if (mounted) setState(() {
+            _isLoggedIn = cachedUser != null;
+            _isInitialized = true;
+          });
         },
         onError: (error) {
-          debugPrint('❌ CometChat init error: ${error.code} - ${error.message}');
           if (mounted) setState(() => _error = error.toString());
         },
       );
     } catch (e) {
-      debugPrint('❌ Exception during CometChat init: $e');
       if (mounted) setState(() => _error = e.toString());
     }
   }
@@ -70,10 +73,7 @@ class _AISampleAppState extends State<AISampleApp> {
         brightness: Brightness.light,
       ),
       darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
         useMaterial3: true,
         brightness: Brightness.dark,
       ),
@@ -83,52 +83,20 @@ class _AISampleAppState extends State<AISampleApp> {
   }
 
   Widget _buildHome() {
-    // No credentials — show credentials entry screen
+    if (_error != null) {
+      return Scaffold(body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Icon(Icons.error, size: 48, color: Colors.red),
+        const SizedBox(height: 16),
+        Text('Error: $_error'),
+        ElevatedButton(onPressed: _initCometChat, child: const Text('Retry')),
+      ])));
+    }
+    if (!_isInitialized) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     if (!AppCredentials.hasValidCredentials) {
       return const AppCredentialsScreen();
     }
-
-    // Error during init
-    if (_error != null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('Error: $_error'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() => _error = null);
-                  _initCometChat();
-                },
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Still initializing
-    if (!_isInitialized) {
-      return const Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Initializing CometChat...'),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Initialized — check session
-    return const GuardScreen();
+    return _isLoggedIn ? const GuardScreen() : const GuardScreen();
   }
 }

@@ -6,8 +6,8 @@ import '../di/conversations_service_locator.dart';
 import 'conversations_event.dart';
 import 'conversations_state.dart';
 import '../../../../shared_ui/cometchat_uikit_shared.dart';
-import '../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../shared/list_base.dart';
+import '../conversations_builder_protocol.dart';
 
 /// BLoC for managing conversations list
 ///
@@ -100,6 +100,21 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   final bool receiptsVisibility;
   final bool includeBlockedUsers;
 
+  /// Caller-provided request builder. Its filter fields (tags, userTags,
+  /// groupTags, withTags, withUserAndGroupTags, includeBlockedUsers,
+  /// withBlockedInfo, conversationType, unread) are applied to the initial
+  /// fetch, pagination fetch, and the realtime-add predicate.
+  final ConversationsRequestBuilder? conversationsRequestBuilder;
+
+  /// Caller-provided builder protocol. If supplied, its [getRequest] result
+  /// takes precedence over [conversationsRequestBuilder].
+  final ConversationsBuilderProtocol? conversationsProtocol;
+
+  /// Effective builder resolved from [conversationsProtocol] (preferred) or
+  /// [conversationsRequestBuilder]. Cached so we don't call
+  /// `protocol.getRequest()` on every event.
+  ConversationsRequestBuilder? _effectiveRequestBuilder;
+
   /// Whether to disable SDK listeners (for web platform where native SDK is unavailable)
   final bool disableSDKListeners;
 
@@ -155,6 +170,8 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     this.includeBlockedUsers = false,
     this.visibleItemThreshold = 30,
     this.disableSDKListeners = false,
+    this.conversationsRequestBuilder,
+    this.conversationsProtocol,
   }) : getLoggedInUserUseCase = getLoggedInUserUseCase ?? _getServiceLocator().getLoggedInUserUseCase,
         getConversationUseCase = getConversationUseCase ?? _getServiceLocator().getConversationUseCase,
         markAsDeliveredUseCase = markAsDeliveredUseCase ?? _getServiceLocator().markAsDeliveredUseCase,
@@ -162,6 +179,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
         getConversationsUseCase = getConversationsUseCase ?? _getServiceLocator().getConversationsUseCase,
         loadMoreConversationsUseCase = loadMoreConversationsUseCase ?? _getServiceLocator().loadMoreConversationsUseCase,
         super(const ConversationsInitial()) {
+    // Resolve effective request builder once. Protocol wins over direct builder.
+    _effectiveRequestBuilder =
+        conversationsProtocol?.requestBuilder ?? conversationsRequestBuilder;
     // Register event handlers
     on<LoadConversations>(_onLoadConversations);
     on<LoadMoreConversations>(_onLoadMoreConversations);
@@ -193,6 +213,91 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
     // Initialize logged in user and register SDK listeners
     _initializeAndRegisterListeners();
+  }
+
+  /// Build a ConversationsRequestBuilder seeded from the effective
+  /// caller-provided builder (if any), then stamp [limit]/[fromId].
+  /// Mirrors the pattern used by SearchBloc._searchConversations.
+  ConversationsRequestBuilder _buildRequestBuilder({
+    required int limit,
+    String? fromId,
+  }) {
+    final builder = ConversationsRequestBuilder();
+    final source = _effectiveRequestBuilder;
+    if (source != null) {
+      builder.withUserAndGroupTags = source.withUserAndGroupTags;
+      builder.withTags = source.withTags;
+      builder.tags = source.tags;
+      builder.includeBlockedUsers = source.includeBlockedUsers;
+      builder.withBlockedInfo = source.withBlockedInfo;
+      builder.userTags = source.userTags;
+      builder.groupTags = source.groupTags;
+      builder.conversationType = source.conversationType;
+      builder.unread = source.unread;
+    }
+    builder.limit = limit;
+    return builder;
+  }
+
+  /// Returns `true` if [conversation] is compatible with the caller-provided
+  /// filter (i.e. safe to add/update from the realtime SDK listener).
+  ///
+  /// Only enforces constraints we can evaluate client-side without a round
+  /// trip: conversation type (user vs group) and, when the corresponding
+  /// User/Group object carries `tags`, the tag filters. When we can't tell
+  /// (no effective builder, or the SDK payload doesn't expose tags), we err
+  /// on the side of keeping the conversation — this matches the previous
+  /// behavior and avoids silently dropping messages in the unfiltered case.
+  bool _matchesFilter(Conversation conversation) {
+    final source = _effectiveRequestBuilder;
+    if (source == null) return true;
+
+    // Conversation type filter (user vs group).
+    if (source.conversationType != null &&
+        source.conversationType!.isNotEmpty &&
+        conversation.conversationType != source.conversationType) {
+      return false;
+    }
+
+    final tagsToMatch = <String>{};
+    final withObj = conversation.conversationWith;
+
+    if (withObj is Group) {
+      final groupTags = source.groupTags;
+      if (groupTags != null && groupTags.isNotEmpty) {
+        final objTags = withObj.tags;
+        if (objTags == null || !_anyMatch(objTags, groupTags)) {
+          return false;
+        }
+      }
+      if (source.withUserAndGroupTags == true || source.withTags == true) {
+        final tags = source.tags;
+        if (tags != null && tags.isNotEmpty) tagsToMatch.addAll(tags);
+      }
+      if (tagsToMatch.isNotEmpty) {
+        final objTags = withObj.tags;
+        if (objTags == null || !_anyMatch(objTags, tagsToMatch.toList())) {
+          return false;
+        }
+      }
+    } else if (withObj is User) {
+      final userTags = source.userTags;
+      if (userTags != null && userTags.isNotEmpty) {
+        final objTags = withObj.tags;
+        if (objTags == null || !_anyMatch(objTags, userTags)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  bool _anyMatch(List<String> actual, List<String> expected) {
+    for (final e in expected) {
+      if (actual.contains(e)) return true;
+    }
+    return false;
   }
 
   // ============================================================
@@ -422,7 +527,11 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     }
 
     if (getConversationsUseCase != null) {
-      final result = await getConversationsUseCase!(limit: 30);
+      final effectiveLimit = _effectiveRequestBuilder?.limit ?? 30;
+      final result = await getConversationsUseCase!(
+        limit: effectiveLimit,
+        requestBuilder: _effectiveRequestBuilder,
+      );
 
       if (result is Success<List<Conversation>>) {
         final conversations = result.data;
@@ -441,7 +550,8 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
       }
     } else {
       try {
-        final requestBuilder = ConversationsRequestBuilder()..limit = 30;
+        final effectiveLimit = _effectiveRequestBuilder?.limit ?? 30;
+        final requestBuilder = _buildRequestBuilder(limit: effectiveLimit);
         _conversationsRequest = requestBuilder.build();
 
         final completer = Completer<List<Conversation>>();
@@ -515,6 +625,7 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
         limit: 30,
         fromId: lastConversationId,
         currentConversations: currentState.conversations,
+        requestBuilder: _effectiveRequestBuilder,
       );
 
       _isLoadingMore = false;
@@ -1070,6 +1181,11 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     );
 
     if (result is Success<Conversation>) {
+      // Don't leak conversations that don't satisfy the caller-provided
+      // filter. Existing conversations in the list already passed this
+      // check at load time; this only applies to conversations appearing
+      // for the first time via the realtime SDK listener.
+      if (!_matchesFilter(result.data)) return;
       add(_MessageReceivedUpdate(result.data));
     }
   }

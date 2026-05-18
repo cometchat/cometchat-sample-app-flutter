@@ -173,6 +173,99 @@ void main() {
       },
     );
 
+    blocTest<ConversationsBloc, ConversationsState>(
+      'DeleteConversation calls repository with correct conversation ID',
+      build: () {
+        final convs = [FakeConversation('user_abc'), FakeConversation('user_xyz')];
+        when(() => repo.getConversations(limit: any(named: 'limit')))
+            .thenAnswer((_) async => Success(convs));
+        when(() => repo.deleteConversation(any()))
+            .thenAnswer((_) async => const Success(null));
+        return _makeBloc(repo);
+      },
+      act: (bloc) async {
+        bloc.add(const LoadConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+        bloc.add(const DeleteConversation('user_abc'));
+        await Future.delayed(const Duration(milliseconds: 50));
+      },
+      verify: (bloc) {
+        verify(() => repo.deleteConversation('user_abc')).called(1);
+      },
+    );
+
+    blocTest<ConversationsBloc, ConversationsState>(
+      'DeleteConversation keeps conversation in list when SDK delete fails',
+      build: () {
+        final convs = [FakeConversation('user_keep'), FakeConversation('user_other')];
+        when(() => repo.getConversations(limit: any(named: 'limit')))
+            .thenAnswer((_) async => Success(convs));
+        when(() => repo.deleteConversation(any()))
+            .thenAnswer((_) async => const Failure(message: 'Network error'));
+        return _makeBloc(repo);
+      },
+      act: (bloc) async {
+        bloc.add(const LoadConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+        bloc.add(const DeleteConversation('user_keep'));
+        await Future.delayed(const Duration(milliseconds: 50));
+      },
+      verify: (bloc) {
+        final state = bloc.state as ConversationsLoaded;
+        // Conversation should still be in the list since delete failed
+        final ids = state.conversations.map((c) => c.conversationId).toList();
+        expect(ids, contains('user_keep'));
+      },
+    );
+
+    blocTest<ConversationsBloc, ConversationsState>(
+      'DeleteConversation on last remaining conversation transitions to Empty',
+      build: () {
+        final convs = [FakeConversation('only_one')];
+        when(() => repo.getConversations(limit: any(named: 'limit')))
+            .thenAnswer((_) async => Success(convs));
+        when(() => repo.deleteConversation(any()))
+            .thenAnswer((_) async => const Success(null));
+        return _makeBloc(repo);
+      },
+      act: (bloc) async {
+        bloc.add(const LoadConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+        bloc.add(const DeleteConversation('only_one'));
+        await Future.delayed(const Duration(milliseconds: 50));
+      },
+      verify: (bloc) {
+        final s = bloc.state;
+        if (s is ConversationsLoaded) {
+          expect(s.conversations, isEmpty);
+        } else {
+          expect(s, isA<ConversationsEmpty>());
+        }
+      },
+    );
+
+    blocTest<ConversationsBloc, ConversationsState>(
+      'DeleteConversation with non-existent ID is a no-op',
+      build: () {
+        final convs = [FakeConversation('existing_1'), FakeConversation('existing_2')];
+        when(() => repo.getConversations(limit: any(named: 'limit')))
+            .thenAnswer((_) async => Success(convs));
+        when(() => repo.deleteConversation(any()))
+            .thenAnswer((_) async => const Success(null));
+        return _makeBloc(repo);
+      },
+      act: (bloc) async {
+        bloc.add(const LoadConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+        bloc.add(const DeleteConversation('non_existent_id'));
+        await Future.delayed(const Duration(milliseconds: 50));
+      },
+      verify: (bloc) {
+        final state = bloc.state as ConversationsLoaded;
+        expect(state.conversations.length, 2);
+      },
+    );
+
     // -----------------------------------------------------------------------
     // SetActiveConversation
     // -----------------------------------------------------------------------
@@ -219,6 +312,214 @@ void main() {
         expect(state.conversations.length, 1);
       },
     );
+
+    // -----------------------------------------------------------------------
+    // Regression: removing the only conversation transitions to Empty state.
+    // Discovered by PBT (ENG-34976) — single-element IndexedList edge case.
+    // -----------------------------------------------------------------------
+
+    blocTest<ConversationsBloc, ConversationsState>(
+      'RemoveConversation on last remaining conversation transitions to Empty',
+      build: () {
+        final convs = [FakeConversation('only_conv')];
+        when(() => repo.getConversations(limit: any(named: 'limit')))
+            .thenAnswer((_) async => Success(convs));
+        return _makeBloc(repo);
+      },
+      act: (bloc) async {
+        bloc.add(const LoadConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+        bloc.add(const RemoveConversation('only_conv'));
+        await Future.delayed(const Duration(milliseconds: 20));
+      },
+      verify: (bloc) {
+        // Either Empty, or Loaded with 0 items — both are acceptable, but the
+        // property test caught that it is not necessarily Loaded.
+        final s = bloc.state;
+        if (s is ConversationsLoaded) {
+          expect(s.conversations, isEmpty);
+        } else {
+          expect(s, isA<ConversationsEmpty>());
+        }
+      },
+    );
+
+    // -----------------------------------------------------------------------
+    // LoadMoreConversations
+    // -----------------------------------------------------------------------
+    //
+    // Positive append-on-load-more is exercised via the LoadMoreConversationsUseCase
+    // unit tests (see conversations_use_cases_test.dart). Here we only verify the
+    // bloc's guard conditions — that load-more is a no-op when the state cannot
+    // accept more.
+
+    blocTest<ConversationsBloc, ConversationsState>(
+      'ignores LoadMoreConversations when not loaded',
+      build: () => _makeBloc(repo),
+      act: (bloc) => bloc.add(const LoadMoreConversations()),
+      expect: () => <ConversationsState>[],
+    );
+
+    blocTest<ConversationsBloc, ConversationsState>(
+      'ignores LoadMoreConversations when hasMore is false',
+      build: () {
+        final initial = [FakeConversation('c1')];
+        when(() => repo.getConversations(limit: any(named: 'limit')))
+            .thenAnswer((_) async => Success(initial));
+        return _makeBloc(repo);
+      },
+      act: (bloc) async {
+        bloc.add(const LoadConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+        bloc.add(const LoadMoreConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+      },
+      verify: (bloc) {
+        // paged repo call (with fromId) should never have been issued —
+        // ignoring the initial non-paged LoadConversations call
+        verifyNever(() => repo.getConversations(
+              limit: any(named: 'limit'),
+              fromId: any(named: 'fromId', that: isNotNull),
+            ));
+        final state = bloc.state as ConversationsLoaded;
+        expect(state.conversations.length, 1);
+      },
+    );
+
+    // -----------------------------------------------------------------------
+    // UpdateConversation
+    // -----------------------------------------------------------------------
+
+    blocTest<ConversationsBloc, ConversationsState>(
+      'updates existing conversation in place',
+      build: () {
+        final convs = [FakeConversation('c1'), FakeConversation('c2')];
+        when(() => repo.getConversations(limit: any(named: 'limit')))
+            .thenAnswer((_) async => Success(convs));
+        return _makeBloc(repo);
+      },
+      act: (bloc) async {
+        bloc.add(const LoadConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+        bloc.add(UpdateConversation(
+          conversationId: 'c1',
+          updatedConversation: FakeConversation('c1'),
+        ));
+      },
+      verify: (bloc) {
+        final state = bloc.state as ConversationsLoaded;
+        expect(state.conversations.length, 2);
+      },
+    );
+
+    blocTest<ConversationsBloc, ConversationsState>(
+      'adds conversation when UpdateConversation target does not exist',
+      build: () {
+        final convs = [FakeConversation('c1')];
+        when(() => repo.getConversations(limit: any(named: 'limit')))
+            .thenAnswer((_) async => Success(convs));
+        return _makeBloc(repo);
+      },
+      act: (bloc) async {
+        bloc.add(const LoadConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+        bloc.add(UpdateConversation(
+          conversationId: 'c_new',
+          updatedConversation: FakeConversation('c_new'),
+        ));
+      },
+      verify: (bloc) {
+        final state = bloc.state as ConversationsLoaded;
+        expect(state.conversations.length, 2);
+      },
+    );
+
+    // -----------------------------------------------------------------------
+    // Selection events
+    // -----------------------------------------------------------------------
+
+    blocTest<ConversationsBloc, ConversationsState>(
+      'toggles selection on/off and clears selection',
+      build: () {
+        final convs = [FakeConversation('c1'), FakeConversation('c2')];
+        when(() => repo.getConversations(limit: any(named: 'limit')))
+            .thenAnswer((_) async => Success(convs));
+        return _makeBloc(repo);
+      },
+      act: (bloc) async {
+        bloc.add(const LoadConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+        bloc.add(const ToggleConversationSelection('c1'));
+        bloc.add(const ToggleConversationSelection('c2'));
+        bloc.add(const ToggleConversationSelection('c1')); // toggle off
+      },
+      verify: (bloc) {
+        final state = bloc.state as ConversationsLoaded;
+        expect(state.selectedConversations, {'c2'});
+      },
+    );
+
+    blocTest<ConversationsBloc, ConversationsState>(
+      'ClearConversationSelection empties the selection set',
+      build: () {
+        final convs = [FakeConversation('c1')];
+        when(() => repo.getConversations(limit: any(named: 'limit')))
+            .thenAnswer((_) async => Success(convs));
+        return _makeBloc(repo);
+      },
+      act: (bloc) async {
+        bloc.add(const LoadConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+        bloc.add(const ToggleConversationSelection('c1'));
+        bloc.add(const ClearConversationSelection());
+      },
+      verify: (bloc) {
+        final state = bloc.state as ConversationsLoaded;
+        expect(state.selectedConversations, isEmpty);
+      },
+    );
+
+    // -----------------------------------------------------------------------
+    // RefreshConversations — silently reloads (no loading state)
+    // -----------------------------------------------------------------------
+
+    blocTest<ConversationsBloc, ConversationsState>(
+      'RefreshConversations reloads without emitting Loading',
+      build: () {
+        final convs = [FakeConversation('c1')];
+        when(() => repo.getConversations(limit: any(named: 'limit')))
+            .thenAnswer((_) async => Success(convs));
+        return _makeBloc(repo);
+      },
+      act: (bloc) async {
+        bloc.add(const LoadConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+        bloc.add(const RefreshConversations());
+        await Future.delayed(const Duration(milliseconds: 50));
+      },
+      verify: (bloc) {
+        expect(bloc.state, isA<ConversationsLoaded>());
+      },
+    );
+
+    // -----------------------------------------------------------------------
+    // Typing notifiers (non-BLoC state, but exposed by the bloc)
+    // -----------------------------------------------------------------------
+
+    test('getTypingNotifier returns the same notifier for the same id', () {
+      final bloc = _makeBloc(repo);
+      final a = bloc.getTypingNotifier('c1');
+      final b = bloc.getTypingNotifier('c1');
+      expect(identical(a, b), isTrue);
+      expect(a.value, isEmpty);
+      bloc.close();
+    });
+
+    test('getTypingIndicators returns empty list for unknown id', () {
+      final bloc = _makeBloc(repo);
+      expect(bloc.getTypingIndicators('does_not_exist'), isEmpty);
+      bloc.close();
+    });
 
 
   });

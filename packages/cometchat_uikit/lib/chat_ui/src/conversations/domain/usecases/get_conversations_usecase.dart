@@ -13,11 +13,16 @@ class GetConversationsUseCase {
   /// 
   /// [limit] - Maximum number of conversations to fetch (default: 30)
   /// [fromId] - ID to start pagination from (optional)
-  /// 
+  /// [requestBuilder] - Optional caller-provided builder whose filter fields
+  ///   (tags, userTags, groupTags, withTags, withUserAndGroupTags,
+  ///   includeBlockedUsers, withBlockedInfo, conversationType, unread)
+  ///   are forwarded to the repository.
+  ///
   /// Returns Result<List<Conversation>> containing conversations or failure
   Future<Result<List<Conversation>>> call({
     int limit = 30,
     String? fromId,
+    ConversationsRequestBuilder? requestBuilder,
   }) async {
     // Validate input parameters
     if (limit <= 0) {
@@ -38,6 +43,7 @@ class GetConversationsUseCase {
     return await repository.getConversations(
       limit: limit,
       fromId: fromId,
+      requestBuilder: requestBuilder,
     );
   }
 }

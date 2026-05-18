@@ -88,7 +88,7 @@ class AssetConstants {
   static const callNoFill = "assets/icons/call_no_fill.png";
   static const stickerFilled = "assets/icons/sticker_filled.png";
   static const collaborativeDocumentFilled = "assets/icons/collaborative_document_filled.png";
-  static const collaborativeWhiteBoardFilled = "assets/icons/collaborative_whiteboard_filled.png";
+  static const collaborativeWhiteBoardFilled = "assets/icons/2x/collaborative_whiteboard_filled.png";
   static const shareOutlined = "assets/icons/share_outline.png";
   static const mediaLoading = "assets/icons/media_loading.png";
   static const videoPlaceholder = "assets/icons/video_placeholder.png";

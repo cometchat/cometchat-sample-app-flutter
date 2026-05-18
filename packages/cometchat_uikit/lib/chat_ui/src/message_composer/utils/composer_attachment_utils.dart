@@ -198,6 +198,7 @@ class ComposerAttachmentUtils {
       icon: Image.asset(
         AssetConstants.collaborativeWhiteBoardFilled,
         package: UIConstants.packageName,
+        colorBlendMode: BlendMode.srcATop,
         color: style?.iconColor ?? colorPalette.iconHighlight,
         height: 24,
         width: 24,

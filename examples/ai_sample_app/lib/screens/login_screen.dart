@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import 'package:cometchat_chat_uikit/cometchat_calls_uikit.dart';
+import 'ai_agents_screen.dart';
 import '../models/user_model.dart';
 import '../services/api_services.dart';
 import '../utils/ui_utils.dart';
-import 'ai_agents_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -64,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       await CometChatUIKit.login(userId, onSuccess: (User loggedInUser) async {
         debugPrint("Login Successful: $loggedInUser");
+        await _waitForCallsSdk();
         if (mounted) _navigateToHome();
       }, onError: (CometChatException e) {
         debugPrint("Login failed: ${e.message}");
@@ -87,75 +89,148 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Future<void> _waitForCallsSdk() async {
+    await CallEventService.instance.waitForCallsSdk();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colorPalette.background2,
       body: GestureDetector(
         onTap: () => removeFocus(context, _focusNode),
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: spacing.padding10 ?? 40,
-            left: spacing.padding4 ?? 16,
-            right: spacing.padding4 ?? 16,
-            bottom: spacing.padding5 ?? 20,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
+        child: Stack(
+          children: [
+            // Dotted pattern background
+            Positioned.fill(child: _buildDottedBackground()),
+            // Main content
+            SafeArea(
+              child: Center(
                 child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: spacing.padding5 ?? 20,
+                    vertical: spacing.padding5 ?? 20,
+                  ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // CometChat logo
                       Padding(
-                        padding: EdgeInsets.only(top: spacing.padding10 ?? 40),
+                        padding: EdgeInsets.only(bottom: spacing.padding8 ?? 32),
                         child: Image.asset(
                           'assets/cometchat_logo_with_text.png',
                           color: colorPalette.textPrimary,
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(top: spacing.padding10 ?? 40),
-                        child: Center(
-                          child: Text(
-                            "Log In",
-                            style: TextStyle(
-                              color: colorPalette.textPrimary,
-                              fontSize: typography.heading2?.bold?.fontSize,
-                              fontFamily: typography.heading2?.bold?.fontFamily,
-                              fontWeight: typography.heading2?.bold?.fontWeight,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: spacing.padding5 ?? 20,
-                          bottom: spacing.padding2 ?? 4,
-                        ),
-                        child: Text(
-                          "Choose a Sample User",
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                            color: colorPalette.textPrimary,
-                            fontSize: typography.body?.medium?.fontSize,
-                            fontFamily: typography.body?.medium?.fontFamily,
-                            fontWeight: typography.body?.medium?.fontWeight,
-                          ),
-                        ),
-                      ),
-                      _buildUserGrid(),
-                      _buildOrDivider(),
-                      _buildUidField(),
+                      // Card container
+                      _buildLoginCard(),
                     ],
                   ),
                 ),
               ),
-              _buildContinueButton(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Dotted pattern background
+  Widget _buildDottedBackground() {
+    return CustomPaint(
+      painter: _DottedPatternPainter(
+        dotColor: colorPalette.borderLight ?? Colors.grey.withValues(alpha: 0.3),
+      ),
+    );
+  }
+
+  /// Main login card with border, shadow, and rounded corners
+  Widget _buildLoginCard() {
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: ShapeDecoration(
+        color: colorPalette.background1,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+            width: 1,
+            color: colorPalette.borderDefault ?? const Color(0xFFE8E8E8),
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        shadows: const [
+          BoxShadow(
+            color: Color(0x07101828),
+            blurRadius: 6,
+            offset: Offset(0, 4),
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Color(0x14101828),
+            blurRadius: 16,
+            offset: Offset(0, 12),
+            spreadRadius: -4,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        spacing: 20,
+        children: [
+          // Title
+          Center(
+            child: Text(
+              "Sign in to cometchat",
+              style: TextStyle(
+                color: colorPalette.textPrimary,
+                fontSize: typography.heading2?.bold?.fontSize,
+                fontFamily: typography.heading2?.bold?.fontFamily,
+                fontWeight: typography.heading2?.bold?.fontWeight,
+              ),
+            ),
+          ),
+          // Subtitle + User grid
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            spacing: 8,
+            children: [
+              Text(
+                "Using our sample users",
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  color: colorPalette.textSecondary,
+                  fontSize: typography.body?.medium?.fontSize,
+                  fontFamily: typography.body?.medium?.fontFamily,
+                  fontWeight: typography.body?.medium?.fontWeight,
+                ),
+              ),
+              _buildUserGrid(),
             ],
           ),
-        ),
+          // Or divider
+          _buildOrDivider(),
+          // UID field + Button + Bottom text
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            spacing: 20,
+            children: [
+              _buildUidField(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                spacing: 20,
+                children: [
+                  _buildContinueButton(),
+                  _buildBottomText(),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -227,11 +302,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: isSelected
                               ? colorPalette.extendedPrimary50
                               : colorPalette.background1,
-                          borderRadius: BorderRadius.circular(spacing.radius2 ?? 8),
+                          borderRadius:
+                              BorderRadius.circular(spacing.radius2 ?? 8),
                           border: Border.all(
                             color: isSelected
-                                ? (colorPalette.borderHighlight ?? Colors.transparent)
-                                : (colorPalette.borderLight ?? Colors.transparent),
+                                ? (colorPalette.borderHighlight ??
+                                    Colors.transparent)
+                                : (colorPalette.borderLight ??
+                                    Colors.transparent),
                             width: 1,
                           ),
                         ),
@@ -241,7 +319,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: EdgeInsets.only(bottom: spacing.padding2 ?? 8),
+                                padding: EdgeInsets.only(
+                                    bottom: spacing.padding2 ?? 8),
                                 child: CometChatAvatar(
                                   name: user.username,
                                   image: user.imageURL,
@@ -251,25 +330,34 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: Text(
                                   user.username,
                                   textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     color: colorPalette.textPrimary,
-                                    fontSize: typography.body?.medium?.fontSize,
-                                    fontFamily: typography.body?.medium?.fontFamily,
-                                    fontWeight: typography.body?.medium?.fontWeight,
+                                    fontSize:
+                                        typography.body?.medium?.fontSize,
+                                    fontFamily:
+                                        typography.body?.medium?.fontFamily,
+                                    fontWeight:
+                                        typography.body?.medium?.fontWeight,
                                   ),
                                 ),
                               ),
                               Expanded(
                                 child: Padding(
-                                  padding: EdgeInsets.only(top: spacing.padding1 ?? 4),
+                                  padding: EdgeInsets.only(
+                                      top: spacing.padding1 ?? 4),
                                   child: Text(
                                     user.userId,
-                                    textAlign: TextAlign.start,
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       color: colorPalette.textSecondary,
-                                      fontSize: typography.caption1?.regular?.fontSize,
-                                      fontFamily: typography.caption1?.regular?.fontFamily,
-                                      fontWeight: typography.caption1?.regular?.fontWeight,
+                                      fontSize: typography
+                                          .caption1?.regular?.fontSize,
+                                      fontFamily: typography
+                                          .caption1?.regular?.fontFamily,
+                                      fontWeight: typography
+                                          .caption1?.regular?.fontWeight,
                                     ),
                                   ),
                                 ),
@@ -283,16 +371,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           right: 0,
                           top: 0,
                           child: Container(
-                            padding: EdgeInsets.all(spacing.padding ?? 8),
+                            padding: EdgeInsets.all(spacing.padding ?? 4),
                             decoration: BoxDecoration(
                               color: colorPalette.iconHighlight,
                               borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(spacing.radius2 ?? 8),
-                                topRight: Radius.circular(spacing.radius2 ?? 8),
+                                bottomLeft:
+                                    Radius.circular(spacing.radius2 ?? 8),
+                                topRight:
+                                    Radius.circular(spacing.radius2 ?? 8),
                               ),
                             ),
                             child: Center(
-                              child: Icon(Icons.check, color: colorPalette.white, size: 15),
+                              child: Icon(Icons.check,
+                                  color: colorPalette.white, size: 14),
                             ),
                           ),
                         ),
@@ -302,8 +393,8 @@ class _LoginScreenState extends State<LoginScreen> {
               },
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
-                crossAxisSpacing: spacing.padding1 ?? 8,
-                mainAxisSpacing: spacing.padding1 ?? 8,
+                crossAxisSpacing: spacing.padding2 ?? 8,
+                mainAxisSpacing: spacing.padding2 ?? 8,
               ),
             );
           },
@@ -313,35 +404,35 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildOrDivider() {
-    return Padding(
-      padding: EdgeInsets.only(
-        top: spacing.padding2 ?? 4,
-        bottom: spacing.padding5 ?? 20,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Divider(color: colorPalette.borderDefault, thickness: 1),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Divider(
+            color: colorPalette.borderDefault ?? const Color(0xFFE8E8E8),
+            thickness: 1,
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: spacing.padding2 ?? 4),
-            child: Text(
-              "Or",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: colorPalette.textTertiary,
-                fontSize: typography.body?.medium?.fontSize,
-                fontFamily: typography.body?.medium?.fontFamily,
-                fontWeight: typography.body?.medium?.fontWeight,
-              ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            "Or",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: colorPalette.textTertiary ?? const Color(0xFFA1A1A1),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              height: 1.20,
             ),
           ),
-          Expanded(
-            child: Divider(color: colorPalette.borderDefault, thickness: 1),
+        ),
+        Expanded(
+          child: Divider(
+            color: colorPalette.borderDefault ?? const Color(0xFFE8E8E8),
+            thickness: 1,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -350,67 +441,69 @@ class _LoginScreenState extends State<LoginScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: spacing.padding1 ?? 4),
+          padding: const EdgeInsets.only(bottom: 4),
           child: Text(
-            "Enter UID",
+            "UID",
             textAlign: TextAlign.start,
             style: TextStyle(
-              color: colorPalette.textPrimary,
-              fontSize: typography.caption1?.medium?.fontSize,
-              fontFamily: typography.caption1?.medium?.fontFamily,
-              fontWeight: typography.caption1?.medium?.fontWeight,
+              color: colorPalette.textPrimary ?? const Color(0xFF141414),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              height: 1.20,
             ),
           ),
         ),
-        TextFormField(
-          controller: _uidController,
-          focusNode: _focusNode,
-          keyboardAppearance: CometChatThemeHelper.getBrightness(context),
-          onChanged: (value) {
-            if (value.isNotEmpty) _selectedUserNotifier.value = null;
-          },
-          style: TextStyle(
-            color: colorPalette.textPrimary,
-            fontSize: typography.body?.regular?.fontSize,
-            fontFamily: typography.body?.regular?.fontFamily,
-            fontWeight: typography.body?.regular?.fontWeight,
-          ),
-          decoration: InputDecoration(
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(
-              vertical: spacing.padding2 ?? 0,
-              horizontal: spacing.padding2 ?? 0,
+        SizedBox(
+          height: 36,
+          child: TextFormField(
+            controller: _uidController,
+            focusNode: _focusNode,
+            keyboardAppearance: CometChatThemeHelper.getBrightness(context),
+            onChanged: (value) {
+              if (value.isNotEmpty) _selectedUserNotifier.value = null;
+            },
+            style: TextStyle(
+              color: colorPalette.textPrimary,
+              fontSize: 14,
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+              height: 1.20,
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
-              borderSide: BorderSide(
-                width: 2,
-                color: colorPalette.borderLight ?? Colors.transparent,
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: const EdgeInsets.all(8),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  width: 1,
+                  color: colorPalette.borderLight ?? const Color(0xFFF5F5F5),
+                ),
               ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
-              borderSide: BorderSide(
-                width: 2,
-                color: colorPalette.borderLight ?? Colors.transparent,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  width: 1,
+                  color: colorPalette.borderLight ?? const Color(0xFFF5F5F5),
+                ),
               ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
-              borderSide: BorderSide(
-                width: 2,
-                color: colorPalette.borderLight ?? Colors.transparent,
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  width: 1.5,
+                  color: colorPalette.primary ?? const Color(0xFF6852D6),
+                ),
               ),
+              hintText: "Enter the UID",
+              hintStyle: TextStyle(
+                color: colorPalette.textTertiary ?? const Color(0xFFA1A1A1),
+                fontSize: 14,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w400,
+                height: 1.20,
+              ),
+              filled: true,
+              fillColor: colorPalette.background2 ?? const Color(0xFFFAFAFA),
             ),
-            hintText: "Enter UID",
-            hintStyle: TextStyle(
-              color: colorPalette.textTertiary,
-              fontSize: typography.body?.regular?.fontSize,
-              fontFamily: typography.body?.regular?.fontFamily,
-              fontWeight: typography.body?.regular?.fontWeight,
-            ),
-            filled: true,
-            fillColor: colorPalette.background2,
           ),
         ),
       ],
@@ -418,22 +511,27 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildContinueButton() {
-    return Padding(
-      padding: EdgeInsets.only(bottom: spacing.padding5 ?? 20),
+    return SizedBox(
+      width: double.infinity,
+      height: 40,
       child: ElevatedButton(
-        onPressed: () {
-          removeFocus(context, _focusNode);
-          if (_selectedUserNotifier.value == null && _uidController.text.isEmpty) {
-            showErrorSnackBar(context, "Please enter a valid UID", typography, colorPalette);
-            return;
-          }
-          if (_selectedUserNotifier.value != null &&
-              _selectedUserNotifier.value!.userId.isNotEmpty) {
-            _loginUser(_selectedUserNotifier.value!.userId);
-          } else if (_uidController.text.isNotEmpty) {
-            _loginUser(_uidController.text);
-          }
-        },
+        onPressed: _isLoading
+            ? null
+            : () {
+                removeFocus(context, _focusNode);
+                if (_selectedUserNotifier.value == null &&
+                    _uidController.text.isEmpty) {
+                  showErrorSnackBar(context, "Please enter a valid UID",
+                      typography, colorPalette);
+                  return;
+                }
+                if (_selectedUserNotifier.value != null &&
+                    _selectedUserNotifier.value!.userId.isNotEmpty) {
+                  _loginUser(_selectedUserNotifier.value!.userId);
+                } else if (_uidController.text.isNotEmpty) {
+                  _loginUser(_uidController.text);
+                }
+              },
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.all(colorPalette.primary),
           shape: WidgetStateProperty.all(
@@ -441,34 +539,87 @@ class _LoginScreenState extends State<LoginScreen> {
               borderRadius: BorderRadius.circular(spacing.radius2 ?? 8),
             ),
           ),
-          padding: WidgetStateProperty.all(
-            EdgeInsets.symmetric(
-              vertical: spacing.padding2 ?? 8,
-              horizontal: spacing.padding5 ?? 20,
-            ),
-          ),
+          elevation: WidgetStateProperty.all(0),
         ),
-        child: Center(
-          child: _isLoading
-              ? SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                        colorPalette.white ?? Colors.white),
-                  ),
-                )
-              : Text(
-                  "Continue",
-                  style: TextStyle(
-                    color: colorPalette.buttonIconColor,
-                    fontSize: typography.button?.medium?.fontSize,
-                    fontFamily: typography.button?.medium?.fontFamily,
-                    fontWeight: typography.button?.medium?.fontWeight,
-                  ),
+        child: _isLoading
+            ? SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      colorPalette.white ?? Colors.white),
                 ),
-        ),
+              )
+            : Text(
+                "Continue",
+                style: TextStyle(
+                  color: colorPalette.buttonIconColor,
+                  fontSize: typography.button?.medium?.fontSize,
+                  fontFamily: typography.button?.medium?.fontFamily,
+                  fontWeight: typography.button?.medium?.fontWeight,
+                ),
+              ),
       ),
     );
+  }
+
+  /// "Don't have an UID? App Credentials" bottom text
+  Widget _buildBottomText() {
+    return Center(
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: "Don\u2019t have an UID? ",
+              style: TextStyle(
+                color: colorPalette.textSecondary,
+                fontSize: typography.body?.regular?.fontSize,
+                fontFamily: typography.body?.regular?.fontFamily,
+                fontWeight: typography.body?.regular?.fontWeight,
+              ),
+            ),
+            TextSpan(
+              text: "App Credentials",
+              style: TextStyle(
+                color: colorPalette.primary,
+                fontSize: typography.body?.medium?.fontSize,
+                fontFamily: typography.body?.medium?.fontFamily,
+                fontWeight: typography.body?.medium?.fontWeight,
+              ),
+            ),
+          ],
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+/// Custom painter for dotted background pattern
+class _DottedPatternPainter extends CustomPainter {
+  final Color dotColor;
+
+  _DottedPatternPainter({required this.dotColor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = dotColor
+      ..style = PaintingStyle.fill;
+
+    const double spacing = 24.0;
+    const double radius = 1.2;
+
+    for (double x = 0; x < size.width; x += spacing) {
+      for (double y = 0; y < size.height; y += spacing) {
+        canvas.drawCircle(Offset(x, y), radius, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DottedPatternPainter oldDelegate) {
+    return oldDelegate.dotColor != dotColor;
   }
 }

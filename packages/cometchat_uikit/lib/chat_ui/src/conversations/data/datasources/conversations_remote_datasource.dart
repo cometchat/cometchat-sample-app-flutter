@@ -21,10 +21,18 @@ class RemoteDataSourceException implements Exception {
 /// Abstract interface for conversations remote data source
 /// Handles all interactions with CometChat SDK
 abstract class ConversationsRemoteDataSource {
-  /// Get conversations with optional pagination
+  /// Get conversations with optional pagination.
+  ///
+  /// When [requestBuilder] is supplied, its filter-shaping fields
+  /// (tags, userTags, groupTags, withTags, withUserAndGroupTags,
+  /// includeBlockedUsers, withBlockedInfo, conversationType, unread,
+  /// searchKeyword) are copied into the builder used to execute the
+  /// SDK request. [limit] and [fromId] always win over any values
+  /// present on [requestBuilder] to keep pagination deterministic.
   Future<List<Conversation>> getConversations({
     int limit = 30,
     String? fromId,
+    ConversationsRequestBuilder? requestBuilder,
   });
 
   /// Get a specific conversation by ID
@@ -50,14 +58,32 @@ class ConversationsRemoteDataSourceImpl
   Future<List<Conversation>> getConversations({
     int limit = 30,
     String? fromId,
+    ConversationsRequestBuilder? requestBuilder,
   }) async {
     try {
-      // Create a new request builder
-      final requestBuilder = ConversationsRequestBuilder()
-        ..limit = limit;
+      // Start from a fresh builder so stale state (e.g. `unread` left over
+      // from a previous filtered search) never carries over.
+      final builder = ConversationsRequestBuilder();
+
+      // Copy over any user-provided filter fields. Mirrors SearchBloc._searchConversations.
+      if (requestBuilder != null) {
+        builder.withUserAndGroupTags = requestBuilder.withUserAndGroupTags;
+        builder.withTags = requestBuilder.withTags;
+        builder.tags = requestBuilder.tags;
+        builder.includeBlockedUsers = requestBuilder.includeBlockedUsers;
+        builder.withBlockedInfo = requestBuilder.withBlockedInfo;
+        builder.userTags = requestBuilder.userTags;
+        builder.groupTags = requestBuilder.groupTags;
+        builder.conversationType = requestBuilder.conversationType;
+        builder.unread = requestBuilder.unread;
+        // `searchKeyword` deliberately omitted — search is handled by SearchBloc.
+      }
+
+      // Pagination wins over anything carried on the incoming builder.
+      builder.limit = limit;
 
       // Build the request
-      _currentRequest = requestBuilder.build();
+      _currentRequest = builder.build();
 
       // Create a completer to convert callback-based API to Future
       final completer = Completer<List<Conversation>>();

@@ -14,12 +14,15 @@ class LoadMoreConversationsUseCase {
   /// [limit] - Maximum number of conversations to fetch (default: 30)
   /// [fromId] - ID to start pagination from (required for load more)
   /// [currentConversations] - Currently loaded conversations to prevent duplicates
+  /// [requestBuilder] - Optional caller-provided builder whose filter fields
+  ///   are forwarded to the repository.
   /// 
   /// Returns Result<List<Conversation>> containing additional conversations or failure
   Future<Result<List<Conversation>>> call({
     int limit = 30,
     required String fromId,
     List<Conversation>? currentConversations,
+    ConversationsRequestBuilder? requestBuilder,
   }) async {
     // Validate input parameters
     if (limit <= 0) {
@@ -47,6 +50,7 @@ class LoadMoreConversationsUseCase {
     final result = await repository.getConversations(
       limit: limit,
       fromId: fromId,
+      requestBuilder: requestBuilder,
     );
 
     // Handle deduplication if current conversations are provided

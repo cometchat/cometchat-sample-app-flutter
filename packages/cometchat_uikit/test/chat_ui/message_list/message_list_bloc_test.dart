@@ -50,6 +50,9 @@ class FakeBaseMessage extends Fake implements BaseMessage {
   String get receiverType => 'user';
 
   @override
+  User? get sender => User(uid: 'sender_1', name: 'Sender');
+
+  @override
   int get parentMessageId => 0;
 
   @override

@@ -4,10 +4,16 @@ import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 /// Repository interface for conversations data operations
 /// Defines the contract for conversation data access
 abstract class ConversationsRepository {
-  /// Get conversations with optional pagination
+  /// Get conversations with optional pagination.
+  ///
+  /// When [requestBuilder] is supplied, the caller's filter-shaping fields
+  /// (tags, userTags, groupTags, withTags, withUserAndGroupTags,
+  /// includeBlockedUsers, withBlockedInfo, conversationType, unread) are
+  /// forwarded to the underlying data source.
   Future<Result<List<Conversation>>> getConversations({
     int limit = 30,
     String? fromId,
+    ConversationsRequestBuilder? requestBuilder,
   });
 
   /// Get a specific conversation by ID

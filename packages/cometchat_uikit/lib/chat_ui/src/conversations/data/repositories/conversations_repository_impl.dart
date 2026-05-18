@@ -20,12 +20,14 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
   Future<Result<List<Conversation>>> getConversations({
     int limit = 30,
     String? fromId,
+    ConversationsRequestBuilder? requestBuilder,
   }) async {
     try {
       // Try to fetch from remote data source
       final conversations = await remoteDataSource.getConversations(
         limit: limit,
         fromId: fromId,
+        requestBuilder: requestBuilder,
       );
 
       // Cache the results locally
@@ -90,8 +92,17 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
   @override
   Future<Result<void>> deleteConversation(String conversationId) async {
     try {
-      // Parse conversation ID to extract conversationWith and conversationType
-      // Format is typically: "user_uid" or "group_guid"
+      // Parse conversation ID to extract conversationWith and conversationType.
+      //
+      // The CometChat SDK formats conversationId as:
+      //   "{number}_{type}_{id}"
+      // Examples:
+      //   "1_user_cometchat-uid-1"  → type=user, id=cometchat-uid-1
+      //   "2_group_my-group-guid"   → type=group, id=my-group-guid
+      //
+      // Legacy/test formats without numeric prefix are also supported:
+      //   "user_uid123"             → type=user, id=uid123
+      //   "group_my-group"          → type=group, id=my-group
       final parts = conversationId.split('_');
       if (parts.length < 2) {
         return const Failure(
@@ -100,8 +111,27 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
         );
       }
 
-      final conversationType = parts[0]; // 'user' or 'group'
-      final conversationWith = parts.sublist(1).join('_'); // uid or guid
+      String conversationType;
+      String conversationWith;
+
+      // Find the type token ('user' or 'group') in the parts
+      final typeIndex = parts.indexWhere((p) => p == 'user' || p == 'group');
+      if (typeIndex != -1 && typeIndex < parts.length - 1) {
+        // Found type token — everything after it is the UID/GUID
+        conversationType = parts[typeIndex];
+        conversationWith = parts.sublist(typeIndex + 1).join('_');
+      } else {
+        // Fallback: assume first part is type, rest is ID (legacy format)
+        conversationType = parts[0];
+        conversationWith = parts.sublist(1).join('_');
+      }
+
+      if (conversationWith.isEmpty) {
+        return const Failure(
+          message: 'Invalid conversation ID: could not extract conversationWith',
+          code: 'INVALID_CONVERSATION_ID',
+        );
+      }
 
       // Delete from remote
       await remoteDataSource.deleteConversation(conversationWith, conversationType);

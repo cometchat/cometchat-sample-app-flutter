@@ -1,64 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
-/// Messages screen for AI agent conversations.
-/// Hardcodes AI-specific configuration: no reactions, no attachments,
-/// smart replies enabled, conversation starters enabled, disabled toolbar.
 class AiMessagesScreen extends StatefulWidget {
   final User user;
   final BaseMessage? parentMessage;
   final bool isHistory;
-
-  const AiMessagesScreen({
-    super.key,
-    required this.user,
-    this.parentMessage,
-    this.isHistory = false,
-  });
-
+  const AiMessagesScreen({super.key, required this.user, this.parentMessage, this.isHistory = false});
   @override
   State<AiMessagesScreen> createState() => _AiMessagesScreenState();
 }
 
-class _AiMessagesScreenState extends State<AiMessagesScreen>
-    with WidgetsBindingObserver {
-  /// Track whether the app was backgrounded while on this screen.
-  bool _wasBackgrounded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    debugPrint('AiMessagesScreen: user.role = ${widget.user.role}');
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive) {
-      _wasBackgrounded = true;
-    } else if (state == AppLifecycleState.resumed && _wasBackgrounded) {
-      _wasBackgrounded = false;
-      // When returning from background, pop back to the agents list
-      // to avoid the stale/recreated message list loading old messages.
-      if (mounted && Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
-    }
-  }
-
+class _AiMessagesScreenState extends State<AiMessagesScreen> {
   Widget _buildMessageList() {
-    MessagesRequestBuilder? requestBuilder;
     int? parentMessageId;
-
-    // When viewing chat history, scope messages to the parent message
+    MessagesRequestBuilder? requestBuilder;
     if (widget.parentMessage != null && widget.isHistory) {
       parentMessageId = widget.parentMessage!.id;
       requestBuilder = MessagesRequestBuilder()
@@ -66,7 +21,6 @@ class _AiMessagesScreenState extends State<AiMessagesScreen>
         ..withParent = true
         ..hideReplies = false;
     }
-
     return CometChatMessageList(
       user: widget.user,
       parentMessageId: parentMessageId,
@@ -74,8 +28,8 @@ class _AiMessagesScreenState extends State<AiMessagesScreen>
       hideReplies: widget.isHistory ? false : true,
       disableReactions: true,
       enableSwipeToReply: false,
-      enableSmartReplies: false,
-      enableConversationStarters: false,
+      enableSmartReplies: true,
+      enableConversationStarters: true,
       hideReplyInThreadOption: true,
       textFormatters: [
         CometChatMentionsFormatter(user: widget.user),
@@ -103,49 +57,27 @@ class _AiMessagesScreenState extends State<AiMessagesScreen>
   }
 
   void _openChatHistory(BuildContext ctx) {
-    Navigator.push(
-      ctx,
-      MaterialPageRoute(
-        builder: (_) => CometChatAIAssistantChatHistory(
-          user: widget.user,
-          onNewChatButtonClicked: () {
-            if (widget.isHistory) {
-              Navigator.of(ctx).pop();
-            }
-            Navigator.pushReplacement(
-              ctx,
-              MaterialPageRoute(
-                builder: (_) => AiMessagesScreen(user: widget.user),
-              ),
-            );
-          },
-          onMessageClicked: (message) {
-            if (message != null) {
-              Navigator.of(ctx)
-                ..pop()
-                ..pop();
-              Navigator.push(
-                ctx,
-                MaterialPageRoute(
-                  builder: (_) => AiMessagesScreen(
-                    user: widget.user,
-                    parentMessage: message,
-                    isHistory: true,
-                  ),
-                ),
-              );
-            }
-          },
-          onClose: () => Navigator.of(ctx).pop(),
-        ),
-      ),
-    );
+    Navigator.push(ctx, MaterialPageRoute(builder: (_) => CometChatAIAssistantChatHistory(
+      user: widget.user,
+      onNewChatButtonClicked: () {
+        if (widget.isHistory) Navigator.of(ctx).pop();
+        Navigator.pushReplacement(ctx,
+          MaterialPageRoute(builder: (_) => AiMessagesScreen(user: widget.user)));
+      },
+      onMessageClicked: (message) {
+        if (message != null) {
+          Navigator.of(ctx)..pop()..pop();
+          Navigator.push(ctx, MaterialPageRoute(builder: (_) => AiMessagesScreen(
+            user: widget.user, parentMessage: message, isHistory: true)));
+        }
+      },
+      onClose: () => Navigator.of(ctx).pop(),
+    )));
   }
 
   @override
   Widget build(BuildContext context) {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
-
     return Scaffold(
       backgroundColor: colorPalette.background1,
       resizeToAvoidBottomInset: false,
@@ -157,42 +89,23 @@ class _AiMessagesScreenState extends State<AiMessagesScreen>
         chatHistoryButtonClick: () => _openChatHistory(context),
         messageHeaderStyle: CometChatMessageHeaderStyle(
           backgroundColor: colorPalette.background1,
-          border: Border(
-            bottom: BorderSide(
-              color: colorPalette.borderLight ?? Colors.transparent,
-              width: 1.0,
-            ),
-          ),
-        ),
+          border: Border(bottom: BorderSide(
+            color: colorPalette.borderLight ?? Colors.transparent, width: 1.0))),
         trailingView: (user, group, ctx) => [
-          IconButton(
-            icon: Icon(Icons.add, color: colorPalette.iconPrimary),
+          IconButton(icon: Icon(Icons.add, color: colorPalette.iconPrimary),
             tooltip: 'New Chat',
-            onPressed: () {
-              Navigator.pushReplacement(
-                ctx,
-                MaterialPageRoute(
-                  builder: (_) => AiMessagesScreen(user: widget.user),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.history, color: colorPalette.iconPrimary),
+            onPressed: () => Navigator.pushReplacement(ctx,
+              MaterialPageRoute(builder: (_) => AiMessagesScreen(user: widget.user)))),
+          IconButton(icon: Icon(Icons.history, color: colorPalette.iconPrimary),
             tooltip: 'AI Chat History',
-            onPressed: () => _openChatHistory(ctx),
-          ),
-        ],
-      ),
+            onPressed: () => _openChatHistory(ctx)),
+        ]),
       body: Container(
         color: colorPalette.background3,
-        child: Column(
-          children: [
-            Expanded(child: _buildMessageList()),
-            _buildComposer(),
-          ],
-        ),
-      ),
+        child: Column(children: [
+          Expanded(child: _buildMessageList()),
+          _buildComposer(),
+        ])),
     );
   }
 }

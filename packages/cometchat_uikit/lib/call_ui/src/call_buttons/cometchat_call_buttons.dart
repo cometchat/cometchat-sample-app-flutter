@@ -130,6 +130,7 @@ class _CometChatCallButtonsState extends State<CometChatCallButtons> {
             return Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.end,
+              spacing: 8,
               children: [
                 if (widget.hideVoiceCallButton != true)
                   _buildVoiceCallButton(state),
@@ -144,7 +145,14 @@ class _CometChatCallButtonsState extends State<CometChatCallButtons> {
   }
 
   Widget _buildVoiceCallButton(CallButtonsState state) {
+    final hasBorder = _style.voiceCallButtonBorder != null &&
+        _style.voiceCallButtonBorder != BorderSide.none;
     return IconButton(
+      tooltip: 'Voice call',
+      padding: hasBorder
+          ? const EdgeInsets.symmetric(horizontal: 20, vertical: 8)
+          : const EdgeInsets.all(8),
+      constraints: const BoxConstraints(),
       style: IconButton.styleFrom(
         shape: RoundedRectangleBorder(
           borderRadius:
@@ -166,7 +174,14 @@ class _CometChatCallButtonsState extends State<CometChatCallButtons> {
   }
 
   Widget _buildVideoCallButton(CallButtonsState state) {
+    final hasBorder = _style.videoCallButtonBorder != null &&
+        _style.videoCallButtonBorder != BorderSide.none;
     return IconButton(
+      tooltip: 'Video call',
+      padding: hasBorder
+          ? const EdgeInsets.symmetric(horizontal: 20, vertical: 8)
+          : const EdgeInsets.all(8),
+      constraints: const BoxConstraints(),
       style: IconButton.styleFrom(
         shape: RoundedRectangleBorder(
           borderRadius:

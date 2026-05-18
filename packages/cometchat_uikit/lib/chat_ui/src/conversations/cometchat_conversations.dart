@@ -473,6 +473,8 @@ class _CometChatConversationsState extends State<CometChatConversations>
         customSoundForMessages: widget.customSoundForMessages,
         usersStatusVisibility: widget.usersStatusVisibility ?? true,
         receiptsVisibility: widget.receiptsVisibility ?? true,
+        conversationsRequestBuilder: widget.conversationsRequestBuilder,
+        conversationsProtocol: widget.conversationsProtocol,
       );
       _isExternalBloc = false;
     }
@@ -798,38 +800,59 @@ class _CometChatConversationsState extends State<CometChatConversations>
           top: 0,
           bottom: 0,
           child: Center(
-            child: Material(
-              color: colorPalette.error ?? Colors.red,
-              borderRadius: BorderRadius.circular(spacing.radius2 ?? 8),
-              elevation: 2,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(spacing.radius2 ?? 8),
-                onTap: () => _handleDeleteFromOverlay(conversation),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: spacing.padding3 ?? 12,
-                    vertical: spacing.padding2 ?? 8,
+            child: GestureDetector(
+              onTap: () => _handleDeleteFromOverlay(conversation),
+              child: Container(
+                width: 120,
+                height: 44,
+                padding: const EdgeInsets.all(10),
+                clipBehavior: Clip.antiAlias,
+                decoration: ShapeDecoration(
+                  color: colorPalette.background1 ?? Colors.white,
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(
+                      width: 1,
+                      color: colorPalette.borderLight ?? const Color(0xFFF5F5F5),
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.delete_outline,
-                        color: colorPalette.white ?? Colors.white,
-                        size: 18,
+                  shadows: const [
+                    BoxShadow(
+                      color: Color(0x07101828),
+                      blurRadius: 6,
+                      offset: Offset(0, 4),
+                      spreadRadius: -2,
+                    ),
+                    BoxShadow(
+                      color: Color(0x14101828),
+                      blurRadius: 16,
+                      offset: Offset(0, 12),
+                      spreadRadius: -4,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/icons/delete_icon.png',
+                      package: 'cometchat_chat_uikit',
+                      width: 24,
+                      height: 24,
+                      color: colorPalette.error ?? const Color(0xFFF44649),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      cc.Translations.of(context).delete,
+                      style: TextStyle(
+                        color: colorPalette.error ?? const Color(0xFFF44649),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        height: 1.20,
                       ),
-                      SizedBox(width: spacing.padding1 ?? 4),
-                      Text(
-                        cc.Translations.of(context).delete,
-                        style: TextStyle(
-                          color: colorPalette.white ?? Colors.white,
-                          fontSize: typography.caption1?.medium?.fontSize ?? 13,
-                          fontWeight: typography.caption1?.medium?.fontWeight ?? FontWeight.w500,
-                          fontFamily: typography.caption1?.medium?.fontFamily,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

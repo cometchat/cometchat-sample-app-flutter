@@ -1,4 +1,4 @@
-# Global platform for CometChat SDK (requires iOS 13.0+)
+# Global platform for CometChat SDK (requires iOS 12.0+)
 platform :ios, '13.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
@@ -39,5 +39,18 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+
+    # Enable permission_handler permissions for iOS
+    if target.name == 'permission_handler_apple'
+      target.build_configurations.each do |config|
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+          '$(inherited)',
+          'PERMISSION_MICROPHONE=1',
+          'PERMISSION_CAMERA=1',
+          'PERMISSION_PHOTOS=1',
+          'PERMISSION_NOTIFICATIONS=1',
+        ]
+      end
+    end
   end
 end

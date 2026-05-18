@@ -483,7 +483,7 @@ class _MessagesScreenState extends State<MessagesScreen>
         ],
       ),
       body: SafeArea(
-        bottom: false, // Scaffold's resizeToAvoidBottomInset handles bottom keyboard inset
+        top: false,
         child: Container(
           color: _colorPalette.background3,
           child: Column(

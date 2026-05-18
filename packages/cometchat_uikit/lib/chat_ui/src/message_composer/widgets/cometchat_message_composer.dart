@@ -3034,34 +3034,55 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   // ============================================================================
 
   Widget _buildSuggestionList() {
-    return MessageComposerSuggestionList(
-      suggestions: _suggestions,
-      onItemTap: (item) {
-        if (item.onTap != null) {
-          item.onTap!();
-        }
-        _hideSuggestionOverlay();
-        _suggestions.clear();
-        _currentSearchKeyword = null;
-        _searchKeywordChanged = true;
-      },
-      onScrollToBottom: () {
-        final activeController = _getActiveTextController();
-        if (activeController == null) return;
-        for (var element in _formatters) {
-          if (_currentSearchKeyword != null &&
-              _currentSearchKeyword!.isNotEmpty &&
-              element.trackingCharacter == _currentSearchKeyword![0]) {
-            element.onScrollToBottom(activeController);
-          }
-        }
-      },
-      scrollController: _scrollController,
-      hasMore: _hasMore,
-      style: _suggestionListStyle,
-      colorPalette: _colorPalette,
-      spacing: _spacing,
-      typography: _typography,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Dark scrim above the suggestion list
+        Expanded(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              _hideSuggestionOverlay();
+              _suggestions.clear();
+              _currentSearchKeyword = null;
+              _searchKeywordChanged = true;
+            },
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.3),
+            ),
+          ),
+        ),
+        // Suggestion list
+        MessageComposerSuggestionList(
+          suggestions: _suggestions,
+          onItemTap: (item) {
+            if (item.onTap != null) {
+              item.onTap!();
+            }
+            _hideSuggestionOverlay();
+            _suggestions.clear();
+            _currentSearchKeyword = null;
+            _searchKeywordChanged = true;
+          },
+          onScrollToBottom: () {
+            final activeController = _getActiveTextController();
+            if (activeController == null) return;
+            for (var element in _formatters) {
+              if (_currentSearchKeyword != null &&
+                  _currentSearchKeyword!.isNotEmpty &&
+                  element.trackingCharacter == _currentSearchKeyword![0]) {
+                element.onScrollToBottom(activeController);
+              }
+            }
+          },
+          scrollController: _scrollController,
+          hasMore: _hasMore,
+          style: _suggestionListStyle,
+          colorPalette: _colorPalette,
+          spacing: _spacing,
+          typography: _typography,
+        ),
+      ],
     );
   }
 

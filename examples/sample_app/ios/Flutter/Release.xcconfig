@@ -1,3 +1,6 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"
 #include "Generated.xcconfig"
+
+// Override Flutter's arm64 exclusion for iOS 26+ simulator support
+EXCLUDED_ARCHS[sdk=iphonesimulator*]=i386
