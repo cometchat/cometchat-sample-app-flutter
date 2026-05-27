@@ -649,17 +649,18 @@ class CometChatMessageListController
       return;
     }
 
-    // If startFromUnreadMessages is true, use fetchMessagesWithUnreadCount
-    if (startFromUnreadMessages) {
-      fetchMessagesWithUnreadCount();
-      return;
-    }
-
+    // Register conversation summary listener before any early returns
     ever(generateConversationSummary, (bool isTrue) {
       if (isTrue) {
         getConversationsSummary(user, group);
       }
     });
+
+    // If startFromUnreadMessages is true, use fetchMessagesWithUnreadCount
+    if (startFromUnreadMessages) {
+      fetchMessagesWithUnreadCount();
+      return;
+    }
 
     super.onInit();
   }

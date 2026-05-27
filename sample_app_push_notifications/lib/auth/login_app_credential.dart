@@ -124,367 +124,532 @@ class _LoginAppCredentialState extends State<LoginAppCredential> {
             removeFocus(context, _focusNodeAppID);
           }
         },
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: spacing.padding10 ?? 40,
-            left: spacing.padding4 ?? 16,
-            right: spacing.padding4 ?? 16,
-            bottom: spacing.padding4 ?? 16,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
+        child: Stack(
+          children: [
+            // Background pattern image
+            Positioned.fill(
+              child: Image.asset(
+                'assets/auth_background.png',
+                fit: BoxFit.cover,
+              ),
+            ),
+            // Main content
+            SafeArea(
+              child: Center(
                 child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: spacing.padding5 ?? 20,
+                    vertical: spacing.padding5 ?? 20,
+                  ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // CometChat logo at the top center
                       Padding(
                         padding: EdgeInsets.only(
-                          top: spacing.padding10 ?? 40,
-                        ),
-                        child: Image.asset(
-                          'assets/cometchat_logo_with_text.png',
-                          color: colorPalette.textPrimary,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: spacing.padding10 ?? 40,
+                          bottom: spacing.padding5 ?? 20,
                         ),
                         child: Center(
-                          child: Text(
-                            "App Credentials",
-                            style: TextStyle(
-                              color: colorPalette.textPrimary,
-                              fontSize: typography.heading2?.bold?.fontSize,
-                              fontFamily: typography.heading2?.bold?.fontFamily,
-                              fontWeight: typography.heading2?.bold?.fontWeight,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: spacing.padding5 ?? 20,
-                          bottom: spacing.padding2 ?? 4,
-                        ),
-                        child: Text(
-                          "Region",
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
+                          child: Image.asset(
+                            'assets/cometchat_logo_with_text.png',
                             color: colorPalette.textPrimary,
-                            fontSize: typography.body?.medium?.fontSize,
-                            fontFamily: typography.body?.medium?.fontFamily,
-                            fontWeight: typography.body?.medium?.fontWeight,
                           ),
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: regions.map((region) {
-                          int index = regions.indexOf(region);
-                          return Expanded(
-                            child: Padding(
-                              padding: (index != regions.length - 1)
-                                  ? EdgeInsets.only(
-                                      right: spacing.padding ?? 2,
+                      // Fix 1: Card with border and shadow wrapping all elements
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: spacing.padding4 ?? 16,
+                          vertical: spacing.padding6 ?? 24,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorPalette.background1,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: const Color(0xFFE8E8E8),
+                            width: 1,
+                          ),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color.fromRGBO(16, 24, 40, 0.08),
+                              blurRadius: 16,
+                              offset: Offset(0, 12),
+                              spreadRadius: -4,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(16, 24, 40, 0.03),
+                              blurRadius: 6,
+                              offset: Offset(0, 4),
+                              spreadRadius: -2,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Title
+                            Center(
+                              child: Text(
+                                "App Credentials",
+                                style: TextStyle(
+                                  color: colorPalette.textPrimary,
+                                  fontSize:
+                                  typography.heading2?.bold?.fontSize,
+                                  fontFamily:
+                                  typography.heading2?.bold?.fontFamily,
+                                  fontWeight:
+                                  typography.heading2?.bold?.fontWeight,
+                                ),
+                              ),
+                            ),
+                            // Region label
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: spacing.padding5 ?? 20,
+                                bottom: spacing.padding2 ?? 8,
+                              ),
+                              child: Text(
+                                "Region",
+                                textAlign: TextAlign.start,
+                                style: TextStyle(
+                                  color: colorPalette.textPrimary,
+                                  fontSize:
+                                  typography.body?.medium?.fontSize,
+                                  fontFamily:
+                                  typography.body?.medium?.fontFamily,
+                                  fontWeight:
+                                  typography.body?.medium?.fontWeight,
+                                ),
+                              ),
+                            ),
+                            // Fix 2: Region tabs with 14-16px icon size and 40px height
+                            Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
+                              children: regions.map((region) {
+                                int index = regions.indexOf(region);
+                                return Expanded(
+                                  child: Padding(
+                                    padding: (index != regions.length - 1)
+                                        ? EdgeInsets.only(
+                                      right: spacing.padding2 ?? 8,
                                     )
-                                  : const EdgeInsets.all(0),
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    if (_focusNodeAuthKey.hasFocus) {
-                                      removeFocus(context, _focusNodeAuthKey);
-                                    } else {
-                                      removeFocus(context, _focusNodeAppID);
-                                    }
-                                    selectedRegion =
-                                        region; // Setting the selected region
-                                  });
+                                        : EdgeInsets.zero,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          if (_focusNodeAuthKey.hasFocus) {
+                                            removeFocus(
+                                                context, _focusNodeAuthKey);
+                                          } else {
+                                            removeFocus(
+                                                context, _focusNodeAppID);
+                                          }
+                                          selectedRegion = region;
+                                        });
+                                      },
+                                      child: Container(
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: (selectedRegion == region)
+                                              ? colorPalette
+                                              .extendedPrimary50
+                                              : colorPalette.background1,
+                                          borderRadius:
+                                          BorderRadius.circular(
+                                            spacing.radius2 ?? 8,
+                                          ),
+                                          border: Border.all(
+                                            color: (selectedRegion ==
+                                                region)
+                                                ? (colorPalette
+                                                .borderHighlight ??
+                                                Colors.transparent)
+                                                : (colorPalette
+                                                .borderLight ??
+                                                Colors.transparent),
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                          children: [
+                                            Image.asset(
+                                              region.path ?? "",
+                                              width: 18,
+                                              height: 18,
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                left: 4,
+                                              ),
+                                              child: Text(
+                                                region.region ?? "",
+                                                overflow:
+                                                TextOverflow.ellipsis,
+                                                textAlign:
+                                                TextAlign.start,
+                                                style: TextStyle(
+                                                  color: colorPalette
+                                                      .textSecondary,
+                                                  fontSize: typography
+                                                      .button
+                                                      ?.medium
+                                                      ?.fontSize,
+                                                  fontFamily: typography
+                                                      .button
+                                                      ?.medium
+                                                      ?.fontFamily,
+                                                  fontWeight: typography
+                                                      .button
+                                                      ?.medium
+                                                      ?.fontWeight,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                            // App ID label
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: spacing.padding5 ?? 20,
+                                bottom: spacing.padding1 ?? 4,
+                              ),
+                              child: Text(
+                                "App ID",
+                                textAlign: TextAlign.start,
+                                style: TextStyle(
+                                  color: colorPalette.textPrimary,
+                                  fontSize: typography
+                                      .caption1?.medium?.fontSize,
+                                  fontFamily: typography
+                                      .caption1?.medium?.fontFamily,
+                                  fontWeight: typography
+                                      .caption1?.medium?.fontWeight,
+                                ),
+                              ),
+                            ),
+                            // Fix 3: Input field with 40px height and proper styling
+                            SizedBox(
+                              height: 40,
+                              child: TextFormField(
+                                controller: appIdController,
+                                focusNode: _focusNodeAppID,
+                                keyboardAppearance:
+                                CometChatThemeHelper.getBrightness(
+                                    context),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "";
+                                  }
+                                  return null;
                                 },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
+                                style: TextStyle(
+                                  color: colorPalette.textPrimary,
+                                  fontSize:
+                                  typography.body?.regular?.fontSize,
+                                  fontFamily:
+                                  typography.body?.regular?.fontFamily,
+                                  fontWeight:
+                                  typography.body?.regular?.fontWeight,
+                                ),
+                                decoration: InputDecoration(
+                                  errorStyle: const TextStyle(
+                                    fontSize: 0,
+                                  ),
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
                                     vertical: spacing.padding2 ?? 8,
                                     horizontal: spacing.padding3 ?? 12,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: (selectedRegion == region)
-                                        ? colorPalette.extendedPrimary50
-                                        : colorPalette.background1,
+                                  border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(
                                       spacing.radius2 ?? 8,
                                     ),
-                                    border: Border.all(
-                                      color: (selectedRegion == region)
-                                          ? (colorPalette.borderHighlight ??
-                                              Colors.transparent)
-                                          : (colorPalette.borderLight ??
-                                              Colors.transparent),
-                                      width: 1,
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      spacing.radius2 ?? 8,
+                                    ),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      spacing.radius2 ?? 8,
+                                    ),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  hintText: "Enter the App ID",
+                                  hintStyle: TextStyle(
+                                    color: colorPalette.textTertiary,
+                                    fontSize: typography
+                                        .body?.regular?.fontSize,
+                                    fontFamily: typography
+                                        .body?.regular?.fontFamily,
+                                    fontWeight: typography
+                                        .body?.regular?.fontWeight,
+                                  ),
+                                  filled: true,
+                                  fillColor: colorPalette.background2,
+                                ),
+                              ),
+                            ),
+                            // Auth Key label
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: spacing.padding5 ?? 20,
+                                bottom: spacing.padding1 ?? 4,
+                              ),
+                              child: Text(
+                                "Auth Key",
+                                textAlign: TextAlign.start,
+                                style: TextStyle(
+                                  color: colorPalette.textPrimary,
+                                  fontSize: typography
+                                      .caption1?.medium?.fontSize,
+                                  fontFamily: typography
+                                      .caption1?.medium?.fontFamily,
+                                  fontWeight: typography
+                                      .caption1?.medium?.fontWeight,
+                                ),
+                              ),
+                            ),
+                            // Fix 3: Auth Key input field with 40px height
+                            SizedBox(
+                              height: 40,
+                              child: TextFormField(
+                                controller: authKeyController,
+                                focusNode: _focusNodeAuthKey,
+                                keyboardAppearance:
+                                CometChatThemeHelper.getBrightness(
+                                    context),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "";
+                                  }
+                                  return null;
+                                },
+                                style: TextStyle(
+                                  color: colorPalette.textPrimary,
+                                  fontSize:
+                                  typography.body?.regular?.fontSize,
+                                  fontFamily:
+                                  typography.body?.regular?.fontFamily,
+                                  fontWeight:
+                                  typography.body?.regular?.fontWeight,
+                                ),
+                                decoration: InputDecoration(
+                                  errorStyle: const TextStyle(
+                                    fontSize: 0,
+                                  ),
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: spacing.padding2 ?? 8,
+                                    horizontal: spacing.padding3 ?? 12,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      spacing.radius2 ?? 8,
+                                    ),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      spacing.radius2 ?? 8,
+                                    ),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      spacing.radius2 ?? 8,
+                                    ),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  hintText: "Enter the Auth Key",
+                                  hintStyle: TextStyle(
+                                    color: colorPalette.textTertiary,
+                                    fontSize: typography
+                                        .body?.regular?.fontSize,
+                                    fontFamily: typography
+                                        .body?.regular?.fontFamily,
+                                    fontWeight: typography
+                                        .body?.regular?.fontWeight,
+                                  ),
+                                  filled: true,
+                                  fillColor: colorPalette.background2,
+                                ),
+                              ),
+                            ),
+                            // Fix 5: Continue button with 40px height
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: spacing.padding7 ?? 32,
+                              ),
+                              child: SizedBox(
+                                height: 40,
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    if (_focusNodeAuthKey.hasFocus) {
+                                      removeFocus(
+                                          context, _focusNodeAuthKey);
+                                    } else {
+                                      removeFocus(
+                                          context, _focusNodeAppID);
+                                    }
+                                    if (selectedRegion == null ||
+                                        appIdController.text.isEmpty ||
+                                        authKeyController.text.isEmpty) {
+                                      showSnackBar(
+                                          context,
+                                          "Please fill all the fields",
+                                          typography,
+                                          colorPalette);
+                                      return;
+                                    }
+                                    if ((selectedRegion != null) &&
+                                        appIdController.text.isNotEmpty &&
+                                        authKeyController
+                                            .text.isNotEmpty) {
+                                      AppCredentials.setRegion(
+                                          selectedRegion?.region ?? "");
+                                      AppCredentials.setAppId(
+                                          appIdController.text);
+                                      AppCredentials.setAuthKey(
+                                          authKeyController.text);
+                                      Future.delayed(
+                                          const Duration(
+                                              milliseconds: 500), () {
+                                        init();
+                                      });
+                                    }
+                                  },
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                    WidgetStateProperty.all(
+                                      colorPalette.primary,
+                                    ),
+                                    shape: WidgetStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.circular(
+                                          spacing.radius2 ?? 8,
+                                        ),
+                                      ),
+                                    ),
+                                    elevation:
+                                    WidgetStateProperty.all(0),
+                                    padding: WidgetStateProperty.all(
+                                      EdgeInsets.symmetric(
+                                        horizontal:
+                                        spacing.padding5 ?? 20,
+                                      ),
                                     ),
                                   ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Image.asset(
-                                        region.path ?? "",
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                          left: spacing.padding2 ?? 8,
-                                        ),
-                                        child: Text(
-                                          region.region ?? "",
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                            color: colorPalette.textSecondary,
-                                            fontSize: typography
-                                                .button?.medium?.fontSize,
-                                            fontFamily: typography
-                                                .button?.medium?.fontFamily,
-                                            fontWeight: typography
-                                                .button?.medium?.fontWeight,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                  child: Text(
+                                    "Continue",
+                                    style: TextStyle(
+                                      color:
+                                      colorPalette.buttonIconColor,
+                                      fontSize: typography
+                                          .button?.medium?.fontSize,
+                                      fontFamily: typography
+                                          .button?.medium?.fontFamily,
+                                      fontWeight: typography
+                                          .button?.medium?.fontWeight,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          );
-                        }).toList(),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: spacing.padding5 ?? 20,
-                          bottom: spacing.padding1 ?? 4,
-                        ),
-                        child: Text(
-                          "App ID",
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                            color: colorPalette.textPrimary,
-                            fontSize: typography.caption1?.medium?.fontSize,
-                            fontFamily: typography.caption1?.medium?.fontFamily,
-                            fontWeight: typography.caption1?.medium?.fontWeight,
-                          ),
-                        ),
-                      ),
-                      TextFormField(
-                        controller: appIdController,
-                        keyboardAppearance:
-                            CometChatThemeHelper.getBrightness(context),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "";
-                          }
-                          return null;
-                        },
-                        style: TextStyle(
-                          color: colorPalette.textPrimary,
-                          fontSize: typography.body?.regular?.fontSize,
-                          fontFamily: typography.body?.regular?.fontFamily,
-                          fontWeight: typography.body?.regular?.fontWeight,
-                        ),
-                        decoration: InputDecoration(
-                          errorStyle: const TextStyle(
-                            fontSize: 0,
-                          ),
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: spacing.padding2 ?? 0,
-                            horizontal: spacing.padding2 ?? 0,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              spacing.radius2 ?? 0,
+                            // "Don't have an app credentials? UID" text
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: spacing.padding4 ?? 16,
+                              ),
+                              child: Center(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (_focusNodeAuthKey.hasFocus) {
+                                      removeFocus(
+                                          context, _focusNodeAuthKey);
+                                    } else {
+                                      removeFocus(
+                                          context, _focusNodeAppID);
+                                    }
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                        const LoginSampleUsers(),
+                                      ),
+                                    );
+                                  },
+                                  child: Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text:
+                                          "Don't have an app credentials? ",
+                                          style: TextStyle(
+                                            color: colorPalette
+                                                .textSecondary,
+                                            fontSize: typography.caption1
+                                                ?.medium?.fontSize,
+                                            fontFamily: typography
+                                                .caption1
+                                                ?.medium
+                                                ?.fontFamily,
+                                            fontWeight: typography
+                                                .caption1
+                                                ?.medium
+                                                ?.fontWeight,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: "UID",
+                                          style: TextStyle(
+                                            color: colorPalette
+                                                .textHighlight,
+                                            fontSize: typography.caption1
+                                                ?.medium?.fontSize,
+                                            fontFamily: typography
+                                                .caption1
+                                                ?.medium
+                                                ?.fontFamily,
+                                            fontWeight: typography
+                                                .caption1
+                                                ?.medium
+                                                ?.fontWeight,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
                             ),
-                            borderSide: BorderSide(
-                              width: 2,
-                              color: colorPalette.borderLight ??
-                                  Colors.transparent,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              spacing.radius2 ?? 0,
-                            ),
-                            borderSide: BorderSide(
-                              width: 2,
-                              color: colorPalette.borderLight ??
-                                  Colors.transparent,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              spacing.radius2 ?? 0,
-                            ),
-                            borderSide: BorderSide(
-                              width: 2,
-                              color: colorPalette.borderLight ??
-                                  Colors.transparent,
-                            ),
-                          ),
-                          hintText: "Enter the App ID",
-                          hintStyle: TextStyle(
-                            color: colorPalette.textTertiary,
-                            fontSize: typography.body?.regular?.fontSize,
-                            fontFamily: typography.body?.regular?.fontFamily,
-                            fontWeight: typography.body?.regular?.fontWeight,
-                          ),
-                          filled: true,
-                          fillColor: colorPalette.background2,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: spacing.padding5 ?? 20,
-                          bottom: spacing.padding1 ?? 4,
-                        ),
-                        child: Text(
-                          "Enter Auth Key",
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                            color: colorPalette.textPrimary,
-                            fontSize: typography.caption1?.medium?.fontSize,
-                            fontFamily: typography.caption1?.medium?.fontFamily,
-                            fontWeight: typography.caption1?.medium?.fontWeight,
-                          ),
-                        ),
-                      ),
-                      TextFormField(
-                        controller: authKeyController,
-                        keyboardAppearance: CometChatThemeHelper.getBrightness(context),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "";
-                          }
-                          return null;
-                        },
-                        style: TextStyle(
-                          color: colorPalette.textPrimary,
-                          fontSize: typography.body?.regular?.fontSize,
-                          fontFamily: typography.body?.regular?.fontFamily,
-                          fontWeight: typography.body?.regular?.fontWeight,
-                        ),
-                        decoration: InputDecoration(
-                          errorStyle: const TextStyle(
-                            fontSize: 0,
-                          ),
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: spacing.padding2 ?? 0,
-                            horizontal: spacing.padding2 ?? 0,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              spacing.radius2 ?? 0,
-                            ),
-                            borderSide: BorderSide(
-                              width: 2,
-                              color: colorPalette.borderLight ?? Colors.transparent,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              spacing.radius2 ?? 0,
-                            ),
-                            borderSide: BorderSide(
-                              width: 2,
-                              color: colorPalette.borderLight ?? Colors.transparent,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              spacing.radius2 ?? 0,
-                            ),
-                            borderSide: BorderSide(
-                              width: 2,
-                              color: colorPalette.borderLight ?? Colors.transparent,
-                            ),
-                          ),
-                          hintText: "Enter the Auth Key",
-                          hintStyle: TextStyle(
-                            color: colorPalette.textTertiary,
-                            fontSize: typography.body?.regular?.fontSize,
-                            fontFamily: typography.body?.regular?.fontFamily,
-                            fontWeight: typography.body?.regular?.fontWeight,
-                          ),
-                          filled: true,
-                          fillColor: colorPalette.background2,
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(
-                  bottom: spacing.padding5 ?? 20,
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_focusNodeAuthKey.hasFocus) {
-                      removeFocus(context, _focusNodeAuthKey);
-                    } else {
-                      removeFocus(context, _focusNodeAppID);
-                    }
-                    if (selectedRegion == null ||
-                        appIdController.text.isEmpty ||
-                        authKeyController.text.isEmpty) {
-                      showSnackBar(context, "Please fill all the fields",
-                          typography, colorPalette);
-                      return;
-                    }
-                    if ((selectedRegion != null) &&
-                        appIdController.text.isNotEmpty &&
-                        authKeyController.text.isNotEmpty) {
-                      AppCredentials.setRegion(selectedRegion?.region ?? "");
-                      AppCredentials.setAppId(appIdController.text);
-                      AppCredentials.setAuthKey(authKeyController.text);
-                      Future.delayed(const Duration(milliseconds: 500), () {
-                        init();
-                      });
-                    }
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(
-                      colorPalette.primary,
-                    ),
-                    shape: WidgetStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          spacing.radius2 ?? 8,
-                        ),
-                      ),
-                    ),
-                    padding: WidgetStateProperty.all(
-                      EdgeInsets.symmetric(
-                        vertical: spacing.padding2 ?? 8,
-                        horizontal: spacing.padding5 ?? 20,
-                      ),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "Continue",
-                      style: TextStyle(
-                        color: colorPalette.buttonIconColor,
-                        fontSize: typography.button?.medium?.fontSize,
-                        fontFamily: typography.button?.medium?.fontFamily,
-                        fontWeight: typography.button?.medium?.fontWeight,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

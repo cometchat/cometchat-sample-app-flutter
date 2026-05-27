@@ -1504,7 +1504,7 @@ class _CometChatCompactMessageComposerState
         right: effectiveSpacing.margin2 ?? 8,
       ),
       child: Container(
-        padding: EdgeInsets.all(effectiveSpacing.padding1 ?? 4),
+        padding: EdgeInsets.all(effectiveSpacing.padding2 ?? 8),
         decoration: BoxDecoration(
           color: effectiveStyle.backgroundColor ?? effectiveColorPalette.background1,
           borderRadius: BorderRadius.only(
@@ -1541,7 +1541,9 @@ class _CometChatCompactMessageComposerState
           },
           messagePreviewStyle: CometChatMessagePreviewStyle(
             messagePreviewTitleStyle: TextStyle(
-              color: effectiveColorPalette.textHighlight,
+              color: controller.previewMessageMode == PreviewMessageMode.edit
+                  ? const Color(0xFF141414)
+                  : effectiveColorPalette.textHighlight,
               fontSize: effectiveTypography.caption1?.medium?.fontSize,
               fontWeight: effectiveTypography.caption1?.medium?.fontWeight,
               fontFamily: effectiveTypography.caption1?.medium?.fontFamily,
@@ -1554,9 +1556,11 @@ class _CometChatCompactMessageComposerState
             ),
             closeIconColor: effectiveStyle.closeIconTint ?? effectiveColorPalette.iconPrimary,
             messagePreviewBackground: effectiveColorPalette.background3,
-            messagePreviewBorderRadius: BorderRadius.zero,
+            messagePreviewBorderRadius: controller.previewMessageMode == PreviewMessageMode.edit
+                ? BorderRadius.circular(4)
+                : BorderRadius.zero,
             messagePreviewBorder: controller.previewMessageMode == PreviewMessageMode.edit
-                ? Border.all(width: 0)
+                ? Border.all(width: 0, color: Colors.transparent)
                 : null,
           ).merge(messagePreviewStyle),
         ),

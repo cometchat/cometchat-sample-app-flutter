@@ -151,6 +151,24 @@ class _CometChatCallLogDetailsState extends State<CometChatCallLogDetails> {
               avatarHeight: 48,
               avatarWidth: 48,
               padding: EdgeInsets.zero,
+              messageHeaderStyle: CometChatMessageHeaderStyle(
+                callButtonsStyle: CometChatCallButtonsStyle(
+                  voiceCallIconColor: colorPalette.primary,
+                  videoCallIconColor: colorPalette.primary,
+                  voiceCallButtonBorder: BorderSide(
+                    color: colorPalette.borderDefault ?? const Color(0xFFE8E8E8),
+                    width: 1,
+                  ),
+                  videoCallButtonBorder: BorderSide(
+                    color: colorPalette.borderDefault ?? const Color(0xFFE8E8E8),
+                    width: 1,
+                  ),
+                  voiceCallButtonBorderRadius: BorderRadius.circular(8),
+                  videoCallButtonBorderRadius: BorderRadius.circular(8),
+                  voiceCallButtonPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  videoCallButtonPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                ),
+              ),
             ),
           ),
           Container(

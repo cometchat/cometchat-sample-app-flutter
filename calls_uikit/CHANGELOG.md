@@ -1,3 +1,9 @@
+## 5.0.16 
+
+## Enhancements
+- Improved `CometChatCallButtons` customization support by applying `voiceCallButtonPadding` and `videoCallButtonPadding` styles directly to the underlying `IconButton` components.
+- Enhanced the spacing between voice and video call actions in `CometChatCallButtons` by adding an 8px gap for improved visual separation and usability.
+
 ## 5.0.15
 
 ## Fixes

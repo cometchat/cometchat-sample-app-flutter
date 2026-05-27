@@ -186,9 +186,17 @@ class _CometChatCreateGroupState extends State<CometChatCreateGroup>
                                     ),
                                   ),
                                 ),
+                                minimumSize: WidgetStateProperty.all(
+                                  const Size(double.infinity, 40),
+                                ),
+                                maximumSize: WidgetStateProperty.all(
+                                  const Size(double.infinity, 40),
+                                ),
+                                fixedSize: WidgetStateProperty.all(
+                                  const Size(double.infinity, 40),
+                                ),
                                 padding: WidgetStateProperty.all(
                                   EdgeInsets.symmetric(
-                                    vertical: spacing.padding2 ?? 8,
                                     horizontal: spacing.padding5 ?? 20,
                                   ),
                                 ),

@@ -1,3 +1,15 @@
+## 5.2.4
+
+## New 
+- None 
+
+## Enhancements
+- Improved the Call Detail screen by adding dedicated voice and video calling options for quicker access to call actions.
+
+## Fixes
+- Fixed an issue where received `.m4a` audio messages displayed a `00:00` duration and failed to play immediately after delivery on the receiver side.
+- Fixed an issue where the Attach Audio option did not function correctly on specific Android devices, including `iQOO Z6`.
+
 ## 5.2.3
 
 ## Fixes

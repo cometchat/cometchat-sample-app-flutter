@@ -407,7 +407,7 @@ class TranslationsEnGb extends Translations {
   String get deleteMessage => 'Delete message';
 
   @override
-  String get editMessage => 'Edit message';
+  String get editMessage => 'Edit Message';
 
   @override
   String get owner => 'Owner';

@@ -859,9 +859,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
             bottom: (value.preview != null ? 8 : 0),
           ),
           child: Container(
-            padding: EdgeInsets.all(
-              spacing.padding1 ?? 0,
-            ),
+            padding: EdgeInsets.all(spacing.padding2 ?? 0),
             decoration: BoxDecoration(
               color: style.backgroundColor ?? colorPalette.background1,
               borderRadius: style.borderRadius ??
@@ -896,7 +894,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
               onCloseClick: value.onMessagePreviewClose,
               messagePreviewStyle: CometChatMessagePreviewStyle(
                       messagePreviewTitleStyle: TextStyle(
-                        color: colorPalette.textHighlight,
+                        color: const Color(0xFF141414),
                         fontSize: typography.caption1?.medium?.fontSize,
                         fontWeight: typography.caption1?.medium?.fontWeight,
                         fontFamily: typography.caption1?.medium?.fontFamily,
@@ -910,7 +908,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer> {
                       closeIconColor:
                           style.closeIconTint ?? colorPalette.iconPrimary,
                       messagePreviewBackground: colorPalette.background3,
-                      messagePreviewBorder: Border.all(width: 0))
+                      messagePreviewBorderRadius: BorderRadius.circular(4),
+                      messagePreviewBorder: Border.all(width: 0, color: Colors.transparent))
                   .merge(
                 messagePreviewStyle,
               ),

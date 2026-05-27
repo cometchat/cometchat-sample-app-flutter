@@ -33,7 +33,7 @@ class BubbleUtils {
       String filePath = "$fileDownloadPath/$fileName";
       final request = await HttpClient().getUrl(Uri.parse(fileUrl));
       final response = await request.close();
-      response.pipe(File(filePath).openWrite());
+      await response.pipe(File(filePath).openWrite());
       debugPrint("Download path $filePath");
       return filePath;
     } catch (e) {

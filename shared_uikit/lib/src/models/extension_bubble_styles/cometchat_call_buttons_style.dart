@@ -20,6 +20,8 @@ class CometChatCallButtonsStyle
     this.videoCallButtonBorder,
     this.voiceCallButtonBorderRadius,
     this.videoCallButtonBorderRadius,
+    this.voiceCallButtonPadding,
+    this.videoCallButtonPadding,
   });
 
   ///[voiceCallIconColor] sets the color of the voice call icon
@@ -46,6 +48,12 @@ class CometChatCallButtonsStyle
   ///[videoCallButtonBorderRadius] sets the border radius of the video call button
   final BorderRadiusGeometry? videoCallButtonBorderRadius;
 
+  ///[voiceCallButtonPadding] sets the padding of the voice call button
+  final EdgeInsetsGeometry? voiceCallButtonPadding;
+
+  ///[videoCallButtonPadding] sets the padding of the video call button
+  final EdgeInsetsGeometry? videoCallButtonPadding;
+
   static CometChatCallButtonsStyle of(BuildContext context) =>
       const CometChatCallButtonsStyle();
 
@@ -59,6 +67,8 @@ class CometChatCallButtonsStyle
     BorderSide? videoCallButtonBorder,
     BorderRadiusGeometry? voiceCallButtonBorderRadius,
     BorderRadiusGeometry? videoCallButtonBorderRadius,
+    EdgeInsetsGeometry? voiceCallButtonPadding,
+    EdgeInsetsGeometry? videoCallButtonPadding,
   }) {
     return CometChatCallButtonsStyle(
       voiceCallIconColor: voiceCallIconColor ?? this.voiceCallIconColor,
@@ -69,6 +79,8 @@ class CometChatCallButtonsStyle
       videoCallButtonBorder: videoCallButtonBorder ?? this.videoCallButtonBorder,
       videoCallButtonBorderRadius: videoCallButtonBorderRadius ?? this.videoCallButtonBorderRadius,
       voiceCallButtonBorderRadius: voiceCallButtonBorderRadius ?? this.voiceCallButtonBorderRadius,
+      voiceCallButtonPadding: voiceCallButtonPadding ?? this.voiceCallButtonPadding,
+      videoCallButtonPadding: videoCallButtonPadding ?? this.videoCallButtonPadding,
     );
   }
 
@@ -83,6 +95,8 @@ class CometChatCallButtonsStyle
       videoCallButtonBorder: style.videoCallButtonBorder,
       voiceCallButtonBorderRadius: style.voiceCallButtonBorderRadius,
       videoCallButtonBorderRadius: style.videoCallButtonBorderRadius,
+      voiceCallButtonPadding: style.voiceCallButtonPadding,
+      videoCallButtonPadding: style.videoCallButtonPadding,
     );
   }
 
@@ -109,6 +123,10 @@ class CometChatCallButtonsStyle
           voiceCallButtonBorderRadius, other.voiceCallButtonBorderRadius, t),
       videoCallButtonBorderRadius: BorderRadiusGeometry.lerp(
           videoCallButtonBorderRadius, other.videoCallButtonBorderRadius, t),
+      voiceCallButtonPadding: EdgeInsetsGeometry.lerp(
+          voiceCallButtonPadding, other.voiceCallButtonPadding, t),
+      videoCallButtonPadding: EdgeInsetsGeometry.lerp(
+          videoCallButtonPadding, other.videoCallButtonPadding, t),
     );
   }
 }

@@ -93,6 +93,7 @@ class CometChatCallButtons extends StatelessWidget {
                           BorderSide.none,
                     ),
                     backgroundColor: style.voiceCallButtonColor,
+                    padding: style.voiceCallButtonPadding,
                   ),
                   onPressed: () {
                     if (!viewModel.disabled) {
@@ -108,6 +109,8 @@ class CometChatCallButtons extends StatelessWidget {
                             colorPalette.iconPrimary,
                       ),
                 ),
+              if (hideVoiceCallButton != true && hideVideoCallButton != true)
+                const SizedBox(width: 8),
               if (hideVideoCallButton != true)
                 IconButton(
                   style: IconButton.styleFrom(
@@ -119,6 +122,7 @@ class CometChatCallButtons extends StatelessWidget {
                           BorderSide.none,
                     ),
                     backgroundColor: style.videoCallButtonColor,
+                    padding: style.videoCallButtonPadding,
                   ),
                   onPressed: () {
                     if (viewModel.disabled == false) {

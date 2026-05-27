@@ -209,6 +209,7 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
       fileName += widget.title!;
     }
     final localPath = FileUtils.getLocalFilePath(widget.metadata) ?? '';
+    String resolvedPath = localPath;
     if (FileUtils.isLocalFileAvailable(localPath)) {
       this.localPath = localPath;
       isFileExists = true;
@@ -218,6 +219,7 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
         isFileExists = false;
       } else {
         isFileExists = true;
+        resolvedPath = path;
       }
     }
 
@@ -225,7 +227,7 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
       setState(() {});
     }
 
-    _audioState = AudioStateManager().getAudioState(tag, widget.audioUrl, localPath);
+    _audioState = AudioStateManager().getAudioState(tag, widget.audioUrl, resolvedPath);
     
     // Only initialize controller if file exists
     if (isFileExists) {
@@ -478,9 +480,9 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                     ),
                   ),
                 ),
-                // Show file size if file not downloaded, otherwise show timestamp
+                // Show file size if file not downloaded or controller not ready, otherwise show timestamp
                 Text(
-                  isFileExists
+                  isFileExists && totalDuration > Duration.zero
                       ? '${formatDuration(currentPosition)}/'
                         '${formatDuration(totalDuration)}'
                       : widget.fileSize ?? '',

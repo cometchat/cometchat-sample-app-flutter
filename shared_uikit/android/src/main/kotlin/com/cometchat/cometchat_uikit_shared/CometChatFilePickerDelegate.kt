@@ -22,6 +22,7 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
 
     private val TAG = "FilePickerDelegate"
     private val REQUEST_CODE = CometchatUikitSharedPlugin::class.java.hashCode() + 43 and 0x0000ffff
+    private val AUDIO_RETRY_REQUEST_CODE = REQUEST_CODE + 1
 
     private var activity: Activity = constActivity
     private var pendingResult: MethodChannel.Result? = null
@@ -29,6 +30,8 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
     private var type: String? = null
     private var loadDataToMemory = false
     private var allowedExtensions: Array<String>? = null
+    private var isAudioPickRetry = false
+    private var audioPickLaunchTime: Long = 0
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
@@ -36,7 +39,16 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
             return false
         }
 
-        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        val isMainRequest = requestCode == REQUEST_CODE
+        val isRetryRequest = requestCode == AUDIO_RETRY_REQUEST_CODE
+
+        if (!isMainRequest && !isRetryRequest) {
+            return false
+        }
+
+        if (resultCode == Activity.RESULT_OK) {
+            // Reset retry flag on success
+            isAudioPickRetry = false
             this.dispatchEventStatus(true)
             Thread(Runnable {
                 if (data != null) {
@@ -100,10 +112,35 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
                 }
             }).start()
             return true
-        } else if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_CANCELED) {
+        } else if (resultCode == Activity.RESULT_CANCELED) {
+            // If this was the primary audio ACTION_PICK attempt and it was cancelled
+            // almost immediately (within 1 second), it's likely a silent failure
+            // (e.g., Funtouch OS where the picker resolves but fails at runtime).
+            // Retry with ACTION_OPEN_DOCUMENT as a fallback.
+            val elapsed = System.currentTimeMillis() - audioPickLaunchTime
+            if (isMainRequest && type?.startsWith("audio") == true && !isAudioPickRetry && elapsed < 1000) {
+                isAudioPickRetry = true
+                try {
+                    val fallbackIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                        this.type = "audio/*"
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
+                    }
+                    activity.startActivityForResult(fallbackIntent, AUDIO_RETRY_REQUEST_CODE)
+                } catch (e: Exception) {
+                    isAudioPickRetry = false
+                    finishWithError("activity_not_found", "No app found to pick the audio file.")
+                }
+                return true
+            }
+            // Either it's a retry that was cancelled (user genuinely cancelled),
+            // or it's a non-audio type, or user spent time in the picker before cancelling
+            // — treat as normal cancellation.
+            isAudioPickRetry = false
             finishWithSuccess(null)
             return true
-        } else if (requestCode == REQUEST_CODE) {
+        } else {
+            isAudioPickRetry = false
             finishWithError("unknown_activity", "Unknown activity error, please fill an issue.")
         }
         return false
@@ -165,6 +202,9 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
         }
 
         try {
+            if (type?.startsWith("audio") == true) {
+                audioPickLaunchTime = System.currentTimeMillis()
+            }
             activity.startActivityForResult(intent, REQUEST_CODE)
         } catch (e: Exception) {
             finishWithError("activity_not_found", "No app found to pick the file.")
@@ -173,18 +213,18 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
 
 
     private fun createAudioPickerIntent(): Intent {
-        // Prioritize ACTION_PICK with MediaStore for reliability, which is what you were using.
+        // Use ACTION_PICK with MediaStore for a dedicated audio list UX.
+        // If the picker silently fails (e.g., on Funtouch OS), onActivityResult
+        // will detect the RESULT_CANCELED and automatically retry with ACTION_OPEN_DOCUMENT.
         val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
 
-        // Check if any app on the device can handle the primary intent.
         if (activity.packageManager.resolveActivity(pickIntent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
             return pickIntent.apply {
                 putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
             }
         }
 
-        // If not, fall back to the more general ACTION_GET_CONTENT.
-        // This is more likely to be supported as it allows apps like file managers to respond.
+        // Fallback if no app can handle ACTION_PICK at all
         return Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             this.type = "audio/*"
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -325,5 +365,7 @@ class CometChatFilePickerDelegate (constActivity: Activity): PluginRegistry.Acti
         isMultipleSelection = false
         allowedExtensions = null
         loadDataToMemory = false
+        isAudioPickRetry = false
+        audioPickLaunchTime = 0
     }
 }

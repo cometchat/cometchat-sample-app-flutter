@@ -399,8 +399,8 @@ class _MyPageViewState extends State<MyPageView>
                 shape: RoundedRectangleBorder(
                   borderRadius:
                   BorderRadius.circular(spacing.radius2 ?? 0),
-                  side: BorderSide(
-                    color: colorPalette.borderLight ?? Colors.transparent,
+                  side: const BorderSide(
+                    color: Color(0xFFE8E8E8),
                     width: 1,
                   ),
                 ),
@@ -442,29 +442,45 @@ class _MyPageViewState extends State<MyPageView>
                       height: 44,
                       padding: EdgeInsets.all(spacing.padding4 ?? 0),
                       value: '/Create',
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
-                            child: Icon(
-                              Icons.add_comment_outlined,
-                              color: colorPalette.iconSecondary,
-                              size: 24,
+                      child: Container(
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Color(0xFFE8E8E8),
+                              width: 1,
                             ),
                           ),
-                          Text(
-                            "Create Conversation",
-                            style: TextStyle(
-                              fontSize: typography.body?.regular?.fontSize,
-                              fontFamily:
-                              typography.body?.regular?.fontFamily,
-                              fontWeight:
-                              typography.body?.regular?.fontWeight,
-                              color: colorPalette.textPrimary,
-                            ),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(spacing.padding4 ?? 0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    right: spacing.padding2 ?? 0),
+                                child: Icon(
+                                  Icons.add_comment_outlined,
+                                  color: colorPalette.iconSecondary,
+                                  size: 24,
+                                ),
+                              ),
+                              Text(
+                                "Create Conversation",
+                                style: TextStyle(
+                                  fontSize:
+                                  typography.body?.regular?.fontSize,
+                                  fontFamily:
+                                  typography.body?.regular?.fontFamily,
+                                  fontWeight:
+                                  typography.body?.regular?.fontWeight,
+                                  color: colorPalette.textPrimary,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                     PopupMenuItem(
@@ -536,11 +552,10 @@ class _MyPageViewState extends State<MyPageView>
                       value: '/version',
                       child: Container(
                         width: double.infinity,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           border: Border(
                             top: BorderSide(
-                              color: colorPalette.borderLight ??
-                                  Colors.transparent,
+                              color: Color(0xFFE8E8E8),
                               width: 1,
                             ),
                           ),
@@ -548,7 +563,7 @@ class _MyPageViewState extends State<MyPageView>
                         child: Padding(
                           padding: EdgeInsets.all(spacing.padding4 ?? 0),
                           child: Text(
-                            "v5.2.15",
+                            "v5.2.16",
                             style: TextStyle(
                               fontSize:
                               typography.body?.regular?.fontSize,
@@ -694,8 +709,8 @@ class _MyPageViewState extends State<MyPageView>
             elevation: 0,
             onTap: _onItemTapped,
             selectedItemColor: colorPalette.primary,
-            showUnselectedLabels: false,
-            unselectedItemColor: colorPalette.textSecondary,
+            showUnselectedLabels: true,
+            unselectedItemColor: colorPalette.iconSecondary,
             selectedLabelStyle: TextStyle(
               color: colorPalette.primary,
               fontSize: typography.caption1?.medium?.fontSize,
@@ -703,7 +718,7 @@ class _MyPageViewState extends State<MyPageView>
               fontWeight: typography.caption1?.medium?.fontWeight,
             ),
             unselectedLabelStyle: TextStyle(
-              color: colorPalette.textSecondary,
+              color: colorPalette.iconSecondary,
               fontSize: typography.caption1?.regular?.fontSize,
               fontFamily: typography.caption1?.regular?.fontFamily,
               fontWeight: typography.caption1?.regular?.fontWeight,

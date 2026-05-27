@@ -1,19 +1,83 @@
+# 5.2.16
+
+## New 
+- None
+
+## Enhancements
+- Enhanced the Edit Message composer UI in the Hybrid iOS sample application to better align with the latest Figma design specifications.
+- Improved the Call Detail screen in the Hybrid iOS sample application by adding dedicated voice and video calling options for easier call initiation.
+- Updated the Create Group modal UI in the Hybrid Mobile sample application to better match the latest Figma-based design guidelines.
+- Enhanced the bottom navigation menu in the Hybrid iOS sample application for improved consistency with the latest UI specifications.
+- Improved the App Credentials screen in the Hybrid iOS sample application to better align with the latest Figma design patterns.
+- Updated the Social Login screen UI in the Hybrid Mobile sample application to match the latest design specifications and improve visual consistency.
+- Enhanced the Chat List profile context menu in the Hybrid Mobile sample application to align with the latest design system updates.
+- Improved the Login screen UI in the Hybrid Mobile sample application to better match the latest Figma specifications and onboarding experience.
+
+## Fixes 
+- None 
+
+# 6.0.1
+
+## New
+- AI Assistant Chat History component for viewing past AI conversations
+- AI-specific message configuration (smart replies, conversation starters)
+- New Chat and Chat History buttons in AI message header
+- Public group auto-rejoin on tap (for kicked users)
+- Blocked user and kicked/banned banners in messages screen
+- Search with thread reply navigation support
+- AppCredentials screen with SharedPreferences persistence
+
+## Enhancements
+- Updated CometChat SDK to 5.0.1
+- Updated Calls SDK to 5.0.2
+- Migrated sample apps from GetX to plain setState architecture
+- Fixed stale user/group objects bug in messages screen (using mutable local copies)
+- Improved message list with markdown formatting support
+- Enhanced login screen with dotted background pattern and user grid
+
+## Fixes
+- Messages screen now passes mutable `_user`/`_group` to UIKit components instead of stale `widget.user`/`widget.group`
+- Guard screen properly re-initializes Calls SDK on cached session restore
+- Protected group join flow from conversations and groups tabs
+
 # 5.2.15 
 
 ## New
-
 - None
 
 ## Enhancement
-
 - None
 
 ## Fixes
-
 - Fixed an issue where favicons were missing in URL preview messages for shared links.
 - Fixed an issue where the “See More” button in the search component did not behave correctly while loading additional search results.
 - Fixed an issue where received `.m4a` audio files were not immediately playable and their duration was not displayed correctly after receipt.
 - Fixed an issue where `MessagesRequestBuilder` usage caused inconsistent message retrieval behavior under certain filtering and pagination scenarios.
+
+# v6.0.0
+
+## New
+- Added message flagging and reporting support, along with translations for 20 locales, allowing users to moderate conversations in their preferred language.
+- Added the `CometChatComposerLayout` component with both single-line and double-line layout options for greater flexibility when customizing the message composer experience.
+- Added a keyboard diagnostics utility to simplify troubleshooting and validation of keyboard-related behaviors across chat interfaces.
+- Added a thumbnail extraction utility to generate preview images from supported media content more efficiently.
+- Added an in-chat image viewer, allowing users to open and preview shared images directly within conversations.
+- Added Firebase configuration support to the sample application to simplify setup for push notifications and related integrations.
+
+## Enhancements
+- Improved the composer layout rendering pipeline to provide more consistent behavior and easier customization across composer variants.
+- Enhanced the rich-text messaging flow to use a dedicated WYSIWYG-only rendering path for more predictable formatting behavior.
+- Improved image message bubbles to provide a more polished and consistent media viewing experience in conversations.
+- Expanded the conversation preview utility to support additional conversation and message preview scenarios.
+- Refreshed BLoC implementations across conversations, groups, users, message actions, call buttons, and ongoing call flows to improve consistency and maintainability across the SDK experience.
+- Updated sample application screens to better reflect the latest UI components, layouts, and interaction patterns.
+- Reorganized the Skills directory structure and added `.claude-plugin` manifest support to improve plugin discovery and project organization.
+
+## Fixes
+- Fixed an issue where long-press actions on formatted mentions could produce incorrect formatter behavior in certain message interaction flows.
+- Fixed an issue where calling functionality could stop working after a user logged out and logged back in, ensuring calls continue to work reliably across session changes.
+- Fixed an issue where Android audio message recording could become stuck after the microphone permission prompt, restoring smooth voice message recording.
+
 
 # 5.2.14
 
