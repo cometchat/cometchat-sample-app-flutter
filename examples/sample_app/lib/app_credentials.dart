@@ -4,8 +4,6 @@ class AppCredentials {
   static const String _defaultAppId = '';
   static const String _defaultRegion = '';
   static const String _defaultAuthKey = '';
-  static const String fcmProviderId = 'Android-CometChat-Team-Messenger';
-  static const String apnProviderId = 'flutterIOsTestingInternal';
 
   static String _appId = _defaultAppId;
   static String _region = _defaultRegion;

@@ -13,8 +13,6 @@ import 'package:sample_app/screens/join_protected_group_screen.dart';
 import 'package:sample_app/screens/login_screen.dart';
 import 'package:sample_app/screens/thread_screen.dart';
 
-// Mobile-only imports — guarded by kIsWeb at call sites
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -31,8 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   // UI event listener for mention tap → open chat navigation
   final String _uiListenerId = 'home_screen_ui_${DateTime.now().millisecondsSinceEpoch}';
 
-  static const _tabTitlesMobile = ['Chats', 'Calls', 'Users', 'Groups'];
-  static const _tabTitlesWeb = ['Chats', 'Users', 'Groups'];
+  static const _tabTitlesMobile = ['Chats', 'Calls', 'Users', 'Groups', 'Notifications'];
+  static const _tabTitlesWeb = ['Chats', 'Users', 'Groups', 'Notifications'];
   static List<String> get _tabTitles => kIsWeb ? _tabTitlesWeb : _tabTitlesMobile;
 
   @override
@@ -100,6 +98,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.people_alt_outlined),
             activeIcon: Icon(Icons.people_alt_rounded),
             label: 'Groups',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.notifications_outlined),
+            activeIcon: Icon(Icons.notifications_rounded),
+            label: 'Notifications',
           ),
         ],
       ),
@@ -188,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        const PopupMenuDivider(height: 1),
+
         PopupMenuItem(
           height: 48,
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -247,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           enabled: false,
           child: Text(
-            'v6.0.0-beta3',
+            'v6.0.2',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
@@ -260,8 +263,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
-    // On web: no Calls tab. Indices: 0=Chats, 1=Users, 2=Groups
-    // On mobile: 0=Chats, 1=Calls, 2=Users, 3=Groups
+    // On web: no Calls tab. Indices: 0=Chats, 1=Users, 2=Groups, 3=Notifications
+    // On mobile: 0=Chats, 1=Calls, 2=Users, 3=Groups, 4=Notifications
     if (!kIsWeb && _currentIndex == 1) {
       return CometChatCallLogs(
         hideAppbar: true,
@@ -356,11 +359,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     // Wrap in ValueListenableBuilder so toggle changes rebuild tabs instantly
-    // On web: 0=Chats, 1=Users, 2=Groups (no Calls offset)
-    // On mobile: 0=Chats, 2=Users, 3=Groups → subtract 1 for Calls gap
+    // On web: 0=Chats, 1=Users, 2=Groups, 3=Notifications (no Calls offset)
+    // On mobile: 0=Chats, 2=Users, 3=Groups, 4=Notifications → subtract 1 for Calls gap
     final int stackIndex;
     if (kIsWeb) {
-      stackIndex = _currentIndex; // 0=Chats, 1=Users, 2=Groups
+      stackIndex = _currentIndex; // 0=Chats, 1=Users, 2=Groups, 3=Notifications
     } else {
       stackIndex = _currentIndex == 0 ? 0 : _currentIndex - 1;
     }
@@ -373,6 +376,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildConversationsTab(),
             _buildUsersTab(),
             _buildGroupsTab(),
+            _buildNotificationsTab(),
           ],
         );
       },
@@ -443,6 +447,21 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildNotificationsTab() {
+    return CometChatNotificationFeed(
+      showHeader: false,
+      onItemClick: (feedItem) {
+        debugPrint('Notification tapped: ${feedItem.id}');
+      },
+      onActionClick: (feedItem, action) {
+        debugPrint('Notification action: ${feedItem.id} → ${action.action.type}');
+      },
+      onError: (error) {
+        debugPrint('NotificationFeed error: $error');
+      },
     );
   }
 

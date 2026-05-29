@@ -121,3 +121,10 @@ export 'chat_ui/src/message_composer/widgets/rich_text_toolbar/rich_text_toolbar
 
 // Search
 export 'chat_ui/src/search/search.dart';
+
+// Notification Feed
+export 'chat_ui/src/notification_feed/cometchat_notification_feed_style.dart';
+export 'chat_ui/src/notification_feed/bloc/bloc.dart' hide GetUnreadCountUseCase;
+export 'chat_ui/src/notification_feed/di/di.dart';
+export 'chat_ui/src/notification_feed/widgets/widgets.dart';
+export 'chat_ui/src/notification_feed/utils/utils.dart';
