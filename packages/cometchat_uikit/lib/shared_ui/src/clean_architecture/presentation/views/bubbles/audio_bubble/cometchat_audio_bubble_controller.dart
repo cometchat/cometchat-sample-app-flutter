@@ -1,8 +1,13 @@
 import 'dart:async';
-import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/utils/platform_utils/platform_file_utils.dart' as platform;
+
+// Conditional import for web audio player
+import 'web_audio_player_stub.dart'
+    if (dart.library.html) 'web_audio_player.dart' as web_player;
 
 /// Global state manager for audio bubbles to preserve playback state across widget rebuilds
 class AudioStateManager {
@@ -76,6 +81,9 @@ class AudioBubbleState {
   String? localPath;
 
   VideoPlayerController? _controller;
+  web_player.WebAudioPlayer? _webPlayer;
+  StreamSubscription<Duration>? _webPositionSub;
+  StreamSubscription<void>? _webCompletionSub;
   PlayStates _playState = PlayStates.init;
   bool _isInitializing = false;
   Duration? _totalDuration;
@@ -97,68 +105,133 @@ class AudioBubbleState {
   Duration? get totalDuration => _totalDuration;
   Duration get currentPosition => _currentPosition;
 
+  /// Completer to prevent concurrent initialization calls
+  Completer<void>? _initCompleter;
+
   Future<void> initializeController() async {
     debugPrint("initializeController: $id");
 
-    // Do not re-initialize if already initialized
-    if (_controller != null) return;
+    // If already initialized, return immediately
+    if (kIsWeb && _webPlayer != null && _webPlayer!.isInitialized) return;
+    if (!kIsWeb && _controller != null && _controller!.value.isInitialized) return;
+
+    // If initialization is already in progress, wait for it
+    if (_isInitializing && _initCompleter != null) {
+      await _initCompleter!.future;
+      return;
+    }
 
     try {
+      _initCompleter = Completer<void>();
       _isInitializing = true;
       _notifyStateUpdate();
 
-      /// ✅ Check if local file REALLY exists
-      final bool hasValidLocalFile =
-          localPath != null &&
-              localPath!.isNotEmpty &&
-              File(localPath!).existsSync();
-
-      if (hasValidLocalFile) {
-        debugPrint("Using LOCAL audio file: $localPath");
-
-        if (Platform.isIOS) {
-          await _setAudioSessionToSpeaker();
+      if (kIsWeb) {
+        // Web: use HTML <audio> element for proper webm/opus support
+        if (audioUrl == null || audioUrl!.isEmpty) {
+          debugPrint("No valid audio URL for web playback, id: $id");
+          _isInitializing = false;
+          _notifyStateUpdate();
+          return;
         }
 
-        _controller = VideoPlayerController.file(
-          File(localPath!),
-          videoPlayerOptions: VideoPlayerOptions(
-            mixWithOthers: true,
-          ),
-        );
-      } else if (audioUrl != null && audioUrl!.isNotEmpty) {
-        debugPrint("Using NETWORK audio url: $audioUrl");
+        debugPrint("Using WEB audio player for: $audioUrl");
+        _webPlayer = web_player.createWebAudioPlayer();
+        final success = await _webPlayer!.initialize(audioUrl!);
 
-        if (Platform.isIOS) {
-          await _resetAudioSession();
+        if (!success) {
+          debugPrint('[AudioBubbleState] Web audio player failed to initialize for id: $id');
+          _webPlayer?.dispose();
+          _webPlayer = null;
+          _isInitializing = false;
+          _notifyStateUpdate();
+          return;
         }
 
-        _controller = VideoPlayerController.networkUrl(
-          Uri.parse(audioUrl!),
-          videoPlayerOptions: VideoPlayerOptions(
-            mixWithOthers: true,
-          ),
-        );
+        _totalDuration = _webPlayer!.duration;
+        debugPrint('[AudioBubbleState] Web audio initialized for id: $id, duration: $_totalDuration');
+
+        // Listen for position updates
+        _webPositionSub = _webPlayer!.positionStream.listen((pos) {
+          _currentPosition = pos;
+          // Update duration if it changed (webm progressive duration)
+          if (_webPlayer!.duration > Duration.zero) {
+            _totalDuration = _webPlayer!.duration;
+          }
+          _notifyStateUpdate();
+        });
+
+        // Listen for completion
+        _webCompletionSub = _webPlayer!.completionStream.listen((_) {
+          stopAudio();
+        });
+
       } else {
-        debugPrint("No valid audio source found for id: $id");
-        _isInitializing = false;
-        _notifyStateUpdate();
-        return;
+        // Native: use VideoPlayerController
+        final bool hasValidLocalFile =
+            localPath != null &&
+                localPath!.isNotEmpty &&
+                platform.fileExistsSync(localPath!);
+
+        if (hasValidLocalFile) {
+          debugPrint("Using LOCAL audio file: $localPath");
+
+          if (platform.platformIsIOS()) {
+            await _setAudioSessionToSpeaker();
+          }
+
+          _controller = VideoPlayerController.networkUrl(
+            Uri.parse('file://$localPath'),
+            videoPlayerOptions: VideoPlayerOptions(
+              mixWithOthers: true,
+            ),
+          );
+        } else if (audioUrl != null && audioUrl!.isNotEmpty) {
+          debugPrint("Using NETWORK audio url: $audioUrl");
+
+          if (platform.platformIsIOS()) {
+            await _resetAudioSession();
+          }
+
+          _controller = VideoPlayerController.networkUrl(
+            Uri.parse(audioUrl!),
+            videoPlayerOptions: VideoPlayerOptions(
+              mixWithOthers: true,
+            ),
+          );
+        } else {
+          debugPrint("No valid audio source found for id: $id");
+          _isInitializing = false;
+          _notifyStateUpdate();
+          return;
+        }
+
+        await _controller!.initialize();
+
+        if (!_controller!.value.isInitialized) {
+          debugPrint('[AudioBubbleState] Controller failed to initialize for id: $id');
+          _disposeController();
+          _isInitializing = false;
+          _notifyStateUpdate();
+          return;
+        }
+
+        _totalDuration = _controller!.value.duration;
+        debugPrint('[AudioBubbleState] Initialized successfully for id: $id, duration: $_totalDuration');
+
+        _controller!.addListener(_onControllerUpdate);
       }
 
-      /// ✅ Initialize controller
-      await _controller!.initialize();
-
-      _totalDuration = _controller!.value.duration;
-
-      /// ✅ Listen for progress & completion
-      _controller!.addListener(_onControllerUpdate);
-
     } catch (e, stack) {
-      debugPrint("Error initializing audio controller: $e");
+      debugPrint("Error initializing audio controller for id: $id — $e");
       debugPrintStack(stackTrace: stack);
+      _disposeController();
+      _webPlayer?.dispose();
+      _webPlayer = null;
     } finally {
       _isInitializing = false;
+      _initCompleter?.complete();
+      _initCompleter = null;
       _notifyStateUpdate();
     }
   }
@@ -175,57 +248,117 @@ class AudioBubbleState {
   }
 
   Future<void> playAudio() async {
-    if (_controller == null || !_controller!.value.isInitialized) {
-      await initializeController();
-    }
-
-    final controller = _controller;
-    if (controller != null && controller.value.isInitialized) {
-      // Pause all other audio bubbles
-      AudioStateManager().pauseAllExcept(id);
-
-      _playState = PlayStates.playing;
-      await controller.play();
-      _notifyStateUpdate();
+    if (kIsWeb) {
+      if (_webPlayer == null || !_webPlayer!.isInitialized) {
+        await initializeController();
+      }
+      if (_webPlayer == null || !_webPlayer!.isInitialized) {
+        debugPrint('[AudioBubbleState] Cannot play — web player not initialized for id: $id');
+        _playState = PlayStates.stopped;
+        _notifyStateUpdate();
+        return;
+      }
+      try {
+        AudioStateManager().pauseAllExcept(id);
+        _playState = PlayStates.playing;
+        await _webPlayer!.play();
+        _notifyStateUpdate();
+      } catch (e, stack) {
+        debugPrint('[AudioBubbleState] Error playing web audio for id: $id — $e');
+        debugPrintStack(stackTrace: stack);
+        _playState = PlayStates.stopped;
+        _notifyStateUpdate();
+      }
+    } else {
+      if (_controller == null || !_controller!.value.isInitialized) {
+        await initializeController();
+      }
+      final controller = _controller;
+      if (controller == null || !controller.value.isInitialized) {
+        debugPrint('[AudioBubbleState] Cannot play — controller not initialized for id: $id');
+        _playState = PlayStates.stopped;
+        _notifyStateUpdate();
+        return;
+      }
+      try {
+        AudioStateManager().pauseAllExcept(id);
+        _playState = PlayStates.playing;
+        await controller.play();
+        _notifyStateUpdate();
+      } catch (e, stack) {
+        debugPrint('[AudioBubbleState] Error playing audio for id: $id — $e');
+        debugPrintStack(stackTrace: stack);
+        _playState = PlayStates.stopped;
+        _notifyStateUpdate();
+      }
     }
   }
 
   Future<void> pauseAudio() async {
-    final controller = _controller;
-    if (controller != null && controller.value.isInitialized) {
-      await controller.pause();
+    if (kIsWeb) {
+      _webPlayer?.pause();
       _playState = PlayStates.paused;
       _notifyStateUpdate();
+    } else {
+      final controller = _controller;
+      if (controller != null && controller.value.isInitialized) {
+        await controller.pause();
+        _playState = PlayStates.paused;
+        _notifyStateUpdate();
+      }
     }
   }
 
   Future<void> stopAudio() async {
-    final controller = _controller;
-    if (controller != null && controller.value.isInitialized) {
-      await controller.pause();
-      await controller.seekTo(Duration.zero);
+    if (kIsWeb) {
+      _webPlayer?.pause();
+      _webPlayer?.seekTo(Duration.zero);
       _playState = PlayStates.stopped;
       _currentPosition = Duration.zero;
       _notifyStateUpdate();
+    } else {
+      final controller = _controller;
+      if (controller != null && controller.value.isInitialized) {
+        await controller.pause();
+        await controller.seekTo(Duration.zero);
+        _playState = PlayStates.stopped;
+        _currentPosition = Duration.zero;
+        _notifyStateUpdate();
+      }
     }
   }
 
   /// Seek to a specific duration
   Future<void> seekTo(Duration position) async {
-    if (_controller != null && _controller!.value.isInitialized) {
-      await _controller!.seekTo(position);
+    if (kIsWeb) {
+      _webPlayer?.seekTo(position);
       _currentPosition = position;
       _notifyStateUpdate();
+    } else {
+      if (_controller != null && _controller!.value.isInitialized) {
+        await _controller!.seekTo(position);
+        _currentPosition = position;
+        _notifyStateUpdate();
+      }
     }
   }
 
   /// Seek to a progress value (0.0 - 1.0)
   Future<void> seekToProgress(double progress) async {
-    if (_controller != null && _controller!.value.isInitialized && _totalDuration != null) {
-      final position = Duration(
-        milliseconds: (_totalDuration!.inMilliseconds * progress.clamp(0.0, 1.0)).round(),
-      );
-      await seekTo(position);
+    if (kIsWeb) {
+      if (_webPlayer != null && _totalDuration != null) {
+        final position = Duration(
+          milliseconds: (_totalDuration!.inMilliseconds * progress.clamp(0.0, 1.0)).round(),
+        );
+        await seekTo(position);
+      }
+    } else {
+      if (_controller != null && _controller!.value.isInitialized && _totalDuration != null) {
+        final position = Duration(
+          milliseconds: (_totalDuration!.inMilliseconds * progress.clamp(0.0, 1.0)).round(),
+        );
+        await seekTo(position);
+      }
     }
   }
 
@@ -250,6 +383,7 @@ class AudioBubbleState {
   }
 
   Future<void> _setAudioSessionToSpeaker() async {
+    if (kIsWeb) return;
     MethodChannel channel = const MethodChannel('cometchat_uikit_shared');
     try {
       await channel.invokeMethod('setAudioSessionToSpeaker');
@@ -259,6 +393,7 @@ class AudioBubbleState {
   }
 
   Future<void> _resetAudioSession() async {
+    if (kIsWeb) return;
     MethodChannel channel = const MethodChannel('cometchat_uikit_shared');
     try {
       await channel.invokeMethod('resetAudioSession');
@@ -271,6 +406,7 @@ class AudioBubbleState {
     localPath = path;
     _playState = PlayStates.init;
     _disposeController();
+    _disposeWebPlayer();
     _notifyStateUpdate();
   }
 
@@ -281,14 +417,24 @@ class AudioBubbleState {
     _controller = null;
   }
 
+  void _disposeWebPlayer() {
+    _webPositionSub?.cancel();
+    _webPositionSub = null;
+    _webCompletionSub?.cancel();
+    _webCompletionSub = null;
+    _webPlayer?.dispose();
+    _webPlayer = null;
+  }
+
 
   void dispose() {
     _controller?.removeListener(_onControllerUpdate);
     _controller?.dispose();
     _controller = null;
+    _disposeWebPlayer();
     _stateController.close();
 
-    if (localPath != null && Platform.isIOS) {
+    if (!kIsWeb && localPath != null && platform.platformIsIOS()) {
       _resetAudioSession();
     }
   }

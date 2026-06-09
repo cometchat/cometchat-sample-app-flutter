@@ -1,18 +1,9 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'platform_utils/platform_file_utils.dart' as platform;
 
 class BubbleUtils {
-  static String fileDownloadPath = "";
-
-  static setDownloadFilePath() async {
-    if (Platform.isIOS) {
-      fileDownloadPath = (await getTemporaryDirectory()).path;
-    } else {
-      fileDownloadPath = (await getExternalStorageDirectory())!.path;
-    }
-  }
-
   static final emailRegex = RegExp(
     r'^(.*?)((mailto:)?[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z][A-Z]+)',
     caseSensitive: false,
@@ -24,35 +15,19 @@ class BubbleUtils {
       RegExp(r'^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}');
 
   static Future<String?> downloadFile(String fileUrl, String fileName) async {
-    try {
-      await setDownloadFilePath();
-      if (fileDownloadPath == "") {
-        return null;
+    if (kIsWeb) {
+      // On web, open the file URL in a new tab for download
+      final uri = Uri.parse(fileUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
-
-      String filePath = "$fileDownloadPath/$fileName";
-      final request = await HttpClient().getUrl(Uri.parse(fileUrl));
-      final response = await request.close();
-      await response.pipe(File(filePath).openWrite());
-      debugPrint("Download path $filePath");
-      return filePath;
-    } catch (e) {
-      debugPrint("Something went wrong");
       return null;
     }
+    return platform.downloadFileToLocal(fileUrl, fileName);
   }
 
   static Future<String?> isFileDownloaded(String fileName) async {
-    if (fileDownloadPath.isEmpty) {
-      await setDownloadFilePath();
-    }
-
-    String filePath = "$fileDownloadPath/$fileName";
-
-    if (File(filePath).existsSync() == true) {
-      return filePath;
-    } else {
-      return null;
-    }
+    if (kIsWeb) return null;
+    return platform.getDownloadedFilePath(fileName);
   }
 }

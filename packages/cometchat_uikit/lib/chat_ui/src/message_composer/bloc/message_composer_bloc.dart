@@ -1,8 +1,8 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import '../../../../shared_ui/src/clean_architecture/core/utils/platform_utils/platform_file_utils.dart' as platform;
 import '../../../../shared_ui/src/clean_architecture/core/constants/enums.dart'
     as core_enums;
 
@@ -136,6 +136,7 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
     on<SubmitAudioRecording>(_onSubmitAudioRecording);
     on<LockBottomPadding>(_onLockBottomPadding);
     on<UnlockBottomPadding>(_onUnlockBottomPadding);
+    on<UpdateParentMessageId>(_onUpdateParentMessageId);
 
     // Initialize listeners
     _initializeListeners();
@@ -397,7 +398,9 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
     // Use raw filesystem path — file:// prefix breaks MultipartFile.fromFile()
     final filePath = event.path;
     debugPrint('[MessageComposerBloc] sendMedia — path: $filePath, type: ${event.messageType}');
-    debugPrint('[MessageComposerBloc] sendMedia — file exists: ${File(filePath).existsSync()}');
+    if (!kIsWeb) {
+      debugPrint('[MessageComposerBloc] sendMedia — file exists: ${platform.fileExistsSync(filePath)}');
+    }
 
     final mediaMessage = MediaMessage(
       receiverType: state.receiverType,
@@ -411,6 +414,13 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
       category: CometChatMessageCategory.message,
       sentAt: DateTime.now(),
     );
+
+    // Set file bytes for web upload (requires unpublished SDK changes)
+    // TODO: Re-enable when cometchat_sdk publishes fileBytes/fileName support
+    // if (event.fileBytes != null) {
+    //   mediaMessage.fileBytes = event.fileBytes;
+    //   mediaMessage.fileName = event.fileName;
+    // }
 
     // Set quoted message fields if in reply mode
     if (state.isReplyMode && state.replyMessage != null) {
@@ -818,11 +828,18 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
       status: MessageComposerStatus.idle,
     ));
 
+    // Determine correct filename based on platform
+    // Web records as webm/opus, native records as m4a/AAC
+    // Use generic "audio" name to avoid format-specific tags in UI
+    final defaultFileName = kIsWeb ? 'audio.webm' : 'audio.m4a';
+
     // Then send the audio message
     add(SendMediaMessage(
       path: event.filePath,
       messageType: MessageTypeConstants.audio,
       metadata: {'localPath': event.filePath},
+      fileBytes: event.fileBytes,
+      fileName: event.fileName ?? defaultFileName,
     ));
   }
 
@@ -842,6 +859,27 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
     Emitter<MessageComposerState> emit,
   ) {
     emit(state.copyWith(clearLockedBottomPadding: true));
+  }
+
+  /// Handle UpdateParentMessageId event.
+  ///
+  /// Updates the composer's parentMessageId and composerId at runtime.
+  /// This is triggered when the MessageList BLoC resolves the thread
+  /// parentMessageId for an AI agent conversation after the Composer
+  /// was already constructed (with parentMessageId=0).
+  void _onUpdateParentMessageId(
+    UpdateParentMessageId event,
+    Emitter<MessageComposerState> emit,
+  ) {
+    final newComposerId = _buildComposerId(
+      state.user,
+      state.group,
+      event.parentMessageId,
+    );
+    emit(state.copyWith(
+      parentMessageId: event.parentMessageId,
+      composerId: newComposerId,
+    ));
   }
 
   // ============================================================================
@@ -955,6 +993,16 @@ class MessageComposerBloc extends Bloc<MessageComposerEvent, MessageComposerStat
   void requestComposerFocus(Map<String, dynamic>? id) {
     if (!_isForThisWidget(id)) return;
     onFocusRequested?.call();
+  }
+
+  @override
+  void ccAgentChatThreadResolved(
+      {required String receiverId, required int parentMessageId}) {
+    // Only handle if this composer is for the same agent (receiverId match)
+    // and it's an AI/agent chat (user-based, not group)
+    if (state.user == null) return;
+    if (state.user!.uid != receiverId) return;
+    add(UpdateParentMessageId(parentMessageId));
   }
 
   @override

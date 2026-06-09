@@ -54,6 +54,8 @@ class AudioVisualizerState extends State<AudioVisualizer> {
 
   @override
   void dispose() {
+    _streamSubscription?.cancel();
+    _controller.dispose();
     super.dispose();
   }
 

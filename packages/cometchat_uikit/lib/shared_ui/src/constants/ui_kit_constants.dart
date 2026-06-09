@@ -350,8 +350,12 @@ class AudioBubbleConstants{
 }
 
 class SetSourceConstant {
-  static const String uiKitVersion = "uikit-v5";
+  static const String uiKitVersion = "uikit-v6";
   static const String platform = "flutter";
+
+  /// Semantic version of the UIKit package.
+  /// Must be kept in sync with pubspec.yaml version field.
+  static const String version = "6.0.3";
 }
 
 class ErrorConstants {

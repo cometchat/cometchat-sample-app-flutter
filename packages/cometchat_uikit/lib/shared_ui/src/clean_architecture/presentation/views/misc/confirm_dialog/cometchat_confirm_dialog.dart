@@ -15,11 +15,12 @@ import 'package:flutter/material.dart';
 ///  messageText: Text("Are you sure you want to block this contact? You won’t receive messages from them anymore."),
 ///  confirmButtonText: "Block",
 ///  cancelButtonText: "Cancel",
-///  onConfirm: () {
+///  onConfirm: (dialogContext) {
+///     Navigator.of(dialogContext).pop();
 ///     // Block the contact
 ///  },
-///  onCancel: () {
-///     // Cancel the action
+///  onCancel: (dialogContext) {
+///     Navigator.of(dialogContext).pop();
 ///  },
 ///  style: CometChatConfirmDialogStyle(
 ///     backgroundColor: Colors.white,
@@ -56,8 +57,9 @@ class CometChatConfirmDialog {
     this.icon,
     this.cancelButtonTextWidget,
     this.confirmButtonTextWidget,
-    this.showIcon=true,
+    this.showIcon = true,
     this.intentPadding,
+    this.useRootNavigator = true,
   });
 
   /// The current [BuildContext] in which the dialog is shown.
@@ -82,10 +84,14 @@ class CometChatConfirmDialog {
   final String? cancelButtonText;
 
   /// Callback function invoked when the confirm button is pressed.
-  final Function()? onConfirm;
+  /// Receives the dialog's [BuildContext] so callers can dismiss it via
+  /// `Navigator.of(dialogContext).pop()` without worrying about root vs local navigator.
+  final Function(BuildContext dialogContext)? onConfirm;
 
   /// Callback function invoked when the cancel button is pressed.
-  final Function()? onCancel;
+  /// Receives the dialog's [BuildContext] so callers can dismiss it via
+  /// `Navigator.of(dialogContext).pop()` without worrying about root vs local navigator.
+  final Function(BuildContext dialogContext)? onCancel;
 
   /// A style object to customize the appearance of the dialog.
   final CometChatConfirmDialogStyle style;
@@ -111,6 +117,9 @@ class CometChatConfirmDialog {
   ///[showIcon] controls visibility of icon
   final bool showIcon;
 
+  ///[useRootNavigator]
+  final bool useRootNavigator;
+
   /// Shows the dialog by rendering it in the provided [context].
   ///
   /// This method uses [showDialog] to display the dialog and provides options
@@ -126,6 +135,7 @@ class CometChatConfirmDialog {
 
     showDialog(
       context: context,
+      useRootNavigator: useRootNavigator,
       barrierColor: confirmDialogStyle.shadow,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -173,21 +183,24 @@ class CometChatConfirmDialog {
                 right: spacing.padding6 ?? 0,
                 bottom: spacing.padding3 ?? 0,
               ),
-          icon:showIcon ? Container(
-            height: 80,
-            width: 80,
-            decoration: BoxDecoration(
-              color: confirmDialogStyle.iconBackgroundColor ??
-                  colorPalette.background2,
-              shape: BoxShape.circle,
-            ),
-            child: icon ??
-                Icon(
-                  Icons.block,
-                  color: confirmDialogStyle.iconColor ?? colorPalette.error,
-                  size: 48,
-                ),
-          ):const SizedBox(),
+          icon: showIcon
+              ? Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: confirmDialogStyle.iconBackgroundColor ??
+                        colorPalette.background2,
+                    shape: BoxShape.circle,
+                  ),
+                  child: icon ??
+                      Icon(
+                        Icons.block,
+                        color:
+                            confirmDialogStyle.iconColor ?? colorPalette.error,
+                        size: 48,
+                      ),
+                )
+              : const SizedBox(),
           title: title ??
               const Text(
                 "Block this contact?",
@@ -239,10 +252,11 @@ class CometChatConfirmDialog {
                           right: spacing.padding2 ?? 0,
                         ),
                         child: TextButton(
-                          onPressed: onCancel ??
-                              () {
-                                Navigator.of(context).pop();
-                              },
+                          onPressed: onCancel != null
+                              ? () => onCancel!(context)
+                              : () {
+                                  Navigator.of(context).pop();
+                                },
                           style: ButtonStyle(
                             backgroundColor: WidgetStateProperty.all(
                               confirmDialogStyle.cancelButtonBackground,
@@ -296,10 +310,11 @@ class CometChatConfirmDialog {
                   if (confirmButtonText != null)
                     Expanded(
                       child: TextButton(
-                        onPressed: onConfirm ??
-                            () {
-                              Navigator.of(context).pop();
-                            },
+                        onPressed: onConfirm != null
+                            ? () => onConfirm!(context)
+                            : () {
+                                Navigator.of(context).pop();
+                              },
                         style: ButtonStyle(
                           backgroundColor: WidgetStateProperty.all(
                             confirmDialogStyle.confirmButtonBackground,

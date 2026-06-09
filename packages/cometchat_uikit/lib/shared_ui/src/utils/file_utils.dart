@@ -1,10 +1,8 @@
-import 'dart:io';
+import '../clean_architecture/core/utils/platform_utils/platform_file_utils.dart' as platform;
 
 class FileUtils {
   static bool isLocalFileAvailable(String path) {
-    // Ensure that we are decoding the URL to get the correct file path
-    final decodedPath = Uri.decodeFull(path);
-    return decodedPath.isNotEmpty && File(decodedPath).existsSync();
+    return platform.isLocalFileAvailable(path);
   }
 
   static String? getLocalFilePath(Map<String, dynamic>? metadata) {

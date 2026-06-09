@@ -164,4 +164,9 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   Stream<NotificationEntity> getNotificationStream() {
     return _notificationController.stream;
   }
+
+  /// Dispose resources to prevent memory leaks
+  void dispose() {
+    _notificationController.close();
+  }
 }

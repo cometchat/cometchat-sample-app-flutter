@@ -291,16 +291,12 @@ class CometChatConversations extends StatefulWidget {
   final Widget? submitIcon;
 
   ///[setOptions] sets List of actions available on the long press of list item
-  final List<CometChatOption>? Function(
-      Conversation conversation,
-      ConversationsBloc bloc,
-      BuildContext context)? setOptions;
+  final List<CometChatOption>? Function(Conversation conversation,
+      ConversationsBloc bloc, BuildContext context)? setOptions;
 
   ///[addOptions] adds into the current List of actions available on the long press of list item
-  final List<CometChatOption>? Function(
-      Conversation conversation,
-      ConversationsBloc bloc,
-      BuildContext context)? addOptions;
+  final List<CometChatOption>? Function(Conversation conversation,
+      ConversationsBloc bloc, BuildContext context)? addOptions;
 
   ///[leadingView] to set leading view for each conversation
   final Widget? Function(BuildContext context, Conversation conversation)?
@@ -365,50 +361,51 @@ class _CometChatConversationsState extends State<CometChatConversations>
 
   ///BLoC to manage conversations state
   late ConversationsBloc conversationsBloc;
-  
+
   /// Track which conversation is showing delete overlay
   String? _conversationShowingDeleteOverlay;
-  
+
   /// Flag to track if theme has been initialized
   bool _themeInitialized = false;
-  
+
   /// Track brightness to detect dark mode changes
   Brightness? _cachedBrightness;
-  
+
   /// Track if this route is currently active (visible)
   /// When false, the widget will use cached content to prevent rebuilds
   bool _isRouteActive = true;
-  
+
   /// Cached widget to return when route is not active
   /// This prevents expensive rebuilds during keyboard animation
   Widget? _cachedWidget;
-  
+
   /// Keep state alive when offstage (e.g., in IndexedStack, PageView)
   /// This prevents expensive re-initialization when switching tabs
   @override
   bool get wantKeepAlive => true;
-  
+
   bool _routeSubscribed = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    
+
     // Subscribe to route changes if routeObserver is provided (only once)
     if (widget.routeObserver != null && !_routeSubscribed) {
       widget.routeObserver!.subscribe(this, ModalRoute.of(context)!);
       _routeSubscribed = true;
     }
-    
+
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     // But re-initialize when brightness changes (dark mode toggle)
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
     _cachedBrightness = currentBrightness;
     _themeInitialized = true;
     _cachedWidget = null; // Clear cached widget so it rebuilds with new theme
-    
+
     typography = CometChatThemeHelper.getTypography(context);
     colorPalette = CometChatThemeHelper.getColorPalette(context);
     spacing = CometChatThemeHelper.getSpacing(context);
@@ -428,7 +425,7 @@ class _CometChatConversationsState extends State<CometChatConversations>
             context: context, defaultTheme: CometChatDateStyle.of)
         .merge(style.dateStyle);
   }
-  
+
   // RouteAware callbacks - track when this route is visible
   @override
   void didPush() {
@@ -466,7 +463,7 @@ class _CometChatConversationsState extends State<CometChatConversations>
     } else {
       // Initialize service locator if not already initialized (only for internal bloc)
       _initializeServiceLocator();
-      
+
       // Create BLoC with dependencies from service locator and configuration options
       conversationsBloc = ConversationsBloc(
         disableSoundForMessages: widget.disableSoundForMessages ?? false,
@@ -481,7 +478,7 @@ class _CometChatConversationsState extends State<CometChatConversations>
 
     // Load conversations
     conversationsBloc.add(const LoadConversations());
-    
+
     super.initState();
   }
 
@@ -512,7 +509,7 @@ class _CometChatConversationsState extends State<CometChatConversations>
   Widget build(BuildContext context) {
     // Required for AutomaticKeepAliveClientMixin
     super.build(context);
-    
+
     // When route is not active (another screen on top), return cached widget
     // This prevents expensive rebuilds during keyboard animation on the messages screen
     if (!_isRouteActive && widget.routeObserver != null) {
@@ -520,7 +517,7 @@ class _CometChatConversationsState extends State<CometChatConversations>
         return _cachedWidget!;
       }
     }
-    
+
     // Build the actual widget
     final builtWidget = RepaintBoundary(
       child: BlocProvider.value(
@@ -530,8 +527,8 @@ class _CometChatConversationsState extends State<CometChatConversations>
           child: CometChatListBase(
             titleView: BlocBuilder<ConversationsBloc, ConversationsState>(
               builder: (context, state) {
-                final selectedCount = state is ConversationsLoaded 
-                    ? state.selectedConversations.length 
+                final selectedCount = state is ConversationsLoaded
+                    ? state.selectedConversations.length
                     : 0;
                 return Text(
                   selectedCount > 0
@@ -541,179 +538,184 @@ class _CometChatConversationsState extends State<CometChatConversations>
                     color: colorPalette.textPrimary,
                     fontSize: typography.heading1?.bold?.fontSize,
                     fontWeight: typography.heading1?.bold?.fontWeight,
-                  fontFamily: typography.heading1?.bold?.fontFamily,
-                )
-                    .merge(style.titleTextStyle)
-                    .copyWith(color: style.titleTextColor),
-              );
-            },
-          ),
-          titleSpacing: widget.showBackButton ? 0 : 16,
-          hideSearch: widget.hideSearch ?? true,
-          searchBoxIcon: widget.searchBoxIcon,
-          searchPadding: widget.searchPadding ??
-              EdgeInsets.symmetric(
-                horizontal: spacing.padding4 ?? 0,
-                vertical: spacing.padding3 ?? 0,
-              ),
-          searchContentPadding: widget.searchContentPadding ??
-              EdgeInsets.symmetric(
-                horizontal: spacing.padding3 ?? 0,
-                vertical: spacing.padding2 ?? 0,
-              ),
-          searchBoxHeight: 40,
-          onSearchTap: widget.onSearchTap,
-          searchReadOnly: widget.searchReadOnly,
-          hideAppBar: widget.hideAppbar,
-          backIcon: BlocBuilder<ConversationsBloc, ConversationsState>(
-            builder: (context, state) {
-              final hasSelection = state is ConversationsLoaded && 
-                  state.selectedConversations.isNotEmpty;
-              return hasSelection
-                  ? IconButton(
-                      onPressed: () {
-                        conversationsBloc.add(const ClearConversationSelection());
-                      },
-                      icon: Icon(
-                        Icons.clear,
-                        color: colorPalette.iconPrimary,
-                        size: 24,
-                      ),
-                      padding: EdgeInsets.zero,
-                    )
-                  : (widget.backButton ??
-                      IconButton(
-                        onPressed: widget.onBack,
+                    fontFamily: typography.heading1?.bold?.fontFamily,
+                  )
+                      .merge(style.titleTextStyle)
+                      .copyWith(color: style.titleTextColor),
+                );
+              },
+            ),
+            titleSpacing: widget.showBackButton ? 0 : 16,
+            hideSearch: widget.hideSearch ?? true,
+            searchBoxIcon: widget.searchBoxIcon,
+            searchPadding: widget.searchPadding ??
+                EdgeInsets.symmetric(
+                  horizontal: spacing.padding4 ?? 0,
+                  vertical: spacing.padding3 ?? 0,
+                ),
+            searchContentPadding: widget.searchContentPadding ??
+                EdgeInsets.symmetric(
+                  horizontal: spacing.padding3 ?? 0,
+                  vertical: spacing.padding2 ?? 0,
+                ),
+            searchBoxHeight: 40,
+            onSearchTap: widget.onSearchTap,
+            searchReadOnly: widget.searchReadOnly,
+            hideAppBar: widget.hideAppbar,
+            backIcon: BlocBuilder<ConversationsBloc, ConversationsState>(
+              builder: (context, state) {
+                final hasSelection = state is ConversationsLoaded &&
+                    state.selectedConversations.isNotEmpty;
+                return hasSelection
+                    ? IconButton(
+                        onPressed: () {
+                          conversationsBloc
+                              .add(const ClearConversationSelection());
+                        },
                         icon: Icon(
-                          Icons.arrow_back,
+                          Icons.clear,
                           color: colorPalette.iconPrimary,
                           size: 24,
                         ),
                         padding: EdgeInsets.zero,
-                      ));
-            },
-          ),
-          showBackButton: widget.showBackButton,
-          onBack: widget.onBack,
-          menuOptions: [
-            if (widget.appBarOptions != null && widget.appBarOptions!.isNotEmpty)
-              ...widget.appBarOptions!,
-            _getSelectionWidget(),
-          ],
-          style: ListBaseStyle(
-            background: style.backgroundColor ?? colorPalette.background1,
-            titleStyle: TextStyle(
-              color: style.titleTextColor ?? colorPalette.textPrimary,
-              fontSize: typography.heading1?.bold?.fontSize,
-              fontWeight: typography.heading1?.bold?.fontWeight,
-              fontFamily: typography.heading1?.bold?.fontFamily,
-            )
-                .merge(
-                  style.titleTextStyle,
-                )
-                .copyWith(
-                  color: style.titleTextColor,
+                      )
+                    : (widget.backButton ??
+                        IconButton(
+                          onPressed: widget.onBack,
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: colorPalette.iconPrimary,
+                            size: 24,
+                          ),
+                          padding: EdgeInsets.zero,
+                        ));
+              },
+            ),
+            showBackButton: widget.showBackButton,
+            onBack: widget.onBack,
+            menuOptions: [
+              if (widget.appBarOptions != null &&
+                  widget.appBarOptions!.isNotEmpty)
+                ...widget.appBarOptions!,
+              _getSelectionWidget(),
+            ],
+            style: ListBaseStyle(
+              background: style.backgroundColor ?? colorPalette.background1,
+              titleStyle: TextStyle(
+                color: style.titleTextColor ?? colorPalette.textPrimary,
+                fontSize: typography.heading1?.bold?.fontSize,
+                fontWeight: typography.heading1?.bold?.fontWeight,
+                fontFamily: typography.heading1?.bold?.fontFamily,
+              )
+                  .merge(
+                    style.titleTextStyle,
+                  )
+                  .copyWith(
+                    color: style.titleTextColor,
+                  ),
+              backIconTint: style.backIconColor ?? colorPalette.iconPrimary,
+              border: style.border,
+              borderRadius: style.borderRadius,
+              searchIconTint:
+                  style.searchIconColor ?? colorPalette.iconSecondary,
+              searchBoxBackground:
+                  style.searchBackgroundColor ?? colorPalette.background3,
+              borderSide: style.searchBorder ??
+                  BorderSide(
+                    color: colorPalette.borderLight ?? Colors.transparent,
+                    width: 1,
+                  ),
+              searchTextFieldRadius: style.searchBorderRadius ??
+                  BorderRadius.circular(
+                    spacing.radiusMax ?? 0,
+                  ),
+              searchPlaceholderStyle: TextStyle(
+                color: style.searchPlaceHolderTextColor ??
+                    colorPalette.textTertiary,
+                fontSize: typography.heading4?.regular?.fontSize,
+                fontWeight: typography.heading4?.regular?.fontWeight,
+                fontFamily: typography.heading4?.regular?.fontFamily,
+              ).merge(style.searchPlaceHolderTextStyle).copyWith(
+                    color: style.searchPlaceHolderTextColor,
+                  ),
+              appBarShape: Border(
+                bottom: BorderSide(
+                  color: style.separatorColor ??
+                      colorPalette.borderLight ??
+                      Colors.transparent,
+                  width: style.separatorHeight ?? 1,
                 ),
-            backIconTint: style.backIconColor ?? colorPalette.iconPrimary,
-            border: style.border,
-            borderRadius: style.borderRadius,
-            searchIconTint: style.searchIconColor ?? colorPalette.iconSecondary,
-            searchBoxBackground:
-                style.searchBackgroundColor ?? colorPalette.background3,
-            borderSide: style.searchBorder ??
-                BorderSide(
-                  color: colorPalette.borderLight ?? Colors.transparent,
-                  width: 1,
-                ),
-            searchTextFieldRadius: style.searchBorderRadius ??
-                BorderRadius.circular(
-                  spacing.radiusMax ?? 0,
-                ),
-            searchPlaceholderStyle: TextStyle(
-              color:
-                  style.searchPlaceHolderTextColor ?? colorPalette.textTertiary,
-              fontSize: typography.heading4?.regular?.fontSize,
-              fontWeight: typography.heading4?.regular?.fontWeight,
-              fontFamily: typography.heading4?.regular?.fontFamily,
-            ).merge(style.searchPlaceHolderTextStyle).copyWith(
-                  color: style.searchPlaceHolderTextColor,
-                ),
-            appBarShape: Border(
-              bottom: BorderSide(
-                color: style.separatorColor ??
-                    colorPalette.borderLight ??
-                    Colors.transparent,
-                width: style.separatorHeight ?? 1,
               ),
             ),
-          ),
-          container: ConversationsList(
-                  conversationsBloc: conversationsBloc,
-                  style: style,
-                  statusStyle: statusStyle,
-                  typingStyle: typingStyle,
-                  receiptStyle: receiptStyle,
-                  datesStyle: datesStyle,
-                  colorPalette: colorPalette,
-                  spacing: spacing,
-                  typography: typography,
-                  scrollController: widget.scrollController,
-                  loadingStateView: widget.loadingStateView,
-                  emptyStateView: widget.emptyStateView,
-                  errorStateView: widget.errorStateView,
-                  hideError: widget.hideError,
-                  listItemView: widget.listItemView,
-                  subtitleView: widget.subtitleView,
-                  trailingView: widget.trailingView,
-                  leadingView: widget.leadingView,
-                  titleView: widget.titleView,
-                  listItemStyle: widget.listItemStyle,
-                  avatarHeight: widget.avatarHeight,
-                  avatarWidth: widget.avatarWidth,
-                  avatarPadding: widget.avatarPadding,
-                  avatarMargin: widget.avatarMargin,
-                  statusIndicatorHeight: widget.statusIndicatorHeight,
-                  statusIndicatorWidth: widget.statusIndicatorWidth,
-                  statusIndicatorBorderRadius: widget.statusIndicatorBorderRadius,
-                  privateGroupIcon: widget.privateGroupIcon,
-                  protectedGroupIcon: widget.protectedGroupIcon,
-                  usersStatusVisibility: widget.usersStatusVisibility,
-                  groupTypeVisibility: widget.groupTypeVisibility,
-                  selectionMode: widget.selectionMode,
-                  activateSelection: widget.activateSelection,
-                  onItemTap: _handleItemTapWithDeleteDismiss,
-                  onItemLongPress: widget.onItemLongPress ?? _handleDefaultLongPress,
-                  hideThreadIndicator: false,
-                  receiptsVisibility: widget.receiptsVisibility,
-                  typingIndicatorText: widget.typingIndicatorText,
-                  readIcon: widget.readIcon,
-                  deliveredIcon: widget.deliveredIcon,
-                  sentIcon: widget.sentIcon,
-                  textFormatters: widget.textFormatters,
-                  datePattern: widget.datePattern,
-                  datePadding: widget.datePadding,
-                  dateHeight: widget.dateHeight,
-                  dateWidth: widget.dateWidth,
-                  dateBackgroundIsTransparent: widget.dateBackgroundIsTransparent,
-                  badgeWidth: widget.badgeWidth,
-                  badgeHeight: widget.badgeHeight,
-                  badgePadding: widget.badgePadding,
-                  dateTimeFormatterCallback: widget.dateTimeFormatterCallback,
-                  itemWrapperBuilder: widget.deleteConversationOptionVisibility == true
+            container: ConversationsList(
+              conversationsBloc: conversationsBloc,
+              style: style,
+              statusStyle: statusStyle,
+              typingStyle: typingStyle,
+              receiptStyle: receiptStyle,
+              datesStyle: datesStyle,
+              colorPalette: colorPalette,
+              spacing: spacing,
+              typography: typography,
+              scrollController: widget.scrollController,
+              loadingStateView: widget.loadingStateView,
+              emptyStateView: widget.emptyStateView,
+              errorStateView: widget.errorStateView,
+              hideError: widget.hideError,
+              listItemView: widget.listItemView,
+              subtitleView: widget.subtitleView,
+              trailingView: widget.trailingView,
+              leadingView: widget.leadingView,
+              titleView: widget.titleView,
+              listItemStyle: widget.listItemStyle,
+              avatarHeight: widget.avatarHeight,
+              avatarWidth: widget.avatarWidth,
+              avatarPadding: widget.avatarPadding,
+              avatarMargin: widget.avatarMargin,
+              statusIndicatorHeight: widget.statusIndicatorHeight,
+              statusIndicatorWidth: widget.statusIndicatorWidth,
+              statusIndicatorBorderRadius: widget.statusIndicatorBorderRadius,
+              privateGroupIcon: widget.privateGroupIcon,
+              protectedGroupIcon: widget.protectedGroupIcon,
+              usersStatusVisibility: widget.usersStatusVisibility,
+              groupTypeVisibility: widget.groupTypeVisibility,
+              selectionMode: widget.selectionMode,
+              activateSelection: widget.activateSelection,
+              onItemTap: _handleItemTapWithDeleteDismiss,
+              onItemLongPress:
+                  widget.onItemLongPress ?? _handleDefaultLongPress,
+              hideThreadIndicator: false,
+              receiptsVisibility: widget.receiptsVisibility,
+              typingIndicatorText: widget.typingIndicatorText,
+              readIcon: widget.readIcon,
+              deliveredIcon: widget.deliveredIcon,
+              sentIcon: widget.sentIcon,
+              textFormatters: widget.textFormatters,
+              datePattern: widget.datePattern,
+              datePadding: widget.datePadding,
+              dateHeight: widget.dateHeight,
+              dateWidth: widget.dateWidth,
+              dateBackgroundIsTransparent: widget.dateBackgroundIsTransparent,
+              badgeWidth: widget.badgeWidth,
+              badgeHeight: widget.badgeHeight,
+              badgePadding: widget.badgePadding,
+              dateTimeFormatterCallback: widget.dateTimeFormatterCallback,
+              itemWrapperBuilder:
+                  widget.deleteConversationOptionVisibility == true
                       ? _wrapItemWithDeleteOverlay
                       : null,
-                  onLoad: widget.onLoad,
-                  onEmpty: widget.onEmpty,
-                  onError: widget.onError,
-                ),
+              onLoad: widget.onLoad,
+              onEmpty: widget.onEmpty,
+              onError: widget.onError,
+            ),
+          ),
         ),
       ),
-    ),
     );
-    
+
     // Cache the widget for when route becomes inactive
     _cachedWidget = builtWidget;
-    
+
     return builtWidget;
   }
 
@@ -721,7 +723,8 @@ class _CometChatConversationsState extends State<CometChatConversations>
   Widget _getSelectionWidget() {
     return BlocBuilder<ConversationsBloc, ConversationsState>(
       builder: (context, state) {
-        if (state is ConversationsLoaded && state.selectedConversations.isNotEmpty) {
+        if (state is ConversationsLoaded &&
+            state.selectedConversations.isNotEmpty) {
           return IconButton(
             onPressed: () {
               final selectedIds = state.selectedConversations;
@@ -774,7 +777,7 @@ class _CometChatConversationsState extends State<CometChatConversations>
       widget.onItemTap!(conversation);
     }
   }
-  
+
   /// Handle delete button tap from overlay
   void _handleDeleteFromOverlay(Conversation conversation) {
     setState(() {
@@ -784,8 +787,10 @@ class _CometChatConversationsState extends State<CometChatConversations>
   }
 
   /// Wraps a conversation list item with a delete overlay when long-pressed.
-  Widget _wrapItemWithDeleteOverlay(BuildContext context, Conversation conversation, Widget child) {
-    final isShowingDelete = _conversationShowingDeleteOverlay == conversation.conversationId;
+  Widget _wrapItemWithDeleteOverlay(
+      BuildContext context, Conversation conversation, Widget child) {
+    final isShowingDelete =
+        _conversationShowingDeleteOverlay == conversation.conversationId;
 
     if (!isShowingDelete) return child;
 
@@ -812,7 +817,8 @@ class _CometChatConversationsState extends State<CometChatConversations>
                   shape: RoundedRectangleBorder(
                     side: BorderSide(
                       width: 1,
-                      color: colorPalette.borderLight ?? const Color(0xFFF5F5F5),
+                      color:
+                          colorPalette.borderLight ?? const Color(0xFFF5F5F5),
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -891,8 +897,8 @@ class _CometChatConversationsState extends State<CometChatConversations>
         cc.Translations.of(context).confirmDeleteConversation,
         textAlign: TextAlign.center,
       ),
-      onCancel: () {
-        Navigator.pop(context);
+      onCancel: (dialogContext) {
+        Navigator.of(dialogContext).pop();
       },
       style: CometChatConfirmDialogStyle(
         iconColor: confirmDialogStyle.iconColor ?? colorPalette.error,
@@ -910,8 +916,7 @@ class _CometChatConversationsState extends State<CometChatConversations>
         messageTextColor: confirmDialogStyle.messageTextColor,
         titleTextColor: confirmDialogStyle.titleTextColor,
         titleTextStyle: TextStyle(
-          color:
-              confirmDialogStyle.titleTextColor ?? colorPalette.textPrimary,
+          color: confirmDialogStyle.titleTextColor ?? colorPalette.textPrimary,
           fontSize: typography.heading2?.medium?.fontSize,
           fontWeight: typography.heading2?.medium?.fontWeight,
           fontFamily: typography.heading2?.medium?.fontFamily,
@@ -923,8 +928,8 @@ class _CometChatConversationsState extends State<CometChatConversations>
               color: confirmDialogStyle.titleTextColor,
             ),
         messageTextStyle: TextStyle(
-          color: confirmDialogStyle.messageTextColor ??
-              colorPalette.textSecondary,
+          color:
+              confirmDialogStyle.messageTextColor ?? colorPalette.textSecondary,
           fontSize: typography.body?.regular?.fontSize,
           fontWeight: typography.body?.regular?.fontWeight,
           fontFamily: typography.body?.regular?.fontFamily,
@@ -962,8 +967,8 @@ class _CometChatConversationsState extends State<CometChatConversations>
               color: confirmDialogStyle.cancelButtonTextColor,
             ),
       ),
-      onConfirm: () {
-        Navigator.pop(context);
+      onConfirm: (dialogContext) {
+        Navigator.of(dialogContext).pop();
         if (conversation.conversationId != null) {
           conversationsBloc.add(
             DeleteConversation(conversation.conversationId!),

@@ -75,14 +75,22 @@ class SendMediaMessage extends MessageComposerEvent {
   final String messageType;
   final Map<String, dynamic>? metadata;
 
+  /// File bytes for web upload (where file paths are blob URLs).
+  final List<int>? fileBytes;
+
+  /// File name for web upload.
+  final String? fileName;
+
   const SendMediaMessage({
     required this.path,
     required this.messageType,
     this.metadata,
+    this.fileBytes,
+    this.fileName,
   });
 
   @override
-  List<Object?> get props => [path, messageType, metadata];
+  List<Object?> get props => [path, messageType, metadata, fileBytes, fileName];
 }
 
 /// Send a custom message
@@ -278,11 +286,13 @@ class CancelAudioRecording extends MessageComposerEvent {
 /// Submit the recorded audio
 class SubmitAudioRecording extends MessageComposerEvent {
   final String filePath;
+  final List<int>? fileBytes;
+  final String? fileName;
 
-  const SubmitAudioRecording(this.filePath);
+  const SubmitAudioRecording(this.filePath, {this.fileBytes, this.fileName});
 
   @override
-  List<Object?> get props => [filePath];
+  List<Object?> get props => [filePath, fileBytes, fileName];
 }
 
 // ============================================================================
@@ -308,4 +318,17 @@ class UnlockBottomPadding extends MessageComposerEvent {
 /// Request the composer to focus its text field (opens OS keyboard)
 class RequestComposerFocus extends MessageComposerEvent {
   const RequestComposerFocus();
+}
+
+/// Update the parentMessageId at runtime.
+///
+/// Used when the MessageList resolves the thread parentMessageId for AI agent
+/// conversations after the Composer was already constructed with parentMessageId=0.
+class UpdateParentMessageId extends MessageComposerEvent {
+  final int parentMessageId;
+
+  const UpdateParentMessageId(this.parentMessageId);
+
+  @override
+  List<Object?> get props => [parentMessageId];
 }

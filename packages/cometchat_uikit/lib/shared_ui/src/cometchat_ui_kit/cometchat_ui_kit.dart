@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
+import 'package:cometchat_sdk/cometchat_sdk.dart';
 import '../../cometchat_uikit_shared.dart';
 import '../../../call_ui/src/call_event_service.dart';
 import '../utils/sdk_methods.dart' as LegacySDK;
 import '../utils/timezone_utils/data/latest.dart';
 import '../clean_architecture/core/constants/enums.dart' as CoreEnums;
+import '../constants/ui_kit_constants.dart' as ChatUIKitConstants;
 
 
 class CometChatUIKit {
@@ -30,6 +34,17 @@ class CometChatUIKit {
       Function(CometChatException e)? onError}) async {
     //if (!checkAuthSettings(onError)) return;
     authenticationSettings = uiKitSettings;
+
+    // Register UIKit component BEFORE SDK init so that session restoration
+    // (which fires sendIfNeeded immediately) includes the uikit block in the
+    // telemetry payload. Previously this was registered in the onSuccess
+    // callback which runs AFTER session restoration telemetry.
+    SdkIdentification.registerComponent(const SessionComponentInfo(
+      key: 'uikit',
+      platform: ChatUIKitConstants.SetSourceConstant.platform,
+      version: ChatUIKitConstants.SetSourceConstant.version,
+    ));
+
     AppSettings appSettings = (AppSettingsBuilder()
           ..subscriptionType = authenticationSettings?.subscriptionType ??
               CometChatSubscriptionType.allUsers
@@ -60,7 +75,7 @@ class CometChatUIKit {
         }
       }
 
-      CometChat.setSource(SetSourceConstant.uiKitVersion, kIsWeb ? 'web' : _nativePlatformName(), SetSourceConstant.platform);
+      CometChat.setSource(ChatUIKitConstants.SetSourceConstant.uiKitVersion, kIsWeb ? 'web' : _nativePlatformName(), ChatUIKitConstants.SetSourceConstant.platform);
     }, onError: (CometChatException exception) {
       //executing custom onError handler when CometChat SDK could not be initialized
       if (onError != null) {
@@ -74,6 +89,111 @@ class CometChatUIKit {
         }
       }
     });
+  }
+
+  /// Initializes the UIKit from `cometchat-settings.json` asset file.
+  ///
+  /// Reads the settings file from the app's asset bundle, parses the `uiKit`
+  /// section to configure UIKitSettings, and delegates to the Chat SDK's
+  /// `init()` method. Also persists `integrationSource = "ai-agent"` for
+  /// telemetry attribution via the Chat SDK.
+  ///
+  /// The `cometchat-settings.json` file must be placed at the project root
+  /// and registered in `pubspec.yaml`:
+  /// ```yaml
+  /// flutter:
+  ///   assets:
+  ///     - cometchat-settings.json
+  /// ```
+  ///
+  /// @nodoc
+  static Future<void> initFromSettings({
+    Function(String successMessage)? onSuccess,
+    Function(CometChatException e)? onError,
+  }) async {
+    try {
+      // 1. Read cometchat-settings.json to extract UIKit-level config
+      String jsonString;
+      try {
+        jsonString = await rootBundle.loadString('cometchat-settings.json');
+      } catch (e) {
+        final error = CometChatException(
+          'ERR_INIT_FAILED',
+          'cometchat-settings.json not found',
+          'cometchat-settings.json not found. Ensure the file exists at the '
+              'project root and is registered in pubspec.yaml under flutter: assets:.',
+        );
+        if (onError != null) onError(error);
+        return;
+      }
+
+      // 2. Parse JSON
+      Map<String, dynamic> json;
+      try {
+        json = jsonDecode(jsonString) as Map<String, dynamic>;
+      } catch (e) {
+        final error = CometChatException(
+          'ERR_INIT_FAILED',
+          'Invalid JSON',
+          'cometchat-settings.json is not valid JSON.',
+        );
+        if (onError != null) onError(error);
+        return;
+      }
+
+      // 3. Extract fields for UIKitSettings
+      final appId = json['appId'] as String?;
+      final region = json['region'] as String?;
+      String? authKey;
+      final credentials = json['credentials'];
+      if (credentials is Map<String, dynamic>) {
+        authKey = credentials['authKey'] as String?;
+      }
+
+      // Parse uiKit section
+      final uiKitSection = json['uiKit'] as Map<String, dynamic>? ?? {};
+      final subscribePresenceForAllUsers =
+          uiKitSection['subscribePresenceForAllUsers'] as bool? ?? true;
+
+      // Parse chatSDK section for host overrides
+      final chatSdkSection = json['chatSDK'] as Map<String, dynamic>? ?? {};
+      final autoEstablishSocketConnection =
+          chatSdkSection['autoEstablishSocketConnection'] as bool? ?? true;
+      final adminHost = chatSdkSection['adminHost'] as String?;
+      final clientHost = chatSdkSection['clientHost'] as String?;
+
+      // 4. Build UIKitSettings from the parsed file
+      final builder = UIKitSettingsBuilder()
+        ..appId = appId
+        ..region = region
+        ..authKey = authKey
+        ..subscriptionType = subscribePresenceForAllUsers
+            ? CometChatSubscriptionType.allUsers
+            : null
+        ..autoEstablishSocketConnection = autoEstablishSocketConnection
+        ..adminHost = adminHost
+        ..clientHost = clientHost;
+
+      final uiKitSettings = builder.build();
+
+      // 5. Delegate to regular init with the built settings
+      await init(
+        uiKitSettings: uiKitSettings,
+        onSuccess: (String successMessage) {
+          // Mark integration source as ai-agent for file-based init
+          CometChat.setIntegrationSource('ai-agent');
+          if (onSuccess != null) onSuccess(successMessage);
+        },
+        onError: onError,
+      );
+    } catch (e) {
+      final error = CometChatException(
+        'ERR_INIT_FAILED',
+        e.toString(),
+        'Failed to initialize from settings: ${e.toString()}',
+      );
+      if (onError != null) onError(error);
+    }
   }
 
   /// Use this function only for testing purpose. For production, use [loginWithAuthToken]

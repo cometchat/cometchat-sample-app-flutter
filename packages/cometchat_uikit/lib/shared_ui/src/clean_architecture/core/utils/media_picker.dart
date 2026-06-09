@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../constants/ui_kit_constants.dart';
+import 'platform_utils/platform_file_utils.dart' as platform;
 
 enum FileType { image, video, audio, any, custom }
 
@@ -14,19 +13,27 @@ class PickedFile {
       required this.path,
       this.size,
       this.extension,
-      this.fileType});
+      this.fileType,
+      this.bytes});
 
   final String name;
   final String path;
   final int? size;
   final String? extension;
   final String? fileType;
+
+  /// File bytes — populated on web where file paths aren't real filesystem paths.
+  final List<int>? bytes;
 }
 
 class MediaPicker {
   static final ImagePicker _picker = ImagePicker();
 
   static Future<PickedFile?> takePhoto() async {
+    if (kIsWeb) {
+      // Camera not available on web — use image picker gallery instead
+      return _pickFileWeb(type: "image");
+    }
     try {
       final XFile? image = await _picker.pickImage(source: ImageSource.camera);
 
@@ -45,7 +52,58 @@ class MediaPicker {
   }
 
   static Future<PickedFile?> pickAnyFile() async {
+    if (kIsWeb) {
+      return _pickFileWeb(type: "any");
+    }
     return await _getFilesFromMethodChannel(type: "any");
+  }
+
+  static Future<PickedFile?> pickAudio() async {
+    if (kIsWeb) {
+      return _pickFileWeb(type: "audio");
+    }
+    return _getFilesFromMethodChannel(type: "audio");
+  }
+
+  /// Web-safe file picker using image_picker (for images/videos) or
+  /// falling back to XFile-based picking.
+  static Future<PickedFile?> _pickFileWeb({String type = "any"}) async {
+    try {
+      XFile? file;
+      if (type == "image") {
+        file = await _picker.pickImage(source: ImageSource.gallery);
+      } else if (type == "video") {
+        file = await _picker.pickVideo(source: ImageSource.gallery);
+      } else if (type == "imagevideo") {
+        // On web, pick image as default for combined picker
+        file = await _picker.pickImage(source: ImageSource.gallery);
+      } else {
+        // For audio/any/custom — use pickImage as fallback on web
+        // A more complete solution would use file_picker package
+        file = await _picker.pickImage(source: ImageSource.gallery);
+      }
+
+      if (file != null) {
+        final name = file.name;
+        final ext = name.contains('.')
+            ? name.substring(name.lastIndexOf('.') + 1).toLowerCase()
+            : '';
+        // On web, read the file bytes since file paths are blob URLs
+        final bytes = await file.readAsBytes();
+        return PickedFile(
+          name: name,
+          path: file.path,
+          size: bytes.length,
+          extension: ext,
+          fileType: _getFileType(ext),
+          bytes: bytes,
+        );
+      }
+      return null;
+    } catch (e) {
+      debugPrint("Web file pick failed: $e");
+      return null;
+    }
   }
 
   // static pickCustomFile() async {
@@ -71,25 +129,27 @@ class MediaPicker {
   // }
 
   static Future<PickedFile?> pickImage() async {
-    if (Platform.isAndroid) {
+    if (kIsWeb) {
+      return _pickFileWeb(type: "image");
+    }
+    if (platform.platformIsAndroid()) {
       return _getFilesFromMethodChannel(type: "image");
     }
     return await _getFilesFromMethodChannel(
-        type: Platform.isIOS ? "image" : "custom",
+        type: platform.platformIsIOS() ? "image" : "custom",
         allowedExtensions: imageExtensions + videoExtensions);
   }
 
   static Future<PickedFile?> pickVideo() async {
-    if (Platform.isAndroid) {
+    if (kIsWeb) {
+      return _pickFileWeb(type: "video");
+    }
+    if (platform.platformIsAndroid()) {
       return _getFilesFromMethodChannel(type: "video");
     }
     return await _getFilesFromMethodChannel(
-        type: Platform.isIOS ? "video" : "custom",
+        type: platform.platformIsIOS() ? "video" : "custom",
         allowedExtensions: imageExtensions + videoExtensions);
-  }
-
-  static Future<PickedFile?> pickAudio() async {
-    return _getFilesFromMethodChannel(type: "audio");
   }
 
   static List<String> videoExtensions = [
@@ -139,8 +199,11 @@ class MediaPicker {
     "amr"
   ];
   static Future<PickedFile?> pickImageVideo() async {
+    if (kIsWeb) {
+      return _pickFileWeb(type: "imagevideo");
+    }
     return await _getFilesFromMethodChannel(
-        type: Platform.isIOS ? "imagevideo" : "custom",
+        type: platform.platformIsIOS() ? "imagevideo" : "custom",
         allowedExtensions: imageExtensions + videoExtensions);
   }
 
@@ -163,7 +226,7 @@ class MediaPicker {
             name.substring(name.lastIndexOf(".") + 1).toLowerCase();
         String? fileType = _getFileType(extension);
         String path = file["path"];
-        if (Platform.isIOS && path.contains(" ")) {
+        if (platform.platformIsIOS() && path.contains(" ")) {
           path = Uri.encodeFull(path);
         }
         return PickedFile(
@@ -196,6 +259,7 @@ class MediaPicker {
   }
 
   static checkForPhotoPermission() async {
+    if (kIsWeb) return; // Browser handles permissions natively
     final bool granted =
         await UIConstants.channel.invokeMethod("checkCameraPermission");
     if (!granted) {

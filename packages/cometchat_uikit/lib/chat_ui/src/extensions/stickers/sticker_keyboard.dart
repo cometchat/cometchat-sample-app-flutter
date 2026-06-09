@@ -354,7 +354,8 @@ class _CometChatStickerKeyboardState extends State<CometChatStickerKeyboard> {
     final typography = CometChatThemeHelper.getTypography(context);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
-    final keyboardHeight = widget.height ?? CometChatStickerKeyboard.defaultHeight;
+    final keyboardHeight =
+        widget.height ?? CometChatStickerKeyboard.defaultHeight;
     return Container(
       decoration: BoxDecoration(
         color: colorPalette.background1,
@@ -422,75 +423,53 @@ class _CometChatStickerKeyboardState extends State<CometChatStickerKeyboard> {
                                         padding: EdgeInsets.symmetric(
                                           horizontal: spacing.padding4 ?? 0,
                                         ),
-                                        child: GridView.count(
-                                          crossAxisCount: 3,
-                                          mainAxisSpacing: 8,
-                                          crossAxisSpacing: 8,
-                                          children: [
-                                            for (Sticker sticker
-                                                in defaultStickersMap[
-                                                        selectedSet] ??
-                                                    [])
-                                              GestureDetector(
-                                                onTap: () {
-                                                  if (widget.onStickerTap !=
-                                                      null) {
-                                                    widget
-                                                        .onStickerTap!(sticker);
-                                                  }
+                                        child: GridView.builder(
+                                          gridDelegate:
+                                              const SliverGridDelegateWithMaxCrossAxisExtent(
+                                            maxCrossAxisExtent: 120,
+                                            mainAxisSpacing: 8,
+                                            crossAxisSpacing: 8,
+                                          ),
+                                          itemCount: (defaultStickersMap[
+                                                      selectedSet] ??
+                                                  [])
+                                              .length,
+                                          itemBuilder: (context, index) {
+                                            final sticker = defaultStickersMap[
+                                                selectedSet]![index];
+                                            return GestureDetector(
+                                              onTap: () {
+                                                if (widget.onStickerTap !=
+                                                    null) {
+                                                  widget.onStickerTap!(sticker);
+                                                }
+                                              },
+                                              child: Image.network(
+                                                sticker.stickerUrl,
+                                                loadingBuilder: (context, child,
+                                                    loadingProgress) {
+                                                  return loadingProgress == null
+                                                      ? child
+                                                      : Center(
+                                                          child:
+                                                              CircularProgressIndicator(
+                                                            color: colorPalette
+                                                                .iconPrimary,
+                                                          ),
+                                                        );
                                                 },
-                                                child: Image.network(
-                                                  sticker.stickerUrl,
-                                                  loadingBuilder: (context,
-                                                      child, loadingProgress) {
-                                                    return loadingProgress ==
-                                                            null
-                                                        ? child
-                                                        : Center(
-                                                            child:
-                                                                CircularProgressIndicator(
-                                                              color: colorPalette
-                                                                  .iconPrimary,
-                                                            ),
-                                                          );
-                                                  },
-                                                  errorBuilder: (context,
-                                                      object, stackTrace) {
-                                                    return Image.asset(
-                                                      AssetConstants
-                                                          .imagePlaceholder,
-                                                      package: UIConstants
-                                                          .packageName,
-                                                    );
-                                                  },
-                                                ),
-                                                // FadeInImage(
-                                                //   placeholder: CircularProgressIndicator(
-                                                //     color: colorPalette.iconPrimary,
-                                                //   ),
-                                                //   fit: BoxFit.cover,
-                                                //   fadeInDuration:
-                                                //       const Duration(
-                                                //           milliseconds: 100),
-                                                //   fadeOutDuration:
-                                                //       const Duration(
-                                                //           milliseconds: 100),
-                                                //   placeholderFit: BoxFit.cover,
-                                                //   imageErrorBuilder: (context,
-                                                //       object, stackTrace) {
-                                                //     return Image.asset(
-                                                //       AssetConstants
-                                                //           .imagePlaceholder,
-                                                //       package: UIConstants
-                                                //           .packageName,
-                                                //     );
-                                                //   },
-                                                //   image: NetworkImage(
-                                                //     "sticker.stickerUrl",
-                                                //   ),
-                                                // ),
+                                                errorBuilder: (context, object,
+                                                    stackTrace) {
+                                                  return Image.asset(
+                                                    AssetConstants
+                                                        .imagePlaceholder,
+                                                    package:
+                                                        UIConstants.packageName,
+                                                  );
+                                                },
                                               ),
-                                          ],
+                                            );
+                                          },
                                         ),
                                       ),
                                     ),
@@ -536,15 +515,16 @@ class _CometChatStickerKeyboardState extends State<CometChatStickerKeyboard> {
                                             ),
                                             child: Center(
                                               child: Image.network(
-                                                defaultStickersMap[
-                                                        stickerSetOrder]![0]
-                                                    .stickerUrl,
-                                                height: 28,
-                                                width: 28,
-                                                  errorBuilder: (context, error, stackTrace) {
-                                                    return const Icon(Icons.image_not_supported); // Show fallback image
-                                                  }
-                                              ),
+                                                  defaultStickersMap[
+                                                          stickerSetOrder]![0]
+                                                      .stickerUrl,
+                                                  height: 28,
+                                                  width: 28, errorBuilder:
+                                                      (context, error,
+                                                          stackTrace) {
+                                                return const Icon(Icons
+                                                    .image_not_supported); // Show fallback image
+                                              }),
                                             ),
                                           ),
                                         );

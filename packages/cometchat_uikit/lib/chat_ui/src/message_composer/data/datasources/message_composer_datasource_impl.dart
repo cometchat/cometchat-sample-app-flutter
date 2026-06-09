@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'message_composer_datasource.dart';
@@ -39,9 +38,11 @@ class MessageComposerDataSourceImpl implements MessageComposerDataSource {
     await CometChat.sendMediaMessage(
       message,
       onSuccess: (MediaMessage sentMessage) {
+        debugPrint('[ComposerDatasource] sendMediaMessage SUCCESS — id: ${sentMessage.id}, attachment: ${sentMessage.attachment?.fileUrl}');
         completer.complete(sentMessage);
       },
       onError: (CometChatException e) {
+        debugPrint('[ComposerDatasource] sendMediaMessage ERROR — code: ${e.code}, message: ${e.message}, details: ${e.details}');
         completer.completeError(
           MessageComposerDataSourceException(
             message: e.message ?? 'Failed to send media message',

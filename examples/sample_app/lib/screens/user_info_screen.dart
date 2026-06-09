@@ -195,7 +195,8 @@ class _UserInfoScreenState extends State<UserInfoScreen>
     ).show();
   }
 
-  void _blockUser() {
+  void _blockUser(BuildContext dialogContext) {
+    Navigator.of(dialogContext).pop();
     setState(() => _isBlockLoading = true);
     CometChat.blockUser(
       [_user.uid],
@@ -204,20 +205,19 @@ class _UserInfoScreenState extends State<UserInfoScreen>
         CometChatUserEvents.ccUserBlocked(_user);
         if (mounted) {
           setState(() => _isBlockLoading = false);
-          Navigator.of(context).pop(); // dismiss dialog
         }
       },
       onError: (e) {
         if (mounted) {
           setState(() => _isBlockLoading = false);
-          Navigator.of(context).pop();
           _showError(cc.Translations.of(context).errorBlockUser);
         }
       },
     );
   }
 
-  void _unblockUser() {
+  void _unblockUser(BuildContext dialogContext) {
+    Navigator.of(dialogContext).pop();
     setState(() => _isBlockLoading = true);
     CometChat.unblockUser(
       [_user.uid],
@@ -226,13 +226,11 @@ class _UserInfoScreenState extends State<UserInfoScreen>
         CometChatUserEvents.ccUserUnblocked(_user);
         if (mounted) {
           setState(() => _isBlockLoading = false);
-          Navigator.of(context).pop(); // dismiss dialog
         }
       },
       onError: (e) {
         if (mounted) {
           setState(() => _isBlockLoading = false);
-          Navigator.of(context).pop();
           _showError(cc.Translations.of(context).errorBlockUser);
         }
       },
@@ -278,9 +276,9 @@ class _UserInfoScreenState extends State<UserInfoScreen>
     ).show();
   }
 
-  void _deleteChat() {
+  void _deleteChat(BuildContext dialogContext) {
     if (_conversation == null) {
-      Navigator.of(context).pop(); // dismiss dialog
+      Navigator.of(dialogContext).pop(); // dismiss dialog
       _showError('No conversation found to delete.');
       return;
     }
@@ -291,17 +289,16 @@ class _UserInfoScreenState extends State<UserInfoScreen>
       onSuccess: (_) {
         CometChatConversationEvents.ccConversationDeleted(_conversation!);
         if (mounted) {
-          // Use rootNavigator to safely pop everything back to home
-          final navigator = Navigator.of(context, rootNavigator: false);
-          navigator.pop(); // dismiss dialog
-          // Pop until we reach the first route (home screen)
-          navigator.popUntil((route) => route.isFirst);
+          // Dismiss dialog then pop back to home
+          Navigator.of(dialogContext).pop();
+          Navigator.of(dialogContext).pop();
+          Navigator.of(context).maybePop();
         }
       },
       onError: (e) {
         if (mounted) {
           setState(() => _isDeleteLoading = false);
-          Navigator.of(context).pop(); // dismiss dialog
+          Navigator.of(dialogContext).pop(); // dismiss dialog
           _showError(cc.Translations.of(context).errorDeleteUser);
         }
       },

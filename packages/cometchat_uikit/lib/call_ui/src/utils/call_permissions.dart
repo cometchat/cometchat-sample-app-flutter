@@ -1,4 +1,5 @@
 import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:permission_handler/permission_handler.dart';
 
 /// Utility to request microphone/camera permissions before starting a call.
@@ -7,12 +8,20 @@ import 'package:permission_handler/permission_handler.dart';
 /// are runtime permissions that must be granted before WebRTC can access
 /// the hardware. Without this, the Calls SDK throws `SecurityError:
 /// Permission denied` when creating audio/video tracks.
+///
+/// On Web, the browser handles permissions via its own getUserMedia prompt
+/// when the WebRTC session starts — native permission_handler is not
+/// supported. We return `true` immediately on web.
 class CallPermissions {
   CallPermissions._();
 
   /// Request microphone permission (audio calls).
   /// Returns `true` if granted or already granted.
   static Future<bool> requestMicrophone() async {
+    // On web, the browser prompts for permissions when WebRTC starts.
+    // permission_handler does not support web — skip native request.
+    if (kIsWeb) return true;
+
     final before = await Permission.microphone.status;
     developer.log(
       'CallPermissions.requestMicrophone: status before request = $before',
@@ -30,6 +39,10 @@ class CallPermissions {
   /// Request microphone + camera permissions (video calls).
   /// Returns `true` if both are granted.
   static Future<bool> requestMicrophoneAndCamera() async {
+    // On web, the browser prompts for permissions when WebRTC starts.
+    // permission_handler does not support web — skip native request.
+    if (kIsWeb) return true;
+
     final micBefore = await Permission.microphone.status;
     final camBefore = await Permission.camera.status;
     developer.log(

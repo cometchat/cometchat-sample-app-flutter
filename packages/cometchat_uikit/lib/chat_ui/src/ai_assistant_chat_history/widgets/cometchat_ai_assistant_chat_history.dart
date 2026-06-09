@@ -148,8 +148,7 @@ class _CometChatAIAssistantChatHistoryState
     // Simple approach: use the first visible message's date
     // A more precise approach would use scroll offset + item heights
     final offset = _scrollController.offset;
-    final estimatedIndex =
-        (offset / 60).clamp(0, messages.length - 1).toInt();
+    final estimatedIndex = (offset / 60).clamp(0, messages.length - 1).toInt();
     final date = messages[estimatedIndex].sentAt;
 
     if (date != null && _bloc.stickyDateNotifier.value != date) {
@@ -186,8 +185,7 @@ class _CometChatAIAssistantChatHistoryState
         style: ListBaseStyle(
           height: widget.height,
           width: widget.width,
-          background:
-              _style.backgroundColor ?? _colorPalette.background3,
+          background: _style.backgroundColor ?? _colorPalette.background3,
           appBarBackground: _style.headerBackgroundColor ??
               _style.backgroundColor ??
               _colorPalette.background3,
@@ -200,8 +198,7 @@ class _CometChatAIAssistantChatHistoryState
               .merge(_style.headerTitleTextStyle)
               .copyWith(color: _style.headerTitleTextColor),
           border: _style.border,
-          borderRadius:
-              _style.borderRadius ?? BorderRadius.circular(0),
+          borderRadius: _style.borderRadius ?? BorderRadius.circular(0),
           padding: EdgeInsets.only(top: _spacing.padding2 ?? 10),
         ),
         container: Column(
@@ -261,8 +258,7 @@ class _CometChatAIAssistantChatHistoryState
               height: 40.0,
               decoration: BoxDecoration(
                 color: Colors.grey,
-                borderRadius:
-                    BorderRadius.circular(_spacing.radius2 ?? 0),
+                borderRadius: BorderRadius.circular(_spacing.radius2 ?? 0),
               ),
             ),
           );
@@ -271,8 +267,7 @@ class _CometChatAIAssistantChatHistoryState
     );
   }
 
-  Widget _buildError(
-      BuildContext context, AIAssistantChatHistoryState state) {
+  Widget _buildError(BuildContext context, AIAssistantChatHistoryState state) {
     if (widget.errorStateView != null) {
       return widget.errorStateView!(context);
     }
@@ -305,11 +300,9 @@ class _CometChatAIAssistantChatHistoryState
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding:
-                      EdgeInsets.only(bottom: _spacing.padding3 ?? 12),
+                  padding: EdgeInsets.only(bottom: _spacing.padding3 ?? 12),
                   child: Image.asset(
-                    AssetConstants(
-                            CometChatThemeHelper.getBrightness(context))
+                    AssetConstants(CometChatThemeHelper.getBrightness(context))
                         .messagesError,
                     package: UIConstants.packageName,
                     width: 150,
@@ -318,12 +311,11 @@ class _CometChatAIAssistantChatHistoryState
                 ),
                 Text(
                   widget.emptyStateText ??
-                      cc.Translations.of(context)
-                          .noConversationHistoryFound,
+                      cc.Translations.of(context).noConversationHistoryFound,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: _style.emptyStateTextColor ??
-                        _colorPalette.textPrimary,
+                    color:
+                        _style.emptyStateTextColor ?? _colorPalette.textPrimary,
                     fontSize: _typography.body?.regular?.fontSize,
                     fontWeight: _typography.body?.regular?.fontWeight,
                     fontFamily: _typography.body?.regular?.fontFamily,
@@ -333,8 +325,7 @@ class _CometChatAIAssistantChatHistoryState
                 ),
                 Text(
                   widget.emptyStateSubtitleText ??
-                      cc.Translations.of(context)
-                          .startChatByTappingNewChat,
+                      cc.Translations.of(context).startChatByTappingNewChat,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: _style.emptyStateSubtitleColor ??
@@ -358,16 +349,14 @@ class _CometChatAIAssistantChatHistoryState
   // LIST VIEW
   // ============================================================
 
-  Widget _buildList(
-      BuildContext context, AIAssistantChatHistoryState state) {
+  Widget _buildList(BuildContext context, AIAssistantChatHistoryState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildNewChatButton(),
         Expanded(
           child: Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: _spacing.padding3 ?? 0),
+            padding: EdgeInsets.symmetric(horizontal: _spacing.padding3 ?? 0),
             child: Stack(
               children: [
                 ListView.builder(
@@ -442,13 +431,10 @@ class _CometChatAIAssistantChatHistoryState
 
   bool _isSameDate(DateTime? dt1, DateTime? dt2) {
     if (dt1 == null || dt2 == null) return true;
-    return dt1.year == dt2.year &&
-        dt1.month == dt2.month &&
-        dt1.day == dt2.day;
+    return dt1.year == dt2.year && dt1.month == dt2.month && dt1.day == dt2.day;
   }
 
-  Widget _buildDateSeparator(
-      AIAssistantChatHistoryState state, int index) {
+  Widget _buildDateSeparator(AIAssistantChatHistoryState state, int index) {
     if (widget.hideDateSeparator == true) return const SizedBox.shrink();
 
     final message = state.messages[index];
@@ -506,8 +492,7 @@ class _CometChatAIAssistantChatHistoryState
       child: SizedBox(
         width: double.infinity,
         child: Padding(
-          padding:
-              EdgeInsets.symmetric(vertical: _spacing.padding3 ?? 0),
+          padding: EdgeInsets.symmetric(vertical: _spacing.padding3 ?? 0),
           child: Text(
             message.text,
             maxLines: 1,
@@ -532,22 +517,18 @@ class _CometChatAIAssistantChatHistoryState
 
   Widget _buildNewChatButton() {
     return Padding(
-      padding:
-          EdgeInsets.symmetric(horizontal: _spacing.padding2 ?? 0),
+      padding: EdgeInsets.symmetric(horizontal: _spacing.padding2 ?? 0),
       child: GestureDetector(
         onTap: widget.onNewChatButtonClicked,
         child: Padding(
-          padding: EdgeInsets.symmetric(
-              vertical: _spacing.padding4 ?? 0),
+          padding: EdgeInsets.symmetric(vertical: _spacing.padding4 ?? 0),
           child: Row(
             children: [
               Padding(
-                padding:
-                    EdgeInsets.only(right: _spacing.padding2 ?? 0),
+                padding: EdgeInsets.only(right: _spacing.padding2 ?? 0),
                 child: Icon(
                   Icons.add,
-                  color: _style.newChatIconColor ??
-                      _colorPalette.iconSecondary,
+                  color: _style.newChatIconColor ?? _colorPalette.iconSecondary,
                   size: 24,
                 ),
               ),
@@ -602,7 +583,7 @@ class _CometChatAIAssistantChatHistoryState
         cc.Translations.of(context).confirmDeleteConversation,
         textAlign: TextAlign.center,
       ),
-      onCancel: () => Navigator.pop(context),
+      onCancel: (dialogContext) => Navigator.of(dialogContext).pop(),
       style: CometChatConfirmDialogStyle(
         iconColor: confirmDialogStyle.iconColor ?? _colorPalette.error,
         backgroundColor: confirmDialogStyle.backgroundColor,
@@ -610,21 +591,16 @@ class _CometChatAIAssistantChatHistoryState
         iconBackgroundColor: confirmDialogStyle.iconBackgroundColor,
         borderRadius: confirmDialogStyle.borderRadius,
         border: confirmDialogStyle.border,
-        cancelButtonBackground:
-            confirmDialogStyle.cancelButtonBackground ??
-                _colorPalette.transparent,
+        cancelButtonBackground: confirmDialogStyle.cancelButtonBackground ??
+            _colorPalette.transparent,
         confirmButtonBackground:
-            confirmDialogStyle.confirmButtonBackground ??
-                _colorPalette.error,
-        cancelButtonTextColor:
-            confirmDialogStyle.cancelButtonTextColor,
-        confirmButtonTextColor:
-            confirmDialogStyle.confirmButtonTextColor,
+            confirmDialogStyle.confirmButtonBackground ?? _colorPalette.error,
+        cancelButtonTextColor: confirmDialogStyle.cancelButtonTextColor,
+        confirmButtonTextColor: confirmDialogStyle.confirmButtonTextColor,
         messageTextColor: confirmDialogStyle.messageTextColor,
         titleTextColor: confirmDialogStyle.titleTextColor,
         titleTextStyle: TextStyle(
-          color: confirmDialogStyle.titleTextColor ??
-              _colorPalette.textPrimary,
+          color: confirmDialogStyle.titleTextColor ?? _colorPalette.textPrimary,
           fontSize: _typography.heading2?.medium?.fontSize,
           fontWeight: _typography.heading2?.medium?.fontWeight,
           fontFamily: _typography.heading2?.medium?.fontFamily,
@@ -641,8 +617,8 @@ class _CometChatAIAssistantChatHistoryState
               color: confirmDialogStyle.messageTextColor,
             ),
         confirmButtonTextStyle: TextStyle(
-          color: confirmDialogStyle.confirmButtonTextColor ??
-              _colorPalette.white,
+          color:
+              confirmDialogStyle.confirmButtonTextColor ?? _colorPalette.white,
           fontSize: _typography.button?.medium?.fontSize,
           fontWeight: _typography.button?.medium?.fontWeight,
           fontFamily: _typography.button?.medium?.fontFamily,
@@ -659,9 +635,9 @@ class _CometChatAIAssistantChatHistoryState
               color: confirmDialogStyle.cancelButtonTextColor,
             ),
       ),
-      onConfirm: () {
+      onConfirm: (dialogContext) {
         _bloc.add(DeleteChatHistoryMessage(message));
-        Navigator.pop(context);
+        Navigator.of(dialogContext).pop();
       },
     ).show();
   }

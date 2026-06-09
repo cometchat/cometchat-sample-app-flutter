@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +10,8 @@ import 'inline_audio_recorder_event.dart';
 import 'inline_audio_recorder_state.dart';
 import 'inline_audio_recorder_style.dart';
 import 'audio_waveform_visualizer.dart';
+import 'web_audio_recorder_stub.dart'
+    if (dart.library.html) 'web_audio_recorder.dart';
 
 /// An inline audio recorder widget that replaces the text input in the composer
 /// when recording audio. Shows a waveform visualization with recording controls.
@@ -44,7 +47,8 @@ class CometChatInlineAudioRecorder extends StatefulWidget {
   });
 
   /// Callback when audio is submitted with the file path
-  final Function(String path)? onSubmit;
+  /// On web, [fileBytes] contains the audio data for upload
+  final Function(String path, {List<int>? fileBytes})? onSubmit;
 
   /// Callback when recording is cancelled
   final VoidCallback? onCancel;
@@ -88,6 +92,10 @@ class _CometChatInlineAudioRecorderState
   /// Method channel for native audio recording
   static const MethodChannel _channel = MethodChannel('cometchat_chat_uikit');
 
+  /// Web audio recorder instance (only used on web)
+  WebAudioRecorder? _webRecorder;
+  StreamSubscription<double>? _webAmplitudeSubscription;
+
   /// Current recorded file path from native
   String? _recordedFilePath;
 
@@ -95,8 +103,12 @@ class _CometChatInlineAudioRecorderState
   void initState() {
     super.initState();
     _bloc = InlineAudioRecorderBloc();
-    // Start native recording and update bloc state
-    _startNativeRecording();
+    // Start recording
+    if (kIsWeb) {
+      _startWebRecording();
+    } else {
+      _startNativeRecording();
+    }
   }
 
   @override
@@ -115,10 +127,53 @@ class _CometChatInlineAudioRecorderState
 
   @override
   void dispose() {
-    // Release all native media resources (stop recording and playback)
-    _releaseMediaResources();
+    // Release all media resources
+    if (kIsWeb) {
+      _webAmplitudeSubscription?.cancel();
+      _webRecorder?.dispose();
+    } else {
+      _releaseMediaResources();
+    }
     _bloc.close();
     super.dispose();
+  }
+
+  /// Start web audio recording using the record package
+  Future<void> _startWebRecording() async {
+    try {
+      _webRecorder = WebAudioRecorder();
+
+      // Listen to amplitude updates
+      _webAmplitudeSubscription = _webRecorder!.amplitudeStream.listen((amp) {
+        _bloc.add(UpdateAmplitude(amp));
+      });
+
+      final started = await _webRecorder!.startRecording();
+      if (started) {
+        _bloc.add(const StartRecording());
+      } else {
+        _bloc.add(const RecordingError('Failed to start recording — microphone permission may be denied'));
+      }
+    } catch (e) {
+      debugPrint('[InlineAudioRecorder] Web recording error: $e');
+      _bloc.add(RecordingError(e.toString()));
+    }
+  }
+
+  /// Stop web recording and get the blob URL
+  Future<String?> _stopWebRecording() async {
+    if (_webRecorder == null) return null;
+    try {
+      final result = await _webRecorder!.stopRecording();
+      if (result != null) {
+        _recordedFilePath = result.path;
+        return result.path;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[InlineAudioRecorder] Web stop error: $e');
+      return null;
+    }
   }
 
   /// Release all native media resources (recording and playback)
@@ -388,8 +443,12 @@ class _CometChatInlineAudioRecorderState
       button: true,
       child: GestureDetector(
         onTap: () async {
-          // Stop native recording first
-          await _stopNativeRecording();
+          // Stop recording first
+          if (kIsWeb) {
+            await _webRecorder?.dispose();
+          } else {
+            await _stopNativeRecording();
+          }
           _bloc.add(const CancelRecording());
           widget.onCancel?.call();
         },
@@ -546,6 +605,8 @@ class _CometChatInlineAudioRecorderState
           : null,
       // Allow seeking only when not recording and has recording
       allowSeeking: !isAnimating && state.hasRecording,
+      // Web amplitude stream for recording visualization
+      amplitudeStream: kIsWeb ? _webRecorder?.amplitudeStream : null,
       // Handle seek - native seekTo already starts playback
       onSeek: !isAnimating && state.hasRecording
           ? (progress) async {
@@ -604,7 +665,11 @@ class _CometChatInlineAudioRecorderState
       button: true,
       child: GestureDetector(
         onTap: () async {
-          await _pauseNativeRecording();
+          if (kIsWeb) {
+            await _webRecorder?.pauseRecording();
+          } else {
+            await _pauseNativeRecording();
+          }
           _bloc.add(const PauseRecording());
         },
         child: Container(
@@ -633,12 +698,22 @@ class _CometChatInlineAudioRecorderState
       child: GestureDetector(
         onTap: () async {
           if (isResume) {
-            final wasRealResume = await _resumeNativeRecording();
-            // If it wasn't a real resume (had to restart), reset duration/amplitudes
-            _bloc.add(ResumeRecording(isFreshRestart: !wasRealResume));
+            if (kIsWeb) {
+              await _webRecorder?.resumeRecording();
+              _bloc.add(const ResumeRecording(isFreshRestart: false));
+            } else {
+              final wasRealResume = await _resumeNativeRecording();
+              // If it wasn't a real resume (had to restart), reset duration/amplitudes
+              _bloc.add(ResumeRecording(isFreshRestart: !wasRealResume));
+            }
           } else {
-            // Re-record: start fresh native recording
-            await _startNativeRecording();
+            // Re-record: start fresh recording
+            if (kIsWeb) {
+              await _webRecorder?.dispose();
+              await _startWebRecording();
+            } else {
+              await _startNativeRecording();
+            }
           }
         },
         child: Container(
@@ -675,13 +750,18 @@ class _CometChatInlineAudioRecorderState
           // Stop recording if still recording and get file path
           String? filePath = _recordedFilePath;
           if (state.isRecording || state.isPaused) {
-            filePath = await _stopNativeRecording();
+            if (kIsWeb) {
+              filePath = (await _stopWebRecording());
+            } else {
+              filePath = await _stopNativeRecording();
+            }
             _bloc.add(const StopRecording());
           }
 
           // Submit the recording with the file path
           if (filePath != null && filePath.isNotEmpty) {
-            widget.onSubmit?.call(filePath);
+            final bytes = kIsWeb ? _webRecorder?.recordedBytes : null;
+            widget.onSubmit?.call(filePath, fileBytes: bytes);
           } else if (kDebugMode) {
             debugPrint('[InlineAudioRecorder] No file path available for submission');
           }

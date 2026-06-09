@@ -68,4 +68,18 @@ class CometChatUIEvents {
       value.requestComposerFocus(id);
     });
   }
+
+  /// Notify sibling components that the MessageList has resolved the
+  /// parentMessageId for an AI agent chat thread.
+  ///
+  /// Emitted by the MessageList BLoC after [LoadLastAgentConversation] resolves
+  /// the thread. The Composer listens for this to update its own parentMessageId
+  /// so sent messages have the correct thread context.
+  static ccAgentChatThreadResolved(
+      {required String receiverId, required int parentMessageId}) {
+    uiListener.forEach((key, value) {
+      value.ccAgentChatThreadResolved(
+          receiverId: receiverId, parentMessageId: parentMessageId);
+    });
+  }
 }

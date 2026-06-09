@@ -12,6 +12,11 @@ class MessagesScreen extends StatefulWidget {
   final int? goToMessageId;
   final BaseMessage? parentMessage;
   final bool isHistory;
+  final bool isNewChat;
+
+  /// When true, the back button in the message header is hidden.
+  /// Used in desktop split-pane layout where the screen is embedded.
+  final bool hideBackButton;
 
   const MessagesScreen({
     super.key,
@@ -20,6 +25,8 @@ class MessagesScreen extends StatefulWidget {
     this.goToMessageId,
     this.parentMessage,
     this.isHistory = false,
+    this.isNewChat = false,
+    this.hideBackButton = false,
   }) : assert(user != null || group != null);
 
   @override
@@ -334,7 +341,8 @@ class _MessagesScreenState extends State<MessagesScreen>
       appBar: CometChatMessageHeader(
         user: _user,
         group: _group,
-        onBack: () => Navigator.pop(context),
+        showBackButton: !widget.hideBackButton,
+        onBack: widget.hideBackButton ? null : () => Navigator.pop(context),
         hideVideoCallButton: _isAI || _toggles.hideVideoCallButton.value,
         hideVoiceCallButton: _isAI || _toggles.hideVoiceCallButton.value,
         usersStatusVisibility: _toggles.headerUsersStatusVisibility.value,

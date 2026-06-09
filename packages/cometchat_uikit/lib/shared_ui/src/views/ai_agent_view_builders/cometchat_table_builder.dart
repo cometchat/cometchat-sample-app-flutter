@@ -4,7 +4,7 @@ import 'package:gpt_markdown/custom_widgets/markdown_config.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../cometchat_uikit_shared.dart';
 
-class CometChatAiAssistantTableBuilder extends StatelessWidget {
+class CometChatAiAssistantTableBuilder extends StatefulWidget {
   final List<CustomTableRow> tableRows;
   final GptMarkdownConfig? config;
   final CometChatTypography? typography;
@@ -19,6 +19,19 @@ class CometChatAiAssistantTableBuilder extends StatelessWidget {
     this.colorPalette,
     this.spacing,
   });
+
+  @override
+  State<CometChatAiAssistantTableBuilder> createState() => _CometChatAiAssistantTableBuilderState();
+}
+
+class _CometChatAiAssistantTableBuilderState extends State<CometChatAiAssistantTableBuilder> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   bool _containsMarkdown(String text) {
     final markdownRegex = RegExp(
@@ -77,13 +90,13 @@ class CometChatAiAssistantTableBuilder extends StatelessWidget {
             spans.add(TextSpan(
               text: text.substring(lastEnd, match.start),
               style: TextStyle(
-                fontSize: typography?.caption1?.regular?.fontSize,
+                fontSize: widget.typography?.caption1?.regular?.fontSize,
                 fontWeight: isHeader
-                    ? typography?.caption1?.medium?.fontWeight
-                    : typography?.caption1?.regular?.fontWeight,
+                    ? widget.typography?.caption1?.medium?.fontWeight
+                    : widget.typography?.caption1?.regular?.fontWeight,
                 color: isHeader
-                    ? colorPalette?.textPrimary
-                    : colorPalette?.textSecondary,
+                    ? widget.colorPalette?.textPrimary
+                    : widget.colorPalette?.textSecondary,
               ),
             ));
           }
@@ -97,10 +110,10 @@ class CometChatAiAssistantTableBuilder extends StatelessWidget {
                 child: Text(
                   linkText,
                   style: TextStyle(
-                    color: colorPalette?.textHighlight,
+                    color: widget.colorPalette?.textHighlight,
                     decoration: TextDecoration.underline,
-                    fontSize: typography?.caption1?.medium?.fontSize,
-                    fontWeight: typography?.caption1?.medium?.fontWeight,
+                    fontSize: widget.typography?.caption1?.medium?.fontSize,
+                    fontWeight: widget.typography?.caption1?.medium?.fontWeight,
                   ),
                 ),
               ),
@@ -114,13 +127,13 @@ class CometChatAiAssistantTableBuilder extends StatelessWidget {
           spans.add(TextSpan(
             text: text.substring(lastEnd),
             style: TextStyle(
-              fontSize: typography?.caption1?.regular?.fontSize,
+              fontSize: widget.typography?.caption1?.regular?.fontSize,
               fontWeight: isHeader
-                  ? typography?.caption1?.medium?.fontWeight
-                  : typography?.caption1?.regular?.fontWeight,
+                  ? widget.typography?.caption1?.medium?.fontWeight
+                  : widget.typography?.caption1?.regular?.fontWeight,
               color: isHeader
-                  ? colorPalette?.textPrimary
-                  : colorPalette?.textSecondary,
+                  ? widget.colorPalette?.textPrimary
+                  : widget.colorPalette?.textSecondary,
             ),
           ));
         }
@@ -135,24 +148,24 @@ class CometChatAiAssistantTableBuilder extends StatelessWidget {
           context,
           cleanedText,
           false,
-          config: config ?? const GptMarkdownConfig(),
+          config: widget.config ?? const GptMarkdownConfig(),
         );
       }
     } else {
       content = Text(
         strippedText,
         style: TextStyle(
-          fontSize: typography?.caption1?.medium?.fontSize,
+          fontSize: widget.typography?.caption1?.medium?.fontSize,
           fontWeight: isBoldMarkdown
-              ? typography?.caption1?.medium?.fontWeight
+              ? widget.typography?.caption1?.medium?.fontWeight
               : (isHeader
-                  ? typography?.caption1?.medium?.fontWeight
-                  : typography?.caption1?.regular?.fontWeight),
+                  ? widget.typography?.caption1?.medium?.fontWeight
+                  : widget.typography?.caption1?.regular?.fontWeight),
           color: isBoldMarkdown
-              ? colorPalette?.textPrimary ?? colorPalette?.textSecondary
+              ? widget.colorPalette?.textPrimary ?? widget.colorPalette?.textSecondary
               : (isHeader
-                  ? colorPalette?.textPrimary
-                  : colorPalette?.textSecondary),
+                  ? widget.colorPalette?.textPrimary
+                  : widget.colorPalette?.textSecondary),
         ),
         textAlign: align,
         softWrap: true,
@@ -161,10 +174,10 @@ class CometChatAiAssistantTableBuilder extends StatelessWidget {
 
     content = Padding(
       padding: EdgeInsets.only(
-        top: isHeader ? (spacing?.padding2 ?? 2) : (spacing?.padding3 ?? 8),
-        bottom: isHeader ? (spacing?.padding2 ?? 2) : (spacing?.padding3 ?? 8),
-        left: spacing?.padding2 ?? 6,
-        right: spacing?.padding2 ?? 6,
+        top: isHeader ? (widget.spacing?.padding2 ?? 2) : (widget.spacing?.padding3 ?? 8),
+        bottom: isHeader ? (widget.spacing?.padding2 ?? 2) : (widget.spacing?.padding3 ?? 8),
+        left: widget.spacing?.padding2 ?? 6,
+        right: widget.spacing?.padding2 ?? 6,
       ),
       child: content,
     );
@@ -194,16 +207,16 @@ class CometChatAiAssistantTableBuilder extends StatelessWidget {
 
   List<double> _calculateColumnWidths(BuildContext context) {
     final List<double> colWidths = [];
-    final textStyle = typography?.caption1?.medium ?? const TextStyle();
+    final textStyle = widget.typography?.caption1?.medium ?? const TextStyle();
 
-    for (int col = 0; col < tableRows.first.fields.length; col++) {
+    for (int col = 0; col < widget.tableRows.first.fields.length; col++) {
       double maxWidth = 0;
-      for (final row in tableRows) {
+      for (final row in widget.tableRows) {
         final cellText = row.fields[col].data;
         final TextPainter tp = TextPainter(
           text: TextSpan(text: cellText, style: textStyle),
           maxLines: null,
-          textDirection: config?.textDirection ?? TextDirection.ltr,
+          textDirection: widget.config?.textDirection ?? TextDirection.ltr,
         )..layout(minWidth: 0, maxWidth: double.infinity);
 
         if (tp.width > maxWidth) maxWidth = tp.width;
@@ -216,33 +229,32 @@ class CometChatAiAssistantTableBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (tableRows.isEmpty) return const SizedBox();
+    if (widget.tableRows.isEmpty) return const SizedBox();
 
-    final controller = ScrollController();
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final colCount = tableRows.first.fields.length;
+    final colCount = widget.tableRows.first.fields.length;
     final maxColumnWidth = screenWidth / colCount;
     final colWidths = _calculateColumnWidths(context);
 
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: colorPalette?.borderDark ?? Colors.grey,
+          color: widget.colorPalette?.borderDark ?? Colors.grey,
           width: 1,
         ),
-        borderRadius: BorderRadius.circular(spacing?.radius3 ?? 12),
+        borderRadius: BorderRadius.circular(widget.spacing?.radius3 ?? 12),
       ),
       clipBehavior: Clip.hardEdge,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(spacing?.radius3 ?? 12),
+        borderRadius: BorderRadius.circular(widget.spacing?.radius3 ?? 12),
         child: Scrollbar(
-          controller: controller,
+          controller: _scrollController,
           thumbVisibility: true,
           thickness: 3,
-          radius: Radius.circular(spacing?.radiusMax ?? 0),
+          radius: Radius.circular(widget.spacing?.radiusMax ?? 0),
           interactive: true,
           child: SingleChildScrollView(
-            controller: controller,
+            controller: _scrollController,
             scrollDirection: Axis.horizontal,
             child: Table(
               columnWidths: {
@@ -252,25 +264,25 @@ class CometChatAiAssistantTableBuilder extends StatelessWidget {
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               border: TableBorder.symmetric(
                 inside: BorderSide(
-                  color: colorPalette?.borderDark ?? Colors.grey,
+                  color: widget.colorPalette?.borderDark ?? Colors.grey,
                   width: 1,
                 ),
               ),
-              children: tableRows.map((row) {
+              children: widget.tableRows.map((row) {
                 return TableRow(
                   decoration: row.isHeader
                       ? BoxDecoration(
-                          color: colorPalette?.background4,
+                          color: widget.colorPalette?.background4,
                           borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(spacing?.radius3 ?? 12),
-                            topRight: Radius.circular(spacing?.radius3 ?? 12),
+                            topLeft: Radius.circular(widget.spacing?.radius3 ?? 12),
+                            topRight: Radius.circular(widget.spacing?.radius3 ?? 12),
                           ),
                         )
                       : BoxDecoration(
                           borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(spacing?.radius3 ?? 12),
+                            bottomLeft: Radius.circular(widget.spacing?.radius3 ?? 12),
                             bottomRight:
-                                Radius.circular(spacing?.radius3 ?? 12),
+                                Radius.circular(widget.spacing?.radius3 ?? 12),
                           ),
                         ),
                   children: row.fields.map((field) {

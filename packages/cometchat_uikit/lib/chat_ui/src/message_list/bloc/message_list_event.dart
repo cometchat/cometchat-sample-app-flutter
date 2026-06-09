@@ -306,3 +306,19 @@ class MessageSentByUser extends MessageListEvent {
 class ForceEmptyState extends MessageListEvent {
   const ForceEmptyState();
 }
+
+/// Load the most recent AI agent conversation thread.
+///
+/// Fetches messages for the agent UID (hideReplies: true) to find the latest
+/// parent message, then loads the full thread with that parentMessageId.
+/// Falls back to empty state if no previous conversation exists.
+class LoadLastAgentConversation extends MessageListEvent {
+  final String conversationWith;
+
+  const LoadLastAgentConversation({
+    required this.conversationWith,
+  });
+
+  @override
+  List<Object?> get props => [conversationWith];
+}

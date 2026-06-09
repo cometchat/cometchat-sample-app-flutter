@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:video_player/video_player.dart';
 import '../../../../core/result.dart';
 import '../../domain/entities/stream_entity.dart';
@@ -81,17 +81,24 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
           Uri.parse(url),
           videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
         );
-      } else if (url.startsWith('file://')) {
+      } else if (!kIsWeb && url.startsWith('file://')) {
+        // Local file playback — not available on web
         final filePath = url.replaceFirst('file://', '');
-        controller = VideoPlayerController.file(
-          File(filePath),
+        controller = VideoPlayerController.networkUrl(
+          Uri.parse('file://$filePath'),
+          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+        );
+      } else if (!kIsWeb) {
+        // Assume local file path — not available on web
+        controller = VideoPlayerController.networkUrl(
+          Uri.parse('file://$url'),
           videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
         );
       } else {
-        // Assume local file path
-        controller = VideoPlayerController.file(
-          File(url),
-          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+        // On web with non-http URL — cannot play local files
+        return const Failure(
+          message: 'Local file playback not supported on web',
+          code: 'WEB_UNSUPPORTED',
         );
       }
 
@@ -241,11 +248,16 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
       
       if (url.startsWith('http://') || url.startsWith('https://')) {
         tempController = VideoPlayerController.networkUrl(Uri.parse(url));
-      } else if (url.startsWith('file://')) {
+      } else if (!kIsWeb && url.startsWith('file://')) {
         final filePath = url.replaceFirst('file://', '');
-        tempController = VideoPlayerController.file(File(filePath));
+        tempController = VideoPlayerController.networkUrl(Uri.parse('file://$filePath'));
+      } else if (!kIsWeb) {
+        tempController = VideoPlayerController.networkUrl(Uri.parse('file://$url'));
       } else {
-        tempController = VideoPlayerController.file(File(url));
+        return const Failure(
+          message: 'Local file duration not supported on web',
+          code: 'WEB_UNSUPPORTED',
+        );
       }
 
       await tempController.initialize();

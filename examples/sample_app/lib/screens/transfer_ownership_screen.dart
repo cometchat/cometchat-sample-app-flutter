@@ -108,12 +108,12 @@ class _TransferOwnershipScreenState extends State<TransferOwnershipScreen> {
           fontFamily: _typography.button?.medium?.fontFamily,
         ),
       ),
-      onCancel: () => Navigator.pop(context),
-      onConfirm: () => _performTransfer(member),
+      onCancel: (dialogContext) => Navigator.of(dialogContext).pop(),
+      onConfirm: (dialogContext) => _performTransfer(member, dialogContext),
     ).show();
   }
 
-  void _performTransfer(GroupMember member) {
+  void _performTransfer(GroupMember member, BuildContext dialogContext) {
     setState(() => _isLoading = true);
     CometChat.transferGroupOwnership(
       guid: widget.group.guid,
@@ -122,12 +122,13 @@ class _TransferOwnershipScreenState extends State<TransferOwnershipScreen> {
         if (!mounted) return;
         widget.group.owner = member.uid;
         CometChatGroupEvents.ccOwnershipChanged(widget.group, member);
-        Navigator.pop(context); // close dialog
+        Navigator.of(dialogContext).pop(); // close dialog
         Navigator.pop(context, 'LeaveGroup'); // close screen, signal leave
       },
       onError: (e) {
         if (!mounted) return;
         setState(() => _isLoading = false);
+        Navigator.of(dialogContext).pop(); // close dialog
         debugPrint('Ownership transfer failed: ${e.message}');
       },
     );

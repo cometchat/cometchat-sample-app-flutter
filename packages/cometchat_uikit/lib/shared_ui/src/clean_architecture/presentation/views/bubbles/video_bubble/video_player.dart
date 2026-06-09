@@ -1,9 +1,9 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart' as vp;
 
 import "../../../../clean_architecture.dart";
+import '../../../../core/utils/platform_utils/platform_file_utils.dart' as platform;
 
 ///Gives Full screen video player for [CometChatVideoBubble]
 class VideoPlayer extends StatefulWidget {
@@ -50,8 +50,11 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   initializeVideo() async {
     try {
-      if(widget.playFromFile) {
-        _controller = vp.VideoPlayerController.file(File(widget.videoUrl));
+      // On web, always use network URL (no local file access)
+      if(!kIsWeb && widget.playFromFile && platform.fileExistsSync(widget.videoUrl)) {
+        _controller = vp.VideoPlayerController.networkUrl(
+          Uri.parse('file://${widget.videoUrl}'),
+        );
       } else {
         _controller =
             vp.VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
@@ -61,12 +64,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
     _controller!.play();
     setState(() {}); // Refresh to display the video
     });
-    _controller?.addListener(() {
-    setState(() {}); // Update progress bar and UI when the video state changes
-    });
+    _controller?.addListener(_onControllerUpdate);
     } catch (e) {
       debugPrint('$e');
     }
+  }
+
+  void _onControllerUpdate() {
+    setState(() {}); // Update progress bar and UI when the video state changes
   }
 
   @override

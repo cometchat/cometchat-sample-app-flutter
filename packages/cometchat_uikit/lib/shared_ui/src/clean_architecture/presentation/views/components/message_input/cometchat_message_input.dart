@@ -263,12 +263,12 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
   /// Default single-row layout: secondary buttons | input | auxiliary | send.
   Widget _buildSingleLineLayout() {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Secondary buttons (left side - attachment button)
         if (widget.secondaryButtonView != null)
           Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 17),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             child: widget.secondaryButtonView!,
           ),
 
@@ -277,18 +277,16 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
             widget.auxiliaryButtonView != null &&
             widget.hideBottomView != true)
           Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 17),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             child: widget.auxiliaryButtonView!,
           ),
 
         // Text input (center, expanded)
         Expanded(
           child: Padding(
-            padding: EdgeInsets.only(
-              left: spacing.padding2 ?? 8,
-              right: spacing.padding2 ?? 8,
-              top: 12,
-              bottom: 12,
+            padding: EdgeInsets.symmetric(
+              horizontal: spacing.padding2 ?? 8,
+              vertical: 12,
             ),
             child: _textEditingController != null
                 ? _buildRegularInput()
@@ -301,7 +299,7 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
             widget.auxiliaryButtonView != null &&
             widget.hideBottomView != true)
           Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 17),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             child: widget.auxiliaryButtonView!,
           ),
 
@@ -425,6 +423,7 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
     return TextFormField(
       key: ValueKey(_textEditingController.hashCode),
       textCapitalization: TextCapitalization.sentences,
+      textAlignVertical: TextAlignVertical.center,
       keyboardAppearance: CometChatThemeHelper.getBrightness(context),
       cursorColor: colorPalette.primary ?? Colors.blue,
       scrollPhysics: const ClampingScrollPhysics(),

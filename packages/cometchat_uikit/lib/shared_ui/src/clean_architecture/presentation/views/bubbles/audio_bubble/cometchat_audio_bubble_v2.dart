@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../../../clean_architecture.dart';
 import 'cometchat_audio_bubble_controller.dart';
@@ -246,6 +246,18 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
   Future<void> _downloadAndPlay() async {
     if (widget.audioUrl == null || _isDownloading) return;
 
+    // On web, skip download — play directly from network URL
+    if (kIsWeb) {
+      _localPath = null;
+      _isDownloaded = true;
+      if (mounted) setState(() => _isPreparingToPlay = false);
+      _setupAudioState();
+      _generateWaveform();
+      await Future.delayed(const Duration(milliseconds: 100));
+      _audioState?.playAudio();
+      return;
+    }
+
     setState(() {
       _isDownloading = true;
       _downloadProgress = 0.0;
@@ -289,34 +301,12 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
 
   /// Download file with progress tracking for large audio files
   Future<String?> _downloadFileWithProgress(String fileUrl, String fileName) async {
-    try {
-      await BubbleUtils.setDownloadFilePath();
-      if (BubbleUtils.fileDownloadPath.isEmpty) return null;
-
-      final filePath = '${BubbleUtils.fileDownloadPath}/$fileName';
-      final request = await HttpClient().getUrl(Uri.parse(fileUrl));
-      final response = await request.close();
-
-      final contentLength = response.contentLength;
-      int bytesReceived = 0;
-      final file = File(filePath).openWrite();
-
-      await for (final chunk in response) {
-        file.add(chunk);
-        bytesReceived += chunk.length;
-        if (contentLength > 0 && mounted) {
-          final progress = bytesReceived / contentLength;
-          if ((progress - _downloadProgress).abs() > 0.02) {
-            setState(() => _downloadProgress = progress);
-          }
-        }
-      }
-      await file.close();
-      return filePath;
-    } catch (e) {
-      debugPrint('Download with progress failed: $e');
-      return null;
+    if (kIsWeb) {
+      // On web, use BubbleUtils.downloadFile which opens URL in new tab
+      return BubbleUtils.downloadFile(fileUrl, fileName);
     }
+    // On native, delegate to BubbleUtils which handles filesystem download
+    return BubbleUtils.downloadFile(fileUrl, fileName);
   }
 
   void _togglePlayPause() {

@@ -28,6 +28,7 @@ class AudioWaveformVisualizer extends StatefulWidget {
     this.onAmplitudeReceived,
     this.onSeek,
     this.allowSeeking = true,
+    this.amplitudeStream,
   });
 
   /// Whether the waveform should animate (recording)
@@ -68,6 +69,9 @@ class AudioWaveformVisualizer extends StatefulWidget {
   
   /// Whether to allow seeking by tap/drag (disabled during recording)
   final bool allowSeeking;
+
+  /// Stream of amplitude values for web (where EventChannel is unavailable)
+  final Stream<double>? amplitudeStream;
 
   @override
   State<AudioWaveformVisualizer> createState() =>
@@ -122,6 +126,16 @@ class _AudioWaveformVisualizerState extends State<AudioWaveformVisualizer>
   void _startListening() {
     _streamSubscription?.cancel();
     
+    // On web, EventChannel is not available — use the provided amplitudeStream
+    if (kIsWeb) {
+      if (widget.amplitudeStream != null) {
+        _streamSubscription = widget.amplitudeStream!.listen((amplitude) {
+          _onAmplitudeReceived(amplitude);
+        });
+      }
+      return;
+    }
+
     try {
       _streamSubscription = _eventChannel.receiveBroadcastStream().listen(
         _onAmplitudeReceived,

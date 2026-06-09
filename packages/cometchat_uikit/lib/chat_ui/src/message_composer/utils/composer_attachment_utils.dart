@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../../../shared_ui/cometchat_uikit_shared.dart';
 
@@ -260,7 +261,7 @@ class ComposerAttachmentUtils {
     final style = additionalConfigurations?.attachmentOptionSheetStyle;
     List<CometChatMessageComposerAction> actions = [];
 
-    if (additionalConfigurations?.hideTakPhotoOption != true) {
+    if (additionalConfigurations?.hideTakPhotoOption != true && !kIsWeb) {
       actions.add(takePhotoOption(context, colorPalette, typography, style));
     }
     if (additionalConfigurations?.hideImageAttachmentOption != true) {

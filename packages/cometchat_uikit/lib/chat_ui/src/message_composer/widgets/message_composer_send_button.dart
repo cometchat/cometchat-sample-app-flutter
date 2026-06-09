@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
@@ -104,20 +105,34 @@ class MessageComposerSendButton extends StatelessWidget {
       label: isDisabled ? 'Send button disabled' : 'Send message',
       button: true,
       enabled: !isDisabled,
-      child: Container(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: borderRadius,
-        ),
-        alignment: Alignment.center,
-        height: buttonSize,
-        width: buttonSize,
-        child: IconButton(
-          padding: const EdgeInsets.all(0),
-          icon: _buildIcon(effectiveColorPalette),
-          onPressed: onPressed,
-        ),
-      ),
+      child: kIsWeb
+          ? GestureDetector(
+              onTap: onPressed,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: borderRadius,
+                ),
+                alignment: Alignment.center,
+                height: buttonSize,
+                width: buttonSize,
+                child: _buildIcon(effectiveColorPalette),
+              ),
+            )
+          : Container(
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: borderRadius,
+              ),
+              alignment: Alignment.center,
+              height: buttonSize,
+              width: buttonSize,
+              child: IconButton(
+                padding: const EdgeInsets.all(0),
+                icon: _buildIcon(effectiveColorPalette),
+                onPressed: onPressed,
+              ),
+            ),
     );
   }
 

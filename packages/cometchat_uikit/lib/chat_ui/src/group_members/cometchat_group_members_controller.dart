@@ -134,9 +134,9 @@ class CometChatGroupMembersController
   GroupMember? getGroupMemberFromUser(User user) {
     try {
       return list.cast<GroupMember?>().firstWhere(
-        (element) => element!.uid == user.uid,
-        orElse: () => null,
-      );
+            (element) => element!.uid == user.uid,
+            orElse: () => null,
+          );
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error in getGroupMemberFromUser: $e');
@@ -329,7 +329,7 @@ class CometChatGroupMembersController
               ),
               messageText:
                   "${cc.Translations.of(context).areYouSureBan} ${member.name} ${cc.Translations.of(context).from} ${group.name}?",
-              onConfirm: () {
+              onConfirm: (dialogContext) {
             isActionRunning.value = true;
             CometChat.banGroupMember(
               guid: group.guid,
@@ -355,14 +355,14 @@ class CometChatGroupMembersController
                     group);
                 removeElement(member);
                 isActionRunning.value = false;
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               onError: (exception) {
                 if (onError != null) {
                   onError!(exception);
                 }
                 isActionRunning.value = false;
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
             );
           }, confirmButtonText: cc.Translations.of(context).ban.toUpperCase());
@@ -378,7 +378,7 @@ class CometChatGroupMembersController
               ),
               messageText:
                   "${cc.Translations.of(context).areYouSureRemove} ${member.name} ${cc.Translations.of(context).from} ${group.name}?",
-              onConfirm: () {
+              onConfirm: (dialogContext) {
             isActionRunning.value = true;
             CometChat.kickGroupMember(
               guid: group.guid,
@@ -404,19 +404,17 @@ class CometChatGroupMembersController
                     group);
                 removeElement(member);
                 isActionRunning.value = false;
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               onError: (excep) {
                 if (onError != null) {
                   onError!(excep);
                 }
                 isActionRunning.value = false;
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
             );
-          },
-              confirmButtonText:
-                  cc.Translations.of(context).kick.toUpperCase());
+          }, confirmButtonText: cc.Translations.of(context).kick.toUpperCase());
         };
       case GroupMemberOptionConstants.changeScope:
         showModalBottomSheet(
@@ -445,7 +443,7 @@ class CometChatGroupMembersController
 
   showConfirmDialog(BuildContext context, CometChatColorPalette colorPalette,
       CometChatTypography typography, CometChatSpacing spacing,
-      {Function()? onConfirm,
+      {Function(BuildContext)? onConfirm,
       Widget? icon,
       String? title,
       String? messageText,
@@ -463,9 +461,9 @@ class CometChatGroupMembersController
         messageText ?? "",
         textAlign: TextAlign.center,
       ),
-      onCancel: () {
+      onCancel: (dialogContext) {
         isActionRunning.value = false;
-        Navigator.pop(context);
+        Navigator.of(dialogContext).pop();
       },
       style: CometChatConfirmDialogStyle(
         iconColor: confirmDialogStyle?.iconColor ?? colorPalette.error,

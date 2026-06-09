@@ -1,7 +1,8 @@
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
+import '../../../../core/utils/platform_utils/platform_file_utils.dart' as platform;
 
 /// Utility class for generating audio waveform data
 class WaveformUtils {
@@ -10,50 +11,29 @@ class WaveformUtils {
   /// Fast waveform extraction that samples raw bytes at evenly-spaced offsets.
   /// Doesn't decode audio — just reads byte amplitudes from the file.
   /// Returns in <50ms even for hour-long files.
+  /// On web, returns a generated placeholder since local file access is unavailable.
   static Future<List<double>> extractWaveformFast(String filePath,
       {int barCount = 40}) async {
+    // On web, no local file access — use URL-based placeholder
+    if (kIsWeb) {
+      return generateWaveform(filePath, barCount: barCount);
+    }
+    return _extractWaveformFastNative(filePath, barCount: barCount);
+  }
+
+  /// Native-only implementation that reads file bytes directly.
+  static Future<List<double>> _extractWaveformFastNative(String filePath,
+      {int barCount = 40}) async {
     try {
-      final file = File(filePath);
-      final fileLength = await file.length();
-      if (fileLength < barCount * 2) {
-        return generatePlaceholder(barCount: barCount);
+      // Use platform channel to read file bytes for waveform extraction
+      final result = await _channel.invokeMethod('extractWaveformFast', {
+        'filePath': filePath,
+        'barCount': barCount,
+      });
+      if (result is List && result.isNotEmpty) {
+        return result.map((e) => (e as num).toDouble().clamp(0.15, 1.0)).toList();
       }
-
-      // Skip MP3/audio headers (first ~10% of file is often metadata)
-      final dataStart = (fileLength * 0.05).toInt();
-      final dataEnd = (fileLength * 0.95).toInt();
-      final dataLength = dataEnd - dataStart;
-
-      final raf = await file.open(mode: FileMode.read);
-      final amplitudes = <double>[];
-      // Size of each chunk to sample — read a small window at each offset
-      const sampleWindowSize = 512;
-
-      for (int i = 0; i < barCount; i++) {
-        final offset =
-            dataStart + (i * dataLength / barCount).toInt();
-        await raf.setPosition(offset.clamp(0, fileLength - sampleWindowSize));
-        final Uint8List bytes =
-            await raf.read(min(sampleWindowSize, fileLength - offset));
-
-        if (bytes.isEmpty) {
-          amplitudes.add(0.15);
-          continue;
-        }
-
-        // Calculate RMS-like amplitude from raw bytes
-        double sum = 0;
-        for (final b in bytes) {
-          // Treat byte as signed audio sample centered at 128
-          final sample = (b - 128).abs().toDouble();
-          sum += sample * sample;
-        }
-        final rms = sqrt(sum / bytes.length) / 128.0;
-        amplitudes.add(rms.clamp(0.15, 1.0));
-      }
-
-      await raf.close();
-      return amplitudes;
+      return generatePlaceholder(barCount: barCount);
     } catch (e) {
       return generatePlaceholder(barCount: barCount);
     }
@@ -61,8 +41,12 @@ class WaveformUtils {
 
   /// Extract real waveform amplitudes from an audio file using native code.
   /// Accurate but slow for long files. Use [extractWaveformFast] for instant results.
+  /// On web, falls back to generated placeholder.
   static Future<List<double>> extractWaveformFromFile(String filePath,
       {int barCount = 40}) async {
+    if (kIsWeb) {
+      return generateWaveform(filePath, barCount: barCount);
+    }
     try {
       final result = await _channel.invokeMethod('extractWaveformFromFile', {
         'filePath': filePath,

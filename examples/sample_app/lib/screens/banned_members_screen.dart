@@ -175,12 +175,12 @@ class _BannedMembersScreenState extends State<BannedMembersScreen>
         confirmButtonBackground: _colorPalette.error,
         confirmButtonTextColor: _colorPalette.white,
       ),
-      onCancel: () => Navigator.pop(context),
-      onConfirm: () => _performUnban(member),
+      onCancel: (dialogContext) => Navigator.of(dialogContext).pop(),
+      onConfirm: (dialogContext) => _performUnban(member, dialogContext),
     ).show();
   }
 
-  void _performUnban(GroupMember member) {
+  void _performUnban(GroupMember member, BuildContext dialogContext) {
     setState(() => _isUnbanning = true);
     CometChat.unbanGroupMember(
       guid: widget.group.guid,
@@ -209,12 +209,12 @@ class _BannedMembersScreenState extends State<BannedMembersScreen>
           _bannedMembers.removeWhere((m) => m.uid == member.uid);
           _isUnbanning = false;
         });
-        Navigator.pop(context); // close dialog
+        Navigator.of(dialogContext).pop(); // close dialog
       },
       onError: (e) {
         if (!mounted) return;
         setState(() => _isUnbanning = false);
-        Navigator.pop(context);
+        Navigator.of(dialogContext).pop();
         debugPrint('Unban failed: ${e.message}');
       },
     );

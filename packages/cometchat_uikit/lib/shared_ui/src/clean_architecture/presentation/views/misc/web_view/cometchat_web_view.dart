@@ -1,6 +1,8 @@
 import '../../../../../../cometchat_uikit_shared.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 ///[CometChatWebView] is widget that renders a WebView
 class CometChatWebView extends StatefulWidget {
@@ -61,14 +63,45 @@ class _CometChatWebViewState extends State<CometChatWebView> {
                   fontWeight: FontWeight.w500),
         ),
       ),
-      body: Stack(children: <Widget>[
-        WebViewWidget(
-            controller: WebViewController()
-              ..loadRequest(Uri.parse(widget.webViewUrl))
-              ..setJavaScriptMode(JavaScriptMode.unrestricted)
-            // javascriptMode: ,
-            ),
-      ]),
+      body: kIsWeb ? _buildWebFallback() : _buildNativeWebView(),
     );
+  }
+
+  /// On web platform, use HtmlElementView with iframe for inline display
+  Widget _buildWebFallback() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.open_in_browser, size: 48, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text(
+            'WebView is not supported on web.',
+            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+            onPressed: () {
+              launchUrl(
+                Uri.parse(widget.webViewUrl),
+                mode: LaunchMode.externalApplication,
+              );
+            },
+            icon: const Icon(Icons.open_in_new),
+            label: const Text('Open in Browser'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// On native platforms, use the webview_flutter package
+  Widget _buildNativeWebView() {
+    return Stack(children: <Widget>[
+      WebViewWidget(
+          controller: WebViewController()
+            ..loadRequest(Uri.parse(widget.webViewUrl))
+            ..setJavaScriptMode(JavaScriptMode.unrestricted)),
+    ]);
   }
 }

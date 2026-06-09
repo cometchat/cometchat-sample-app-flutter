@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
@@ -60,9 +61,11 @@ class CometChatMessageActionOverlayStyle
     return CometChatMessageActionOverlayStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
       overlayColor: overlayColor ?? this.overlayColor,
-      reactionBackgroundColor: reactionBackgroundColor ?? this.reactionBackgroundColor,
+      reactionBackgroundColor:
+          reactionBackgroundColor ?? this.reactionBackgroundColor,
       reactionBorderRadius: reactionBorderRadius ?? this.reactionBorderRadius,
-      optionsBackgroundColor: optionsBackgroundColor ?? this.optionsBackgroundColor,
+      optionsBackgroundColor:
+          optionsBackgroundColor ?? this.optionsBackgroundColor,
       optionsBorderRadius: optionsBorderRadius ?? this.optionsBorderRadius,
       optionTitleStyle: optionTitleStyle ?? this.optionTitleStyle,
       optionIconColor: optionIconColor ?? this.optionIconColor,
@@ -70,7 +73,8 @@ class CometChatMessageActionOverlayStyle
     );
   }
 
-  CometChatMessageActionOverlayStyle merge(CometChatMessageActionOverlayStyle? other) {
+  CometChatMessageActionOverlayStyle merge(
+      CometChatMessageActionOverlayStyle? other) {
     if (other == null) return this;
     return copyWith(
       backgroundColor: other.backgroundColor,
@@ -94,8 +98,10 @@ class CometChatMessageActionOverlayStyle
     return CometChatMessageActionOverlayStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       overlayColor: Color.lerp(overlayColor, other.overlayColor, t),
-      reactionBackgroundColor: Color.lerp(reactionBackgroundColor, other.reactionBackgroundColor, t),
-      optionsBackgroundColor: Color.lerp(optionsBackgroundColor, other.optionsBackgroundColor, t),
+      reactionBackgroundColor:
+          Color.lerp(reactionBackgroundColor, other.reactionBackgroundColor, t),
+      optionsBackgroundColor:
+          Color.lerp(optionsBackgroundColor, other.optionsBackgroundColor, t),
       optionIconColor: Color.lerp(optionIconColor, other.optionIconColor, t),
       dividerColor: Color.lerp(dividerColor, other.dividerColor, t),
     );
@@ -106,9 +112,8 @@ class CometChatMessageActionOverlayStyle
   }
 }
 
-
 /// A full-screen overlay that displays message actions in a modern context menu style.
-/// 
+///
 /// Shows:
 /// 1. Dimmed background
 /// 2. Quick reaction emojis row above the message
@@ -172,10 +177,12 @@ class CometChatMessageActionOverlay extends StatefulWidget {
   final String? heroTag;
 
   @override
-  State<CometChatMessageActionOverlay> createState() => _CometChatMessageActionOverlayState();
+  State<CometChatMessageActionOverlay> createState() =>
+      _CometChatMessageActionOverlayState();
 }
 
-class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOverlay>
+class _CometChatMessageActionOverlayState
+    extends State<CometChatMessageActionOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -185,21 +192,22 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
   @override
   void initState() {
     super.initState();
-    _favoriteReactions = widget.favoriteReactions ?? ['😍', '🔥', '🤧', '👍', '❤️'];
-    
+    _favoriteReactions =
+        widget.favoriteReactions ?? ['😍', '🔥', '🤧', '👍', '❤️'];
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
-    
+
     _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
-    
+
     _animationController.forward();
   }
 
@@ -217,7 +225,8 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
       debugPrint('[Overlay] Running reverse animation');
       await _animationController.reverse();
     }
-    debugPrint('[Overlay] mounted=$mounted, popping with result: ${result?.id}');
+    debugPrint(
+        '[Overlay] mounted=$mounted, popping with result: ${result?.id}');
     if (mounted) {
       Navigator.of(context).pop(result);
     }
@@ -228,8 +237,9 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
     final typography = CometChatThemeHelper.getTypography(context);
-    
-    final overlayStyle = CometChatThemeHelper.getTheme<CometChatMessageActionOverlayStyle>(
+
+    final overlayStyle =
+        CometChatThemeHelper.getTheme<CometChatMessageActionOverlayStyle>(
       context: context,
       defaultTheme: CometChatMessageActionOverlayStyle.of,
     ).merge(widget.style);
@@ -251,7 +261,8 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
                     sigmaY: 8.0 * _fadeAnimation.value,
                   ),
                   child: Container(
-                    color: (overlayStyle.overlayColor ?? Colors.black).withValues(alpha: 0.3 * _fadeAnimation.value),
+                    color: (overlayStyle.overlayColor ?? Colors.black)
+                        .withValues(alpha: 0.3 * _fadeAnimation.value),
                   ),
                 ),
                 // Content
@@ -260,7 +271,8 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
                     opacity: _fadeAnimation,
                     child: ScaleTransition(
                       scale: _scaleAnimation,
-                      child: _buildContent(context, colorPalette, spacing, typography, overlayStyle),
+                      child: _buildContent(context, colorPalette, spacing,
+                          typography, overlayStyle),
                     ),
                   ),
                 ),
@@ -282,24 +294,34 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
     final isLeftAligned = widget.bubbleAlignment == BubbleAlignment.left;
     // Use the same padding as message bubble (spacing.padding4)
     final bubblePadding = spacing.padding4 ?? 16;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     final screenHeight = MediaQuery.sizeOf(context).height;
     final safeAreaPadding = MediaQuery.paddingOf(context);
-    
+
+    // On web/wide screens, constrain the overall content width
+    // so the overlay doesn't feel like a full-screen takeover
+    final double maxContentWidth = screenWidth > 600 ? 500 : screenWidth;
+
     // Calculate available height for the bubble
     // Reserve space for: reactions row (~56), options (~280 max), spacing, safe area
     final reactionsHeight = widget.hideReactions ? 0.0 : 56.0;
     const optionsMaxHeight = 280.0;
     final verticalPadding = (spacing.padding6 ?? 24) * 2;
     final spacingBetween = (spacing.padding1 ?? 4) * 2;
-    final reservedHeight = reactionsHeight + optionsMaxHeight + verticalPadding + 
-        spacingBetween + safeAreaPadding.top + safeAreaPadding.bottom;
+    final reservedHeight = reactionsHeight +
+        optionsMaxHeight +
+        verticalPadding +
+        spacingBetween +
+        safeAreaPadding.top +
+        safeAreaPadding.bottom;
     final maxBubbleHeight = screenHeight - reservedHeight;
-    final double effectiveMaxHeight = maxBubbleHeight > 100 ? maxBubbleHeight : 100.0;
-    
+    final double effectiveMaxHeight =
+        maxBubbleHeight > 100 ? maxBubbleHeight : 100.0;
+
     // Check if bubble needs to be constrained (is larger than available space)
-    final bool isLargeBubble = widget.bubbleSize != null && 
+    final bool isLargeBubble = widget.bubbleSize != null &&
         widget.bubbleSize!.height > effectiveMaxHeight;
-    
+
     // Build the bubble widget — no Hero animation to avoid WidgetSpan
     // reparenting issues that break formatted text (mentions, inline code)
     Widget bubbleContent = GestureDetector(
@@ -309,7 +331,7 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
         child: widget.bubbleWidget,
       ),
     );
-    
+
     // Wrap bubble in a constrained scrollable container for large messages
     Widget constrainedBubble = ConstrainedBox(
       constraints: BoxConstraints(
@@ -320,55 +342,70 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
         child: bubbleContent,
       ),
     );
-    
+
     // For small bubbles, don't constrain - just use the bubble directly
     // For large bubbles, use the constrained scrollable version
-    final Widget displayBubble = isLargeBubble ? constrainedBubble : bubbleContent;
-    
-    return Padding(
-      padding: EdgeInsets.only(
-        left: bubblePadding,
-        right: bubblePadding,
-        top: spacing.padding6 ?? 24,
-        bottom: spacing.padding6 ?? 24,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Spacer to push content to center for small bubbles
-          if (!isLargeBubble) const Spacer(),
-          
-          // Reactions row - aligned same as bubble
-          if (!widget.hideReactions && !ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(widget.message))
-            Align(
-              alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
-              child: _buildReactionsRow(colorPalette, spacing, typography, overlayStyle),
-            ),
-          
-          SizedBox(height: spacing.padding1 ?? 4),
-          
-          // Message bubble - constrained and scrollable for large messages
-          Align(
-            alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
-            child: displayBubble,
+    final Widget displayBubble =
+        isLargeBubble ? constrainedBubble : bubbleContent;
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxContentWidth),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: bubblePadding,
+            right: bubblePadding,
+            top: spacing.padding6 ?? 24,
+            bottom: spacing.padding6 ?? 24,
           ),
-          
-          SizedBox(height: spacing.padding1 ?? 4),
-          
-          // Action options - aligned same side as bubble
-          Align(
-            alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
-            child: _buildOptionsContainer(colorPalette, spacing, typography, overlayStyle),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Spacer to push content to center for small bubbles
+              if (!isLargeBubble) const Spacer(),
+
+              // Reactions row - aligned same as bubble
+              if (!widget.hideReactions &&
+                  !ModerationCheckUtil.instance
+                      .isMessageDisapprovedFromModeration(widget.message))
+                Align(
+                  alignment: isLeftAligned
+                      ? Alignment.centerLeft
+                      : Alignment.centerRight,
+                  child: _buildReactionsRow(
+                      colorPalette, spacing, typography, overlayStyle),
+                ),
+
+              SizedBox(height: spacing.padding1 ?? 4),
+
+              // Message bubble - constrained and scrollable for large messages
+              Align(
+                alignment: isLeftAligned
+                    ? Alignment.centerLeft
+                    : Alignment.centerRight,
+                child: displayBubble,
+              ),
+
+              SizedBox(height: spacing.padding1 ?? 4),
+
+              // Action options - aligned same side as bubble
+              Align(
+                alignment: isLeftAligned
+                    ? Alignment.centerLeft
+                    : Alignment.centerRight,
+                child: _buildOptionsContainer(
+                    colorPalette, spacing, typography, overlayStyle),
+              ),
+
+              // Spacer to push content to center for small bubbles
+              if (!isLargeBubble) const Spacer(),
+            ],
           ),
-          
-          // Spacer to push content to center for small bubbles
-          if (!isLargeBubble) const Spacer(),
-        ],
+        ),
       ),
     );
   }
-
 
   Widget _buildReactionsRow(
     CometChatColorPalette colorPalette,
@@ -383,7 +420,7 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
       ),
       decoration: BoxDecoration(
         color: overlayStyle.reactionBackgroundColor ?? colorPalette.background1,
-        borderRadius: overlayStyle.reactionBorderRadius ?? 
+        borderRadius: overlayStyle.reactionBorderRadius ??
             BorderRadius.circular(spacing.radiusMax ?? 24),
         boxShadow: [
           BoxShadow(
@@ -404,11 +441,11 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
         mainAxisSize: MainAxisSize.min,
         children: [
           ..._favoriteReactions.map((reaction) => _buildReactionItem(
-            reaction,
-            colorPalette,
-            spacing,
-            typography,
-          )),
+                reaction,
+                colorPalette,
+                spacing,
+                typography,
+              )),
           _buildAddReactionButton(colorPalette, spacing),
         ],
       ),
@@ -457,13 +494,13 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
           context: context,
           colorPalette: colorPalette,
         );
-        
+
         // Dismiss immediately without reverse animation to avoid jitter
         // when reaction state update triggers rebuild
         if (mounted) {
           Navigator.of(context).pop();
         }
-        
+
         // Call reaction callback after overlay is dismissed
         if (selectedEmoji != null && selectedEmoji.isNotEmpty) {
           if (widget.onReactionTap != null) {
@@ -473,11 +510,12 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
       },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: spacing.padding1 ?? 4),
-        child: widget.addReactionIcon ?? Icon(
-          Icons.add_circle_outline,
-          size: 24,
-          color: colorPalette.iconSecondary,
-        ),
+        child: widget.addReactionIcon ??
+            Icon(
+              Icons.add_circle_outline,
+              size: 24,
+              color: colorPalette.iconSecondary,
+            ),
       ),
     );
   }
@@ -491,13 +529,18 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
     if (widget.actionItems.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      constraints: BoxConstraints(
-        maxWidth: MediaQuery.sizeOf(context).width * 0.72,
-        maxHeight: 400,
-      ),
+      constraints: kIsWeb
+          ? const BoxConstraints(
+              maxWidth: 280,
+              maxHeight: 400,
+            )
+          : BoxConstraints(
+              maxWidth: MediaQuery.sizeOf(context).width * 0.72,
+              maxHeight: 400,
+            ),
       decoration: BoxDecoration(
         color: overlayStyle.optionsBackgroundColor ?? colorPalette.background1,
-        borderRadius: overlayStyle.optionsBorderRadius ?? 
+        borderRadius: overlayStyle.optionsBorderRadius ??
             BorderRadius.circular(spacing.radius4 ?? 16),
         boxShadow: [
           BoxShadow(
@@ -515,7 +558,7 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
         ],
       ),
       child: ClipRRect(
-        borderRadius: overlayStyle.optionsBorderRadius ?? 
+        borderRadius: overlayStyle.optionsBorderRadius ??
             BorderRadius.circular(spacing.radius4 ?? 16),
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
@@ -525,16 +568,18 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
               final index = entry.key;
               final item = entry.value;
               final isLast = index == widget.actionItems.length - 1;
-              
+
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildOptionItem(item, colorPalette, spacing, typography, overlayStyle),
+                  _buildOptionItem(
+                      item, colorPalette, spacing, typography, overlayStyle),
                   if (!isLast)
                     Divider(
                       height: 0.5,
                       thickness: 0.5,
-                      color: overlayStyle.dividerColor ?? colorPalette.borderLight,
+                      color:
+                          overlayStyle.dividerColor ?? colorPalette.borderLight,
                     ),
                 ],
               );
@@ -553,8 +598,8 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
     CometChatMessageActionOverlayStyle overlayStyle,
   ) {
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
-    final iconColor = overlayStyle.optionIconColor ?? 
-        item.style?.iconColor ?? 
+    final iconColor = overlayStyle.optionIconColor ??
+        item.style?.iconColor ??
         colorPalette.iconSecondary;
 
     final iconWidget = item.icon != null
@@ -570,12 +615,13 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
     final titleWidget = Expanded(
       child: Text(
         item.title,
-        style: overlayStyle.optionTitleStyle ?? TextStyle(
-          fontSize: typography.body?.regular?.fontSize ?? 16,
-          fontWeight: typography.body?.regular?.fontWeight,
-          fontFamily: typography.body?.regular?.fontFamily,
-          color: item.style?.titleColor ?? colorPalette.textPrimary,
-        ),
+        style: overlayStyle.optionTitleStyle ??
+            TextStyle(
+              fontSize: typography.body?.regular?.fontSize ?? 16,
+              fontWeight: typography.body?.regular?.fontWeight,
+              fontFamily: typography.body?.regular?.fontFamily,
+              color: item.style?.titleColor ?? colorPalette.textPrimary,
+            ),
         overflow: TextOverflow.ellipsis,
       ),
     );
@@ -614,9 +660,8 @@ class _CometChatMessageActionOverlayState extends State<CometChatMessageActionOv
   }
 }
 
-
 /// Shows the message action overlay as a full-screen dialog.
-/// 
+///
 /// Returns the selected [ActionItem] or null if dismissed.
 Future<ActionItem?> showMessageActionOverlay({
   required BuildContext context,

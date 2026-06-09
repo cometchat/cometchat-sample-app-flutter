@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -8,6 +7,8 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import '../../../../shared_ui/src/keyboard_height/keyboard_height_plugin.dart';
 import '../utils/cometchat_keyboard_diagnostics.dart';
+import '../../../../shared_ui/src/clean_architecture/core/utils/platform_utils/platform_file_utils.dart'
+    as platform;
 
 // Import extracted widgets
 import 'message_composer_send_button.dart';
@@ -18,7 +19,6 @@ import 'attachment_options_overlay.dart';
 
 // Import rich text formatting
 import '../../../../../shared_ui/src/rich_text_formatting/domain/entities/format_type.dart';
-
 
 // Import inline audio recorder
 import 'inline_audio_recorder/inline_audio_recorder.dart';
@@ -126,12 +126,12 @@ class CometChatMessageComposer extends StatefulWidget {
     this.layout = CometChatComposerLayout.singleLine,
     this.onKeyboardDiagnostics,
   })  : assert(
-  user != null || group != null,
-  "One of user or group should be passed",
-  ),
+          user != null || group != null,
+          "One of user or group should be passed",
+        ),
         assert(
-        user == null || group == null,
-        "Only one of user or group should be passed",
+          user == null || group == null,
+          "Only one of user or group should be passed",
         );
 
   ///sets [user] for message composer
@@ -236,10 +236,10 @@ class CometChatMessageComposer extends StatefulWidget {
 
   ///[onSendButtonTap] callback to handle send button tap
   final Function(
-      BuildContext context,
-      BaseMessage message,
-      PreviewMessageMode? previewMessageMode,
-      )? onSendButtonTap;
+    BuildContext context,
+    BaseMessage message,
+    PreviewMessageMode? previewMessageMode,
+  )? onSendButtonTap;
 
   ///[textFormatters] provides list of text formatters
   final List<CometChatTextFormatter>? textFormatters;
@@ -346,9 +346,9 @@ class CometChatMessageComposer extends StatefulWidget {
   /// formats directly via [RichTextEditingController.applyFormat]. The
   /// legacy formatter manager argument has been removed.
   final Widget Function(
-      BuildContext context,
-      TextEditingController controller,
-      )? richTextToolbarView;
+    BuildContext context,
+    TextEditingController controller,
+  )? richTextToolbarView;
 
   ///[onRichTextFormatApplied] callback when a rich-text format is applied
   ///from the toolbar. The format type uses the active [FormatType] enum.
@@ -429,10 +429,10 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   List<SuggestionListItem> _suggestions = [];
   late StreamSubscription<List<SuggestionListItem>> _subscription;
   final StreamController<List<SuggestionListItem>> _suggestionListController =
-  StreamController<List<SuggestionListItem>>();
+      StreamController<List<SuggestionListItem>>();
   late Stream<List<SuggestionListItem>> _suggestionListStream;
   final StreamController<String> _previousTextController =
-  StreamController<String>();
+      StreamController<String>();
   late Stream<String> _previousTextStream;
   String _previousText = '';
   String? _currentSearchKeyword;
@@ -454,36 +454,44 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   // ============================================================================
   final ValueNotifier<double> _bottomPaddingNotifier = ValueNotifier<double>(0);
   double _safeAreaBottom = 0;
-  double _maxBottomHeight = 0;  // Max height = keyboard height (when keyboard is open)
-  double _lastStickerTotalHeight = 0;  // Total height when sticker keyboard was shown (for smooth transition)
-  double _lastBottomPadding = 0;  // Track last padding to detect sudden jumps
+  double _maxBottomHeight =
+      0; // Max height = keyboard height (when keyboard is open)
+  double _lastStickerTotalHeight =
+      0; // Total height when sticker keyboard was shown (for smooth transition)
+  double _lastBottomPadding = 0; // Track last padding to detect sudden jumps
   final KeyboardHeightPlugin _keyboardHeightPlugin = KeyboardHeightPlugin();
-  bool _isDisposing = false;  // Prevents keyboard height updates during navigation
-  bool _isKeyboardVisible = false;  // Track keyboard visibility
-  
+  bool _isDisposing =
+      false; // Prevents keyboard height updates during navigation
+  bool _isKeyboardVisible = false; // Track keyboard visibility
+
   // Debouncing for fast transitions
   Timer? _keyboardHeightDebouncer;
-  double _pendingPadding = 0;  // Pending padding value during debounce
-  bool _isTransitioning = false;  // True when transitioning between keyboard/sticker
+  double _pendingPadding = 0; // Pending padding value during debounce
+  bool _isTransitioning =
+      false; // True when transitioning between keyboard/sticker
 
   // Track whether text field has content (for mic button visibility)
   bool _hadText = false;
-  static const Duration _debounceDelay = Duration(milliseconds: 50);  // Short debounce for fast transitions
-  
+  static const Duration _debounceDelay =
+      Duration(milliseconds: 50); // Short debounce for fast transitions
+
   // Timer to clear sticker height after transition window
   Timer? _stickerHeightClearTimer;
-  static const Duration _stickerHeightClearDelay = Duration(milliseconds: 300);  // Reduced from 500ms
-  bool _expectingKeyboardOpen = false;  // True when we just closed sticker and expect keyboard to open
+  static const Duration _stickerHeightClearDelay =
+      Duration(milliseconds: 300); // Reduced from 500ms
+  bool _expectingKeyboardOpen =
+      false; // True when we just closed sticker and expect keyboard to open
 
   // Sticker panel extra height added by drag gesture
   final ValueNotifier<double> _stickerExtraHeight = ValueNotifier<double>(0);
-  
+
   // Stable keyboard height - the height after keyboard animation settles
   // This is used to prevent jiggle when keyboard height fluctuates during animation
   double _stableKeyboardHeight = 0;
   Timer? _stableHeightTimer;
-  static const Duration _stableHeightDelay = Duration(milliseconds: 150);  // Wait for keyboard to settle
-  
+  static const Duration _stableHeightDelay =
+      Duration(milliseconds: 150); // Wait for keyboard to settle
+
   // Maximum allowed change per update to prevent sudden jumps (in logical pixels)
   // This smooths out rapid state changes during transitions
   static const double _maxPaddingChangePerUpdate = 100.0;
@@ -497,7 +505,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   // Overlay and Preview
   // ============================================================================
   final OverlayPortalController _overlayPortalController =
-  OverlayPortalController();
+      OverlayPortalController();
 
   // ============================================================================
   // Reply/Edit Preview Animation
@@ -514,11 +522,14 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
 
   // Attachment overlay state management
   final LayerLink _attachmentButtonLink = LayerLink();
-  final LayerLink _composerLink = LayerLink();  // Link for positioning overlay above composer
+  final LayerLink _composerLink =
+      LayerLink(); // Link for positioning overlay above composer
   final OverlayPortalController _attachmentOverlayController =
-  OverlayPortalController();
-  final ValueNotifier<bool> _attachmentOpenNotifier = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> _suggestionOpenNotifier = ValueNotifier<bool>(false);
+      OverlayPortalController();
+  final ValueNotifier<bool> _attachmentOpenNotifier =
+      ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _suggestionOpenNotifier =
+      ValueNotifier<bool>(false);
 
   // ============================================================================
   // Auxiliary Options
@@ -560,6 +571,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       widget.enableRichTextFormatting &&
       widget.showRichTextFormattingOptions &&
       widget.layout == CometChatComposerLayout.doubleLine;
+
   /// Whether any rich-text format is enabled after applying the user's
   /// `hideRichTextFormattingOptions` filter.
   bool get _hasAnyFormatEnabled {
@@ -585,18 +597,18 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   bool _isFormatEnabled(FormatType format) =>
       widget.enableRichTextFormatting &&
       !widget.hideRichTextFormattingOptions.contains(format);
-  
+
   /// ValueNotifier for active formats - only rebuilds toolbar when formats change
-  final ValueNotifier<Set<FormatType>> _activeFormatsNotifier = 
+  final ValueNotifier<Set<FormatType>> _activeFormatsNotifier =
       ValueNotifier<Set<FormatType>>({});
-  
+
   /// Track previous active formats to detect changes
   Set<FormatType> _previousActiveFormats = {};
-  
+
   /// Segment-based composer controller for Slack-style code blocks
   /// When active, code blocks are rendered as separate segments with their own text fields
   SegmentComposerController? _segmentComposerController;
-  
+
   /// Whether segment-based code blocks are enabled
   bool get _useSegmentBasedCodeBlocks => _segmentComposerController != null;
 
@@ -607,7 +619,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize reply/edit preview animation
     _previewAnimController = AnimationController(
       vsync: this,
@@ -664,153 +676,158 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     // Native plugin provides real-time keyboard height updates
     // Skip when resizeToAvoidBottomInset is true — the parent Scaffold handles keyboard insets
     if (!widget.resizeToAvoidBottomInset) {
-    _keyboardHeightPlugin.onKeyboardHeightChanged((double keyboardHeight, double safeAreaBottom) {
-      // Skip updates during disposal to prevent jumps during navigation
-      if (_isDisposing) return;
+      _keyboardHeightPlugin.onKeyboardHeightChanged(
+          (double keyboardHeight, double safeAreaBottom) {
+        // Skip updates during disposal to prevent jumps during navigation
+        if (_isDisposing) return;
 
-      // Cache latest raw native values for diagnostics (regardless of layout path)
-      _lastNativeKeyboardHeight = keyboardHeight;
-      if (safeAreaBottom > 0) {
-        _lastNativeSafeAreaBottom = safeAreaBottom;
-      }
-
-      // Clamp native keyboardHeight to Flutter's viewInsets (ENG-34434).
-      // Some Android OEMs (MIUI, ColorOS, etc.) report an `ime()` inset that
-      // includes the system nav bar, making the native height ~48dp larger
-      // than the space Flutter actually reclaims from content. Using the raw
-      // native value as bottom padding produces a persistent gap between the
-      // composer and the visible keyboard.
-      //
-      // If Flutter already sees the keyboard (viewInsets > 0), cap to that.
-      // On the first native event viewInsets may still be 0 — the reconcile
-      // step in `didChangeMetrics` below corrects that case once Flutter
-      // catches up.
-      if (keyboardHeight > 0) {
-        final view = WidgetsBinding.instance.platformDispatcher.views.first;
-        final flutterKbHeight =
-            view.viewInsets.bottom / view.devicePixelRatio;
-        if (flutterKbHeight > 0 && keyboardHeight > flutterKbHeight) {
-          keyboardHeight = flutterKbHeight;
+        // Cache latest raw native values for diagnostics (regardless of layout path)
+        _lastNativeKeyboardHeight = keyboardHeight;
+        if (safeAreaBottom > 0) {
+          _lastNativeSafeAreaBottom = safeAreaBottom;
         }
-      }
 
-      // NOTE: Deliberately do NOT overwrite `_safeAreaBottom` from the native
-      // plugin's `safeAreaBottom` field. It's captured once in
-      // didChangeDependencies from `MediaQuery.paddingOf(context).bottom`,
-      // which is the correct source of truth — it respects any `SafeArea`
-      // ancestor and display-cutout consumption. The native value can differ
-      // (iPads, gesture-nav, split-screen, `SafeArea(bottom: false)` wrappers)
-      // and overwriting it here causes a visible gap when the keyboard is
-      // closed. See bug notes `composer-big-safe-area-some-devices` and
-      // `extra-space-composer-keyboard` (ENG-34434).
+        // Clamp native keyboardHeight to Flutter's viewInsets (ENG-34434).
+        // Some Android OEMs (MIUI, ColorOS, etc.) report an `ime()` inset that
+        // includes the system nav bar, making the native height ~48dp larger
+        // than the space Flutter actually reclaims from content. Using the raw
+        // native value as bottom padding produces a persistent gap between the
+        // composer and the visible keyboard.
+        //
+        // If Flutter already sees the keyboard (viewInsets > 0), cap to that.
+        // On the first native event viewInsets may still be 0 — the reconcile
+        // step in `didChangeMetrics` below corrects that case once Flutter
+        // catches up.
+        if (keyboardHeight > 0) {
+          final view = WidgetsBinding.instance.platformDispatcher.views.first;
+          final flutterKbHeight =
+              view.viewInsets.bottom / view.devicePixelRatio;
+          if (flutterKbHeight > 0 && keyboardHeight > flutterKbHeight) {
+            keyboardHeight = flutterKbHeight;
+          }
+        }
 
-      // Track keyboard visibility
-      final wasKeyboardVisible = _isKeyboardVisible;
-      _isKeyboardVisible = keyboardHeight > 0;
-      
-      // Detect transition (keyboard visibility changed)
-      final isVisibilityChange = wasKeyboardVisible != _isKeyboardVisible;
+        // NOTE: Deliberately do NOT overwrite `_safeAreaBottom` from the native
+        // plugin's `safeAreaBottom` field. It's captured once in
+        // didChangeDependencies from `MediaQuery.paddingOf(context).bottom`,
+        // which is the correct source of truth — it respects any `SafeArea`
+        // ancestor and display-cutout consumption. The native value can differ
+        // (iPads, gesture-nav, split-screen, `SafeArea(bottom: false)` wrappers)
+        // and overwriting it here causes a visible gap when the keyboard is
+        // closed. See bug notes `composer-big-safe-area-some-devices` and
+        // `extra-space-composer-keyboard` (ENG-34434).
 
-      // Resume protection: the OS sometimes fires a spurious close event right
-      // after the open event when the app returns from background. Ignore it.
-      if (isVisibilityChange && !_isKeyboardVisible && _ignoreNextKeyboardClose) {
-        _isKeyboardVisible = true; // revert — keyboard is actually still open
-        _ignoreNextKeyboardClose = false;
-        _resumeProtectionTimer?.cancel();
-        return;
-      }
+        // Track keyboard visibility
+        final wasKeyboardVisible = _isKeyboardVisible;
+        _isKeyboardVisible = keyboardHeight > 0;
 
-      if (isVisibilityChange) {
-        _isTransitioning = true;
-        // Cancel any pending debounced update
-        _keyboardHeightDebouncer?.cancel();
-      }
-      
-      // Track max bottom height when keyboard is open
-      // IMPORTANT: Native keyboard height ALREADY includes safe area (on iOS: keyboardFrame.height,
-      // on Android: screenHeight - visibleArea which includes nav bar)
-      // So we DON'T add safe area again here
-      if (_isKeyboardVisible) {
-        _maxBottomHeight = keyboardHeight;
-        // Keyboard opened - clear the expectation flag
+        // Detect transition (keyboard visibility changed)
+        final isVisibilityChange = wasKeyboardVisible != _isKeyboardVisible;
+
+        // Resume protection: the OS sometimes fires a spurious close event right
+        // after the open event when the app returns from background. Ignore it.
+        if (isVisibilityChange &&
+            !_isKeyboardVisible &&
+            _ignoreNextKeyboardClose) {
+          _isKeyboardVisible = true; // revert — keyboard is actually still open
+          _ignoreNextKeyboardClose = false;
+          _resumeProtectionTimer?.cancel();
+          return;
+        }
+
         if (isVisibilityChange) {
-          _expectingKeyboardOpen = false;
-          _stickerHeightClearTimer?.cancel();
+          _isTransitioning = true;
+          // Cancel any pending debounced update
+          _keyboardHeightDebouncer?.cancel();
         }
-        
-        // Update stable keyboard height after a delay (when keyboard settles)
-        // This prevents using fluctuating heights during animation
-        // Only set stable height if we don't have one yet (first keyboard open)
-        // This ensures we use a consistent height for the session
-        if (_stableKeyboardHeight == 0) {
+
+        // Track max bottom height when keyboard is open
+        // IMPORTANT: Native keyboard height ALREADY includes safe area (on iOS: keyboardFrame.height,
+        // on Android: screenHeight - visibleArea which includes nav bar)
+        // So we DON'T add safe area again here
+        if (_isKeyboardVisible) {
+          _maxBottomHeight = keyboardHeight;
+          // Keyboard opened - clear the expectation flag
+          if (isVisibilityChange) {
+            _expectingKeyboardOpen = false;
+            _stickerHeightClearTimer?.cancel();
+          }
+
+          // Update stable keyboard height after a delay (when keyboard settles)
+          // This prevents using fluctuating heights during animation
+          // Only set stable height if we don't have one yet (first keyboard open)
+          // This ensures we use a consistent height for the session
+          if (_stableKeyboardHeight == 0) {
+            _stableHeightTimer?.cancel();
+            _stableHeightTimer = Timer(_stableHeightDelay, () {
+              if (_isKeyboardVisible &&
+                  !_isDisposing &&
+                  _stableKeyboardHeight == 0) {
+                _stableKeyboardHeight = _maxBottomHeight;
+              }
+            });
+          }
+        } else {
+          // Keyboard closed - cancel stable height timer but DON'T clear stable height
+          // We keep the stable height for future keyboard opens
           _stableHeightTimer?.cancel();
-          _stableHeightTimer = Timer(_stableHeightDelay, () {
-            if (_isKeyboardVisible && !_isDisposing && _stableKeyboardHeight == 0) {
-              _stableKeyboardHeight = _maxBottomHeight;
+        }
+
+        // Calculate target bottom padding
+        // When keyboard is visible:
+        //   - If we have a stable height cached, use it to prevent jiggle
+        //   - Otherwise use the current keyboard height
+        // When keyboard is closed:
+        //   - If expecting keyboard to open (sticker→keyboard transition), maintain last sticker height
+        //   - Otherwise, use safe area bottom
+        double targetPadding;
+        if (_isKeyboardVisible) {
+          // Use stable height if available, otherwise use current height
+          // This prevents the 383→336 jiggle during keyboard animation
+          if (_stableKeyboardHeight > 0) {
+            targetPadding = _stableKeyboardHeight;
+          } else {
+            targetPadding = keyboardHeight;
+          }
+        } else if (_expectingKeyboardOpen && _lastStickerTotalHeight > 0) {
+          // During sticker→keyboard transition, maintain sticker height to prevent jump
+          targetPadding = _lastStickerTotalHeight;
+        } else {
+          targetPadding = _safeAreaBottom;
+        }
+
+        // For visibility changes (keyboard opening/closing), apply immediately
+        // For intermediate updates during animation, debounce to prevent jitter
+        if (isVisibilityChange) {
+          // Immediate update for visibility changes
+          _applyBottomPadding(targetPadding);
+
+          // Schedule end of transition after a short delay
+          _keyboardHeightDebouncer?.cancel();
+          _keyboardHeightDebouncer = Timer(_debounceDelay * 2, () {
+            _isTransitioning = false;
+          });
+        } else if (_isTransitioning) {
+          // During transition, debounce intermediate updates
+          _pendingPadding = targetPadding;
+          _keyboardHeightDebouncer?.cancel();
+          _keyboardHeightDebouncer = Timer(_debounceDelay, () {
+            if (!_isDisposing) {
+              _applyBottomPadding(_pendingPadding);
             }
           });
-        }
-      } else {
-        // Keyboard closed - cancel stable height timer but DON'T clear stable height
-        // We keep the stable height for future keyboard opens
-        _stableHeightTimer?.cancel();
-      }
-      
-      // Calculate target bottom padding
-      // When keyboard is visible:
-      //   - If we have a stable height cached, use it to prevent jiggle
-      //   - Otherwise use the current keyboard height
-      // When keyboard is closed:
-      //   - If expecting keyboard to open (sticker→keyboard transition), maintain last sticker height
-      //   - Otherwise, use safe area bottom
-      double targetPadding;
-      if (_isKeyboardVisible) {
-        // Use stable height if available, otherwise use current height
-        // This prevents the 383→336 jiggle during keyboard animation
-        if (_stableKeyboardHeight > 0) {
-          targetPadding = _stableKeyboardHeight;
         } else {
-          targetPadding = keyboardHeight;
+          // Normal update (not transitioning)
+          _applyBottomPadding(targetPadding);
         }
-      } else if (_expectingKeyboardOpen && _lastStickerTotalHeight > 0) {
-        // During sticker→keyboard transition, maintain sticker height to prevent jump
-        targetPadding = _lastStickerTotalHeight;
-      } else {
-        targetPadding = _safeAreaBottom;
-      }
-      
-      // For visibility changes (keyboard opening/closing), apply immediately
-      // For intermediate updates during animation, debounce to prevent jitter
-      if (isVisibilityChange) {
-        // Immediate update for visibility changes
-        _applyBottomPadding(targetPadding);
-        
-        // Schedule end of transition after a short delay
-        _keyboardHeightDebouncer?.cancel();
-        _keyboardHeightDebouncer = Timer(_debounceDelay * 2, () {
-          _isTransitioning = false;
-        });
-      } else if (_isTransitioning) {
-        // During transition, debounce intermediate updates
-        _pendingPadding = targetPadding;
-        _keyboardHeightDebouncer?.cancel();
-        _keyboardHeightDebouncer = Timer(_debounceDelay, () {
-          if (!_isDisposing) {
-            _applyBottomPadding(_pendingPadding);
-          }
-        });
-      } else {
-        // Normal update (not transitioning)
-        _applyBottomPadding(targetPadding);
-      }
 
-      // Fire diagnostic — captures padding just written + native values.
-      _emitKeyboardDiagnostics(
-        CometChatKeyboardDiagnosticsSource.nativePlugin,
-        nativeKeyboardHeight: keyboardHeight,
-        nativeSafeAreaBottom: safeAreaBottom > 0 ? safeAreaBottom : null,
-      );
-    });
+        // Fire diagnostic — captures padding just written + native values.
+        _emitKeyboardDiagnostics(
+          CometChatKeyboardDiagnosticsSource.nativePlugin,
+          nativeKeyboardHeight: keyboardHeight,
+          nativeSafeAreaBottom: safeAreaBottom > 0 ? safeAreaBottom : null,
+        );
+      });
     } // end if (!widget.resizeToAvoidBottomInset)
   }
 
@@ -856,7 +873,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   /// Applies the bottom padding with change capping to prevent sudden jumps
   void _applyBottomPadding(double targetPadding) {
     double newPadding = targetPadding;
-    
+
     // Apply smooth transition to prevent sudden jumps
     // But allow larger changes during transitions
     if (_lastBottomPadding > 0 && !_isTransitioning) {
@@ -864,14 +881,18 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       if (change.abs() > _maxPaddingChangePerUpdate) {
         // Large change detected - this might be a glitch, cap it
         // But allow it if it's moving towards safe area (closing) or max height (opening)
-        if (targetPadding != _safeAreaBottom && targetPadding != _maxBottomHeight) {
-          newPadding = _lastBottomPadding + (change > 0 ? _maxPaddingChangePerUpdate : -_maxPaddingChangePerUpdate);
+        if (targetPadding != _safeAreaBottom &&
+            targetPadding != _maxBottomHeight) {
+          newPadding = _lastBottomPadding +
+              (change > 0
+                  ? _maxPaddingChangePerUpdate
+                  : -_maxPaddingChangePerUpdate);
         }
       }
     }
-    
+
     _lastBottomPadding = newPadding;
-    
+
     _bottomPaddingNotifier.value = newPadding;
   }
 
@@ -882,7 +903,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     // But re-initialize when brightness changes (dark mode toggle)
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
     _cachedBrightness = currentBrightness;
     _themeInitialized = true;
@@ -913,9 +935,9 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
 
     _suggestionListStyle =
         CometChatThemeHelper.getTheme<CometChatSuggestionListStyle>(
-          context: context,
-          defaultTheme: CometChatSuggestionListStyle.of,
-        ).merge(_style.suggestionListStyle);
+      context: context,
+      defaultTheme: CometChatSuggestionListStyle.of,
+    ).merge(_style.suggestionListStyle);
 
     // Initialize BLoC
     _initializeBloc();
@@ -940,16 +962,18 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         _textEditingController!.addListener(_onTextEmptyChanged);
 
         // Wire up link tap handler for Edit / Remove popup
-        (_textEditingController as RichTextEditingController).onLinkTap = _onLinkTapped;
+        (_textEditingController as RichTextEditingController).onLinkTap =
+            _onLinkTapped;
 
         // Wire up formatter notification for programmatic text changes
         // (editLinkFormat / removeLinkFormat) so mentions etc. stay in sync.
-        (_textEditingController as RichTextEditingController).onFormatterTextChanged = _onFormatterTextChanged;
-        
+        (_textEditingController as RichTextEditingController)
+            .onFormatterTextChanged = _onFormatterTextChanged;
+
         // Wire up segment controller to RichTextEditingController AFTER controller is created
         if (_segmentComposerController != null) {
-          (_textEditingController as RichTextEditingController).onInsertCodeBlock = 
-              _segmentComposerController!.toggleCodeBlock;
+          (_textEditingController as RichTextEditingController)
+              .onInsertCodeBlock = _segmentComposerController!.toggleCodeBlock;
         }
       } else {
         _textEditingController = CustomTextEditingController(
@@ -989,10 +1013,10 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     // Reinitialize rich text formatting if any rich-text-related prop changed
     final richTextPropsChanged =
         widget.enableRichTextFormatting != oldWidget.enableRichTextFormatting ||
-        widget.showRichTextFormattingOptions !=
-            oldWidget.showRichTextFormattingOptions ||
-        !_setsEqual(widget.hideRichTextFormattingOptions,
-            oldWidget.hideRichTextFormattingOptions);
+            widget.showRichTextFormattingOptions !=
+                oldWidget.showRichTextFormattingOptions ||
+            !_setsEqual(widget.hideRichTextFormattingOptions,
+                oldWidget.hideRichTextFormattingOptions);
     if (richTextPropsChanged) {
       _initializeRichTextFormatting();
     }
@@ -1030,7 +1054,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     // Only reset keyboard height when keyboard is ACTUALLY closed
     // (not during the opening animation when viewInsets is still 0)
     if (_isDisposing) return;
-    
+
     // Don't update keyboard height if we're not the current route (navigating away)
     // This prevents the composer from jumping when Navigator.pop is called
     if (!mounted) return;
@@ -1038,14 +1062,18 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     if (route != null && !route.isCurrent) {
       return;
     }
-    
-    final viewInsets = WidgetsBinding.instance.platformDispatcher.views.first.viewInsets;
-    final bottomInset = viewInsets.bottom / WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
-    
+
+    final viewInsets =
+        WidgetsBinding.instance.platformDispatcher.views.first.viewInsets;
+    final bottomInset = viewInsets.bottom /
+        WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
+
     // Only reset if:
     // 1. viewInsets shows keyboard is closed (bottomInset == 0)
     // 2. Our notifier still has a value > safe area (meaning we were tracking an open keyboard)
-    if (bottomInset == 0 && _bottomPaddingNotifier.value > _safeAreaBottom && !_isKeyboardVisible) {
+    if (bottomInset == 0 &&
+        _bottomPaddingNotifier.value > _safeAreaBottom &&
+        !_isKeyboardVisible) {
       _bottomPaddingNotifier.value = _safeAreaBottom;
     }
 
@@ -1109,8 +1137,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           _applyBottomPadding(_safeAreaBottom);
         }
 
-        _emitKeyboardDiagnostics(
-            CometChatKeyboardDiagnosticsSource.appResumed);
+        _emitKeyboardDiagnostics(CometChatKeyboardDiagnosticsSource.appResumed);
 
         // Defer clearing the protection flag to a second post-frame callback.
         // The keyboard height plugin may fire spurious close events during the
@@ -1123,7 +1150,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         });
       });
     } else if (state == AppLifecycleState.paused ||
-               state == AppLifecycleState.inactive) {
+        state == AppLifecycleState.inactive) {
       // Going to background — reset transition flags so we start clean on resume.
       // Pre-arm the resume protection: if the keyboard is currently open, we expect
       // the plugin to fire open+close on resume. Set the flag now so it's ready
@@ -1203,16 +1230,19 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   void dispose() {
     // Flag already set in deactivate(), but set again for safety
     _isDisposing = true;
-    
+
     // Cancel timers
     _keyboardHeightDebouncer?.cancel();
     _stickerHeightClearTimer?.cancel();
     _stableHeightTimer?.cancel();
     _resumeProtectionTimer?.cancel();
-    
+
+    // Dismiss sticker overlay if showing (web)
+    _hideStickerOverlay();
+
     // Remove metrics observer
     WidgetsBinding.instance.removeObserver(this);
-    
+
     // Close BLoC
     _bloc.onFocusRequested = null;
     _bloc.close();
@@ -1222,9 +1252,11 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       _textEditingController!.removeListener(_onRichTextControllerChanged);
       _textEditingController!.removeListener(_onTextEmptyChanged);
       // Clear callbacks
-      (_textEditingController as RichTextEditingController).onInsertCodeBlock = null;
+      (_textEditingController as RichTextEditingController).onInsertCodeBlock =
+          null;
       (_textEditingController as RichTextEditingController).onLinkTap = null;
-      (_textEditingController as RichTextEditingController).onFormatterTextChanged = null;
+      (_textEditingController as RichTextEditingController)
+          .onFormatterTextChanged = null;
     } else {
       // Remove text empty listener for non-rich-text controller
       _textEditingController?.removeListener(_onTextEmptyChanged);
@@ -1232,7 +1264,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     if (_isMyController) {
       _textEditingController?.dispose();
     }
-    
+
     // Dispose segment composer controller
     _segmentComposerController?.dispose();
     _segmentComposerController = null;
@@ -1249,6 +1281,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     // Dispose keyboard height plugin and notifiers
     _keyboardHeightPlugin.dispose();
     _bottomPaddingNotifier.dispose();
+    _stickerExtraHeight.dispose();
     _attachmentOpenNotifier.dispose();
     _suggestionOpenNotifier.dispose();
     _activeFormatsNotifier.dispose();
@@ -1373,13 +1406,21 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           _attachmentOpenNotifier.value = false;
         }
 
+        // On web with wide screens, show sticker keyboard as a floating popup
+        // above the composer (like WhatsApp Web emoji picker)
+        if (kIsWeb && MediaQuery.of(context).size.width > 600) {
+          _showStickerOverlay(context);
+          return;
+        }
+
         // Calculate sticker keyboard content height.
         // knownKeyboardHeight is the full keyboard frame (includes safe area
         // on iOS). The sticker keyboard widget only needs the content portion;
         // safe area padding is handled by _buildBottomArea.
-        final double stickerContentHeight = knownKeyboardHeight > _safeAreaBottom
-            ? knownKeyboardHeight - _safeAreaBottom
-            : CometChatStickerKeyboard.defaultHeight;
+        final double stickerContentHeight =
+            knownKeyboardHeight > _safeAreaBottom
+                ? knownKeyboardHeight - _safeAreaBottom
+                : CometChatStickerKeyboard.defaultHeight;
 
         // Reset any previous drag extra height
         _stickerExtraHeight.value = 0;
@@ -1410,6 +1451,9 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         _expectingKeyboardOpen = false;
         _stickerHeightClearTimer?.cancel();
         _resetStickerExtraHeight();
+
+        // Dismiss web sticker overlay if showing
+        _hideStickerOverlay();
 
         CometChatUIEvents.hidePanel(
           _composerId,
@@ -1483,11 +1527,13 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         _segmentComposerController = SegmentComposerController();
         // Pass text formatters (mentions, etc.) so normal segments use
         // CustomTextEditingController for styled text display
-        _segmentComposerController!.formatters = _formatters.isNotEmpty ? _formatters : null;
+        _segmentComposerController!.formatters =
+            _formatters.isNotEmpty ? _formatters : null;
         // Wire link tap handler so tapping a link in any segment shows Edit / Remove
         _segmentComposerController!.onLinkTap = _onLinkTapped;
         // Wire formatter notification for programmatic text changes in segments
-        _segmentComposerController!.onFormatterTextChanged = _onFormatterTextChanged;
+        _segmentComposerController!.onFormatterTextChanged =
+            _onFormatterTextChanged;
         _segmentComposerController!.addListener(() {
           if (!mounted) return;
           // Update active formats notifier so toolbar reflects code block state
@@ -1501,7 +1547,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           // (mirrors _onFocusChange behavior for the regular text field)
           final focused = _segmentComposerController!.focusedSegment;
           if (focused != null) {
-            CometChatUIEvents.hidePanel(_composerId, CustomUIPosition.composerBottom);
+            CometChatUIEvents.hidePanel(
+                _composerId, CustomUIPosition.composerBottom);
             CometChatUIEvents.unlockBottomPadding(_composerId);
             _resetStickerExtraHeight();
             if (_attachmentOverlayController.isShowing) {
@@ -1511,7 +1558,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
 
           setState(() {});
         });
-        
+
         // Note: onInsertCodeBlock is wired up in didChangeDependencies after text controller is created
       }
 
@@ -1573,14 +1620,14 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
 
   void _getAttachmentOptions() {
     final attachmentOptionSheetStyle =
-    CometChatThemeHelper.getTheme<CometChatAttachmentOptionSheetStyle>(
+        CometChatThemeHelper.getTheme<CometChatAttachmentOptionSheetStyle>(
       context: context,
       defaultTheme: CometChatAttachmentOptionSheetStyle.of,
     ).merge(_style.attachmentOptionSheetStyle);
 
     if (widget.attachmentOptions != null) {
       List<CometChatMessageComposerAction> actionList =
-      widget.attachmentOptions!(context, widget.user, widget.group, {});
+          widget.attachmentOptions!(context, widget.user, widget.group, {});
 
       for (CometChatMessageComposerAction attachmentOption in actionList) {
         _actionStyle = CometChatAttachmentOptionSheetStyle(
@@ -1626,26 +1673,25 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   void _getDefaultAttachmentOptions(
       CometChatAttachmentOptionSheetStyle attachmentOptionSheetStyle) {
     AdditionalConfigurations additionalConfigurations =
-    AdditionalConfigurations(
+        AdditionalConfigurations(
       attachmentOptionSheetStyle: attachmentOptionSheetStyle,
       hideAudioAttachmentOption: widget.hideAudioAttachmentOption,
       hideCollaborativeDocumentOption: widget.hideCollaborativeDocumentOption,
       hideCollaborativeWhiteboardOption:
-      widget.hideCollaborativeWhiteboardOption,
+          widget.hideCollaborativeWhiteboardOption,
       hideFileAttachmentOption: widget.hideFileAttachmentOption,
       hideImageAttachmentOption: widget.hideImageAttachmentOption,
       hidePollsOption: widget.hidePollsOption,
       hideVideoAttachmentOption: widget.hideVideoAttachmentOption,
       hideTakPhotoOption: widget.hideTakePhotoOption,
     );
-    final defaultOptions =
-    ComposerAttachmentUtils.getAttachmentOptions(
+    final defaultOptions = ComposerAttachmentUtils.getAttachmentOptions(
       context,
       _composerId,
       additionalConfigurations,
     );
     for (CometChatMessageComposerAction defaultAttachmentOptions
-    in defaultOptions) {
+        in defaultOptions) {
       _actionStyle = CometChatAttachmentOptionSheetStyle(
         border: defaultAttachmentOptions.style?.border,
         borderRadius: defaultAttachmentOptions.style?.borderRadius,
@@ -1691,6 +1737,101 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     _stickerExtraHeight.value = 0;
   }
 
+  // ============================================================================
+  // Web Sticker Overlay (WhatsApp Web-style floating popup)
+  // ============================================================================
+
+  OverlayEntry? _stickerOverlayEntry;
+
+  void _showStickerOverlay(BuildContext context) {
+    // If already showing, dismiss it (toggle behavior)
+    if (_stickerOverlayEntry != null) {
+      _hideStickerOverlay();
+      return;
+    }
+
+    final colorPalette = CometChatThemeHelper.getColorPalette(context);
+    // Use the root overlay to ensure correct positioning in nested navigator layouts
+    final overlay = Overlay.of(context, rootOverlay: true);
+
+    // Get the composer's position to anchor the popup above it
+    final RenderBox? composerBox = context.findRenderObject() as RenderBox?;
+    if (composerBox == null) return;
+    final composerPosition = composerBox.localToGlobal(Offset.zero);
+    final composerWidth = composerBox.size.width;
+
+    // Popup dimensions — similar to WhatsApp Web emoji picker
+    const double popupWidth = 360;
+    const double popupHeight = 400;
+
+    // Position: anchored to the bottom-right of the composer, floating above the sticker icon
+    final double screenWidth = MediaQuery.of(context).size.width;
+    // right inset = distance from screen right edge to composer's right edge
+    final double composerRight =
+        screenWidth - (composerPosition.dx + composerWidth);
+    final double right = composerRight.clamp(8, screenWidth - popupWidth - 24);
+    // Use the actual screen height from the root view for correct positioning
+    // in nested navigator layouts (e.g., split-pane desktop layout)
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double bottom = screenHeight - composerPosition.dy + 8;
+
+    _stickerOverlayEntry = OverlayEntry(
+      builder: (overlayContext) => Stack(
+        children: [
+          // Tap-away dismissal barrier
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: _hideStickerOverlay,
+              behavior: HitTestBehavior.opaque,
+              child: const SizedBox.expand(),
+            ),
+          ),
+          // Floating sticker popup
+          Positioned(
+            right: right,
+            bottom: bottom,
+            child: Material(
+              elevation: 8,
+              borderRadius: BorderRadius.circular(12),
+              clipBehavior: Clip.antiAlias,
+              color: colorPalette.background1 ?? Colors.white,
+              child: SizedBox(
+                width: popupWidth.clamp(0, composerWidth.toDouble()),
+                height: popupHeight,
+                child: CometChatStickerKeyboard(
+                  height: popupHeight - 16,
+                  onStickerTap: (Sticker sticker) {
+                    _bloc.add(SendCustomMessage(
+                      customData: {
+                        'sticker_url': sticker.stickerUrl,
+                        'sticker_name': sticker.stickerName,
+                      },
+                      type: ExtensionType.sticker,
+                    ));
+                    // Collapse popup after sending sticker
+                    _hideStickerOverlay();
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    overlay.insert(_stickerOverlayEntry!);
+  }
+
+  void _hideStickerOverlay() {
+    _stickerOverlayEntry?.remove();
+    _stickerOverlayEntry = null;
+    // Notify StickerAuxiliaryButton to update its icon state
+    CometChatUIEvents.hidePanel(
+      _composerId,
+      CustomUIPosition.composerBottom,
+    );
+  }
+
   void _onFocusChange() {
     if (!mounted) return;
 
@@ -1730,17 +1871,17 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   /// Only updates the ValueNotifier when active formats actually change
   void _onRichTextControllerChanged() {
     if (!mounted) return;
-    
+
     // Get current active formats
     final currentFormats = _getActiveFormats();
-    
+
     // Only update if formats changed (avoid unnecessary rebuilds)
     if (!_setEquals(currentFormats, _previousActiveFormats)) {
       _previousActiveFormats = currentFormats;
       _activeFormatsNotifier.value = currentFormats;
     }
   }
-  
+
   /// Compare two sets for equality
   bool _setEquals<T>(Set<T> a, Set<T> b) {
     if (a.length != b.length) return false;
@@ -1752,7 +1893,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     _currentSearchKeyword = searchKeyword;
 
     if (_currentSearchKeyword == null) {
-      CometChatUIEvents.hidePanel(_composerId, CustomUIPosition.composerPreview);
+      CometChatUIEvents.hidePanel(
+          _composerId, CustomUIPosition.composerPreview);
       _suggestions.clear();
     }
     setState(() {});
@@ -1778,7 +1920,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       CometChatUIEvents.showPanel(
         _composerId,
         CustomUIPosition.composerPreview,
-            (context) => _buildSuggestionList(),
+        (context) => _buildSuggestionList(),
       );
       _overlayPortalController.show();
       _suggestionOpenNotifier.value = true;
@@ -1826,8 +1968,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         try {
           element.onChange(activeController, prevText);
         } catch (err) {
-          if (kDebugMode) {
-          }
+          if (kDebugMode) {}
         }
       }
     }
@@ -1908,7 +2049,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     final activeController = _getActiveTextController();
 
     // Get the text from the active controller for BLoC updates
-    final activeText = activeController?.text ?? _textEditingController?.text ?? '';
+    final activeText =
+        activeController?.text ?? _textEditingController?.text ?? '';
 
     if (widget.onChange != null) {
       widget.onChange!(activeText);
@@ -1975,14 +2117,16 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   }
 
   void _sendTextMessage() {
-    if (_textEditingController == null && _segmentComposerController == null) return;
-    
+    if (_textEditingController == null && _segmentComposerController == null)
+      return;
+
     // Get text from segment controller or text editing controller
     String messagesText;
     if (_useSegmentBasedCodeBlocks && _segmentComposerController != null) {
       messagesText = _segmentComposerController!.finalText;
     } else if (_textEditingController is RichTextEditingController) {
-      messagesText = (_textEditingController as RichTextEditingController).toMarkdown();
+      messagesText =
+          (_textEditingController as RichTextEditingController).toMarkdown();
     } else {
       messagesText = _textEditingController!.text;
     }
@@ -2024,14 +2168,16 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   }
 
   void _sendTextMessageWithReply() {
-    if (_textEditingController == null && _segmentComposerController == null) return;
-    
+    if (_textEditingController == null && _segmentComposerController == null)
+      return;
+
     // Get text from segment controller or text editing controller
     String messagesText;
     if (_useSegmentBasedCodeBlocks && _segmentComposerController != null) {
       messagesText = _segmentComposerController!.finalText;
     } else if (_textEditingController is RichTextEditingController) {
-      messagesText = (_textEditingController as RichTextEditingController).toMarkdown();
+      messagesText =
+          (_textEditingController as RichTextEditingController).toMarkdown();
     } else {
       messagesText = _textEditingController!.text;
     }
@@ -2085,7 +2231,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   }
 
   void _editTextMessage() {
-    if (_textEditingController == null && _segmentComposerController == null) return;
+    if (_textEditingController == null && _segmentComposerController == null)
+      return;
     final state = _bloc.state;
     if (state.editMessage == null || state.editMessage is! TextMessage) return;
 
@@ -2094,7 +2241,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     if (_useSegmentBasedCodeBlocks && _segmentComposerController != null) {
       newText = _segmentComposerController!.finalText;
     } else if (_textEditingController is RichTextEditingController) {
-      newText = (_textEditingController as RichTextEditingController).toMarkdown();
+      newText =
+          (_textEditingController as RichTextEditingController).toMarkdown();
     } else {
       newText = _textEditingController!.text;
     }
@@ -2116,7 +2264,9 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       receiverUid: original.receiverUid,
       receiverType: original.receiverType,
       type: original.type,
-      metadata: original.metadata != null ? Map<String, dynamic>.from(original.metadata!) : null,
+      metadata: original.metadata != null
+          ? Map<String, dynamic>.from(original.metadata!)
+          : null,
       parentMessageId: original.parentMessageId,
       muid: original.muid,
       category: original.category,
@@ -2233,7 +2383,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           }
         } else if (mentionFormatterIndex != -1) {
           CometChatMentionsFormatter mentionsFormatter =
-          _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
+              _formatters[mentionFormatterIndex] as CometChatMentionsFormatter;
 
           // Hydrate markdown links ([text](url)) into FormatType.link spans so
           // the URL portion doesn't disappear into hidden markers. Falls back
@@ -2277,7 +2427,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       String replacement = widget.mentionAllLabel ?? '@all';
       editText = editText.replaceAll(specificPattern, replacement);
     }
-    editText = editText.replaceAll('<@all:all>', widget.mentionAllLabel ?? '@all');
+    editText =
+        editText.replaceAll('<@all:all>', widget.mentionAllLabel ?? '@all');
 
     if (message.mentionedUsers.isNotEmpty) {
       editText = CometChatMentionsFormatter.getTextWithMentions(
@@ -2300,7 +2451,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     for (var element in _formatters) {
       if (element is CometChatMentionsFormatter) {
         // Use the active controller for mentions cleanup
-        final activeController = _getActiveTextController() ?? _textEditingController;
+        final activeController =
+            _getActiveTextController() ?? _textEditingController;
         if (activeController != null) {
           element.onMessageEdit(activeController, mentionedUsers: []);
         }
@@ -2382,7 +2534,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       // Dismiss suggestion overlay when attachment opens
       if (_overlayPortalController.isShowing) {
         _hideSuggestionOverlay();
-        CometChatUIEvents.hidePanel(_composerId, CustomUIPosition.composerPreview);
+        CometChatUIEvents.hidePanel(
+            _composerId, CustomUIPosition.composerPreview);
         _suggestions.clear();
         _currentSearchKeyword = null;
         _searchKeywordChanged = true;
@@ -2452,13 +2605,16 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         path: pickedFile.path,
         messageType: type,
         metadata: metadata,
+        fileBytes: pickedFile.bytes,
+        fileName: pickedFile.name,
       ));
     }
   }
 
   /// Handles media content inserted from the keyboard (e.g. GIF, sticker).
   /// Writes the content data to a temp file and sends it as a media message.
-  Future<void> _handleKeyboardContentInserted(KeyboardInsertedContent content) async {
+  Future<void> _handleKeyboardContentInserted(
+      KeyboardInsertedContent content) async {
     if (kIsWeb) return; // Not supported on web
     final data = content.data;
     if (data == null || data.isEmpty) {
@@ -2486,21 +2642,20 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       }
 
       // Write to temp file
-      final tempDir = Directory.systemTemp;
-      final fileName = 'keyboard_media_${DateTime.now().millisecondsSinceEpoch}.$extension';
-      final file = File('${tempDir.path}/$fileName');
-      await file.writeAsBytes(data);
+      final fileName =
+          'keyboard_media_${DateTime.now().millisecondsSinceEpoch}.$extension';
+      final filePath = await platform.writeBytesToTempFile(data, fileName);
+      if (filePath == null) return;
 
       Map<String, dynamic> metadata = {};
-      metadata['localPath'] = file.path;
+      metadata['localPath'] = filePath;
 
       _bloc.add(SendMediaMessage(
-        path: file.path,
+        path: filePath,
         messageType: MessageTypeConstants.image,
         metadata: metadata,
       ));
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   /// Opens the create poll bottom sheet
@@ -2548,8 +2703,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       'POST',
       ExtensionUrls.document,
       body,
-      onSuccess: (Map<String, dynamic> map) {
-      },
+      onSuccess: (Map<String, dynamic> map) {},
       onError: (CometChatException e) {
         if (widget.onError != null) {
           widget.onError!(e);
@@ -2584,8 +2738,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       'POST',
       ExtensionUrls.whiteboard,
       body,
-      onSuccess: (Map<String, dynamic> map) {
-      },
+      onSuccess: (Map<String, dynamic> map) {},
       onError: (CometChatException e) {
         if (widget.onError != null) {
           widget.onError!(e);
@@ -2666,7 +2819,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     // Guard against invalid selection (baseOffset == -1 when field was never focused).
     final sel = activeController.selection;
     final savedText = activeController.text;
-    final isSelectionValid = sel.isValid && sel.start >= 0 && sel.end <= savedText.length;
+    final isSelectionValid =
+        sel.isValid && sel.start >= 0 && sel.end <= savedText.length;
     final savedSelection = isSelectionValid
         ? sel
         : TextSelection.collapsed(offset: savedText.length);
@@ -2687,8 +2841,12 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         onSubmit: (displayText, url) {
           Navigator.of(dialogContext).pop();
           _applyLinkFormat(
-            displayText, url, savedText, savedSelection,
-            controllerToUpdate, focusToRestore,
+            displayText,
+            url,
+            savedText,
+            savedSelection,
+            controllerToUpdate,
+            focusToRestore,
           );
         },
         onCancel: () => Navigator.of(dialogContext).pop(),
@@ -2864,7 +3022,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                           ),
                           side: WidgetStateProperty.all(
                             BorderSide(
-                              color: colorPalette.borderDark ?? Colors.transparent,
+                              color:
+                                  colorPalette.borderDark ?? Colors.transparent,
                               width: 1,
                             ),
                           ),
@@ -2889,8 +3048,10 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                               Translations.of(context).edit,
                               style: TextStyle(
                                 fontSize: typography.button?.medium?.fontSize,
-                                fontWeight: typography.button?.medium?.fontWeight,
-                                fontFamily: typography.button?.medium?.fontFamily,
+                                fontWeight:
+                                    typography.button?.medium?.fontWeight,
+                                fontFamily:
+                                    typography.button?.medium?.fontFamily,
                                 color: colorPalette.textPrimary,
                               ),
                             ),
@@ -2959,7 +3120,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   }
 
   /// Opens the link edit dialog pre-filled with the existing link's text and URL.
-  void _showLinkEditDialogForExisting(LinkTapDetails details, RichTextEditingController? richCtrl) {
+  void _showLinkEditDialogForExisting(
+      LinkTapDetails details, RichTextEditingController? richCtrl) {
     final controller = richCtrl;
     if (controller == null) return;
 
@@ -2974,7 +3136,10 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
             controller.editLinkFormat(
-              details.start, details.end, newDisplayText, newUrl,
+              details.start,
+              details.end,
+              newDisplayText,
+              newUrl,
             );
           });
         },
@@ -2995,8 +3160,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       try {
         formatter.onChange(activeController, previousText);
       } catch (err) {
-        if (kDebugMode) {
-        }
+        if (kDebugMode) {}
       }
     }
     // Keep previousText in sync so the next _onTyping diff is correct.
@@ -3104,7 +3268,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         alignment: Alignment.center,
         child: Icon(
           Icons.stop_rounded,
-          color: _colorPalette.white ?? Colors.white,
+          color: _colorPalette.background1 ?? Colors.white,
           size: 20,
         ),
       );
@@ -3196,7 +3360,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       attachmentIcon: widget.attachmentIcon,
       attachmentIconURL: widget.attachmentIconURL,
       secondaryButtonIconColor: _style.secondaryButtonIconColor,
-      secondaryButtonIconBackgroundColor: _style.secondaryButtonIconBackgroundColor,
+      secondaryButtonIconBackgroundColor:
+          _style.secondaryButtonIconBackgroundColor,
       secondaryButtonBorderRadius: _style.secondaryButtonBorderRadius,
       colorPalette: _colorPalette,
       spacing: _spacing,
@@ -3274,24 +3439,26 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     // Hide voice recording button when text is typed (like in Figma design)
     // Check both regular text controller and segment controller
     final hasText = (_textEditingController != null &&
-        _textEditingController!.text.isNotEmpty) ||
-        (_segmentComposerController != null && _segmentComposerController!.hasContent);
+            _textEditingController!.text.isNotEmpty) ||
+        (_segmentComposerController != null &&
+            _segmentComposerController!.hasContent);
 
     // In double-line mode with left-aligned auxiliary, the visual row is
     // `[+][mic][stickers] ... [send]`. Inside the auxiliary cluster we
     // therefore want mic BEFORE stickers. In all other cases keep the
     // existing `[stickers][mic]` order so single-line layout is unchanged.
-    final voiceFirst =
-        widget.layout == CometChatComposerLayout.doubleLine &&
-            _effectiveAuxiliaryAlignment == AuxiliaryButtonsAlignment.left;
+    final voiceFirst = widget.layout == CometChatComposerLayout.doubleLine &&
+        _effectiveAuxiliaryAlignment == AuxiliaryButtonsAlignment.left;
 
     final aux = MessageComposerAuxiliaryButtons(
       onVoiceRecordingTap: _showVoiceRecordingSheet,
-      hideVoiceRecordingButton: (widget.hideVoiceRecordingButton ?? false) || hasText,
+      hideVoiceRecordingButton:
+          (widget.hideVoiceRecordingButton ?? false) || hasText,
       auxiliaryOptions: _auxiliaryOptions,
       voiceRecordingIcon: widget.voiceRecordingIcon,
       auxiliaryButtonIconColor: _style.auxiliaryButtonIconColor,
-      auxiliaryButtonIconBackgroundColor: _style.auxiliaryButtonIconBackgroundColor,
+      auxiliaryButtonIconBackgroundColor:
+          _style.auxiliaryButtonIconBackgroundColor,
       auxiliaryButtonBorderRadius: _style.auxiliaryButtonBorderRadius,
       colorPalette: _colorPalette,
       spacing: _spacing,
@@ -3400,8 +3567,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
       previewText = ConversationUtils.stripMarkdownSyntax(previewText);
       return previewText;
     } else {
-      return ComposerAttachmentUtils.
-          getMessageTypeToSubtitle(message.type, context);
+      return ComposerAttachmentUtils.getMessageTypeToSubtitle(
+          message.type, context);
     }
   }
 
@@ -3431,140 +3598,149 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
             }
           },
           child: RepaintBoundary(
-          child: BlocProvider.value(
-            value: _bloc,
-        child: BlocListener<MessageComposerBloc, MessageComposerState>(
-          listenWhen: (previous, current) =>
-              previous.composeText != current.composeText &&
-              current.composeText.isNotEmpty,
-          listener: (context, state) {
-            final controller = _getActiveTextController();
-            if (controller != null && controller.text != state.composeText) {
-              controller.text = state.composeText;
-              _bloc.add(const ClearComposeText());
-            }
-          },
-          child: BlocConsumer<MessageComposerBloc, MessageComposerState>(
-          // Only rebuild when state properties that affect UI change
-          // This prevents rebuilds during keyboard animation
-          buildWhen: (previous, current) {
-          final shouldRebuild = previous.isEditMode != current.isEditMode ||
-              previous.isReplyMode != current.isReplyMode ||
-              previous.isRecordingMode != current.isRecordingMode ||
-              previous.editMessage != current.editMessage ||
-              previous.replyMessage != current.replyMessage ||
-              previous.headerPanel != current.headerPanel ||
-              previous.footerPanel != current.footerPanel ||
-              previous.previewPanel != current.previewPanel ||
-              previous.lockedBottomPadding != current.lockedBottomPadding ||
-              previous.isActiveStreaming != current.isActiveStreaming;
-          return shouldRebuild;
-          },
-          listener: (context, state) {
-            // Handle panel events from BLoC state
-            if (state.headerPanel != null) {
-              // Header panel is shown
-            }
-            if (state.footerPanel != null) {
-              // Footer panel is shown - sticker keyboard is visible
-            }
-            if (state.previewPanel != null) {
-              // Preview panel is shown
-            }
+            child: BlocProvider.value(
+              value: _bloc,
+              child: BlocListener<MessageComposerBloc, MessageComposerState>(
+                listenWhen: (previous, current) =>
+                    previous.composeText != current.composeText &&
+                    current.composeText.isNotEmpty,
+                listener: (context, state) {
+                  final controller = _getActiveTextController();
+                  if (controller != null &&
+                      controller.text != state.composeText) {
+                    controller.text = state.composeText;
+                    _bloc.add(const ClearComposeText());
+                  }
+                },
+                child: BlocConsumer<MessageComposerBloc, MessageComposerState>(
+                  // Only rebuild when state properties that affect UI change
+                  // This prevents rebuilds during keyboard animation
+                  buildWhen: (previous, current) {
+                    final shouldRebuild = previous.isEditMode !=
+                            current.isEditMode ||
+                        previous.isReplyMode != current.isReplyMode ||
+                        previous.isRecordingMode != current.isRecordingMode ||
+                        previous.editMessage != current.editMessage ||
+                        previous.replyMessage != current.replyMessage ||
+                        previous.headerPanel != current.headerPanel ||
+                        previous.footerPanel != current.footerPanel ||
+                        previous.previewPanel != current.previewPanel ||
+                        previous.lockedBottomPadding !=
+                            current.lockedBottomPadding ||
+                        previous.isActiveStreaming != current.isActiveStreaming;
+                    return shouldRebuild;
+                  },
+                  listener: (context, state) {
+                    // Handle panel events from BLoC state
+                    if (state.headerPanel != null) {
+                      // Header panel is shown
+                    }
+                    if (state.footerPanel != null) {
+                      // Footer panel is shown - sticker keyboard is visible
+                    }
+                    if (state.previewPanel != null) {
+                      // Preview panel is shown
+                    }
 
-            // Handle edit mode changes — need to populate text controller
-            if (state.isEditMode && state.editMessage != null) {
-              _previewMessage(state.editMessage!, PreviewMessageMode.edit);
-            }
+                    // Handle edit mode changes — need to populate text controller
+                    if (state.isEditMode && state.editMessage != null) {
+                      _previewMessage(
+                          state.editMessage!, PreviewMessageMode.edit);
+                    }
 
-            // Drive reply/edit preview animation
-            final hasPreview = (state.isEditMode && state.editMessage != null) ||
-                (state.isReplyMode && state.replyMessage != null);
-            if (hasPreview && !_previewVisible) {
-              _previewVisible = true;
-              _previewAnimController.forward(from: 0.0);
-            } else if (!hasPreview && _previewVisible) {
-              _previewVisible = false;
-              _previewAnimController.reverse();
-            }
-          },
-          listenWhen: (previous, current) =>
-              previous.isEditMode != current.isEditMode ||
-              previous.isReplyMode != current.isReplyMode ||
-              previous.editMessage != current.editMessage ||
-              previous.replyMessage != current.replyMessage ||
-              previous.headerPanel != current.headerPanel ||
-              previous.footerPanel != current.footerPanel ||
-              previous.previewPanel != current.previewPanel,
-          builder: (context, state) {
-            final messagePreviewTitle = _getMessagePreviewTitle(state);
-            final messagePreviewSubtitle = _getMessagePreviewSubtitle(state);
+                    // Drive reply/edit preview animation
+                    final hasPreview =
+                        (state.isEditMode && state.editMessage != null) ||
+                            (state.isReplyMode && state.replyMessage != null);
+                    if (hasPreview && !_previewVisible) {
+                      _previewVisible = true;
+                      _previewAnimController.forward(from: 0.0);
+                    } else if (!hasPreview && _previewVisible) {
+                      _previewVisible = false;
+                      _previewAnimController.reverse();
+                    }
+                  },
+                  listenWhen: (previous, current) =>
+                      previous.isEditMode != current.isEditMode ||
+                      previous.isReplyMode != current.isReplyMode ||
+                      previous.editMessage != current.editMessage ||
+                      previous.replyMessage != current.replyMessage ||
+                      previous.headerPanel != current.headerPanel ||
+                      previous.footerPanel != current.footerPanel ||
+                      previous.previewPanel != current.previewPanel,
+                  builder: (context, state) {
+                    final messagePreviewTitle = _getMessagePreviewTitle(state);
+                    final messagePreviewSubtitle =
+                        _getMessagePreviewSubtitle(state);
 
-            return PopScope(
-              canPop: true,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: widget.padding,
-                    child: Column(
-                      children: [
-                        // Header panel from BLoC state or widget
-                        if (state.headerPanel != null)
-                          state.headerPanel!
-                        else if (widget.headerView != null)
-                          widget.headerView!(
-                            context,
-                            widget.user,
-                            widget.group,
-                            _composerId,
+                    return PopScope(
+                      canPop: true,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: widget.padding,
+                            child: Column(
+                              children: [
+                                // Header panel from BLoC state or widget
+                                if (state.headerPanel != null)
+                                  state.headerPanel!
+                                else if (widget.headerView != null)
+                                  widget.headerView!(
+                                    context,
+                                    widget.user,
+                                    widget.group,
+                                    _composerId,
+                                  ),
+
+                                // Inline message preview — renders directly above the input
+                                // so they appear as one unified component
+                                _buildInlinePreview(
+                                  state,
+                                  messagePreviewTitle,
+                                  messagePreviewSubtitle,
+                                ),
+
+                                // Message input or Inline Audio Recorder
+                                if (state.isRecordingMode)
+                                  _buildInlineAudioRecorder()
+                                else
+                                  _buildMessageInputWithToolbar(state),
+
+                                // Custom footer view from widget (not sticker keyboard)
+                                if (state.footerPanel == null &&
+                                    widget.footerView != null)
+                                  widget.footerView!(
+                                    context,
+                                    widget.user,
+                                    widget.group,
+                                    _composerId,
+                                  ),
+
+                                // Combined bottom area: footer panel (sticker keyboard) + safe area padding
+                                // This is a single widget to minimize rebuilds
+                                if (!widget.hideBottomSafeArea &&
+                                    !widget.resizeToAvoidBottomInset)
+                                  _buildBottomArea(state)
+                                // When resizeToAvoidBottomInset is true, the Scaffold handles keyboard
+                                // insets but we still need to render the sticker panel if it's open.
+                                else if (widget.resizeToAvoidBottomInset &&
+                                    state.footerPanel != null)
+                                  _buildStickerPanelOnly(state),
+                              ],
+                            ),
                           ),
-
-                        // Inline message preview — renders directly above the input
-                        // so they appear as one unified component
-                        _buildInlinePreview(
-                          state,
-                          messagePreviewTitle,
-                          messagePreviewSubtitle,
-                        ),
-
-                        // Message input or Inline Audio Recorder
-                        if (state.isRecordingMode)
-                          _buildInlineAudioRecorder()
-                        else
-                          _buildMessageInputWithToolbar(state),
-
-                        // Custom footer view from widget (not sticker keyboard)
-                        if (state.footerPanel == null && widget.footerView != null)
-                          widget.footerView!(
-                            context,
-                            widget.user,
-                            widget.group,
-                            _composerId,
-                          ),
-
-                        // Combined bottom area: footer panel (sticker keyboard) + safe area padding
-                        // This is a single widget to minimize rebuilds
-                        if (!widget.hideBottomSafeArea && !widget.resizeToAvoidBottomInset)
-                          _buildBottomArea(state)
-                        // When resizeToAvoidBottomInset is true, the Scaffold handles keyboard
-                        // insets but we still need to render the sticker panel if it's open.
-                        else if (widget.resizeToAvoidBottomInset && state.footerPanel != null)
-                          _buildStickerPanelOnly(state),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-        ),  // Close BlocListener
-        ),  // Close BlocProvider
-      ),  // Close RepaintBoundary
-    ),  // Close PopScope
-    ),  // Close inner ValueListenableBuilder (suggestion)
-    );  // Close outer ValueListenableBuilder (attachment)
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ), // Close BlocListener
+            ), // Close BlocProvider
+          ), // Close RepaintBoundary
+        ), // Close PopScope
+      ), // Close inner ValueListenableBuilder (suggestion)
+    ); // Close outer ValueListenableBuilder (attachment)
   }
 
   /// Renders the reply/edit preview inline, directly above the message input.
@@ -3582,15 +3758,15 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     if (hasPreview) {
       _lastPreviewTitle = messagePreviewTitle;
       _lastPreviewSubtitle = messagePreviewSubtitle;
-      _lastPreviewMessage = state.isReplyMode
-          ? state.replyMessage
-          : state.editMessage;
+      _lastPreviewMessage =
+          state.isReplyMode ? state.replyMessage : state.editMessage;
 
       // Build formatted subtitle widget for text messages
       final previewMsg = _lastPreviewMessage;
       if (previewMsg is TextMessage) {
         final rawText = previewMsg.text;
-        final formatters = FormatterUtils.ensureMarkdownFormatter(widget.textFormatters);
+        final formatters =
+            FormatterUtils.ensureMarkdownFormatter(widget.textFormatters);
         final subtitleTextStyle = TextStyle(
           fontSize: _typography.caption1?.regular?.fontSize,
           fontWeight: _typography.caption1?.regular?.fontWeight,
@@ -3621,8 +3797,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     final previewPanel = state.previewPanel;
 
     // Use cached values during reverse animation, live values otherwise
-    final isAnimating = _previewAnimController.isAnimating ||
-        _previewAnimController.value > 0;
+    final isAnimating =
+        _previewAnimController.isAnimating || _previewAnimController.value > 0;
     final showPreview = hasPreview || isAnimating;
     final title = hasPreview ? messagePreviewTitle : _lastPreviewTitle;
     final subtitle = hasPreview ? messagePreviewSubtitle : _lastPreviewSubtitle;
@@ -3634,7 +3810,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     if (!showPreview && previewPanel == null) return const SizedBox.shrink();
 
     final hPad = (widget.messageInputPadding as EdgeInsets?)?.left ??
-        _spacing.padding2 ?? 0;
+        _spacing.padding2 ??
+        0;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 0),
@@ -3656,22 +3833,26 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                   position: _previewSlideAnimation,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: _style.backgroundColor ?? _colorPalette.background1,
+                      color:
+                          _style.backgroundColor ?? _colorPalette.background1,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(_spacing.radius2 ?? 0),
                         topRight: Radius.circular(_spacing.radius2 ?? 0),
                       ),
                       border: Border(
                         top: BorderSide(
-                          color: _colorPalette.borderDefault ?? Colors.transparent,
+                          color:
+                              _colorPalette.borderDefault ?? Colors.transparent,
                           width: 1,
                         ),
                         left: BorderSide(
-                          color: _colorPalette.borderDefault ?? Colors.transparent,
+                          color:
+                              _colorPalette.borderDefault ?? Colors.transparent,
                           width: 1,
                         ),
                         right: BorderSide(
-                          color: _colorPalette.borderDefault ?? Colors.transparent,
+                          color:
+                              _colorPalette.borderDefault ?? Colors.transparent,
                           width: 1,
                         ),
                       ),
@@ -3700,29 +3881,32 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   /// Builds the combined bottom area containing footer panel (sticker keyboard) and safe area padding.
   /// This is a single widget to minimize rebuilds during keyboard transitions.
   Widget _buildBottomArea(MessageComposerState state) {
-    
     // When footer panel (sticker keyboard) is shown, display it with locked padding below
     if (state.footerPanel != null) {
       // Cancel any pending clear timer since sticker is visible
       _stickerHeightClearTimer?.cancel();
       _expectingKeyboardOpen = false;
-      
+
       // The sticker keyboard height should match the OS keyboard height exactly
       // _maxBottomHeight is the full keyboard height from native (includes safe area)
       // Only set the sticker height once when it first appears to avoid jiggle
       // when keyboard height changes (e.g., emoji suggestions appearing)
       if (_lastStickerTotalHeight == 0) {
-        _lastStickerTotalHeight = _maxBottomHeight > 0 ? _maxBottomHeight : (CometChatStickerKeyboard.defaultHeight + _safeAreaBottom);
+        _lastStickerTotalHeight = _maxBottomHeight > 0
+            ? _maxBottomHeight
+            : (CometChatStickerKeyboard.defaultHeight + _safeAreaBottom);
       }
 
       // Max extra height the user can drag (total sticker area capped at 60% of screen)
       final double screenHeight = MediaQuery.sizeOf(context).height;
-      final double baseContentHeight = _lastStickerTotalHeight - _safeAreaBottom;
+      final double baseContentHeight =
+          _lastStickerTotalHeight - _safeAreaBottom;
       // Drag handle height: 4px pill + 6px top padding + 6px bottom padding = 16px
       const double dragHandleHeight = 16.0;
       final double maxTotalContent = screenHeight * 0.6;
-      final double maxExtra = (maxTotalContent - baseContentHeight).clamp(0.0, double.infinity);
-      
+      final double maxExtra =
+          (maxTotalContent - baseContentHeight).clamp(0.0, double.infinity);
+
       // Min negative extra = collapse the panel entirely
       final double minExtra = -(baseContentHeight - dragHandleHeight);
 
@@ -3740,8 +3924,9 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                 onVerticalDragUpdate: (details) {
                   // Dragging up (negative dy) increases height,
                   // dragging down (positive dy) decreases height
-                  final newExtra = (_stickerExtraHeight.value - details.delta.dy)
-                      .clamp(minExtra, maxExtra);
+                  final newExtra =
+                      (_stickerExtraHeight.value - details.delta.dy)
+                          .clamp(minExtra, maxExtra);
                   _stickerExtraHeight.value = newExtra;
                 },
                 onVerticalDragEnd: (details) {
@@ -3789,12 +3974,14 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         },
       );
     }
-    
+
     // Sticker keyboard just closed — if _expectingKeyboardOpen was already
     // set by onKeyboardTap, we just need to keep waiting.  Otherwise (e.g.
     // user tapped the text field directly), set the flag now so the bottom
     // area maintains height while the OS keyboard animates in.
-    if (_lastStickerTotalHeight > 0 && !_expectingKeyboardOpen && !_isKeyboardVisible) {
+    if (_lastStickerTotalHeight > 0 &&
+        !_expectingKeyboardOpen &&
+        !_isKeyboardVisible) {
       _expectingKeyboardOpen = true;
       _stickerHeightClearTimer?.cancel();
       _stickerHeightClearTimer = Timer(_stickerHeightClearDelay, () {
@@ -3812,16 +3999,18 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         }
       });
     }
-    
+
     // Normal case: use keyboard height when open, safe area when closed
     return ValueListenableBuilder<double>(
       valueListenable: _bottomPaddingNotifier,
       builder: (context, bottomPadding, child) {
         double effectivePadding;
-        
+
         // During the transition window (expecting keyboard to open), maintain sticker height
         // This prevents the jump when switching from sticker to OS keyboard
-        if (_expectingKeyboardOpen && _lastStickerTotalHeight > 0 && !_isKeyboardVisible) {
+        if (_expectingKeyboardOpen &&
+            _lastStickerTotalHeight > 0 &&
+            !_isKeyboardVisible) {
           effectivePadding = _lastStickerTotalHeight;
         } else if (_isKeyboardVisible) {
           // Keyboard is visible - use keyboard height
@@ -3838,7 +4027,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           // Neither sticker nor keyboard visible - use safe area only
           effectivePadding = _safeAreaBottom;
         }
-        
+
         return SizedBox(height: effectivePadding);
       },
     );
@@ -3851,12 +4040,17 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     final double stickerContentHeight = CometChatStickerKeyboard.defaultHeight;
     const double dragHandleHeight = 16.0;
     final double screenHeight = MediaQuery.sizeOf(context).height;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
     final double maxTotalContent = screenHeight * 0.6;
     final double maxExtra =
         (maxTotalContent - stickerContentHeight).clamp(0.0, double.infinity);
     final double minExtra = -(stickerContentHeight - dragHandleHeight);
 
-    return ValueListenableBuilder<double>(
+    // On wide screens (web), constrain width and align to the right
+    final bool isWideScreen = kIsWeb || screenWidth > 600;
+    final double maxPanelWidth = isWideScreen ? 360 : screenWidth;
+
+    Widget panel = ValueListenableBuilder<double>(
       valueListenable: _stickerExtraHeight,
       builder: (context, extraHeight, _) {
         final double contentHeight =
@@ -3868,9 +4062,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
             // Drag handle
             GestureDetector(
               onVerticalDragUpdate: (details) {
-                final newExtra =
-                    (_stickerExtraHeight.value - details.delta.dy)
-                        .clamp(minExtra, maxExtra);
+                final newExtra = (_stickerExtraHeight.value - details.delta.dy)
+                    .clamp(minExtra, maxExtra);
                 _stickerExtraHeight.value = newExtra;
               },
               onVerticalDragEnd: (details) {
@@ -3908,6 +4101,23 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
         );
       },
     );
+
+    // On wide screens, constrain width and align to the right
+    if (isWideScreen) {
+      debugPrint(
+          '[StickerPanel] isWideScreen=true, screenWidth=$screenWidth, aligning to end');
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxPanelWidth),
+            child: panel,
+          ),
+        ],
+      );
+    }
+    debugPrint('[StickerPanel] isWideScreen=false, screenWidth=$screenWidth');
+    return panel;
   }
 
   /// Builds the message input with an attached toolbar (if enabled).
@@ -3943,7 +4153,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     }
 
     // Build unified container with input + (divider + toolbar/swap row OR nothing)
-    final topRadius = hasPreview ? Radius.zero : Radius.circular(_spacing.radius2 ?? 0);
+    final topRadius =
+        hasPreview ? Radius.zero : Radius.circular(_spacing.radius2 ?? 0);
     final bottomRadius = Radius.circular(_spacing.radius2 ?? 0);
 
     return CompositedTransformTarget(
@@ -3964,7 +4175,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                   top: hasPreview
                       ? BorderSide.none
                       : BorderSide(
-                          color: _colorPalette.borderDefault ?? Colors.transparent,
+                          color:
+                              _colorPalette.borderDefault ?? Colors.transparent,
                           width: 1,
                         ),
                   bottom: BorderSide(
@@ -3999,7 +4211,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                 Divider(
                   height: 1,
                   thickness: 1,
-                  color: _colorPalette.borderLight ?? _colorPalette.borderDefault,
+                  color:
+                      _colorPalette.borderLight ?? _colorPalette.borderDefault,
                   indent: _spacing.padding3 ?? 12,
                   endIndent: _spacing.padding3 ?? 12,
                 ),
@@ -4008,7 +4221,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                 Divider(
                   height: 1,
                   thickness: 1,
-                  color: _colorPalette.borderLight ?? _colorPalette.borderDefault,
+                  color:
+                      _colorPalette.borderLight ?? _colorPalette.borderDefault,
                   indent: _spacing.padding3 ?? 12,
                   endIndent: _spacing.padding3 ?? 12,
                 ),
@@ -4190,7 +4404,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     }
 
     if (_textEditingController is RichTextEditingController) {
-      return (_textEditingController as RichTextEditingController).getActiveFormats();
+      return (_textEditingController as RichTextEditingController)
+          .getActiveFormats();
     }
     return {};
   }
@@ -4265,15 +4480,14 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           filledColor: _style.filledColor,
           dividerTint: _style.dividerColor ?? _colorPalette.borderLight,
           dividerHeight: _style.dividerHeight,
-          backgroundColor: Colors.transparent, // Transparent - parent container has background
+          backgroundColor: Colors
+              .transparent, // Transparent - parent container has background
           textStyle: TextStyle(
             color: _colorPalette.textPrimary,
             fontSize: _typography.body?.regular?.fontSize,
             fontWeight: _typography.body?.regular?.fontWeight,
             fontFamily: _typography.body?.regular?.fontFamily,
-          )
-              .merge(_style.textStyle)
-              .copyWith(color: _style.textColor),
+          ).merge(_style.textStyle).copyWith(color: _style.textColor),
           placeholderTextStyle: TextStyle(
             color: _colorPalette.textTertiary,
             fontSize: _typography.body?.regular?.fontSize,
@@ -4283,7 +4497,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                 color: _style.placeHolderTextColor,
               ),
           border: null, // No border - parent container has border
-          borderRadius: BorderRadius.zero, // No radius - parent container has radius
+          borderRadius:
+              BorderRadius.zero, // No radius - parent container has radius
         ),
         focusNode: _focusNode,
       ),
@@ -4312,19 +4527,20 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           // Secondary buttons (left side - attachment button)
           if (widget.secondaryButtonView != null)
             Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 17),
-              child: widget.secondaryButtonView!(context, widget.user, widget.group, _composerId),
+              padding: EdgeInsets.only(top: 12, bottom: kIsWeb ? 14 : 17),
+              child: widget.secondaryButtonView!(
+                  context, widget.user, widget.group, _composerId),
             )
           else
             Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 17),
+              padding: EdgeInsets.only(top: 12, bottom: kIsWeb ? 14 : 17),
               child: _buildSecondaryButtonView(state),
             ),
 
           // Auxiliary buttons (left alignment option)
           if (_effectiveAuxiliaryAlignment == AuxiliaryButtonsAlignment.left)
             Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 17),
+              padding: EdgeInsets.only(top: 12, bottom: kIsWeb ? 12 : 17),
               child: _buildAuxiliaryButtonView(state),
             ),
 
@@ -4335,7 +4551,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
                 left: _spacing.padding2 ?? 8,
                 right: _spacing.padding2 ?? 8,
                 top: 12,
-                bottom: 12,
+                bottom: kIsWeb ? 14 : 12,
               ),
               child: SegmentComposerWidget(
                 controller: _segmentComposerController!,
@@ -4370,13 +4586,14 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           // Auxiliary buttons (right alignment - default)
           if (_effectiveAuxiliaryAlignment == AuxiliaryButtonsAlignment.right)
             Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 17),
+              padding: EdgeInsets.only(top: 12, bottom: kIsWeb ? 12 : 17),
               child: _buildAuxiliaryButtonView(state),
             ),
 
           // Primary/Send button (far right)
           Padding(
-            padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
+            padding:
+                EdgeInsets.only(left: 12, top: 12, bottom: kIsWeb ? 10 : 12),
             child: _buildSendButton(state),
           ),
         ],
@@ -4503,7 +4720,8 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     final hasPreview = (state.isEditMode && state.editMessage != null) ||
         (state.isReplyMode && state.replyMessage != null) ||
         _previewAnimController.value > 0;
-    final topRadius = hasPreview ? Radius.zero : Radius.circular(_spacing.radius2 ?? 0);
+    final topRadius =
+        hasPreview ? Radius.zero : Radius.circular(_spacing.radius2 ?? 0);
     final bottomRadius = Radius.circular(_spacing.radius2 ?? 0);
 
     return CompositedTransformTarget(
@@ -4536,29 +4754,29 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
             filledColor: _style.filledColor,
             dividerTint: _style.dividerColor ?? _colorPalette.borderLight,
             dividerHeight: _style.dividerHeight,
-            backgroundColor: _style.backgroundColor ?? _colorPalette.background1,
+            backgroundColor:
+                _style.backgroundColor ?? _colorPalette.background1,
             textStyle: TextStyle(
               color: _colorPalette.textPrimary,
               fontSize: _typography.body?.regular?.fontSize,
               fontWeight: _typography.body?.regular?.fontWeight,
               fontFamily: _typography.body?.regular?.fontFamily,
-            )
-                .merge(_style.textStyle)
-                .copyWith(color: _style.textColor),
+            ).merge(_style.textStyle).copyWith(color: _style.textColor),
             placeholderTextStyle: TextStyle(
               color: _colorPalette.textTertiary,
               fontSize: _typography.body?.regular?.fontSize,
               fontWeight: _typography.body?.regular?.fontWeight,
               fontFamily: _typography.body?.regular?.fontFamily,
             ).merge(_style.placeHolderTextStyle).copyWith(
-              color: _style.placeHolderTextColor,
-            ),
+                  color: _style.placeHolderTextColor,
+                ),
             border: _style.border ??
                 Border(
                   top: hasPreview
                       ? BorderSide.none
                       : BorderSide(
-                          color: _colorPalette.borderDefault ?? Colors.transparent,
+                          color:
+                              _colorPalette.borderDefault ?? Colors.transparent,
                           width: 1,
                         ),
                   bottom: BorderSide(
@@ -4599,8 +4817,9 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
           ),
       child: CometChatInlineAudioRecorder(
         style: _style.inlineAudioRecorderStyle,
-        onSubmit: (path) {
-          _bloc.add(SubmitAudioRecording(path));
+        onSubmit: (path, {List<int>? fileBytes}) {
+          _bloc.add(SubmitAudioRecording(path,
+              fileBytes: fileBytes, fileName: 'audio.webm'));
         },
         onCancel: () {
           _bloc.add(const CancelAudioRecording());

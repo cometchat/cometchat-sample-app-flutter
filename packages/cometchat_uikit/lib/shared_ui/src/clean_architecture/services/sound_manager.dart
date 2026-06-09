@@ -1,8 +1,8 @@
-import 'dart:io' show Platform;
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../../../cometchat_uikit_shared.dart' show UIConstants;
+import '../core/utils/platform_utils/platform_file_utils.dart' as platform;
 
 ///[SoundManager] is an utility component that provides an audio player
 class SoundManager {
@@ -20,18 +20,21 @@ class SoundManager {
         String? packageName, // Use it only when using other plugin
         bool? isLooping = false,
       }) async {
+    // Sound playback uses native MethodChannel — not available on web
+    if (kIsWeb) return;
+
     String soundPath = "";
 
     if (customSound != null && customSound.isNotEmpty) {
       soundPath = customSound;
 
-      if (Platform.isAndroid && packageName != null && packageName.isNotEmpty) {
+      if (platform.platformIsAndroid() && packageName != null && packageName.isNotEmpty) {
         soundPath = soundPath;
       }
     } else {
       soundPath = _getDefaultSoundPath(sound);
       packageName ??= UIConstants.packageName;
-      if (Platform.isAndroid) {
+      if (platform.platformIsAndroid()) {
         soundPath = "packages/$packageName/$soundPath";
       }
     }
@@ -48,6 +51,7 @@ class SoundManager {
   }
 
   void stop() async {
+    if (kIsWeb) return;
     await UIConstants.channel.invokeMethod("stopPlayer", {});
   }
 

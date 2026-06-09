@@ -78,9 +78,9 @@ class _ImageModerationFilterState extends State<ImageModerationFilter> {
             messageText: const Text("Do image change"),
             confirmButtonText: Translations.of(context).yes,
             cancelButtonText: Translations.of(context).cancel,
-            onConfirm: () {
+            onConfirm: (dialogContext) {
               showImage();
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
             },
           ).show();
         },
@@ -105,9 +105,9 @@ class _ImageModerationFilterState extends State<ImageModerationFilter> {
                   height: 12,
                 ),
                 Text(
-                  widget.warningText ?? Translations.of(context).unsafeContent,
-                  style: widget.style?.warningTextStyle
-                )
+                    widget.warningText ??
+                        Translations.of(context).unsafeContent,
+                    style: widget.style?.warningTextStyle)
               ],
             ),
           ),

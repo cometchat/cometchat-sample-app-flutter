@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import "../../../../clean_architecture.dart";
+import '../../../../core/utils/platform_utils/platform_image_utils.dart' as platform_image;
 import 'image_viewer.dart';
 
 ///[CometChatImageBubble] creates a widget that gives image bubble
@@ -215,15 +214,12 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
   }
 
   Widget _buildLocalImage(String localPath) {
-    return Image(
-      image: ResizeImage(
-        FileImage(File(localPath)),
-        width: 512,
-        height: 512,
-        policy: ResizeImagePolicy.fit,
-      ),
+    return platform_image.buildFileImage(
+      localPath,
       fit: BoxFit.cover,
       filterQuality: FilterQuality.medium,
+      cacheWidth: 512,
+      cacheHeight: 512,
       frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
         if (wasSynchronouslyLoaded || frame != null) {
           return child;

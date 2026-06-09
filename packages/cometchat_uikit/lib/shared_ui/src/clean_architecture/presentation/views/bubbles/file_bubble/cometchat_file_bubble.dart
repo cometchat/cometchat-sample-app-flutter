@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import "../../../../clean_architecture.dart";
+import '../../../../core/utils/platform_utils/web_download.dart' as web_download;
 import 'package:intl/intl.dart';
 
 ///[CometChatFileBubble] creates a widget that gives file bubble
@@ -203,6 +206,20 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
   Future<void> _handleDownload({bool openAfterDownload = false}) async {
     if (widget.fileUrl == null || _isDownloading) return;
 
+    // On web: download button triggers actual file download,
+    // file tap (openAfterDownload=true) opens in new tab
+    if (kIsWeb) {
+      if (openAfterDownload) {
+        // Open file in new tab for viewing
+        _openFile();
+      } else {
+        // Trigger actual browser download using HTML anchor with download attribute
+        final fileName = _getFileName();
+        web_download.triggerBrowserDownload(widget.fileUrl!, fileName);
+      }
+      return;
+    }
+
     setState(() {
       _isDownloading = true;
       _downloadProgress = 0.0;
@@ -254,6 +271,18 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
   }
 
   Future<void> _openFile() async {
+    // On web, open the file URL in a new tab for viewing
+    if (kIsWeb) {
+      final fileUrl = widget.fileUrl;
+      if (fileUrl != null && fileUrl.isNotEmpty) {
+        final uri = Uri.parse(fileUrl);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      }
+      return;
+    }
+
     if (_localPath == null) return;
 
     debugPrint('[FileBubble] _openFile called - localPath: $_localPath, fileMimeType: ${widget.fileMimeType}, fileExtension: ${widget.fileExtension}, title: ${widget.title}');

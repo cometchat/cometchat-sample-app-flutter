@@ -9,6 +9,7 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' show
     CometChatGroupEventListener,
     CometChatUIKitHelper,
     CometChatUIKit,
+    CometChatUIEvents,
     ExtensionType,
     AIConstants,
     StreamMessage,
@@ -386,6 +387,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     on<ResetUnreadState>(_onResetUnreadState);
     on<MessageSentByUser>(_onMessageSentByUser);
     on<ForceEmptyState>(_onForceEmptyState);
+    on<LoadLastAgentConversation>(_onLoadLastAgentConversation);
 
     // List base hook events
     on<_ListMessageAdded>(_onListMessageAdded);
@@ -1377,6 +1379,136 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
       hasMoreNewer: false,
       loggedInUser: _loggedInUser,
     ));
+  }
+
+  /// Handle LoadLastAgentConversation event.
+  ///
+  /// Fetches messages for the agent UID with hideReplies: true to find the
+  /// latest parent message (conversation starter). If found, loads the full
+  /// thread using that parentMessageId and emits [ccAgentChatThreadResolved]
+  /// so sibling components (Composer) can update their parentMessageId.
+  /// Falls back to empty state if no previous conversation exists.
+  Future<void> _onLoadLastAgentConversation(
+    LoadLastAgentConversation event,
+    Emitter<MessageListState> emit,
+  ) async {
+    emit(state.copyWith(status: MessageListStatus.loading));
+    _loggedInUser ??= CometChatUIKit.loggedInUser;
+
+    // Step 1: Fetch messages with hideReplies to get parent messages only
+    final result = await getMessagesUseCase(
+      conversationWith: event.conversationWith,
+      conversationType: 'user',
+      hideReplies: true,
+    );
+
+    int? resolvedParentMessageId;
+    result.fold(
+      (failure) {
+        // Fall through — will emit empty state below
+      },
+      (messages) {
+        if (messages.isNotEmpty) {
+          // The last message is the most recent parent (conversation starter)
+          resolvedParentMessageId = messages.last.id;
+        }
+      },
+    );
+
+    if (resolvedParentMessageId == null || resolvedParentMessageId! <= 0) {
+      // No previous conversation — show empty/greeting state
+      emit(state.copyWith(
+        status: MessageListStatus.empty,
+        messages: [],
+        hasMoreOlder: false,
+        hasMoreNewer: false,
+        loggedInUser: _loggedInUser,
+      ));
+      return;
+    }
+
+    // Step 2: Emit the UI event so the Composer can sync its parentMessageId
+    CometChatUIEvents.ccAgentChatThreadResolved(
+      receiverId: event.conversationWith,
+      parentMessageId: resolvedParentMessageId!,
+    );
+
+    // Step 3: Load the full thread using the resolved parentMessageId
+    final threadResult = await getMessagesUseCase(
+      conversationWith: event.conversationWith,
+      conversationType: 'user',
+      parentMessageId: resolvedParentMessageId,
+      hideReplies: false,
+      withParent: withParent,
+    );
+
+    // Extract value from fold — emit at top level per async-bloc-fold-pattern
+    List<BaseMessage>? threadMessages;
+    String? threadError;
+    threadResult.fold(
+      (failure) {
+        threadError = failure.message;
+      },
+      (messages) {
+        threadMessages = messages;
+      },
+    );
+
+    if (threadError != null) {
+      emit(state.copyWith(
+        status: MessageListStatus.error,
+        errorMessage: threadError,
+      ));
+      return;
+    }
+
+    if (threadMessages == null || threadMessages!.isEmpty) {
+      emit(state.copyWith(
+        status: MessageListStatus.empty,
+        messages: [],
+        hasMoreOlder: false,
+        hasMoreNewer: false,
+        loggedInUser: _loggedInUser,
+      ));
+      return;
+    }
+
+    final intercepted = onBeforeMessagesSet(threadMessages!);
+    if (intercepted == null) return;
+
+    _mapNeedsRebuild = true;
+
+    for (final message in intercepted) {
+      if (message.replyCount > 0) {
+        initializeThreadReplyCount(message.id, message.replyCount);
+      }
+    }
+
+    emit(state.copyWith(
+      status: MessageListStatus.loaded,
+      messages: intercepted,
+      hasMoreOlder: intercepted.length >= 30,
+      hasMoreNewer: false,
+      loggedInUser: _loggedInUser,
+    ));
+
+    if (!_operationsController.isClosed) {
+      _operationsController.add(
+        MessageOperation.set(intercepted, animated: true),
+      );
+    }
+
+    onAfterMessagesSet(intercepted);
+
+    _initializeMessagesRequests(
+      conversationWith: event.conversationWith,
+      conversationType: 'user',
+      parentMessageId: resolvedParentMessageId,
+      oldestMessageId:
+          intercepted.isNotEmpty ? intercepted.first.id : null,
+      newestMessageId:
+          intercepted.isNotEmpty ? intercepted.last.id : null,
+    );
   }
 
   /// Handle MessageSentByUser event

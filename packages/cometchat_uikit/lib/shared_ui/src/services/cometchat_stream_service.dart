@@ -161,6 +161,14 @@ class CometChatStreamService {
     aiToolResultMessages.remove(runId);
     aiToolArgumentMessages.remove(runId);
     queueCompletionCallbacks.remove(runId);
+
+    // Close the stream controller to prevent memory leaks
+    final controller = _controllers.remove(runId);
+    if (controller != null && !controller.isClosed) {
+      controller.close();
+    }
+    _callbacks.remove(runId);
+    _onErrorCallbacks.remove(runId);
   }
 
   void cleanupAll() {

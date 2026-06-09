@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import "../../../../clean_architecture.dart";
+import '../../../../core/utils/platform_utils/platform_image_utils.dart' as platform_image;
 import 'package:cached_network_image/cached_network_image.dart';
 
 ///Gives Full Screen image view for passed image url
@@ -102,15 +101,15 @@ class _ImageViewerState extends State<ImageViewer> {
                 width: double.infinity,
                 height: double.infinity,
                 child: _isLocalFile
-                    ? Image.file(
-                  File(widget.imageUrl),
+                    ? platform_image.buildFileImage(
+                  widget.imageUrl,
                   fit: BoxFit.contain,
                   filterQuality: FilterQuality.medium,
+                  cacheWidth: 512,
+                  cacheHeight: 512,
                   errorBuilder: (context, error, stackTrace) {
                     return _buildPlaceholderImage();
                   },
-                  cacheHeight: 512,
-                  cacheWidth: 512,
                   frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
                     if (wasSynchronouslyLoaded || frame != null) {
                       // Image loaded successfully

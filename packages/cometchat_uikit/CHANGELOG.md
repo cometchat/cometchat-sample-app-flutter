@@ -1,3 +1,14 @@
+# 6.0.3
+
+## New
+- None
+
+## Enhancements
+- Improved the sample app for web by adding responsive navigation optimized for desktop layouts.
+
+## Fixes
+- None
+
 # 6.0.2
 
 ## New

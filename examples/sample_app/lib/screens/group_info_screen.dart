@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
+import 'package:sample_app/screens/responsive_home_screen.dart';
 import 'add_members_screen.dart';
 import 'banned_members_screen.dart';
 import 'messages_screen.dart';
@@ -250,7 +252,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen>
     ).show();
   }
 
-  void _leaveGroup() {
+  void _leaveGroup(BuildContext dialogContext) {
     setState(() => _isLeaveLoading = true);
     CometChat.leaveGroup(
       _group.guid,
@@ -261,7 +263,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen>
           cc.Action(
             conversationId: _conversationId ?? '',
             message:
-                '${_loggedInUser?.name} ${cc.Translations.of(context).left}',
+            '${_loggedInUser?.name} ${cc.Translations.of(context).left}',
             oldScope: _group.scope ?? GroupMemberScope.participant,
             newScope: '',
             muid: DateTime.now().microsecondsSinceEpoch.toString(),
@@ -274,14 +276,25 @@ class _GroupInfoScreenState extends State<GroupInfoScreen>
           _loggedInUser!,
           _group,
         );
-        // Pop group info + messages screen
-        Navigator.of(context)
-          ..pop()
-          ..pop();
+        // Dismiss dialog, then pop group info screen
+        Navigator.of(dialogContext).pop();
+        if (kIsWeb) {
+          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (_) => const ResponsiveHomeScreen(),
+            ),
+                (route) => false,
+          );
+        } else {
+          // Pop GroupInfo → Messages → back to Home
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }
       },
       onError: (e) {
         if (!mounted) return;
         setState(() => _isLeaveLoading = false);
+        Navigator.of(dialogContext).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: _colorPalette.error,
@@ -322,19 +335,43 @@ class _GroupInfoScreenState extends State<GroupInfoScreen>
         confirmButtonBackground: _colorPalette.primary,
         confirmButtonTextColor: _colorPalette.white,
       ),
-      onCancel: () => Navigator.pop(context),
-      onConfirm: () {
-        Navigator.pop(context); // close dialog
+      onCancel: (dialogContext) => Navigator.of(dialogContext).pop(),
+      onConfirm: (dialogContext) {
+        Navigator.of(dialogContext).pop(); // close dialog
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => TransferOwnershipScreen(group: _group),
           ),
         ).then((value) {
-          if (value == 'LeaveGroup') _leaveGroup();
+          if (value == 'LeaveGroup') _leaveGroupAfterTransfer();
         });
       },
     ).show();
+  }
+
+  /// Leave group without a dialog to dismiss (called after transfer ownership)
+  void _leaveGroupAfterTransfer() {
+    if (!mounted) return;
+    _group.membersCount--;
+    CometChatGroupEvents.ccGroupLeft(
+      cc.Action(
+        conversationId: _conversationId ?? '',
+        message: '${_loggedInUser?.name} ${cc.Translations.of(context).left}',
+        oldScope: _group.scope ?? GroupMemberScope.participant,
+        newScope: '',
+        muid: DateTime.now().microsecondsSinceEpoch.toString(),
+        sender: _loggedInUser!,
+        receiverUid: _group.guid,
+        type: MessageTypeConstants.groupActions,
+        receiverType: ReceiverTypeConstants.group,
+        parentMessageId: 0,
+      ),
+      _loggedInUser!,
+      _group,
+    );
+    // Pop group info screen (transfer screen already popped itself)
+    Navigator.of(context).pop();
   }
 
   void _onDeleteAndExit() {
@@ -379,23 +416,32 @@ class _GroupInfoScreenState extends State<GroupInfoScreen>
     ).show();
   }
 
-  void _deleteGroup() {
+  void _deleteGroup(BuildContext dialogContext) {
     setState(() => _isDeleteLoading = true);
     CometChat.deleteGroup(
       _group.guid,
       onSuccess: (_) {
         if (!mounted) return;
         CometChatGroupEvents.ccGroupDeleted(_group);
-        // Pop dialog + group info + messages
-        Navigator.of(context)
-          ..pop()
-          ..pop()
-          ..pop();
+
+        if (kIsWeb) {
+          // Dismiss dialog, then pop group info + messages.
+          // This preserves the current tab (Groups/Chats/Users).
+          Navigator.of(dialogContext).pop();
+          Navigator.of(context)
+            ..pop() // pop GroupInfo
+            ..pop(); // pop Messages
+        } else {
+          // Dismiss dialog, then pop group info screen
+          Navigator.of(dialogContext).pop();
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }
       },
       onError: (e) {
         if (!mounted) return;
         setState(() => _isDeleteLoading = false);
-        Navigator.pop(context); // close dialog
+        Navigator.of(dialogContext).pop(); // close dialog
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: _colorPalette.error,
