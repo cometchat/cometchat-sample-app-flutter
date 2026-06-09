@@ -1,7 +1,7 @@
 # 6.0.3
 
 ## New
-- None
+- Added the `loadLastAgentConversation` prop to `CometChatMessageList`, enabling automatic loading of the most recent agent conversation.
 
 ## Enhancements
 - Improved the sample app for web by adding responsive navigation optimized for desktop layouts.
