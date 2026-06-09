@@ -23,7 +23,7 @@
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="master_app">
+  <meta name="apple-mobile-web-app-title" content="sample_app">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
@@ -31,8 +31,34 @@
 
   <title>CometChat Sample App</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- CometChat Calls SDK CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/@cometchat/calls-sdk-javascript@5.0.0/dist/index.css">
+
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+  </style>
 </head>
 <body>
+  <!-- Polyfill: CometChat Calls UMD bundle references process.env.NODE_ENV -->
+  <script>window.process = { env: { NODE_ENV: "production" } };</script>
+  <!-- CometChat Calls JS SDK (UMD bundle) -->
+  <script src="https://unpkg.com/@cometchat/calls-sdk-javascript@5.0.0/dist/index.umd.js"></script>
+  <!-- Alias the UMD export to the global name expected by the bridge -->
+  <script>
+    if (window["@cometchat/calls-sdk-javascript"]) {
+      window.CometChatCalls = window["@cometchat/calls-sdk-javascript"].CometChatCalls || window["@cometchat/calls-sdk-javascript"];
+    }
+  </script>
+  <!-- Bridge between Flutter Dart layer and CometChat Calls JS SDK -->
+  <script src="cometchat_calls_bridge.js?v=4"></script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

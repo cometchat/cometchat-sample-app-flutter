@@ -4,6 +4,7 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_calls_uikit.dart';
 import 'login_screen.dart';
 import 'home_screen.dart';
+import 'responsive_home_screen.dart';
 
 /// Guard screen — checks for a cached user session and auto-navigates
 /// to HomeScreen or LoginScreen accordingly.
@@ -51,7 +52,6 @@ class _GuardScreenState extends State<GuardScreen> {
   }
 
   Future<void> _initCallsSdk() async {
-    if (kIsWeb) return; // Calls SDK not supported on web
     await CallEventService.instance.init(
       configuration: CallingConfiguration(),
     );
@@ -87,11 +87,12 @@ class _GuardScreenState extends State<GuardScreen> {
 
         // Navigate after frame to avoid build-during-build
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          final Widget home =
+              kIsWeb ? const ResponsiveHomeScreen() : const HomeScreen();
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (_) =>
-                  value ? const HomeScreen() : const LoginScreen(),
+              builder: (_) => value ? home : const LoginScreen(),
             ),
             (route) => false,
           );

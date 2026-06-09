@@ -6,11 +6,10 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_calls_uikit.dart';
 import 'package:sample_app/app_credentials.dart';
 import 'package:sample_app/screens/home_screen.dart';
+import 'package:sample_app/screens/responsive_home_screen.dart';
 import 'package:sample_app/screens/guard_screen.dart';
 import 'package:sample_app/screens/app_credentials_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
-
-// Conditional imports — mobile-only services
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,8 +47,7 @@ Future<void> main() async {
   // ever receiving a call push that would try to start its FGS and
   // crash us. The app is still usable for messaging; call features
   // simply stay inert until perms are granted on a later launch.
-  if (!kIsWeb && callPermsGranted) {
-  }
+  if (!kIsWeb && callPermsGranted) {}
 
   // Initialize Firebase (works on all platforms with proper config)
 
@@ -140,7 +138,6 @@ class _BlocSampleAppState extends State<BlocSampleApp> {
   }
 
   Future<void> _initCallsSdk() async {
-    if (kIsWeb) return; // Calls SDK not supported on web
     await CallEventService.instance.init(
       configuration: CallingConfiguration(),
     );
@@ -159,12 +156,10 @@ class _BlocSampleAppState extends State<BlocSampleApp> {
         ..appId = AppCredentials.appId
         ..authKey = AppCredentials.authKey;
 
-      // Calls SDK — mobile only
-      if (!kIsWeb) {
-        settingsBuilder
-          ..enableCalls = true
-          ..callingConfiguration = CallingConfiguration();
-      }
+      // Calls SDK — all platforms (including web via JS bridge)
+      settingsBuilder
+        ..enableCalls = true
+        ..callingConfiguration = CallingConfiguration();
 
       final uiKitSettings = settingsBuilder.build();
 
@@ -251,13 +246,11 @@ class _BlocSampleAppState extends State<BlocSampleApp> {
       case _SessionCheckResult.valid:
         return true;
       case _SessionCheckResult.unknown:
-        debugPrint(
-            '⚠️ Session validation inconclusive (likely offline). '
+        debugPrint('⚠️ Session validation inconclusive (likely offline). '
             'Trusting cached session.');
         return true;
       case _SessionCheckResult.authInvalidated:
-        debugPrint(
-            '⚠️ Cached auth token is no longer valid server-side. '
+        debugPrint('⚠️ Cached auth token is no longer valid server-side. '
             'Clearing local session and routing to login.');
         await _forceLogout();
         return false;
@@ -300,6 +293,7 @@ class _BlocSampleAppState extends State<BlocSampleApp> {
     return MaterialApp(
       title: 'CometChat Sample App',
       debugShowCheckedModeBanner: false,
+      navigatorKey: kIsWeb ? CallNavigationContext.navigatorKey : null,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -359,10 +353,11 @@ class _BlocSampleAppState extends State<BlocSampleApp> {
       return const AppCredentialsScreen();
     }
 
-    if (!AppCredentials.hasValidCredentials) {
-      return const AppCredentialsScreen();
-    }
-    return _isLoggedIn ? const HomeScreen() : const GuardScreen();
+    if (!_isLoggedIn) return const GuardScreen();
+
+    // Web/desktop → responsive split-pane layout
+    // Mobile → standard bottom-nav with push navigation
+    return kIsWeb ? const ResponsiveHomeScreen() : const HomeScreen();
   }
 }
 

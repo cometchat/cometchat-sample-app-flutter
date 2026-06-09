@@ -191,9 +191,8 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen> {
           );
         },
         onError: (Exception error) {
-          final errorMessage = error is CometChatException
-              ? error.message
-              : error.toString();
+          final errorMessage =
+              error is CometChatException ? error.message : error.toString();
           debugPrint('CallLogs error: $errorMessage');
         },
       );
@@ -358,9 +357,8 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen> {
           );
         },
         onError: (Exception error) {
-          final errorMessage = error is CometChatException
-              ? error.message
-              : error.toString();
+          final errorMessage =
+              error is CometChatException ? error.message : error.toString();
           debugPrint('CallLogs error: $errorMessage');
         },
       );
@@ -478,11 +476,11 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen> {
           activeIcon: Icon(Icons.chat_rounded),
           label: 'Chats',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.call_outlined),
-          activeIcon: Icon(Icons.call_rounded),
-          label: 'Calls',
-        ),
+        // BottomNavigationBarItem(
+        //   icon: Icon(Icons.call_outlined),
+        //   activeIcon: Icon(Icons.call_rounded),
+        //   label: 'Calls',
+        // ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline_rounded),
           activeIcon: Icon(Icons.person_rounded),
@@ -594,12 +592,10 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(right: 12),
-                child:
-                    Icon(Icons.logout, color: _colorPalette.error, size: 22),
+                child: Icon(Icons.logout, color: _colorPalette.error, size: 22),
               ),
               Text('Logout',
-                  style:
-                      TextStyle(fontSize: 14, color: _colorPalette.error)),
+                  style: TextStyle(fontSize: 14, color: _colorPalette.error)),
             ],
           ),
         ),
@@ -609,8 +605,8 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           enabled: false,
           child: Text('v6.0.0-beta3',
-              style: TextStyle(
-                  fontSize: 12, color: _colorPalette.textTertiary)),
+              style:
+                  TextStyle(fontSize: 12, color: _colorPalette.textTertiary)),
         ),
       ],
     );
@@ -852,7 +848,8 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen> {
             if (threadUser != null) {
               _openConversation(user: threadUser, scrollToMessageId: messageId);
             } else if (threadGroup != null) {
-              _openConversation(group: threadGroup, scrollToMessageId: messageId);
+              _openConversation(
+                  group: threadGroup, scrollToMessageId: messageId);
             }
           } else {
             Navigator.push(
@@ -875,8 +872,7 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen> {
 
     if (receiverType == ReceiverTypeConstants.user) {
       final loggedInUid = CometChatUIKit.loggedInUser?.uid;
-      final otherUid =
-          (sender?.uid == loggedInUid) ? receiverUid : sender?.uid;
+      final otherUid = (sender?.uid == loggedInUid) ? receiverUid : sender?.uid;
       if (otherUid != null) {
         CometChat.getUser(
           otherUid,
