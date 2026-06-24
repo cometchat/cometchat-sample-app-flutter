@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
+import 'package:cometchat_cards/cometchat_cards.dart';
 import '../../../cometchat_uikit_shared.dart';
+import '../no_intrinsic_card_wrapper.dart';
 
 /// Renders an in-progress streaming AI response with shimmer effect.
 ///
@@ -44,6 +47,13 @@ class _CometChatStreamBubbleState extends State<CometChatStreamBubble> {
   String _text = '';
   String _errorText = '';
   bool _hasError = false;
+
+  /// Tracks streamed card data by cardId.
+  /// null value = loading placeholder; non-null = rendered card JSON.
+  final Map<String, Map<String, dynamic>?> _cardStates = {};
+
+  /// Execution text labels for card loading placeholders, by cardId.
+  final Map<String, String?> _cardExecutionTexts = {};
 
   final CometChatStreamService _queueManager = CometChatStreamService();
   final Map<int, String> _originalMessageText = {};
@@ -129,6 +139,15 @@ class _CometChatStreamBubbleState extends State<CometChatStreamBubble> {
         break;
       case AgenticKeys.toolCallEnd:
         _handleToolCallEnd(event as AIAssistantToolEndedEvent);
+        break;
+      case AgenticKeys.cardStart:
+        _handleCardStart(event as AIAssistantCardStartedEvent);
+        break;
+      case AgenticKeys.card:
+        _handleCardReceived(event as AIAssistantCardReceivedEvent);
+        break;
+      case AgenticKeys.cardEnd:
+        // No-op per §2.6.2 — the persisted message replaces the streamed bubble
         break;
     }
   }
@@ -226,6 +245,46 @@ class _CometChatStreamBubbleState extends State<CometChatStreamBubble> {
           setState(() => _text = existingMessage.text ?? '');
         }
       }
+    }
+  }
+
+  /// §2.6.2 card_start — show loading placeholder tracked by cardId.
+  void _handleCardStart(AIAssistantCardStartedEvent event) {
+    final cardId = event.cardId;
+    if (cardId == null || cardId.isEmpty) return;
+
+    setState(() {
+      _cardStates[cardId] = null; // null = loading placeholder
+      _cardExecutionTexts[cardId] = event.executionText;
+    });
+  }
+
+  /// §2.6.2 card — replace the placeholder with the actual card payload.
+  void _handleCardReceived(AIAssistantCardReceivedEvent event) {
+    final cardId = event.cardId;
+    if (cardId == null || cardId.isEmpty) return;
+
+    final cardData = event.getCard();
+    if (cardData == null) return;
+
+    setState(() {
+      _cardStates[cardId] = cardData;
+    });
+  }
+
+  /// card_end — remove the loading placeholder.
+  /// If the card was already rendered (via 'card' event), keep it visible.
+  /// Only removes entries that are still in loading state (null).
+  void _handleCardEnd(AIAssistantCardEndedEvent event) {
+    final cardId = event.cardId;
+    if (cardId == null || cardId.isEmpty) return;
+
+    // Remove only the loading placeholder — rendered cards stay
+    if (_cardStates[cardId] == null) {
+      setState(() {
+        _cardStates.remove(cardId);
+        _cardExecutionTexts.remove(cardId);
+      });
     }
   }
 
@@ -343,7 +402,93 @@ class _CometChatStreamBubbleState extends State<CometChatStreamBubble> {
               ),
             ),
           ],
+          // Streamed card widgets (card_start → loader, card → rendered)
+          ..._buildStreamedCards(context),
         ],
+      ),
+    );
+  }
+
+  /// Builds card widgets for streamed cards (loading placeholders or rendered cards).
+  List<Widget> _buildStreamedCards(BuildContext context) {
+    if (_cardStates.isEmpty) return [];
+
+    final resolvedThemeMode = Theme.of(context).brightness == Brightness.dark
+        ? CometChatCardThemeMode.dark
+        : CometChatCardThemeMode.light;
+
+    return _cardStates.entries.map((entry) {
+      final cardId = entry.key;
+      final cardData = entry.value;
+
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: _spacing.padding2 ?? 4),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: cardData == null
+              ? _buildCardPlaceholder(cardId)
+              : _buildRenderedCard(cardId, cardData, resolvedThemeMode),
+        ),
+      );
+    }).toList();
+  }
+
+  /// Loading placeholder for a card being generated.
+  Widget _buildCardPlaceholder(String cardId) {
+    final executionText = _cardExecutionTexts[cardId];
+    return Container(
+      key: ValueKey('card_loading_$cardId'),
+      height: 120,
+      decoration: BoxDecoration(
+        color: _colorPalette.background2,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _colorPalette.borderLight ?? Colors.grey.shade200,
+          width: 0.5,
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: _colorPalette.iconSecondary,
+              ),
+            ),
+            if (executionText != null && executionText.isNotEmpty) ...[
+              SizedBox(height: _spacing.padding2 ?? 8),
+              Text(
+                executionText,
+                style: TextStyle(
+                  color: _colorPalette.textSecondary,
+                  fontSize: _typography.caption1?.regular?.fontSize,
+                  fontFamily: _typography.caption1?.regular?.fontFamily,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Rendered card widget from parsed card JSON.
+  Widget _buildRenderedCard(
+      String cardId, Map<String, dynamic> cardData, CometChatCardThemeMode themeMode) {
+    final cardJson = jsonEncode(cardData);
+    return NoIntrinsicCardWrapper(
+      key: ValueKey('card_rendered_$cardId'),
+      width: MediaQuery.sizeOf(context).width * 0.65,
+      child: CometChatCardView(
+        cardJson: cardJson,
+        themeMode: themeMode,
+        onAction: (CometChatCardActionEvent action) {
+          CometChatUIEvents.ccCardActionClicked(widget.message, action);
+        },
       ),
     );
   }

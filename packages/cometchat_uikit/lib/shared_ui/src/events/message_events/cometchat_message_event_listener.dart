@@ -1,4 +1,5 @@
-import '../../../cometchat_uikit_shared.dart';
+import '../../../cometchat_uikit_shared.dart' hide CardMessage;
+import '../../clean_architecture/data/models/interactive_message/card_message.dart';
 import '../../clean_architecture/core/constants/enums.dart' as CoreEnums;
 
 ///Listener class for [CometChatMessages]

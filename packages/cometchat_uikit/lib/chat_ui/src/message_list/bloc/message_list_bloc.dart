@@ -1318,6 +1318,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   /// The CometChatStreamBubble widget handles word-by-word rendering.
   void _handleAIAssistantEvent(AIAssistantBaseEvent event) {
     if (isClosed) return;
+    debugPrint('[MessageListBloc] AI event received: type=${event.type}, id=${event.id}');
     final runId = event.id;
     if (runId == null) return;
 
@@ -2468,6 +2469,11 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   ) async {
     final message = event.message;
 
+    debugPrint('[MessageListBloc] Message received: id=${message.id}, '
+        'category=${message.category}, type=${message.type}, '
+        'sender=${message.sender?.uid}, '
+        'class=${message.runtimeType}');
+
     // For AI assistant messages, replace the thinking/stream bubble
     if (message is AIAssistantMessage && message.runId != null) {
       final thinkingId = -(message.runId!);
@@ -2496,6 +2502,8 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
 
     // Check if message belongs to current conversation
     if (!_isMessageForCurrentConversation(message)) {
+      debugPrint('[MessageListBloc] Message FILTERED: not for current conversation. '
+          'message.conversationId=${message.conversationId}');
       return;
     }
 
@@ -2526,6 +2534,9 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
 
     // Check message type/category filters
     if (!_passesTypeAndCategoryFilters(message)) {
+      debugPrint('[MessageListBloc] Message FILTERED: type/category filter failed. '
+          'category=${message.category}, type=${message.type}, '
+          'allowedCategories=$categories');
       return;
     }
 
@@ -2569,6 +2580,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     // If user has scrolled up (hasMoreNewer = true), don't append new messages
     // This prevents messages from appearing while user is viewing older messages
     if (state.hasMoreNewer) {
+      debugPrint('[MessageListBloc] Message FILTERED: hasMoreNewer=true (user scrolled up)');
       return;
     }
 
@@ -2579,6 +2591,10 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     // Add message to end of list (newest messages at end)
     final insertIndex = state.messages.length;
     final updatedMessages = [...state.messages, intercepted];
+
+    debugPrint('[MessageListBloc] Adding message to list: id=${intercepted.id}, '
+        'category=${intercepted.category}, type=${intercepted.type}, '
+        'insertIndex=$insertIndex');
 
     // Update index maps incrementally
     _addToIndexMaps(intercepted, insertIndex);
@@ -4115,26 +4131,44 @@ class _MessageListMessageListener with MessageListener {
 
   @override
   void onTextMessageReceived(TextMessage textMessage) {
+    debugPrint('[MessageListener] onTextMessageReceived: id=${textMessage.id}, sender=${textMessage.sender?.uid}');
     onTextMessageReceivedCallback(textMessage);
   }
 
   @override
   void onMediaMessageReceived(MediaMessage mediaMessage) {
+    debugPrint('[MessageListener] onMediaMessageReceived: id=${mediaMessage.id}, type=${mediaMessage.type}, sender=${mediaMessage.sender?.uid}');
     onMediaMessageReceivedCallback(mediaMessage);
   }
 
   @override
   void onCustomMessageReceived(CustomMessage customMessage) {
+    debugPrint('[MessageListener] onCustomMessageReceived: id=${customMessage.id}, type=${customMessage.type}, sender=${customMessage.sender?.uid}');
     onCustomMessageReceivedCallback(customMessage);
   }
 
   @override
   void onInteractiveMessageReceived(InteractiveMessage interactiveMessage) {
+    debugPrint('[MessageListener] onInteractiveMessageReceived: id=${interactiveMessage.id}, type=${interactiveMessage.type}, sender=${interactiveMessage.sender?.uid}');
     onInteractiveMessageReceivedCallback(interactiveMessage);
   }
 
   @override
+  void onCardMessageReceived(CardMessage cardMessage) {
+    debugPrint('[MessageListener] onCardMessageReceived: id=${cardMessage.id}, '
+        'category=${cardMessage.category}, type=${cardMessage.type}, '
+        'hasCard=${cardMessage.getCard() != null}, '
+        'text=${cardMessage.getText()}');
+    // Route card messages through the same path as other messages
+    onTextMessageReceivedCallback(cardMessage);
+  }
+
+  @override
   void onAIAssistantMessageReceived(AIAssistantMessage aiAssistantMessage) {
+    debugPrint('[MessageListener] onAIAssistantMessageReceived: id=${aiAssistantMessage.id}, '
+        'runId=${aiAssistantMessage.runId}, '
+        'hasElements=${aiAssistantMessage.getElements()?.isNotEmpty ?? false}, '
+        'elementsCount=${aiAssistantMessage.getElements()?.length ?? 0}');
     onAIAssistantMessageReceivedCallback(aiAssistantMessage);
   }
 

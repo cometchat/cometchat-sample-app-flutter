@@ -1,4 +1,7 @@
 import '../../cometchat_uikit_shared.dart';
+import '../clean_architecture/data/models/interactive_message/card_message.dart'
+    as legacy;
+
 class SDKMethods {
   static Future<FormMessage?> sendFormMessage(FormMessage message,
       {required Function(FormMessage message)? onSuccess,
@@ -15,14 +18,14 @@ class SDKMethods {
     return formMessage;
   }
 
-  static Future<CardMessage?> sendCardMessage(CardMessage message,
-      {required Function(CardMessage message)? onSuccess,
+  static Future<legacy.CardMessage?> sendCardMessage(legacy.CardMessage message,
+      {required Function(legacy.CardMessage message)? onSuccess,
       required Function(CometChatException excep)? onError}) async {
     InteractiveMessage interactiveMessage = message.toInteractiveMessage();
-    CardMessage? cardMessage;
+    legacy.CardMessage? cardMessage;
     await CometChat.sendInteractiveMessage(interactiveMessage,
         onSuccess: (InteractiveMessage message) {
-      cardMessage = CardMessage.fromInteractiveMessage(message);
+      cardMessage = legacy.CardMessage.fromInteractiveMessage(message);
       if (onSuccess != null) {
         onSuccess(cardMessage!);
       }

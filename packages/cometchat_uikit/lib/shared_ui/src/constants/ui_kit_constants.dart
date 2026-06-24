@@ -16,6 +16,7 @@ class MessageCategoryConstants {
   static const String call = CometChatMessageCategory.call;
   static const String custom = CometChatMessageCategory.custom;
   static const String interactive = CometChatMessageCategory.interactive;
+  static const String card = CometChatMessageCategory.categoryCard;
 
 }
 
@@ -355,7 +356,7 @@ class SetSourceConstant {
 
   /// Semantic version of the UIKit package.
   /// Must be kept in sync with pubspec.yaml version field.
-  static const String version = "6.0.3";
+  static const String version = "6.0.4";
 }
 
 class ErrorConstants {

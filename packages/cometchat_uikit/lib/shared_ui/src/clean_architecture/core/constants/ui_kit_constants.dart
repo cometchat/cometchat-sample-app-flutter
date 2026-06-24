@@ -17,6 +17,7 @@ class MessageCategoryConstants {
   static const String call = CometChatMessageCategory.call;
   static const String custom = CometChatMessageCategory.custom;
   static const String interactive = CometChatMessageCategory.interactive;
+  static const String card = CometChatMessageCategory.categoryCard;
 
 }
 

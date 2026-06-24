@@ -1,4 +1,6 @@
 import '../../../cometchat_uikit_shared.dart';
+import '../../clean_architecture/data/models/interactive_message/card_message.dart'
+    as legacy;
 
 class ChatSDKEventInitializer with MessageListener {
   //Do not use this id, its reserved for cometchat own structure
@@ -81,7 +83,7 @@ class ChatSDKEventInitializer with MessageListener {
           FormMessage.fromInteractiveMessage(message));
     } else if (message.type == MessageTypeConstants.card) {
       CometChatMessageEvents.onCardMessageReceived(
-          CardMessage.fromInteractiveMessage(message));
+          legacy.CardMessage.fromInteractiveMessage(message));
     } else if (message.type == MessageTypeConstants.scheduler) {
       CometChatMessageEvents.onSchedulerMessageReceived(
           SchedulerMessage.fromInteractiveMessage(message));

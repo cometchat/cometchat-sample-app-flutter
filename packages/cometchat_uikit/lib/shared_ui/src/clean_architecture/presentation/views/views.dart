@@ -16,8 +16,7 @@ export 'bubbles/video_bubble/cometchat_video_bubble.dart';
 export 'bubbles/video_bubble/cometchat_video_bubble_style.dart';
 export 'bubbles/file_bubble/cometchat_file_bubble.dart';
 export 'bubbles/file_bubble/cometchat_file_bubble_style.dart';
-export 'bubbles/card_bubble/cometchat_card_bubble.dart';
-export 'bubbles/card_bubble/card_bubble_style.dart';
+
 
 // Component Views
 export 'components/media_recorder/cometchat_media_recorder.dart';

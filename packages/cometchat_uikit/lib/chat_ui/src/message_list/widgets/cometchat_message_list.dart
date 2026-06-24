@@ -464,6 +464,29 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       final key = '${template.category}_${template.type}';
       _templateMap[key] = template;
     }
+    // Register card bubble template under a category-only fallback key.
+    // Developer card type is arbitrary — the resolver falls back to this
+    // when the exact category_type key misses for category == "card".
+    final cardBubbleTemplate = templates
+        .where((t) => t.category == MessageCategoryConstants.card)
+        .firstOrNull;
+    if (cardBubbleTemplate != null) {
+      _templateMap[MessageCategoryConstants.card] = cardBubbleTemplate;
+    }
+  }
+
+  /// Resolves a message template from _templateMap with category-only fallback
+  /// for developer cards (whose type is arbitrary and user-defined).
+  CometChatMessageTemplate? _resolveTemplate(BaseMessage message) {
+    final key = '${message.category}_${message.type}';
+    final template = _templateMap[key];
+    if (template != null) return template;
+
+    // Fallback: developer card category has arbitrary types
+    if (message.category == MessageCategoryConstants.card) {
+      return _templateMap[MessageCategoryConstants.card];
+    }
+    return null;
   }
 
   void _initializeAdapter() {
@@ -1247,8 +1270,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // actions). Group actions are handled above; other action-category messages
     // with type "message" are internal SDK actions with no content view.
     if (message.category == MessageCategoryConstants.action) {
-      final templateKey = '${message.category}_${message.type}';
-      final template = _templateMap[templateKey];
+      final template = _resolveTemplate(message);
       if (template?.contentView == null) {
         return const SizedBox.shrink();
       }
@@ -1330,8 +1352,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     }
 
     // Check if template has custom bubbleView
-    final templateKey = '${message.category}_${message.type}';
-    final template = _templateMap[templateKey];
+    final template = _resolveTemplate(message);
 
     Widget bubbleView;
     Widget overlayBubbleView;
@@ -1671,8 +1692,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   /// Get header view (sender name)
   Widget? _getHeaderView(
       BaseMessage message, CometChatMessageBubbleStyleData? bubbleStyleData) {
-    final templateKey = '${message.category}_${message.type}';
-    final template = _templateMap[templateKey];
+    final template = _resolveTemplate(message);
 
     if (template?.headerView != null) {
       return template!.headerView!(message, context, BubbleAlignment.left);
@@ -1936,8 +1956,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       );
     }
 
-    final templateKey = '${message.category}_${message.type}';
-    final template = _templateMap[templateKey];
+    final template = _resolveTemplate(message);
 
     if (template?.contentView != null) {
       // Use provided additionalConfigurations, or build one from textFormatters
@@ -1997,8 +2016,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       );
     }
 
-    final templateKey = '${message.category}_${message.type}';
-    final template = _templateMap[templateKey];
+    final template = _resolveTemplate(message);
 
     if (template?.contentView != null) {
       // Always create fresh formatters with message set for the overlay
@@ -2118,8 +2136,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     BubbleAlignment alignment,
     CometChatMessageBubbleStyleData? bubbleStyleData,
   ) {
-    final templateKey = '${message.category}_${message.type}';
-    final template = _templateMap[templateKey];
+    final template = _resolveTemplate(message);
 
     if (template?.footerView != null) {
       return template!.footerView!(message, context, alignment);
@@ -2276,8 +2293,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     BubbleAlignment alignment,
     CometChatMessageBubbleStyleData? bubbleStyleData,
   ) {
-    final templateKey = '${message.category}_${message.type}';
-    final template = _templateMap[templateKey];
+    final template = _resolveTemplate(message);
 
     if (template?.statusInfoView != null) {
       return template!.statusInfoView!(message, context, alignment);
@@ -2450,8 +2466,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           onTap: () {
             if (widget.onThreadRepliesClick != null) {
               widget.onThreadRepliesClick!(message, context,
-                  template:
-                      _templateMap['${message.category}_${message.type}']);
+                  template: _resolveTemplate(message));
             }
           },
           child: Padding(
@@ -2487,8 +2502,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   /// This avoids the shared formatter mutation issue where building overlay
   /// content eagerly during list build overwrites formatter.message for each message.
   Widget _buildOverlayBubble(BaseMessage message, BubbleAlignment alignment) {
-    final templateKey = '${message.category}_${message.type}';
-    final template = _templateMap[templateKey];
+    final template = _resolveTemplate(message);
 
     // If template has custom bubbleView, use it directly
     if (message.deletedAt == null && template?.bubbleView != null) {
@@ -2625,8 +2639,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     FocusManager.instance.primaryFocus?.unfocus();
 
     // Get action items from template
-    final templateKey = '${message.category}_${message.type}';
-    final template = _templateMap[templateKey];
+    final template = _resolveTemplate(message);
 
     List<ActionItem> actionItems = [];
     if (template?.options != null) {
@@ -2776,7 +2789,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
               debugPrint(
                   '[MessageList] Navigating to thread with templateKey: $templateKey');
               widget.onThreadRepliesClick!(message, context,
-                  template: _templateMap[templateKey]);
+                  template: _resolveTemplate(message));
             } else {
               debugPrint(
                   '[MessageList] Cannot navigate: onThreadRepliesClick=${widget.onThreadRepliesClick != null}, mounted=$mounted');
@@ -2994,8 +3007,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   /// Handle message information option
   void _handleMessageInformation(BaseMessage message) {
     if (!mounted) return;
-    final templateKey = '${message.category}_${message.type}';
-    final template = _templateMap[templateKey];
+    final template = _resolveTemplate(message);
     showMessageInformation(
       context: context,
       message: message,

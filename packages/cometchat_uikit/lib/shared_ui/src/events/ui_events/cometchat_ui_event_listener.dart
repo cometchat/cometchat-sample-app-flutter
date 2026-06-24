@@ -31,11 +31,19 @@ mixin CometChatUIEventListener implements UIEventHandler {
   /// Request the composer to focus its text field (opens OS keyboard)
   void requestComposerFocus(Map<String, dynamic>? id) {}
 
-  /// Notifies sibling components (e.g. Composer) that the MessageList has
-  /// resolved the parentMessageId for an AI agent chat thread.
+  /// Notifies sibling components that the MessageList has resolved the
+  /// parentMessageId for an AI agent chat thread.
   ///
   /// [receiverId] is the agent UID whose thread was resolved.
   /// [parentMessageId] is the resolved thread parent message ID.
   void ccAgentChatThreadResolved(
       {required String receiverId, required int parentMessageId}) {}
+
+  /// Called when a card action is triggered within a CometChatCardView renderer.
+  ///
+  /// [message] is the owning message (CardMessage for developer cards,
+  /// AIAssistantMessage for agent cards).
+  /// [action] is the raw renderer action event.
+  void ccCardActionClicked(
+      BaseMessage message, dynamic action) {}
 }

@@ -1,3 +1,20 @@
+# 6.0.4
+
+## New
+- Added `CometChatCardBubble` for rendering developer card messages (category `card`).
+- Added support for rendering agent card messages within the AI Assistant bubble.
+- Added streaming support for cards that arrive during a streamed agent response.
+- Added the `ccCardActionClicked` event, which forwards raw card actions to the app layer for both developer and agent cards.
+- Added `MessageCategoryConstants.card` for card messages.
+
+## Enhancements
+- Enhanced the AI Assistant bubble to render ordered text and card blocks, falling back to `getText()` for older messages.
+- Enhanced conversation previews for developer card messages to show `getText()` when available, or `Card Message` otherwise.
+- Updated developer card options to exclude `edit` and `copy`.
+
+## Fixes
+- None
+
 # 6.0.3
 
 ## New

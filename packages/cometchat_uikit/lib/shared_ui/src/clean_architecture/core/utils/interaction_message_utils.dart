@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import "package:cometchat_sdk/cometchat_sdk.dart";
+import "package:cometchat_sdk/cometchat_sdk.dart" hide CardMessage;
 
 // Import all necessary dependencies
 import '../constants/ui_kit_constants.dart';

@@ -13,6 +13,7 @@ import '../../extensions/polls/cometchat_polls_bubble.dart';
 import '../../extensions/stickers/cometchat_sticker_bubble.dart';
 import '../../extensions/collaborative/cometchat_collaborative_bubble.dart';
 import '../../extensions/link_preview/cometchat_link_preview_bubble.dart';
+import '../widgets/cometchat_card_bubble.dart';
 import '../../extensions/extension_moderator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -755,6 +756,7 @@ class MessageTemplateUtils {
       MessageTemplateUtils.getGroupActionTemplate(),
       MessageTemplateUtils.getFormMessageTemplate(),
       MessageTemplateUtils.getCardMessageTemplate(),
+      MessageTemplateUtils.getCardBubbleTemplate(),
       MessageTemplateUtils.getSchedulerMessageTemplate(),
       MessageTemplateUtils.getPollMessageTemplate(),
       MessageTemplateUtils.getStickerMessageTemplate(),
@@ -1090,6 +1092,7 @@ class MessageTemplateUtils {
       CometChatMessageCategory.action,
       CometChatMessageCategory.interactive,
       MessageCategoryConstants.custom,
+      MessageCategoryConstants.card,
       CometChatMessageCategory.categoryAgentic,
       CometChatMessageCategory.streamMessage,
     ];
@@ -1262,12 +1265,47 @@ class MessageTemplateUtils {
   }
 
 
-  static Widget getCardMessageBubble(
-      {CardBubbleStyle? cardBubbleStyle, required CardMessage message}) {
-    return CometChatCardBubble(
-      cardMessage: message,
-      loggedInUser: CometChatUIKit.loggedInUser,
+  /// Returns the template for developer card messages (category: "card").
+  ///
+  /// This is the NEW first-party card bubble (§2.9.7-A).
+  /// DO NOT confuse with [getCardMessageTemplate] below which is the
+  /// legacy interactive/card NOT_SUPPORTED stub (category: "interactive").
+  static CometChatMessageTemplate getCardBubbleTemplate() {
+    return CometChatMessageTemplate(
+      type: MessageTypeConstants.card,
+      category: MessageCategoryConstants.card,
+      contentView:
+          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
+              {AdditionalConfigurations? additionalConfigurations}) {
+        if (message.deletedAt != null) {
+          return getDeleteMessageBubble(
+              message, context, additionalConfigurations?.deletedBubbleStyle);
+        }
+
+        final cardMessage = message as CardMessage;
+        return CometChatCardBubble(
+          message: cardMessage,
+        );
+      },
+      options: getCardBubbleOptions,
     );
+  }
+
+  /// Options for developer card messages: text options minus edit and copy.
+  /// Preserves all conditional visibility logic (delete-only-for-own/admin, etc.)
+  static List<CometChatMessageOption> getCardBubbleOptions(
+      User loggedInUser,
+      BaseMessage messageObject,
+      BuildContext context,
+      Group? group,
+      AdditionalConfigurations? additionalConfigurations) {
+    // Get the full text options, then remove edit and copy
+    final textOptions = getTextMessageOptions(
+        loggedInUser, messageObject, context, group, additionalConfigurations);
+    textOptions.removeWhere((option) =>
+        option.id == MessageOptionConstants.editMessage ||
+        option.id == MessageOptionConstants.copyMessage);
+    return textOptions;
   }
 
 

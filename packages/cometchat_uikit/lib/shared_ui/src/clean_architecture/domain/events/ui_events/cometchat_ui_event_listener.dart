@@ -33,4 +33,12 @@ mixin CometChatUIEventListener implements UIEventHandler {
   /// [parentMessageId] is the resolved thread parent message ID.
   void ccAgentChatThreadResolved(
       {required String receiverId, required int parentMessageId}) {}
+
+  /// Called when a card action is triggered within a CometChatCardView renderer.
+  ///
+  /// [message] is the owning message (CardMessage for developer cards,
+  /// AIAssistantMessage for agent cards).
+  /// [action] is the raw renderer action event.
+  void ccCardActionClicked(
+      BaseMessage message, dynamic action) {}
 }

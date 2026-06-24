@@ -135,6 +135,9 @@ export 'src/clean_architecture/presentation/view_models/cometchat_details_contro
 // Export misc utilities (not duplicated in clean architecture)
 export 'src/misc/utils.dart';
 
+// Re-export cometchat_cards package (card renderer types for action handling)
+export 'package:cometchat_cards/cometchat_cards.dart';
+
 // Export utils that are not duplicated in clean architecture
 export 'src/utils/network_utils.dart';
 export 'src/utils/reply_utils.dart';

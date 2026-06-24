@@ -10,6 +10,8 @@ import '../utils/sdk_methods.dart' as LegacySDK;
 import '../utils/timezone_utils/data/latest.dart';
 import '../clean_architecture/core/constants/enums.dart' as CoreEnums;
 import '../constants/ui_kit_constants.dart' as ChatUIKitConstants;
+import '../clean_architecture/data/models/interactive_message/card_message.dart'
+    as legacy_card;
 
 
 class CometChatUIKit {
@@ -684,9 +686,9 @@ class CometChatUIKit {
   }
 
   ///[sendFormMessage] used to send a custom message
-  static Future<CardMessage?> sendCardMessage(
-    CardMessage message, {
-    dynamic Function(CardMessage)? onSuccess,
+  static Future<legacy_card.CardMessage?> sendCardMessage(
+    legacy_card.CardMessage message, {
+    dynamic Function(legacy_card.CardMessage)? onSuccess,
     dynamic Function(CometChatException)? onError,
   }) async {
     if (message.parentMessageId == -1) {
@@ -699,8 +701,8 @@ class CometChatUIKit {
     }
 
     CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.inProgress);
-    CardMessage? result = await LegacySDK.SDKMethods.sendCardMessage(message,
-        onSuccess: (CardMessage sentMessage) {
+    legacy_card.CardMessage? result = await LegacySDK.SDKMethods.sendCardMessage(message,
+        onSuccess: (legacy_card.CardMessage sentMessage) {
       //executing the custom onSuccess handler
       if (onSuccess != null) {
         try {

@@ -80,4 +80,15 @@ class CometChatUIEvents {
           receiverId: receiverId, parentMessageId: parentMessageId);
     });
   }
+
+  /// Emit when a card action is triggered within a CometChatCardView renderer.
+  ///
+  /// [message] is the owning message (CardMessage for developer cards,
+  /// AIAssistantMessage for agent cards).
+  /// [action] is the raw renderer action event (CometChatCardActionEvent).
+  static ccCardActionClicked(BaseMessage message, dynamic action) {
+    uiListener.forEach((key, value) {
+      value.ccCardActionClicked(message, action);
+    });
+  }
 }

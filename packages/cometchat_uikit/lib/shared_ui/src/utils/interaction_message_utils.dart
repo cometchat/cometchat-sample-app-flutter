@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 import '../../cometchat_uikit_shared.dart';
+import '../clean_architecture/data/models/interactive_message/card_message.dart'
+    as legacy;
+
 class InteractiveMessageUtils {
   static Future<void> markInteracted(BaseInteractiveElement interactiveElement,
       InteractiveMessage message, Map<String, bool?> interactionMap,
@@ -107,7 +110,7 @@ class InteractiveMessageUtils {
     if (message.type == MessageTypeConstants.form) {
       return FormMessage.fromInteractiveMessage(message);
     } else if (message.type == MessageTypeConstants.card) {
-      return CardMessage.fromInteractiveMessage(message);
+      return legacy.CardMessage.fromInteractiveMessage(message);
     } else if (message.type == MessageTypeConstants.customInteractive) {
       return CustomInteractiveMessage.fromInteractiveMessage(message);
     } else if (message.type == MessageTypeConstants.scheduler) {

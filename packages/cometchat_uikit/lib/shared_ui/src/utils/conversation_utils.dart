@@ -348,6 +348,12 @@ class ConversationUtils {
         // subtitle = getLastInteractiveMessage(conversation, context);
         subtitle = Translations.of(context).unsupportedMessageType;
         break;
+      case MessageCategoryConstants.card:
+        final cardMsg = conversation.lastMessage as CardMessage?;
+        subtitle = cardMsg?.getText()?.isNotEmpty == true
+            ? cardMsg!.getText()!
+            : Translations.of(context).cardMessage;
+        break;
       default:
         subtitle = conversation.lastMessage!.type;
         break;
