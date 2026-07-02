@@ -1258,6 +1258,8 @@ class TranslationsZh extends Translations {
 
   @override
   String get aiAgent => "AI代理人";
+  @override
+  String get aiAgentMessage => "AI代理消息";
 
   @override
   String get agents => "代理人";

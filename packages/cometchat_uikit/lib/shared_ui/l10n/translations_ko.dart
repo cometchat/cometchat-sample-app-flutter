@@ -1246,6 +1246,8 @@ class TranslationsKo extends Translations {
 
   @override
   String get aiAgent => "AI 에이전트";
+  @override
+  String get aiAgentMessage => "AI 에이전트 메시지";
 
   @override
   String get agents => "에이전트";

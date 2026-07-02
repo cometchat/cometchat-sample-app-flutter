@@ -1274,6 +1274,8 @@ class TranslationsSv extends Translations {
 
   @override
   String get aiAgent => "AI-agent";
+  @override
+  String get aiAgentMessage => "AI-agentmeddelande";
 
   @override
   String get agents => "Agenter";

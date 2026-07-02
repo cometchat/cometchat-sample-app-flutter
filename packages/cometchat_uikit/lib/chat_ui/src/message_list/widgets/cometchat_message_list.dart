@@ -1655,9 +1655,26 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     if (message.deletedAt != null) return false;
     if (message.category == MessageCategoryConstants.action) return false;
     if (message.category == MessageCategoryConstants.call) return false;
+    // Agent ("@agentic") messages cannot be swiped to reply. Covers both the
+    // 1:1 AI chat (whole conversation via [_isAIUser]) and agent messages
+    // inside a group (agentic category / sender role) — their reply
+    // context-menu option is already removed, so the swipe is suppressed to
+    // match (otherwise mobile users could still swipe-reply).
+    if (_isAgenticMessage(message)) return false;
     // Moderated (disapproved) messages cannot be replied to — v5 parity
     if (_isMessageModerated(message)) return false;
     return true;
+  }
+
+  /// Whether [message] is an AI agent ("@agentic") message — either because the
+  /// whole conversation is a 1:1 AI chat ([_isAIUser]), or because the message
+  /// itself is an agent reply (agentic category or sender role `@agentic`).
+  bool _isAgenticMessage(BaseMessage message) {
+    if (_isAIUser) return true;
+    if (message.category == CometChatMessageCategory.categoryAgentic) {
+      return true;
+    }
+    return message.sender?.role == AIConstants.aiRole;
   }
 
   /// Returns the "New Messages" indicator if this message is the unread anchor.
@@ -1741,6 +1758,14 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     final BaseMessage? quoted = message.quotedMessage;
     if (quoted == null) return null;
 
+    // Agent (agentic) replies show the quoted message they answered only in a
+    // group. In the 1:1 AI Assistant chat the quoted preview is stripped, so
+    // the reply context is hidden — matching the other UIKits.
+    if (message.category == CometChatMessageCategory.categoryAgentic &&
+        message.receiverType != ReceiverTypeConstants.group) {
+      return null;
+    }
+
     // Check if the quoted message has been deleted
     final bool isQuotedDeleted = quoted.deletedAt != null;
 
@@ -1771,6 +1796,17 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       final rawText = quoted.text;
       final formatters =
           FormatterUtils.ensureMarkdownFormatter(widget.textFormatters);
+      // Bind the formatters to the QUOTED message so mentions in the reply
+      // preview resolve to user names (<@uid:..> → @Name) using the quoted
+      // message's own mentionedUsers — not whichever message the shared
+      // formatter instance was last bound to while building the main bubble.
+      // Without this the reply shows the raw id until an unrelated rebuild
+      // (e.g. scrolling away and back) happens to leave the right message bound.
+      final previousFormatterMessages =
+          formatters.map((f) => f.message).toList();
+      for (final formatter in formatters) {
+        formatter.message = quoted;
+      }
       final isOutgoing = alignment == BubbleAlignment.right;
       final subtitleTextStyle = TextStyle(
         fontSize: _typography.caption1?.regular?.fontSize,
@@ -1795,6 +1831,11 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         ),
         textScaler: MediaQuery.textScalerOf(context),
       );
+      // Restore each formatter's previously-bound message so binding it to the
+      // quoted message above doesn't leak into the main bubble's rendering.
+      for (var i = 0; i < formatters.length; i++) {
+        formatters[i].message = previousFormatterMessages[i];
+      }
     }
 
     // Extract the replied message ID for jump-to functionality

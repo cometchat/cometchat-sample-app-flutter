@@ -354,6 +354,17 @@ class ConversationUtils {
             ? cardMsg!.getText()!
             : Translations.of(context).cardMessage;
         break;
+      case MessageCategoryConstants.agentic:
+        // Agent (agentic/assistant) last-message preview. The text lives on the
+        // AIAssistantMessage; fall back to a localized label when it's empty
+        // (previously fell through to the raw message type).
+        final agentMsg = conversation.lastMessage;
+        final agentText =
+            (agentMsg is AIAssistantMessage) ? (agentMsg.text ?? '') : '';
+        subtitle = agentText.isNotEmpty
+            ? agentText
+            : Translations.of(context).aiAgentMessage;
+        break;
       default:
         subtitle = conversation.lastMessage!.type;
         break;

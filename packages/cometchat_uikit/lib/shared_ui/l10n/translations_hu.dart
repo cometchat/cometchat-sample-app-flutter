@@ -1281,6 +1281,8 @@ class TranslationsHu extends Translations {
 
   @override
   String get aiAgent => "MI-ügynök";
+  @override
+  String get aiAgentMessage => "MI-ügynök üzenet";
 
   @override
   String get agents => "Ügynökök";

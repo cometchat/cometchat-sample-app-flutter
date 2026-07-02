@@ -1279,6 +1279,8 @@ class TranslationsTr extends Translations {
 
   @override
   String get aiAgent => "AI Ajan";
+  @override
+  String get aiAgentMessage => "AI Ajan mesajı";
 
   @override
   String get agents => "Ajanlar";

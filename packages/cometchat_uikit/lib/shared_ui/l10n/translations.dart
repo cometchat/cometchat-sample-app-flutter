@@ -2516,6 +2516,10 @@ abstract class Translations {
   String get aiAgent;
 
   ///In en, this translates to :
+  ///**'AI agent message'
+  String get aiAgentMessage;
+
+  ///In en, this translates to :
   ///**'Agents'
   String get agents;
 

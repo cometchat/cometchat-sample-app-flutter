@@ -1243,6 +1243,8 @@ class TranslationsJa extends Translations {
 
   @override
   String get aiAgent => "AIエージェント";
+  @override
+  String get aiAgentMessage => "AIエージェントメッセージ";
 
   @override
   String get agents => "エージェント";

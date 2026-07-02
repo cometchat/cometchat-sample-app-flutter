@@ -1289,6 +1289,8 @@ class TranslationsAr extends Translations {
 
   @override
   String get aiAgent => "وكيل الذكاء الاصطناعي";
+  @override
+  String get aiAgentMessage => "رسالة وكيل الذكاء الاصطناعي";
 
   @override
   String get agents => "وكلاء";

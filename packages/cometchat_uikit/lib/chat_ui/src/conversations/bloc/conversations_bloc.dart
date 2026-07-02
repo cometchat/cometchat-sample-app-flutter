@@ -1984,6 +1984,23 @@ class _ConversationMessageListener with MessageListener {
   }
 
   @override
+  void onAIAssistantMessageReceived(AIAssistantMessage aiAssistantMessage) {
+    // Agent (agentic/assistant) reply — update the conversation's last message
+    // and unread count in real time, like any other incoming message.
+    // Otherwise the subtitle only refreshes after a re-fetch.
+    onMessageReceivedCallback(aiAssistantMessage);
+  }
+
+  @override
+  void onCardMessageReceived(CardMessage cardMessage) {
+    // Developer card (category "card") — update the conversation's last message
+    // and unread count in real time, like any other incoming message.
+    // The SDK dispatches cards on a dedicated callback, so without this override
+    // the list only refreshes after a re-fetch.
+    onMessageReceivedCallback(cardMessage);
+  }
+
+  @override
   void onTypingStarted(TypingIndicator typingIndicator) {
     onTypingStartedCallback(typingIndicator);
   }

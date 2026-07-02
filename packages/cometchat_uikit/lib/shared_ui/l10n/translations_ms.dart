@@ -1280,6 +1280,8 @@ class TranslationsMs extends Translations {
 
   @override
   String get aiAgent => "Ejen AI";
+  @override
+  String get aiAgentMessage => "Mesej ejen AI";
 
   @override
   String get agents => "Ejen";

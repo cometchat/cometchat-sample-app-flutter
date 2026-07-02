@@ -3198,55 +3198,50 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
   // ============================================================================
 
   Widget _buildSuggestionList() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Dark scrim above the suggestion list
-        Expanded(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              _hideSuggestionOverlay();
-              _suggestions.clear();
-              _currentSearchKeyword = null;
-              _searchKeywordChanged = true;
-            },
-            child: Container(
-              color: Colors.black.withValues(alpha: 0.3),
-            ),
-          ),
-        ),
-        // Suggestion list
-        MessageComposerSuggestionList(
-          suggestions: _suggestions,
-          onItemTap: (item) {
-            if (item.onTap != null) {
-              item.onTap!();
-            }
-            _hideSuggestionOverlay();
-            _suggestions.clear();
-            _currentSearchKeyword = null;
-            _searchKeywordChanged = true;
-          },
-          onScrollToBottom: () {
-            final activeController = _getActiveTextController();
-            if (activeController == null) return;
-            for (var element in _formatters) {
-              if (_currentSearchKeyword != null &&
-                  _currentSearchKeyword!.isNotEmpty &&
-                  element.trackingCharacter == _currentSearchKeyword![0]) {
-                element.onScrollToBottom(activeController);
-              }
-            }
-          },
-          scrollController: _scrollController,
-          hasMore: _hasMore,
-          style: _suggestionListStyle,
-          colorPalette: _colorPalette,
-          spacing: _spacing,
-          typography: _typography,
-        ),
-      ],
+    // The suggestion list is rendered inline as the `composerPreview` panel
+    // inside the bottom composer Column (mainAxisSize.min), so it is laid out
+    // with an unbounded height. It therefore must NOT contain an `Expanded`
+    // child — doing so throws "RenderFlex children have non-zero flex but
+    // incoming height constraints are unbounded" in debug builds and silently
+    // collapses in release. Return the list directly so it shrink-wraps.
+    return MessageComposerSuggestionList(
+      suggestions: _suggestions,
+      onItemTap: (item) {
+        if (item.onTap != null) {
+          item.onTap!();
+        }
+        // Selecting a suggestion inserts the mention programmatically, which
+        // does NOT flow through the field's onChanged/_onTyping — so the
+        // formatter's previousText baseline is never synced here. Without this,
+        // the next keystroke diffs against a stale (shorter) baseline and the
+        // mentions formatter misreads the new "@" as a paste, suppressing the
+        // suggestion list after the first successful mention. (ENG-36741)
+        final activeController = _getActiveTextController();
+        if (activeController != null) {
+          _updatePreviousText(activeController.text);
+        }
+        _hideSuggestionOverlay();
+        _suggestions.clear();
+        _currentSearchKeyword = null;
+        _searchKeywordChanged = true;
+      },
+      onScrollToBottom: () {
+        final activeController = _getActiveTextController();
+        if (activeController == null) return;
+        for (var element in _formatters) {
+          if (_currentSearchKeyword != null &&
+              _currentSearchKeyword!.isNotEmpty &&
+              element.trackingCharacter == _currentSearchKeyword![0]) {
+            element.onScrollToBottom(activeController);
+          }
+        }
+      },
+      scrollController: _scrollController,
+      hasMore: _hasMore,
+      style: _suggestionListStyle,
+      colorPalette: _colorPalette,
+      spacing: _spacing,
+      typography: _typography,
     );
   }
 

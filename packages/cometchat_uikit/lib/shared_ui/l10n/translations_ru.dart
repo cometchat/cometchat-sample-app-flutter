@@ -1277,6 +1277,8 @@ class TranslationsRu extends Translations {
 
   @override
   String get aiAgent => "AI-агент";
+  @override
+  String get aiAgentMessage => "Сообщение AI-агента";
 
   @override
   String get agents => "Агенты";

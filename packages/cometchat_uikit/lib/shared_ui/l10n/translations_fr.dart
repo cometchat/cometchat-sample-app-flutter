@@ -1300,6 +1300,8 @@ class TranslationsFr extends Translations {
 
   @override
   String get aiAgent => "Agent IA";
+  @override
+  String get aiAgentMessage => "Message de l'agent IA";
 
   @override
   String get agents => "Agents";

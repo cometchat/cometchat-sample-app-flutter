@@ -1280,6 +1280,8 @@ class TranslationsPt extends Translations {
 
   @override
   String get aiAgent => "Agente de IA";
+  @override
+  String get aiAgentMessage => "Mensagem do agente de IA";
 
   @override
   String get agents => "Agentes";

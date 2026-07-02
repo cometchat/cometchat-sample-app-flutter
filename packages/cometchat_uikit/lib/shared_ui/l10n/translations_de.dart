@@ -1302,6 +1302,8 @@ class TranslationsDe extends Translations {
 
   @override
   String get aiAgent => "KI-Agent";
+  @override
+  String get aiAgentMessage => "KI-Agent-Nachricht";
 
   @override
   String get agents => "Agenten";

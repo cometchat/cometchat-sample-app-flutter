@@ -1296,6 +1296,8 @@ class TranslationsEs extends Translations {
 
   @override
   String get aiAgent => "Agente de IA";
+  @override
+  String get aiAgentMessage => "Mensaje del agente de IA";
 
   @override
   String get agents => "Agentes";

@@ -1282,6 +1282,8 @@ class TranslationsNl extends Translations {
 
   @override
   String get aiAgent => "AI-agent";
+  @override
+  String get aiAgentMessage => "AI-agentbericht";
 
   @override
   String get agents => "Agenten";

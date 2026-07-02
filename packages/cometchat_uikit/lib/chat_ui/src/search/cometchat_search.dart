@@ -725,10 +725,18 @@ class _CometChatSearchState extends State<CometChatSearch> {
 
     switch (message.type) {
       case MessageTypeConstants.text:
+        final textMessage = message as TextMessage;
+        // Resolve mention tags (<@uid:..>) to display names instead of showing
+        // the raw id — matching the conversation-list subtitle behaviour.
+        String textSubtitle = textMessage.text;
+        if (textMessage.mentionedUsers.isNotEmpty) {
+          textSubtitle = CometChatMentionsFormatter.getTextWithMentions(
+              textSubtitle, textMessage.mentionedUsers);
+        }
         return _buildSearchItem(
           message: message,
           title: conversationTitle,
-          subtitle: (message as TextMessage).text,
+          subtitle: textSubtitle,
           trailing: _buildMessageDate(message),
         );
 
@@ -824,6 +832,18 @@ class _CometChatSearchState extends State<CometChatSearch> {
               ),
             ),
           ),
+          trailing: _buildMessageDate(message),
+        );
+
+      case MessageTypeConstants.card:
+        final cardMsg = message as CardMessage?;
+        final cardText = cardMsg?.getText();
+        return _buildSearchItem(
+          message: message,
+          title: conversationTitle,
+          subtitle: cardText?.isNotEmpty == true
+              ? cardText!
+              : cc.Translations.of(context).cardMessage,
           trailing: _buildMessageDate(message),
         );
 

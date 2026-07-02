@@ -1,3 +1,15 @@
+# 6.0.5
+
+## New
+- Added support for AI agents in group conversations, `CometChatStreamBubble`, and native card message rendering with `CometChatCardBubble`.
+- Added card messages to search results, AI agents to the add-members picker, and a localized `aiAgentMessage` label.
+
+## Enhancements
+- Improved AI conversations with responsive card layouts, quoted replies, better card message search, refined chat history, and real-time conversation updates for card and agent replies.
+
+## Fixes
+- Fixed issues with @mention and AI suggestion lists not appearing or reappearing correctly.
+
 # 6.0.4
 
 ## New

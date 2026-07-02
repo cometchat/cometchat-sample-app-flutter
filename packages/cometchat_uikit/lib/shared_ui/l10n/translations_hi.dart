@@ -1293,6 +1293,8 @@ class TranslationsHi extends Translations {
 
   @override
   String get aiAgent => "एआई एजेंट";
+  @override
+  String get aiAgentMessage => "एआई एजेंट संदेश";
 
   @override
   String get agents => "एजेंट्स";

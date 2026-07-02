@@ -1281,6 +1281,8 @@ class TranslationsLt extends Translations {
 
   @override
   String get aiAgent => "DI agentas";
+  @override
+  String get aiAgentMessage => "DI agento žinutė";
 
   @override
   String get agents => "Agentai";

@@ -513,12 +513,20 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
 
     if (messagesRequestBuilder == null && filters.isEmpty) {
+      // Include the card category/type so card messages are searchable. The
+      // categories must be set explicitly — otherwise the SDK defaults to the
+      // `message` category and card messages are excluded.
+      builder.categories = [
+        MessageCategoryConstants.message,
+        MessageCategoryConstants.card,
+      ];
       builder.types = [
         MessageTypeConstants.text,
         MessageTypeConstants.image,
         MessageTypeConstants.video,
         MessageTypeConstants.audio,
         MessageTypeConstants.file,
+        MessageTypeConstants.card,
       ];
     }
 
