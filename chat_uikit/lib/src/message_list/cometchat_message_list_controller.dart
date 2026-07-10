@@ -2646,7 +2646,11 @@ class CometChatMessageListController
       ),
       onCancel: () {
         FocusScope.of(context).unfocus();
-        Navigator.pop(context);
+        // Dismiss the dialog on the navigator it was shown on. showDialog defaults to
+        // the root navigator, so a plain Navigator.pop(context) would pop the nearest
+        // navigator instead - which pops the chat screen (not the dialog) when the
+        // screen is hosted inside a nested Navigator.
+        Navigator.of(context, rootNavigator: true).pop();
       },
       style: CometChatConfirmDialogStyle(
         iconColor: colorPalette.error,
@@ -2681,7 +2685,10 @@ class CometChatMessageListController
         if (message.deletedAt == null) {
           CometChatMessageEvents.ccMessageDeleted(
               message, EventStatus.inProgress);
-          Navigator.pop(context);
+          // Dismiss the confirm dialog on the root navigator (where showDialog placed
+          // it), not the nearest one - otherwise a nested Navigator setup pops the
+          // chat screen instead of the dialog.
+          Navigator.of(context, rootNavigator: true).pop();
           deleteMessage(message);
         }
       },

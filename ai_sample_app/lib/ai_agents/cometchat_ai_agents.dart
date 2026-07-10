@@ -226,7 +226,7 @@ class _CometChatAIAssistantChatState extends State<CometChatAIAssistantChat> {
                     child: Padding(
                       padding: EdgeInsets.all(spacing.padding4 ?? 0),
                       child: Text(
-                        "V5.2.1",
+                        "V5.2.17",
                         style: TextStyle(
                           fontSize: typography.body?.regular?.fontSize,
                           fontFamily: typography.body?.regular?.fontFamily,
