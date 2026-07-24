@@ -29,7 +29,8 @@ import 'package:flutter/widgets.dart';
 ///   }
 /// }
 /// ```
-mixin KeyboardMixin<T extends StatefulWidget> on State<T>, WidgetsBindingObserver {
+mixin KeyboardMixin<T extends StatefulWidget>
+    on State<T>, WidgetsBindingObserver {
   /// Timer for debouncing keyboard height changes
   Timer? _keyboardDebounceTimer;
 

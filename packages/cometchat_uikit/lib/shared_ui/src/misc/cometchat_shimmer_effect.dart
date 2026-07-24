@@ -1,14 +1,13 @@
 import '../../../shared_ui/cometchat_uikit_shared.dart';
 import 'package:flutter/material.dart';
 
-
 class CometChatShimmerEffect extends StatefulWidget {
   const CometChatShimmerEffect({
-    Key? key,
+    super.key,
     required this.child,
     this.linearGradient,
     this.colorPalette,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final LinearGradient? linearGradient;

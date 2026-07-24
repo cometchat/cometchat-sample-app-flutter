@@ -41,7 +41,8 @@ class InlineCodeFormatterDataSource implements FormatterDataSource {
     if (selection.isCollapsed) {
       // No selection - insert placeholder with markers
       final insertText = '$openingMarker$placeholderText$closingMarker';
-      final newText = text.substring(0, selection.start) +
+      final newText =
+          text.substring(0, selection.start) +
           insertText +
           text.substring(selection.end);
 
@@ -58,7 +59,9 @@ class InlineCodeFormatterDataSource implements FormatterDataSource {
       // Check if selection is already wrapped with inline code markers
       final beforeSelection = selection.start >= openingMarker.length
           ? text.substring(
-              selection.start - openingMarker.length, selection.start)
+              selection.start - openingMarker.length,
+              selection.start,
+            )
           : '';
       final afterSelection = selection.end + closingMarker.length <= text.length
           ? text.substring(selection.end, selection.end + closingMarker.length)
@@ -66,7 +69,8 @@ class InlineCodeFormatterDataSource implements FormatterDataSource {
 
       if (beforeSelection == openingMarker && afterSelection == closingMarker) {
         // Remove inline code markers (toggle off)
-        final newText = text.substring(0, selection.start - openingMarker.length) +
+        final newText =
+            text.substring(0, selection.start - openingMarker.length) +
             text.substring(selection.start, selection.end) +
             text.substring(selection.end + closingMarker.length);
 
@@ -81,7 +85,8 @@ class InlineCodeFormatterDataSource implements FormatterDataSource {
         // Wrap selected text with inline code markers
         final selectedText = text.substring(selection.start, selection.end);
         final wrappedText = '$openingMarker$selectedText$closingMarker';
-        final newText = text.substring(0, selection.start) +
+        final newText =
+            text.substring(0, selection.start) +
             wrappedText +
             text.substring(selection.end);
 
@@ -125,9 +130,7 @@ class InlineCodeFormatterDataSource implements FormatterDataSource {
         AttributedTextData(
           start: match.start,
           end: match.end,
-          attributes: {
-            'inlineCode': true,
-          },
+          attributes: {'inlineCode': true},
         ),
       );
     }

@@ -26,22 +26,22 @@ class GetMenuView extends StatelessWidget {
         horizontal: spacing.padding4 ?? 0,
         vertical: spacing.padding4 ?? 0,
       ),
-      decoration: BoxDecoration(
-        color: colorPalette.background1,
-      ),
+      decoration: BoxDecoration(color: colorPalette.background1),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-              Padding(
-                padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
-                child: option.iconWidget ?? Image.asset(
+          Padding(
+            padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
+            child:
+                option.iconWidget ??
+                Image.asset(
                   option.icon ?? "",
                   package: option.packageName ?? UIConstants.packageName,
                   color: iconTint ?? option.iconTint ?? colorPalette.error,
                   height: 24,
                   width: 24,
                 ),
-              ),
+          ),
           Expanded(
             child: Text(
               option.title ?? "",

@@ -2,6 +2,7 @@ package com.cometchat.cometchat_chat_uikit
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -40,13 +41,17 @@ class CometchatChatUikitPlugin :
     FlutterPlugin,
     MethodChannel.MethodCallHandler,
     ActivityAware,
-    PluginRegistry.RequestPermissionsResultListener {
+    PluginRegistry.RequestPermissionsResultListener,
+    PluginRegistry.ActivityResultListener {
 
     companion object {
         private const val CHANNEL = "cometchat_chat_uikit"
         private const val KEYBOARD_HEIGHT_CHANNEL = "com.cometchat.keyboard_height_channel"
         private const val REQ_CAMERA = 201
         private const val REQ_AUDIO_RECORD = AudioRecorder.REQ_AUDIO_RECORD
+        // SAF "Save as" (ACTION_CREATE_DOCUMENT) request code — distinct from the
+        // file picker's 64213 and the permission codes above.
+        private const val REQ_SAVE_DOCUMENT = 64301
     }
 
     private lateinit var channel: MethodChannel
@@ -56,6 +61,12 @@ class CometchatChatUikitPlugin :
     private var filePickerDelegate: CometChatFilePickerDelegate? = null
     private var cameraPermissionResult: MethodChannel.Result? = null
     private var audioRecordPermissionResult: MethodChannel.Result? = null
+
+    // In-flight "Save as" (SAF) state — the pending Flutter result plus the
+    // source to stream into the location the user picks.
+    private var pendingSaveResult: MethodChannel.Result? = null
+    private var pendingSaveUrl: String? = null
+    private var pendingSaveLocalPath: String? = null
     
     // Keyboard height tracking
     private var keyboardHeightEventChannel: EventChannel? = null
@@ -106,6 +117,7 @@ class CometchatChatUikitPlugin :
 
         filePickerDelegate = CometChatFilePickerDelegate(activity)
         binding.addActivityResultListener(filePickerDelegate!!)
+        binding.addActivityResultListener(this)
         binding.addRequestPermissionsResultListener(filePickerDelegate!!)
         binding.addRequestPermissionsResultListener(this)
     }
@@ -252,6 +264,33 @@ class CometchatChatUikitPlugin :
                 )
             }
 
+            // 📋 CLIPBOARD IMAGE (paste)
+            "getClipboardImage" ->
+                result.success(getClipboardImage())
+
+            // 💾 PUBLISH A DOWNLOAD TO THE USER-VISIBLE Downloads FOLDER
+            "saveToDownloads" -> {
+                val args = call.arguments as HashMap<*, *>
+                result.success(
+                    saveToDownloads(
+                        args["path"] as String,
+                        args["fileName"] as String
+                    )
+                )
+            }
+
+            // 💾 SAVE AS — SAF location picker, streams the file to the chosen spot
+            "saveFileWithPicker" -> {
+                val args = call.arguments as HashMap<*, *>
+                saveFileWithPicker(
+                    args["url"] as? String,
+                    args["fileName"] as? String,
+                    args["mimeType"] as? String,
+                    args["path"] as? String,
+                    result
+                )
+            }
+
             // 📂 OPEN FILE
             "open_file" ->
                 OpenFile.openFile(call, result, context, activity)
@@ -275,6 +314,209 @@ class CometchatChatUikitPlugin :
     // ----------------------------------------------------------
     // HELPERS
     // ----------------------------------------------------------
+
+    /**
+     * Reads a file off the system clipboard (e.g. one copied from the Files
+     * app or another app) — image, video, audio OR document. Clipboard files
+     * arrive as a `content://` URI, so we resolve the real MIME type, the
+     * display name, and stream the bytes via [ContentResolver]. Returns
+     * `{ "bytes": ByteArray, "mimeType": String, "fileName": String? }` or null
+     * when the clipboard holds no file.
+     */
+    /**
+     * Publishes an already-downloaded file into the user's **Downloads**
+     * collection and returns a human-readable location, or null on failure
+     * (the caller then keeps the app-local copy).
+     *
+     * On API 29+ this goes through MediaStore, the only way to write a
+     * user-visible folder without storage permissions under scoped storage.
+     * Below 29 it copies into the public Downloads directory directly, which
+     * is what WRITE_EXTERNAL_STORAGE covers on those releases.
+     *
+     * Without this the file only ever reached app-scoped external storage
+     * (Android/data/<pkg>/files) — written successfully but invisible to the
+     * user, which reads as "download didn't work".
+     */
+    private fun saveToDownloads(path: String, fileName: String): String? {
+        return try {
+            val source = File(path)
+            if (!source.exists()) return null
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val values = ContentValues().apply {
+                    put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                    put(MediaStore.Downloads.IS_PENDING, 1)
+                }
+                val resolver = context.contentResolver
+                val uri = resolver.insert(
+                    MediaStore.Downloads.EXTERNAL_CONTENT_URI, values
+                ) ?: return null
+                resolver.openOutputStream(uri)?.use { out ->
+                    source.inputStream().use { it.copyTo(out) }
+                } ?: return null
+                values.clear()
+                values.put(MediaStore.Downloads.IS_PENDING, 0)
+                resolver.update(uri, values, null, null)
+                "Downloads/$fileName"
+            } else {
+                val downloads = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS
+                )
+                if (!downloads.exists()) downloads.mkdirs()
+                val target = File(downloads, fileName)
+                source.inputStream().use { input ->
+                    FileOutputStream(target).use { input.copyTo(it) }
+                }
+                target.absolutePath
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("CometChatUIKit", "saveToDownloads failed: ${e.message}")
+            null
+        }
+    }
+
+    /**
+     * "Save as" — launches the system location picker
+     * ([Intent.ACTION_CREATE_DOCUMENT]) so the user chooses where the file
+     * lands. The chosen destination arrives in [onActivityResult], where the
+     * bytes are streamed in (from the cached [localPath] if present, else
+     * downloaded from [url]). Result to Flutter: the destination URI string on
+     * success, or null on cancel/failure.
+     */
+    private fun saveFileWithPicker(
+        url: String?,
+        fileName: String?,
+        mimeType: String?,
+        localPath: String?,
+        result: MethodChannel.Result
+    ) {
+        if (!::activity.isInitialized) {
+            result.error("NO_ACTIVITY", "Plugin not attached to activity", null)
+            return
+        }
+        if (url.isNullOrEmpty() && localPath.isNullOrEmpty()) {
+            result.success(null)
+            return
+        }
+        // Only one save-as at a time — release any previous pending one.
+        pendingSaveResult?.success(null)
+        pendingSaveResult = result
+        pendingSaveUrl = url
+        pendingSaveLocalPath = localPath
+        try {
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = if (!mimeType.isNullOrEmpty()) mimeType else "*/*"
+                putExtra(Intent.EXTRA_TITLE, fileName ?: "download")
+            }
+            activity.startActivityForResult(intent, REQ_SAVE_DOCUMENT)
+        } catch (e: Exception) {
+            pendingSaveResult = null
+            pendingSaveUrl = null
+            pendingSaveLocalPath = null
+            result.error("SAVE_PICKER_FAILED", e.message, null)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        if (requestCode != REQ_SAVE_DOCUMENT) return false
+        val result = pendingSaveResult
+        val url = pendingSaveUrl
+        val localPath = pendingSaveLocalPath
+        pendingSaveResult = null
+        pendingSaveUrl = null
+        pendingSaveLocalPath = null
+        if (result == null) return true
+
+        val destUri = if (resultCode == Activity.RESULT_OK) data?.data else null
+        if (destUri == null) {
+            // User cancelled the picker.
+            result.success(null)
+            return true
+        }
+
+        // Stream the bytes off the main thread, then answer Flutter on it.
+        Thread {
+            var ok = false
+            try {
+                context.contentResolver.openOutputStream(destUri)?.use { out ->
+                    val local = if (!localPath.isNullOrEmpty()) File(localPath) else null
+                    if (local != null && local.exists()) {
+                        local.inputStream().use { it.copyTo(out) }
+                        ok = true
+                    } else if (!url.isNullOrEmpty()) {
+                        val conn = URL(url).openConnection() as HttpURLConnection
+                        try {
+                            conn.connect()
+                            if (conn.responseCode == HttpURLConnection.HTTP_OK) {
+                                conn.inputStream.use { it.copyTo(out) }
+                                ok = true
+                            }
+                        } finally {
+                            conn.disconnect()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("CometChatUIKit", "saveFileWithPicker write failed: ${e.message}")
+                ok = false
+            }
+            val fok = ok
+            Handler(Looper.getMainLooper()).post {
+                result.success(if (fok) destUri.toString() else null)
+            }
+        }.start()
+        return true
+    }
+
+    private fun getClipboardImage(): Map<String, Any>? {
+        return try {
+            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE)
+                as? android.content.ClipboardManager ?: return null
+            if (!clipboard.hasPrimaryClip()) return null
+            val clip = clipboard.primaryClip ?: return null
+            val resolver = context.contentResolver
+            for (i in 0 until clip.itemCount) {
+                val uri = clip.getItemAt(i).uri ?: continue
+                // Accept any file type, not just images.
+                val mime = resolver.getType(uri) ?: continue
+                val bytes = resolver.openInputStream(uri)?.use { it.readBytes() }
+                    ?: continue
+                if (bytes.isEmpty()) continue
+                val map = HashMap<String, Any>()
+                map["bytes"] = bytes
+                map["mimeType"] = mime
+                queryClipboardDisplayName(resolver, uri)?.let {
+                    map["fileName"] = it
+                }
+                return map
+            }
+            null
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /** The clipboard file's original display name, when the provider exposes it. */
+    private fun queryClipboardDisplayName(
+        resolver: android.content.ContentResolver,
+        uri: android.net.Uri
+    ): String? = try {
+        resolver.query(
+            uri,
+            arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
+            null, null, null
+        )?.use { c ->
+            if (c.moveToFirst()) {
+                val idx = c.getColumnIndex(
+                    android.provider.OpenableColumns.DISPLAY_NAME
+                )
+                if (idx >= 0) c.getString(idx) else null
+            } else null
+        }
+    } catch (e: Exception) {
+        null
+    }
 
     private fun clearCache(): Boolean =
         try {

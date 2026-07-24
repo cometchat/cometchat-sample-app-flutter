@@ -60,10 +60,7 @@ class MessageListError extends MessageListState {
   final Failure failure;
   final List<MessageEntity>? cachedMessages;
 
-  const MessageListError({
-    required this.failure,
-    this.cachedMessages,
-  });
+  const MessageListError({required this.failure, this.cachedMessages});
 
   @override
   List<Object?> get props => [failure, cachedMessages];
@@ -95,10 +92,7 @@ class MessageListSearching extends MessageListState {
   final String query;
   final List<MessageEntity>? previousMessages;
 
-  const MessageListSearching({
-    required this.query,
-    this.previousMessages,
-  });
+  const MessageListSearching({required this.query, this.previousMessages});
 
   @override
   List<Object?> get props => [query, previousMessages];

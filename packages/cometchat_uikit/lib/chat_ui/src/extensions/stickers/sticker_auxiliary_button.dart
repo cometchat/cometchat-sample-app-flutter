@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../cometchat_chat_uikit.dart';
 
-///[StickerAuxiliaryButton] is the widget that represents the [StickersExtension]
+///[StickerAuxiliaryButton] is the widget that represents the `StickersExtension`
 ///in the auxiliary button view of the [CometChatMessageComposer].
 ///
 ///Always shows the sticker icon. When the sticker panel is open the icon is
@@ -51,6 +51,7 @@ class _StickerAuxiliaryButtonState extends State<StickerAuxiliaryButton>
   late CometChatSpacing spacing;
   bool _themeInitialized = false;
   Brightness? _cachedBrightness;
+  @override
   void initState() {
     super.initState();
     _listenerId = "StickerAuxiliaryButtonListener";
@@ -77,7 +78,8 @@ class _StickerAuxiliaryButtonState extends State<StickerAuxiliaryButton>
   void didChangeDependencies() {
     super.didChangeDependencies();
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
     _cachedBrightness = currentBrightness;
     _themeInitialized = true;
@@ -93,7 +95,8 @@ class _StickerAuxiliaryButtonState extends State<StickerAuxiliaryButton>
         widget.keyboardIconTint ?? colorPalette.primary ?? Colors.purple;
 
     // Outlined icon when inactive, filled icon when active
-    final Widget icon = widget.stickerButtonIcon ??
+    final Widget icon =
+        widget.stickerButtonIcon ??
         Image.asset(
           _isStickerPanelClosed
               ? AssetConstants.smile

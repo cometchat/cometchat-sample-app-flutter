@@ -127,8 +127,9 @@ class CometChatConfirmDialog {
   void show() {
     final confirmDialogStyle =
         CometChatThemeHelper.getTheme<CometChatConfirmDialogStyle>(
-                context: context, defaultTheme: CometChatConfirmDialogStyle.of)
-            .merge(style);
+          context: context,
+          defaultTheme: CometChatConfirmDialogStyle.of,
+        ).merge(style);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
     final typography = CometChatThemeHelper.getTypography(context);
@@ -140,44 +141,45 @@ class CometChatConfirmDialog {
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            side: confirmDialogStyle.border ??
+            side:
+                confirmDialogStyle.border ??
                 BorderSide(
                   color: colorPalette.borderLight ?? Colors.transparent,
                   width: 1,
                 ),
-            borderRadius: confirmDialogStyle.borderRadius ??
-                BorderRadius.all(
-                  Radius.circular(
-                    spacing.radius4 ?? 0,
-                  ),
-                ),
+            borderRadius:
+                confirmDialogStyle.borderRadius ??
+                BorderRadius.all(Radius.circular(spacing.radius4 ?? 0)),
           ),
           backgroundColor:
               confirmDialogStyle.backgroundColor ?? colorPalette.background1,
-          insetPadding: intentPadding ??
-              EdgeInsets.symmetric(
-                horizontal: spacing.padding2 ?? 0,
-              ),
-          titlePadding: titlePadding ??
+          insetPadding:
+              intentPadding ??
+              EdgeInsets.symmetric(horizontal: spacing.padding2 ?? 0),
+          titlePadding:
+              titlePadding ??
               EdgeInsets.only(
                 left: spacing.padding6 ?? 0,
                 right: spacing.padding6 ?? 0,
                 bottom: spacing.padding2 ?? 0,
               ),
-          contentPadding: contentPadding ??
+          contentPadding:
+              contentPadding ??
               EdgeInsets.only(
                 left: spacing.padding6 ?? 0,
                 right: spacing.padding6 ?? 0,
                 bottom: spacing.padding3 ?? 0,
               ),
-          iconPadding: iconPadding ??
+          iconPadding:
+              iconPadding ??
               EdgeInsets.only(
                 left: spacing.padding6 ?? 0,
                 right: spacing.padding6 ?? 0,
                 top: spacing.padding6 ?? 0,
                 bottom: spacing.padding3 ?? 0,
               ),
-          actionsPadding: actionsPadding ??
+          actionsPadding:
+              actionsPadding ??
               EdgeInsets.only(
                 left: spacing.padding6 ?? 0,
                 right: spacing.padding6 ?? 0,
@@ -188,11 +190,13 @@ class CometChatConfirmDialog {
                   height: 80,
                   width: 80,
                   decoration: BoxDecoration(
-                    color: confirmDialogStyle.iconBackgroundColor ??
+                    color:
+                        confirmDialogStyle.iconBackgroundColor ??
                         colorPalette.background2,
                     shape: BoxShape.circle,
                   ),
-                  child: icon ??
+                  child:
+                      icon ??
                       Icon(
                         Icons.block,
                         color:
@@ -201,37 +205,31 @@ class CometChatConfirmDialog {
                       ),
                 )
               : const SizedBox(),
-          title: title ??
-              const Text(
-                "Block this contact?",
-              ),
-          titleTextStyle: TextStyle(
-            fontSize: typography.heading2?.medium?.fontSize,
-            fontWeight: typography.heading2?.medium?.fontWeight,
-            fontFamily: typography.heading2?.medium?.fontFamily,
-            color:
-                confirmDialogStyle.titleTextColor ?? colorPalette.textPrimary,
-          )
-              .merge(
-                confirmDialogStyle.titleTextStyle,
-              )
-              .copyWith(
-                color: confirmDialogStyle.titleTextColor,
-              ),
-          contentTextStyle: TextStyle(
-            fontSize: typography.body?.regular?.fontSize,
-            fontWeight: typography.body?.regular?.fontWeight,
-            fontFamily: typography.body?.regular?.fontFamily,
-            color: confirmDialogStyle.messageTextColor ??
-                colorPalette.textSecondary,
-          )
-              .merge(
-                confirmDialogStyle.messageTextStyle,
-              )
-              .copyWith(
-                color: confirmDialogStyle.messageTextColor,
-              ),
-          content: messageText ??
+          title: title ?? const Text("Block this contact?"),
+          titleTextStyle:
+              TextStyle(
+                    fontSize: typography.heading2?.medium?.fontSize,
+                    fontWeight: typography.heading2?.medium?.fontWeight,
+                    fontFamily: typography.heading2?.medium?.fontFamily,
+                    color:
+                        confirmDialogStyle.titleTextColor ??
+                        colorPalette.textPrimary,
+                  )
+                  .merge(confirmDialogStyle.titleTextStyle)
+                  .copyWith(color: confirmDialogStyle.titleTextColor),
+          contentTextStyle:
+              TextStyle(
+                    fontSize: typography.body?.regular?.fontSize,
+                    fontWeight: typography.body?.regular?.fontWeight,
+                    fontFamily: typography.body?.regular?.fontFamily,
+                    color:
+                        confirmDialogStyle.messageTextColor ??
+                        colorPalette.textSecondary,
+                  )
+                  .merge(confirmDialogStyle.messageTextStyle)
+                  .copyWith(color: confirmDialogStyle.messageTextColor),
+          content:
+              messageText ??
               const Text(
                 "Are you sure you want to block this contact? You won’t receive messages from them anymore.",
                 textAlign: TextAlign.center,
@@ -239,18 +237,14 @@ class CometChatConfirmDialog {
           actionsAlignment: MainAxisAlignment.center,
           actions: [
             Padding(
-              padding: EdgeInsets.symmetric(
-                vertical: spacing.margin3 ?? 0,
-              ),
+              padding: EdgeInsets.symmetric(vertical: spacing.margin3 ?? 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (cancelButtonText != null)
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsets.only(
-                          right: spacing.padding2 ?? 0,
-                        ),
+                        padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
                         child: TextButton(
                           onPressed: onCancel != null
                               ? () => onCancel!(context)
@@ -263,7 +257,8 @@ class CometChatConfirmDialog {
                             ),
                             side: WidgetStateProperty.all(
                               BorderSide(
-                                color: colorPalette.borderDark ??
+                                color:
+                                    colorPalette.borderDark ??
                                     Colors.transparent,
                                 width: 1,
                               ),
@@ -271,38 +266,48 @@ class CometChatConfirmDialog {
                             shape: WidgetStateProperty.all(
                               RoundedRectangleBorder(
                                 side: BorderSide(
-                                  color: colorPalette.borderDark ??
+                                  color:
+                                      colorPalette.borderDark ??
                                       Colors.transparent,
                                   width: 1,
                                 ),
                                 borderRadius: BorderRadius.all(
-                                  Radius.circular(
-                                    spacing.radius2 ?? 0,
-                                  ),
+                                  Radius.circular(spacing.radius2 ?? 0),
                                 ),
                               ),
                             ),
                           ),
-                          child: cancelButtonTextWidget ??
+                          child:
+                              cancelButtonTextWidget ??
                               Text(
                                 cancelButtonText ?? "",
-                                style: TextStyle(
-                                  fontSize: typography.button?.medium?.fontSize,
-                                  fontWeight:
-                                      typography.button?.medium?.fontWeight,
-                                  fontFamily:
-                                      typography.button?.medium?.fontFamily,
-                                  color: confirmDialogStyle
-                                          .cancelButtonTextColor ??
-                                      colorPalette.textPrimary,
-                                )
-                                    .merge(
-                                      confirmDialogStyle.cancelButtonTextStyle,
-                                    )
-                                    .copyWith(
-                                      color: confirmDialogStyle
-                                          .cancelButtonTextColor,
-                                    ),
+                                style:
+                                    TextStyle(
+                                          fontSize: typography
+                                              .button
+                                              ?.medium
+                                              ?.fontSize,
+                                          fontWeight: typography
+                                              .button
+                                              ?.medium
+                                              ?.fontWeight,
+                                          fontFamily: typography
+                                              .button
+                                              ?.medium
+                                              ?.fontFamily,
+                                          color:
+                                              confirmDialogStyle
+                                                  .cancelButtonTextColor ??
+                                              colorPalette.textPrimary,
+                                        )
+                                        .merge(
+                                          confirmDialogStyle
+                                              .cancelButtonTextStyle,
+                                        )
+                                        .copyWith(
+                                          color: confirmDialogStyle
+                                              .cancelButtonTextColor,
+                                        ),
                               ),
                         ),
                       ),
@@ -329,38 +334,46 @@ class CometChatConfirmDialog {
                           shape: WidgetStateProperty.all(
                             RoundedRectangleBorder(
                               side: BorderSide(
-                                color: colorPalette.borderDark ??
+                                color:
+                                    colorPalette.borderDark ??
                                     Colors.transparent,
                                 width: 0,
                               ),
                               borderRadius: BorderRadius.all(
-                                Radius.circular(
-                                  spacing.radius2 ?? 0,
-                                ),
+                                Radius.circular(spacing.radius2 ?? 0),
                               ),
                             ),
                           ),
                         ),
-                        child: confirmButtonTextWidget ??
+                        child:
+                            confirmButtonTextWidget ??
                             Text(
                               confirmButtonText!,
-                              style: TextStyle(
-                                fontSize: typography.button?.medium?.fontSize,
-                                fontWeight:
-                                    typography.button?.medium?.fontWeight,
-                                fontFamily:
-                                    typography.button?.medium?.fontFamily,
-                                color:
-                                    confirmDialogStyle.confirmButtonTextColor ??
-                                        colorPalette.textPrimary,
-                              )
-                                  .merge(
-                                    confirmDialogStyle.confirmButtonTextStyle,
-                                  )
-                                  .copyWith(
-                                    color: confirmDialogStyle
-                                        .confirmButtonTextColor,
-                                  ),
+                              style:
+                                  TextStyle(
+                                        fontSize:
+                                            typography.button?.medium?.fontSize,
+                                        fontWeight: typography
+                                            .button
+                                            ?.medium
+                                            ?.fontWeight,
+                                        fontFamily: typography
+                                            .button
+                                            ?.medium
+                                            ?.fontFamily,
+                                        color:
+                                            confirmDialogStyle
+                                                .confirmButtonTextColor ??
+                                            colorPalette.textPrimary,
+                                      )
+                                      .merge(
+                                        confirmDialogStyle
+                                            .confirmButtonTextStyle,
+                                      )
+                                      .copyWith(
+                                        color: confirmDialogStyle
+                                            .confirmButtonTextColor,
+                                      ),
                             ),
                       ),
                     ),

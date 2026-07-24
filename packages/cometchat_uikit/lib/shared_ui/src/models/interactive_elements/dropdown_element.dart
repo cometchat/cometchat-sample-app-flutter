@@ -1,17 +1,22 @@
-import '../../../cometchat_uikit_shared.dart' hide BaseInputElement, DropdownElement, ElementEntity, BaseInteractiveElement;
+import '../../../cometchat_uikit_shared.dart'
+    hide
+        BaseInputElement,
+        DropdownElement,
+        ElementEntity,
+        BaseInteractiveElement;
 import 'base_input_element.dart';
 
 /// Represents a dropdown model class , used to draw dropdown .
 class DropdownElement extends BaseInputElement<String> {
-  DropdownElement(
-      {super.elementType = UIElementTypeConstants.dropdown,
-      required super.elementId,
-      required this.label,
-      required this.options,
-      super.response,
-      super.defaultValue,
-      bool? optional})
-      : super(optional: optional ?? true);
+  DropdownElement({
+    super.elementType = UIElementTypeConstants.dropdown,
+    required super.elementId,
+    required this.label,
+    required this.options,
+    super.response,
+    super.defaultValue,
+    bool? optional,
+  }) : super(optional: optional ?? true);
 
   String label;
   List<OptionElement> options;
@@ -20,8 +25,9 @@ class DropdownElement extends BaseInputElement<String> {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = super.toMap();
     map[ModelFieldConstants.label] = label;
-    map[ModelFieldConstants.options] =
-        options.map((option) => option.toMap()).toList();
+    map[ModelFieldConstants.options] = options
+        .map((option) => option.toMap())
+        .toList();
     // map[ModelColumns.response] = response;
     return map;
   }

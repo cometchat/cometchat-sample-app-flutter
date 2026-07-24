@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Exception thrown when local data source operations fail
 class UsersLocalDataSourceException implements Exception {

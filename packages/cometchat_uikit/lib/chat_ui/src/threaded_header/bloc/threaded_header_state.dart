@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Status enum for threaded header state
 enum ThreadedHeaderStatus {
@@ -78,12 +78,12 @@ class ThreadedHeaderState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        parentMessage,
-        replyCount,
-        loggedInUser,
-        user,
-        group,
-        errorMessage,
-      ];
+    status,
+    parentMessage,
+    replyCount,
+    loggedInUser,
+    user,
+    group,
+    errorMessage,
+  ];
 }

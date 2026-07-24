@@ -11,7 +11,8 @@ import '../../../../../chat_ui/src/conversations/di/conversations_service_locato
 /// Service Locator for clean architecture dependency injection
 
 class SharedUiServiceLocator {
-  static final SharedUiServiceLocator _instance = SharedUiServiceLocator._internal();
+  static final SharedUiServiceLocator _instance =
+      SharedUiServiceLocator._internal();
 
   // Repository instances
   late MessageRepository _messageRepository;
@@ -56,10 +57,16 @@ class SharedUiServiceLocator {
     final audioStateDataSource = AudioStateRemoteDataSourceImpl();
 
     // Initialize repositories
-    instance._messageRepository = MessageRepositoryImpl(dataSource: messageDataSource);
+    instance._messageRepository = MessageRepositoryImpl(
+      dataSource: messageDataSource,
+    );
     instance._userRepository = UserRepositoryImpl(dataSource: userDataSource);
-    instance._groupRepository = GroupRepositoryImpl(dataSource: groupDataSource);
-    instance._audioStateRepository = AudioStateRepositoryImpl(remoteDataSource: audioStateDataSource);
+    instance._groupRepository = GroupRepositoryImpl(
+      dataSource: groupDataSource,
+    );
+    instance._audioStateRepository = AudioStateRepositoryImpl(
+      remoteDataSource: audioStateDataSource,
+    );
 
     // Initialize use cases
     instance._getMessagesUseCase = GetMessagesUseCase(
@@ -82,12 +89,24 @@ class SharedUiServiceLocator {
     );
 
     // Initialize audio state use cases
-    instance._getAudioStateUseCase = GetAudioStateUseCase(instance._audioStateRepository);
-    instance._playAudioUseCase = PlayAudioUseCase(instance._audioStateRepository);
-    instance._pauseAudioUseCase = PauseAudioUseCase(instance._audioStateRepository);
-    instance._stopAudioUseCase = StopAudioUseCase(instance._audioStateRepository);
-    instance._seekAudioUseCase = SeekAudioUseCase(instance._audioStateRepository);
-    instance._getAudioStateStreamUseCase = GetAudioStateStreamUseCase(instance._audioStateRepository);
+    instance._getAudioStateUseCase = GetAudioStateUseCase(
+      instance._audioStateRepository,
+    );
+    instance._playAudioUseCase = PlayAudioUseCase(
+      instance._audioStateRepository,
+    );
+    instance._pauseAudioUseCase = PauseAudioUseCase(
+      instance._audioStateRepository,
+    );
+    instance._stopAudioUseCase = StopAudioUseCase(
+      instance._audioStateRepository,
+    );
+    instance._seekAudioUseCase = SeekAudioUseCase(
+      instance._audioStateRepository,
+    );
+    instance._getAudioStateStreamUseCase = GetAudioStateStreamUseCase(
+      instance._audioStateRepository,
+    );
 
     // BLoCs removed - using controllers instead
   }
@@ -103,7 +122,8 @@ class SharedUiServiceLocator {
   SendMessageUseCase get sendMessageUseCase => _sendMessageUseCase;
   SearchMessagesUseCase get searchMessagesUseCase => _searchMessagesUseCase;
   DeleteMessageUseCase get deleteMessageUseCase => _deleteMessageUseCase;
-  MarkMessagesAsReadUseCase get markMessagesAsReadUseCase => _markMessagesAsReadUseCase;
+  MarkMessagesAsReadUseCase get markMessagesAsReadUseCase =>
+      _markMessagesAsReadUseCase;
   GetUnreadCountUseCase get getUnreadCountUseCase => _getUnreadCountUseCase;
 
   // Audio state use case accessors
@@ -112,7 +132,8 @@ class SharedUiServiceLocator {
   PauseAudioUseCase get pauseAudioUseCase => _pauseAudioUseCase;
   StopAudioUseCase get stopAudioUseCase => _stopAudioUseCase;
   SeekAudioUseCase get seekAudioUseCase => _seekAudioUseCase;
-  GetAudioStateStreamUseCase get getAudioStateStreamUseCase => _getAudioStateStreamUseCase;
+  GetAudioStateStreamUseCase get getAudioStateStreamUseCase =>
+      _getAudioStateStreamUseCase;
 
   /// Returns a map of all services for integration
   Map<String, dynamic> asMap() {

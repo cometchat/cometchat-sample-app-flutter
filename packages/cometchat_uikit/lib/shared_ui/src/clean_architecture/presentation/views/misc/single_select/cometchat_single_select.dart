@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 
 /// A Flutter widget for creating a single select element with multiple options.
 class CometChatSingleSelect extends StatefulWidget {
-  const CometChatSingleSelect(
-      {super.key,
-      required this.options,
-      this.selectedValue,
-      this.onChanged,
-      this.optionBackground,
-      this.selectedOptionBackground,
-      this.optionTextStyle,
-      this.selectedOptionsTextStyle,
-      this.decoration,
-      });
+  const CometChatSingleSelect({
+    super.key,
+    required this.options,
+    this.selectedValue,
+    this.onChanged,
+    this.optionBackground,
+    this.selectedOptionBackground,
+    this.optionTextStyle,
+    this.selectedOptionsTextStyle,
+    this.decoration,
+  });
 
   /// A list of options to display for selection.
   final List<OptionElement> options;
@@ -46,7 +46,6 @@ class CometChatSingleSelect extends StatefulWidget {
 class _CometChatSingleSelectState extends State<CometChatSingleSelect> {
   late String? selectedValue;
 
-
   @override
   void initState() {
     super.initState();
@@ -60,18 +59,15 @@ class _CometChatSingleSelectState extends State<CometChatSingleSelect> {
     if (lessThanThreeOptions) {
       wrapping = Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: List.generate(
-          widget.options.length,
-          (index) {
-            final option = widget.options[index];
-            return Expanded(
-                child: DecoratedBox(
+        children: List.generate(widget.options.length, (index) {
+          final option = widget.options[index];
+          return Expanded(
+            child: DecoratedBox(
               decoration: BoxDecoration(
-                  border: index > 0
-                      ? const Border(
-                          left: BorderSide(
-                              width: 1))
-                      : null),
+                border: index > 0
+                    ? const Border(left: BorderSide(width: 1))
+                    : null,
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -94,39 +90,35 @@ class _CometChatSingleSelectState extends State<CometChatSingleSelect> {
                   ),
                 ],
               ),
-            ));
-          },
-        ),
+            ),
+          );
+        }),
       );
     } else {
       wrapping = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: List.generate(
-          widget.options.length,
-          (index) {
-            final option = widget.options[index];
-            return DecoratedBox(
-              decoration: BoxDecoration(
-                  border: index > 0
-                      ? const Border(
-                          left: BorderSide(
-                              width: 1))
-                      : null),
-              child: CometChatSingleSelectButton(
-                selected: selectedValue == option.value,
-                label: option.label,
-                onSelected: () {
-                  setState(() {
-                    selectedValue = option.value;
-                  });
-                  if (widget.onChanged != null) {
-                    widget.onChanged!(option.value);
-                  }
-                },
-              ),
-            );
-          },
-        ),
+        children: List.generate(widget.options.length, (index) {
+          final option = widget.options[index];
+          return DecoratedBox(
+            decoration: BoxDecoration(
+              border: index > 0
+                  ? const Border(left: BorderSide(width: 1))
+                  : null,
+            ),
+            child: CometChatSingleSelectButton(
+              selected: selectedValue == option.value,
+              label: option.label,
+              onSelected: () {
+                setState(() {
+                  selectedValue = option.value;
+                });
+                if (widget.onChanged != null) {
+                  widget.onChanged!(option.value);
+                }
+              },
+            ),
+          );
+        }),
       );
     }
 
@@ -143,22 +135,27 @@ class CometChatSingleSelectButton extends StatelessWidget {
   final Color? selectedOptionBackground;
   final Color? optionBackground;
 
-  const CometChatSingleSelectButton(
-      {super.key,
-      required this.selected,
-      required this.label,
-      required this.onSelected,
-      this.optionBackground,
-      this.selectedOptionBackground,
-      this.optionTextStyle,
-      this.selectedOptionsTextStyle});
+  const CometChatSingleSelectButton({
+    super.key,
+    required this.selected,
+    required this.label,
+    required this.onSelected,
+    this.optionBackground,
+    this.selectedOptionBackground,
+    this.optionTextStyle,
+    this.selectedOptionsTextStyle,
+  });
 
   @override
   Widget build(BuildContext context) {
-    const selectedTextStyle =
-        TextStyle(fontWeight: FontWeight.bold, color: Colors.white);
-    const optionTextStyle =
-        TextStyle(fontWeight: FontWeight.normal, color: Colors.black);
+    const selectedTextStyle = TextStyle(
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    );
+    const optionTextStyle = TextStyle(
+      fontWeight: FontWeight.normal,
+      color: Colors.black,
+    );
 
     final TextStyle containerTextStyle = selected
         ? (selectedOptionsTextStyle ?? selectedTextStyle)
@@ -170,11 +167,9 @@ class CometChatSingleSelectButton extends StatelessWidget {
         padding: EdgeInsets.zero,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Wrap(children: [
-            Center(
-              child: Text(label, style: containerTextStyle),
-            ),
-          ]),
+          child: Wrap(
+            children: [Center(child: Text(label, style: containerTextStyle))],
+          ),
         ),
       ),
     );

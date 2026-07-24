@@ -58,8 +58,9 @@ void main() {
     });
 
     test('delegates to repository with default limit', () async {
-      when(() => repo.getCallLogs(limit: any(named: 'limit')))
-          .thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getCallLogs(limit: any(named: 'limit')),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase();
       expect(result.isSuccess, isTrue);
@@ -67,25 +68,27 @@ void main() {
     });
 
     test('passes custom limit to repository', () async {
-      when(() => repo.getCallLogs(limit: any(named: 'limit')))
-          .thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getCallLogs(limit: any(named: 'limit')),
+      ).thenAnswer((_) async => const Success([]));
 
       await useCase(limit: 50);
       verify(() => repo.getCallLogs(limit: 50)).called(1);
     });
 
     test('accepts limit of exactly 100', () async {
-      when(() => repo.getCallLogs(limit: any(named: 'limit')))
-          .thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getCallLogs(limit: any(named: 'limit')),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase(limit: 100);
       expect(result.isSuccess, isTrue);
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.getCallLogs(limit: any(named: 'limit')))
-          .thenAnswer((_) async =>
-              const Failure(message: 'Fetch failed', code: 'FETCH_ERR'));
+      when(() => repo.getCallLogs(limit: any(named: 'limit'))).thenAnswer(
+        (_) async => const Failure(message: 'Fetch failed', code: 'FETCH_ERR'),
+      );
 
       final result = await useCase();
       expect(result.isFailure, isTrue);

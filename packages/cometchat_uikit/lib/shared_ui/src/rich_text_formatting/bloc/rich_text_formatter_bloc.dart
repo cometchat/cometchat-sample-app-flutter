@@ -87,15 +87,19 @@ class RichTextFormatterBloc
     DetectActiveFormatsUseCase? detectActiveFormatsUseCase,
     ValidateLinkUseCase? validateLinkUseCase,
     ParseFormattedTextUseCase? parseFormattedTextUseCase,
-  })  : applyFormatUseCase = applyFormatUseCase ??
-            RichTextServiceLocator.instance.applyFormatUseCase,
-        detectActiveFormatsUseCase = detectActiveFormatsUseCase ??
-            RichTextServiceLocator.instance.detectActiveFormatsUseCase,
-        validateLinkUseCase = validateLinkUseCase ??
-            RichTextServiceLocator.instance.validateLinkUseCase,
-        parseFormattedTextUseCase = parseFormattedTextUseCase ??
-            RichTextServiceLocator.instance.parseFormattedTextUseCase,
-        super(const RichTextFormatterInitial()) {
+  }) : applyFormatUseCase =
+           applyFormatUseCase ??
+           RichTextServiceLocator.instance.applyFormatUseCase,
+       detectActiveFormatsUseCase =
+           detectActiveFormatsUseCase ??
+           RichTextServiceLocator.instance.detectActiveFormatsUseCase,
+       validateLinkUseCase =
+           validateLinkUseCase ??
+           RichTextServiceLocator.instance.validateLinkUseCase,
+       parseFormattedTextUseCase =
+           parseFormattedTextUseCase ??
+           RichTextServiceLocator.instance.parseFormattedTextUseCase,
+       super(const RichTextFormatterInitial()) {
     // Register event handlers
     on<InitializeFormatter>(_onInitialize);
     on<FormatApplied>(_onFormatApplied);
@@ -143,17 +147,23 @@ class RichTextFormatterBloc
           ? activeFormatsResult.data
           : <FormatType>{};
 
-      emit(RichTextFormatterReady(
-        activeFormats: activeFormats,
-        disabledFormats: FormatCompatibility.getDisabledFormats(activeFormats),
-        selection: result.data.newSelection,
-        isFormattingInProgress: false,
-      ));
+      emit(
+        RichTextFormatterReady(
+          activeFormats: activeFormats,
+          disabledFormats: FormatCompatibility.getDisabledFormats(
+            activeFormats,
+          ),
+          selection: result.data.newSelection,
+          isFormattingInProgress: false,
+        ),
+      );
     } else if (result is Failure) {
-      emit(currentState.copyWith(
-        isFormattingInProgress: false,
-        errorMessage: result.message,
-      ));
+      emit(
+        currentState.copyWith(
+          isFormattingInProgress: false,
+          errorMessage: result.message,
+        ),
+      );
     }
   }
 
@@ -188,10 +198,9 @@ class RichTextFormatterBloc
 
     if (result is Success<Set<FormatType>>) {
       final currentState = state as RichTextFormatterReady;
-      emit(currentState.copyWith(
-        activeFormats: result.data,
-        selection: selection,
-      ));
+      emit(
+        currentState.copyWith(activeFormats: result.data, selection: selection),
+      );
     }
   }
 

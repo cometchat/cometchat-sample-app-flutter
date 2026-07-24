@@ -81,18 +81,22 @@ void main() {
   setUp(() {
     repo = MockNotificationFeedRepository();
     // Default stubs
-    when(() => repo.fetchCategories(any()))
-        .thenAnswer((_) async => const Success([]));
-    when(() => repo.fetchFeedItems(any()))
-        .thenAnswer((_) async => const Success([]));
-    when(() => repo.markAsDelivered(any()))
-        .thenAnswer((_) async => const Success(null));
-    when(() => repo.markAsRead(any()))
-        .thenAnswer((_) async => const Success(null));
-    when(() => repo.reportEngagement(any(), any()))
-        .thenAnswer((_) async => const Success(null));
-    when(() => repo.getUnreadCount())
-        .thenAnswer((_) async => const Success(0));
+    when(
+      () => repo.fetchCategories(any()),
+    ).thenAnswer((_) async => const Success([]));
+    when(
+      () => repo.fetchFeedItems(any()),
+    ).thenAnswer((_) async => const Success([]));
+    when(
+      () => repo.markAsDelivered(any()),
+    ).thenAnswer((_) async => const Success(null));
+    when(
+      () => repo.markAsRead(any()),
+    ).thenAnswer((_) async => const Success(null));
+    when(
+      () => repo.reportEngagement(any(), any()),
+    ).thenAnswer((_) async => const Success(null));
+    when(() => repo.getUnreadCount()).thenAnswer((_) async => const Success(0));
   });
 
   group('NotificationFeedBloc', () {
@@ -123,8 +127,9 @@ void main() {
         'emits loading → loaded when items returned',
         build: () {
           final items = [_makeItem(id: 'item_1'), _makeItem(id: 'item_2')];
-          when(() => repo.fetchFeedItems(any()))
-              .thenAnswer((_) async => Success(items));
+          when(
+            () => repo.fetchFeedItems(any()),
+          ).thenAnswer((_) async => Success(items));
           return _makeBloc(repo);
         },
         expect: () => [
@@ -176,10 +181,12 @@ void main() {
             _makeCategory(id: 'updates', label: 'Updates'),
           ];
           final items = [_makeItem(id: 'item_1')];
-          when(() => repo.fetchCategories(any()))
-              .thenAnswer((_) async => Success(categories));
-          when(() => repo.fetchFeedItems(any()))
-              .thenAnswer((_) async => Success(items));
+          when(
+            () => repo.fetchCategories(any()),
+          ).thenAnswer((_) async => Success(categories));
+          when(
+            () => repo.fetchFeedItems(any()),
+          ).thenAnswer((_) async => Success(items));
           return _makeBloc(repo);
         },
         expect: () => [
@@ -205,8 +212,9 @@ void main() {
             (_) async => const Failure(message: 'Cat error', code: 'ERR'),
           );
           final items = [_makeItem(id: 'item_1')];
-          when(() => repo.fetchFeedItems(any()))
-              .thenAnswer((_) async => Success(items));
+          when(
+            () => repo.fetchFeedItems(any()),
+          ).thenAnswer((_) async => Success(items));
           return _makeBloc(repo);
         },
         expect: () => [
@@ -297,9 +305,7 @@ void main() {
                 _makeItem(id: 'item_2', category: 'updates'),
               ]);
             }
-            return Success([
-              _makeItem(id: 'item_3', category: 'updates'),
-            ]);
+            return Success([_makeItem(id: 'item_3', category: 'updates')]);
           });
           return _makeBloc(repo);
         },
@@ -317,8 +323,9 @@ void main() {
       blocTest<NotificationFeedBloc, NotificationFeedState>(
         'does nothing when switching to same category',
         build: () {
-          when(() => repo.fetchFeedItems(any()))
-              .thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
+          when(
+            () => repo.fetchFeedItems(any()),
+          ).thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
           return _makeBloc(repo);
         },
         act: (bloc) async {
@@ -371,8 +378,9 @@ void main() {
       blocTest<NotificationFeedBloc, NotificationFeedState>(
         'inserts new item at top of list',
         build: () {
-          when(() => repo.fetchFeedItems(any()))
-              .thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
+          when(
+            () => repo.fetchFeedItems(any()),
+          ).thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
           return _makeBloc(repo);
         },
         act: (bloc) async {
@@ -404,16 +412,16 @@ void main() {
           bloc.add(const SwitchCategory('updates'));
           await Future.delayed(const Duration(milliseconds: 50));
           // This item has a different category
-          bloc.add(FeedItemReceived(
-              _makeItem(id: 'promo_item', category: 'promotions')));
+          bloc.add(
+            FeedItemReceived(
+              _makeItem(id: 'promo_item', category: 'promotions'),
+            ),
+          );
         },
         verify: (bloc) {
           expect(bloc.state.activeCategory, 'updates');
           // promo_item should not be in the list
-          expect(
-            bloc.state.items.any((i) => i.id == 'promo_item'),
-            false,
-          );
+          expect(bloc.state.items.any((i) => i.id == 'promo_item'), false);
         },
       );
     });
@@ -426,8 +434,10 @@ void main() {
       blocTest<NotificationFeedBloc, NotificationFeedState>(
         'removes item by ID from list',
         build: () {
-          when(() => repo.fetchFeedItems(any())).thenAnswer((_) async =>
-              Success([_makeItem(id: 'item_1'), _makeItem(id: 'item_2')]));
+          when(() => repo.fetchFeedItems(any())).thenAnswer(
+            (_) async =>
+                Success([_makeItem(id: 'item_1'), _makeItem(id: 'item_2')]),
+          );
           return _makeBloc(repo);
         },
         act: (bloc) async {
@@ -443,11 +453,12 @@ void main() {
       blocTest<NotificationFeedBloc, NotificationFeedState>(
         'decrements unread count when retracted item was unread',
         build: () {
-          when(() => repo.fetchFeedItems(any())).thenAnswer((_) async =>
-              Success([
-                _makeItem(id: 'item_1'), // unread (readAt == null)
-                _makeItem(id: 'item_2', readAt: 1700000100),
-              ]));
+          when(() => repo.fetchFeedItems(any())).thenAnswer(
+            (_) async => Success([
+              _makeItem(id: 'item_1'), // unread (readAt == null)
+              _makeItem(id: 'item_2', readAt: 1700000100),
+            ]),
+          );
           return _makeBloc(repo);
         },
         act: (bloc) async {
@@ -464,8 +475,9 @@ void main() {
       blocTest<NotificationFeedBloc, NotificationFeedState>(
         'emits empty state when last item is retracted',
         build: () {
-          when(() => repo.fetchFeedItems(any()))
-              .thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
+          when(
+            () => repo.fetchFeedItems(any()),
+          ).thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
           return _makeBloc(repo);
         },
         act: (bloc) async {
@@ -481,8 +493,9 @@ void main() {
       blocTest<NotificationFeedBloc, NotificationFeedState>(
         'does nothing when retracting non-existent item',
         build: () {
-          when(() => repo.fetchFeedItems(any()))
-              .thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
+          when(
+            () => repo.fetchFeedItems(any()),
+          ).thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
           return _makeBloc(repo);
         },
         act: (bloc) async {
@@ -503,10 +516,12 @@ void main() {
       blocTest<NotificationFeedBloc, NotificationFeedState>(
         'updates total unread count from server',
         build: () {
-          when(() => repo.fetchFeedItems(any()))
-              .thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
-          when(() => repo.getUnreadCount())
-              .thenAnswer((_) async => const Success(5));
+          when(
+            () => repo.fetchFeedItems(any()),
+          ).thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
+          when(
+            () => repo.getUnreadCount(),
+          ).thenAnswer((_) async => const Success(5));
           return _makeBloc(repo);
         },
         act: (bloc) async {
@@ -531,10 +546,12 @@ void main() {
             _makeItem(id: 'item_1'), // unread
             _makeItem(id: 'item_2'), // unread
           ];
-          when(() => repo.fetchFeedItems(any()))
-              .thenAnswer((_) async => Success(items));
-          when(() => repo.markAsRead(any()))
-              .thenAnswer((_) async => const Success(null));
+          when(
+            () => repo.fetchFeedItems(any()),
+          ).thenAnswer((_) async => Success(items));
+          when(
+            () => repo.markAsRead(any()),
+          ).thenAnswer((_) async => const Success(null));
           return _makeBloc(repo);
         },
         act: (bloc) async {
@@ -552,8 +569,9 @@ void main() {
         'skips already-read items',
         build: () {
           final items = [_makeItem(id: 'item_1', readAt: 1700000100)];
-          when(() => repo.fetchFeedItems(any()))
-              .thenAnswer((_) async => Success(items));
+          when(
+            () => repo.fetchFeedItems(any()),
+          ).thenAnswer((_) async => Success(items));
           return _makeBloc(repo);
         },
         act: (bloc) async {
@@ -574,8 +592,9 @@ void main() {
       blocTest<NotificationFeedBloc, NotificationFeedState>(
         'sets isOffline flag on disconnect',
         build: () {
-          when(() => repo.fetchFeedItems(any()))
-              .thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
+          when(
+            () => repo.fetchFeedItems(any()),
+          ).thenAnswer((_) async => Success([_makeItem(id: 'item_1')]));
           return _makeBloc(repo);
         },
         act: (bloc) async {
@@ -604,7 +623,9 @@ void main() {
         },
         verify: (bloc) {
           // Should have fetched at least twice (initial + refresh on reconnect)
-          verify(() => repo.fetchFeedItems(any())).called(greaterThanOrEqualTo(2));
+          verify(
+            () => repo.fetchFeedItems(any()),
+          ).called(greaterThanOrEqualTo(2));
         },
       );
     });

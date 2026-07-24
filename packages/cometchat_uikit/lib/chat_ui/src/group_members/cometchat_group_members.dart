@@ -9,9 +9,9 @@ import 'bloc/group_members_state.dart';
 /// [CometChatGroupMembers] displays all members of a [Group] as a list.
 ///
 /// Migrated from GetX controller to BLoC architecture.
-/// The widget now owns a [GroupMembersBloc] that is created in [initState]
-/// and disposed in [dispose], fixing the bug where [onInit] was never called
-/// because the controller was created inside [build()] of a StatelessWidget.
+/// The widget now owns a [GroupMembersBloc] that is created in `initState`
+/// and disposed in `dispose`, fixing the bug where `onInit` was never called
+/// because the controller was created inside `build()` of a StatelessWidget.
 class CometChatGroupMembers extends StatefulWidget {
   const CometChatGroupMembers({
     super.key,
@@ -67,7 +67,7 @@ class CometChatGroupMembers extends StatefulWidget {
   final GroupMembersBuilderProtocol? groupMembersProtocol;
   final GroupMembersRequestBuilder? groupMembersRequestBuilder;
   final Widget? Function(BuildContext context, GroupMember groupMember)?
-      subtitleView;
+  subtitleView;
   final bool? hideSeparator;
   final Widget Function(GroupMember groupMember)? listItemView;
   final CometChatGroupMembersStyle? style;
@@ -76,10 +76,12 @@ class CometChatGroupMembers extends StatefulWidget {
   /// Legacy options callback — kept for backward compatibility.
   /// Receives a [CometChatGroupMembersController] stub that delegates to the BLoC.
   final List<CometChatOption>? Function(
-      Group group,
-      GroupMember member,
-      CometChatGroupMembersController controller,
-      BuildContext context)? options;
+    Group group,
+    GroupMember member,
+    CometChatGroupMembersController controller,
+    BuildContext context,
+  )?
+  options;
 
   final String? searchPlaceholder;
   final Widget? backButton;
@@ -115,21 +117,25 @@ class CometChatGroupMembers extends StatefulWidget {
   final OnEmpty? onEmpty;
 
   final List<CometChatOption>? Function(
-      Group group,
-      GroupMember groupMember,
-      CometChatGroupMembersController controller,
-      BuildContext context)? setOptions;
+    Group group,
+    GroupMember groupMember,
+    CometChatGroupMembersController controller,
+    BuildContext context,
+  )?
+  setOptions;
 
   final List<CometChatOption>? Function(
-      Group group,
-      GroupMember groupMember,
-      CometChatGroupMembersController controller,
-      BuildContext context)? addOptions;
+    Group group,
+    GroupMember groupMember,
+    CometChatGroupMembersController controller,
+    BuildContext context,
+  )?
+  addOptions;
 
   final Widget? Function(BuildContext context, GroupMember groupMember)?
-      leadingView;
+  leadingView;
   final Widget? Function(BuildContext context, GroupMember groupMember)?
-      titleView;
+  titleView;
   final bool? usersStatusVisibility;
   final bool? hideKickMemberOption;
   final bool? hideBanMemberOption;
@@ -185,8 +191,9 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
 
   CometChatGroupMembersStyle _resolvedStyle(BuildContext context) {
     return CometChatThemeHelper.getTheme<CometChatGroupMembersStyle>(
-            context: context, defaultTheme: CometChatGroupMembersStyle.of)
-        .merge(widget.style);
+      context: context,
+      defaultTheme: CometChatGroupMembersStyle.of,
+    ).merge(widget.style);
   }
 
   /// Build the scope badge shown as trailing on each member row.
@@ -203,26 +210,33 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
     if (member.uid == widget.group.owner) {
       scope = GroupMemberScope.owner;
       bg = style.ownerMemberScopeBackgroundColor ?? _colorPalette.primary;
-      textColor = style.ownerMemberScopeTextColor ??
+      textColor =
+          style.ownerMemberScopeTextColor ??
           style.ownerMemberScopeTextStyle?.color ??
           _colorPalette.white;
       border = style.ownerMemberScopeBorder;
       textStyle = style.ownerMemberScopeTextStyle;
     } else if (scope == GroupMemberScope.admin) {
-      bg = style.adminMemberScopeBackgroundColor ??
+      bg =
+          style.adminMemberScopeBackgroundColor ??
           _colorPalette.extendedPrimary100;
-      border = style.adminMemberScopeBorder ??
+      border =
+          style.adminMemberScopeBorder ??
           Border.all(
-              color: _colorPalette.borderHighlight ?? Colors.transparent,
-              width: 1);
-      textColor = style.adminMemberScopeTextColor ??
+            color: _colorPalette.borderHighlight ?? Colors.transparent,
+            width: 1,
+          );
+      textColor =
+          style.adminMemberScopeTextColor ??
           style.adminMemberScopeTextStyle?.color ??
           _colorPalette.textHighlight;
       textStyle = style.adminMemberScopeTextStyle;
     } else if (scope == GroupMemberScope.moderator) {
-      bg = style.moderatorMemberScopeBackgroundColor ??
+      bg =
+          style.moderatorMemberScopeBackgroundColor ??
           _colorPalette.extendedPrimary100;
-      textColor = style.moderatorMemberScopeTextColor ??
+      textColor =
+          style.moderatorMemberScopeTextColor ??
           style.moderatorMemberScopeTextStyle?.color ??
           _colorPalette.textHighlight;
       border = style.moderatorMemberScopeBorder;
@@ -234,7 +248,9 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
     return Container(
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(
-          horizontal: _spacing.padding3 ?? 0, vertical: _spacing.padding1 ?? 0),
+        horizontal: _spacing.padding3 ?? 0,
+        vertical: _spacing.padding1 ?? 0,
+      ),
       decoration: BoxDecoration(
         color: bg,
         border: border,
@@ -287,7 +303,7 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
       decoration: BoxDecoration(
         color: isSelected
             ? (groupMemberStyle.listItemSelectedBackgroundColor ??
-                _colorPalette.background4)
+                  _colorPalette.background4)
             : _colorPalette.transparent,
       ),
       padding: EdgeInsets.only(
@@ -307,21 +323,27 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
                 fillColor: isSelected
                     ? WidgetStateProperty.all(
                         groupMemberStyle.checkboxCheckedBackgroundColor ??
-                            _colorPalette.iconHighlight)
+                            _colorPalette.iconHighlight,
+                      )
                     : WidgetStateProperty.all(
                         groupMemberStyle.checkboxBackgroundColor ??
-                            _colorPalette.transparent),
+                            _colorPalette.transparent,
+                      ),
                 value: isSelected,
                 onChanged: (_) => _onItemTap(member, state),
                 shape: RoundedRectangleBorder(
-                  borderRadius: groupMemberStyle.checkboxBorderRadius ??
+                  borderRadius:
+                      groupMemberStyle.checkboxBorderRadius ??
                       BorderRadius.circular(_spacing.radius1 ?? 0),
                 ),
-                checkColor: groupMemberStyle.checkboxSelectedIconColor ??
+                checkColor:
+                    groupMemberStyle.checkboxSelectedIconColor ??
                     _colorPalette.white,
-                side: groupMemberStyle.checkboxBorder ??
+                side:
+                    groupMemberStyle.checkboxBorder ??
                     BorderSide(
-                      color: (isSelected
+                      color:
+                          (isSelected
                               ? _colorPalette.borderHighlight
                               : _colorPalette.borderDefault) ??
                           Colors.transparent,
@@ -335,20 +357,23 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
                 id: member.uid,
                 avatarName: member.name,
                 avatarURL: member.avatar,
-                title: (_bloc.loggedInUser != null &&
+                title:
+                    (_bloc.loggedInUser != null &&
                         _bloc.loggedInUser!.uid == member.uid)
                     ? cc.Translations.of(context).you
                     : member.name,
                 key: UniqueKey(),
                 subtitleView: subtitle,
                 tailView: tail,
-                avatarStyle: groupMemberStyle.avatarStyle ??
+                avatarStyle:
+                    groupMemberStyle.avatarStyle ??
                     const CometChatAvatarStyle(),
                 avatarHeight: 40,
                 avatarWidth: 40,
                 statusIndicatorColor: statusUtils.statusIndicatorColor,
                 statusIndicatorIcon: statusUtils.icon,
-                statusIndicatorStyle: groupMemberStyle.statusIndicatorStyle ??
+                statusIndicatorStyle:
+                    groupMemberStyle.statusIndicatorStyle ??
                     const CometChatStatusIndicatorStyle(),
                 hideSeparator: widget.hideSeparator ?? true,
                 titleView: title,
@@ -372,7 +397,8 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
 
   void _onItemTap(GroupMember member, GroupMembersLoaded state) {
     final isOwner = member.uid == widget.group.owner;
-    final canSelect = !isOwner &&
+    final canSelect =
+        !isOwner &&
         (widget.activateSelection == ActivateSelection.onClick ||
             (widget.activateSelection == ActivateSelection.onLongClick &&
                 state.selectedMembers.isNotEmpty)) &&
@@ -381,7 +407,8 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
 
     if (canSelect) {
       _bloc.add(ToggleMemberSelection(member.uid));
-      final willBeEmpty = state.selectedMembers.length == 1 &&
+      final willBeEmpty =
+          state.selectedMembers.length == 1 &&
           state.selectedMembers.contains(member.uid);
       if (willBeEmpty) {
         _isSelectionOn.value = false;
@@ -400,7 +427,8 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
     GlobalKey itemKey,
   ) {
     final isOwner = member.uid == widget.group.owner;
-    final canStartSelection = !isOwner &&
+    final canStartSelection =
+        !isOwner &&
         widget.activateSelection == ActivateSelection.onLongClick &&
         state.selectedMembers.isEmpty &&
         !(widget.selectionMode == null ||
@@ -424,17 +452,25 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
     if (widget.setOptions != null) {
       opts =
           widget.setOptions!(widget.group, member, legacyController, context) ??
-              [];
+          [];
     } else {
       if (widget.addOptions != null) {
-        opts.addAll(widget.addOptions!(
-                widget.group, member, legacyController, context) ??
-            []);
+        opts.addAll(
+          widget.addOptions!(widget.group, member, legacyController, context) ??
+              [],
+        );
       }
       // Get permission-filtered option metadata, then wire real actions
       final metaOptions = _bloc.getDefaultOptions(
-          member, context, _colorPalette, _typography, _spacing);
-      opts.addAll(metaOptions.map((o) => CometChatOption(
+        member,
+        context,
+        _colorPalette,
+        _typography,
+        _spacing,
+      );
+      opts.addAll(
+        metaOptions.map(
+          (o) => CometChatOption(
             id: o.id,
             title: o.title,
             icon: o.icon,
@@ -444,7 +480,9 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
             iconWidget: o.iconWidget,
             onClick: () =>
                 _handleMemberOptionClick(o.id, member, groupMemberStyle),
-          )));
+          ),
+        ),
+      );
 
       if (widget.addOptions != null &&
           widget.group.owner != CometChatUIKit.loggedInUser?.uid &&
@@ -464,20 +502,24 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
   ) {
     final confirmDialogStyle =
         CometChatThemeHelper.getTheme<CometChatConfirmDialogStyle>(
-                context: context, defaultTheme: CometChatConfirmDialogStyle.of)
-            .merge(groupMemberStyle.confirmDialogStyle);
+          context: context,
+          defaultTheme: CometChatConfirmDialogStyle.of,
+        ).merge(groupMemberStyle.confirmDialogStyle);
     final changeScopeStyle =
         CometChatThemeHelper.getTheme<CometChatChangeScopeStyle>(
-                context: context, defaultTheme: CometChatChangeScopeStyle.of)
-            .merge(groupMemberStyle.changeScopeStyle);
+          context: context,
+          defaultTheme: CometChatChangeScopeStyle.of,
+        ).merge(groupMemberStyle.changeScopeStyle);
 
     switch (optionId) {
       case GroupMemberOptionConstants.kick:
         _showConfirmDialog(
           title: '${cc.Translations.of(context).kick} ${member.name}?',
-          icon: Icon(Icons.delete_outline_rounded,
-              size: 48,
-              color: confirmDialogStyle.iconColor ?? _colorPalette.error),
+          icon: Icon(
+            Icons.delete_outline_rounded,
+            size: 48,
+            color: confirmDialogStyle.iconColor ?? _colorPalette.error,
+          ),
           message:
               '${cc.Translations.of(context).areYouSureRemove} ${member.name} ${cc.Translations.of(context).from} ${widget.group.name}?',
           confirmText: cc.Translations.of(context).kick.toUpperCase(),
@@ -492,9 +534,11 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
       case GroupMemberOptionConstants.ban:
         _showConfirmDialog(
           title: '${cc.Translations.of(context).ban} ${member.name}?',
-          icon: Icon(Icons.not_interested,
-              size: 48,
-              color: confirmDialogStyle.iconColor ?? _colorPalette.error),
+          icon: Icon(
+            Icons.not_interested,
+            size: 48,
+            color: confirmDialogStyle.iconColor ?? _colorPalette.error,
+          ),
           message:
               '${cc.Translations.of(context).areYouSureBan} ${member.name} ${cc.Translations.of(context).from} ${widget.group.name}?',
           confirmText: cc.Translations.of(context).ban.toUpperCase(),
@@ -536,28 +580,33 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
     CometChatConfirmDialog(
       context: context,
       icon: icon,
-      title: Text(title,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: _typography.heading2?.medium?.fontSize,
-            fontWeight: _typography.heading2?.medium?.fontWeight,
-            fontFamily: _typography.heading2?.medium?.fontFamily,
-            color: _colorPalette.textPrimary,
-          ).merge(confirmDialogStyle.titleTextStyle)),
-      messageText: Text(message,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: _typography.body?.regular?.fontSize,
-            fontWeight: _typography.body?.regular?.fontWeight,
-            fontFamily: _typography.body?.regular?.fontFamily,
-            color: _colorPalette.textSecondary,
-          ).merge(confirmDialogStyle.messageTextStyle)),
+      title: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: _typography.heading2?.medium?.fontSize,
+          fontWeight: _typography.heading2?.medium?.fontWeight,
+          fontFamily: _typography.heading2?.medium?.fontFamily,
+          color: _colorPalette.textPrimary,
+        ).merge(confirmDialogStyle.titleTextStyle),
+      ),
+      messageText: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: _typography.body?.regular?.fontSize,
+          fontWeight: _typography.body?.regular?.fontWeight,
+          fontFamily: _typography.body?.regular?.fontFamily,
+          color: _colorPalette.textSecondary,
+        ).merge(confirmDialogStyle.messageTextStyle),
+      ),
       confirmButtonText: confirmText,
       cancelButtonText: cc.Translations.of(context).cancelCapital,
       style: CometChatConfirmDialogStyle(
         iconColor: confirmDialogStyle.iconColor ?? _colorPalette.error,
         backgroundColor: confirmDialogStyle.backgroundColor,
-        cancelButtonBackground: confirmDialogStyle.cancelButtonBackground ??
+        cancelButtonBackground:
+            confirmDialogStyle.cancelButtonBackground ??
             _colorPalette.borderLight,
         confirmButtonBackground:
             confirmDialogStyle.confirmButtonBackground ?? _colorPalette.error,
@@ -577,7 +626,8 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
   /// are provided by the consumer and need a controller reference.
   CometChatGroupMembersController _buildLegacyControllerStub() {
     return CometChatGroupMembersController(
-      groupMembersBuilderProtocol: widget.groupMembersProtocol ??
+      groupMembersBuilderProtocol:
+          widget.groupMembersProtocol ??
           UIGroupMembersBuilder(
             widget.groupMembersRequestBuilder ??
                 (GroupMembersRequestBuilder(widget.group.guid)
@@ -607,19 +657,23 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(_spacing.radius2 ?? 0),
         side: BorderSide(
-            color: _colorPalette.borderLight ?? Colors.transparent, width: 1),
+          color: _colorPalette.borderLight ?? Colors.transparent,
+          width: 1,
+        ),
       ),
       shadowColor: _colorPalette.transparent,
       elevation: 8,
       items: options
-          .map((o) => CustomPopupMenuItem<CometChatOption>(
-                value: o,
-                child: GetMenuView(
-                  option: o,
-                  textStyle: groupMemberStyle.optionsTextStyle,
-                  iconTint: groupMemberStyle.optionsIconColor ?? o.iconTint,
-                ),
-              ))
+          .map(
+            (o) => CustomPopupMenuItem<CometChatOption>(
+              value: o,
+              child: GetMenuView(
+                option: o,
+                textStyle: groupMemberStyle.optionsTextStyle,
+                iconTint: groupMemberStyle.optionsIconColor ?? o.iconTint,
+              ),
+            ),
+          )
           .toList(),
     ).then((selected) {
       if (selected?.onClick != null) selected!.onClick!();
@@ -629,23 +683,27 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
   // ── State views ────────────────────────────────────────────────────────────
 
   Widget _buildLoading(CometChatGroupMembersStyle style) {
-    if (widget.loadingStateView != null)
+    if (widget.loadingStateView != null) {
       return Center(child: widget.loadingStateView!(context));
+    }
     return CometChatShimmerEffect(
       colorPalette: _colorPalette,
       child: ListView.builder(
         itemCount: 30,
         shrinkWrap: true,
-        itemBuilder: (_, __) => Padding(
+        itemBuilder: (_, _) => Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: _spacing.padding4 ?? 0,
-              vertical: _spacing.padding3 ?? 0),
+            horizontal: _spacing.padding4 ?? 0,
+            vertical: _spacing.padding3 ?? 0,
+          ),
           child: Row(
             children: [
               Padding(
                 padding: EdgeInsets.only(right: _spacing.padding3 ?? 0),
                 child: const CircleAvatar(
-                    radius: 24, backgroundColor: Colors.grey),
+                  radius: 24,
+                  backgroundColor: Colors.grey,
+                ),
               ),
               Expanded(
                 child: Column(
@@ -658,17 +716,21 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
                           height: 19,
                           width: MediaQuery.sizeOf(context).width * 0.4,
                           decoration: BoxDecoration(
-                              color: Colors.grey,
-                              borderRadius:
-                                  BorderRadius.circular(_spacing.radius2 ?? 0)),
+                            color: Colors.grey,
+                            borderRadius: BorderRadius.circular(
+                              _spacing.radius2 ?? 0,
+                            ),
+                          ),
                         ),
                         Container(
                           height: 19,
                           width: MediaQuery.sizeOf(context).width * 0.2,
                           decoration: BoxDecoration(
-                              color: Colors.grey,
-                              borderRadius:
-                                  BorderRadius.circular(_spacing.radius2 ?? 0)),
+                            color: Colors.grey,
+                            borderRadius: BorderRadius.circular(
+                              _spacing.radius2 ?? 0,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -676,9 +738,11 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
                     Container(
                       height: 16,
                       decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius:
-                              BorderRadius.circular(_spacing.radius2 ?? 0)),
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(
+                          _spacing.radius2 ?? 0,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -712,7 +776,9 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
   }
 
   Widget _buildList(
-      GroupMembersLoaded state, CometChatGroupMembersStyle style) {
+    GroupMembersLoaded state,
+    CometChatGroupMembersStyle style,
+  ) {
     final keys = List.generate(state.members.length, (_) => GlobalKey());
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
@@ -740,15 +806,20 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
                   height: 30,
                   width: 30,
                   child: CircularProgressIndicator(
-                      color: style.loadingIconColor ?? _colorPalette.primary),
+                    color: style.loadingIconColor ?? _colorPalette.primary,
+                  ),
                 ),
               ),
             );
           }
           return SizedBox(
             key: keys[index],
-            child:
-                _buildListItem(state.members[index], state, style, keys[index]),
+            child: _buildListItem(
+              state.members[index],
+              state,
+              style,
+              keys[index],
+            ),
           );
         },
       ),
@@ -762,10 +833,13 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
         final selected = _bloc.getSelectedList();
         widget.onSelection?.call(selected);
       },
-      icon: widget.submitIcon ??
-          Icon(Icons.check,
-              color: style.submitIconColor ?? _colorPalette.iconPrimary,
-              size: 24),
+      icon:
+          widget.submitIcon ??
+          Icon(
+            Icons.check,
+            color: style.submitIconColor ?? _colorPalette.iconPrimary,
+            size: 24,
+          ),
     );
   }
 
@@ -782,8 +856,8 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
           // Title: show selection count or "Members"
           final titleText =
               (state is GroupMembersLoaded && state.selectedMembers.isNotEmpty)
-                  ? '${state.selectedMembers.length}'
-                  : cc.Translations.of(context).members;
+              ? '${state.selectedMembers.length}'
+              : cc.Translations.of(context).members;
 
           final hasSelection =
               state is GroupMembersLoaded && state.selectedMembers.isNotEmpty;
@@ -807,21 +881,25 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
                       _bloc.add(const ClearMemberSelection());
                       _isSelectionOn.value = false;
                     },
-                    icon: Icon(Icons.clear,
-                        color: _colorPalette.iconPrimary, size: 24),
+                    icon: Icon(
+                      Icons.clear,
+                      color: _colorPalette.iconPrimary,
+                      size: 24,
+                    ),
                     padding: EdgeInsets.zero,
                   )
                 : (widget.backButton ??
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(
-                        Icons.arrow_back,
-                        color: groupMemberStyle.backIconColor ??
-                            _colorPalette.iconPrimary,
-                        size: 24,
-                      ),
-                      padding: EdgeInsets.zero,
-                    )),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(
+                          Icons.arrow_back,
+                          color:
+                              groupMemberStyle.backIconColor ??
+                              _colorPalette.iconPrimary,
+                          size: 24,
+                        ),
+                        padding: EdgeInsets.zero,
+                      )),
             onBack: widget.onBack,
             placeholder: widget.searchPlaceholder,
             searchText: widget.searchKeyword,
@@ -834,8 +912,7 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
                 ...widget.appBarOptions!,
               ValueListenableBuilder<bool>(
                 valueListenable: _isSelectionOn,
-                builder: (_, __, ___) =>
-                    _buildSelectionWidget(groupMemberStyle),
+                builder: (_, _, _) => _buildSelectionWidget(groupMemberStyle),
               ),
             ],
             searchPadding: EdgeInsets.symmetric(
@@ -859,7 +936,8 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
               height: widget.height,
               width: widget.width,
               backIconTint: groupMemberStyle.backIconColor,
-              searchIconTint: groupMemberStyle.searchIconColor ??
+              searchIconTint:
+                  groupMemberStyle.searchIconColor ??
                   _colorPalette.iconSecondary,
               border: groupMemberStyle.border,
               borderRadius: groupMemberStyle.borderRadius,
@@ -876,11 +954,13 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
                 fontFamily: _typography.heading4?.regular?.fontFamily,
               ).merge(groupMemberStyle.searchPlaceholderStyle),
               searchTextFieldRadius: groupMemberStyle.searchBorderRadius,
-              searchBoxBackground: groupMemberStyle.searchBackground ??
+              searchBoxBackground:
+                  groupMemberStyle.searchBackground ??
                   _colorPalette.background3,
               appBarShape: Border(
                 bottom: BorderSide(
-                  color: groupMemberStyle.separatorColor ??
+                  color:
+                      groupMemberStyle.separatorColor ??
                       _colorPalette.borderLight ??
                       Colors.transparent,
                   width: groupMemberStyle.separatorHeight ?? 1,
@@ -895,7 +975,9 @@ class _CometChatGroupMembersState extends State<CometChatGroupMembers> {
   }
 
   Widget _buildContainer(
-      GroupMembersState state, CometChatGroupMembersStyle style) {
+    GroupMembersState state,
+    CometChatGroupMembersStyle style,
+  ) {
     if (state is GroupMembersLoading || state is GroupMembersInitial) {
       return _buildLoading(style);
     } else if (state is GroupMembersEmpty) {

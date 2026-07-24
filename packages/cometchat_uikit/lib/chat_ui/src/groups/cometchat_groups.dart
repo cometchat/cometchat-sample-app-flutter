@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../cometchat_chat_uikit.dart';
 import '../../../cometchat_chat_uikit.dart' as cc;
-import 'bloc/bloc.dart';
 
 /// [CometChatGroups] is a component that displays a list of groups available in the app
 /// using Clean Architecture with BLoC pattern.
@@ -183,11 +182,19 @@ class CometChatGroups extends StatefulWidget {
 
   /// [setOptions] sets List of actions available on the long press of list item
   final List<CometChatOption>? Function(
-      Group group, GroupsBloc bloc, BuildContext context)? setOptions;
+    Group group,
+    GroupsBloc bloc,
+    BuildContext context,
+  )?
+  setOptions;
 
   /// [addOptions] adds into the current List of actions available on the long press of list item
   final List<CometChatOption>? Function(
-      Group group, GroupsBloc bloc, BuildContext context)? addOptions;
+    Group group,
+    GroupsBloc bloc,
+    BuildContext context,
+  )?
+  addOptions;
 
   /// [trailingView] to set tailView for each group
   final Widget? Function(BuildContext context, Group group)? trailingView;
@@ -259,7 +266,8 @@ class _CometChatGroupsState extends State<CometChatGroups>
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     // But re-initialize when brightness changes (dark mode toggle)
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
     _cachedBrightness = currentBrightness;
     _themeInitialized = true;
@@ -281,9 +289,9 @@ class _CometChatGroupsState extends State<CometChatGroups>
 
     statusIndicatorStyle =
         CometChatThemeHelper.getTheme<CometChatStatusIndicatorStyle>(
-      context: context,
-      defaultTheme: CometChatStatusIndicatorStyle.of,
-    ).merge(style.statusIndicatorStyle);
+          context: context,
+          defaultTheme: CometChatStatusIndicatorStyle.of,
+        ).merge(style.statusIndicatorStyle);
   }
 
   @override
@@ -299,7 +307,7 @@ class _CometChatGroupsState extends State<CometChatGroups>
   Widget build(BuildContext context) {
     // Required for AutomaticKeepAliveClientMixin
     super.build(context);
-    
+
     // Use BlocProvider to provide GroupsBloc to child widgets (Requirement 5.1)
     return RepaintBoundary(
       child: BlocProvider.value(
@@ -307,59 +315,60 @@ class _CometChatGroupsState extends State<CometChatGroups>
         child: ClipRRect(
           borderRadius: style.borderRadius ?? BorderRadius.circular(0),
           child: CometChatListBase(
-          titleView: _buildTitleView(),
-          titleSpacing: widget.showBackButton ? 0 : 16,
-          hideSearch: widget.hideSearch,
-          backIcon: _buildBackIcon(),
-          placeholder: widget.searchPlaceholder,
-          showBackButton: widget.showBackButton,
-          searchBoxIcon: widget.searchBoxIcon,
-          onSearch: (keyword) => groupsBloc.add(SearchGroups(keyword)),
-          hideAppBar: widget.hideAppbar,
-          searchText: widget.searchKeyword,
-          searchPadding: EdgeInsets.symmetric(
-            horizontal: spacing.padding4 ?? 0,
-            vertical: spacing.padding3 ?? 0,
-          ),
-          searchContentPadding: EdgeInsets.symmetric(
-            horizontal: spacing.padding3 ?? 0,
-            vertical: spacing.padding2 ?? 0,
-          ),
-          searchBoxHeight: 40,
-          menuOptions: [
-            if (widget.appBarOptions != null) ...widget.appBarOptions!(context),
-            _buildSelectionWidget(),
-          ],
-          onBack: widget.onBack,
-          style: _buildListBaseStyle(),
-          container: GroupsList(
-            groupsBloc: groupsBloc,
-            style: style,
-            colorPalette: colorPalette,
-            spacing: spacing,
-            typography: typography,
-            scrollController: widget.scrollController,
-            loadingStateView: widget.loadingStateView,
-            emptyStateView: widget.emptyStateView,
-            errorStateView: widget.errorStateView,
-            listItemView: widget.listItemView,
-            subtitleView: widget.subtitleView,
-            trailingView: widget.trailingView,
-            leadingView: widget.leadingView,
-            titleView: widget.titleView,
-            hideGroupTypeIcon: !(widget.groupTypeVisibility ?? true),
-            selectionMode: widget.selectionMode,
-            activateSelection: widget.activateSelection,
-            onItemTap: widget.onItemTap,
-            onItemLongPress: widget.onItemLongPress,
-            avatarStyle: avatarStyle,
-            statusIndicatorStyle: statusIndicatorStyle,
-            privateGroupIcon: widget.privateGroupIcon,
-            protectedGroupIcon: widget.passwordGroupIcon,
+            titleView: _buildTitleView(),
+            titleSpacing: widget.showBackButton ? 0 : 16,
+            hideSearch: widget.hideSearch,
+            backIcon: _buildBackIcon(),
+            placeholder: widget.searchPlaceholder,
+            showBackButton: widget.showBackButton,
+            searchBoxIcon: widget.searchBoxIcon,
+            onSearch: (keyword) => groupsBloc.add(SearchGroups(keyword)),
+            hideAppBar: widget.hideAppbar,
+            searchText: widget.searchKeyword,
+            searchPadding: EdgeInsets.symmetric(
+              horizontal: spacing.padding4 ?? 0,
+              vertical: spacing.padding3 ?? 0,
+            ),
+            searchContentPadding: EdgeInsets.symmetric(
+              horizontal: spacing.padding3 ?? 0,
+              vertical: spacing.padding2 ?? 0,
+            ),
+            searchBoxHeight: 40,
+            menuOptions: [
+              if (widget.appBarOptions != null)
+                ...widget.appBarOptions!(context),
+              _buildSelectionWidget(),
+            ],
+            onBack: widget.onBack,
+            style: _buildListBaseStyle(),
+            container: GroupsList(
+              groupsBloc: groupsBloc,
+              style: style,
+              colorPalette: colorPalette,
+              spacing: spacing,
+              typography: typography,
+              scrollController: widget.scrollController,
+              loadingStateView: widget.loadingStateView,
+              emptyStateView: widget.emptyStateView,
+              errorStateView: widget.errorStateView,
+              listItemView: widget.listItemView,
+              subtitleView: widget.subtitleView,
+              trailingView: widget.trailingView,
+              leadingView: widget.leadingView,
+              titleView: widget.titleView,
+              hideGroupTypeIcon: !(widget.groupTypeVisibility ?? true),
+              selectionMode: widget.selectionMode,
+              activateSelection: widget.activateSelection,
+              onItemTap: widget.onItemTap,
+              onItemLongPress: widget.onItemLongPress,
+              avatarStyle: avatarStyle,
+              statusIndicatorStyle: statusIndicatorStyle,
+              privateGroupIcon: widget.privateGroupIcon,
+              protectedGroupIcon: widget.passwordGroupIcon,
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -368,8 +377,9 @@ class _CometChatGroupsState extends State<CometChatGroups>
     return BlocBuilder<GroupsBloc, GroupsState>(
       bloc: groupsBloc,
       builder: (context, state) {
-        final selectedCount =
-            state is GroupsLoaded ? state.selectedGroups.length : 0;
+        final selectedCount = state is GroupsLoaded
+            ? state.selectedGroups.length
+            : 0;
         return Text(
           selectedCount > 0
               ? "$selectedCount"
@@ -403,15 +413,15 @@ class _CometChatGroupsState extends State<CometChatGroups>
                 padding: EdgeInsets.zero,
               )
             : (widget.backButton ??
-                IconButton(
-                  onPressed: widget.onBack,
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: colorPalette.iconPrimary,
-                    size: 24,
-                  ),
-                  padding: EdgeInsets.zero,
-                ));
+                  IconButton(
+                    onPressed: widget.onBack,
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: colorPalette.iconPrimary,
+                      size: 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                  ));
       },
     );
   }
@@ -432,30 +442,36 @@ class _CometChatGroupsState extends State<CometChatGroups>
       searchIconTint: style.searchIconColor ?? colorPalette.iconSecondary,
       border: style.border,
       borderRadius: style.borderRadius,
-      searchTextStyle: TextStyle(
-        color: style.searchInputTextColor ?? colorPalette.textPrimary,
-        fontSize: typography.heading4?.regular?.fontSize,
-        fontWeight: typography.heading4?.regular?.fontWeight,
-        fontFamily: typography.heading4?.regular?.fontFamily,
-      ).merge(style.searchInputTextStyle).copyWith(
-            color: style.searchInputTextColor,
-          ),
-      searchPlaceholderStyle: TextStyle(
-        color: style.searchPlaceHolderTextColor ?? colorPalette.textTertiary,
-        fontSize: typography.heading4?.regular?.fontSize,
-        fontWeight: typography.heading4?.regular?.fontWeight,
-        fontFamily: typography.heading4?.regular?.fontFamily,
-      ).merge(style.searchPlaceHolderTextStyle).copyWith(
-            color: style.searchPlaceHolderTextColor,
-          ),
+      searchTextStyle:
+          TextStyle(
+                color: style.searchInputTextColor ?? colorPalette.textPrimary,
+                fontSize: typography.heading4?.regular?.fontSize,
+                fontWeight: typography.heading4?.regular?.fontWeight,
+                fontFamily: typography.heading4?.regular?.fontFamily,
+              )
+              .merge(style.searchInputTextStyle)
+              .copyWith(color: style.searchInputTextColor),
+      searchPlaceholderStyle:
+          TextStyle(
+                color:
+                    style.searchPlaceHolderTextColor ??
+                    colorPalette.textTertiary,
+                fontSize: typography.heading4?.regular?.fontSize,
+                fontWeight: typography.heading4?.regular?.fontWeight,
+                fontFamily: typography.heading4?.regular?.fontFamily,
+              )
+              .merge(style.searchPlaceHolderTextStyle)
+              .copyWith(color: style.searchPlaceHolderTextColor),
       searchBoxBackground:
           style.searchBackgroundColor ?? colorPalette.background3,
       borderSide: style.searchBorder,
-      searchTextFieldRadius: style.searchBorderRadius ??
+      searchTextFieldRadius:
+          style.searchBorderRadius ??
           BorderRadius.circular(spacing.radiusMax ?? 0),
       appBarShape: Border(
         bottom: BorderSide(
-          color: style.separatorColor ??
+          color:
+              style.separatorColor ??
               colorPalette.borderLight ??
               Colors.transparent,
           width: style.separatorHeight ?? 1,
@@ -475,7 +491,8 @@ class _CometChatGroupsState extends State<CometChatGroups>
               final selectedGroups = groupsBloc.getSelectedGroups();
               widget.onSelection?.call(selectedGroups);
             },
-            icon: widget.submitIcon ??
+            icon:
+                widget.submitIcon ??
                 Icon(
                   Icons.check,
                   color: style.submitIconColor ?? colorPalette.iconPrimary,

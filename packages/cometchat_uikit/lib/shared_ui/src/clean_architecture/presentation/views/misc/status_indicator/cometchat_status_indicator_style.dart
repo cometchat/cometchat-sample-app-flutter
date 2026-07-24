@@ -53,15 +53,20 @@ class CometChatStatusIndicatorStyle
 
   @override
   CometChatStatusIndicatorStyle lerp(
-      ThemeExtension<CometChatStatusIndicatorStyle>? other, double t) {
+    ThemeExtension<CometChatStatusIndicatorStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatStatusIndicatorStyle) {
       return this;
     }
     return CometChatStatusIndicatorStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: Border.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
     );
   }
 }

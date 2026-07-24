@@ -1,6 +1,7 @@
 /// Barrel export for message list widgets
-/// 
+///
 /// Re-exports widgets from shared_ui and provides chat_ui specific widgets.
+library;
 
 // Hide MessageItemBuilder from animated list to avoid conflict with BLoC version
 export '../../../../shared_ui/src/cometchat_message_list/widgets/cometchat_animated_message_list.dart'

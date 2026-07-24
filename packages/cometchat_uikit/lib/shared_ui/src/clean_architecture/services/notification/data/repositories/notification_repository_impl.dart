@@ -15,9 +15,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
 
   /// Constructor accepts injected data source
   /// This allows easy testing and switching implementations
-  NotificationRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  NotificationRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<Result<NotificationEntity>> sendNotification({
@@ -41,16 +39,11 @@ class NotificationRepositoryImpl implements NotificationRepository {
     required int limit,
     required int offset,
   }) async {
-    return remoteDataSource.getNotifications(
-      limit: limit,
-      offset: offset,
-    );
+    return remoteDataSource.getNotifications(limit: limit, offset: offset);
   }
 
   @override
-  Future<Result<void>> markAsRead({
-    required String notificationId,
-  }) async {
+  Future<Result<void>> markAsRead({required String notificationId}) async {
     return remoteDataSource.markAsRead(notificationId: notificationId);
   }
 

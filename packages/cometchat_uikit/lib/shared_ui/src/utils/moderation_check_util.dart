@@ -1,4 +1,5 @@
 import '../../cometchat_uikit_shared.dart';
+
 class ModerationCheckUtil {
   // Private constructor
   ModerationCheckUtil._();
@@ -12,9 +13,10 @@ class ModerationCheckUtil {
   // Method to check if message is disapproved (respects hideModerationStatus flag)
   bool isMessageDisapprovedFromModeration(BaseMessage message) {
     return (message is TextMessage &&
-        message.moderationStatus?.value ==
-            ModerationStatusEnum.DISAPPROVED.value) ||
+            message.moderationStatus?.value ==
+                ModerationStatusEnum.DISAPPROVED.value) ||
         (message is MediaMessage &&
-            message.moderationStatus?.value == ModerationStatusEnum.DISAPPROVED.value);
+            message.moderationStatus?.value ==
+                ModerationStatusEnum.DISAPPROVED.value);
   }
 }

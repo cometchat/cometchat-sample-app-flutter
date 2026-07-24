@@ -18,9 +18,9 @@ Future<CometChatMessageComposerAction?>? showCometChatAiOptionSheet({
 }) {
   final aiOptionSheetStyle =
       CometChatThemeHelper.getTheme<CometChatAiOptionSheetStyle>(
-    context: context,
-    defaultTheme: CometChatAiOptionSheetStyle.of,
-  ).merge(style);
+        context: context,
+        defaultTheme: CometChatAiOptionSheetStyle.of,
+      ).merge(style);
 
   showModalBottomSheet(
     context: context,
@@ -30,10 +30,9 @@ Future<CometChatMessageComposerAction?>? showCometChatAiOptionSheet({
         aiOptionSheetStyle.backgroundColor ?? colorPalette?.background1,
     shape: RoundedRectangleBorder(
       side: aiOptionSheetStyle.border ?? BorderSide.none,
-      borderRadius: aiOptionSheetStyle.borderRadius ??
-          BorderRadius.vertical(
-            top: Radius.circular(spacing?.radius6 ?? 0),
-          ),
+      borderRadius:
+          aiOptionSheetStyle.borderRadius ??
+          BorderRadius.vertical(top: Radius.circular(spacing?.radius6 ?? 0)),
     ),
     builder: (builder) {
       return ListView.builder(
@@ -62,25 +61,31 @@ Future<CometChatMessageComposerAction?>? showCometChatAiOptionSheet({
                 minLeadingWidth: 0,
                 minTileHeight: 0,
                 leading: actionItems[index].icon,
-                iconColor: actionItems[index].style?.iconColor ??
+                iconColor:
+                    actionItems[index].style?.iconColor ??
                     aiOptionSheetStyle.iconColor ??
                     colorPalette?.iconHighlight ??
                     Colors.transparent,
                 title: Text(
                   actionItems[index].title,
-                  style: TextStyle(
-                    fontSize: typography?.body?.regular?.fontSize,
-                    fontWeight: typography?.body?.regular?.fontWeight,
-                    color: actionItems[index].style?.titleColor ??
-                        colorPalette?.textPrimary,
-                    fontFamily: typography?.body?.regular?.fontFamily,
-                  )
-                      .merge(actionItems[index].style?.titleTextStyle ??
-                          aiOptionSheetStyle.textStyle)
-                      .copyWith(
-                        color: actionItems[index].style?.titleColor ??
-                            colorPalette?.textPrimary,
-                      ),
+                  style:
+                      TextStyle(
+                            fontSize: typography?.body?.regular?.fontSize,
+                            fontWeight: typography?.body?.regular?.fontWeight,
+                            color:
+                                actionItems[index].style?.titleColor ??
+                                colorPalette?.textPrimary,
+                            fontFamily: typography?.body?.regular?.fontFamily,
+                          )
+                          .merge(
+                            actionItems[index].style?.titleTextStyle ??
+                                aiOptionSheetStyle.textStyle,
+                          )
+                          .copyWith(
+                            color:
+                                actionItems[index].style?.titleColor ??
+                                colorPalette?.textPrimary,
+                          ),
                 ),
               ),
             ),

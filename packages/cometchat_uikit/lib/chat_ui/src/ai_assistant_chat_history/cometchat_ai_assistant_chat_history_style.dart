@@ -121,7 +121,8 @@ class CometChatAIAssistantChatHistoryStyle
   }
 
   CometChatAIAssistantChatHistoryStyle merge(
-      CometChatAIAssistantChatHistoryStyle? other) {
+    CometChatAIAssistantChatHistoryStyle? other,
+  ) {
     if (other == null) return this;
     return copyWith(
       backgroundColor: other.backgroundColor,
@@ -156,48 +157,90 @@ class CometChatAIAssistantChatHistoryStyle
 
   @override
   CometChatAIAssistantChatHistoryStyle lerp(
-      CometChatAIAssistantChatHistoryStyle? other, double t) {
+    CometChatAIAssistantChatHistoryStyle? other,
+    double t,
+  ) {
     if (other is! CometChatAIAssistantChatHistoryStyle) return this;
     return CometChatAIAssistantChatHistoryStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
-      emptyStateTextStyle:
-          TextStyle.lerp(emptyStateTextStyle, other.emptyStateTextStyle, t),
-      emptyStateTextColor:
-          Color.lerp(emptyStateTextColor, other.emptyStateTextColor, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
+      emptyStateTextStyle: TextStyle.lerp(
+        emptyStateTextStyle,
+        other.emptyStateTextStyle,
+        t,
+      ),
+      emptyStateTextColor: Color.lerp(
+        emptyStateTextColor,
+        other.emptyStateTextColor,
+        t,
+      ),
       emptyStateSubtitleStyle: TextStyle.lerp(
-          emptyStateSubtitleStyle, other.emptyStateSubtitleStyle, t),
-      emptyStateSubtitleColor:
-          Color.lerp(emptyStateSubtitleColor, other.emptyStateSubtitleColor, t),
-      errorStateTextStyle:
-          TextStyle.lerp(errorStateTextStyle, other.errorStateTextStyle, t),
-      errorStateTextColor:
-          Color.lerp(errorStateTextColor, other.errorStateTextColor, t),
+        emptyStateSubtitleStyle,
+        other.emptyStateSubtitleStyle,
+        t,
+      ),
+      emptyStateSubtitleColor: Color.lerp(
+        emptyStateSubtitleColor,
+        other.emptyStateSubtitleColor,
+        t,
+      ),
+      errorStateTextStyle: TextStyle.lerp(
+        errorStateTextStyle,
+        other.errorStateTextStyle,
+        t,
+      ),
+      errorStateTextColor: Color.lerp(
+        errorStateTextColor,
+        other.errorStateTextColor,
+        t,
+      ),
       errorStateSubtitleStyle: TextStyle.lerp(
-          errorStateSubtitleStyle, other.errorStateSubtitleStyle, t),
-      errorStateSubtitleColor:
-          Color.lerp(errorStateSubtitleColor, other.errorStateSubtitleColor, t),
+        errorStateSubtitleStyle,
+        other.errorStateSubtitleStyle,
+        t,
+      ),
+      errorStateSubtitleColor: Color.lerp(
+        errorStateSubtitleColor,
+        other.errorStateSubtitleColor,
+        t,
+      ),
       dateSeparatorStyle: dateSeparatorStyle?.lerp(other.dateSeparatorStyle, t),
       newChatIconColor: Color.lerp(newChatIconColor, other.newChatIconColor, t),
-      newChatTitleStyle:
-          TextStyle.lerp(newChatTitleStyle, other.newChatTitleStyle, t),
-      newChatTextColor:
-          Color.lerp(newChatTextColor, other.newChatTextColor, t),
+      newChatTitleStyle: TextStyle.lerp(
+        newChatTitleStyle,
+        other.newChatTitleStyle,
+        t,
+      ),
+      newChatTextColor: Color.lerp(newChatTextColor, other.newChatTextColor, t),
       itemTextStyle: TextStyle.lerp(itemTextStyle, other.itemTextStyle, t),
       itemTextColor: Color.lerp(itemTextColor, other.itemTextColor, t),
-      headerBackgroundColor:
-          Color.lerp(headerBackgroundColor, other.headerBackgroundColor, t),
-      headerTitleTextStyle:
-          TextStyle.lerp(headerTitleTextStyle, other.headerTitleTextStyle, t),
-      headerTitleTextColor:
-          Color.lerp(headerTitleTextColor, other.headerTitleTextColor, t),
+      headerBackgroundColor: Color.lerp(
+        headerBackgroundColor,
+        other.headerBackgroundColor,
+        t,
+      ),
+      headerTitleTextStyle: TextStyle.lerp(
+        headerTitleTextStyle,
+        other.headerTitleTextStyle,
+        t,
+      ),
+      headerTitleTextColor: Color.lerp(
+        headerTitleTextColor,
+        other.headerTitleTextColor,
+        t,
+      ),
       closeIconColor: Color.lerp(closeIconColor, other.closeIconColor, t),
       separatorHeight: lerpDouble(separatorHeight, other.separatorHeight, t),
       separatorColor: Color.lerp(separatorColor, other.separatorColor, t),
       deleteChatHistoryDialogStyle: deleteChatHistoryDialogStyle?.lerp(
-          other.deleteChatHistoryDialogStyle, t),
+        other.deleteChatHistoryDialogStyle,
+        t,
+      ),
     );
   }
 }

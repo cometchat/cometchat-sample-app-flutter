@@ -1,4 +1,6 @@
 /// BLoC for group members list
+library;
+
 export 'group_members_bloc.dart';
 export 'group_members_event.dart';
 export 'group_members_state.dart';

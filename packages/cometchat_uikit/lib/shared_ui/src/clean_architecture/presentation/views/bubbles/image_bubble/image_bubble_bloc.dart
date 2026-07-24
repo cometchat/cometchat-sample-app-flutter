@@ -9,10 +9,7 @@ class InitializeImageEvent extends ImageBubbleEvent {
   final String? imageUrl;
   final Map<String, dynamic>? metadata;
 
-  InitializeImageEvent({
-    this.imageUrl,
-    this.metadata,
-  });
+  InitializeImageEvent({this.imageUrl, this.metadata});
 }
 
 class LoadImageEvent extends ImageBubbleEvent {}
@@ -21,10 +18,7 @@ class ImageLoadedEvent extends ImageBubbleEvent {
   final Uint8List? imageBytes;
   final ui.Image? decodedImage;
 
-  ImageLoadedEvent({
-    this.imageBytes,
-    this.decodedImage,
-  });
+  ImageLoadedEvent({this.imageBytes, this.decodedImage});
 }
 
 class ImageLoadFailedEvent extends ImageBubbleEvent {
@@ -71,12 +65,7 @@ abstract class ImageBubbleBlocState {
 
 class ImageBubbleInitial extends ImageBubbleBlocState {
   const ImageBubbleInitial()
-      : super(
-          imageUrl: null,
-          isLoading: false,
-          isLoaded: false,
-          isCached: false,
-        );
+    : super(imageUrl: null, isLoading: false, isLoaded: false, isCached: false);
 }
 
 class ImageBubbleLoaded extends ImageBubbleBlocState {
@@ -134,35 +123,32 @@ class ImageBubbleBloc extends Bloc<ImageBubbleEvent, ImageBubbleBlocState> {
     Emitter<ImageBubbleBlocState> emit,
   ) {
     // Check if it's HEIC/HEIF format
-    final isHeicHeif = event.imageUrl != null &&
+    final isHeicHeif =
+        event.imageUrl != null &&
         (event.imageUrl!.toLowerCase().endsWith('.heic') ||
             event.imageUrl!.toLowerCase().endsWith('.heif'));
 
-    emit(ImageBubbleLoaded(
-      imageUrl: event.imageUrl,
-      metadata: event.metadata,
-      isHeicHeif: isHeicHeif,
-    ));
+    emit(
+      ImageBubbleLoaded(
+        imageUrl: event.imageUrl,
+        metadata: event.metadata,
+        isHeicHeif: isHeicHeif,
+      ),
+    );
 
     // Check if image is already cached
     add(CheckCacheEvent());
-    
+
     // Start loading the image
     if (event.imageUrl != null && event.imageUrl!.isNotEmpty) {
       add(LoadImageEvent());
     }
   }
 
-  void _onLoadImage(
-    LoadImageEvent event,
-    Emitter<ImageBubbleBlocState> emit,
-  ) {
+  void _onLoadImage(LoadImageEvent event, Emitter<ImageBubbleBlocState> emit) {
     if (state is ImageBubbleLoaded) {
       final currentState = state as ImageBubbleLoaded;
-      emit(currentState.copyWith(
-        isLoading: true,
-        error: null,
-      ));
+      emit(currentState.copyWith(isLoading: true, error: null));
 
       // Actual image loading would be done in the view layer
       // using CachedNetworkImage or similar
@@ -176,12 +162,14 @@ class ImageBubbleBloc extends Bloc<ImageBubbleEvent, ImageBubbleBlocState> {
   ) {
     if (state is ImageBubbleLoaded) {
       final currentState = state as ImageBubbleLoaded;
-      emit(currentState.copyWith(
-        isLoading: false,
-        isLoaded: true,
-        imageBytes: event.imageBytes,
-        decodedImage: event.decodedImage,
-      ));
+      emit(
+        currentState.copyWith(
+          isLoading: false,
+          isLoaded: true,
+          imageBytes: event.imageBytes,
+          decodedImage: event.decodedImage,
+        ),
+      );
     }
   }
 
@@ -191,11 +179,13 @@ class ImageBubbleBloc extends Bloc<ImageBubbleEvent, ImageBubbleBlocState> {
   ) {
     if (state is ImageBubbleLoaded) {
       final currentState = state as ImageBubbleLoaded;
-      emit(currentState.copyWith(
-        isLoading: false,
-        isLoaded: false,
-        error: event.error,
-      ));
+      emit(
+        currentState.copyWith(
+          isLoading: false,
+          isLoaded: false,
+          error: event.error,
+        ),
+      );
     }
   }
 

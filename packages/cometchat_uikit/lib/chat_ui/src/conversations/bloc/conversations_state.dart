@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Base class for conversations states
 /// Uses Equatable for proper state comparison in BLoC
@@ -21,7 +21,7 @@ class ConversationsLoading extends ConversationsState {
 }
 
 /// Loaded state with conversation data
-/// 
+///
 /// Note: Typing indicators are managed separately via ValueNotifier per conversation
 /// for optimized rebuilds. Use [ConversationsBloc.getTypingNotifier] to access them.
 class ConversationsLoaded extends ConversationsState {
@@ -54,13 +54,13 @@ class ConversationsLoaded extends ConversationsState {
 
   @override
   List<Object?> get props => [
-        _version,
-        conversations,
-        hasMore,
-        selectedConversations,
-        activeConversationId,
-        isLoadingMore,
-      ];
+    _version,
+    conversations,
+    hasMore,
+    selectedConversations,
+    activeConversationId,
+    isLoadingMore,
+  ];
 
   /// Create a copy of this state with updated fields
   ConversationsLoaded copyWith({
@@ -91,10 +91,7 @@ class ConversationsError extends ConversationsState {
   final String message;
   final List<Conversation>? previousConversations;
 
-  const ConversationsError({
-    required this.message,
-    this.previousConversations,
-  });
+  const ConversationsError({required this.message, this.previousConversations});
 
   @override
   List<Object?> get props => [message, previousConversations];

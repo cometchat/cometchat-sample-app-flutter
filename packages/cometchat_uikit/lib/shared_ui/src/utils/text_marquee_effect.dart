@@ -38,8 +38,9 @@ class _CometChatMarqueeState extends State<CometChatMarquee>
 
       final textPainter = TextPainter(
         text: TextSpan(
-            text: widget.text,
-            style: widget.style ?? const TextStyle(fontSize: 20)),
+          text: widget.text,
+          style: widget.style ?? const TextStyle(fontSize: 20),
+        ),
         maxLines: 1,
         textDirection: TextDirection.ltr,
       )..layout();
@@ -85,7 +86,9 @@ class _CometChatMarqueeState extends State<CometChatMarquee>
     );
 
     // If text doesn't require scrolling, return just the text
-    if (widget.text == cc.Translations.of(context).online || !_needsScrolling) return textWidget;
+    if (widget.text == cc.Translations.of(context).online || !_needsScrolling) {
+      return textWidget;
+    }
 
     if (_controller == null) return const SizedBox.shrink();
 
@@ -104,16 +107,14 @@ class _CometChatMarqueeState extends State<CometChatMarquee>
               // During pause, offset is 0
               offset = 0;
             } else {
-              final scrollValue = (_controller!.value * totalDurationMs - pauseMs) / scrollMs;
+              final scrollValue =
+                  (_controller!.value * totalDurationMs - pauseMs) / scrollMs;
               offset = -(_textWidth + widget.blankSpace) * scrollValue;
             }
 
             return Stack(
               children: [
-                Positioned(
-                  left: offset,
-                  child: textWidget,
-                ),
+                Positioned(left: offset, child: textWidget),
                 Positioned(
                   left: offset + _textWidth + widget.blankSpace,
                   child: textWidget,

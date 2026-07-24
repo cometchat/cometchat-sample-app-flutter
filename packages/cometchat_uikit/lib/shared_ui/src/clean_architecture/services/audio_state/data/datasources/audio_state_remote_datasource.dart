@@ -47,8 +47,8 @@ abstract class AudioStateRemoteDataSource {
 class AudioStateRemoteDataSourceImpl implements AudioStateRemoteDataSource {
   final Map<int, AudioStateEntity> _audioStates = {};
   final Map<int, VideoPlayerController?> _controllers = {};
-  final Map<int, StreamController<AudioStateUpdateEntity>>
-      _stateControllers = {};
+  final Map<int, StreamController<AudioStateUpdateEntity>> _stateControllers =
+      {};
 
   @override
   Future<AudioStateEntity> getAudioState(
@@ -211,7 +211,8 @@ class AudioStateRemoteDataSourceImpl implements AudioStateRemoteDataSource {
 
   void _initializeStreamController(int audioId) {
     if (!_stateControllers.containsKey(audioId)) {
-      _stateControllers[audioId] = StreamController<AudioStateUpdateEntity>.broadcast();
+      _stateControllers[audioId] =
+          StreamController<AudioStateUpdateEntity>.broadcast();
     }
   }
 

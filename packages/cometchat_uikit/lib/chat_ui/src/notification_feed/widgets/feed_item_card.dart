@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import 'package:cometchat_cards/cometchat_cards.dart';
 
 import '../cometchat_notification_feed_style.dart';
@@ -37,8 +37,10 @@ class FeedItemCard extends StatefulWidget {
 
   /// Callback when an action within the card is triggered.
   final void Function(
-          NotificationFeedItem feedItem, CometChatCardActionEvent action)?
-      onActionClick;
+    NotificationFeedItem feedItem,
+    CometChatCardActionEvent action,
+  )?
+  onActionClick;
 
   /// Callback to report "clicked" engagement.
   final VoidCallback? onClicked;
@@ -111,7 +113,8 @@ class _FeedItemCardState extends State<FeedItemCard> {
     return _VisibilityDetectorWidget(
       onVisibilityChanged: _handleVisibilityChanged,
       child: Semantics(
-        label: 'Notification from ${widget.feedItem.category}${isUnread ? ', unread' : ''}',
+        label:
+            'Notification from ${widget.feedItem.category}${isUnread ? ', unread' : ''}',
         child: GestureDetector(
           onTap: () {
             widget.onClicked?.call();
@@ -122,7 +125,8 @@ class _FeedItemCardState extends State<FeedItemCard> {
             decoration: BoxDecoration(
               color: widget.style.cardBackgroundColor,
               borderRadius: BorderRadius.circular(
-                  widget.style.cardBorderRadius ?? 12),
+                widget.style.cardBorderRadius ?? 12,
+              ),
               border: Border.all(
                 color: widget.style.cardBorderColor ?? Colors.grey.shade200,
                 width: widget.style.cardBorderWidth ?? 0.5,
@@ -156,19 +160,25 @@ class _FeedItemCardState extends State<FeedItemCard> {
                           children: [
                             Text(
                               widget.feedItem.category,
-                              style: (widget.style.timestampTextStyle ??
-                                      const TextStyle(fontSize: 11))
-                                  .copyWith(
-                                      color: widget.style.timestampTextColor ??
-                                          Colors.grey.shade600),
+                              style:
+                                  (widget.style.timestampTextStyle ??
+                                          const TextStyle(fontSize: 11))
+                                      .copyWith(
+                                        color:
+                                            widget.style.timestampTextColor ??
+                                            Colors.grey.shade600,
+                                      ),
                             ),
                             Text(
                               getRelativeTime(widget.feedItem.sentAt, locale),
-                              style: (widget.style.timestampTextStyle ??
-                                      const TextStyle(fontSize: 11))
-                                  .copyWith(
-                                      color: widget.style.timestampTextColor ??
-                                          Colors.grey.shade600),
+                              style:
+                                  (widget.style.timestampTextStyle ??
+                                          const TextStyle(fontSize: 11))
+                                      .copyWith(
+                                        color:
+                                            widget.style.timestampTextColor ??
+                                            Colors.grey.shade600,
+                                      ),
                             ),
                           ],
                         ),
@@ -182,8 +192,7 @@ class _FeedItemCardState extends State<FeedItemCard> {
                           themeOverride: widget.cardThemeOverride,
                           onAction: (CometChatCardActionEvent action) {
                             widget.onClicked?.call();
-                            widget.onActionClick?.call(
-                                widget.feedItem, action);
+                            widget.onActionClick?.call(widget.feedItem, action);
                             // Show toast for button/link taps
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -282,10 +291,7 @@ class _VisibilityDetectorWidgetState extends State<_VisibilityDetectorWidget>
         _checkVisibility();
         return false;
       },
-      child: KeyedSubtree(
-        key: _key,
-        child: widget.child,
-      ),
+      child: KeyedSubtree(key: _key, child: widget.child),
     );
   }
 }

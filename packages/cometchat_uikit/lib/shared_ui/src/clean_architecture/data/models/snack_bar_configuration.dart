@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 class SnackBarConfiguration {
-  SnackBarConfiguration(
-      {this.backgroundColor,
-      this.elevation,
-      this.margin,
-      this.padding,
-      this.duration,
-      this.contentTextStyle});
+  SnackBarConfiguration({
+    this.backgroundColor,
+    this.elevation,
+    this.margin,
+    this.padding,
+    this.duration,
+    this.contentTextStyle,
+  });
 
   ///[backgroundColor] set background color for the snackBar
   final Color? backgroundColor;

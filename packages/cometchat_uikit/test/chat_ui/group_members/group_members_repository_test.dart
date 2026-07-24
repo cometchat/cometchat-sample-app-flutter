@@ -56,11 +56,13 @@ void main() {
   group('getGroupMembers', () {
     test('returns success with members from remote', () async {
       final members = [FakeGroupMember('uid_1'), FakeGroupMember('uid_2')];
-      when(() => remote.getGroupMembers(
-            guid: any(named: 'guid'),
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-          )).thenAnswer((_) async => members);
+      when(
+        () => remote.getGroupMembers(
+          guid: any(named: 'guid'),
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+        ),
+      ).thenAnswer((_) async => members);
 
       final result = await repo.getGroupMembers(guid: 'test_group');
 
@@ -69,14 +71,18 @@ void main() {
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.getGroupMembers(
-            guid: any(named: 'guid'),
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-          )).thenThrow(const GroupMembersRemoteDataSourceException(
-        message: 'Network error',
-        code: 'NET_ERR',
-      ));
+      when(
+        () => remote.getGroupMembers(
+          guid: any(named: 'guid'),
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+        ),
+      ).thenThrow(
+        const GroupMembersRemoteDataSourceException(
+          message: 'Network error',
+          code: 'NET_ERR',
+        ),
+      );
 
       final result = await repo.getGroupMembers(guid: 'test_group');
 
@@ -84,11 +90,13 @@ void main() {
     });
 
     test('passes all params to remote data source', () async {
-      when(() => remote.getGroupMembers(
-            guid: any(named: 'guid'),
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-          )).thenAnswer((_) async => []);
+      when(
+        () => remote.getGroupMembers(
+          guid: any(named: 'guid'),
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+        ),
+      ).thenAnswer((_) async => []);
 
       await repo.getGroupMembers(
         guid: 'test_group',
@@ -96,11 +104,13 @@ void main() {
         searchKeyword: 'alice',
       );
 
-      verify(() => remote.getGroupMembers(
-            guid: 'test_group',
-            limit: 20,
-            searchKeyword: 'alice',
-          )).called(1);
+      verify(
+        () => remote.getGroupMembers(
+          guid: 'test_group',
+          limit: 20,
+          searchKeyword: 'alice',
+        ),
+      ).called(1);
     });
   });
 
@@ -110,10 +120,12 @@ void main() {
 
   group('kickGroupMember', () {
     test('returns success when remote succeeds', () async {
-      when(() => remote.kickGroupMember(
-            guid: any(named: 'guid'),
-            uid: any(named: 'uid'),
-          )).thenAnswer((_) async {});
+      when(
+        () => remote.kickGroupMember(
+          guid: any(named: 'guid'),
+          uid: any(named: 'uid'),
+        ),
+      ).thenAnswer((_) async {});
 
       final result = await repo.kickGroupMember(
         guid: 'test_group',
@@ -123,13 +135,17 @@ void main() {
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.kickGroupMember(
-            guid: any(named: 'guid'),
-            uid: any(named: 'uid'),
-          )).thenThrow(const GroupMembersRemoteDataSourceException(
-        message: 'Kick failed',
-        code: 'KICK_ERR',
-      ));
+      when(
+        () => remote.kickGroupMember(
+          guid: any(named: 'guid'),
+          uid: any(named: 'uid'),
+        ),
+      ).thenThrow(
+        const GroupMembersRemoteDataSourceException(
+          message: 'Kick failed',
+          code: 'KICK_ERR',
+        ),
+      );
 
       final result = await repo.kickGroupMember(
         guid: 'test_group',
@@ -145,10 +161,12 @@ void main() {
 
   group('banGroupMember', () {
     test('returns success when remote succeeds', () async {
-      when(() => remote.banGroupMember(
-            guid: any(named: 'guid'),
-            uid: any(named: 'uid'),
-          )).thenAnswer((_) async {});
+      when(
+        () => remote.banGroupMember(
+          guid: any(named: 'guid'),
+          uid: any(named: 'uid'),
+        ),
+      ).thenAnswer((_) async {});
 
       final result = await repo.banGroupMember(
         guid: 'test_group',
@@ -158,12 +176,14 @@ void main() {
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.banGroupMember(
-            guid: any(named: 'guid'),
-            uid: any(named: 'uid'),
-          )).thenThrow(const GroupMembersRemoteDataSourceException(
-        message: 'Ban failed',
-      ));
+      when(
+        () => remote.banGroupMember(
+          guid: any(named: 'guid'),
+          uid: any(named: 'uid'),
+        ),
+      ).thenThrow(
+        const GroupMembersRemoteDataSourceException(message: 'Ban failed'),
+      );
 
       final result = await repo.banGroupMember(
         guid: 'test_group',
@@ -179,11 +199,13 @@ void main() {
 
   group('updateMemberScope', () {
     test('returns success when remote succeeds', () async {
-      when(() => remote.updateMemberScope(
-            guid: any(named: 'guid'),
-            uid: any(named: 'uid'),
-            scope: any(named: 'scope'),
-          )).thenAnswer((_) async {});
+      when(
+        () => remote.updateMemberScope(
+          guid: any(named: 'guid'),
+          uid: any(named: 'uid'),
+          scope: any(named: 'scope'),
+        ),
+      ).thenAnswer((_) async {});
 
       final result = await repo.updateMemberScope(
         guid: 'test_group',
@@ -194,13 +216,17 @@ void main() {
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.updateMemberScope(
-            guid: any(named: 'guid'),
-            uid: any(named: 'uid'),
-            scope: any(named: 'scope'),
-          )).thenThrow(const GroupMembersRemoteDataSourceException(
-        message: 'Scope update failed',
-      ));
+      when(
+        () => remote.updateMemberScope(
+          guid: any(named: 'guid'),
+          uid: any(named: 'uid'),
+          scope: any(named: 'scope'),
+        ),
+      ).thenThrow(
+        const GroupMembersRemoteDataSourceException(
+          message: 'Scope update failed',
+        ),
+      );
 
       final result = await repo.updateMemberScope(
         guid: 'test_group',
@@ -217,8 +243,7 @@ void main() {
 
   group('getLoggedInUser', () {
     test('returns success with user', () async {
-      when(() => remote.getLoggedInUser())
-          .thenAnswer((_) async => FakeUser());
+      when(() => remote.getLoggedInUser()).thenAnswer((_) async => FakeUser());
 
       final result = await repo.getLoggedInUser();
       expect(result.isSuccess, isTrue);
@@ -226,9 +251,7 @@ void main() {
 
     test('returns failure when remote throws', () async {
       when(() => remote.getLoggedInUser()).thenThrow(
-        const GroupMembersRemoteDataSourceException(
-          message: 'Not logged in',
-        ),
+        const GroupMembersRemoteDataSourceException(message: 'Not logged in'),
       );
 
       final result = await repo.getLoggedInUser();
@@ -242,8 +265,9 @@ void main() {
 
   group('getConversation', () {
     test('returns success with conversation', () async {
-      when(() => remote.getConversation(any()))
-          .thenAnswer((_) async => FakeConversation());
+      when(
+        () => remote.getConversation(any()),
+      ).thenAnswer((_) async => FakeConversation());
 
       final result = await repo.getConversation('test_group');
       expect(result.isSuccess, isTrue);

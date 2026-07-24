@@ -6,7 +6,7 @@ import '../repositories/rich_text_repository.dart';
 /// Use case for applying formatting to text
 ///
 /// Validates inputs and delegates to repository.applyFormat()
-/// Returns Result<FormatResult> with success or failure
+/// Returns `Result<FormatResult>` with success or failure
 class ApplyFormatUseCase {
   final RichTextRepository repository;
 
@@ -19,7 +19,7 @@ class ApplyFormatUseCase {
   /// - Selection range must be valid (start >= 0, end <= text.length)
   ///
   /// Returns:
-  /// - Success<FormatResult> if formatting applied successfully
+  /// - `Success<FormatResult>` if formatting applied successfully
   /// - Failure if validation fails or formatting operation fails
   Future<Result<FormatResult>> call({
     required FormatType formatType,

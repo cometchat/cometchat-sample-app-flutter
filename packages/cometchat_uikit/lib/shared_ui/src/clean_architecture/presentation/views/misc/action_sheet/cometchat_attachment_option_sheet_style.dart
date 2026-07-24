@@ -59,7 +59,8 @@ class CometChatAttachmentOptionSheetStyle
   }
 
   CometChatAttachmentOptionSheetStyle merge(
-      CometChatAttachmentOptionSheetStyle? style) {
+    CometChatAttachmentOptionSheetStyle? style,
+  ) {
     if (style == null) return this;
     return copyWith(
       backgroundColor: style.backgroundColor,
@@ -73,7 +74,9 @@ class CometChatAttachmentOptionSheetStyle
 
   @override
   CometChatAttachmentOptionSheetStyle lerp(
-      ThemeExtension<CometChatAttachmentOptionSheetStyle>? other, double t) {
+    ThemeExtension<CometChatAttachmentOptionSheetStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatAttachmentOptionSheetStyle) {
       return this;
     }
@@ -82,8 +85,11 @@ class CometChatAttachmentOptionSheetStyle
       border: Border.lerp(border, other.border, t),
       titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
       titleColor: Color.lerp(titleColor, other.titleColor, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       iconColor: Color.lerp(iconColor, other.iconColor, t),
     );
   }

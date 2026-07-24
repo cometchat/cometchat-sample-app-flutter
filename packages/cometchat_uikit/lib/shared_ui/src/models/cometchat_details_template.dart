@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../cometchat_uikit_shared.dart';
 
-///[CometChatDetailsTemplate] is the section of options displayed in [CometChatDetails]
+///[CometChatDetailsTemplate] is the section of options displayed in `CometChatDetails`
 ///
 /// ```dart
 ///
@@ -39,8 +39,12 @@ class CometChatDetailsTemplate {
   final String id;
 
   ///[options] is a function which returns list of [CometChatDetailsOption] for every [CometChatDetailsTemplate]
-  final List<CometChatDetailsOption> Function(User? user, Group? group,
-      BuildContext? context)? options;
+  final List<CometChatDetailsOption> Function(
+    User? user,
+    Group? group,
+    BuildContext? context,
+  )?
+  options;
 
   ///[title] is the title of [CometChatDetailsTemplate]
   final String? title;
@@ -61,15 +65,16 @@ class CometChatDetailsTemplate {
   final bool? hideItemSeparator;
 
   ///[CometChatDetailsTemplate] constructor requires [id] and [options] while initializing.
-  const CometChatDetailsTemplate(
-      {required this.id,
-      this.options,
-      this.title,
-      this.titleStyle,
-      this.sectionSeparatorColor,
-      this.hideSectionSeparator,
-      this.itemSeparatorColor,
-      this.hideItemSeparator});
+  const CometChatDetailsTemplate({
+    required this.id,
+    this.options,
+    this.title,
+    this.titleStyle,
+    this.sectionSeparatorColor,
+    this.hideSectionSeparator,
+    this.itemSeparatorColor,
+    this.hideItemSeparator,
+  });
 
   @override
   String toString() {

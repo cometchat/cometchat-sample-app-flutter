@@ -2,6 +2,7 @@
 ///
 /// This module contains all formatter data source implementations
 /// that handle the low-level text manipulation logic for each format type.
+library;
 
 export 'formatter_datasource.dart';
 export 'bold_formatter_datasource.dart';

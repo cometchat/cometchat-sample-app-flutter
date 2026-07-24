@@ -1,6 +1,7 @@
 /// Domain layer exports for message list module
 ///
 /// The canonical implementations now live here in chat_ui.
+library;
 
 // Repository interfaces
 export 'repositories/message_list_repository.dart';

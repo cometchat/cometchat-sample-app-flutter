@@ -144,16 +144,18 @@ class ConversationsSubtitleView extends StatelessWidget {
                   ),
                   child: Text(
                     prefix,
-                    style: TextStyle(
-                      color: style.itemSubtitleTextColor ??
-                          colorPalette.textSecondary,
-                      fontWeight: typography.body?.regular?.fontWeight,
-                      fontSize: typography.body?.regular?.fontSize,
-                      fontFamily: typography.body?.regular?.fontFamily,
-                      letterSpacing: 0,
-                    )
-                        .merge(style.itemSubtitleTextStyle)
-                        .copyWith(color: style.itemSubtitleTextColor),
+                    style:
+                        TextStyle(
+                              color:
+                                  style.itemSubtitleTextColor ??
+                                  colorPalette.textSecondary,
+                              fontWeight: typography.body?.regular?.fontWeight,
+                              fontSize: typography.body?.regular?.fontSize,
+                              fontFamily: typography.body?.regular?.fontFamily,
+                              letterSpacing: 0,
+                            )
+                            .merge(style.itemSubtitleTextStyle)
+                            .copyWith(color: style.itemSubtitleTextColor),
                   ),
                 ),
               ],
@@ -184,9 +186,7 @@ class ConversationsSubtitleView extends StatelessWidget {
           )
         // Show last message subtitle when not typing
         else
-          Expanded(
-            child: _getSubtitle(context, conversation),
-          ),
+          Expanded(child: _getSubtitle(context, conversation)),
       ],
     );
   }
@@ -220,30 +220,33 @@ class ConversationsSubtitleView extends StatelessWidget {
         conversation.lastMessage!.type != "groupMember" &&
         conversation.lastMessage!.sender?.uid ==
             CometChatUIKit.loggedInUser?.uid) {
-      ReceiptStatus status =
-          MessageReceiptUtils.getReceiptStatus(conversation.lastMessage!);
+      ReceiptStatus status = MessageReceiptUtils.getReceiptStatus(
+        conversation.lastMessage!,
+      );
 
       return Padding(
-        padding: EdgeInsets.only(
-          right: spacing.padding1 ?? 0,
-        ),
+        padding: EdgeInsets.only(right: spacing.padding1 ?? 0),
         child: CometChatReceipt(
           status: status,
           style: receiptStyle,
-          deliveredIcon: deliveredIcon ??
+          deliveredIcon:
+              deliveredIcon ??
               Icon(
                 Icons.done_all,
                 color:
-                    receiptStyle.deliveredIconColor ?? colorPalette.iconSecondary,
+                    receiptStyle.deliveredIconColor ??
+                    colorPalette.iconSecondary,
                 size: 16,
               ),
-          readIcon: readIcon ??
+          readIcon:
+              readIcon ??
               Icon(
                 Icons.done_all,
                 color: receiptStyle.readIconColor ?? colorPalette.iconHighlight,
                 size: 16,
               ),
-          sentIcon: sentIcon ??
+          sentIcon:
+              sentIcon ??
               Icon(
                 Icons.check,
                 color: receiptStyle.sentIconColor ?? colorPalette.iconSecondary,
@@ -267,9 +270,9 @@ class ConversationsSubtitleView extends StatelessWidget {
   /// - 2+ users typing: "N people are typing..."
   String _getTypingText(BuildContext context) {
     final count = typingIndicators.length;
-    
+
     if (count == 0) return '';
-    
+
     if (count == 1) {
       // For user conversations, show just "is typing..."
       // For group conversations, show "Name is typing..."
@@ -279,23 +282,24 @@ class ConversationsSubtitleView extends StatelessWidget {
         return '${typingIndicators.first.sender.name} ${cc.Translations.of(context).isTyping}';
       }
     }
-    
+
     // Multiple people typing
     return '$count people are typing...';
   }
 
   /// Returns the subtitle widget with the last message text.
   Widget _getSubtitle(BuildContext context, Conversation conversation) {
-    TextStyle subtitleStyle = TextStyle(
-      overflow: TextOverflow.ellipsis,
-      color: style.itemSubtitleTextColor ?? colorPalette.textSecondary,
-      fontSize: typography.body?.regular?.fontSize,
-      fontWeight: typography.body?.regular?.fontWeight,
-      fontFamily: typography.body?.regular?.fontFamily,
-      letterSpacing: 0,
-    )
-        .merge(style.itemSubtitleTextStyle)
-        .copyWith(color: style.itemSubtitleTextColor);
+    TextStyle subtitleStyle =
+        TextStyle(
+              overflow: TextOverflow.ellipsis,
+              color: style.itemSubtitleTextColor ?? colorPalette.textSecondary,
+              fontSize: typography.body?.regular?.fontSize,
+              fontWeight: typography.body?.regular?.fontWeight,
+              fontFamily: typography.body?.regular?.fontFamily,
+              letterSpacing: 0,
+            )
+            .merge(style.itemSubtitleTextStyle)
+            .copyWith(color: style.itemSubtitleTextColor);
 
     AdditionalConfigurations? configurations;
 
@@ -304,8 +308,8 @@ class ConversationsSubtitleView extends StatelessWidget {
       // Pass all formatters including MarkdownTextFormatter so the conversation
       // subtitle renders with the same rich formatting as message bubbles
       // (bold, italic, code, etc.) but truncated to a single line.
-      List<CometChatTextFormatter> allFormatters = textFormatters ??
-          MessageTemplateUtils.getDefaultTextFormatters();
+      List<CometChatTextFormatter> allFormatters =
+          textFormatters ?? MessageTemplateUtils.getDefaultTextFormatters();
       // Ensure MarkdownTextFormatter is present for rich text rendering
       if (!allFormatters.any((f) => f is MarkdownTextFormatter)) {
         allFormatters = [MarkdownTextFormatter(), ...allFormatters];
@@ -315,9 +319,7 @@ class ConversationsSubtitleView extends StatelessWidget {
           formatter.message = conversation.lastMessage as TextMessage;
         }
       }
-      configurations = AdditionalConfigurations(
-        textFormatters: allFormatters,
-      );
+      configurations = AdditionalConfigurations(textFormatters: allFormatters);
     }
 
     Widget subtitle = ConversationSubtitleUtils.getConversationSubtitle(

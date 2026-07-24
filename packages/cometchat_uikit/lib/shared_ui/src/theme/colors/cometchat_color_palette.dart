@@ -170,21 +170,18 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
   final Color? secondaryButtonText;
 
   ///[white] provides white color
-   Color? white = Colors.white;
+  Color? white = Colors.white;
 
-   ///[transparent] provides transparent color
-   Color? transparent = Colors.transparent;
+  ///[transparent] provides transparent color
+  Color? transparent = Colors.transparent;
 
-   ///[black] provides black color
-   Color? black = Colors.black;
+  ///[black] provides black color
+  Color? black = Colors.black;
 
-   ///[messageSeen] provides color that is used to indicate the message has been read
-    Color? messageSeen;
+  ///[messageSeen] provides color that is used to indicate the message has been read
+  Color? messageSeen;
 
-
-
-
-   CometChatColorPalette({
+  CometChatColorPalette({
     /// Primary Color
     this.primary,
 
@@ -245,9 +242,11 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
     this.iconTertiary,
     this.iconWhite,
     this.iconHighlight,
+
     /// Shimmer Color
     this.shimmerBackground,
     this.shimmerGradient,
+
     /// Button Color
     this.buttonBackground,
     this.secondaryButtonBackground,
@@ -257,8 +256,8 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
     this.secondaryButtonText,
     this.white = Colors.white,
     this.transparent = Colors.transparent,
-     this.black = Colors.black,
-     this.messageSeen =  const Color(0XFF56E8A7),
+    this.black = Colors.black,
+    this.messageSeen = const Color(0XFF56E8A7),
   });
 
   @override
@@ -328,6 +327,7 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
     ///shimmer color
     Color? shimmerBackground,
     Gradient? shimmerGradient,
+
     ///button color
     Color? buttonBackground,
     Color? secondaryButtonBackground,
@@ -401,12 +401,15 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
       iconTertiary: iconTertiary ?? this.iconTertiary,
       iconWhite: iconWhite ?? this.iconWhite,
       iconHighlight: iconHighlight ?? this.iconHighlight,
+
       /// Shimmer Color
       shimmerBackground: shimmerBackground ?? this.shimmerBackground,
       shimmerGradient: shimmerGradient ?? this.shimmerGradient,
+
       /// Button Color
       buttonBackground: buttonBackground ?? this.buttonBackground,
-      secondaryButtonBackground: secondaryButtonBackground ?? this.secondaryButtonBackground,
+      secondaryButtonBackground:
+          secondaryButtonBackground ?? this.secondaryButtonBackground,
       buttonIconColor: buttonIconColor ?? this.buttonIconColor,
       buttonText: buttonText ?? this.buttonText,
       secondaryButtonIcon: secondaryButtonIcon ?? this.secondaryButtonIcon,
@@ -421,7 +424,9 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
   ///[lerp] method blends two colors together based on the percentage provided.
   @override
   CometChatColorPalette lerp(
-      ThemeExtension<CometChatColorPalette>? other, double t) {
+    ThemeExtension<CometChatColorPalette>? other,
+    double t,
+  ) {
     if (other is! CometChatColorPalette) {
       return this;
     }
@@ -430,26 +435,56 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
       primary: Color.lerp(primary, other.primary, t),
 
       /// Extended Primary Color
-      extendedPrimary200:
-          Color.lerp(extendedPrimary200, other.extendedPrimary200, t),
-      extendedPrimary100:
-          Color.lerp(extendedPrimary100, other.extendedPrimary100, t),
-      extendedPrimary300:
-          Color.lerp(extendedPrimary300, other.extendedPrimary300, t),
-      extendedPrimary400:
-          Color.lerp(extendedPrimary400, other.extendedPrimary400, t),
-      extendedPrimary500:
-          Color.lerp(extendedPrimary500, other.extendedPrimary500, t),
-      extendedPrimary600:
-          Color.lerp(extendedPrimary600, other.extendedPrimary600, t),
-      extendedPrimary700:
-          Color.lerp(extendedPrimary700, other.extendedPrimary700, t),
-      extendedPrimary800:
-          Color.lerp(extendedPrimary800, other.extendedPrimary800, t),
-      extendedPrimary900:
-          Color.lerp(extendedPrimary900, other.extendedPrimary900, t),
-      extendedPrimary50:
-          Color.lerp(extendedPrimary50, other.extendedPrimary50, t),
+      extendedPrimary200: Color.lerp(
+        extendedPrimary200,
+        other.extendedPrimary200,
+        t,
+      ),
+      extendedPrimary100: Color.lerp(
+        extendedPrimary100,
+        other.extendedPrimary100,
+        t,
+      ),
+      extendedPrimary300: Color.lerp(
+        extendedPrimary300,
+        other.extendedPrimary300,
+        t,
+      ),
+      extendedPrimary400: Color.lerp(
+        extendedPrimary400,
+        other.extendedPrimary400,
+        t,
+      ),
+      extendedPrimary500: Color.lerp(
+        extendedPrimary500,
+        other.extendedPrimary500,
+        t,
+      ),
+      extendedPrimary600: Color.lerp(
+        extendedPrimary600,
+        other.extendedPrimary600,
+        t,
+      ),
+      extendedPrimary700: Color.lerp(
+        extendedPrimary700,
+        other.extendedPrimary700,
+        t,
+      ),
+      extendedPrimary800: Color.lerp(
+        extendedPrimary800,
+        other.extendedPrimary800,
+        t,
+      ),
+      extendedPrimary900: Color.lerp(
+        extendedPrimary900,
+        other.extendedPrimary900,
+        t,
+      ),
+      extendedPrimary50: Color.lerp(
+        extendedPrimary50,
+        other.extendedPrimary50,
+        t,
+      ),
 
       /// Neutral Color
       neutral50: Color.lerp(neutral50, other.neutral50, t),
@@ -496,16 +531,34 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
       iconTertiary: Color.lerp(iconTertiary, other.iconTertiary, t),
       iconWhite: Color.lerp(iconWhite, other.iconWhite, t),
       iconHighlight: Color.lerp(iconHighlight, other.iconHighlight, t),
+
       /// Shimmer Color
-      shimmerBackground: Color.lerp(shimmerBackground, other.shimmerBackground, t),
+      shimmerBackground: Color.lerp(
+        shimmerBackground,
+        other.shimmerBackground,
+        t,
+      ),
       shimmerGradient: Gradient.lerp(shimmerGradient, other.shimmerGradient, t),
+
       /// Button Color
       buttonBackground: Color.lerp(buttonBackground, other.buttonBackground, t),
-      secondaryButtonBackground: Color.lerp(secondaryButtonBackground, other.secondaryButtonBackground, t),
+      secondaryButtonBackground: Color.lerp(
+        secondaryButtonBackground,
+        other.secondaryButtonBackground,
+        t,
+      ),
       buttonIconColor: Color.lerp(buttonIconColor, other.buttonIconColor, t),
       buttonText: Color.lerp(buttonText, other.buttonText, t),
-      secondaryButtonIcon: Color.lerp(secondaryButtonIcon, other.secondaryButtonIcon, t),
-      secondaryButtonText: Color.lerp(secondaryButtonText, other.secondaryButtonText, t),
+      secondaryButtonIcon: Color.lerp(
+        secondaryButtonIcon,
+        other.secondaryButtonIcon,
+        t,
+      ),
+      secondaryButtonText: Color.lerp(
+        secondaryButtonText,
+        other.secondaryButtonText,
+        t,
+      ),
 
       white: Color.lerp(white, other.white, t),
       transparent: Color.lerp(transparent, other.transparent, t),
@@ -515,6 +568,6 @@ class CometChatColorPalette extends ThemeExtension<CometChatColorPalette> {
   }
 
   ///[of] method returns the default [CometChatColorPalette] instance.
-  static CometChatColorPalette of(BuildContext? context) => CometChatColorPalette();
-
+  static CometChatColorPalette of(BuildContext? context) =>
+      CometChatColorPalette();
 }

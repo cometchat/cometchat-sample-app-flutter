@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Base class for group members states
 /// Uses Equatable for proper state comparison in BLoC
@@ -50,12 +50,12 @@ class GroupMembersLoaded extends GroupMembersState {
 
   @override
   List<Object?> get props => [
-        members,
-        hasMore,
-        selectedMembers,
-        isLoadingMore,
-        searchKeyword,
-      ];
+    members,
+    hasMore,
+    selectedMembers,
+    isLoadingMore,
+    searchKeyword,
+  ];
 
   /// Create a copy of this state with updated fields
   GroupMembersLoaded copyWith({
@@ -88,10 +88,7 @@ class GroupMembersError extends GroupMembersState {
   /// Previous members list for recovery/retry scenarios
   final List<GroupMember>? previousMembers;
 
-  const GroupMembersError({
-    required this.message,
-    this.previousMembers,
-  });
+  const GroupMembersError({required this.message, this.previousMembers});
 
   @override
   List<Object?> get props => [message, previousMembers];

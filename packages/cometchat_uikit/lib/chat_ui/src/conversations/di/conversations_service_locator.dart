@@ -13,7 +13,7 @@ import '../data/repositories/conversations_repository_impl.dart';
 /// Provides dependency injection for conversations clean architecture
 /// Follows singleton pattern for consistent dependency resolution
 class ConversationsServiceLocator {
-  static final ConversationsServiceLocator _instance = 
+  static final ConversationsServiceLocator _instance =
       ConversationsServiceLocator._internal();
 
   ConversationsServiceLocator._internal();
@@ -98,7 +98,7 @@ class ConversationsServiceLocator {
   bool get isInitialized => _isInitialized;
 
   // Use case getters
-  
+
   /// Get use case for fetching conversations
   GetConversationsUseCase get getConversationsUseCase {
     _ensureInitialized();
@@ -136,7 +136,7 @@ class ConversationsServiceLocator {
   }
 
   // Repository getter (for advanced use cases)
-  
+
   /// Get conversations repository
   ConversationsRepository get repository {
     _ensureInitialized();

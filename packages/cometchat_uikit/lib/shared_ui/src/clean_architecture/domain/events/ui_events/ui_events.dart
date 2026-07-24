@@ -8,5 +8,5 @@ enum CustomUIPosition {
   composerBottom,
   messageListTop,
   messageListBottom,
-  composerPreview
+  composerPreview,
 }

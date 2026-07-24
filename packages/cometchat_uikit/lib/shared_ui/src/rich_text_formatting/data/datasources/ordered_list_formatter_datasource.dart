@@ -53,7 +53,8 @@ class OrderedListFormatterDataSource implements FormatterDataSource {
       if (match != null) {
         // Remove ordered list marker (toggle off)
         final markerLength = match.group(0)!.length;
-        final newText = text.substring(0, lineStart) +
+        final newText =
+            text.substring(0, lineStart) +
             currentLine.substring(markerLength) +
             text.substring(lineEnd);
 
@@ -66,7 +67,8 @@ class OrderedListFormatterDataSource implements FormatterDataSource {
         );
       } else {
         // Add ordered list marker at start of line
-        final newText = text.substring(0, lineStart) +
+        final newText =
+            text.substring(0, lineStart) +
             openingMarker +
             text.substring(lineStart);
 
@@ -138,10 +140,7 @@ class OrderedListFormatterDataSource implements FormatterDataSource {
         AttributedTextData(
           start: match.start,
           end: match.end,
-          attributes: {
-            'orderedList': true,
-            'number': number,
-          },
+          attributes: {'orderedList': true, 'number': number},
         ),
       );
     }
@@ -181,8 +180,7 @@ class OrderedListFormatterDataSource implements FormatterDataSource {
 
     if (lineContent.isEmpty) {
       // Empty list item - exit the list
-      final newText = text.substring(0, lineStart) +
-          text.substring(lineEnd);
+      final newText = text.substring(0, lineStart) + text.substring(lineEnd);
 
       final newCursorPos = lineStart;
 
@@ -195,9 +193,8 @@ class OrderedListFormatterDataSource implements FormatterDataSource {
       // Non-empty list item - create new ordered item with incremented number
       final nextNumber = currentNumber + 1;
       final nextMarker = '$nextNumber. ';
-      final newText = text.substring(0, position) +
-          '\n$nextMarker' +
-          text.substring(position);
+      final newText =
+          '${text.substring(0, position)}\n$nextMarker${text.substring(position)}';
 
       final newCursorPos = position + 1 + nextMarker.length;
 
@@ -233,7 +230,7 @@ class OrderedListFormatterDataSource implements FormatterDataSource {
   String _renumberFrom(String text, int startPos, int expectedNumber) {
     final lines = text.split('\n');
     final orderedListRegex = RegExp(r'^(\d+)\. ');
-    
+
     // Find which line startPos falls on
     int charCount = 0;
     int startLine = 0;
@@ -245,7 +242,7 @@ class OrderedListFormatterDataSource implements FormatterDataSource {
       }
       charCount += lineLen;
     }
-    
+
     // Start renumbering from the line after the inserted one
     int num = expectedNumber;
     for (int i = startLine + 1; i < lines.length; i++) {
@@ -257,7 +254,7 @@ class OrderedListFormatterDataSource implements FormatterDataSource {
       }
       num++;
     }
-    
+
     return lines.join('\n');
   }
 }

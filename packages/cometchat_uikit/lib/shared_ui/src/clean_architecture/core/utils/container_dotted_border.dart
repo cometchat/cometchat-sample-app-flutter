@@ -31,10 +31,7 @@ class DottedBorder extends StatelessWidget {
             ),
           ),
         ),
-        Padding(
-          padding: padding,
-          child: child,
-        ),
+        Padding(padding: padding, child: child),
       ],
     );
   }
@@ -73,7 +70,9 @@ class _DashPainter extends CustomPainter {
         final double len = dashArray.next;
         if (draw) {
           dest.addPath(
-              metric.extractPath(distance, distance + len), Offset.zero);
+            metric.extractPath(distance, distance + len),
+            Offset.zero,
+          );
         }
         distance += len;
         draw = !draw;
@@ -84,18 +83,12 @@ class _DashPainter extends CustomPainter {
   }
 
   Path _getRRectPath(Size size, Radius radius) {
-    return Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(
-            0,
-            0,
-            size.width,
-            size.height,
-          ),
-          radius,
-        ),
-      );
+    return Path()..addRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        radius,
+      ),
+    );
   }
 
   @override
@@ -122,12 +115,12 @@ enum _DashOffsetType { absolute, percentage }
 
 class DashOffset {
   DashOffset.percentage(double percentage)
-      : _rawVal = percentage.clamp(0.0, 1.0),
-        _dashOffsetType = _DashOffsetType.percentage;
+    : _rawVal = percentage.clamp(0.0, 1.0),
+      _dashOffsetType = _DashOffsetType.percentage;
 
   const DashOffset.absolute(double start)
-      : _rawVal = start,
-        _dashOffsetType = _DashOffsetType.absolute;
+    : _rawVal = start,
+      _dashOffsetType = _DashOffsetType.absolute;
 
   final double _rawVal;
   final _DashOffsetType _dashOffsetType;

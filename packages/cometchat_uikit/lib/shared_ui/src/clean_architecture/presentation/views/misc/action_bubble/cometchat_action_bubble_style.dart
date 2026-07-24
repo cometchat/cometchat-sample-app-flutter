@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 ///[CometChatActionBubbleStyle] is a data class that has styling-related properties
 ///to customize the appearance of group action message bubble
 ///
@@ -12,7 +11,8 @@ import 'package:flutter/material.dart';
 /// borderRadius: BorderRadius.circular(10),
 /// );
 /// ```
-class CometChatActionBubbleStyle extends ThemeExtension<CometChatActionBubbleStyle> {
+class CometChatActionBubbleStyle
+    extends ThemeExtension<CometChatActionBubbleStyle> {
   const CometChatActionBubbleStyle({
     this.textStyle,
     this.backgroundColor,
@@ -47,7 +47,9 @@ class CometChatActionBubbleStyle extends ThemeExtension<CometChatActionBubbleSty
     );
   }
 
-  CometChatActionBubbleStyle merge(covariant CometChatActionBubbleStyle? other) {
+  CometChatActionBubbleStyle merge(
+    covariant CometChatActionBubbleStyle? other,
+  ) {
     if (other == null) return this;
     return copyWith(
       textStyle: other.textStyle,
@@ -67,8 +69,11 @@ class CometChatActionBubbleStyle extends ThemeExtension<CometChatActionBubbleSty
       textStyle: TextStyle.lerp(textStyle, other.textStyle, t),
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
     );
   }
 }

@@ -1,16 +1,26 @@
-import '../../../cometchat_uikit_shared.dart' hide BaseInteractiveElement, ButtonElement, ElementEntity, ActionEntity, APIAction, URLNavigationAction, CustomAction;
+import '../../../cometchat_uikit_shared.dart'
+    hide
+        BaseInteractiveElement,
+        ButtonElement,
+        ElementEntity,
+        ActionEntity,
+        APIAction,
+        URLNavigationAction,
+        CustomAction;
 import 'button_element.dart';
 import 'element_entity.dart';
 import '../interactive_actions/action_entity.dart';
+
 class BaseInteractiveElement extends ElementEntity {
   ActionEntity? action;
   bool disableAfterInteracted;
 
-  BaseInteractiveElement(
-      {required super.elementId,
-      required super.elementType,
-      this.action,
-      this.disableAfterInteracted = false});
+  BaseInteractiveElement({
+    required super.elementId,
+    required super.elementType,
+    this.action,
+    this.disableAfterInteracted = false,
+  });
 
   @override
   Map<String, dynamic> toMap() {

@@ -1,5 +1,6 @@
 /// BLoC for groups list
 /// This barrel file exports all BLoC-related components for the groups module
+library;
 
 // BLoC components
 export 'groups_bloc.dart';

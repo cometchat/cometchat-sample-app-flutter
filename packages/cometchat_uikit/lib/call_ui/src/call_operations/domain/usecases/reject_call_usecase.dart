@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/call_operations_repository.dart';
 
@@ -9,7 +9,10 @@ class RejectCallUseCase {
 
   Future<Result<Call>> call(String sessionId, String status) async {
     if (sessionId.isEmpty) {
-      return const Failure(message: 'Session ID is required', code: 'MISSING_SESSION_ID');
+      return const Failure(
+        message: 'Session ID is required',
+        code: 'MISSING_SESSION_ID',
+      );
     }
     return repository.rejectCall(sessionId, status);
   }

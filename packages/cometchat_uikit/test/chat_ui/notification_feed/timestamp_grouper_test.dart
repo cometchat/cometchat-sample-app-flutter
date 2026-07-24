@@ -72,10 +72,18 @@ void main() {
 
     test('groups items from yesterday under "Yesterday" label', () {
       final now = DateTime.now();
-      final yesterday = DateTime(now.year, now.month, now.day)
-          .subtract(const Duration(days: 1));
-      final yesterdayMorning =
-          DateTime(yesterday.year, yesterday.month, yesterday.day, 10, 0);
+      final yesterday = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(const Duration(days: 1));
+      final yesterdayMorning = DateTime(
+        yesterday.year,
+        yesterday.month,
+        yesterday.day,
+        10,
+        0,
+      );
 
       final items = [
         _makeItem(id: 'a', sentAt: _toUnixSeconds(yesterdayMorning)),
@@ -103,7 +111,13 @@ void main() {
         final item = _makeItem(
           id: 'a',
           sentAt: _toUnixSeconds(
-              DateTime(threeDaysAgo.year, threeDaysAgo.month, threeDaysAgo.day, 12)),
+            DateTime(
+              threeDaysAgo.year,
+              threeDaysAgo.month,
+              threeDaysAgo.day,
+              12,
+            ),
+          ),
         );
 
         final result = groupByTimestamp([item], 'en_US');
@@ -125,10 +139,7 @@ void main() {
       // Use a date from 2 weeks ago
       final now = DateTime.now();
       final twoWeeksAgo = now.subtract(const Duration(days: 14));
-      final item = _makeItem(
-        id: 'a',
-        sentAt: _toUnixSeconds(twoWeeksAgo),
-      );
+      final item = _makeItem(id: 'a', sentAt: _toUnixSeconds(twoWeeksAgo));
 
       final result = groupByTimestamp([item], 'en_US');
 
@@ -208,13 +219,14 @@ void main() {
       final result = groupByTimestamp(items, 'en_US');
 
       // Total items across all groups should equal input
-      final totalItems =
-          result.fold<int>(0, (sum, group) => sum + group.items.length);
+      final totalItems = result.fold<int>(
+        0,
+        (sum, group) => sum + group.items.length,
+      );
       expect(totalItems, items.length);
 
       // All IDs should be present
-      final allIds =
-          result.expand((g) => g.items).map((i) => i.id).toSet();
+      final allIds = result.expand((g) => g.items).map((i) => i.id).toSet();
       expect(allIds, {'a', 'b', 'c', 'd', 'e'});
     });
 
@@ -225,10 +237,7 @@ void main() {
     test('works with different locale', () {
       final now = DateTime.now();
       final twoWeeksAgo = now.subtract(const Duration(days: 14));
-      final item = _makeItem(
-        id: 'a',
-        sentAt: _toUnixSeconds(twoWeeksAgo),
-      );
+      final item = _makeItem(id: 'a', sentAt: _toUnixSeconds(twoWeeksAgo));
 
       // Should not throw with a different locale
       final result = groupByTimestamp([item], 'de_DE');
@@ -265,8 +274,9 @@ void main() {
     });
 
     test('returns minutes ago for timestamps within the hour', () {
-      final tenMinutesAgo =
-          DateTime.now().subtract(const Duration(minutes: 10));
+      final tenMinutesAgo = DateTime.now().subtract(
+        const Duration(minutes: 10),
+      );
       final result = getRelativeTime(
         tenMinutesAgo.millisecondsSinceEpoch ~/ 1000,
         'en_US',
@@ -275,8 +285,7 @@ void main() {
     });
 
     test('returns hours ago for timestamps within the day', () {
-      final threeHoursAgo =
-          DateTime.now().subtract(const Duration(hours: 3));
+      final threeHoursAgo = DateTime.now().subtract(const Duration(hours: 3));
       final result = getRelativeTime(
         threeHoursAgo.millisecondsSinceEpoch ~/ 1000,
         'en_US',

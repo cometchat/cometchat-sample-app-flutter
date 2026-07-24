@@ -23,8 +23,11 @@ class FakeGroup extends Fake implements Group {
   final String _name;
   final String _type;
 
-  FakeGroup([this._guid = 'guid_1', this._name = 'Group 1', this._type = 'public'])
-      : super();
+  FakeGroup([
+    this._guid = 'guid_1',
+    this._name = 'Group 1',
+    this._type = 'public',
+  ]) : super();
 
   @override
   String get guid => _guid;
@@ -94,13 +97,16 @@ void main() {
     setUp(() {
       repo = MockGroupsRepository();
       // Default stubs
-      when(() => repo.getLoggedInUser())
-          .thenAnswer((_) async => Success(FakeUser()));
-      when(() => repo.getGroups(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            joinedOnly: any(named: 'joinedOnly'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getLoggedInUser(),
+      ).thenAnswer((_) async => Success(FakeUser()));
+      when(
+        () => repo.getGroups(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          joinedOnly: any(named: 'joinedOnly'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
     });
 
     // -----------------------------------------------------------------------
@@ -120,36 +126,34 @@ void main() {
     blocTest<GroupsBloc, GroupsState>(
       'emits [Loading, Empty] when no groups returned',
       build: () {
-        when(() => repo.getGroups(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              joinedOnly: any(named: 'joinedOnly'),
-            )).thenAnswer((_) async => const Success([]));
+        when(
+          () => repo.getGroups(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            joinedOnly: any(named: 'joinedOnly'),
+          ),
+        ).thenAnswer((_) async => const Success([]));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadGroups()),
-      expect: () => [
-        isA<GroupsLoading>(),
-        isA<GroupsEmpty>(),
-      ],
+      expect: () => [isA<GroupsLoading>(), isA<GroupsEmpty>()],
     );
 
     blocTest<GroupsBloc, GroupsState>(
       'emits [Loading, Loaded] when groups returned',
       build: () {
         final groups = [FakeGroup('g1', 'Dev'), FakeGroup('g2', 'Design')];
-        when(() => repo.getGroups(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              joinedOnly: any(named: 'joinedOnly'),
-            )).thenAnswer((_) async => Success(groups));
+        when(
+          () => repo.getGroups(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            joinedOnly: any(named: 'joinedOnly'),
+          ),
+        ).thenAnswer((_) async => Success(groups));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadGroups()),
-      expect: () => [
-        isA<GroupsLoading>(),
-        isA<GroupsLoaded>(),
-      ],
+      expect: () => [isA<GroupsLoading>(), isA<GroupsLoaded>()],
       verify: (bloc) {
         final state = bloc.state as GroupsLoaded;
         expect(state.groups.length, 2);
@@ -159,19 +163,19 @@ void main() {
     blocTest<GroupsBloc, GroupsState>(
       'emits [Loading, Error] when repository fails',
       build: () {
-        when(() => repo.getGroups(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              joinedOnly: any(named: 'joinedOnly'),
-            )).thenAnswer((_) async =>
-                const Failure(message: 'Network error', code: 'NET_ERR'));
+        when(
+          () => repo.getGroups(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            joinedOnly: any(named: 'joinedOnly'),
+          ),
+        ).thenAnswer(
+          (_) async => const Failure(message: 'Network error', code: 'NET_ERR'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadGroups()),
-      expect: () => [
-        isA<GroupsLoading>(),
-        isA<GroupsError>(),
-      ],
+      expect: () => [isA<GroupsLoading>(), isA<GroupsError>()],
     );
 
     // -----------------------------------------------------------------------
@@ -182,11 +186,13 @@ void main() {
       'toggles group selection in loaded state',
       build: () {
         final groups = [FakeGroup('g1', 'Dev')];
-        when(() => repo.getGroups(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              joinedOnly: any(named: 'joinedOnly'),
-            )).thenAnswer((_) async => Success(groups));
+        when(
+          () => repo.getGroups(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            joinedOnly: any(named: 'joinedOnly'),
+          ),
+        ).thenAnswer((_) async => Success(groups));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -204,11 +210,13 @@ void main() {
       'deselects group when toggled again',
       build: () {
         final groups = [FakeGroup('g1', 'Dev')];
-        when(() => repo.getGroups(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              joinedOnly: any(named: 'joinedOnly'),
-            )).thenAnswer((_) async => Success(groups));
+        when(
+          () => repo.getGroups(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            joinedOnly: any(named: 'joinedOnly'),
+          ),
+        ).thenAnswer((_) async => Success(groups));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -232,11 +240,13 @@ void main() {
       'clears all group selections',
       build: () {
         final groups = [FakeGroup('g1'), FakeGroup('g2')];
-        when(() => repo.getGroups(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              joinedOnly: any(named: 'joinedOnly'),
-            )).thenAnswer((_) async => Success(groups));
+        when(
+          () => repo.getGroups(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            joinedOnly: any(named: 'joinedOnly'),
+          ),
+        ).thenAnswer((_) async => Success(groups));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -262,11 +272,13 @@ void main() {
       'adds new group to loaded list',
       build: () {
         final groups = [FakeGroup('g1', 'Dev')];
-        when(() => repo.getGroups(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              joinedOnly: any(named: 'joinedOnly'),
-            )).thenAnswer((_) async => Success(groups));
+        when(
+          () => repo.getGroups(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            joinedOnly: any(named: 'joinedOnly'),
+          ),
+        ).thenAnswer((_) async => Success(groups));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -288,11 +300,13 @@ void main() {
       'removes group from loaded list',
       build: () {
         final groups = [FakeGroup('g1', 'Dev'), FakeGroup('g2', 'Design')];
-        when(() => repo.getGroups(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              joinedOnly: any(named: 'joinedOnly'),
-            )).thenAnswer((_) async => Success(groups));
+        when(
+          () => repo.getGroups(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            joinedOnly: any(named: 'joinedOnly'),
+          ),
+        ).thenAnswer((_) async => Success(groups));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -315,11 +329,13 @@ void main() {
       'updates existing group in loaded state',
       build: () {
         final groups = [FakeGroup('g1', 'Dev')];
-        when(() => repo.getGroups(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              joinedOnly: any(named: 'joinedOnly'),
-            )).thenAnswer((_) async => Success(groups));
+        when(
+          () => repo.getGroups(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            joinedOnly: any(named: 'joinedOnly'),
+          ),
+        ).thenAnswer((_) async => Success(groups));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -337,11 +353,13 @@ void main() {
       'adds group if UpdateGroup targets non-existent guid',
       build: () {
         final groups = [FakeGroup('g1', 'Dev')];
-        when(() => repo.getGroups(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              joinedOnly: any(named: 'joinedOnly'),
-            )).thenAnswer((_) async => Success(groups));
+        when(
+          () => repo.getGroups(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            joinedOnly: any(named: 'joinedOnly'),
+          ),
+        ).thenAnswer((_) async => Success(groups));
         return _makeBloc(repo);
       },
       act: (bloc) async {

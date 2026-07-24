@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../di/notification_feed_service_locator.dart';
 import '../domain/usecases/get_feed_items_usecase.dart';
@@ -41,8 +41,7 @@ class NotificationFeedBloc
 
   // Builder configuration (provided externally or defaults)
   final NotificationFeedRequestBuilder? _externalFeedRequestBuilder;
-  final NotificationCategoriesRequestBuilder?
-      _externalCategoriesRequestBuilder;
+  final NotificationCategoriesRequestBuilder? _externalCategoriesRequestBuilder;
 
   /// Whether to disable SDK listeners (for testing or web platform).
   final bool disableSDKListeners;
@@ -90,27 +89,27 @@ class NotificationFeedBloc
     GetUnreadCountUseCase? getUnreadCountUseCase,
     GetFeedItemUseCase? getFeedItemUseCase,
     NotificationFeedRequestBuilder? notificationFeedRequestBuilder,
-    NotificationCategoriesRequestBuilder?
-        notificationCategoriesRequestBuilder,
+    NotificationCategoriesRequestBuilder? notificationCategoriesRequestBuilder,
     this.disableSDKListeners = false,
-  })  : _getFeedItemsUseCase =
-            getFeedItemsUseCase ?? _getServiceLocator().getFeedItemsUseCase,
-        _getCategoriesUseCase =
-            getCategoriesUseCase ?? _getServiceLocator().getCategoriesUseCase,
-        _markFeedDeliveredUseCase = markFeedDeliveredUseCase ??
-            _getServiceLocator().markFeedDeliveredUseCase,
-        _markFeedReadUseCase =
-            markFeedReadUseCase ?? _getServiceLocator().markFeedReadUseCase,
-        _reportFeedEngagementUseCase = reportFeedEngagementUseCase ??
-            _getServiceLocator().reportFeedEngagementUseCase,
-        _getUnreadCountUseCase =
-            getUnreadCountUseCase ?? _getServiceLocator().getUnreadCountUseCase,
-        _getFeedItemUseCase =
-            getFeedItemUseCase ?? _getServiceLocator().getFeedItemUseCase,
-        _externalFeedRequestBuilder = notificationFeedRequestBuilder,
-        _externalCategoriesRequestBuilder =
-            notificationCategoriesRequestBuilder,
-        super(NotificationFeedState()) {
+  }) : _getFeedItemsUseCase =
+           getFeedItemsUseCase ?? _getServiceLocator().getFeedItemsUseCase,
+       _getCategoriesUseCase =
+           getCategoriesUseCase ?? _getServiceLocator().getCategoriesUseCase,
+       _markFeedDeliveredUseCase =
+           markFeedDeliveredUseCase ??
+           _getServiceLocator().markFeedDeliveredUseCase,
+       _markFeedReadUseCase =
+           markFeedReadUseCase ?? _getServiceLocator().markFeedReadUseCase,
+       _reportFeedEngagementUseCase =
+           reportFeedEngagementUseCase ??
+           _getServiceLocator().reportFeedEngagementUseCase,
+       _getUnreadCountUseCase =
+           getUnreadCountUseCase ?? _getServiceLocator().getUnreadCountUseCase,
+       _getFeedItemUseCase =
+           getFeedItemUseCase ?? _getServiceLocator().getFeedItemUseCase,
+       _externalFeedRequestBuilder = notificationFeedRequestBuilder,
+       _externalCategoriesRequestBuilder = notificationCategoriesRequestBuilder,
+       super(NotificationFeedState()) {
     // Register event handlers
     on<LoadNotificationFeed>(_onLoadNotificationFeed);
     on<LoadMoreFeedItems>(_onLoadMoreFeedItems);
@@ -185,7 +184,8 @@ class NotificationFeedBloc
   // ============================================================
 
   Map<String, int> _computeCategoryUnreadCounts(
-      List<NotificationFeedItem> items) {
+    List<NotificationFeedItem> items,
+  ) {
     final counts = <String, int>{};
     for (final item in items) {
       if (item.readAt == null) {
@@ -211,26 +211,29 @@ class NotificationFeedBloc
     LoadNotificationFeed event,
     Emitter<NotificationFeedState> emit,
   ) async {
-    emit(state.copyWith(
-      screenState: NotificationFeedScreenState.loading,
-      clearError: true,
-    ));
+    emit(
+      state.copyWith(
+        screenState: NotificationFeedScreenState.loading,
+        clearError: true,
+      ),
+    );
 
     final currentGeneration = ++_fetchGeneration;
 
     // 1. Fetch categories (graceful failure = empty list)
     List<NotificationCategory> categories = [];
-    _categoriesRequest = (_externalCategoriesRequestBuilder ??
-            NotificationCategoriesRequestBuilder())
-        .build();
+    _categoriesRequest =
+        (_externalCategoriesRequestBuilder ??
+                NotificationCategoriesRequestBuilder())
+            .build();
 
-    final categoriesResult =
-        await _getCategoriesUseCase(_categoriesRequest!);
+    final categoriesResult = await _getCategoriesUseCase(_categoriesRequest!);
     categoriesResult.fold(
       (failure) {
         if (kDebugMode) {
           debugPrint(
-              '[NotificationFeedBloc] Categories fetch failed: ${failure.message}');
+            '[NotificationFeedBloc] Categories fetch failed: ${failure.message}',
+          );
         }
       },
       (data) {
@@ -253,11 +256,13 @@ class NotificationFeedBloc
 
     itemsResult.fold(
       (failure) {
-        emit(state.copyWith(
-          screenState: NotificationFeedScreenState.error,
-          error: failure.message,
-          categories: categories,
-        ));
+        emit(
+          state.copyWith(
+            screenState: NotificationFeedScreenState.error,
+            error: failure.message,
+            categories: categories,
+          ),
+        );
       },
       (items) {
         _rebuildIndexMap(items);
@@ -265,23 +270,27 @@ class NotificationFeedBloc
         final totalUnread = _computeTotalUnreadCount(items);
 
         if (items.isEmpty) {
-          emit(state.copyWith(
-            screenState: NotificationFeedScreenState.empty,
-            items: items,
-            categories: categories,
-            categoryUnreadCounts: categoryUnreadCounts,
-            totalUnreadCount: totalUnread,
-            hasMorePages: false,
-          ));
+          emit(
+            state.copyWith(
+              screenState: NotificationFeedScreenState.empty,
+              items: items,
+              categories: categories,
+              categoryUnreadCounts: categoryUnreadCounts,
+              totalUnreadCount: totalUnread,
+              hasMorePages: false,
+            ),
+          );
         } else {
-          emit(state.copyWith(
-            screenState: NotificationFeedScreenState.loaded,
-            items: items,
-            categories: categories,
-            categoryUnreadCounts: categoryUnreadCounts,
-            totalUnreadCount: totalUnread,
-            hasMorePages: items.isNotEmpty,
-          ));
+          emit(
+            state.copyWith(
+              screenState: NotificationFeedScreenState.loaded,
+              items: items,
+              categories: categories,
+              categoryUnreadCounts: categoryUnreadCounts,
+              totalUnreadCount: totalUnread,
+              hasMorePages: items.isNotEmpty,
+            ),
+          );
         }
 
         // Mark all fetched items as delivered (fire-and-forget)
@@ -309,7 +318,8 @@ class NotificationFeedBloc
         emit(state.copyWith(isLoadingMore: false));
         if (kDebugMode) {
           debugPrint(
-              '[NotificationFeedBloc] Pagination failed: ${failure.message}');
+            '[NotificationFeedBloc] Pagination failed: ${failure.message}',
+          );
         }
       },
       (newItems) {
@@ -323,12 +333,14 @@ class NotificationFeedBloc
         final categoryUnreadCounts = _computeCategoryUnreadCounts(allItems);
         final totalUnread = _computeTotalUnreadCount(allItems);
 
-        emit(state.copyWith(
-          items: allItems,
-          isLoadingMore: false,
-          categoryUnreadCounts: categoryUnreadCounts,
-          totalUnreadCount: totalUnread,
-        ));
+        emit(
+          state.copyWith(
+            items: allItems,
+            isLoadingMore: false,
+            categoryUnreadCounts: categoryUnreadCounts,
+            totalUnreadCount: totalUnread,
+          ),
+        );
 
         // Mark new items as delivered
         _markItemsAsDelivered(newItems);
@@ -346,14 +358,16 @@ class NotificationFeedBloc
 
     final currentGeneration = ++_fetchGeneration;
 
-    emit(state.copyWith(
-      screenState: NotificationFeedScreenState.loading,
-      activeCategory: event.categoryId,
-      clearActiveCategory: event.categoryId == null,
-      items: [],
-      hasMorePages: true,
-      clearError: true,
-    ));
+    emit(
+      state.copyWith(
+        screenState: NotificationFeedScreenState.loading,
+        activeCategory: event.categoryId,
+        clearActiveCategory: event.categoryId == null,
+        items: [],
+        hasMorePages: true,
+        clearError: true,
+      ),
+    );
 
     // Create a fresh request builder with the selected category
     final builder =
@@ -379,10 +393,12 @@ class NotificationFeedBloc
 
     result.fold(
       (failure) {
-        emit(state.copyWith(
-          screenState: NotificationFeedScreenState.error,
-          error: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            screenState: NotificationFeedScreenState.error,
+            error: failure.message,
+          ),
+        );
       },
       (items) {
         _rebuildIndexMap(items);
@@ -390,21 +406,25 @@ class NotificationFeedBloc
         final totalUnread = _computeTotalUnreadCount(items);
 
         if (items.isEmpty) {
-          emit(state.copyWith(
-            screenState: NotificationFeedScreenState.empty,
-            items: items,
-            categoryUnreadCounts: categoryUnreadCounts,
-            totalUnreadCount: totalUnread,
-            hasMorePages: false,
-          ));
+          emit(
+            state.copyWith(
+              screenState: NotificationFeedScreenState.empty,
+              items: items,
+              categoryUnreadCounts: categoryUnreadCounts,
+              totalUnreadCount: totalUnread,
+              hasMorePages: false,
+            ),
+          );
         } else {
-          emit(state.copyWith(
-            screenState: NotificationFeedScreenState.loaded,
-            items: items,
-            categoryUnreadCounts: categoryUnreadCounts,
-            totalUnreadCount: totalUnread,
-            hasMorePages: items.isNotEmpty,
-          ));
+          emit(
+            state.copyWith(
+              screenState: NotificationFeedScreenState.loaded,
+              items: items,
+              categoryUnreadCounts: categoryUnreadCounts,
+              totalUnreadCount: totalUnread,
+              hasMorePages: items.isNotEmpty,
+            ),
+          );
         }
 
         _markItemsAsDelivered(items);
@@ -450,27 +470,31 @@ class NotificationFeedBloc
 
     result.fold(
       (failure) {
-        emit(state.copyWith(
-          isRefreshing: false,
-          screenState: NotificationFeedScreenState.error,
-          error: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            isRefreshing: false,
+            screenState: NotificationFeedScreenState.error,
+            error: failure.message,
+          ),
+        );
       },
       (items) {
         _rebuildIndexMap(items);
         final categoryUnreadCounts = _computeCategoryUnreadCounts(items);
         final totalUnread = _computeTotalUnreadCount(items);
 
-        emit(state.copyWith(
-          isRefreshing: false,
-          items: items,
-          screenState: items.isEmpty
-              ? NotificationFeedScreenState.empty
-              : NotificationFeedScreenState.loaded,
-          categoryUnreadCounts: categoryUnreadCounts,
-          totalUnreadCount: totalUnread,
-          hasMorePages: items.isNotEmpty,
-        ));
+        emit(
+          state.copyWith(
+            isRefreshing: false,
+            items: items,
+            screenState: items.isEmpty
+                ? NotificationFeedScreenState.empty
+                : NotificationFeedScreenState.loaded,
+            categoryUnreadCounts: categoryUnreadCounts,
+            totalUnreadCount: totalUnread,
+            hasMorePages: items.isNotEmpty,
+          ),
+        );
 
         _markItemsAsDelivered(items);
       },
@@ -488,22 +512,26 @@ class NotificationFeedBloc
     // Always update unread counts for the new item's category,
     // regardless of whether it matches the current filter.
     // This ensures chip badges reflect all incoming items.
-    final categoryUnreadCounts =
-        Map<String, int>.from(state.categoryUnreadCounts);
+    final categoryUnreadCounts = Map<String, int>.from(
+      state.categoryUnreadCounts,
+    );
     if (newItem.readAt == null) {
       categoryUnreadCounts[itemCategoryKey] =
           (categoryUnreadCounts[itemCategoryKey] ?? 0) + 1;
     }
-    final totalUnread = state.totalUnreadCount + (newItem.readAt == null ? 1 : 0);
+    final totalUnread =
+        state.totalUnreadCount + (newItem.readAt == null ? 1 : 0);
 
     // If filtering by category and item doesn't match, update counts only
     // (don't add to the visible list).
     if (state.activeCategory != null) {
       if (itemCategoryKey != state.activeCategory) {
-        emit(state.copyWith(
-          categoryUnreadCounts: categoryUnreadCounts,
-          totalUnreadCount: totalUnread,
-        ));
+        emit(
+          state.copyWith(
+            categoryUnreadCounts: categoryUnreadCounts,
+            totalUnreadCount: totalUnread,
+          ),
+        );
         // Mark as delivered even though it's not in the visible list
         _markSingleItemAsDelivered(newItem);
         return;
@@ -514,12 +542,14 @@ class NotificationFeedBloc
     final updatedItems = [newItem, ...state.items];
     _rebuildIndexMap(updatedItems);
 
-    emit(state.copyWith(
-      items: updatedItems,
-      screenState: NotificationFeedScreenState.loaded,
-      categoryUnreadCounts: categoryUnreadCounts,
-      totalUnreadCount: totalUnread,
-    ));
+    emit(
+      state.copyWith(
+        items: updatedItems,
+        screenState: NotificationFeedScreenState.loaded,
+        categoryUnreadCounts: categoryUnreadCounts,
+        totalUnreadCount: totalUnread,
+      ),
+    );
 
     // Mark as delivered
     _markSingleItemAsDelivered(newItem);
@@ -540,8 +570,9 @@ class NotificationFeedBloc
 
     // Decrement unread count if item was unread
     int totalUnread = state.totalUnreadCount;
-    final categoryUnreadCounts =
-        Map<String, int>.from(state.categoryUnreadCounts);
+    final categoryUnreadCounts = Map<String, int>.from(
+      state.categoryUnreadCounts,
+    );
     if (removedItem.readAt == null) {
       totalUnread = (totalUnread - 1).clamp(0, totalUnread);
       final catKey = removedItem.categoryId ?? removedItem.category;
@@ -551,14 +582,16 @@ class NotificationFeedBloc
       }
     }
 
-    emit(state.copyWith(
-      items: updatedItems,
-      totalUnreadCount: totalUnread,
-      categoryUnreadCounts: categoryUnreadCounts,
-      screenState: updatedItems.isEmpty
-          ? NotificationFeedScreenState.empty
-          : NotificationFeedScreenState.loaded,
-    ));
+    emit(
+      state.copyWith(
+        items: updatedItems,
+        totalUnreadCount: totalUnread,
+        categoryUnreadCounts: categoryUnreadCounts,
+        screenState: updatedItems.isEmpty
+            ? NotificationFeedScreenState.empty
+            : NotificationFeedScreenState.loaded,
+      ),
+    );
   }
 
   /// Mark a feed item as read.
@@ -578,7 +611,8 @@ class NotificationFeedBloc
         // On failure, keep item as unread — retry on next visibility
         if (kDebugMode) {
           debugPrint(
-              '[NotificationFeedBloc] Mark as read failed: ${failure.message}');
+            '[NotificationFeedBloc] Mark as read failed: ${failure.message}',
+          );
         }
       },
       (_) {
@@ -593,20 +627,26 @@ class NotificationFeedBloc
         _rebuildIndexMap(updatedItems);
 
         // Decrement unread counts
-        int totalUnread = (state.totalUnreadCount - 1).clamp(0, state.totalUnreadCount);
-        final categoryUnreadCounts =
-            Map<String, int>.from(state.categoryUnreadCounts);
+        int totalUnread = (state.totalUnreadCount - 1).clamp(
+          0,
+          state.totalUnreadCount,
+        );
+        final categoryUnreadCounts = Map<String, int>.from(
+          state.categoryUnreadCounts,
+        );
         final catKey = item.categoryId ?? item.category;
         final catCount = categoryUnreadCounts[catKey] ?? 0;
         if (catCount > 0) {
           categoryUnreadCounts[catKey] = catCount - 1;
         }
 
-        emit(state.copyWith(
-          items: updatedItems,
-          totalUnreadCount: totalUnread,
-          categoryUnreadCounts: categoryUnreadCounts,
-        ));
+        emit(
+          state.copyWith(
+            items: updatedItems,
+            totalUnreadCount: totalUnread,
+            categoryUnreadCounts: categoryUnreadCounts,
+          ),
+        );
       },
     );
   }
@@ -658,7 +698,8 @@ class NotificationFeedBloc
         // Silently fail — don't disrupt UI
         if (kDebugMode) {
           debugPrint(
-              '[NotificationFeedBloc] Unread count poll failed: ${failure.message}');
+            '[NotificationFeedBloc] Unread count poll failed: ${failure.message}',
+          );
         }
       },
       (count) {

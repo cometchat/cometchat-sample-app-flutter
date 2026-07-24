@@ -7,16 +7,23 @@ import 'package:flutter/scheduler.dart';
 
 import 'cometchat_audio_bubble_controller.dart';
 
-///[CometChatAudioBubble] creates a widget that gives audio bubble
+/// [CometChatVoiceNoteBubble] renders a single audio message with the classic
+/// waveform player look.
 ///
-///used by default  when the category and type of [MediaMessage] is message and [MessageTypeConstants.audio] respectively
+/// Voice notes — audio recorded in the composer, marked by
+/// `metadata['audioType'] == 'voice_note'` — always render through this bubble,
+/// on both values of `enableMultipleAttachments`: a voice note is single by
+/// nature and never part of a multi-attachment batch. Plain audio *files* use
+/// [CometChatAudiosBubble] when `enableMultipleAttachments` is true, and this
+/// bubble (via the deprecated [CometChatAudioBubble] alias) when it is false.
+///
 /// ```dart
-///         CometChatAudioBubble(
+///         CometChatVoiceNoteBubble(
 ///              audioUrl:
 ///                  'audio url',
 ///              title: 'Sample Audio',
 ///              subtitle: 'audio.mp3',
-///              style: AudioBubbleStyle(
+///              style: CometChatVoiceNoteBubbleStyle(
 ///              backgroundColor: Colors.white,
 ///              border: Border.all(color: Colors.red),
 ///              borderRadius: BorderRadius.circular(10),
@@ -25,26 +32,43 @@ import 'cometchat_audio_bubble_controller.dart';
 ///            );
 ///
 /// ```
-class CometChatAudioBubble extends StatefulWidget {
-  const CometChatAudioBubble(
-      {super.key,
-      this.style,
-      this.audioUrl,
-      this.title,
-      this.subtitle,
-      this.playIcon,
-      this.pauseIcon,
-      this.margin,
-      this.padding,
-      this.height,
-      this.width,
-      this.alignment,
-      this.fileMimeType,
-      this.id,
-      this.metadata,
-      this.colorPalette,
-      this.spacing,
-      this.typography});
+class CometChatVoiceNoteBubble extends StatefulWidget {
+  /// Metadata marker distinguishing a recorded voice note from an audio file.
+  /// `voice_note` (snake_case) is the value every UIKit platform writes and
+  /// dispatches on — do not change the casing.
+  static const String audioTypeKey = 'audioType';
+  static const String audioTypeVoiceNote = 'voice_note';
+
+  /// Camel-case value written by early dev builds; still recognized on read.
+  static const String _legacyAudioTypeVoiceNote = 'voiceNote';
+
+  /// True when [message] is a recorded voice note (by metadata marker).
+  static bool isVoiceNote(MediaMessage message) {
+    final marker = message.metadata?[audioTypeKey];
+    return marker == audioTypeVoiceNote || marker == _legacyAudioTypeVoiceNote;
+  }
+
+  const CometChatVoiceNoteBubble({
+    super.key,
+    this.style,
+    this.audioUrl,
+    this.title,
+    this.subtitle,
+    this.playIcon,
+    this.pauseIcon,
+    this.margin,
+    this.padding,
+    this.height,
+    this.width,
+    this.alignment,
+    this.fileMimeType,
+    this.id,
+    this.muid,
+    this.metadata,
+    this.colorPalette,
+    this.spacing,
+    this.typography,
+  });
 
   ///[audioUrl] if audioUrl passed then that audioUrl is used instead of file name from message Object
   final String? audioUrl;
@@ -56,7 +80,7 @@ class CometChatAudioBubble extends StatefulWidget {
   final String? subtitle;
 
   ///[style]  Style component for audio Bubble
-  final CometChatAudioBubbleStyle? style;
+  final CometChatVoiceNoteBubbleStyle? style;
 
   ///[playIcon] audio play icon
   final Icon? playIcon;
@@ -85,6 +109,14 @@ class CometChatAudioBubble extends StatefulWidget {
   ///[id] message object id to make file name unique
   final int? id;
 
+  ///[muid] the message's client-generated id — **stable across the optimistic→
+  /// delivered transition** (unlike [id], which is 0 until the server acks and
+  /// then becomes the real id). Used to key the shared audio-player state so the
+  /// optimistic and delivered bubbles reuse ONE player instead of spawning a
+  /// second controller on the same recording (which races the first's teardown
+  /// and leaves the bubble spinning). Falls back to [id] when absent.
+  final String? muid;
+
   ///[metadata] metadata of the message object
   final Map<String, dynamic>? metadata;
 
@@ -98,10 +130,11 @@ class CometChatAudioBubble extends StatefulWidget {
   final CometChatTypography? typography;
 
   @override
-  State<CometChatAudioBubble> createState() => _CometChatAudioBubbleState();
+  State<CometChatVoiceNoteBubble> createState() =>
+      _CometChatVoiceNoteBubbleState();
 }
 
-class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
+class _CometChatVoiceNoteBubbleState extends State<CometChatVoiceNoteBubble>
     with TickerProviderStateMixin {
   AudioBubbleState? _audioState;
   StreamSubscription<AudioStateUpdate>? _audioStateSubscription;
@@ -130,7 +163,15 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
   @override
   void initState() {
     super.initState();
-    tag = widget.id ?? DateTime.now().millisecondsSinceEpoch;
+    // Key the shared audio state by the STABLE muid, not message.id. message.id
+    // is 0 for an optimistic send and flips to the real id on server ack, which
+    // rebuilds this widget and would spawn a SECOND player on the same recording
+    // — racing the first's teardown and hanging the bubble in a loading state.
+    // muid is constant across that transition, so both bubbles resolve to the
+    // one cached AudioBubbleState and reuse its already-initialised controller.
+    tag = (widget.muid != null && widget.muid!.isNotEmpty)
+        ? widget.muid!.hashCode
+        : (widget.id ?? DateTime.now().millisecondsSinceEpoch);
     _setupAudioState();
     _setupEventStreams();
     _checkFileExists();
@@ -150,7 +191,9 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
   }
 
   void _setupEventStreams() {
-    _eventSubscription = AudioBubbleStream().stream.asBroadcastStream().listen((event) {
+    _eventSubscription = AudioBubbleStream().stream.asBroadcastStream().listen((
+      event,
+    ) {
       if (event.id != tag && event.action == AudioBubbleActions.pausePlayer) {
         _audioState?.pauseAudio();
       } else if (event.action == AudioBubbleActions.stopPlayer) {
@@ -194,11 +237,15 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     }
 
     // Update audio state with the local path if found
-    _audioState = AudioStateManager().getAudioState(tag, widget.audioUrl, localPath);
+    _audioState = AudioStateManager().getAudioState(
+      tag,
+      widget.audioUrl,
+      localPath,
+    );
     _audioState!.initializeController();
   }
 
-  late CometChatAudioBubbleStyle audioBubbleStyle;
+  late CometChatVoiceNoteBubbleStyle audioBubbleStyle;
   late CometChatColorPalette colorPalette;
   late CometChatSpacing spacing;
   late CometChatTypography typography;
@@ -221,48 +268,54 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     return minHeight + rng.nextDouble() * (maxHeight - minHeight);
   }
 
-  setAudioBarHeights() {
+  void setAudioBarHeights() {
     // Always use deterministic heights for the idle bar list so the waveform
     // is visually stable across rebuilds (download state flip, keyboard open,
     // theme change, etc.). Playback-time animation is handled by a separate
     // inline builder in `build()` and still uses random heights for liveness.
-    audioBars = List.generate(
-      getBarCount(),
-      (index) {
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 400),
-          margin: const EdgeInsets.only(right: 2.69),
-          width: barWidth,
-          height: _staticBarHeight(index),
-          decoration: BoxDecoration(
-            color: audioBubbleStyle.audioBarColor ??
-                (widget.alignment == BubbleAlignment.right
-                    ? colorPalette.white
-                    : colorPalette.primary),
-            borderRadius: BorderRadius.circular(spacing.radiusMax ?? 0),
-          ),
-        );
-      },
-    );
+    audioBars = List.generate(getBarCount(), (index) {
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 400),
+        margin: const EdgeInsets.only(right: 2.69),
+        width: barWidth,
+        height: _staticBarHeight(index),
+        decoration: BoxDecoration(
+          color:
+              audioBubbleStyle.audioBarColor ??
+              (widget.alignment == BubbleAlignment.right
+                  ? colorPalette.white
+                  : colorPalette.primary),
+          borderRadius: BorderRadius.circular(spacing.radiusMax ?? 0),
+        ),
+      );
+    });
   }
 
   @override
   void didChangeDependencies() {
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
-      audioBubbleStyle = CometChatThemeHelper.getTheme<CometChatAudioBubbleStyle>(
-              context: context, defaultTheme: CometChatAudioBubbleStyle.of)
-          .merge(widget.style);
+      audioBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatVoiceNoteBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatVoiceNoteBubbleStyle.of,
+          ).merge(widget.style);
       // Use passed values OR fallback to lookup (for standalone usage)
-      colorPalette = widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+      colorPalette =
+          widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
       spacing = widget.spacing ?? CometChatThemeHelper.getSpacing(context);
-      typography = widget.typography ?? CometChatThemeHelper.getTypography(context);
+      typography =
+          widget.typography ?? CometChatThemeHelper.getTypography(context);
       if (widget.metadata != null &&
-          widget.metadata!.containsKey(AudioBubbleConstants.usedByMediaRecorder)) {
-        usedByMediaRecorder = widget.metadata![AudioBubbleConstants.usedByMediaRecorder] ?? false;
+          widget.metadata!.containsKey(
+            AudioBubbleConstants.usedByMediaRecorder,
+          )) {
+        usedByMediaRecorder =
+            widget.metadata![AudioBubbleConstants.usedByMediaRecorder] ?? false;
       } else {
         usedByMediaRecorder = false;
       }
@@ -273,23 +326,27 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
   }
 
   @override
-  void didUpdateWidget(CometChatAudioBubble oldWidget) {
+  void didUpdateWidget(CometChatVoiceNoteBubble oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Update style if it changed
     if (widget.style != oldWidget.style) {
-      audioBubbleStyle = CometChatThemeHelper.getTheme<CometChatAudioBubbleStyle>(
-              context: context, defaultTheme: CometChatAudioBubbleStyle.of)
-          .merge(widget.style);
+      audioBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatVoiceNoteBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatVoiceNoteBubbleStyle.of,
+          ).merge(widget.style);
       setAudioBarHeights();
     }
     // Update cached theme values if they changed
-    if (widget.colorPalette != oldWidget.colorPalette && widget.colorPalette != null) {
+    if (widget.colorPalette != oldWidget.colorPalette &&
+        widget.colorPalette != null) {
       colorPalette = widget.colorPalette!;
     }
     if (widget.spacing != oldWidget.spacing && widget.spacing != null) {
       spacing = widget.spacing!;
     }
-    if (widget.typography != oldWidget.typography && widget.typography != null) {
+    if (widget.typography != oldWidget.typography &&
+        widget.typography != null) {
       typography = widget.typography!;
     }
   }
@@ -349,7 +406,8 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
 
   double getBarSpace() {
     double width = (widget.width ?? 265) - 6;
-    double factor = widget.alignment == BubbleAlignment.right ||
+    double factor =
+        widget.alignment == BubbleAlignment.right ||
             (widget.alignment == BubbleAlignment.left && isFileExists)
         ? 0.775
         : 0.6;
@@ -371,7 +429,8 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
       decoration: BoxDecoration(
         color: audioBubbleStyle.backgroundColor ?? colorPalette.transparent,
         border: audioBubbleStyle.border,
-        borderRadius: audioBubbleStyle.borderRadius ??
+        borderRadius:
+            audioBubbleStyle.borderRadius ??
             BorderRadius.circular(spacing.radius3 ?? 0),
       ),
       child: Row(
@@ -382,7 +441,11 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
               if (playState == PlayStates.playing) {
                 await _audioState?.pauseAudio();
                 AudioBubbleStream().controller.sink.add(
-                    AudioBubbleEvents(id: tag, action: AudioBubbleActions.pausePlayer));
+                  AudioBubbleEvents(
+                    id: tag,
+                    action: AudioBubbleActions.pausePlayer,
+                  ),
+                );
               } else {
                 await _audioState?.playAudio();
               }
@@ -391,28 +454,37 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                 ? Padding(
                     padding: EdgeInsets.all(spacing.padding1 ?? 0),
                     child: SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          color: audioBubbleStyle.backgroundColor ??
-                              colorPalette.extendedPrimary200,
-                          strokeWidth: 3,
-                        )),
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        color:
+                            audioBubbleStyle.backgroundColor ??
+                            colorPalette.extendedPrimary200,
+                        strokeWidth: 3,
+                      ),
+                    ),
                   )
                 : CircleAvatar(
-                    backgroundColor: audioBubbleStyle.playIconBackgroundColor ??
+                    backgroundColor:
+                        audioBubbleStyle.playIconBackgroundColor ??
                         colorPalette.white,
                     child: playState == PlayStates.playing
                         ? widget.pauseIcon ??
-                            Icon(Icons.pause,
+                              Icon(
+                                Icons.pause,
                                 size: 32,
-                                color: audioBubbleStyle.playIconColor ??
-                                    colorPalette.primary)
+                                color:
+                                    audioBubbleStyle.playIconColor ??
+                                    colorPalette.primary,
+                              )
                         : widget.playIcon ??
-                            Icon(Icons.play_arrow_rounded,
+                              Icon(
+                                Icons.play_arrow_rounded,
                                 size: 32,
-                                color: audioBubbleStyle.playIconColor ??
-                                    colorPalette.primary),
+                                color:
+                                    audioBubbleStyle.playIconColor ??
+                                    colorPalette.primary,
+                              ),
                   ),
           ),
           // Bar visualization
@@ -428,12 +500,10 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                       height: 20,
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
-                      physics: const NeverScrollableScrollPhysics(),
-                      child: Row(
-                        children: playState == PlayStates.playing
-                            ? List.generate(
-                                getBarCount(),
-                                (index) {
+                        physics: const NeverScrollableScrollPhysics(),
+                        child: Row(
+                          children: playState == PlayStates.playing
+                              ? List.generate(getBarCount(), (index) {
                                   // During playback, prefer the timer-driven
                                   // `barHeights` (lively animation). Fall back
                                   // to the deterministic static height so the
@@ -448,42 +518,47 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                                     width: barWidth,
                                     height: h,
                                     decoration: BoxDecoration(
-                                      color: audioBubbleStyle.audioBarColor ??
+                                      color:
+                                          audioBubbleStyle.audioBarColor ??
                                           (widget.alignment ==
                                                   BubbleAlignment.right
                                               ? colorPalette.white
                                               : colorPalette.primary),
                                       borderRadius: BorderRadius.circular(
-                                          spacing.radiusMax ?? 0),
+                                        spacing.radiusMax ?? 0,
+                                      ),
                                     ),
                                   );
-                                },
-                              )
-                            : audioBars,
+                                })
+                              : audioBars,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Text(
-                  '${formatDuration(currentPosition)}/'
-                  '${formatDuration(totalDuration)}',
-                  style: TextStyle(
-                    color: audioBubbleStyle.durationTextColor ??
-                        (widget.alignment == BubbleAlignment.right
-                            ? colorPalette.white
-                            : colorPalette.neutral600),
-                    fontWeight: typography.caption2?.regular?.fontWeight,
-                    fontSize: typography.caption2?.regular?.fontSize,
-                    fontFamily: typography.caption2?.regular?.fontFamily,
-                  )
-                      .merge(
-                        audioBubbleStyle.durationTextStyle,
-                      )
-                      .copyWith(color: audioBubbleStyle.durationTextColor),
-                ),
-              ],
+                  Text(
+                    '${formatDuration(currentPosition)}/'
+                    '${formatDuration(totalDuration)}',
+                    style:
+                        TextStyle(
+                              color:
+                                  audioBubbleStyle.durationTextColor ??
+                                  (widget.alignment == BubbleAlignment.right
+                                      ? colorPalette.white
+                                      : colorPalette.neutral600),
+                              fontWeight:
+                                  typography.caption2?.regular?.fontWeight,
+                              fontSize: typography.caption2?.regular?.fontSize,
+                              fontFamily:
+                                  typography.caption2?.regular?.fontFamily,
+                            )
+                            .merge(audioBubbleStyle.durationTextStyle)
+                            .copyWith(
+                              color: audioBubbleStyle.durationTextColor,
+                            ),
+                  ),
+                ],
+              ),
             ),
-          ),
           ),
           Padding(
             padding: EdgeInsets.only(left: spacing.padding ?? 0),
@@ -511,7 +586,9 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                               _startTicker();
                               try {
                                 String? path = await BubbleUtils.downloadFile(
-                                    widget.audioUrl!, fileName);
+                                  widget.audioUrl!,
+                                  fileName,
+                                );
                                 if (path == null) {
                                   isFileExists = false;
                                 } else {
@@ -536,23 +613,27 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
                             width: isFileDownloading ? 15 : 24,
                             package: UIConstants.packageName,
                             color: getDownloadButtonColor(
-                                context, audioBubbleStyle, colorPalette),
+                              context,
+                              audioBubbleStyle,
+                              colorPalette,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   )
                 : const SizedBox(),
-          )
+          ),
         ],
       ),
     );
   }
 
   Color? getDownloadButtonColor(
-      BuildContext context,
-      CometChatAudioBubbleStyle audioBubbleStyle,
-      CometChatColorPalette colorPalette) {
+    BuildContext context,
+    CometChatVoiceNoteBubbleStyle audioBubbleStyle,
+    CometChatColorPalette colorPalette,
+  ) {
     return audioBubbleStyle.downloadIconColor ??
         (widget.alignment == BubbleAlignment.right
             ? colorPalette.white
@@ -577,3 +658,11 @@ class _CometChatAudioBubbleState extends State<CometChatAudioBubble>
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 }
+
+/// Legacy name for [CometChatVoiceNoteBubble].
+///
+/// Kept so existing integrations keep compiling. The previous deprecation
+/// pointed at `CometChatAudiosBubble`, which was wrong for voice notes — they
+/// never route there — so it now points at the renamed class instead.
+@Deprecated('Renamed to CometChatVoiceNoteBubble.')
+typedef CometChatAudioBubble = CometChatVoiceNoteBubble;

@@ -8,11 +8,12 @@ import 'package:intl/intl.dart';
 class CallLogsUtils {
   // This will return the date separator title eg: Today, yesterday...
   static Widget getDateTimeTitle(
-      Map<String, List<CallLog>> groupedEntries,
-      int index,
-      String? dateSeparatorPattern,
-      TextStyle? customStyle,
-      BuildContext context) {
+    Map<String, List<CallLog>> groupedEntries,
+    int index,
+    String? dateSeparatorPattern,
+    TextStyle? customStyle,
+    BuildContext context,
+  ) {
     String? date = groupedEntries.keys.elementAt(index);
 
     DateFormat format = DateFormat("dd MMM yyyy");
@@ -33,9 +34,7 @@ class CallLogsUtils {
       customDateString: dateSeparatorPattern,
       style: CometChatDateStyle(
         textStyle: customStyle ?? const TextStyle(),
-        border: Border.all(
-          width: 0,
-        ),
+        border: Border.all(width: 0),
       ),
     );
   }
@@ -53,8 +52,9 @@ class CallLogsUtils {
     String? datePattern,
   }) {
     if (epochTimestampInSeconds != null) {
-      DateTime dateTime =
-          DateTime.fromMillisecondsSinceEpoch(epochTimestampInSeconds * 1000);
+      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
+        epochTimestampInSeconds * 1000,
+      );
 
       String formattedDate = DateFormat('d MMMM, h:mm a').format(dateTime);
 
@@ -72,14 +72,9 @@ class CallLogsUtils {
             fontSize: typography.caption1?.regular?.fontSize,
             fontWeight: typography.caption1?.regular?.fontWeight,
             fontFamily: typography.caption1?.regular?.fontFamily,
-          )
-              .merge(
-                dateStyle.textStyle,
-              )
-              .copyWith(
-                color: dateStyle.textColor,
-              ),
-          border: dateStyle.border ??
+          ).merge(dateStyle.textStyle).copyWith(color: dateStyle.textColor),
+          border:
+              dateStyle.border ??
               Border.all(
                 width: 0,
                 color: colorPalette.transparent ?? Colors.transparent,
@@ -95,8 +90,9 @@ class CallLogsUtils {
   // This is used to store the values in the same date stamp
   static String storeValueInMapTime(int? epochTimestampInSeconds) {
     if (epochTimestampInSeconds != null) {
-      var dateTime =
-          DateTime.fromMillisecondsSinceEpoch(epochTimestampInSeconds * 1000);
+      var dateTime = DateTime.fromMillisecondsSinceEpoch(
+        epochTimestampInSeconds * 1000,
+      );
 
       var formatter = DateFormat("dd MMM yyyy");
 
@@ -212,7 +208,9 @@ class CallLogsUtils {
 
   // This will return the callLog list
   static List<CallLog> returnCallLogList(
-      Map<String, List<CallLog>> groupedEntries, int index) {
+    Map<String, List<CallLog>> groupedEntries,
+    int index,
+  ) {
     var date = groupedEntries.keys.elementAt(index);
     final logs = groupedEntries[date];
     return logs ?? [];

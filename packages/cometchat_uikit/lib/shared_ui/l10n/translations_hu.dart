@@ -834,6 +834,41 @@ class TranslationsHu extends Translations {
   String get failedToLoadImage => 'Failed To Load Image';
 
   @override
+  String get uploadFailed => 'A feltöltés sikertelen';
+
+  @override
+  String get tapToRetry => 'Koppintson az újrapróbálkozáshoz';
+
+  @override
+  String get dropFilesHere => 'Húzza ide a fájlokat';
+
+  @override
+  String get attachmentCountLimit =>
+      'Üzenetenként legfeljebb {limit} fájlt csatolhat.';
+
+  @override
+  String get attachmentFileSizeLimit =>
+      'Minden fájlnak {limit} alatt kell lennie.';
+
+  @override
+  String get fileListShowMore => '+{count} további';
+
+  @override
+  String get fileListShowLess => 'Kevesebb mutatása';
+
+  @override
+  String get searchImagesCount => '{count} kép';
+
+  @override
+  String get searchVideosCount => '{count} videó';
+
+  @override
+  String get searchAudiosCount => '{count} hang';
+
+  @override
+  String get searchFilesCount => '{count} fájl';
+
+  @override
   String get transferOwnership => 'Tulajdonjog átruházása';
 
   @override
@@ -1247,28 +1282,35 @@ class TranslationsHu extends Translations {
   @override
   String get type => 'Írja be';
   @override
-  String get messageBlockedByModeration => 'Üzenetét moderálási irányelvek miatt blokkolták.';
+  String get messageBlockedByModeration =>
+      'Üzenetét moderálási irányelvek miatt blokkolták.';
 
   @override
-  String get cantSendMessageBlockedUser => "Az üzenet nem küldhető, mert a felhasználó blokkolva van.";
+  String get cantSendMessageBlockedUser =>
+      "Az üzenet nem küldhető, mert a felhasználó blokkolva van.";
 
   @override
-  String get cantSendMessageNotMember => "Nem küldhetsz üzenetet ebbe a csoportba, mert már nem vagy tagja.";
+  String get cantSendMessageNotMember =>
+      "Nem küldhetsz üzenetet ebbe a csoportba, mert már nem vagy tagja.";
 
   @override
-  String get youAreNoLongerPartOfThisGroup => 'Már nem vagy tagja ennek a csoportnak.';
+  String get youAreNoLongerPartOfThisGroup =>
+      'Már nem vagy tagja ennek a csoportnak.';
 
   @override
   String get busy => "Elfoglalt";
 
   @override
-  String get noConversationHistoryFound => "Nem található beszélgetési előzmény.";
+  String get noConversationHistoryFound =>
+      "Nem található beszélgetési előzmény.";
 
   @override
-  String get somethingWentWrongTryAgain => "Valami hiba történt a mi oldalunkon. Kérjük, próbáld meg újra.";
+  String get somethingWentWrongTryAgain =>
+      "Valami hiba történt a mi oldalunkon. Kérjük, próbáld meg újra.";
 
   @override
-  String get startChatByTappingNewChat => 'Indíts beszélgetést a "Új csevegés" gomb megérintésével.';
+  String get startChatByTappingNewChat =>
+      'Indíts beszélgetést a "Új csevegés" gomb megérintésével.';
 
   @override
   String get chatHistory => "Csevegési előzmények";
@@ -1296,7 +1338,8 @@ class TranslationsHu extends Translations {
   String get aiAssistants => "MI-ügynökök";
 
   @override
-  String get notifyEveryoneInThisGroup => "Mindenkit értesíteni ebben a csoportban";
+  String get notifyEveryoneInThisGroup =>
+      "Mindenkit értesíteni ebben a csoportban";
 
   @override
   String get notifyAll => "mindenkit";
@@ -1311,7 +1354,8 @@ class TranslationsHu extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

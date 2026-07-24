@@ -17,23 +17,23 @@ import 'package:url_launcher/url_launcher.dart';
 ///     );
 ///     ```
 class CometChatPhoneNumberFormatter extends CometChatTextFormatter {
-  CometChatPhoneNumberFormatter(
-      {String? trackingCharacter,
-      RegExp? pattern,
-      super.showLoadingIndicator,
-      super.onSearch,
-      super.messageBubbleTextStyle,
-      super.messageInputTextStyle,
-      super.message,
-      super.composerId,
-      super.suggestionListEventSink,
-      super.previousTextEventSink,
-      super.user,
-      super.group})
-      : super(
-            trackingCharacter: null,
-            pattern:
-                pattern ?? RegExp(RegexConstants.phoneNumberRegexPattern)) {
+  CometChatPhoneNumberFormatter({
+    String? trackingCharacter,
+    RegExp? pattern,
+    super.showLoadingIndicator,
+    super.onSearch,
+    super.messageBubbleTextStyle,
+    super.messageInputTextStyle,
+    super.message,
+    super.composerId,
+    super.suggestionListEventSink,
+    super.previousTextEventSink,
+    super.user,
+    super.group,
+  }) : super(
+         trackingCharacter: null,
+         pattern: pattern ?? RegExp(RegexConstants.phoneNumberRegexPattern),
+       ) {
     pattern ??= RegExp(RegexConstants.phoneNumberRegexPattern);
   }
 
@@ -52,7 +52,9 @@ class CometChatPhoneNumberFormatter extends CometChatTextFormatter {
     if (messageInputTextStyle != null) {
       return messageInputTextStyle!(context);
     }
-    CometChatTypography typography = CometChatThemeHelper.getTypography(context);
+    CometChatTypography typography = CometChatThemeHelper.getTypography(
+      context,
+    );
     return TextStyle(
       fontWeight: typography.body?.regular?.fontWeight,
       fontSize: typography.body?.regular?.fontSize,
@@ -68,45 +70,65 @@ class CometChatPhoneNumberFormatter extends CometChatTextFormatter {
 
   @override
   TextStyle getMessageBubbleTextStyle(
-      BuildContext context, BubbleAlignment? alignment,
-      {bool forConversation = false}) {
+    BuildContext context,
+    BubbleAlignment? alignment, {
+    bool forConversation = false,
+  }) {
     if (messageBubbleTextStyle != null) {
-      return messageBubbleTextStyle!(context, alignment,
-          forConversation: forConversation);
+      return messageBubbleTextStyle!(
+        context,
+        alignment,
+        forConversation: forConversation,
+      );
     } else {
-      CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
-      CometChatTypography typography = CometChatThemeHelper.getTypography(context);
+      CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(
+        context,
+      );
+      CometChatTypography typography = CometChatThemeHelper.getTypography(
+        context,
+      );
       return TextStyle(
-          color: alignment == BubbleAlignment.right
-              ?colorPalette.white
-              : colorPalette.neutral900,
-          fontWeight: typography.body?.regular?.fontWeight,
-          fontSize: typography.body?.regular?.fontSize,
-          fontFamily: typography.body?.regular?.fontFamily,
-          decoration: TextDecoration.underline);
+        color: alignment == BubbleAlignment.right
+            ? colorPalette.white
+            : colorPalette.neutral900,
+        fontWeight: typography.body?.regular?.fontWeight,
+        fontSize: typography.body?.regular?.fontSize,
+        fontFamily: typography.body?.regular?.fontFamily,
+        decoration: TextDecoration.underline,
+      );
     }
   }
 
   @override
   void onChange(
-      TextEditingController textEditingController, String previousText) {
+    TextEditingController textEditingController,
+    String previousText,
+  ) {
     // No operation needed for phone number formatter
   }
 
   @override
   List<AttributedText> getAttributedText(
-      String text, BuildContext context, BubbleAlignment? alignment,
-      {List<AttributedText>? existingAttributes,
-      Function(String)? onTap,
-      bool forConversation = false}) {
-    return super.getAttributedText(text, context, alignment,
-        existingAttributes: existingAttributes,
-        onTap: onTap ??
-            (text) async {
-              if (pattern != null && pattern!.hasMatch(text)) {
-                await launchUrl(Uri.parse(('tel:$text')));
-              }
-            },
-        forConversation: forConversation);
+    String text,
+    BuildContext context,
+    BubbleAlignment? alignment, {
+    List<AttributedText>? existingAttributes,
+    Function(String)? onTap,
+    bool forConversation = false,
+  }) {
+    return super.getAttributedText(
+      text,
+      context,
+      alignment,
+      existingAttributes: existingAttributes,
+      onTap:
+          onTap ??
+          (text) async {
+            if (pattern != null && pattern!.hasMatch(text)) {
+              await launchUrl(Uri.parse(('tel:$text')));
+            }
+          },
+      forConversation: forConversation,
+    );
   }
 }

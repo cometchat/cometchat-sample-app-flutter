@@ -2,9 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
-import 'package:cometchat_cards/cometchat_cards.dart';
 
 import 'package:cometchat_chat_uikit/shared_ui/cometchat_uikit_shared.dart';
 
@@ -34,9 +31,9 @@ class FakeStreamMessage extends Fake implements StreamMessage {
     String? text,
     int? runId,
     Map<String, dynamic>? metadata,
-  })  : _text = text,
-        _runId = runId,
-        _metadata = metadata ?? {AIConstants.aiShimmer: false};
+  }) : _text = text,
+       _runId = runId,
+       _metadata = metadata ?? {AIConstants.aiShimmer: false};
 
   @override
   int get id => _id;
@@ -119,13 +116,13 @@ const _cardWithButton = {
       'id': 'btn1',
       'type': 'button',
       'label': 'Option A',
-      'action': {'type': 'openUrl', 'url': 'https://example.com/a'}
+      'action': {'type': 'openUrl', 'url': 'https://example.com/a'},
     },
     {
       'id': 'btn2',
       'type': 'button',
       'label': 'Option B',
-      'action': {'type': 'openUrl', 'url': 'https://example.com/b'}
+      'action': {'type': 'openUrl', 'url': 'https://example.com/b'},
     },
   ],
   'fallbackText': 'Select an option',
@@ -134,16 +131,34 @@ const _cardWithButton = {
 const _productRecommendationCard = {
   'version': '1.0',
   'body': [
-    {'id': 'img1', 'type': 'image', 'url': 'https://example.com/product.png', 'height': 150, 'fit': 'cover'},
-    {'id': 'title', 'type': 'text', 'content': 'AI Recommended Product', 'variant': 'heading2'},
+    {
+      'id': 'img1',
+      'type': 'image',
+      'url': 'https://example.com/product.png',
+      'height': 150,
+      'fit': 'cover',
+    },
+    {
+      'id': 'title',
+      'type': 'text',
+      'content': 'AI Recommended Product',
+      'variant': 'heading2',
+    },
     {'id': 'price', 'type': 'text', 'content': '\$49.99', 'fontWeight': 'bold'},
-    {'id': 'desc', 'type': 'text', 'content': 'Based on your conversation, I recommend this product.'},
+    {
+      'id': 'desc',
+      'type': 'text',
+      'content': 'Based on your conversation, I recommend this product.',
+    },
     {
       'id': 'buy_btn',
       'type': 'button',
       'label': 'View Details',
       'variant': 'filled',
-      'action': {'type': 'openUrl', 'url': 'https://shop.example.com/product/123'}
+      'action': {
+        'type': 'openUrl',
+        'url': 'https://shop.example.com/product/123',
+      },
     },
   ],
   'style': {
@@ -190,16 +205,15 @@ void main() {
     });
 
     group('Card Placeholder Widget', () {
-      testWidgets('renders CircularProgressIndicator for loading card',
-          (tester) async {
+      testWidgets('renders CircularProgressIndicator for loading card', (
+        tester,
+      ) async {
         // Create a stream bubble and simulate card_start without card event
         final message = FakeStreamMessage(1, text: 'Thinking...');
 
         await tester.pumpWidget(
           MaterialApp(
-            home: Scaffold(
-              body: CometChatStreamBubble(message: message),
-            ),
+            home: Scaffold(body: CometChatStreamBubble(message: message)),
           ),
         );
         await tester.pump();
@@ -338,17 +352,23 @@ void main() {
     });
 
     group('Card JSON Encoding in Stream Bubble', () {
-      test('card data is correctly JSON-encoded before passing to CometChatCardView', () {
-        // The _buildRenderedCard method does:
-        //   final cardJson = jsonEncode(cardData);
-        // This ensures the Map<String, dynamic> from the AIAssistantCardReceivedEvent
-        // is properly serialized to a JSON string for CometChatCardView
-        final encoded = jsonEncode(_simpleCard);
-        final decoded = jsonDecode(encoded) as Map<String, dynamic>;
-        expect(decoded['version'], '1.0');
-        expect((decoded['body'] as List).length, 1);
-        expect((decoded['body'] as List)[0]['content'], 'Streamed card content');
-      });
+      test(
+        'card data is correctly JSON-encoded before passing to CometChatCardView',
+        () {
+          // The _buildRenderedCard method does:
+          //   final cardJson = jsonEncode(cardData);
+          // This ensures the Map<String, dynamic> from the AIAssistantCardReceivedEvent
+          // is properly serialized to a JSON string for CometChatCardView
+          final encoded = jsonEncode(_simpleCard);
+          final decoded = jsonDecode(encoded) as Map<String, dynamic>;
+          expect(decoded['version'], '1.0');
+          expect((decoded['body'] as List).length, 1);
+          expect(
+            (decoded['body'] as List)[0]['content'],
+            'Streamed card content',
+          );
+        },
+      );
 
       test('complex card with nested elements encodes correctly', () {
         final encoded = jsonEncode(_productRecommendationCard);
@@ -439,13 +459,10 @@ void main() {
     });
 
     group('Error Handling', () {
-      testWidgets('stream bubble shows error text on stream error',
-          (tester) async {
-        final message = FakeStreamMessage(
-          1,
-          text: '',
-          runId: 999,
-        );
+      testWidgets('stream bubble shows error text on stream error', (
+        tester,
+      ) async {
+        final message = FakeStreamMessage(1, text: '', runId: 999);
 
         await tester.pumpWidget(
           MaterialApp(

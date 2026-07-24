@@ -3,9 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../cometchat_calls_uikit.dart';
 import '../../../cometchat_chat_uikit.dart';
-import 'bloc/outgoing_call_bloc.dart';
-import 'bloc/outgoing_call_event.dart';
-import 'bloc/outgoing_call_state.dart';
 
 /// [CometChatOutgoingCall] is a widget which is used to show outgoing call screen
 /// when the logged-in user calls another user.
@@ -82,7 +79,7 @@ class CometChatOutgoingCall extends StatefulWidget {
   final OutgoingCallBloc? bloc;
 
   const CometChatOutgoingCall({
-    Key? key,
+    super.key,
     required this.call,
     this.user,
     this.onError,
@@ -100,7 +97,7 @@ class CometChatOutgoingCall extends StatefulWidget {
     this.titleView,
     this.cancelledView,
     this.bloc,
-  }) : super(key: key);
+  });
 
   @override
   State<CometChatOutgoingCall> createState() => _CometChatOutgoingCallState();
@@ -122,7 +119,8 @@ class _CometChatOutgoingCallState extends State<CometChatOutgoingCall> {
   void initState() {
     super.initState();
     _isExternalBloc = widget.bloc != null;
-    _bloc = widget.bloc ??
+    _bloc =
+        widget.bloc ??
         OutgoingCallBloc(
           call: widget.call,
           user: widget.user,
@@ -139,7 +137,8 @@ class _CometChatOutgoingCallState extends State<CometChatOutgoingCall> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
       _colorPalette = CometChatThemeHelper.getColorPalette(context);
@@ -152,7 +151,6 @@ class _CometChatOutgoingCallState extends State<CometChatOutgoingCall> {
       _themeInitialized = true;
     }
   }
-
 
   @override
   void dispose() {
@@ -219,14 +217,19 @@ class _CometChatOutgoingCallState extends State<CometChatOutgoingCall> {
                     subtitleView: _getSubtitleView(context, widget.call),
                     avatarView: _getAvatarView(context, widget.call),
                     cardStyle: CardStyle(
-                      titleStyle: TextStyle(
-                        fontSize: _typography.heading1?.bold?.fontSize,
-                        fontWeight: _typography.heading1?.bold?.fontWeight,
-                        fontFamily: _typography.heading1?.bold?.fontFamily,
-                        color: _style.titleColor ?? _colorPalette.textPrimary,
-                      )
-                          .merge(_style.titleTextStyle)
-                          .copyWith(color: _style.titleColor),
+                      titleStyle:
+                          TextStyle(
+                                fontSize: _typography.heading1?.bold?.fontSize,
+                                fontWeight:
+                                    _typography.heading1?.bold?.fontWeight,
+                                fontFamily:
+                                    _typography.heading1?.bold?.fontFamily,
+                                color:
+                                    _style.titleColor ??
+                                    _colorPalette.textPrimary,
+                              )
+                              .merge(_style.titleTextStyle)
+                              .copyWith(color: _style.titleColor),
                       avatarStyle: CometChatAvatarStyle(
                         placeHolderTextStyle: TextStyle(
                           fontSize: _typography.heading1?.bold?.fontSize,
@@ -271,9 +274,7 @@ class _CometChatOutgoingCallState extends State<CometChatOutgoingCall> {
           fontWeight: _typography.body?.regular?.fontWeight,
           fontFamily: _typography.body?.regular?.fontFamily,
           color: _style.subtitleColor ?? _colorPalette.textSecondary,
-        )
-            .merge(_style.subtitleTextStyle)
-            .copyWith(color: _style.subtitleColor),
+        ).merge(_style.subtitleTextStyle).copyWith(color: _style.subtitleColor),
       ),
     );
   }
@@ -287,7 +288,10 @@ class _CometChatOutgoingCallState extends State<CometChatOutgoingCall> {
   }
 
   Widget _getCancelledView(
-      BuildContext context, Call call, OutgoingCallState state) {
+    BuildContext context,
+    Call call,
+    OutgoingCallState state,
+  ) {
     if (widget.cancelledView != null) {
       return widget.cancelledView!(context, call)!;
     }
@@ -296,14 +300,16 @@ class _CometChatOutgoingCallState extends State<CometChatOutgoingCall> {
       width: 60,
       decoration: BoxDecoration(
         color: _style.declineButtonColor ?? _colorPalette.error,
-        borderRadius: _style.declineButtonBorderRadius ??
+        borderRadius:
+            _style.declineButtonBorderRadius ??
             BorderRadius.circular(_spacing.radiusMax ?? 0),
       ),
       child: IconButton(
         onPressed: state.isCallRejected
             ? null
             : () => _bloc.add(const CancelCall()),
-        icon: widget.declineButtonIcon ??
+        icon:
+            widget.declineButtonIcon ??
             Icon(
               Icons.call_end,
               size: 32,

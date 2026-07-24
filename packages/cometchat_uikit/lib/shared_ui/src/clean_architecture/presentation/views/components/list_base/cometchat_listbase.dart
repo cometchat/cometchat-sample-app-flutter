@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import "../../../../clean_architecture.dart";
 import 'list_base_bloc.dart';
-import '../../../../../../l10n/translations.dart';
 
 ///[CometChatListBase] is a top level container widget
 ///used internally by components like [CometChatUsers], [CometChatGroups], [CometChatConversations], [CometChatGroupMembers]
@@ -131,17 +130,19 @@ class _CometChatListBaseState extends State<CometChatListBase> {
   }
 
   /// returns back button to be shown in appbar
-  Widget? getBackButton(context) {
+  Widget? getBackButton(BuildContext context) {
     Widget? backButton;
     if (widget.showBackButton != null && widget.showBackButton == true) {
       backButton = IconButton(
-        onPressed: widget.onBack ??
+        onPressed:
+            widget.onBack ??
             () {
               Navigator.pop(context);
             },
         padding: widget.leadingIconPadding ?? EdgeInsets.zero,
         color: widget.style.backIconTint,
-        icon: widget.backIcon ??
+        icon:
+            widget.backIcon ??
             Image.asset(
               AssetConstants.back,
               package: UIConstants.packageName,
@@ -162,141 +163,161 @@ class _CometChatListBaseState extends State<CometChatListBase> {
           previous.showScrollToBottom != current.showScrollToBottom,
       builder: (context, state) {
         return ClipRRect(
-      borderRadius: widget.style.borderRadius ?? BorderRadius.zero,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: widget.style.gradient,
-          border: widget.style.border,
-          borderRadius: widget.style.borderRadius,
-        ),
-        child: Scaffold(
-          //appbar with back button and menu options
+          borderRadius: widget.style.borderRadius ?? BorderRadius.zero,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: widget.style.gradient,
+              border: widget.style.border,
+              borderRadius: widget.style.borderRadius,
+            ),
+            child: Scaffold(
+              //appbar with back button and menu options
+              appBar: widget.hideAppBar == true
+                  ? null
+                  : AppBar(
+                      elevation: 0,
+                      scrolledUnderElevation: 0,
+                      toolbarHeight: 56,
+                      title:
+                          widget.titleView ??
+                          Text(
+                            widget.title ?? "",
+                            style: widget.style.titleStyle,
+                          ),
+                      shape: widget.style.appBarShape,
+                      backgroundColor:
+                          widget.style.appBarBackground ??
+                          widget.style.background,
+                      leading: getBackButton(context),
+                      leadingWidth:
+                          widget.leadingWidth ??
+                          (widget.showBackButton == true ? 40 : 0),
+                      automaticallyImplyLeading: widget.showBackButton ?? false,
+                      actions: widget.menuOptions ?? [],
+                      centerTitle: false,
+                      titleSpacing: widget.titleSpacing,
+                    ),
 
-          appBar: widget.hideAppBar == true
-              ? null
-              : AppBar(
-                  elevation: 0,
-                  scrolledUnderElevation: 0,
-                  toolbarHeight: 56,
-                  title: widget.titleView ??
-                      Text(
-                        widget.title ?? "",
-                        style: widget.style.titleStyle,
-                      ),
-                  shape: widget.style.appBarShape,
-                  backgroundColor: widget.style.appBarBackground ?? widget.style.background,
-                  leading: getBackButton(context),
-                  leadingWidth: widget.leadingWidth ??
-                      (widget.showBackButton == true ? 40 : 0),
-                  automaticallyImplyLeading: widget.showBackButton ?? false,
-                  actions: widget.menuOptions ?? [],
-                  centerTitle: false,
-                  titleSpacing: widget.titleSpacing,
-                ),
+              backgroundColor: widget.style.background,
+              body: Padding(
+                padding:
+                    widget.style.padding ??
+                    const EdgeInsets.only(left: 0, right: 0),
+                child: SizedBox(
+                  height: widget.style.height,
+                  width: widget.style.width,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //-----------------------------------
+                      //----------show search box----------
+                      if (widget.hideSearch == false)
+                        Padding(
+                          padding:
+                              widget.searchPadding ?? const EdgeInsets.all(0),
+                          child: SizedBox(
+                            height: widget.searchBoxHeight,
+                            child: Center(
+                              child: GestureDetector(
+                                onTap: widget.searchReadOnly
+                                    ? widget.onSearchTap
+                                    : null,
+                                child: AbsorbPointer(
+                                  absorbing: widget.searchReadOnly,
+                                  child: TextField(
+                                    keyboardAppearance:
+                                        CometChatThemeHelper.getBrightness(
+                                              context,
+                                            ) ==
+                                            Brightness.dark
+                                        ? Brightness.dark
+                                        : Brightness.light,
+                                    key: widget.key,
+                                    //--------------------------------------
+                                    //----------on search callback----------
+                                    controller: _searchController,
+                                    onChanged: widget.onSearch,
+                                    readOnly: widget.searchReadOnly,
+                                    style: widget.style.searchTextStyle,
+                                    onTap: widget.onSearchTap,
+                                    //-----------------------------------------
+                                    //----------search box decoration----------
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                          widget.searchContentPadding ??
+                                          const EdgeInsets.all(0),
+                                      hintText:
+                                          widget.placeholder ??
+                                          Translations.of(context).search,
+                                      prefixIcon:
+                                          widget.searchBoxIcon ??
+                                          Icon(
+                                            Icons.search,
+                                            color: widget.style.searchIconTint,
+                                            size: 24,
+                                          ),
+                                      prefixIconColor:
+                                          widget.style.searchIconTint,
+                                      hintStyle:
+                                          widget.style.searchPlaceholderStyle,
 
-          backgroundColor: widget.style.background,
-          body: Padding(
-            padding: widget.style.padding ??
-                const EdgeInsets.only(left: 0, right: 0),
-            child: SizedBox(
-              height: widget.style.height,
-              width: widget.style.width,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  //-----------------------------------
-                  //----------show search box----------
-                  if (widget.hideSearch == false)
-                    Padding(
-                      padding: widget.searchPadding ?? const EdgeInsets.all(0),
-                      child: SizedBox(
-                        height: widget.searchBoxHeight,
-                        child: Center(
-                          child: GestureDetector(
-                            onTap: widget.searchReadOnly ? widget.onSearchTap : null,
-                            child: AbsorbPointer(
-                              absorbing: widget.searchReadOnly,
-                              child: TextField(
-                            keyboardAppearance:
-                                CometChatThemeHelper.getBrightness(context) ==
-                                        Brightness.dark
-                                    ? Brightness.dark
-                                    : Brightness.light,
-                            key: widget.key,
-                            //--------------------------------------
-                            //----------on search callback----------
-                            controller: _searchController,
-                            onChanged: widget.onSearch,
-                            readOnly: widget.searchReadOnly,
-                            style: widget.style.searchTextStyle,
-                            onTap: widget.onSearchTap,
-                            //-----------------------------------------
-                            //----------search box decoration----------
-                            decoration: InputDecoration(
-                              contentPadding: widget.searchContentPadding ??
-                                  const EdgeInsets.all(0),
-                              hintText: widget.placeholder ??
-                                  Translations.of(context).search,
-                              prefixIcon: widget.searchBoxIcon ??
-                                  Icon(
-                                    Icons.search,
-                                    color: widget.style.searchIconTint,
-                                    size: 24,
+                                      //-------------------------------------
+                                      //----------search box border----------
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide:
+                                            widget.style.borderSide ??
+                                            BorderSide.none,
+                                        borderRadius:
+                                            widget
+                                                .style
+                                                .searchTextFieldRadius ??
+                                            BorderRadius.circular(28),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide:
+                                            widget.style.borderSide ??
+                                            BorderSide.none,
+                                        borderRadius:
+                                            widget
+                                                .style
+                                                .searchTextFieldRadius ??
+                                            BorderRadius.circular(28),
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderSide:
+                                            widget.style.borderSide ??
+                                            BorderSide.none,
+                                        borderRadius:
+                                            widget
+                                                .style
+                                                .searchTextFieldRadius ??
+                                            BorderRadius.circular(28),
+                                      ),
+
+                                      //-----------------------------------------
+                                      //----------search box fill color----------
+                                      fillColor:
+                                          widget.style.searchBoxBackground,
+                                      filled: true,
+                                    ),
                                   ),
-                              prefixIconColor: widget.style.searchIconTint,
-                              hintStyle: widget.style.searchPlaceholderStyle,
-
-                              //-------------------------------------
-                              //----------search box border----------
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    widget.style.borderSide ?? BorderSide.none,
-                                borderRadius:
-                                    widget.style.searchTextFieldRadius ??
-                                        BorderRadius.circular(28),
+                                ),
                               ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    widget.style.borderSide ?? BorderSide.none,
-                                borderRadius:
-                                    widget.style.searchTextFieldRadius ??
-                                        BorderRadius.circular(
-                                          28,
-                                        ),
-                              ),
-                              border: OutlineInputBorder(
-                                borderSide:
-                                    widget.style.borderSide ?? BorderSide.none,
-                                borderRadius:
-                                    widget.style.searchTextFieldRadius ??
-                                        BorderRadius.circular(
-                                          28,
-                                        ),
-                              ),
-
-                              //-----------------------------------------
-                              //----------search box fill color----------
-                              fillColor: widget.style.searchBoxBackground,
-                              filled: true,
                             ),
                           ),
                         ),
-                          ),
-                        ),
-                      ),
-                    ),
 
-                  //--------------------------------
-                  //----------showing list----------
-                  Expanded(child: widget.container)
-                ],
+                      //--------------------------------
+                      //----------showing list----------
+                      Expanded(child: widget.container),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
-    );
+        );
       },
     );
   }

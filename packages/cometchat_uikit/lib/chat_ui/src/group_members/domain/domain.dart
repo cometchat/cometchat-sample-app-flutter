@@ -1,5 +1,6 @@
 /// Domain layer exports for group members module
 /// This barrel file provides a single import point for all domain layer components
+library;
 
 // Repository interfaces
 export 'repositories/group_members_repository.dart';

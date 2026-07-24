@@ -48,9 +48,7 @@ void main() {
     test('of() returns default style', () {
       // CometChatMessageComposerStyle.of() is a static factory
       // that returns a const default instance
-      final style = CometChatMessageComposerStyle.of(
-        _FakeBuildContext(),
-      );
+      final style = CometChatMessageComposerStyle.of(_FakeBuildContext());
       expect(style.backgroundColor, isNull);
       expect(style.sendButtonIconColor, isNull);
     });
@@ -187,13 +185,19 @@ void main() {
         sendButtonBorderRadius: BorderRadius.all(Radius.circular(20)),
       );
       final copied = original.copyWith(
-        secondaryButtonBorderRadius: BorderRadius.all(Radius.circular(10)),
+        secondaryButtonBorderRadius: const BorderRadius.all(
+          Radius.circular(10),
+        ),
       );
 
-      expect(copied.sendButtonBorderRadius,
-          const BorderRadius.all(Radius.circular(20)));
-      expect(copied.secondaryButtonBorderRadius,
-          const BorderRadius.all(Radius.circular(10)));
+      expect(
+        copied.sendButtonBorderRadius,
+        const BorderRadius.all(Radius.circular(20)),
+      );
+      expect(
+        copied.secondaryButtonBorderRadius,
+        const BorderRadius.all(Radius.circular(10)),
+      );
     });
   });
 
@@ -316,9 +320,9 @@ void main() {
 
       // At t=0.5, colors should be midpoint (grey)
       expect(result.backgroundColor, isNotNull);
-      expect(result.backgroundColor!.red, closeTo(128, 1));
-      expect(result.backgroundColor!.green, closeTo(128, 1));
-      expect(result.backgroundColor!.blue, closeTo(128, 1));
+      expect(result.backgroundColor!.r * 255, closeTo(128, 1));
+      expect(result.backgroundColor!.g * 255, closeTo(128, 1));
+      expect(result.backgroundColor!.b * 255, closeTo(128, 1));
     });
 
     test('lerp with null other interpolates toward null (transparent)', () {

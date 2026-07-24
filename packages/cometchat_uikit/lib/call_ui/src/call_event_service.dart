@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+// ignore: implementation_imports
 import 'package:cometchat_calls_sdk/src/plugin/platform/cometchatcalls_plugin_platform_interface.dart';
 import '../../cometchat_calls_uikit.dart';
 import '../../cometchat_chat_uikit.dart';
@@ -99,7 +100,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
       // Login failed — complete anyway so we don't hang forever,
       // but log a warning.
       developer.log(
-          'CallEventService: WARNING — Calls SDK login failed, generateToken will fail');
+        'CallEventService: WARNING — Calls SDK login failed, generateToken will fail',
+      );
       _callsSdkLoginCompleter!.complete();
     }
 
@@ -119,35 +121,53 @@ class CallEventService with CallListener, CometChatCallEventListener {
 
   /// Initializes the CometChat Calls SDK and awaits completion.
   /// Sets [_callsSdkReady] on success so other components know the SDK is ready.
+  ///
+  /// When the UIKit was initialized via CometChatUIKit.initFromSettings (the
+  /// AI-agent / skills path), the Calls SDK is routed through its own
+  /// telemetry-aware `CometChatCalls.initFromSettings` — it reads the same
+  /// `cometchat-settings.json` asset (guaranteed present on that path) and
+  /// persists integrationSource = "ai-agent" (ENG-37368). The plain init path
+  /// keeps the plain `CometChatCalls.init` ("manual"), unchanged.
   Future<void> _initCallsSdk(String appId, String region) async {
     if (_callsSdkReady) return;
 
     _callsSdkCompleter = Completer<void>();
 
-    final callAppSettings = (CallAppSettingBuilder()
-          ..appId = appId
-          ..region = region)
-        .build();
+    void onCallsInitSuccess(String msg) {
+      _callsSdkReady = true;
+      developer.log('CallEventService: Calls SDK initialized: $msg');
+      if (_callsSdkCompleter != null && !_callsSdkCompleter!.isCompleted) {
+        _callsSdkCompleter!.complete();
+      }
+    }
 
-    CometChatCalls.init(
-      callAppSettings,
-      onSuccess: (String msg) {
-        _callsSdkReady = true;
-        developer.log('CallEventService: Calls SDK initialized: $msg');
-        if (_callsSdkCompleter != null && !_callsSdkCompleter!.isCompleted) {
-          _callsSdkCompleter!.complete();
-        }
-      },
-      onError: (CometChatCallsException e) {
-        developer.log(
-          'CallEventService: Calls SDK init FAILED: ${e.code} ${e.message}',
-        );
-        // Complete anyway so waiters don't hang forever
-        if (_callsSdkCompleter != null && !_callsSdkCompleter!.isCompleted) {
-          _callsSdkCompleter!.complete();
-        }
-      },
-    );
+    void onCallsInitError(CometChatCallsException e) {
+      developer.log(
+        'CallEventService: Calls SDK init FAILED: ${e.code} ${e.message}',
+      );
+      // Complete anyway so waiters don't hang forever
+      if (_callsSdkCompleter != null && !_callsSdkCompleter!.isCompleted) {
+        _callsSdkCompleter!.complete();
+      }
+    }
+
+    if (CometChatUIKit.initializedFromSettings) {
+      CometChatCalls.initFromSettings(
+        onSuccess: onCallsInitSuccess,
+        onError: onCallsInitError,
+      );
+    } else {
+      final callAppSettings = (CallAppSettingBuilder()
+            ..appId = appId
+            ..region = region)
+          .build();
+
+      CometChatCalls.init(
+        callAppSettings,
+        onSuccess: onCallsInitSuccess,
+        onError: onCallsInitError,
+      );
+    }
 
     // Wait up to 10s for the SDK to initialize
     await _callsSdkCompleter!.future.timeout(
@@ -166,8 +186,9 @@ class CallEventService with CallListener, CometChatCallEventListener {
   /// the user + auth token so that `generateToken()` can work.
   Future<void> _loginCallsSdk() async {
     if (!_callsSdkReady) {
-      developer
-          .log('CallEventService: skipping Calls SDK login — SDK not ready');
+      developer.log(
+        'CallEventService: skipping Calls SDK login — SDK not ready',
+      );
       return;
     }
 
@@ -180,7 +201,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
         authToken = await CometChat.getUserAuthToken();
       } catch (e) {
         developer.log(
-            'CallEventService: getUserAuthToken attempt ${attempt + 1} failed: $e');
+          'CallEventService: getUserAuthToken attempt ${attempt + 1} failed: $e',
+        );
       }
       if (authToken != null && authToken.isNotEmpty) break;
       await Future.delayed(const Duration(milliseconds: 500));
@@ -188,7 +210,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
 
     if (authToken == null || authToken.isEmpty) {
       developer.log(
-          'CallEventService: no auth token after retries, skipping Calls SDK login');
+        'CallEventService: no auth token after retries, skipping Calls SDK login',
+      );
       return;
     }
 
@@ -196,7 +219,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
     // internally logs out (token rotation) and the re-login response fails.
     for (int loginAttempt = 1; loginAttempt <= 3; loginAttempt++) {
       developer.log(
-          'CallEventService: logging into Calls SDK (attempt $loginAttempt)...');
+        'CallEventService: logging into Calls SDK (attempt $loginAttempt)...',
+      );
       final completer = Completer<bool>(); // true = success, false = error
       CometChatCalls.loginWithAuthToken(
         authToken: authToken!,
@@ -211,7 +235,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
         },
         onError: (e) {
           developer.log(
-              'CallEventService: Calls SDK login error (attempt $loginAttempt): ${e.code} ${e.message}');
+            'CallEventService: Calls SDK login error (attempt $loginAttempt): ${e.code} ${e.message}',
+          );
           if (!completer.isCompleted) completer.complete(false);
         },
       );
@@ -220,7 +245,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
         const Duration(seconds: 10),
         onTimeout: () {
           developer.log(
-              'CallEventService: Calls SDK login timed out (attempt $loginAttempt)');
+            'CallEventService: Calls SDK login timed out (attempt $loginAttempt)',
+          );
           return false;
         },
       );
@@ -247,7 +273,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
     // SDK's own login API fails.
     if (kIsWeb && authToken != null && authToken.isNotEmpty) {
       developer.log(
-          'CallEventService: Web fallback — setting native auth token directly');
+        'CallEventService: Web fallback — setting native auth token directly',
+      );
       try {
         CometChatCallsPluginPlatform.instance.setNativeAuthToken(authToken);
         _callsSdkLoginReady = true;
@@ -257,7 +284,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
         }
       } catch (e) {
         developer.log(
-            'CallEventService: Web fallback setNativeAuthToken failed: $e');
+          'CallEventService: Web fallback setNativeAuthToken failed: $e',
+        );
       }
     }
   }
@@ -273,7 +301,7 @@ class CallEventService with CallListener, CometChatCallEventListener {
   /// Other components (e.g. CallLogsBloc, VoipCallHandler) should call this
   /// instead of initializing the SDK themselves.
   ///
-  /// If [init] hasn't been called yet (e.g. because [_initiateAfterLogin]
+  /// If [init] hasn't been called yet (e.g. because `_initiateAfterLogin`
   /// fired it without `await`), this method polls briefly, then falls back
   /// to calling [init] directly so the caller never proceeds with an
   /// uninitialized Calls SDK.
@@ -301,9 +329,7 @@ class CallEventService with CallListener, CometChatCallEventListener {
       if (settings != null &&
           settings.appId != null &&
           settings.region != null) {
-        await init(
-          configuration: settings.callingConfiguration,
-        );
+        await init(configuration: settings.callingConfiguration);
       }
       // After init completes, check again
       if (_callsSdkReady && _callsSdkLoginReady) return;
@@ -437,7 +463,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
       }
 
       developer.log(
-          'CallEventService: SDK re-initialized and re-logged in after session');
+        'CallEventService: SDK re-initialized and re-logged in after session',
+      );
     }
   }
 
@@ -485,7 +512,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
     }
 
     developer.log(
-        'CallEventService: onIncomingCallReceived sessionId=${call.sessionId}');
+      'CallEventService: onIncomingCallReceived sessionId=${call.sessionId}',
+    );
     activeCall = call;
     _showIncomingCallOverlay(call, user);
   }
@@ -502,7 +530,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
     }
 
     developer.log(
-        'CallEventService: showing overlay, context=${context != null}, overlay=${CallNavigationContext.navigatorKey.currentState?.overlay != null}');
+      'CallEventService: showing overlay, context=${context != null}, overlay=${CallNavigationContext.navigatorKey.currentState?.overlay != null}',
+    );
 
     if (context != null && context.mounted) {
       IncomingCallOverlay.show(
@@ -515,7 +544,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
         customSoundForCalls:
             _configuration?.incomingCallConfiguration?.customSoundForCalls,
         customSoundForCallsPackage: _configuration
-            ?.incomingCallConfiguration?.customSoundForCallsPackage,
+            ?.incomingCallConfiguration
+            ?.customSoundForCallsPackage,
         onAccept: _configuration?.incomingCallConfiguration?.onAccept,
         onDecline: _configuration?.incomingCallConfiguration?.onDecline,
         style: _configuration?.incomingCallConfiguration?.incomingCallStyle,
@@ -555,7 +585,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
   @override
   void onIncomingCallCancelled(Call call) {
     developer.log(
-        'CallEventService: onIncomingCallCancelled sessionId=${call.sessionId}');
+      'CallEventService: onIncomingCallCancelled sessionId=${call.sessionId}',
+    );
     // Small delay to avoid race where cancel arrives before overlay is visible
     Future.delayed(const Duration(milliseconds: 300), () {
       IncomingCallOverlay.dismiss();
@@ -566,7 +597,8 @@ class CallEventService with CallListener, CometChatCallEventListener {
   @override
   void onCallEndedMessageReceived(Call call) {
     developer.log(
-        'CallEventService: onCallEndedMessageReceived sessionId=${call.sessionId}');
+      'CallEventService: onCallEndedMessageReceived sessionId=${call.sessionId}',
+    );
     IncomingCallOverlay.dismiss();
     _clearActiveCall(call);
   }
@@ -611,10 +643,12 @@ class CallEventService with CallListener, CometChatCallEventListener {
       activeCall = null;
     }
     // Always clear server-side state to prevent stale "busy" rejections.
-    CometChat.clearActiveCall().then((_) {
-      developer.log('CallEventService: clearActiveCall succeeded');
-    }).catchError((e) {
-      developer.log('CallEventService: clearActiveCall failed: $e');
-    });
+    CometChat.clearActiveCall()
+        .then((_) {
+          developer.log('CallEventService: clearActiveCall succeeded');
+        })
+        .catchError((e) {
+          developer.log('CallEventService: clearActiveCall failed: $e');
+        });
   }
 }

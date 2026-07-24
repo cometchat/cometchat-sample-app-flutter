@@ -47,8 +47,9 @@ void main() {
     });
 
     test('delegates to repository with valid session ID', () async {
-      when(() => repo.acceptCall(any()))
-          .thenAnswer((_) async => Success(FakeCall()));
+      when(
+        () => repo.acceptCall(any()),
+      ).thenAnswer((_) async => Success(FakeCall()));
 
       final result = await useCase('session_123');
       expect(result.isSuccess, isTrue);
@@ -56,9 +57,10 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.acceptCall(any()))
-          .thenAnswer((_) async =>
-              const Failure(message: 'Accept failed', code: 'ACCEPT_ERR'));
+      when(() => repo.acceptCall(any())).thenAnswer(
+        (_) async =>
+            const Failure(message: 'Accept failed', code: 'ACCEPT_ERR'),
+      );
 
       final result = await useCase('session_123');
       expect(result.isFailure, isTrue);
@@ -85,8 +87,9 @@ void main() {
     });
 
     test('delegates to repository with valid params', () async {
-      when(() => repo.rejectCall(any(), any()))
-          .thenAnswer((_) async => Success(FakeCall()));
+      when(
+        () => repo.rejectCall(any(), any()),
+      ).thenAnswer((_) async => Success(FakeCall()));
 
       final result = await useCase('session_123', 'rejected');
       expect(result.isSuccess, isTrue);
@@ -94,9 +97,10 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.rejectCall(any(), any()))
-          .thenAnswer((_) async =>
-              const Failure(message: 'Reject failed', code: 'REJECT_ERR'));
+      when(() => repo.rejectCall(any(), any())).thenAnswer(
+        (_) async =>
+            const Failure(message: 'Reject failed', code: 'REJECT_ERR'),
+      );
 
       final result = await useCase('session_123', 'rejected');
       expect(result.isFailure, isTrue);
@@ -123,8 +127,9 @@ void main() {
     });
 
     test('delegates to repository with valid session ID', () async {
-      when(() => repo.endCall(any()))
-          .thenAnswer((_) async => Success(FakeCall()));
+      when(
+        () => repo.endCall(any()),
+      ).thenAnswer((_) async => Success(FakeCall()));
 
       final result = await useCase('session_123');
       expect(result.isSuccess, isTrue);
@@ -152,8 +157,9 @@ void main() {
     });
 
     test('delegates to repository with valid session ID', () async {
-      when(() => repo.generateCallToken(any()))
-          .thenAnswer((_) async => const Success('token_abc'));
+      when(
+        () => repo.generateCallToken(any()),
+      ).thenAnswer((_) async => const Success('token_abc'));
 
       final result = await useCase('session_123');
       expect(result.isSuccess, isTrue);
@@ -161,9 +167,10 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.generateCallToken(any()))
-          .thenAnswer((_) async =>
-              const Failure(message: 'Token gen failed', code: 'TOKEN_ERR'));
+      when(() => repo.generateCallToken(any())).thenAnswer(
+        (_) async =>
+            const Failure(message: 'Token gen failed', code: 'TOKEN_ERR'),
+      );
 
       final result = await useCase('session_123');
       expect(result.isFailure, isTrue);

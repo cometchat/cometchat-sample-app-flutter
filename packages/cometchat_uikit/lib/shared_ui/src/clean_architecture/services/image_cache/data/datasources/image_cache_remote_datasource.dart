@@ -28,10 +28,7 @@ abstract class ImageCacheRemoteDataSource {
   Future<List<ImageCacheEntity>> getAllCachedImages();
 
   /// Update config
-  Future<void> updateConfig({
-    int? maxCacheObjects,
-    Duration? stalePeriod,
-  });
+  Future<void> updateConfig({int? maxCacheObjects, Duration? stalePeriod});
 
   /// Optimize cache
   Future<void> optimizeCache();
@@ -189,9 +186,11 @@ class ImageCacheRemoteDataSourceImpl implements ImageCacheRemoteDataSource {
       if (_cache.length >= _maxCacheObjects) {
         // Remove oldest entries
         final sortedEntries = _cache.entries.toList()
-          ..sort((a, b) =>
-              (a.value.createdAt ?? DateTime.now())
-                  .compareTo(b.value.createdAt ?? DateTime.now()));
+          ..sort(
+            (a, b) => (a.value.createdAt ?? DateTime.now()).compareTo(
+              b.value.createdAt ?? DateTime.now(),
+            ),
+          );
 
         final toRemove = sortedEntries.length - (_maxCacheObjects ~/ 2);
         for (int i = 0; i < toRemove; i++) {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
 
 import 'package:cometchat_chat_uikit/call_ui/src/outgoing_call/bloc/outgoing_call_event.dart';
@@ -110,7 +109,9 @@ void main() {
     test('has all expected values', () {
       expect(OutgoingCallStatus.values, contains(OutgoingCallStatus.idle));
       expect(
-          OutgoingCallStatus.values, contains(OutgoingCallStatus.cancelling));
+        OutgoingCallStatus.values,
+        contains(OutgoingCallStatus.cancelling),
+      );
       expect(OutgoingCallStatus.values, contains(OutgoingCallStatus.accepted));
       expect(OutgoingCallStatus.values, contains(OutgoingCallStatus.rejected));
       expect(OutgoingCallStatus.values, contains(OutgoingCallStatus.error));
@@ -252,8 +253,7 @@ void main() {
 
   group('CometChatOutgoingCallStyle merge', () {
     test('merge with null returns same style', () {
-      final style =
-          CometChatOutgoingCallStyle(backgroundColor: Colors.black);
+      final style = CometChatOutgoingCallStyle(backgroundColor: Colors.black);
       final merged = style.merge(null);
       expect(merged.backgroundColor, Colors.black);
     });
@@ -289,24 +289,21 @@ void main() {
 
   group('CometChatOutgoingCallStyle lerp', () {
     test('lerp at t=0 returns start style', () {
-      final start =
-          CometChatOutgoingCallStyle(backgroundColor: Colors.white);
+      final start = CometChatOutgoingCallStyle(backgroundColor: Colors.white);
       final end = CometChatOutgoingCallStyle(backgroundColor: Colors.black);
       final result = start.lerp(end, 0.0);
       expect(result.backgroundColor, Colors.white);
     });
 
     test('lerp at t=1 returns end style', () {
-      final start =
-          CometChatOutgoingCallStyle(backgroundColor: Colors.white);
+      final start = CometChatOutgoingCallStyle(backgroundColor: Colors.white);
       final end = CometChatOutgoingCallStyle(backgroundColor: Colors.black);
       final result = start.lerp(end, 1.0);
       expect(result.backgroundColor, Colors.black);
     });
 
     test('lerp with non-matching type returns this', () {
-      final style =
-          CometChatOutgoingCallStyle(backgroundColor: Colors.blue);
+      final style = CometChatOutgoingCallStyle(backgroundColor: Colors.blue);
       final result = style.lerp(null, 0.5);
       expect(result.backgroundColor, Colors.blue);
     });
@@ -382,9 +379,7 @@ void main() {
     });
 
     test('configuration accepts custom style', () {
-      final style = CometChatOutgoingCallStyle(
-        backgroundColor: Colors.black,
-      );
+      final style = CometChatOutgoingCallStyle(backgroundColor: Colors.black);
       final config = CometChatOutgoingCallConfiguration(
         outgoingCallStyle: style,
       );

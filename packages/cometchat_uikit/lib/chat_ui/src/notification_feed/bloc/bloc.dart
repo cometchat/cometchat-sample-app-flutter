@@ -1,4 +1,6 @@
 /// BLoC for notification feed
+library;
+
 export 'notification_feed_bloc.dart';
 export 'notification_feed_event.dart';
 export 'notification_feed_state.dart';

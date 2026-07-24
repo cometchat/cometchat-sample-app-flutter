@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 
 /// Repository interface for message composer operations
@@ -13,8 +13,8 @@ abstract class MessageComposerRepository {
   /// Send a custom message
   Future<Result<CustomMessage>> sendCustomMessage(CustomMessage message);
 
-  /// Edit an existing text message
-  Future<Result<BaseMessage>> editMessage(TextMessage message);
+  /// Edit an existing message (text, or a caption-bearing media message)
+  Future<Result<BaseMessage>> editMessage(BaseMessage message);
 
   /// Start typing indicator
   Future<Result<void>> startTyping({

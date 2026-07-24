@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../cometchat_chat_uikit.dart';
-import '../bloc/bloc.dart';
 
 /// A widget that displays the list of groups with state handling and pagination.
 ///
@@ -136,7 +135,7 @@ class GroupsList extends StatelessWidget {
       buildWhen: (previous, current) {
         // Always rebuild if state type changes
         if (previous.runtimeType != current.runtimeType) return true;
-        
+
         // For GroupsLoaded, rebuild on list length, loading more, or selection changes
         if (previous is GroupsLoaded && current is GroupsLoaded) {
           return previous.groups.length != current.groups.length ||
@@ -206,8 +205,9 @@ class GroupsList extends StatelessWidget {
                         width: MediaQuery.of(context).size.width * 0.4,
                         decoration: BoxDecoration(
                           color: Colors.grey,
-                          borderRadius:
-                              BorderRadius.circular(spacing.radius2 ?? 0),
+                          borderRadius: BorderRadius.circular(
+                            spacing.radius2 ?? 0,
+                          ),
                         ),
                       ),
                       SizedBox(height: spacing.padding1 ?? 4),
@@ -216,8 +216,9 @@ class GroupsList extends StatelessWidget {
                         width: MediaQuery.of(context).size.width * 0.25,
                         decoration: BoxDecoration(
                           color: Colors.grey,
-                          borderRadius:
-                              BorderRadius.circular(spacing.radius2 ?? 0),
+                          borderRadius: BorderRadius.circular(
+                            spacing.radius2 ?? 0,
+                          ),
                         ),
                       ),
                     ],
@@ -244,8 +245,9 @@ class GroupsList extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: spacing.padding5 ?? 0),
               child: Image.asset(
-                AssetConstants(CometChatThemeHelper.getBrightness(context))
-                    .emptyGroupList,
+                AssetConstants(
+                  CometChatThemeHelper.getBrightness(context),
+                ).emptyGroupList,
                 package: UIConstants.packageName,
                 width: 120,
                 height: 120,
@@ -268,7 +270,8 @@ class GroupsList extends StatelessWidget {
               'Create or join groups to see them listed here\nand start collaborating.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: style.emptyStateSubTitleTextColor ??
+                color:
+                    style.emptyStateSubTitleTextColor ??
                     colorPalette.textSecondary,
                 fontSize: typography.body?.regular?.fontSize,
                 fontWeight: typography.body?.regular?.fontWeight,
@@ -364,10 +367,12 @@ class GroupsList extends StatelessWidget {
       // Pass custom view slots
       leadingView: leadingView != null ? (g) => leadingView!(context, g) : null,
       titleView: titleView != null ? (g) => titleView!(context, g) : null,
-      subtitleView:
-          subtitleView != null ? (g) => subtitleView!(context, g) : null,
-      trailingView:
-          trailingView != null ? (g) => trailingView!(context, g) : null,
+      subtitleView: subtitleView != null
+          ? (g) => subtitleView!(context, g)
+          : null,
+      trailingView: trailingView != null
+          ? (g) => trailingView!(context, g)
+          : null,
       // Pass item-level styles from CometChatGroupsStyle
       style: CometChatGroupListItemStyle(
         titleTextStyle: style.itemTitleTextStyle,

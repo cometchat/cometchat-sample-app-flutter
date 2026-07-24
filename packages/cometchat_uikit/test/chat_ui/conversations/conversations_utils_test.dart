@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide Action;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
 
 import 'package:cometchat_chat_uikit/chat_ui/src/conversations/utils/debouncer.dart';
@@ -237,7 +236,8 @@ void main() {
   group('StatusIndicatorHelper', () {
     test('user online → shows green indicator', () {
       final conv = FakeConversation(
-          FakeUser(status: CometChatUserStatus.online));
+        FakeUser(status: CometChatUserStatus.online),
+      );
 
       final result = StatusIndicatorHelper.getStatusIndicator(
         conversation: conv,
@@ -252,7 +252,8 @@ void main() {
 
     test('user offline → hidden', () {
       final conv = FakeConversation(
-          FakeUser(status: CometChatUserStatus.offline));
+        FakeUser(status: CometChatUserStatus.offline),
+      );
 
       final result = StatusIndicatorHelper.getStatusIndicator(
         conversation: conv,
@@ -265,7 +266,8 @@ void main() {
 
     test('user online but hideUserStatus=true → hidden', () {
       final conv = FakeConversation(
-          FakeUser(status: CometChatUserStatus.online));
+        FakeUser(status: CometChatUserStatus.online),
+      );
 
       final result = StatusIndicatorHelper.getStatusIndicator(
         conversation: conv,
@@ -278,7 +280,8 @@ void main() {
 
     test('private group → shield icon', () {
       final conv = FakeConversation(
-          FakeGroup(type: CometChatGroupType.private));
+        FakeGroup(type: CometChatGroupType.private),
+      );
 
       final result = StatusIndicatorHelper.getStatusIndicator(
         conversation: conv,
@@ -293,7 +296,8 @@ void main() {
 
     test('password-protected group → lock icon', () {
       final conv = FakeConversation(
-          FakeGroup(type: CometChatGroupType.password));
+        FakeGroup(type: CometChatGroupType.password),
+      );
 
       final result = StatusIndicatorHelper.getStatusIndicator(
         conversation: conv,
@@ -307,8 +311,7 @@ void main() {
     });
 
     test('public group → hidden', () {
-      final conv = FakeConversation(
-          FakeGroup(type: CometChatGroupType.public));
+      final conv = FakeConversation(FakeGroup(type: CometChatGroupType.public));
 
       final result = StatusIndicatorHelper.getStatusIndicator(
         conversation: conv,
@@ -321,7 +324,8 @@ void main() {
 
     test('private group but hideGroupType=true → hidden', () {
       final conv = FakeConversation(
-          FakeGroup(type: CometChatGroupType.private));
+        FakeGroup(type: CometChatGroupType.private),
+      );
 
       final result = StatusIndicatorHelper.getStatusIndicator(
         conversation: conv,

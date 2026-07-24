@@ -113,22 +113,27 @@ MessageListBloc _makeBloc(MockMessageListRepository repo) {
 }
 
 void _stubRepo(MockMessageListRepository repo, {List<BaseMessage>? messages}) {
-  when(() => repo.getLoggedInUser())
-      .thenAnswer((_) async => Success(FakeUser()));
-  when(() => repo.getMessages(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-        limit: any(named: 'limit'),
-        parentMessageId: any(named: 'parentMessageId'),
-        types: any(named: 'types'),
-        categories: any(named: 'categories'),
-        hideReplies: any(named: 'hideReplies'),
-        withParent: any(named: 'withParent'),
-      )).thenAnswer((_) async => Success(messages ?? []));
-  when(() => repo.getConversation(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-      )).thenAnswer((_) async => Success(FakeConversation()));
+  when(
+    () => repo.getLoggedInUser(),
+  ).thenAnswer((_) async => Success(FakeUser()));
+  when(
+    () => repo.getMessages(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+      limit: any(named: 'limit'),
+      parentMessageId: any(named: 'parentMessageId'),
+      types: any(named: 'types'),
+      categories: any(named: 'categories'),
+      hideReplies: any(named: 'hideReplies'),
+      withParent: any(named: 'withParent'),
+    ),
+  ).thenAnswer((_) async => Success(messages ?? []));
+  when(
+    () => repo.getConversation(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+    ),
+  ).thenAnswer((_) async => Success(FakeConversation()));
 }
 
 // ---------------------------------------------------------------------------
@@ -192,15 +197,21 @@ void main() {
         final message = FakeTextMessage(1, sentAt: yesterday);
         final now = DateTime.now();
         final diff = DateTime(now.year, now.month, now.day)
-            .difference(DateTime(
-                message.sentAt!.year, message.sentAt!.month, message.sentAt!.day))
+            .difference(
+              DateTime(
+                message.sentAt!.year,
+                message.sentAt!.month,
+                message.sentAt!.day,
+              ),
+            )
             .inDays;
         expect(diff, equals(1));
       });
 
       test('message sent 36 hours ago may be yesterday', () {
-        final thirtyySixHoursAgo =
-            DateTime.now().subtract(const Duration(hours: 36));
+        final thirtyySixHoursAgo = DateTime.now().subtract(
+          const Duration(hours: 36),
+        );
         final message = FakeTextMessage(1, sentAt: thirtyySixHoursAgo);
         expect(message.sentAt, isNotNull);
         // Depending on current time, this could be yesterday or 2 days ago
@@ -217,8 +228,13 @@ void main() {
         final message = FakeTextMessage(1, sentAt: twoDaysAgo);
         final now = DateTime.now();
         final diff = DateTime(now.year, now.month, now.day)
-            .difference(DateTime(
-                message.sentAt!.year, message.sentAt!.month, message.sentAt!.day))
+            .difference(
+              DateTime(
+                message.sentAt!.year,
+                message.sentAt!.month,
+                message.sentAt!.day,
+              ),
+            )
             .inDays;
         expect(diff, greaterThanOrEqualTo(2));
       });
@@ -228,8 +244,13 @@ void main() {
         final message = FakeTextMessage(1, sentAt: weekAgo);
         final now = DateTime.now();
         final diff = DateTime(now.year, now.month, now.day)
-            .difference(DateTime(
-                message.sentAt!.year, message.sentAt!.month, message.sentAt!.day))
+            .difference(
+              DateTime(
+                message.sentAt!.year,
+                message.sentAt!.month,
+                message.sentAt!.day,
+              ),
+            )
             .inDays;
         expect(diff, greaterThanOrEqualTo(7));
       });
@@ -239,8 +260,13 @@ void main() {
         final message = FakeTextMessage(1, sentAt: monthAgo);
         final now = DateTime.now();
         final diff = DateTime(now.year, now.month, now.day)
-            .difference(DateTime(
-                message.sentAt!.year, message.sentAt!.month, message.sentAt!.day))
+            .difference(
+              DateTime(
+                message.sentAt!.year,
+                message.sentAt!.month,
+                message.sentAt!.day,
+              ),
+            )
             .inDays;
         expect(diff, greaterThanOrEqualTo(30));
       });
@@ -260,8 +286,10 @@ void main() {
       test('messages on same day share a date separator', () {
         final now = DateTime.now();
         final msg1 = FakeTextMessage(1, sentAt: now);
-        final msg2 = FakeTextMessage(2,
-            sentAt: now.subtract(const Duration(minutes: 5)));
+        final msg2 = FakeTextMessage(
+          2,
+          sentAt: now.subtract(const Duration(minutes: 5)),
+        );
 
         expect(msg1.sentAt!.day, equals(msg2.sentAt!.day));
         expect(msg1.sentAt!.month, equals(msg2.sentAt!.month));
@@ -274,8 +302,16 @@ void main() {
         final msg1 = FakeTextMessage(1, sentAt: today);
         final msg2 = FakeTextMessage(2, sentAt: yesterday);
 
-        final day1 = DateTime(msg1.sentAt!.year, msg1.sentAt!.month, msg1.sentAt!.day);
-        final day2 = DateTime(msg2.sentAt!.year, msg2.sentAt!.month, msg2.sentAt!.day);
+        final day1 = DateTime(
+          msg1.sentAt!.year,
+          msg1.sentAt!.month,
+          msg1.sentAt!.day,
+        );
+        final day2 = DateTime(
+          msg2.sentAt!.year,
+          msg2.sentAt!.month,
+          msg2.sentAt!.day,
+        );
         expect(day1, isNot(equals(day2)));
       });
 
@@ -289,7 +325,9 @@ void main() {
         ];
 
         final uniqueDays = messages
-            .map((m) => DateTime(m.sentAt!.year, m.sentAt!.month, m.sentAt!.day))
+            .map(
+              (m) => DateTime(m.sentAt!.year, m.sentAt!.month, m.sentAt!.day),
+            )
             .toSet();
         expect(uniqueDays.length, equals(4));
       });
@@ -301,7 +339,10 @@ void main() {
 
     group('Custom datePattern callback', () {
       test('datePattern callback receives the message', () {
-        final message = FakeTextMessage(1, sentAt: DateTime(2024, 3, 15, 14, 30));
+        final message = FakeTextMessage(
+          1,
+          sentAt: DateTime(2024, 3, 15, 14, 30),
+        );
         String customPattern(BaseMessage msg) {
           return '${msg.sentAt!.hour}:${msg.sentAt!.minute.toString().padLeft(2, '0')}';
         }
@@ -337,10 +378,12 @@ void main() {
         _stubRepo(repo, messages: messages);
 
         final bloc = _makeBloc(repo);
-        bloc.add(const LoadMessages(
-          conversationWith: 'test_user',
-          conversationType: 'user',
-        ));
+        bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_user',
+            conversationType: 'user',
+          ),
+        );
         await Future.delayed(const Duration(milliseconds: 80));
 
         expect(bloc.state.status, MessageListStatus.loaded);
@@ -353,16 +396,16 @@ void main() {
 
       test('null sentAt message is still stored in state', () async {
         // Edge case: message with null sentAt
-        final messages = [
-          FakeTextMessage(1, sentAt: DateTime.now()),
-        ];
+        final messages = [FakeTextMessage(1, sentAt: DateTime.now())];
         _stubRepo(repo, messages: messages);
 
         final bloc = _makeBloc(repo);
-        bloc.add(const LoadMessages(
-          conversationWith: 'test_user',
-          conversationType: 'user',
-        ));
+        bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_user',
+            conversationType: 'user',
+          ),
+        );
         await Future.delayed(const Duration(milliseconds: 80));
 
         expect(bloc.state.messages.length, 1);
@@ -379,8 +422,9 @@ void main() {
       test('message at exact midnight boundary', () {
         final now = DateTime.now();
         final midnight = DateTime(now.year, now.month, now.day);
-        final justBeforeMidnight =
-            midnight.subtract(const Duration(seconds: 1));
+        final justBeforeMidnight = midnight.subtract(
+          const Duration(seconds: 1),
+        );
         final justAfterMidnight = midnight.add(const Duration(seconds: 1));
 
         // These are on different days

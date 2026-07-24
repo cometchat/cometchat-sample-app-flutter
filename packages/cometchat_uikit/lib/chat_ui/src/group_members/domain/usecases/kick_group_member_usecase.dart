@@ -16,10 +16,7 @@ class KickGroupMemberUseCase {
   /// [uid] - The user ID of the member to kick (must not be empty).
   ///
   /// Returns [Result<void>] indicating success or [Failure] with error details.
-  Future<Result<void>> call({
-    required String guid,
-    required String uid,
-  }) async {
+  Future<Result<void>> call({required String guid, required String uid}) async {
     // Validate guid
     if (guid.isEmpty) {
       return const Failure(

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../domain/repositories/conversations_repository.dart';
 import '../datasources/conversations_remote_datasource.dart';
@@ -37,7 +37,8 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
     } on RemoteDataSourceException catch (e) {
       // If remote fetch fails, try to return cached data
       try {
-        final cachedConversations = await localDataSource.getCachedConversations();
+        final cachedConversations = await localDataSource
+            .getCachedConversations();
         return Success(cachedConversations);
       } on LocalDataSourceException {
         // Both remote and cache failed
@@ -49,7 +50,8 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
       }
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while loading conversations: ${e.toString()}',
+        message:
+            'Unexpected error while loading conversations: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -57,19 +59,22 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
 
   @override
   Future<Result<Conversation>> getConversationById(
-      String conversationId) async {
+    String conversationId,
+  ) async {
     try {
       // Try to get from cache first
-      final cachedConversation =
-          await localDataSource.getCachedConversation(conversationId);
+      final cachedConversation = await localDataSource.getCachedConversation(
+        conversationId,
+      );
 
       if (cachedConversation != null) {
         return Success(cachedConversation);
       }
 
       // If not in cache, fetch from remote
-      final conversation =
-          await remoteDataSource.getConversation(conversationId);
+      final conversation = await remoteDataSource.getConversation(
+        conversationId,
+      );
 
       // Cache it
       await localDataSource.cacheConversation(conversation);
@@ -128,13 +133,17 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
 
       if (conversationWith.isEmpty) {
         return const Failure(
-          message: 'Invalid conversation ID: could not extract conversationWith',
+          message:
+              'Invalid conversation ID: could not extract conversationWith',
           code: 'INVALID_CONVERSATION_ID',
         );
       }
 
       // Delete from remote
-      await remoteDataSource.deleteConversation(conversationWith, conversationType);
+      await remoteDataSource.deleteConversation(
+        conversationWith,
+        conversationType,
+      );
 
       // Remove from cache
       await localDataSource.removeCachedConversation(conversationId);
@@ -148,7 +157,8 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
       );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while deleting conversation: ${e.toString()}',
+        message:
+            'Unexpected error while deleting conversation: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -188,7 +198,8 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
       );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while getting logged-in user: ${e.toString()}',
+        message:
+            'Unexpected error while getting logged-in user: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -198,7 +209,7 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
   Future<Result<void>> markAsDelivered(BaseMessage message) async {
     try {
       final completer = Completer<void>();
-      
+
       await CometChat.markAsDelivered(
         message,
         onSuccess: (_) {
@@ -219,7 +230,8 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
       );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while marking message as delivered: ${e.toString()}',
+        message:
+            'Unexpected error while marking message as delivered: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -245,7 +257,7 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
       );
 
       final conversation = await completer.future;
-      
+
       // Cache it
       await localDataSource.cacheConversation(conversation);
 

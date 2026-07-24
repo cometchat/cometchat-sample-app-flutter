@@ -9,9 +9,15 @@ class StartSessionUseCase {
   final CallOperationsRepository repository;
   const StartSessionUseCase(this.repository);
 
-  Future<Result<Widget>> call(String sessionId, SessionSettings settings) async {
+  Future<Result<Widget>> call(
+    String sessionId,
+    SessionSettings settings,
+  ) async {
     if (sessionId.isEmpty) {
-      return const Failure(message: 'Session ID is required', code: 'MISSING_SESSION_ID');
+      return const Failure(
+        message: 'Session ID is required',
+        code: 'MISSING_SESSION_ID',
+      );
     }
     return repository.startSession(sessionId, settings);
   }

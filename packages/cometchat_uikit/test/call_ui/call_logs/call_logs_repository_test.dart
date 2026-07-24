@@ -12,8 +12,7 @@ import 'package:cometchat_chat_uikit/shared_ui/src/clean_architecture/core/resul
 // Mocks
 // ---------------------------------------------------------------------------
 
-class MockRemoteDataSource extends Mock
-    implements CallLogsRemoteDataSource {}
+class MockRemoteDataSource extends Mock implements CallLogsRemoteDataSource {}
 
 class MockLocalDataSource extends Mock implements CallLogsLocalDataSource {}
 
@@ -63,8 +62,7 @@ void main() {
   group('getCallLogs', () {
     test('returns success with call logs from remote', () async {
       final callLogs = [FakeCallLog(), FakeCallLog()];
-      when(() => remote.getCallLogs(any()))
-          .thenAnswer((_) async => callLogs);
+      when(() => remote.getCallLogs(any())).thenAnswer((_) async => callLogs);
       when(() => local.cacheCallLogs(any())).thenAnswer((_) async {});
 
       final result = await repo.getCallLogs();
@@ -75,8 +73,7 @@ void main() {
 
     test('caches call logs after successful remote fetch', () async {
       final callLogs = [FakeCallLog()];
-      when(() => remote.getCallLogs(any()))
-          .thenAnswer((_) async => callLogs);
+      when(() => remote.getCallLogs(any())).thenAnswer((_) async => callLogs);
       when(() => local.cacheCallLogs(any())).thenAnswer((_) async {});
 
       await repo.getCallLogs();
@@ -86,9 +83,9 @@ void main() {
 
     test('falls back to cache when remote fails', () async {
       final cached = [FakeCallLog()];
-      when(() => remote.getCallLogs(any()))
-          .thenThrow(const CallLogsRemoteDataSourceException(
-              message: 'Network error'));
+      when(() => remote.getCallLogs(any())).thenThrow(
+        const CallLogsRemoteDataSourceException(message: 'Network error'),
+      );
       when(() => local.getCachedCallLogs()).thenAnswer((_) async => cached);
 
       final result = await repo.getCallLogs();
@@ -97,12 +94,12 @@ void main() {
     });
 
     test('returns failure when both remote and cache fail', () async {
-      when(() => remote.getCallLogs(any()))
-          .thenThrow(const CallLogsRemoteDataSourceException(
-              message: 'Network error'));
-      when(() => local.getCachedCallLogs())
-          .thenThrow(const CallLogsLocalDataSourceException(
-              message: 'Cache miss'));
+      when(() => remote.getCallLogs(any())).thenThrow(
+        const CallLogsRemoteDataSourceException(message: 'Network error'),
+      );
+      when(() => local.getCachedCallLogs()).thenThrow(
+        const CallLogsLocalDataSourceException(message: 'Cache miss'),
+      );
 
       final result = await repo.getCallLogs();
 
@@ -110,9 +107,9 @@ void main() {
     });
 
     test('returns failure when remote fails and cache is empty', () async {
-      when(() => remote.getCallLogs(any()))
-          .thenThrow(const CallLogsRemoteDataSourceException(
-              message: 'Network error'));
+      when(() => remote.getCallLogs(any())).thenThrow(
+        const CallLogsRemoteDataSourceException(message: 'Network error'),
+      );
       when(() => local.getCachedCallLogs()).thenAnswer((_) async => []);
 
       final result = await repo.getCallLogs();
@@ -127,17 +124,16 @@ void main() {
 
   group('getLoggedInUser', () {
     test('returns success with user', () async {
-      when(() => remote.getLoggedInUser())
-          .thenAnswer((_) async => FakeUser());
+      when(() => remote.getLoggedInUser()).thenAnswer((_) async => FakeUser());
 
       final result = await repo.getLoggedInUser();
       expect(result.isSuccess, isTrue);
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.getLoggedInUser())
-          .thenThrow(const CallLogsRemoteDataSourceException(
-              message: 'Not logged in'));
+      when(() => remote.getLoggedInUser()).thenThrow(
+        const CallLogsRemoteDataSourceException(message: 'Not logged in'),
+      );
 
       final result = await repo.getLoggedInUser();
       expect(result.isFailure, isTrue);
@@ -150,17 +146,18 @@ void main() {
 
   group('initiateCall', () {
     test('returns success with call', () async {
-      when(() => remote.initiateCall(any()))
-          .thenAnswer((_) async => FakeCall());
+      when(
+        () => remote.initiateCall(any()),
+      ).thenAnswer((_) async => FakeCall());
 
       final result = await repo.initiateCall(FakeCall());
       expect(result.isSuccess, isTrue);
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.initiateCall(any()))
-          .thenThrow(const CallLogsRemoteDataSourceException(
-              message: 'Call failed'));
+      when(() => remote.initiateCall(any())).thenThrow(
+        const CallLogsRemoteDataSourceException(message: 'Call failed'),
+      );
 
       final result = await repo.initiateCall(FakeCall());
       expect(result.isFailure, isTrue);
@@ -173,8 +170,9 @@ void main() {
 
   group('getUserAuthToken', () {
     test('returns success with token', () async {
-      when(() => remote.getUserAuthToken())
-          .thenAnswer((_) async => 'auth_token_123');
+      when(
+        () => remote.getUserAuthToken(),
+      ).thenAnswer((_) async => 'auth_token_123');
 
       final result = await repo.getUserAuthToken();
       expect(result.isSuccess, isTrue);
@@ -182,9 +180,9 @@ void main() {
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.getUserAuthToken())
-          .thenThrow(const CallLogsRemoteDataSourceException(
-              message: 'Token failed'));
+      when(() => remote.getUserAuthToken()).thenThrow(
+        const CallLogsRemoteDataSourceException(message: 'Token failed'),
+      );
 
       final result = await repo.getUserAuthToken();
       expect(result.isFailure, isTrue);

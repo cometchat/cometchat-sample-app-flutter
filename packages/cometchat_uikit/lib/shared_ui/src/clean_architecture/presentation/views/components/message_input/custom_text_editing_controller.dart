@@ -5,23 +5,19 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class CustomTextEditingController extends TextEditingController {
-
   List<CometChatTextFormatter>? formatters;
-  
+
   // Track gesture recognizers for proper disposal
   final List<GestureRecognizer> _gestureRecognizers = [];
-  
-  CustomTextEditingController({
-    super.text,
-    this.formatters,
-  });
+
+  CustomTextEditingController({super.text, this.formatters});
 
   @override
   void dispose() {
     _disposeGestureRecognizers();
     super.dispose();
   }
-  
+
   void _disposeGestureRecognizers() {
     for (final recognizer in _gestureRecognizers) {
       recognizer.dispose();
@@ -30,28 +26,33 @@ class CustomTextEditingController extends TextEditingController {
   }
 
   @override
-  TextSpan buildTextSpan(
-      {required BuildContext context,
-      TextStyle? style,
-      required bool withComposing}) {
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
     // Dispose old recognizers before building new spans
     _disposeGestureRecognizers();
-    
+
     if (formatters == null || formatters!.isEmpty) {
       return super.buildTextSpan(
-          context: context, style: style, withComposing: withComposing);
+        context: context,
+        style: style,
+        withComposing: withComposing,
+      );
     } else {
       return TextSpan(
-          style: style, children: buildSpan(context, style, withComposing)
+        style: style,
+        children: buildSpan(context, style, withComposing),
       );
     }
   }
 
   List<InlineSpan> buildSpan(
-      BuildContext context,
-      TextStyle? style,
-      bool withComposing
-      ) {
+    BuildContext context,
+    TextStyle? style,
+    bool withComposing,
+  ) {
     // 1. Get default styling
     final defaultStyle = _getDefaultTextStyle(context, style);
 
@@ -75,10 +76,10 @@ class CustomTextEditingController extends TextEditingController {
   }
 
   List<AttributedText> collectAttributions(
-      BuildContext context,
-      TextStyle? style,
-      bool withComposing
-      ) {
+    BuildContext context,
+    TextStyle? style,
+    bool withComposing,
+  ) {
     final attributions = <AttributedText>[];
 
     for (final formatter in formatters ?? []) {
@@ -95,20 +96,22 @@ class CustomTextEditingController extends TextEditingController {
   }
 
   List<InlineSpan> _buildSpansFromAttributions(
-      String text,
-      List<AttributedText> attributions,
-      TextStyle defaultStyle,
-      ) {
+    String text,
+    List<AttributedText> attributions,
+    TextStyle defaultStyle,
+  ) {
     final spans = <InlineSpan>[];
     int lastEnd = 0;
 
     for (final attr in attributions) {
       // Add text before attribution
       if (attr.start > lastEnd) {
-        spans.add(TextSpan(
-          text: text.substring(lastEnd, attr.start),
-          style: defaultStyle,
-        ));
+        spans.add(
+          TextSpan(
+            text: text.substring(lastEnd, attr.start),
+            style: defaultStyle,
+          ),
+        );
       }
 
       // Add attributed text
@@ -118,10 +121,7 @@ class CustomTextEditingController extends TextEditingController {
 
     // Add remaining text
     if (lastEnd < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(lastEnd),
-        style: defaultStyle,
-      ));
+      spans.add(TextSpan(text: text.substring(lastEnd), style: defaultStyle));
     }
 
     return spans;
@@ -129,19 +129,23 @@ class CustomTextEditingController extends TextEditingController {
 
   InlineSpan _buildAttributedSpan(AttributedText attr, TextStyle defaultStyle) {
     final onTap = attr.onTap;
-    final displayText = attr.underlyingText ?? text.substring(attr.start, attr.end);
-    
+    final displayText =
+        attr.underlyingText ?? text.substring(attr.start, attr.end);
+
     // Merge the attribution style with the default style
     // This ensures format-specific properties (bold, italic, etc.) override defaults
-    final appliedStyle = defaultStyle.merge(attr.style).copyWith(
-      backgroundColor: attr.isBlockElement ? null : attr.backgroundColor,
-    );
+    final appliedStyle = defaultStyle
+        .merge(attr.style)
+        .copyWith(
+          backgroundColor: attr.isBlockElement ? null : attr.backgroundColor,
+        );
 
     GestureRecognizer? recognizer;
     if (onTap != null) {
       final tapRecognizer = TapGestureRecognizer()
         ..onTap = () {
-          final tappedText = attr.underlyingText ?? text.substring(attr.start, attr.end);
+          final tappedText =
+              attr.underlyingText ?? text.substring(attr.start, attr.end);
           onTap(tappedText);
         };
       _gestureRecognizers.add(tapRecognizer);
@@ -149,23 +153,21 @@ class CustomTextEditingController extends TextEditingController {
     }
 
     // Use WidgetSpan for block elements (code blocks, blockquotes) with borders
-    if (attr.isBlockElement && (attr.border != null || attr.backgroundColor != null)) {
+    if (attr.isBlockElement &&
+        (attr.border != null || attr.backgroundColor != null)) {
       return WidgetSpan(
         alignment: PlaceholderAlignment.baseline,
         baseline: TextBaseline.alphabetic,
         child: Container(
           decoration: BoxDecoration(
             color: attr.backgroundColor,
-            borderRadius: attr.borderRadius != null 
-                ? BorderRadius.circular(attr.borderRadius!) 
+            borderRadius: attr.borderRadius != null
+                ? BorderRadius.circular(attr.borderRadius!)
                 : null,
             border: attr.border,
           ),
           padding: attr.padding,
-          child: Text(
-            displayText,
-            style: appliedStyle,
-          ),
+          child: Text(displayText, style: appliedStyle),
         ),
       );
     }
@@ -177,15 +179,15 @@ class CustomTextEditingController extends TextEditingController {
     );
   }
 
-
   String _mergeUnderlyingText(AttributedText a, AttributedText b) {
     final start = math.min(a.start, b.start);
     final end = math.max(a.end, b.end);
     return text.substring(start, end);
   }
 
-
-  List<AttributedText> _mergeOverlappingAttributions(List<AttributedText> attributions) {
+  List<AttributedText> _mergeOverlappingAttributions(
+    List<AttributedText> attributions,
+  ) {
     if (attributions.isEmpty) return [];
 
     // 1. Sort attributions by start position
@@ -205,7 +207,10 @@ class CustomTextEditingController extends TextEditingController {
           end: math.max(current.end, next.end),
           underlyingText: _mergeUnderlyingText(current, next),
           style: _mergeStyles(current.style, next.style),
-          backgroundColor: _mergeBackgrounds(current.backgroundColor, next.backgroundColor),
+          backgroundColor: _mergeBackgrounds(
+            current.backgroundColor,
+            next.backgroundColor,
+          ),
           borderRadius: current.borderRadius ?? next.borderRadius,
           padding: current.padding ?? next.padding,
           onTap: current.onTap ?? next.onTap,
@@ -222,14 +227,14 @@ class CustomTextEditingController extends TextEditingController {
     return merged;
   }
 
-// Helper to merge text styles
+  // Helper to merge text styles
   TextStyle? _mergeStyles(TextStyle? a, TextStyle? b) {
     if (a == null) return b;
     if (b == null) return a;
     return a.merge(b);
   }
 
-// Helper to merge background colors
+  // Helper to merge background colors
   Color? _mergeBackgrounds(Color? a, Color? b) {
     if (a == null) return b;
     if (b == null) return a;

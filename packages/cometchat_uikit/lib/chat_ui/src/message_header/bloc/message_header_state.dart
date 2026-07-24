@@ -80,15 +80,15 @@ class MessageHeaderState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        user,
-        group,
-        memberCount,
-        isTyping,
-        typingUser,
-        errorMessage,
-        loggedInUser,
-      ];
+    status,
+    user,
+    group,
+    memberCount,
+    isTyping,
+    typingUser,
+    errorMessage,
+    loggedInUser,
+  ];
 
   /// Create a copy of this state with updated fields
   MessageHeaderState copyWith({

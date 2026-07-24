@@ -85,7 +85,9 @@ class CometChatAISmartRepliesStyle
 
   @override
   CometChatAISmartRepliesStyle lerp(
-      covariant CometChatAISmartRepliesStyle? other, double t) {
+    covariant CometChatAISmartRepliesStyle? other,
+    double t,
+  ) {
     if (other is! CometChatAISmartRepliesStyle) return this;
     return CometChatAISmartRepliesStyle(
       itemTextStyle: TextStyle.lerp(itemTextStyle, other.itemTextStyle, t),
@@ -93,8 +95,11 @@ class CometChatAISmartRepliesStyle
       emptyTextStyle: TextStyle.lerp(emptyTextStyle, other.emptyTextStyle, t),
       errorTextStyle: TextStyle.lerp(errorTextStyle, other.errorTextStyle, t),
       emptyIconTint: Color.lerp(emptyIconTint, other.emptyIconTint, t),
-      itemBackgroundColor:
-          Color.lerp(itemBackgroundColor, other.itemBackgroundColor, t),
+      itemBackgroundColor: Color.lerp(
+        itemBackgroundColor,
+        other.itemBackgroundColor,
+        t,
+      ),
       closeIconColor: Color.lerp(closeIconColor, other.closeIconColor, t),
       titleStyle: TextStyle.lerp(titleStyle, other.titleStyle, t),
     );

@@ -10,38 +10,49 @@ import '../../data/models/interactive_message/card_message.dart';
 import '../../data/models/interactive_message/custom_interactive_message.dart';
 import '../../data/models/interactive_message/scheduler_message.dart';
 import '../../../cometchat_ui_kit/cometchat_ui_kit.dart';
+
 class InteractiveMessageUtils {
-  static Future<void> markInteracted(BaseInteractiveElement interactiveElement,
-      InteractiveMessage message, Map<String, bool?> interactionMap,
-      {required Function(bool matched) onSuccess,
-      Function(CometChatException excep)? onError}) async {
-    await CometChat.markAsInteracted(message.id, interactiveElement.elementId,
-        onSuccess: (String returnedString) {
-      interactionMap[interactiveElement.elementId] = true;
-      bool matched = false;
-      if (message.interactions != null && message.interactions!.isNotEmpty) {
-        for (int i = 0; i < message.interactions!.length; i++) {
-          if (message.interactions![i].elementId ==
-              interactiveElement.elementId) {
-            matched = true;
-            break;
-          }
-        }
-      } else {
-        message.interactions = [];
-      }
-      if (matched == false) {
-        message.interactions!.add(Interaction(
-            elementId: interactiveElement.elementId,
-            interactedAt: DateTime.now()));
-
+  static Future<void> markInteracted(
+    BaseInteractiveElement interactiveElement,
+    InteractiveMessage message,
+    Map<String, bool?> interactionMap, {
+    required Function(bool matched) onSuccess,
+    Function(CometChatException excep)? onError,
+  }) async {
+    await CometChat.markAsInteracted(
+      message.id,
+      interactiveElement.elementId,
+      onSuccess: (String returnedString) {
         interactionMap[interactiveElement.elementId] = true;
-      }
+        bool matched = false;
+        if (message.interactions != null && message.interactions!.isNotEmpty) {
+          for (int i = 0; i < message.interactions!.length; i++) {
+            if (message.interactions![i].elementId ==
+                interactiveElement.elementId) {
+              matched = true;
+              break;
+            }
+          }
+        } else {
+          message.interactions = [];
+        }
+        if (matched == false) {
+          message.interactions!.add(
+            Interaction(
+              elementId: interactiveElement.elementId,
+              interactedAt: DateTime.now(),
+            ),
+          );
 
-      onSuccess(matched);
-    }, onError: (CometChatException excep) {
-      if (onError != null) onError(excep);
-    });
+          interactionMap[interactiveElement.elementId] = true;
+        }
+
+        onSuccess(matched);
+      },
+      onError: (CometChatException excep) {
+        if (onError != null) onError(excep);
+      },
+    );
   }
 
   static bool checkIsSentByMe(User? loggedInUser, BaseMessage message) {
@@ -53,10 +64,11 @@ class InteractiveMessageUtils {
   }
 
   static bool checkElementDisabled(
-      Map<String, bool?> interactionMap,
-      BaseInteractiveElement element,
-      bool isSentByMe,
-      InteractiveMessage message) {
+    Map<String, bool?> interactionMap,
+    BaseInteractiveElement element,
+    bool isSentByMe,
+    InteractiveMessage message,
+  ) {
     if (interactionMap[element.elementId] != null &&
         element.disableAfterInteracted == true) {
       return true;
@@ -68,7 +80,9 @@ class InteractiveMessageUtils {
   }
 
   static bool checkInteractionGoalAchievedFromMap(
-      InteractionGoal goal, Map<String, bool?> interactionMap) {
+    InteractionGoal goal,
+    Map<String, bool?> interactionMap,
+  ) {
     bool isGoalAchieved = false;
 
     if (goal.type != InteractionGoalTypeConstants.none) {
@@ -109,7 +123,8 @@ class InteractiveMessageUtils {
   }
 
   static InteractiveMessage getSpecificMessageFromInteractiveMessage(
-      InteractiveMessage message) {
+    InteractiveMessage message,
+  ) {
     if (kDebugMode) {
       print(" message Id ${message.id} interactions ${message.interactions}  ");
     }
@@ -126,12 +141,13 @@ class InteractiveMessageUtils {
     }
   }
 
-  static Map<String, dynamic> getInteractiveRequestData(
-      {required InteractiveMessage message,
-      required BaseInteractiveElement element,
-      required String interactionTimezoneCode,
-      required String interactedBy,
-      Map<String, dynamic>? body}) {
+  static Map<String, dynamic> getInteractiveRequestData({
+    required InteractiveMessage message,
+    required BaseInteractiveElement element,
+    required String interactionTimezoneCode,
+    required String interactedBy,
+    Map<String, dynamic>? body,
+  }) {
     Map<String, dynamic> requestData = {
       InteractiveMessageConstants.appID:
           CometChatUIKit.authenticationSettings?.appId ?? "",
@@ -151,8 +167,8 @@ class InteractiveMessageUtils {
         InteractiveMessageConstants.interactionTimezoneCode:
             interactionTimezoneCode,
         InteractiveMessageConstants.interactedBy: interactedBy,
-        InteractiveMessageConstants.interactedElementId: element.elementId
-      }
+        InteractiveMessageConstants.interactedElementId: element.elementId,
+      },
     };
     if (element.action?.actionType == ActionTypeConstants.apiAction) {
       if (element.action == null) {

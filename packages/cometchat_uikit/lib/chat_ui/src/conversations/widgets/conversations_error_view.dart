@@ -47,9 +47,13 @@ class ConversationsErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (kDebugMode) {
       debugPrint('[ConversationsErrorView] build');
-      debugPrint('[ConversationsErrorView]   hasError: true (this view only renders on error)');
+      debugPrint(
+        '[ConversationsErrorView]   hasError: true (this view only renders on error)',
+      );
       debugPrint('[ConversationsErrorView]   errorMessage: $errorMessage');
-      debugPrint('[ConversationsErrorView]   hasCustomView: ${customView != null}');
+      debugPrint(
+        '[ConversationsErrorView]   hasCustomView: ${customView != null}',
+      );
     }
 
     // If a custom view is provided, render it instead
@@ -66,12 +70,11 @@ class ConversationsErrorView extends StatelessWidget {
           children: [
             // Error state image
             Padding(
-              padding: EdgeInsets.only(
-                bottom: spacing.padding5 ?? 0,
-              ),
+              padding: EdgeInsets.only(bottom: spacing.padding5 ?? 0),
               child: Image.asset(
-                AssetConstants(CometChatThemeHelper.getBrightness(context))
-                    .messagesError,
+                AssetConstants(
+                  CometChatThemeHelper.getBrightness(context),
+                ).messagesError,
                 package: UIConstants.packageName,
                 width: 120,
                 height: 100,
@@ -80,36 +83,33 @@ class ConversationsErrorView extends StatelessWidget {
             // Title text - "Oops"
             Text(
               cc.Translations.of(context).oops,
-              style: TextStyle(
-                color: style.errorStateTextColor ?? colorPalette.textPrimary,
-                fontSize: typography.heading3?.bold?.fontSize,
-                fontWeight: typography.heading3?.bold?.fontWeight,
-                fontFamily: typography.heading3?.bold?.fontFamily,
-              )
-                  .merge(
-                    style.errorStateTextStyle,
-                  )
-                  .copyWith(
-                    color: style.errorStateTextColor,
-                  ),
+              style:
+                  TextStyle(
+                        color:
+                            style.errorStateTextColor ??
+                            colorPalette.textPrimary,
+                        fontSize: typography.heading3?.bold?.fontSize,
+                        fontWeight: typography.heading3?.bold?.fontWeight,
+                        fontFamily: typography.heading3?.bold?.fontFamily,
+                      )
+                      .merge(style.errorStateTextStyle)
+                      .copyWith(color: style.errorStateTextColor),
             ),
             // Subtitle text - "Looks like something went wrong. Please try again."
             Text(
               "${cc.Translations.of(context).looksLikeSomethingWrong}.\n${cc.Translations.of(context).pleaseTryAgain}.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: style.errorStateSubTitleTextColor ??
-                    colorPalette.textSecondary,
-                fontSize: typography.heading3?.regular?.fontSize,
-                fontWeight: typography.heading3?.regular?.fontWeight,
-                fontFamily: typography.heading3?.regular?.fontFamily,
-              )
-                  .merge(
-                    style.errorStateSubTitleTextStyle,
-                  )
-                  .copyWith(
-                    color: style.errorStateSubTitleTextColor,
-                  ),
+              style:
+                  TextStyle(
+                        color:
+                            style.errorStateSubTitleTextColor ??
+                            colorPalette.textSecondary,
+                        fontSize: typography.heading3?.regular?.fontSize,
+                        fontWeight: typography.heading3?.regular?.fontWeight,
+                        fontFamily: typography.heading3?.regular?.fontFamily,
+                      )
+                      .merge(style.errorStateSubTitleTextStyle)
+                      .copyWith(color: style.errorStateSubTitleTextColor),
             ),
           ],
         ),

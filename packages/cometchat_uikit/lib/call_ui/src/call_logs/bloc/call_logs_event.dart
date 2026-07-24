@@ -31,10 +31,7 @@ class InitiateCallFromLog extends CallLogsEvent {
   final CallLog callLog;
   final BuildContext context;
 
-  const InitiateCallFromLog({
-    required this.callLog,
-    required this.context,
-  });
+  const InitiateCallFromLog({required this.callLog, required this.context});
 
   @override
   List<Object?> get props => [callLog, context];

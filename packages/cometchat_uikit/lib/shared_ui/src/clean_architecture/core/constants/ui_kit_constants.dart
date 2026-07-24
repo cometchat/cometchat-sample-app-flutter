@@ -19,7 +19,6 @@ class MessageCategoryConstants {
   static const String interactive = CometChatMessageCategory.interactive;
   static const String card = CometChatMessageCategory.categoryCard;
   static const String agentic = CometChatMessageCategory.categoryAgentic;
-
 }
 
 ///[MessageTypeConstants] is a utility class that stores String constants of types of messages
@@ -41,7 +40,6 @@ class MessageTypeConstants {
   static const String meeting = "meeting";
   static const String attachPhoto = "attachPhoto";
   static const String attachVideo = "attachVideo";
-
 }
 
 ///[ReceiverTypeConstants] is a utility class that stores String constants of the types of [AppEntity] that can receive a [BaseMessage]
@@ -170,14 +168,24 @@ typedef OnLoad<T> = Function(List<T> list);
 ///[OnEmpty] defines the structure of empty handler used by the components in the ui kit
 typedef OnEmpty = void Function();
 
-typedef ComposerWidgetBuilder = Widget Function(
-    BuildContext context, User? user, Group? group, Map<String, dynamic>? id);
+typedef ComposerWidgetBuilder =
+    Widget Function(
+      BuildContext context,
+      User? user,
+      Group? group,
+      Map<String, dynamic>? id,
+    );
 
-typedef ComposerActionsBuilder = List<CometChatMessageComposerAction> Function(
-    BuildContext context, User? user, Group? group, Map<String, dynamic>? id);
+typedef ComposerActionsBuilder =
+    List<CometChatMessageComposerAction> Function(
+      BuildContext context,
+      User? user,
+      Group? group,
+      Map<String, dynamic>? id,
+    );
 
-typedef UserGroupBuilder = Function(
-    BuildContext context, User? user, Group? group);
+typedef UserGroupBuilder =
+    Function(BuildContext context, User? user, Group? group);
 
 ///[LiveReactionConstants] is a utility class that stores constant values related to functioning of [TransientMessage]
 class LiveReactionConstants {
@@ -346,8 +354,7 @@ class ExtensionType {
   static const String whiteboard = "extension_whiteboard";
 }
 
-
-class AudioBubbleConstants{
+class AudioBubbleConstants {
   static const String localPath = "localPath";
   static const String usedByMediaRecorder = 'usedByMediaRecorder';
 }
@@ -363,7 +370,6 @@ class ErrorConstants {
 }
 
 class FileConstants {
-
   static const String fileExtensionHeic = "heic";
   static const String fileExtensionHeif = "heif";
   static const String fileExtensionMif1 = "mif1";
@@ -372,5 +378,4 @@ class FileConstants {
   static const String fileExtensionHeis = "heis";
   static const String fileExtensionHevm = "hevm";
   static const String fileExtensionHevs = "hevs";
-
 }

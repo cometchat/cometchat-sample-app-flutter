@@ -168,10 +168,9 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
     }
 
     // Disable buttons during accept
-    emit(state.copyWith(
-      status: IncomingCallStatus.accepting,
-      isDisabled: true,
-    ));
+    emit(
+      state.copyWith(status: IncomingCallStatus.accepting, isDisabled: true),
+    );
 
     // Execute custom onAccept callback if provided
     if (onAccept != null) {
@@ -189,11 +188,13 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
     // Get session ID
     final String? sessionId = call.sessionId;
     if (sessionId == null) {
-      emit(state.copyWith(
-        status: IncomingCallStatus.error,
-        isDisabled: false,
-        errorMessage: 'Session ID is null',
-      ));
+      emit(
+        state.copyWith(
+          status: IncomingCallStatus.error,
+          isDisabled: false,
+          errorMessage: 'Session ID is null',
+        ),
+      );
       return;
     }
 
@@ -208,22 +209,30 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
       // Dismiss the overlay so the user isn't stuck on a frozen call screen
       IncomingCallOverlay.dismiss();
       // Reject the call on the server so the caller gets feedback
-      final rejectUseCase = CallOperationsServiceLocator.instance.rejectCallUseCase;
-      final rejectResult = await rejectUseCase.call(sessionId, CallStatusConstants.rejected);
+      final rejectUseCase =
+          CallOperationsServiceLocator.instance.rejectCallUseCase;
+      final rejectResult = await rejectUseCase.call(
+        sessionId,
+        CallStatusConstants.rejected,
+      );
       rejectResult.onSuccess((rejectedCall) {
         rejectedCall.category = MessageCategoryConstants.call;
         CometChatCallEvents.ccCallRejected(rejectedCall);
       });
-      emit(state.copyWith(
-        status: IncomingCallStatus.error,
-        isDisabled: false,
-        errorMessage: 'Microphone${isVideoCall ? '/camera' : ''} permission denied',
-      ));
+      emit(
+        state.copyWith(
+          status: IncomingCallStatus.error,
+          isDisabled: false,
+          errorMessage:
+              'Microphone${isVideoCall ? '/camera' : ''} permission denied',
+        ),
+      );
       return;
     }
 
     // Accept call via use case
-    final acceptCallUseCase = CallOperationsServiceLocator.instance.acceptCallUseCase;
+    final acceptCallUseCase =
+        CallOperationsServiceLocator.instance.acceptCallUseCase;
     final result = await acceptCallUseCase.call(sessionId);
 
     result.fold(
@@ -238,11 +247,13 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
         // ended by the remote party
         IncomingCallOverlay.dismiss();
 
-        emit(state.copyWith(
-          status: IncomingCallStatus.error,
-          isDisabled: false,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            status: IncomingCallStatus.error,
+            isDisabled: false,
+            errorMessage: failure.message,
+          ),
+        );
       },
       (acceptedCall) {
         // Dismiss overlay
@@ -256,7 +267,7 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
         developer.log(
           'IncomingCallBloc: call.type="${call.type}", '
           'acceptedCall.type="${acceptedCall.type}", '
-          'sessionId="${sessionId}", acceptedCall.sessionId="${acceptedCall.sessionId}"',
+          'sessionId="$sessionId", acceptedCall.sessionId="${acceptedCall.sessionId}"',
         );
 
         // Check both the original incoming call and the accepted call.
@@ -271,22 +282,25 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
         if (callSettingsBuilder != null) {
           defaultSessionSettingsBuilder = callSettingsBuilder!;
         } else {
-          defaultSessionSettingsBuilder = SessionSettingsBuilder()
-            .setLayout(LayoutType.tile);
+          defaultSessionSettingsBuilder = SessionSettingsBuilder().setLayout(
+            LayoutType.tile,
+          );
           if (!isVideoCall) {
             // Workaround: SessionType.audio sends "AUDIO" to the native
             // Android SDK which logs "Invalid session type: AUDIO" and
             // ignores it (beta SDK bug). Instead, start with video paused
             // and hide the video toggle so it behaves as audio-only.
             defaultSessionSettingsBuilder
-              .startVideoPaused(true)
-              .hideSwitchCameraButton(true)
-              .hideToggleVideoButton(true);
+                .startVideoPaused(true)
+                .hideSwitchCameraButton(true)
+                .hideToggleVideoButton(true);
           }
         }
 
         // Navigate to ongoing call screen via isolated overlay
-        developer.log('IncomingCallBloc: showing CallScreenOverlay with sessionId=$sessionId');
+        developer.log(
+          'IncomingCallBloc: showing CallScreenOverlay with sessionId=$sessionId',
+        );
         CallScreenOverlay.show(
           sessionId: sessionId,
           sessionSettingsBuilder: defaultSessionSettingsBuilder,
@@ -297,10 +311,12 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
           debugPrint('Call has been accepted successfully');
         }
 
-        emit(state.copyWith(
-          status: IncomingCallStatus.accepted,
-          isDisabled: false,
-        ));
+        emit(
+          state.copyWith(
+            status: IncomingCallStatus.accepted,
+            isDisabled: false,
+          ),
+        );
       },
     );
   }
@@ -324,10 +340,9 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
     }
 
     // Update state to rejecting
-    emit(state.copyWith(
-      status: IncomingCallStatus.rejecting,
-      isDisabled: true,
-    ));
+    emit(
+      state.copyWith(status: IncomingCallStatus.rejecting, isDisabled: true),
+    );
 
     // Execute custom onDecline callback if provided
     if (onDecline != null) {
@@ -345,18 +360,24 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
     // Get session ID
     final String? sessionId = call.sessionId;
     if (sessionId == null) {
-      emit(state.copyWith(
-        status: IncomingCallStatus.error,
-        isDisabled: false,
-        errorMessage: 'Session ID is null',
-      ));
+      emit(
+        state.copyWith(
+          status: IncomingCallStatus.error,
+          isDisabled: false,
+          errorMessage: 'Session ID is null',
+        ),
+      );
       return;
     }
 
     // Reject call via use case
     developer.log('Trying to reject call');
-    final rejectCallUseCase = CallOperationsServiceLocator.instance.rejectCallUseCase;
-    final result = await rejectCallUseCase.call(sessionId, CallStatusConstants.rejected);
+    final rejectCallUseCase =
+        CallOperationsServiceLocator.instance.rejectCallUseCase;
+    final result = await rejectCallUseCase.call(
+      sessionId,
+      CallStatusConstants.rejected,
+    );
 
     result.fold(
       (failure) {
@@ -366,11 +387,13 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
         // Still dismiss overlay on error
         IncomingCallOverlay.dismiss();
 
-        emit(state.copyWith(
-          status: IncomingCallStatus.error,
-          isDisabled: false,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            status: IncomingCallStatus.error,
+            isDisabled: false,
+            errorMessage: failure.message,
+          ),
+        );
       },
       (rejectedCall) {
         rejectedCall.category = MessageCategoryConstants.call;
@@ -380,10 +403,12 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
         // Dismiss overlay
         IncomingCallOverlay.dismiss();
 
-        emit(state.copyWith(
-          status: IncomingCallStatus.rejected,
-          isDisabled: false,
-        ));
+        emit(
+          state.copyWith(
+            status: IncomingCallStatus.rejected,
+            isDisabled: false,
+          ),
+        );
       },
     );
   }
@@ -393,9 +418,7 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState>
     CallCancelled event,
     Emitter<IncomingCallState> emit,
   ) async {
-    emit(state.copyWith(
-      status: IncomingCallStatus.cancelled,
-    ));
+    emit(state.copyWith(status: IncomingCallStatus.cancelled));
 
     // Dismiss overlay
     IncomingCallOverlay.dismiss();

@@ -1,13 +1,15 @@
 import '../../../clean_architecture.dart';
+
 class BaseInteractiveElement extends ElementEntity {
   ActionEntity? action;
   bool disableAfterInteracted;
 
-  BaseInteractiveElement(
-      {required super.elementId,
-      required super.elementType,
-      this.action,
-      this.disableAfterInteracted = false});
+  BaseInteractiveElement({
+    required super.elementId,
+    required super.elementType,
+    this.action,
+    this.disableAfterInteracted = false,
+  });
 
   @override
   Map<String, dynamic> toMap() {

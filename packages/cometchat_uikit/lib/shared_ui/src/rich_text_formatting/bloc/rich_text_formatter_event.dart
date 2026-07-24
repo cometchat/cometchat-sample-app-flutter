@@ -59,10 +59,7 @@ class SelectionChanged extends RichTextFormatterEvent {
   /// The new text selection
   final TextSelection selection;
 
-  const SelectionChanged({
-    required this.text,
-    required this.selection,
-  });
+  const SelectionChanged({required this.text, required this.selection});
 
   @override
   List<Object?> get props => [text, selection];
@@ -79,10 +76,7 @@ class EnterKeyPressed extends RichTextFormatterEvent {
   /// The current text selection
   final TextSelection selection;
 
-  const EnterKeyPressed({
-    required this.text,
-    required this.selection,
-  });
+  const EnterKeyPressed({required this.text, required this.selection});
 
   @override
   List<Object?> get props => [text, selection];

@@ -41,7 +41,8 @@ class BoldFormatterDataSource implements FormatterDataSource {
     if (selection.isCollapsed) {
       // No selection - insert placeholder with markers
       final insertText = '$openingMarker$placeholderText$closingMarker';
-      final newText = text.substring(0, selection.start) +
+      final newText =
+          text.substring(0, selection.start) +
           insertText +
           text.substring(selection.end);
 
@@ -58,7 +59,9 @@ class BoldFormatterDataSource implements FormatterDataSource {
       // Check if selection is already wrapped with bold markers
       final beforeSelection = selection.start >= openingMarker.length
           ? text.substring(
-              selection.start - openingMarker.length, selection.start)
+              selection.start - openingMarker.length,
+              selection.start,
+            )
           : '';
       final afterSelection = selection.end + closingMarker.length <= text.length
           ? text.substring(selection.end, selection.end + closingMarker.length)
@@ -66,7 +69,8 @@ class BoldFormatterDataSource implements FormatterDataSource {
 
       if (beforeSelection == openingMarker && afterSelection == closingMarker) {
         // Remove bold markers (toggle off)
-        final newText = text.substring(0, selection.start - openingMarker.length) +
+        final newText =
+            text.substring(0, selection.start - openingMarker.length) +
             text.substring(selection.start, selection.end) +
             text.substring(selection.end + closingMarker.length);
 
@@ -98,7 +102,8 @@ class BoldFormatterDataSource implements FormatterDataSource {
         // Wrap selected text with bold markers
         final selectedText = text.substring(selection.start, selection.end);
         final wrappedText = '$openingMarker$selectedText$closingMarker';
-        final newText = text.substring(0, selection.start) +
+        final newText =
+            text.substring(0, selection.start) +
             wrappedText +
             text.substring(selection.end);
 
@@ -123,15 +128,12 @@ class BoldFormatterDataSource implements FormatterDataSource {
       return [];
     }
     final ranges = metadata['mentionRanges'] as List<dynamic>;
-    return ranges
-        .cast<Map<String, dynamic>>()
-        .where((r) {
-          final mStart = r['start'] as int;
-          final mEnd = r['end'] as int;
-          // Mention overlaps with selection
-          return mStart < selEnd && mEnd > selStart;
-        })
-        .toList()
+    return ranges.cast<Map<String, dynamic>>().where((r) {
+        final mStart = r['start'] as int;
+        final mEnd = r['end'] as int;
+        // Mention overlaps with selection
+        return mStart < selEnd && mEnd > selStart;
+      }).toList()
       ..sort((a, b) => (a['start'] as int).compareTo(b['start'] as int));
   }
 
@@ -157,30 +159,24 @@ class BoldFormatterDataSource implements FormatterDataSource {
 
       // Non-mention text before this mention
       if (cursor < effectiveStart) {
-        segments.add(_TextSegment(
-          start: cursor,
-          end: effectiveStart,
-          isMention: false,
-        ));
+        segments.add(
+          _TextSegment(start: cursor, end: effectiveStart, isMention: false),
+        );
       }
 
       // The mention segment itself
-      segments.add(_TextSegment(
-        start: effectiveStart,
-        end: effectiveEnd,
-        isMention: true,
-      ));
+      segments.add(
+        _TextSegment(start: effectiveStart, end: effectiveEnd, isMention: true),
+      );
 
       cursor = effectiveEnd;
     }
 
     // Non-mention text after the last mention
     if (cursor < selectionEnd) {
-      segments.add(_TextSegment(
-        start: cursor,
-        end: selectionEnd,
-        isMention: false,
-      ));
+      segments.add(
+        _TextSegment(start: cursor, end: selectionEnd, isMention: false),
+      );
     }
 
     // Build the new text by processing segments
@@ -256,9 +252,7 @@ class BoldFormatterDataSource implements FormatterDataSource {
         AttributedTextData(
           start: match.start,
           end: match.end,
-          attributes: {
-            'bold': true,
-          },
+          attributes: {'bold': true},
         ),
       );
     }

@@ -106,7 +106,7 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   /// fetch, pagination fetch, and the realtime-add predicate.
   final ConversationsRequestBuilder? conversationsRequestBuilder;
 
-  /// Caller-provided builder protocol. If supplied, its [getRequest] result
+  /// Caller-provided builder protocol. If supplied, its [ConversationsBuilderProtocol.getRequest] result
   /// takes precedence over [conversationsRequestBuilder].
   final ConversationsBuilderProtocol? conversationsProtocol;
 
@@ -128,10 +128,12 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   /// Get or create a typing notifier for a specific conversation.
   /// Use this with ValueListenableBuilder in list items for isolated rebuilds.
   /// Returns a list of typing indicators (empty if no one is typing).
-  ValueNotifier<List<TypingIndicator>> getTypingNotifier(String conversationId) {
+  ValueNotifier<List<TypingIndicator>> getTypingNotifier(
+    String conversationId,
+  ) {
     return _typingNotifiers.putIfAbsent(
       conversationId,
-          () => ValueNotifier<List<TypingIndicator>>([]),
+      () => ValueNotifier<List<TypingIndicator>>([]),
     );
   }
 
@@ -172,13 +174,25 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     this.disableSDKListeners = false,
     this.conversationsRequestBuilder,
     this.conversationsProtocol,
-  }) : getLoggedInUserUseCase = getLoggedInUserUseCase ?? _getServiceLocator().getLoggedInUserUseCase,
-        getConversationUseCase = getConversationUseCase ?? _getServiceLocator().getConversationUseCase,
-        markAsDeliveredUseCase = markAsDeliveredUseCase ?? _getServiceLocator().markAsDeliveredUseCase,
-        deleteConversationUseCase = deleteConversationUseCase ?? _getServiceLocator().deleteConversationUseCase,
-        getConversationsUseCase = getConversationsUseCase ?? _getServiceLocator().getConversationsUseCase,
-        loadMoreConversationsUseCase = loadMoreConversationsUseCase ?? _getServiceLocator().loadMoreConversationsUseCase,
-        super(const ConversationsInitial()) {
+  }) : getLoggedInUserUseCase =
+           getLoggedInUserUseCase ??
+           _getServiceLocator().getLoggedInUserUseCase,
+       getConversationUseCase =
+           getConversationUseCase ??
+           _getServiceLocator().getConversationUseCase,
+       markAsDeliveredUseCase =
+           markAsDeliveredUseCase ??
+           _getServiceLocator().markAsDeliveredUseCase,
+       deleteConversationUseCase =
+           deleteConversationUseCase ??
+           _getServiceLocator().deleteConversationUseCase,
+       getConversationsUseCase =
+           getConversationsUseCase ??
+           _getServiceLocator().getConversationsUseCase,
+       loadMoreConversationsUseCase =
+           loadMoreConversationsUseCase ??
+           _getServiceLocator().loadMoreConversationsUseCase,
+       super(const ConversationsInitial()) {
     // Resolve effective request builder once. Protocol wins over direct builder.
     _effectiveRequestBuilder =
         conversationsProtocol?.requestBuilder ?? conversationsRequestBuilder;
@@ -218,10 +232,7 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   /// Build a ConversationsRequestBuilder seeded from the effective
   /// caller-provided builder (if any), then stamp [limit]/[fromId].
   /// Mirrors the pattern used by SearchBloc._searchConversations.
-  ConversationsRequestBuilder _buildRequestBuilder({
-    required int limit,
-    String? fromId,
-  }) {
+  ConversationsRequestBuilder _buildRequestBuilder({required int limit}) {
     final builder = ConversationsRequestBuilder();
     final source = _effectiveRequestBuilder;
     if (source != null) {
@@ -505,9 +516,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Load initial conversations using use case
   Future<void> _onLoadConversations(
-      LoadConversations event,
-      Emitter<ConversationsState> emit,
-      ) async {
+    LoadConversations event,
+    Emitter<ConversationsState> emit,
+  ) async {
     // Silent refresh: keep existing list visible, skip loading shimmer.
     // Triggered explicitly via event.silent (reconnect, background→foreground)
     // OR inferred when conversations are already loaded.
@@ -542,7 +553,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
         }
       } else if (result is Failure && !isSilentRefresh) {
         if (kDebugMode) {
-          debugPrint('[ConversationsBloc] _onLoadConversations useCase Failure');
+          debugPrint(
+            '[ConversationsBloc] _onLoadConversations useCase Failure',
+          );
           debugPrint('[ConversationsBloc]   message: ${result.message}');
           debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
         }
@@ -575,19 +588,26 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
       } on CometChatException catch (e) {
         if (!isSilentRefresh) {
           if (kDebugMode) {
-            debugPrint('[ConversationsBloc] _onLoadConversations CometChatException');
+            debugPrint(
+              '[ConversationsBloc] _onLoadConversations CometChatException',
+            );
             debugPrint('[ConversationsBloc]   code:    ${e.code}');
             debugPrint('[ConversationsBloc]   message: ${e.message}');
             debugPrint('[ConversationsBloc]   details: ${e.details}');
             debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
           }
-          emit(ConversationsError(
-              message: e.message ?? 'Failed to load conversations'));
+          emit(
+            ConversationsError(
+              message: e.message ?? 'Failed to load conversations',
+            ),
+          );
         }
       } catch (e) {
         if (!isSilentRefresh) {
           if (kDebugMode) {
-            debugPrint('[ConversationsBloc] _onLoadConversations generic catch: $e');
+            debugPrint(
+              '[ConversationsBloc] _onLoadConversations generic catch: $e',
+            );
             debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
           }
           emit(ConversationsError(message: 'Failed to load conversations: $e'));
@@ -598,9 +618,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Load more conversations (pagination)
   Future<void> _onLoadMoreConversations(
-      LoadMoreConversations event,
-      Emitter<ConversationsState> emit,
-      ) async {
+    LoadMoreConversations event,
+    Emitter<ConversationsState> emit,
+  ) async {
     if (state is! ConversationsLoaded) return;
 
     final currentState = state as ConversationsLoaded;
@@ -612,7 +632,8 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     _isLoadingMore = true;
     emit(currentState.copyWith(isLoadingMore: true));
 
-    if (loadMoreConversationsUseCase != null && currentState.conversations.isNotEmpty) {
+    if (loadMoreConversationsUseCase != null &&
+        currentState.conversations.isNotEmpty) {
       final lastConversationId = currentState.conversations.last.conversationId;
 
       if (lastConversationId == null || lastConversationId.isEmpty) {
@@ -646,14 +667,18 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
         replaceAll(allConversations);
       } else if (result is Failure) {
         if (kDebugMode) {
-          debugPrint('[ConversationsBloc] _onLoadMoreConversations useCase Failure');
+          debugPrint(
+            '[ConversationsBloc] _onLoadMoreConversations useCase Failure',
+          );
           debugPrint('[ConversationsBloc]   message: ${result.message}');
           debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
         }
-        emit(ConversationsError(
-          message: result.message,
-          previousConversations: currentState.conversations,
-        ));
+        emit(
+          ConversationsError(
+            message: result.message,
+            previousConversations: currentState.conversations,
+          ),
+        );
       }
     } else if (_conversationsRequest != null) {
       try {
@@ -686,26 +711,34 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
       } on CometChatException catch (e) {
         _isLoadingMore = false;
         if (kDebugMode) {
-          debugPrint('[ConversationsBloc] _onLoadMoreConversations CometChatException');
+          debugPrint(
+            '[ConversationsBloc] _onLoadMoreConversations CometChatException',
+          );
           debugPrint('[ConversationsBloc]   code:    ${e.code}');
           debugPrint('[ConversationsBloc]   message: ${e.message}');
           debugPrint('[ConversationsBloc]   details: ${e.details}');
           debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
         }
-        emit(ConversationsError(
-          message: e.message ?? 'Failed to load more conversations',
-          previousConversations: currentState.conversations,
-        ));
+        emit(
+          ConversationsError(
+            message: e.message ?? 'Failed to load more conversations',
+            previousConversations: currentState.conversations,
+          ),
+        );
       } catch (e) {
         _isLoadingMore = false;
         if (kDebugMode) {
-          debugPrint('[ConversationsBloc] _onLoadMoreConversations generic catch: $e');
+          debugPrint(
+            '[ConversationsBloc] _onLoadMoreConversations generic catch: $e',
+          );
           debugPrint('[ConversationsBloc]   -> emitting ConversationsError');
         }
-        emit(ConversationsError(
-          message: 'Failed to load more conversations: $e',
-          previousConversations: currentState.conversations,
-        ));
+        emit(
+          ConversationsError(
+            message: 'Failed to load more conversations: $e',
+            previousConversations: currentState.conversations,
+          ),
+        );
       }
     } else {
       _isLoadingMore = false;
@@ -715,18 +748,18 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Refresh conversations list
   Future<void> _onRefreshConversations(
-      RefreshConversations event,
-      Emitter<ConversationsState> emit,
-      ) async {
+    RefreshConversations event,
+    Emitter<ConversationsState> emit,
+  ) async {
     // Refresh is always silent when data is already loaded
     add(const LoadConversations(silent: true));
   }
 
   /// Delete a conversation (calls use case and removes from list)
   Future<void> _onDeleteConversation(
-      DeleteConversation event,
-      Emitter<ConversationsState> emit,
-      ) async {
+    DeleteConversation event,
+    Emitter<ConversationsState> emit,
+  ) async {
     if (state is! ConversationsLoaded) return;
 
     final result = await deleteConversationUseCase(event.conversationId);
@@ -740,15 +773,17 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     } else if (result is Failure) {
       // Don't replace the list with an error view — just log the failure.
       // The conversation stays in the list so the user can retry.
-      debugPrint('Failed to delete conversation ${event.conversationId}: ${result.message}');
+      debugPrint(
+        'Failed to delete conversation ${event.conversationId}: ${result.message}',
+      );
     }
   }
 
   /// Remove a conversation from list without calling SDK
   void _onRemoveConversation(
-      RemoveConversation event,
-      Emitter<ConversationsState> emit,
-      ) {
+    RemoveConversation event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     // OPTIMIZATION: Use O(1) lookup
@@ -760,9 +795,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Set active conversation
   void _onSetActiveConversation(
-      SetActiveConversation event,
-      Emitter<ConversationsState> emit,
-      ) {
+    SetActiveConversation event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     final currentState = state as ConversationsLoaded;
@@ -771,9 +806,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Toggle conversation selection
   void _onToggleConversationSelection(
-      ToggleConversationSelection event,
-      Emitter<ConversationsState> emit,
-      ) {
+    ToggleConversationSelection event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     final currentState = state as ConversationsLoaded;
@@ -790,9 +825,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Clear conversation selection
   void _onClearConversationSelection(
-      ClearConversationSelection event,
-      Emitter<ConversationsState> emit,
-      ) {
+    ClearConversationSelection event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     final currentState = state as ConversationsLoaded;
@@ -801,9 +836,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Update a conversation with modified data from external sources
   void _onUpdateConversation(
-      UpdateConversation event,
-      Emitter<ConversationsState> emit,
-      ) {
+    UpdateConversation event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     // OPTIMIZATION: Use O(1) lookup
@@ -819,9 +854,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Reset unread count for a conversation
   void _onResetUnreadCount(
-      ResetUnreadCount event,
-      Emitter<ConversationsState> emit,
-      ) {
+    ResetUnreadCount event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     // OPTIMIZATION: Use O(1) lookup
@@ -829,8 +864,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     if (matchingIndex == null || matchingIndex >= items.length) return;
 
     // Use items from ListBase (source of truth) not state
-    final updatedConversation = items[matchingIndex]
-        .copyWith(unreadMessageCount: 0);
+    final updatedConversation = items[matchingIndex].copyWith(
+      unreadMessageCount: 0,
+    );
     updateItem(matchingIndex, updatedConversation);
   }
 
@@ -841,15 +877,16 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   /// Handle message received update event
   /// Moves conversation to top of list when new message arrives
   void _onMessageReceivedUpdate(
-      _MessageReceivedUpdate event,
-      Emitter<ConversationsState> emit,
-      ) {
+    _MessageReceivedUpdate event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     final currentState = state as ConversationsLoaded;
     final updatedConversation = event.conversation;
 
-    final isActiveConversation = currentState.activeConversationId != null &&
+    final isActiveConversation =
+        currentState.activeConversationId != null &&
         currentState.activeConversationId == updatedConversation.conversationId;
 
     Conversation finalConversation = updatedConversation;
@@ -857,7 +894,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
       finalConversation = updatedConversation.copyWith(unreadMessageCount: 0);
     }
 
-    final existingIndex = _findConversationIndex(finalConversation.conversationId);
+    final existingIndex = _findConversationIndex(
+      finalConversation.conversationId,
+    );
 
     if (existingIndex != null && existingIndex == 0) {
       // OPTIMIZATION: Already at top - use updateItem for O(1) operation
@@ -881,13 +920,15 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   /// Handle conversation unread update — updates unread count in-place
   /// without moving the conversation to the top of the list.
   void _onConversationUnreadUpdate(
-      _ConversationUnreadUpdate event,
-      Emitter<ConversationsState> emit,
-      ) {
+    _ConversationUnreadUpdate event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     final updatedConversation = event.conversation;
-    final existingIndex = _findConversationIndex(updatedConversation.conversationId);
+    final existingIndex = _findConversationIndex(
+      updatedConversation.conversationId,
+    );
     if (existingIndex == null || existingIndex >= items.length) return;
 
     final existing = items[existingIndex];
@@ -901,9 +942,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   /// Handle user status update event (online/offline)
   /// OPTIMIZATION: Skip updates for conversations beyond visible threshold
   void _onUserStatusUpdate(
-      _UserStatusUpdate event,
-      Emitter<ConversationsState> emit,
-      ) {
+    _UserStatusUpdate event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     // Find user conversation using items (source of truth)
@@ -961,9 +1002,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   /// with id <= X are delivered/read. So if the conversation's lastMessage.id
   /// is <= receipt.messageId, the lastMessage should be updated.
   void _onReceiptUpdate(
-      _ReceiptUpdate event,
-      Emitter<ConversationsState> emit,
-      ) {
+    _ReceiptUpdate event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     final receipt = event.receipt;
@@ -989,7 +1030,8 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     bool shouldUpdate = false;
 
     if (conversation.conversationType == 'user') {
-      if (receipt.receiptType == 'delivered' && lastMessage.deliveredAt == null) {
+      if (receipt.receiptType == 'delivered' &&
+          lastMessage.deliveredAt == null) {
         lastMessage.deliveredAt = receipt.deliveredAt;
         shouldUpdate = true;
       } else if (receipt.receiptType == 'read' && lastMessage.readAt == null) {
@@ -998,10 +1040,12 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
         shouldUpdate = true;
       }
     } else if (conversation.conversationType == 'group') {
-      if (receipt.receiptType == 'deliveredToAll' && lastMessage.deliveredAt == null) {
+      if (receipt.receiptType == 'deliveredToAll' &&
+          lastMessage.deliveredAt == null) {
         lastMessage.deliveredAt = receipt.deliveredAt;
         shouldUpdate = true;
-      } else if (receipt.receiptType == 'readByAll' && lastMessage.readAt == null) {
+      } else if (receipt.receiptType == 'readByAll' &&
+          lastMessage.readAt == null) {
         lastMessage.readAt = receipt.readAt;
         lastMessage.deliveredAt ??= receipt.readAt;
         shouldUpdate = true;
@@ -1027,9 +1071,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Handle message edited update event
   void _onMessageEditedUpdate(
-      _MessageEditedUpdate event,
-      Emitter<ConversationsState> emit,
-      ) {
+    _MessageEditedUpdate event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     final message = event.message;
@@ -1047,10 +1091,7 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   }
 
   /// Handle group update event
-  void _onGroupUpdate(
-      _GroupUpdate event,
-      Emitter<ConversationsState> emit,
-      ) {
+  void _onGroupUpdate(_GroupUpdate event, Emitter<ConversationsState> emit) {
     if (state is! ConversationsLoaded) return;
 
     // Find group conversation by GUID
@@ -1065,17 +1106,18 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     }
 
     if (matchingIndex != -1) {
-      final updatedConversation = items[matchingIndex]
-          .copyWith(conversationWith: event.group);
+      final updatedConversation = items[matchingIndex].copyWith(
+        conversationWith: event.group,
+      );
       updateItem(matchingIndex, updatedConversation);
     }
   }
 
   /// Handle remove group conversation event
   void _onRemoveGroupConversation(
-      _RemoveGroupConversation event,
-      Emitter<ConversationsState> emit,
-      ) {
+    _RemoveGroupConversation event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is! ConversationsLoaded) return;
 
     // Find and remove the group conversation using items (source of truth)
@@ -1095,9 +1137,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Handle connection state update event
   void _onConnectionStateUpdate(
-      _ConnectionStateUpdate event,
-      Emitter<ConversationsState> emit,
-      ) {
+    _ConnectionStateUpdate event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (event.isConnected) {
       add(const LoadConversations(silent: true));
     }
@@ -1136,13 +1178,15 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     if (existingIndex != null) {
       final sdkConversation = currentState.conversations[existingIndex];
 
-      final isActiveConversation = currentState.activeConversationId != null &&
+      final isActiveConversation =
+          currentState.activeConversationId != null &&
           currentState.activeConversationId == targetConversationId;
 
       bool shouldIncrementUnread = false;
       if (message.sender?.uid != _loggedInUser?.uid && !isActiveConversation) {
         if (message is CustomMessage) {
-          shouldIncrementUnread = message.updateConversation == true ||
+          shouldIncrementUnread =
+              message.updateConversation == true ||
               (message.metadata?['incrementUnreadCount'] == true);
         } else {
           shouldIncrementUnread = true;
@@ -1150,8 +1194,8 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
       }
 
       final newUnreadCount = shouldIncrementUnread
-          ? (sdkConversation.unreadMessageCount ?? 0) + 1
-          : sdkConversation.unreadMessageCount ?? 0;
+          ? sdkConversation.unreadMessageCount + 1
+          : sdkConversation.unreadMessageCount;
 
       final updatedConversation = sdkConversation.copyWith(
         lastMessage: message,
@@ -1216,7 +1260,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
       final currentTypers = List<TypingIndicator>.from(notifier.value);
 
       // Remove existing indicator from same user (if any) and add new one
-      currentTypers.removeWhere((t) => t.sender.uid == typingIndicator.sender.uid);
+      currentTypers.removeWhere(
+        (t) => t.sender.uid == typingIndicator.sender.uid,
+      );
       currentTypers.add(typingIndicator);
 
       notifier.value = currentTypers;
@@ -1242,7 +1288,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     final notifier = _typingNotifiers[conversationId];
     if (notifier != null) {
       final currentTypers = List<TypingIndicator>.from(notifier.value);
-      currentTypers.removeWhere((t) => t.sender.uid == typingIndicator.sender.uid);
+      currentTypers.removeWhere(
+        (t) => t.sender.uid == typingIndicator.sender.uid,
+      );
       notifier.value = currentTypers;
     }
   }
@@ -1309,7 +1357,10 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Handle group member joined
   void _handleGroupMemberJoined(
-      Action action, User joinedUser, Group joinedGroup) {
+    Action action,
+    User joinedUser,
+    Group joinedGroup,
+  ) {
     if (isClosed) return;
     _refreshSingleConversation(action);
   }
@@ -1326,7 +1377,11 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Handle group member kicked
   void _handleGroupMemberKicked(
-      Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     if (isClosed) return;
     if (_loggedInUser?.uid == kickedUser.uid) {
       add(_RemoveGroupConversation(kickedFrom.guid));
@@ -1337,7 +1392,11 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Handle group member banned
   void _handleGroupMemberBanned(
-      Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     if (isClosed) return;
     if (_loggedInUser?.uid == bannedUser.uid) {
       add(_RemoveGroupConversation(bannedFrom.guid));
@@ -1348,26 +1407,35 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Handle group member unbanned
   void _handleGroupMemberUnbanned(
-      Action action, User unbannedUser, User unbannedBy, Group unbannedFrom) {
+    Action action,
+    User unbannedUser,
+    User unbannedBy,
+    Group unbannedFrom,
+  ) {
     if (isClosed) return;
     _refreshSingleConversation(action);
   }
 
   /// Handle group member scope changed
   void _handleGroupMemberScopeChanged(
-      Action action,
-      User updatedBy,
-      User updatedUser,
-      String scopeChangedTo,
-      String scopeChangedFrom,
-      Group group) {
+    Action action,
+    User updatedBy,
+    User updatedUser,
+    String scopeChangedTo,
+    String scopeChangedFrom,
+    Group group,
+  ) {
     if (isClosed) return;
     _refreshSingleConversation(action);
   }
 
   /// Handle member added to group
   void _handleMemberAddedToGroup(
-      Action action, User addedBy, User userAdded, Group addedTo) {
+    Action action,
+    User addedBy,
+    User userAdded,
+    Group addedTo,
+  ) {
     if (isClosed) return;
     if (action.actionFor is Group &&
         (action.actionFor as Group).guid == addedTo.guid) {
@@ -1487,7 +1555,11 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Handle CC group member added event
   void _handleCCGroupMemberAdded(
-      List<Action> messages, List<User> usersAdded, Group groupAddedIn, User addedBy) {
+    List<Action> messages,
+    List<User> usersAdded,
+    Group groupAddedIn,
+    User addedBy,
+  ) {
     if (isClosed) return;
     if (messages.isNotEmpty) {
       _refreshSingleConversation(messages.first);
@@ -1496,7 +1568,11 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Handle CC group member kicked event
   void _handleCCGroupMemberKicked(
-      Action message, User kickedUser, User kickedBy, Group kickedFrom) {
+    Action message,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     if (isClosed) return;
     if (_loggedInUser?.uid == kickedUser.uid) {
       add(_RemoveGroupConversation(kickedFrom.guid));
@@ -1507,7 +1583,11 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Handle CC group member banned event
   void _handleCCGroupMemberBanned(
-      Action message, User bannedUser, User bannedBy, Group bannedFrom) {
+    Action message,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     if (isClosed) return;
     if (_loggedInUser?.uid == bannedUser.uid) {
       add(_RemoveGroupConversation(bannedFrom.guid));
@@ -1547,8 +1627,8 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
     final conversationWith = message.receiverType == 'user'
         ? (message.sender?.uid == _loggedInUser?.uid
-        ? message.receiverUid
-        : message.sender?.uid)
+              ? message.receiverUid
+              : message.sender?.uid)
         : message.receiverUid;
 
     if (conversationWith == null) return;
@@ -1570,9 +1650,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 
   /// Find the conversation ID that matches the typing indicator
   String? _findConversationIdForTypingIndicator(
-      List<Conversation> conversations,
-      TypingIndicator typingIndicator,
-      ) {
+    List<Conversation> conversations,
+    TypingIndicator typingIndicator,
+  ) {
     final senderUid = typingIndicator.sender.uid;
     final receiverId = typingIndicator.receiverId;
     final receiverType = typingIndicator.receiverType;
@@ -1607,9 +1687,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   /// For user receipts: match by sender UID against conversationWith.
   /// For group receipts: match by receiverId (group GUID) against conversationWith.
   String? _findConversationIdForReceipt(
-      List<Conversation> conversations,
-      MessageReceipt receipt,
-      ) {
+    List<Conversation> conversations,
+    MessageReceipt receipt,
+  ) {
     final senderUid = receipt.sender.uid;
     final receiverId = receipt.receiverId;
     final receiverType = receipt.receiverType;
@@ -1673,10 +1753,10 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   /// Called when a conversation is updated in the list.
   @override
   void onItemUpdated(
-      Conversation oldItem,
-      Conversation newItem,
-      List<Conversation> updatedList,
-      ) {
+    Conversation oldItem,
+    Conversation newItem,
+    List<Conversation> updatedList,
+  ) {
     // OPTIMIZATION: No map update needed - index unchanged, ID unchanged
     // Only update map if conversationId changed (rare edge case)
     if (oldItem.conversationId != newItem.conversationId) {
@@ -1706,9 +1786,9 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   /// This is the only case where full rebuild is necessary.
   @override
   void onListReplaced(
-      List<Conversation> previousList,
-      List<Conversation> newList,
-      ) {
+    List<Conversation> previousList,
+    List<Conversation> newList,
+  ) {
     if (isClosed) return;
 
     // Full rebuild only on list replacement (initial load, refresh, reorder)
@@ -1722,30 +1802,45 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
   // LIST BASE EVENT HANDLERS
   // ============================================================
 
-  void _onListItemAdded(_ListItemAdded event, Emitter<ConversationsState> emit) {
+  void _onListItemAdded(
+    _ListItemAdded event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is ConversationsLoaded) {
-      emit((state as ConversationsLoaded).copyWith(
-        conversations: event.updatedList,
-      ));
+      emit(
+        (state as ConversationsLoaded).copyWith(
+          conversations: event.updatedList,
+        ),
+      );
     }
   }
 
-  void _onListItemRemoved(_ListItemRemoved event, Emitter<ConversationsState> emit) {
+  void _onListItemRemoved(
+    _ListItemRemoved event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (event.updatedList.isEmpty) {
       _mapNeedsRebuild = true;
       emit(const ConversationsEmpty());
     } else if (state is ConversationsLoaded) {
-      emit((state as ConversationsLoaded).copyWith(
-        conversations: event.updatedList,
-      ));
+      emit(
+        (state as ConversationsLoaded).copyWith(
+          conversations: event.updatedList,
+        ),
+      );
     }
   }
 
-  void _onListItemUpdated(_ListItemUpdated event, Emitter<ConversationsState> emit) {
+  void _onListItemUpdated(
+    _ListItemUpdated event,
+    Emitter<ConversationsState> emit,
+  ) {
     if (state is ConversationsLoaded) {
-      emit((state as ConversationsLoaded).copyWith(
-        conversations: event.updatedList,
-      ));
+      emit(
+        (state as ConversationsLoaded).copyWith(
+          conversations: event.updatedList,
+        ),
+      );
     }
   }
 
@@ -1757,14 +1852,16 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     if (event.newList.isEmpty) {
       emit(const ConversationsEmpty());
     } else if (state is ConversationsLoaded) {
-      emit((state as ConversationsLoaded).copyWith(
-        conversations: event.newList,
-      ));
+      emit(
+        (state as ConversationsLoaded).copyWith(conversations: event.newList),
+      );
     } else {
-      emit(ConversationsLoaded(
-        conversations: event.newList,
-        hasMore: event.newList.length >= 30,
-      ));
+      emit(
+        ConversationsLoaded(
+          conversations: event.newList,
+          hasMore: event.newList.length >= 30,
+        ),
+      );
     }
   }
 
@@ -1795,7 +1892,8 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     CometChatMessageEvents.removeMessagesListener(_ccMessageListenerKey);
     CometChatGroupEvents.removeGroupsListener(_ccGroupListenerKey);
     CometChatConversationEvents.removeConversationListListener(
-        _ccConversationListenerKey);
+      _ccConversationListenerKey,
+    );
 
     _isLoadingMore = false;
     return super.close();
@@ -2106,38 +2204,65 @@ class _ConversationGroupListener with GroupListener {
 
   @override
   void onGroupMemberKicked(
-      Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     onGroupMemberKickedCallback(action, kickedUser, kickedBy, kickedFrom);
   }
 
   @override
   void onGroupMemberBanned(
-      Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     onGroupMemberBannedCallback(action, bannedUser, bannedBy, bannedFrom);
   }
 
   @override
   void onGroupMemberUnbanned(
-      Action action, User unbannedUser, User unbannedBy, Group unbannedFrom) {
+    Action action,
+    User unbannedUser,
+    User unbannedBy,
+    Group unbannedFrom,
+  ) {
     onGroupMemberUnbannedCallback(
-        action, unbannedUser, unbannedBy, unbannedFrom);
+      action,
+      unbannedUser,
+      unbannedBy,
+      unbannedFrom,
+    );
   }
 
   @override
   void onGroupMemberScopeChanged(
-      Action action,
-      User updatedBy,
-      User updatedUser,
-      String scopeChangedTo,
-      String scopeChangedFrom,
-      Group group) {
-    onGroupMemberScopeChangedCallback(action, updatedBy, updatedUser,
-        scopeChangedTo, scopeChangedFrom, group);
+    Action action,
+    User updatedBy,
+    User updatedUser,
+    String scopeChangedTo,
+    String scopeChangedFrom,
+    Group group,
+  ) {
+    onGroupMemberScopeChangedCallback(
+      action,
+      updatedBy,
+      updatedUser,
+      scopeChangedTo,
+      scopeChangedFrom,
+      group,
+    );
   }
 
   @override
   void onMemberAddedToGroup(
-      Action action, User addedBy, User userAdded, Group addedTo) {
+    Action action,
+    User addedBy,
+    User userAdded,
+    Group addedTo,
+  ) {
     onMemberAddedToGroupCallback(action, addedBy, userAdded, addedTo);
   }
 }
@@ -2303,19 +2428,31 @@ class _CCGroupEventListener with CometChatGroupEventListener {
 
   @override
   void ccGroupMemberAdded(
-      List<Action> messages, List<User> usersAdded, Group groupAddedIn, User addedBy) {
+    List<Action> messages,
+    List<User> usersAdded,
+    Group groupAddedIn,
+    User addedBy,
+  ) {
     onCCGroupMemberAddedCallback(messages, usersAdded, groupAddedIn, addedBy);
   }
 
   @override
   void ccGroupMemberKicked(
-      Action message, User kickedUser, User kickedBy, Group kickedFrom) {
+    Action message,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     onCCGroupMemberKickedCallback(message, kickedUser, kickedBy, kickedFrom);
   }
 
   @override
   void ccGroupMemberBanned(
-      Action message, User bannedUser, User bannedBy, Group bannedFrom) {
+    Action message,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     onCCGroupMemberBannedCallback(message, bannedUser, bannedBy, bannedFrom);
   }
 

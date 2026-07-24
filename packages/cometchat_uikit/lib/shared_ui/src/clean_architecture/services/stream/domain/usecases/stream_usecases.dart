@@ -15,10 +15,7 @@ class PlayStreamUseCase {
     required String url,
     required String streamId,
   }) {
-    return repository.playStream(
-      url: url,
-      streamId: streamId,
-    );
+    return repository.playStream(url: url, streamId: streamId);
   }
 }
 
@@ -87,10 +84,7 @@ class SeekStreamToPositionUseCase {
     required String streamId,
     required Duration position,
   }) {
-    return repository.seekToPosition(
-      streamId: streamId,
-      position: position,
-    );
+    return repository.seekToPosition(streamId: streamId, position: position);
   }
 }
 

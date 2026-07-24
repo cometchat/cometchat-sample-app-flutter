@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-import 'widgets/rich_text_toolbar/cometchat_rich_text_toolbar_style.dart';
 import 'widgets/inline_audio_recorder/inline_audio_recorder_style.dart';
 
 ///[CometChatMessageComposerStyle] is a data class that has styling-related properties
@@ -36,6 +35,7 @@ class CometChatMessageComposerStyle
     this.filledColor,
     this.richTextToolbarStyle,
     this.inlineAudioRecorderStyle,
+    this.attachmentTrayStyle,
   });
 
   ///[closeIconTint] provides color to the close Icon/widget
@@ -116,6 +116,9 @@ class CometChatMessageComposerStyle
   ///[inlineAudioRecorderStyle] provides style to the inline audio recorder
   final CometChatInlineAudioRecorderStyle? inlineAudioRecorderStyle;
 
+  ///[attachmentTrayStyle] styles the multi-attachment staging tray tiles
+  final CometChatAttachmentTrayStyle? attachmentTrayStyle;
+
   @override
   CometChatMessageComposerStyle copyWith({
     Color? closeIconTint,
@@ -144,6 +147,7 @@ class CometChatMessageComposerStyle
     Color? filledColor,
     CometChatRichTextToolbarStyle? richTextToolbarStyle,
     CometChatInlineAudioRecorderStyle? inlineAudioRecorderStyle,
+    CometChatAttachmentTrayStyle? attachmentTrayStyle,
   }) {
     return CometChatMessageComposerStyle(
       closeIconTint: closeIconTint ?? this.closeIconTint,
@@ -159,13 +163,15 @@ class CometChatMessageComposerStyle
           sendButtonBorderRadius ?? this.sendButtonBorderRadius,
       secondaryButtonIconColor:
           secondaryButtonIconColor ?? this.secondaryButtonIconColor,
-      secondaryButtonIconBackgroundColor: secondaryButtonIconBackgroundColor ??
+      secondaryButtonIconBackgroundColor:
+          secondaryButtonIconBackgroundColor ??
           this.secondaryButtonIconBackgroundColor,
       secondaryButtonBorderRadius:
           secondaryButtonBorderRadius ?? this.secondaryButtonBorderRadius,
       auxiliaryButtonIconColor:
           auxiliaryButtonIconColor ?? this.auxiliaryButtonIconColor,
-      auxiliaryButtonIconBackgroundColor: auxiliaryButtonIconBackgroundColor ??
+      auxiliaryButtonIconBackgroundColor:
+          auxiliaryButtonIconBackgroundColor ??
           this.auxiliaryButtonIconBackgroundColor,
       auxiliaryButtonBorderRadius:
           auxiliaryButtonBorderRadius ?? this.auxiliaryButtonBorderRadius,
@@ -182,6 +188,7 @@ class CometChatMessageComposerStyle
       richTextToolbarStyle: richTextToolbarStyle ?? this.richTextToolbarStyle,
       inlineAudioRecorderStyle:
           inlineAudioRecorderStyle ?? this.inlineAudioRecorderStyle,
+      attachmentTrayStyle: attachmentTrayStyle ?? this.attachmentTrayStyle,
     );
   }
 
@@ -219,56 +226,106 @@ class CometChatMessageComposerStyle
       filledColor: style.filledColor,
       richTextToolbarStyle: style.richTextToolbarStyle,
       inlineAudioRecorderStyle: style.inlineAudioRecorderStyle,
+      attachmentTrayStyle: style.attachmentTrayStyle,
     );
   }
 
   @override
   CometChatMessageComposerStyle lerp(
-      CometChatMessageComposerStyle? other, double t) {
+    CometChatMessageComposerStyle? other,
+    double t,
+  ) {
     return CometChatMessageComposerStyle(
       closeIconTint: Color.lerp(closeIconTint, other?.closeIconTint, t),
       backgroundColor: Color.lerp(backgroundColor, other?.backgroundColor, t),
       border: BoxBorder.lerp(border, other?.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other?.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other?.borderRadius,
+        t,
+      ),
       dividerColor: Color.lerp(dividerColor, other?.dividerColor, t),
       dividerHeight: lerpDouble(dividerHeight, other?.dividerHeight, t),
-      sendButtonIconColor:
-          Color.lerp(sendButtonIconColor, other?.sendButtonIconColor, t),
-      sendButtonIconBackgroundColor: Color.lerp(sendButtonIconBackgroundColor,
-          other?.sendButtonIconBackgroundColor, t),
-      sendButtonBorderRadius:
-      BorderRadiusGeometry.lerp(sendButtonBorderRadius, other?.sendButtonBorderRadius, t),
+      sendButtonIconColor: Color.lerp(
+        sendButtonIconColor,
+        other?.sendButtonIconColor,
+        t,
+      ),
+      sendButtonIconBackgroundColor: Color.lerp(
+        sendButtonIconBackgroundColor,
+        other?.sendButtonIconBackgroundColor,
+        t,
+      ),
+      sendButtonBorderRadius: BorderRadiusGeometry.lerp(
+        sendButtonBorderRadius,
+        other?.sendButtonBorderRadius,
+        t,
+      ),
       secondaryButtonIconColor: Color.lerp(
-          secondaryButtonIconColor, other?.secondaryButtonIconColor, t),
+        secondaryButtonIconColor,
+        other?.secondaryButtonIconColor,
+        t,
+      ),
       secondaryButtonIconBackgroundColor: Color.lerp(
-          secondaryButtonIconBackgroundColor,
-          other?.secondaryButtonIconBackgroundColor,
-          t),
+        secondaryButtonIconBackgroundColor,
+        other?.secondaryButtonIconBackgroundColor,
+        t,
+      ),
       secondaryButtonBorderRadius: BorderRadiusGeometry.lerp(
-          secondaryButtonBorderRadius, other?.secondaryButtonBorderRadius, t),
+        secondaryButtonBorderRadius,
+        other?.secondaryButtonBorderRadius,
+        t,
+      ),
       auxiliaryButtonIconColor: Color.lerp(
-          auxiliaryButtonIconColor, other?.auxiliaryButtonIconColor, t),
+        auxiliaryButtonIconColor,
+        other?.auxiliaryButtonIconColor,
+        t,
+      ),
       auxiliaryButtonIconBackgroundColor: Color.lerp(
-          auxiliaryButtonIconBackgroundColor,
-          other?.auxiliaryButtonIconBackgroundColor,
-          t),
+        auxiliaryButtonIconBackgroundColor,
+        other?.auxiliaryButtonIconBackgroundColor,
+        t,
+      ),
       auxiliaryButtonBorderRadius: BorderRadiusGeometry.lerp(
-          auxiliaryButtonBorderRadius, other?.auxiliaryButtonBorderRadius, t),
+        auxiliaryButtonBorderRadius,
+        other?.auxiliaryButtonBorderRadius,
+        t,
+      ),
       textStyle: TextStyle.lerp(textStyle, other?.textStyle, t),
       textColor: Color.lerp(textColor, other?.textColor, t),
-      placeHolderTextStyle:
-          TextStyle.lerp(placeHolderTextStyle, other?.placeHolderTextStyle, t),
-      placeHolderTextColor:
-          Color.lerp(placeHolderTextColor, other?.placeHolderTextColor, t),
+      placeHolderTextStyle: TextStyle.lerp(
+        placeHolderTextStyle,
+        other?.placeHolderTextStyle,
+        t,
+      ),
+      placeHolderTextColor: Color.lerp(
+        placeHolderTextColor,
+        other?.placeHolderTextColor,
+        t,
+      ),
       attachmentOptionSheetStyle: attachmentOptionSheetStyle?.lerp(
-          other?.attachmentOptionSheetStyle, t),
+        other?.attachmentOptionSheetStyle,
+        t,
+      ),
       mentionsStyle: mentionsStyle?.lerp(other?.mentionsStyle, t),
-      suggestionListStyle: suggestionListStyle?.lerp(other?.suggestionListStyle, t),
-      mediaRecorderStyle: mediaRecorderStyle?.lerp(other?.mediaRecorderStyle, t),
+      suggestionListStyle: suggestionListStyle?.lerp(
+        other?.suggestionListStyle,
+        t,
+      ),
+      mediaRecorderStyle: mediaRecorderStyle?.lerp(
+        other?.mediaRecorderStyle,
+        t,
+      ),
       filledColor: Color.lerp(filledColor, other?.filledColor, t),
-      richTextToolbarStyle: richTextToolbarStyle?.lerp(other?.richTextToolbarStyle, t),
+      richTextToolbarStyle: richTextToolbarStyle?.lerp(
+        other?.richTextToolbarStyle,
+        t,
+      ),
       inlineAudioRecorderStyle: inlineAudioRecorderStyle,
+      attachmentTrayStyle: attachmentTrayStyle?.lerp(
+        other?.attachmentTrayStyle,
+        t,
+      ),
     );
   }
 }

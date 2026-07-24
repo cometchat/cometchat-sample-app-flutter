@@ -6,7 +6,7 @@ import '../../../data/models/interactive_message/card_message.dart';
 import '../../../data/models/interactive_message/scheduler_message.dart';
 import '../../../data/models/interactive_message/custom_interactive_message.dart';
 
-///Listener class for [CometChatMessages]
+///Listener class for [CometChatMessageList]
 
 enum LiveReactionType { liveReaction }
 
@@ -29,8 +29,12 @@ mixin CometChatMessageEventListener implements UIEventHandler {
   void ccLiveReaction(String reaction) {}
 
   //event for forwarding message by logged-in user
-  void ccMessageForwarded(BaseMessage message, List<User>? usersSent,
-      List<Group>? groupsSent, MessageStatus status) {}
+  void ccMessageForwarded(
+    BaseMessage message,
+    List<User>? usersSent,
+    List<Group>? groupsSent,
+    MessageStatus status,
+  ) {}
 
   //event for replying to a message by logged-in user
   void ccReplyToMessage(BaseMessage message) {}
@@ -73,7 +77,8 @@ mixin CometChatMessageEventListener implements UIEventHandler {
 
   //event for forwarding message by logged-in user
   void onCustomInteractiveMessageReceived(
-      CustomInteractiveMessage customInteractiveMessage) {}
+    CustomInteractiveMessage customInteractiveMessage,
+  ) {}
 
   //event for completion of interaction goals
   void onInteractionGoalCompleted(InteractionReceipt receipt) {}

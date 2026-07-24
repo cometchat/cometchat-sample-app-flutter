@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../cometchat_chat_uikit.dart';
 import '../../../cometchat_chat_uikit.dart' as cc;
-import 'bloc/bloc.dart';
-import 'di/users_service_locator.dart';
-import 'widgets/widgets.dart';
 
 /// [CometChatUsers] is a component that displays a list of users
 /// using Clean Architecture with BLoC pattern.
@@ -49,10 +46,10 @@ class CometChatUsers extends StatefulWidget {
   });
 
   final UsersBloc? usersBloc;
-  
+
   /// [usersRequestBuilder] custom request builder for filtering users
   final UsersRequestBuilder? usersRequestBuilder;
-  
+
   final Widget? Function(BuildContext, User)? subtitleView;
   final Widget Function(User)? listItemView;
   final CometChatUsersStyle usersStyle;
@@ -134,7 +131,8 @@ class _CometChatUsersState extends State<CometChatUsers>
   void didChangeDependencies() {
     super.didChangeDependencies();
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
     _cachedBrightness = currentBrightness;
     _themeInitialized = true;
@@ -155,9 +153,9 @@ class _CometChatUsersState extends State<CometChatUsers>
 
     statusIndicatorStyle =
         CometChatThemeHelper.getTheme<CometChatStatusIndicatorStyle>(
-      context: context,
-      defaultTheme: CometChatStatusIndicatorStyle.of,
-    ).merge(style.statusIndicatorStyle);
+          context: context,
+          defaultTheme: CometChatStatusIndicatorStyle.of,
+        ).merge(style.statusIndicatorStyle);
   }
 
   @override
@@ -172,65 +170,66 @@ class _CometChatUsersState extends State<CometChatUsers>
   Widget build(BuildContext context) {
     // Required for AutomaticKeepAliveClientMixin
     super.build(context);
-    
+
     return RepaintBoundary(
       child: BlocProvider.value(
         value: usersBloc,
         child: ClipRRect(
           borderRadius: style.borderRadius ?? BorderRadius.circular(0),
           child: CometChatListBase(
-          titleView: _buildTitleView(),
-          titleSpacing: widget.showBackButton ? 0 : 16,
-          hideSearch: widget.hideSearch,
-          backIcon: _buildBackIcon(),
-          placeholder: widget.searchPlaceholder,
-          showBackButton: widget.showBackButton,
-          searchBoxIcon: widget.searchBoxIcon,
-          onSearch: (keyword) => usersBloc.add(SearchUsers(keyword)),
-          hideAppBar: widget.hideAppbar,
-          searchText: widget.searchKeyword,
-          searchPadding: EdgeInsets.symmetric(
-            horizontal: spacing.padding4 ?? 0,
-            vertical: spacing.padding3 ?? 0,
-          ),
-          searchContentPadding: EdgeInsets.symmetric(
-            horizontal: spacing.padding3 ?? 0,
-            vertical: spacing.padding2 ?? 0,
-          ),
-          searchBoxHeight: 40,
-          menuOptions: [
-            if (widget.appBarOptions != null) ...widget.appBarOptions!(context),
-            _getSelectionWidget(),
-          ],
-          onBack: widget.onBack,
-          style: _buildListBaseStyle(),
-          container: UsersList(
-            usersBloc: usersBloc,
-            style: style,
-            colorPalette: colorPalette,
-            spacing: spacing,
-            typography: typography,
-            scrollController: widget.scrollController,
-            loadingStateView: widget.loadingStateView,
-            emptyStateView: widget.emptyStateView,
-            errorStateView: widget.errorStateView,
-            listItemView: widget.listItemView,
-            subtitleView: widget.subtitleView,
-            trailingView: widget.trailingView,
-            leadingView: widget.leadingView,
-            titleView: widget.titleView,
-            usersStatusVisibility: widget.usersStatusVisibility,
-            selectionMode: widget.selectionMode,
-            activateSelection: widget.activateSelection,
-            onItemTap: widget.onItemTap,
-            onItemLongPress: widget.onItemLongPress,
-            stickyHeaderVisibility: widget.stickyHeaderVisibility,
-            avatarStyle: avatarStyle,
-            statusIndicatorStyle: statusIndicatorStyle,
+            titleView: _buildTitleView(),
+            titleSpacing: widget.showBackButton ? 0 : 16,
+            hideSearch: widget.hideSearch,
+            backIcon: _buildBackIcon(),
+            placeholder: widget.searchPlaceholder,
+            showBackButton: widget.showBackButton,
+            searchBoxIcon: widget.searchBoxIcon,
+            onSearch: (keyword) => usersBloc.add(SearchUsers(keyword)),
+            hideAppBar: widget.hideAppbar,
+            searchText: widget.searchKeyword,
+            searchPadding: EdgeInsets.symmetric(
+              horizontal: spacing.padding4 ?? 0,
+              vertical: spacing.padding3 ?? 0,
+            ),
+            searchContentPadding: EdgeInsets.symmetric(
+              horizontal: spacing.padding3 ?? 0,
+              vertical: spacing.padding2 ?? 0,
+            ),
+            searchBoxHeight: 40,
+            menuOptions: [
+              if (widget.appBarOptions != null)
+                ...widget.appBarOptions!(context),
+              _getSelectionWidget(),
+            ],
+            onBack: widget.onBack,
+            style: _buildListBaseStyle(),
+            container: UsersList(
+              usersBloc: usersBloc,
+              style: style,
+              colorPalette: colorPalette,
+              spacing: spacing,
+              typography: typography,
+              scrollController: widget.scrollController,
+              loadingStateView: widget.loadingStateView,
+              emptyStateView: widget.emptyStateView,
+              errorStateView: widget.errorStateView,
+              listItemView: widget.listItemView,
+              subtitleView: widget.subtitleView,
+              trailingView: widget.trailingView,
+              leadingView: widget.leadingView,
+              titleView: widget.titleView,
+              usersStatusVisibility: widget.usersStatusVisibility,
+              selectionMode: widget.selectionMode,
+              activateSelection: widget.activateSelection,
+              onItemTap: widget.onItemTap,
+              onItemLongPress: widget.onItemLongPress,
+              stickyHeaderVisibility: widget.stickyHeaderVisibility,
+              avatarStyle: avatarStyle,
+              statusIndicatorStyle: statusIndicatorStyle,
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -238,8 +237,9 @@ class _CometChatUsersState extends State<CometChatUsers>
     return BlocBuilder<UsersBloc, UsersState>(
       bloc: usersBloc,
       builder: (context, state) {
-        final selectedCount =
-            state is UsersLoaded ? state.selectedUsers.length : 0;
+        final selectedCount = state is UsersLoaded
+            ? state.selectedUsers.length
+            : 0;
         return Text(
           selectedCount > 0
               ? "$selectedCount"
@@ -264,15 +264,23 @@ class _CometChatUsersState extends State<CometChatUsers>
         return hasSelection
             ? IconButton(
                 onPressed: () => usersBloc.add(const ClearUserSelection()),
-                icon: Icon(Icons.clear, color: colorPalette.iconPrimary, size: 24),
+                icon: Icon(
+                  Icons.clear,
+                  color: colorPalette.iconPrimary,
+                  size: 24,
+                ),
                 padding: EdgeInsets.zero,
               )
             : (widget.backButton ??
-                IconButton(
-                  onPressed: widget.onBack,
-                  icon: Icon(Icons.arrow_back, color: colorPalette.iconPrimary, size: 24),
-                  padding: EdgeInsets.zero,
-                ));
+                  IconButton(
+                    onPressed: widget.onBack,
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: colorPalette.iconPrimary,
+                      size: 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                  ));
       },
     );
   }
@@ -308,10 +316,14 @@ class _CometChatUsersState extends State<CometChatUsers>
           style.searchBackgroundColor ?? colorPalette.background3,
       borderSide: style.searchBorder,
       searchTextFieldRadius:
-          style.searchBorderRadius ?? BorderRadius.circular(spacing.radiusMax ?? 0),
+          style.searchBorderRadius ??
+          BorderRadius.circular(spacing.radiusMax ?? 0),
       appBarShape: Border(
         bottom: BorderSide(
-          color: style.separatorColor ?? colorPalette.borderLight ?? Colors.transparent,
+          color:
+              style.separatorColor ??
+              colorPalette.borderLight ??
+              Colors.transparent,
           width: style.separatorHeight ?? 1,
         ),
       ),
@@ -326,12 +338,18 @@ class _CometChatUsersState extends State<CometChatUsers>
           return IconButton(
             onPressed: () {
               final selectedIds = state.selectedUsers;
-              final selectedUsers =
-                  state.users.where((u) => selectedIds.contains(u.uid)).toList();
+              final selectedUsers = state.users
+                  .where((u) => selectedIds.contains(u.uid))
+                  .toList();
               widget.onSelection?.call(selectedUsers, context);
             },
-            icon: widget.submitIcon ??
-                Icon(Icons.check, color: style.submitIconColor ?? colorPalette.iconPrimary, size: 24),
+            icon:
+                widget.submitIcon ??
+                Icon(
+                  Icons.check,
+                  color: style.submitIconColor ?? colorPalette.iconPrimary,
+                  size: 24,
+                ),
           );
         }
         return const SizedBox.shrink();

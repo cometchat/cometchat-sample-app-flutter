@@ -1,4 +1,4 @@
-library cometchat_chat_uikit;
+library;
 
 export 'chat_ui/src/conversations/cometchat_conversations_style.dart';
 
@@ -41,10 +41,8 @@ export 'chat_ui/src/message_header/cometchat_message_header_style.dart';
 export 'chat_ui/src/conversations/cometchat_conversations.dart';
 export 'chat_ui/src/conversations/conversations_builder_protocol.dart';
 // Hide names that conflict with message_list module
-export 'chat_ui/src/conversations/bloc/bloc.dart' hide
-SetActiveConversation,
-MarkAsDeliveredUseCase,
-GetLoggedInUserUseCase;
+export 'chat_ui/src/conversations/bloc/bloc.dart'
+    hide SetActiveConversation, MarkAsDeliveredUseCase, GetLoggedInUserUseCase;
 export 'chat_ui/src/conversations/widgets/widgets.dart';
 
 //Shared utilities
@@ -60,9 +58,8 @@ export 'chat_ui/src/message_list/bloc/bloc.dart';
 // DI exports
 export 'chat_ui/src/message_list/di/di.dart';
 // Domain exports (hide names that conflict with other modules)
-export 'chat_ui/src/message_list/domain/domain.dart' hide
-GetLoggedInUserUseCase,
-MarkAsDeliveredUseCase;
+export 'chat_ui/src/message_list/domain/domain.dart'
+    hide GetLoggedInUserUseCase, MarkAsDeliveredUseCase;
 // Data exports
 export 'chat_ui/src/message_list/data/data.dart';
 // Utils exports
@@ -99,7 +96,7 @@ export 'shared_ui/cometchat_uikit_shared.dart';
 //Message information
 export 'chat_ui/src/message_information/message_information.dart';
 
-export 'package:cometchat_sdk/cometchat_sdk.dart';
+export 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 export 'package:cometchat_sdk/handlers/call_listener.dart';
 
 /// Ai features
@@ -112,9 +109,8 @@ export 'chat_ui/src/ai_assistant_chat_history/cometchat_uikit_chat_ai_features.d
 export 'chat_ui/src/ai_assistant_chat_history/widgets/widgets.dart';
 export 'chat_ui/src/ai_assistant_chat_history/bloc/bloc.dart';
 export 'chat_ui/src/ai_assistant_chat_history/di/di.dart';
-export 'chat_ui/src/ai_assistant_chat_history/domain/domain.dart' hide
-    GetLoggedInUserUseCase;
-
+export 'chat_ui/src/ai_assistant_chat_history/domain/domain.dart'
+    hide GetLoggedInUserUseCase;
 
 // Rich Text Formatting
 export 'chat_ui/src/message_composer/widgets/rich_text_toolbar/rich_text_toolbar.dart';
@@ -124,7 +120,8 @@ export 'chat_ui/src/search/search.dart';
 
 // Notification Feed
 export 'chat_ui/src/notification_feed/cometchat_notification_feed_style.dart';
-export 'chat_ui/src/notification_feed/bloc/bloc.dart' hide GetUnreadCountUseCase;
+export 'chat_ui/src/notification_feed/bloc/bloc.dart'
+    hide GetUnreadCountUseCase;
 export 'chat_ui/src/notification_feed/di/di.dart';
 export 'chat_ui/src/notification_feed/widgets/widgets.dart';
 export 'chat_ui/src/notification_feed/utils/utils.dart';

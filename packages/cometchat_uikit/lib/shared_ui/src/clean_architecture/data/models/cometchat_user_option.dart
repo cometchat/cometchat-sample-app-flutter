@@ -1,6 +1,6 @@
 // import 'package:flutter/material.dart';
 //
-// import "package:cometchat_sdk/cometchat_sdk.dart";
+// import "package:cometchat_sdk/cometchat_sdk.dart" hide CardMessage;
 //
 // class CometChatUserOption extends CometChatOptions {
 //   ///[onClick] call function which takes 2 parameters

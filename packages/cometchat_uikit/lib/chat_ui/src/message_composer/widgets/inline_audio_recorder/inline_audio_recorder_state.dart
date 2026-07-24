@@ -4,14 +4,19 @@ import 'package:equatable/equatable.dart';
 enum InlineAudioRecorderStatus {
   /// Initial state - not recording
   idle,
+
   /// Currently recording audio
   recording,
+
   /// Recording is paused
   paused,
+
   /// Recording is complete and ready to send/preview
   completed,
+
   /// Playing back the recorded audio
   playing,
+
   /// Error state
   error,
 }
@@ -24,6 +29,7 @@ class InlineAudioRecorderState extends Equatable {
   final String? filePath;
   final String? errorMessage;
   final List<double> amplitudes;
+
   /// Waveform amplitudes extracted from the recorded audio file
   /// Used for accurate playback visualization
   final List<double> extractedWaveform;
@@ -57,12 +63,11 @@ class InlineAudioRecorderState extends Equatable {
   bool get isIdle => status == InlineAudioRecorderStatus.idle;
 
   /// Whether there is a recording available (completed or paused with duration)
-  bool get hasRecording => 
-      (isCompleted || isPaused || isPlaying) && 
-      duration > Duration.zero;
+  bool get hasRecording =>
+      (isCompleted || isPaused || isPlaying) && duration > Duration.zero;
 
   /// Whether the recorder is actively recording or paused mid-recording
-  bool get isInRecordingSession => 
+  bool get isInRecordingSession =>
       isRecording || (isPaused && duration > Duration.zero && !isCompleted);
 
   InlineAudioRecorderState copyWith({
@@ -87,12 +92,12 @@ class InlineAudioRecorderState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        duration,
-        currentPosition,
-        filePath,
-        errorMessage,
-        amplitudes,
-        extractedWaveform,
-      ];
+    status,
+    duration,
+    currentPosition,
+    filePath,
+    errorMessage,
+    amplitudes,
+    extractedWaveform,
+  ];
 }

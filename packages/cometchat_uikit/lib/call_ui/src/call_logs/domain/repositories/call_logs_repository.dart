@@ -1,5 +1,5 @@
 import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 
@@ -15,9 +15,7 @@ abstract class CallLogsRepository {
   ///
   /// Returns [Result<List<CallLog>>] containing the list of call logs on success,
   /// or a [Failure] with error details on failure.
-  Future<Result<List<CallLog>>> getCallLogs({
-    int limit = 30,
-  });
+  Future<Result<List<CallLog>>> getCallLogs({int limit = 30});
 
   /// Gets the currently logged-in user.
   ///

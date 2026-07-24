@@ -1,5 +1,5 @@
-
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+
 ///[MessageReceiptUtils] is a utility class to determine receipt status
 class MessageReceiptUtils {
   static ReceiptStatus getReceiptStatus(BaseMessage message) {
@@ -21,7 +21,7 @@ class MessageReceiptUtils {
     if (message.metadata != null &&
         message.metadata!.containsKey("error") &&
         (message.metadata?["error"] is Exception ||
-         message.metadata?["error"] is String)) {
+            message.metadata?["error"] is String)) {
       receiptStatus = ReceiptStatus.error;
     } else if (message.readAt != null) {
       receiptStatus = ReceiptStatus.read;

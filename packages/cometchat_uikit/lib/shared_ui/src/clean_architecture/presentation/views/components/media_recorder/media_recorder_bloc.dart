@@ -80,7 +80,8 @@ abstract class MediaRecorderState extends Equatable {
   bool get isPaused => this is MediaRecorderPaused;
   bool get isCompleted => this is MediaRecorderCompleted;
   bool get hasError => this is MediaRecorderError;
-  bool get canRecord => this is MediaRecorderReady || this is MediaRecorderCompleted;
+  bool get canRecord =>
+      this is MediaRecorderReady || this is MediaRecorderCompleted;
 
   @override
   List<Object?> get props => [duration, amplitudes, filePath, error];
@@ -126,9 +127,7 @@ class MediaRecorderCompleted extends MediaRecorderState {
 }
 
 class MediaRecorderError extends MediaRecorderState {
-  const MediaRecorderError({
-    required super.error,
-  });
+  const MediaRecorderError({required super.error});
 }
 
 // BLoC
@@ -159,10 +158,7 @@ class MediaRecorderBloc extends Bloc<MediaRecorderEvent, MediaRecorderState> {
     StartRecordingEvent event,
     Emitter<MediaRecorderState> emit,
   ) {
-    emit(const MediaRecorderRecording(
-      duration: Duration.zero,
-      amplitudes: [],
-    ));
+    emit(const MediaRecorderRecording(duration: Duration.zero, amplitudes: []));
 
     // Start timer
     _startTimer();
@@ -177,10 +173,12 @@ class MediaRecorderBloc extends Bloc<MediaRecorderEvent, MediaRecorderState> {
 
     // Emit completed state with file path
     // File path should be provided by the actual recording service
-    emit(MediaRecorderCompleted(
-      duration: state.duration,
-      filePath: null, // Will be set by the recording service
-    ));
+    emit(
+      MediaRecorderCompleted(
+        duration: state.duration,
+        filePath: null, // Will be set by the recording service
+      ),
+    );
   }
 
   void _onPauseRecording(
@@ -190,10 +188,12 @@ class MediaRecorderBloc extends Bloc<MediaRecorderEvent, MediaRecorderState> {
     _stopTimer();
 
     if (state is MediaRecorderRecording) {
-      emit(MediaRecorderPaused(
-        duration: state.duration,
-        amplitudes: state.amplitudes,
-      ));
+      emit(
+        MediaRecorderPaused(
+          duration: state.duration,
+          amplitudes: state.amplitudes,
+        ),
+      );
     }
   }
 
@@ -202,10 +202,12 @@ class MediaRecorderBloc extends Bloc<MediaRecorderEvent, MediaRecorderState> {
     Emitter<MediaRecorderState> emit,
   ) {
     if (state is MediaRecorderPaused) {
-      emit(MediaRecorderRecording(
-        duration: state.duration,
-        amplitudes: state.amplitudes,
-      ));
+      emit(
+        MediaRecorderRecording(
+          duration: state.duration,
+          amplitudes: state.amplitudes,
+        ),
+      );
       _startTimer();
     }
   }

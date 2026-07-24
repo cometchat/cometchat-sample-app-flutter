@@ -259,6 +259,7 @@ void main() {
       // They may or may not be equal depending on CallLog equality
       // but the props list includes callLogs
       expect(state1.props.contains(state1.callLogs), isTrue);
+      expect(state2.props.contains(state2.callLogs), isTrue);
     });
 
     test('two states with different errorMessage are not equal', () {

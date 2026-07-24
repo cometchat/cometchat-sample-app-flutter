@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Exception thrown when local data source operations fail.
 class MessageListLocalDataSourceException implements Exception {
@@ -31,7 +31,10 @@ class MessageListLocalDataSourceImpl implements MessageListLocalDataSource {
   final Map<String, Map<int, BaseMessage>> _cache = {};
 
   @override
-  Future<void> cacheMessages(String conversationId, List<BaseMessage> messages) async {
+  Future<void> cacheMessages(
+    String conversationId,
+    List<BaseMessage> messages,
+  ) async {
     try {
       _cache[conversationId] ??= {};
       for (final message in messages) {
@@ -79,7 +82,10 @@ class MessageListLocalDataSourceImpl implements MessageListLocalDataSource {
   }
 
   @override
-  Future<BaseMessage?> getCachedMessage(String conversationId, int messageId) async {
+  Future<BaseMessage?> getCachedMessage(
+    String conversationId,
+    int messageId,
+  ) async {
     try {
       return _cache[conversationId]?[messageId];
     } catch (e) {

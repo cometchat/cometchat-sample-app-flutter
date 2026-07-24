@@ -34,10 +34,10 @@ class FakeUser extends Fake implements User {
     String name = 'Test User',
     bool blockedByMe = false,
     bool hasBlockedMe = false,
-  })  : _uid = uid,
-        _name = name,
-        _blockedByMe = blockedByMe,
-        _hasBlockedMe = hasBlockedMe;
+  }) : _uid = uid,
+       _name = name,
+       _blockedByMe = blockedByMe,
+       _hasBlockedMe = hasBlockedMe;
 
   @override
   String get uid => _uid;
@@ -54,8 +54,8 @@ class FakeGroup extends Fake implements Group {
   final String _name;
 
   FakeGroup({String guid = 'test_group', String name = 'Test Group'})
-      : _guid = guid,
-        _name = name;
+    : _guid = guid,
+      _name = name;
 
   @override
   String get guid => _guid;
@@ -74,10 +74,10 @@ class FakeTextMessage extends Fake implements TextMessage {
     String text = 'Hello',
     String muid = 'muid_1',
     int parentMessageId = 0,
-  })  : _id = id,
-        _text = text,
-        _muid = muid,
-        _parentMessageId = parentMessageId;
+  }) : _id = id,
+       _text = text,
+       _muid = muid,
+       _parentMessageId = parentMessageId;
 
   @override
   int get id => _id;
@@ -209,16 +209,21 @@ void main() {
 
   setUp(() {
     repo = MockMessageComposerRepository();
-    when(() => repo.getLoggedInUser())
-        .thenAnswer((_) async => Success(FakeUser()));
-    when(() => repo.startTyping(
-          receiverUid: any(named: 'receiverUid'),
-          receiverType: any(named: 'receiverType'),
-        )).thenAnswer((_) async => const Success(null));
-    when(() => repo.endTyping(
-          receiverUid: any(named: 'receiverUid'),
-          receiverType: any(named: 'receiverType'),
-        )).thenAnswer((_) async => const Success(null));
+    when(
+      () => repo.getLoggedInUser(),
+    ).thenAnswer((_) async => Success(FakeUser()));
+    when(
+      () => repo.startTyping(
+        receiverUid: any(named: 'receiverUid'),
+        receiverType: any(named: 'receiverType'),
+      ),
+    ).thenAnswer((_) async => const Success(null));
+    when(
+      () => repo.endTyping(
+        receiverUid: any(named: 'receiverUid'),
+        receiverType: any(named: 'receiverType'),
+      ),
+    ).thenAnswer((_) async => const Success(null));
   });
 
   // =========================================================================
@@ -232,10 +237,12 @@ void main() {
       act: (bloc) => bloc.add(const StartTyping()),
       wait: const Duration(milliseconds: 100),
       verify: (bloc) {
-        verify(() => repo.startTyping(
-              receiverUid: any(named: 'receiverUid'),
-              receiverType: any(named: 'receiverType'),
-            )).called(1);
+        verify(
+          () => repo.startTyping(
+            receiverUid: any(named: 'receiverUid'),
+            receiverType: any(named: 'receiverType'),
+          ),
+        ).called(1);
       },
     );
 
@@ -245,10 +252,12 @@ void main() {
       act: (bloc) => bloc.add(const StartTyping()),
       wait: const Duration(milliseconds: 100),
       verify: (bloc) {
-        verifyNever(() => repo.startTyping(
-              receiverUid: any(named: 'receiverUid'),
-              receiverType: any(named: 'receiverType'),
-            ));
+        verifyNever(
+          () => repo.startTyping(
+            receiverUid: any(named: 'receiverUid'),
+            receiverType: any(named: 'receiverType'),
+          ),
+        );
       },
     );
 
@@ -262,10 +271,12 @@ void main() {
       act: (bloc) => bloc.add(const StartTyping()),
       wait: const Duration(milliseconds: 100),
       verify: (bloc) {
-        verifyNever(() => repo.startTyping(
-              receiverUid: any(named: 'receiverUid'),
-              receiverType: any(named: 'receiverType'),
-            ));
+        verifyNever(
+          () => repo.startTyping(
+            receiverUid: any(named: 'receiverUid'),
+            receiverType: any(named: 'receiverType'),
+          ),
+        );
       },
     );
 
@@ -279,10 +290,12 @@ void main() {
       },
       wait: const Duration(milliseconds: 100),
       verify: (bloc) {
-        verify(() => repo.endTyping(
-              receiverUid: any(named: 'receiverUid'),
-              receiverType: any(named: 'receiverType'),
-            )).called(1);
+        verify(
+          () => repo.endTyping(
+            receiverUid: any(named: 'receiverUid'),
+            receiverType: any(named: 'receiverType'),
+          ),
+        ).called(1);
       },
     );
 
@@ -292,10 +305,12 @@ void main() {
       act: (bloc) => bloc.add(const EndTyping()),
       wait: const Duration(milliseconds: 100),
       verify: (bloc) {
-        verifyNever(() => repo.endTyping(
-              receiverUid: any(named: 'receiverUid'),
-              receiverType: any(named: 'receiverType'),
-            ));
+        verifyNever(
+          () => repo.endTyping(
+            receiverUid: any(named: 'receiverUid'),
+            receiverType: any(named: 'receiverType'),
+          ),
+        );
       },
     );
 
@@ -330,8 +345,9 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'SendTextMessage transitions to sending then success',
       build: () {
-        when(() => repo.sendTextMessage(any()))
-            .thenAnswer((_) async => Success(FakeTextMessage(text: 'Hello')));
+        when(
+          () => repo.sendTextMessage(any()),
+        ).thenAnswer((_) async => Success(FakeTextMessage(text: 'Hello')));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -360,7 +376,8 @@ void main() {
       'SendTextMessage failure emits error status',
       build: () {
         when(() => repo.sendTextMessage(any())).thenAnswer(
-            (_) async => const Failure(message: 'Send failed', code: 'ERR'));
+          (_) async => const Failure(message: 'Send failed', code: 'ERR'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -378,8 +395,9 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'SendTextMessage clears reply message after sending',
       build: () {
-        when(() => repo.sendTextMessage(any()))
-            .thenAnswer((_) async => Success(FakeTextMessage(text: 'Reply')));
+        when(
+          () => repo.sendTextMessage(any()),
+        ).thenAnswer((_) async => Success(FakeTextMessage(text: 'Reply')));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -399,8 +417,9 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'SendTextMessage with metadata passes metadata to message',
       build: () {
-        when(() => repo.sendTextMessage(any()))
-            .thenAnswer((_) async => Success(FakeTextMessage(text: 'Hi')));
+        when(
+          () => repo.sendTextMessage(any()),
+        ).thenAnswer((_) async => Success(FakeTextMessage(text: 'Hi')));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -423,14 +442,14 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'SendMediaMessage transitions to sending then success',
       build: () {
-        when(() => repo.sendMediaMessage(any()))
-            .thenAnswer((_) async => Success(FakeMediaMessage()));
+        when(
+          () => repo.sendMediaMessage(any()),
+        ).thenAnswer((_) async => Success(FakeMediaMessage()));
         return _makeBloc(repo);
       },
-      act: (bloc) => bloc.add(const SendMediaMessage(
-        path: '/tmp/image.jpg',
-        messageType: 'image',
-      )),
+      act: (bloc) => bloc.add(
+        const SendMediaMessage(path: '/tmp/image.jpg', messageType: 'image'),
+      ),
       wait: const Duration(milliseconds: 200),
       verify: (bloc) {
         expect(bloc.state.status, MessageComposerStatus.success);
@@ -442,13 +461,13 @@ void main() {
       'SendMediaMessage failure emits error status',
       build: () {
         when(() => repo.sendMediaMessage(any())).thenAnswer(
-            (_) async => const Failure(message: 'Upload failed', code: 'UPL'));
+          (_) async => const Failure(message: 'Upload failed', code: 'UPL'),
+        );
         return _makeBloc(repo);
       },
-      act: (bloc) => bloc.add(const SendMediaMessage(
-        path: '/tmp/video.mp4',
-        messageType: 'video',
-      )),
+      act: (bloc) => bloc.add(
+        const SendMediaMessage(path: '/tmp/video.mp4', messageType: 'video'),
+      ),
       wait: const Duration(milliseconds: 200),
       verify: (bloc) {
         expect(bloc.state.status, MessageComposerStatus.error);
@@ -459,17 +478,17 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'SendMediaMessage clears reply message',
       build: () {
-        when(() => repo.sendMediaMessage(any()))
-            .thenAnswer((_) async => Success(FakeMediaMessage()));
+        when(
+          () => repo.sendMediaMessage(any()),
+        ).thenAnswer((_) async => Success(FakeMediaMessage()));
         return _makeBloc(repo);
       },
       act: (bloc) async {
         bloc.add(SetReplyMessage(FakeTextMessage(text: 'Original')));
         await Future.delayed(const Duration(milliseconds: 50));
-        bloc.add(const SendMediaMessage(
-          path: '/tmp/audio.m4a',
-          messageType: 'audio',
-        ));
+        bloc.add(
+          const SendMediaMessage(path: '/tmp/audio.m4a', messageType: 'audio'),
+        );
       },
       wait: const Duration(milliseconds: 200),
       verify: (bloc) {
@@ -486,14 +505,17 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'SendCustomMessage transitions to sending then success',
       build: () {
-        when(() => repo.sendCustomMessage(any()))
-            .thenAnswer((_) async => Success(FakeCustomMessage()));
+        when(
+          () => repo.sendCustomMessage(any()),
+        ).thenAnswer((_) async => Success(FakeCustomMessage()));
         return _makeBloc(repo);
       },
-      act: (bloc) => bloc.add(const SendCustomMessage(
-        customData: {'location': '37.7749,-122.4194'},
-        type: 'location',
-      )),
+      act: (bloc) => bloc.add(
+        const SendCustomMessage(
+          customData: {'location': '37.7749,-122.4194'},
+          type: 'location',
+        ),
+      ),
       wait: const Duration(milliseconds: 200),
       verify: (bloc) {
         expect(bloc.state.status, MessageComposerStatus.success);
@@ -505,13 +527,16 @@ void main() {
       'SendCustomMessage failure emits error',
       build: () {
         when(() => repo.sendCustomMessage(any())).thenAnswer(
-            (_) async => const Failure(message: 'Custom failed', code: 'CUST'));
+          (_) async => const Failure(message: 'Custom failed', code: 'CUST'),
+        );
         return _makeBloc(repo);
       },
-      act: (bloc) => bloc.add(const SendCustomMessage(
-        customData: {'data': 'test'},
-        type: 'custom_type',
-      )),
+      act: (bloc) => bloc.add(
+        const SendCustomMessage(
+          customData: {'data': 'test'},
+          type: 'custom_type',
+        ),
+      ),
       wait: const Duration(milliseconds: 200),
       verify: (bloc) {
         expect(bloc.state.status, MessageComposerStatus.error);
@@ -552,8 +577,9 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'EditTextMessage sends edited message and clears edit state',
       build: () {
-        when(() => repo.editMessage(any()))
-            .thenAnswer((_) async => Success(FakeTextMessage(text: 'Edited')));
+        when(
+          () => repo.editMessage(any()),
+        ).thenAnswer((_) async => Success(FakeTextMessage(text: 'Edited')));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -590,7 +616,8 @@ void main() {
       'EditTextMessage failure emits error',
       build: () {
         when(() => repo.editMessage(any())).thenAnswer(
-            (_) async => const Failure(message: 'Edit failed', code: 'EDIT'));
+          (_) async => const Failure(message: 'Edit failed', code: 'EDIT'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -667,8 +694,9 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'SubmitAudioRecording sends media message and returns to idle',
       build: () {
-        when(() => repo.sendMediaMessage(any()))
-            .thenAnswer((_) async => Success(FakeMediaMessage()));
+        when(
+          () => repo.sendMediaMessage(any()),
+        ).thenAnswer((_) async => Success(FakeMediaMessage()));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -705,10 +733,12 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'ComposeMessageReceived with matching id updates text',
       build: () => _makeBloc(repo),
-      act: (bloc) => bloc.add(const ComposeMessageReceived(
-        text: 'External text',
-        id: {'uid': 'test_user'},
-      )),
+      act: (bloc) => bloc.add(
+        const ComposeMessageReceived(
+          text: 'External text',
+          id: {'uid': 'test_user'},
+        ),
+      ),
       verify: (bloc) {
         expect(bloc.state.composeText, 'External text');
       },
@@ -720,10 +750,12 @@ void main() {
       act: (bloc) async {
         bloc.add(const UpdateComposeText('Original'));
         await Future.delayed(const Duration(milliseconds: 50));
-        bloc.add(const ComposeMessageReceived(
-          text: 'Should be ignored',
-          id: {'uid': 'different_user'},
-        ));
+        bloc.add(
+          const ComposeMessageReceived(
+            text: 'Should be ignored',
+            id: {'uid': 'different_user'},
+          ),
+        );
       },
       verify: (bloc) {
         // The text should remain 'Original' since the id doesn't match

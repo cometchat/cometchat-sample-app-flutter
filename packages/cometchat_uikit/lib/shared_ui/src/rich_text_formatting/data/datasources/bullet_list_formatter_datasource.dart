@@ -51,7 +51,8 @@ class BulletListFormatterDataSource implements FormatterDataSource {
       // Check if already a bullet list item
       if (currentLine.startsWith(openingMarker)) {
         // Remove bullet marker (toggle off)
-        final newText = text.substring(0, lineStart) +
+        final newText =
+            text.substring(0, lineStart) +
             currentLine.substring(openingMarker.length) +
             text.substring(lineEnd);
 
@@ -64,7 +65,8 @@ class BulletListFormatterDataSource implements FormatterDataSource {
         );
       } else {
         // Add bullet marker at start of line
-        final newText = text.substring(0, lineStart) +
+        final newText =
+            text.substring(0, lineStart) +
             openingMarker +
             text.substring(lineStart);
 
@@ -83,13 +85,17 @@ class BulletListFormatterDataSource implements FormatterDataSource {
       final selectionEndLine = _getLineNumber(text, selection.end);
 
       for (int i = selectionStartLine; i <= selectionEndLine; i++) {
-        if (i < lines.length && lines[i].isNotEmpty && !lines[i].startsWith(openingMarker)) {
+        if (i < lines.length &&
+            lines[i].isNotEmpty &&
+            !lines[i].startsWith(openingMarker)) {
           lines[i] = '$openingMarker${lines[i]}';
         }
       }
 
       final newText = lines.join('\n');
-      final newCursorPos = selection.end + (openingMarker.length * (selectionEndLine - selectionStartLine + 1));
+      final newCursorPos =
+          selection.end +
+          (openingMarker.length * (selectionEndLine - selectionStartLine + 1));
 
       return FormatterResult(
         newText: newText,
@@ -125,9 +131,7 @@ class BulletListFormatterDataSource implements FormatterDataSource {
         AttributedTextData(
           start: match.start,
           end: match.end,
-          attributes: {
-            'bulletList': true,
-          },
+          attributes: {'bulletList': true},
         ),
       );
     }
@@ -164,8 +168,7 @@ class BulletListFormatterDataSource implements FormatterDataSource {
 
     if (lineContent.isEmpty) {
       // Empty list item - exit the list
-      final newText = text.substring(0, lineStart) +
-          text.substring(lineEnd);
+      final newText = text.substring(0, lineStart) + text.substring(lineEnd);
 
       final newCursorPos = lineStart;
 
@@ -176,9 +179,8 @@ class BulletListFormatterDataSource implements FormatterDataSource {
       );
     } else {
       // Non-empty list item - create new bullet
-      final newText = text.substring(0, position) +
-          '\n$openingMarker' +
-          text.substring(position);
+      final newText =
+          '${text.substring(0, position)}\n$openingMarker${text.substring(position)}';
 
       final newCursorPos = position + 1 + openingMarker.length;
 

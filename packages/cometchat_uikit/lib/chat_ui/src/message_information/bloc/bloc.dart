@@ -2,6 +2,7 @@
 ///
 /// Exports the BLoC, events, and state classes for the message information,
 /// along with re-exports of domain, data, and DI layers for convenient access.
+library;
 
 // BLoC exports
 export 'message_information_bloc.dart';

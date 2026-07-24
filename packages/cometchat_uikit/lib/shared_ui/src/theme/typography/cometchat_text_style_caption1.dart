@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 
 ///[CometChatTextStyleCaption1] is a class that gives the styling to the text displayed in the caption
-class CometChatTextStyleCaption1 extends ThemeExtension<CometChatTextStyleCaption1> {
-
-  const CometChatTextStyleCaption1({
-    this.bold,
-    this.medium,
-    this.regular
-  });
+class CometChatTextStyleCaption1
+    extends ThemeExtension<CometChatTextStyleCaption1> {
+  const CometChatTextStyleCaption1({this.bold, this.medium, this.regular});
 
   ///[bold] defines the styling for the text with FontWeight.w700.
   final TextStyle? bold;
+
   ///[medium] defines the styling for the text with FontWeight.w500.
   final TextStyle? medium;
+
   ///[regular] defines the styling for the text with FontWeight.w400.
   final TextStyle? regular;
-
 
   @override
   CometChatTextStyleCaption1 copyWith({
@@ -31,7 +28,10 @@ class CometChatTextStyleCaption1 extends ThemeExtension<CometChatTextStyleCaptio
   }
 
   @override
-  CometChatTextStyleCaption1 lerp(covariant ThemeExtension<CometChatTextStyleCaption1>? other, double t) {
+  CometChatTextStyleCaption1 lerp(
+    covariant ThemeExtension<CometChatTextStyleCaption1>? other,
+    double t,
+  ) {
     if (other is! CometChatTextStyleCaption1) {
       return this;
     }
@@ -42,24 +42,15 @@ class CometChatTextStyleCaption1 extends ThemeExtension<CometChatTextStyleCaptio
     );
   }
 
-  static CometChatTextStyleCaption1 of(BuildContext context) => CometChatTextStyleCaption1(
-      bold: _ccTextStyle(context).copyWith(
-        fontWeight: FontWeight.w700,
-      ),
-      medium: _ccTextStyle(context).copyWith(
-        fontWeight: FontWeight.w500,
-      ),
-      regular: _ccTextStyle(context).copyWith(
-        fontWeight: FontWeight.w400,
-      )
-  );
+  static CometChatTextStyleCaption1 of(BuildContext context) =>
+      CometChatTextStyleCaption1(
+        bold: _ccTextStyle(context).copyWith(fontWeight: FontWeight.w700),
+        medium: _ccTextStyle(context).copyWith(fontWeight: FontWeight.w500),
+        regular: _ccTextStyle(context).copyWith(fontWeight: FontWeight.w400),
+      );
 
   static TextStyle _ccTextStyle(BuildContext context) {
-
-    return const TextStyle(
-      fontSize: 12,
-      fontWeight: FontWeight.w700,
-    );
+    return const TextStyle(fontSize: 12, fontWeight: FontWeight.w700);
   }
 
   CometChatTextStyleCaption1 merge(CometChatTextStyleCaption1? other) {
@@ -70,6 +61,4 @@ class CometChatTextStyleCaption1 extends ThemeExtension<CometChatTextStyleCaptio
       regular: regular?.merge(other.regular),
     );
   }
-
-
 }

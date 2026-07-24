@@ -65,10 +65,14 @@ class CometChatCallButtonsStyle
       videoCallIconColor: videoCallIconColor ?? this.videoCallIconColor,
       voiceCallButtonColor: voiceCallButtonColor ?? this.voiceCallButtonColor,
       videoCallButtonColor: videoCallButtonColor ?? this.videoCallButtonColor,
-      voiceCallButtonBorder: voiceCallButtonBorder ?? this.voiceCallButtonBorder,
-      videoCallButtonBorder: videoCallButtonBorder ?? this.videoCallButtonBorder,
-      videoCallButtonBorderRadius: videoCallButtonBorderRadius ?? this.videoCallButtonBorderRadius,
-      voiceCallButtonBorderRadius: voiceCallButtonBorderRadius ?? this.voiceCallButtonBorderRadius,
+      voiceCallButtonBorder:
+          voiceCallButtonBorder ?? this.voiceCallButtonBorder,
+      videoCallButtonBorder:
+          videoCallButtonBorder ?? this.videoCallButtonBorder,
+      videoCallButtonBorderRadius:
+          videoCallButtonBorderRadius ?? this.videoCallButtonBorderRadius,
+      voiceCallButtonBorderRadius:
+          voiceCallButtonBorderRadius ?? this.voiceCallButtonBorderRadius,
     );
   }
 
@@ -88,27 +92,53 @@ class CometChatCallButtonsStyle
 
   @override
   CometChatCallButtonsStyle lerp(
-      ThemeExtension<CometChatCallButtonsStyle>? other, double t) {
+    ThemeExtension<CometChatCallButtonsStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatCallButtonsStyle) {
       return this;
     }
     return CometChatCallButtonsStyle(
-      voiceCallIconColor:
-          Color.lerp(voiceCallIconColor, other.voiceCallIconColor, t),
-      videoCallIconColor:
-          Color.lerp(videoCallIconColor, other.videoCallIconColor, t),
-      voiceCallButtonColor:
-          Color.lerp(voiceCallButtonColor, other.voiceCallButtonColor, t),
-      videoCallButtonColor:
-          Color.lerp(videoCallButtonColor, other.videoCallButtonColor, t),
-      voiceCallButtonBorder:
-        BorderSide.lerp(voiceCallButtonBorder ?? BorderSide.none, other.voiceCallButtonBorder ?? BorderSide.none , t),
-      videoCallButtonBorder:
-        BorderSide.lerp(videoCallButtonBorder ?? BorderSide.none , other.videoCallButtonBorder ?? BorderSide.none, t),
+      voiceCallIconColor: Color.lerp(
+        voiceCallIconColor,
+        other.voiceCallIconColor,
+        t,
+      ),
+      videoCallIconColor: Color.lerp(
+        videoCallIconColor,
+        other.videoCallIconColor,
+        t,
+      ),
+      voiceCallButtonColor: Color.lerp(
+        voiceCallButtonColor,
+        other.voiceCallButtonColor,
+        t,
+      ),
+      videoCallButtonColor: Color.lerp(
+        videoCallButtonColor,
+        other.videoCallButtonColor,
+        t,
+      ),
+      voiceCallButtonBorder: BorderSide.lerp(
+        voiceCallButtonBorder ?? BorderSide.none,
+        other.voiceCallButtonBorder ?? BorderSide.none,
+        t,
+      ),
+      videoCallButtonBorder: BorderSide.lerp(
+        videoCallButtonBorder ?? BorderSide.none,
+        other.videoCallButtonBorder ?? BorderSide.none,
+        t,
+      ),
       voiceCallButtonBorderRadius: BorderRadiusGeometry.lerp(
-          voiceCallButtonBorderRadius, other.voiceCallButtonBorderRadius, t),
+        voiceCallButtonBorderRadius,
+        other.voiceCallButtonBorderRadius,
+        t,
+      ),
       videoCallButtonBorderRadius: BorderRadiusGeometry.lerp(
-          videoCallButtonBorderRadius, other.videoCallButtonBorderRadius, t),
+        videoCallButtonBorderRadius,
+        other.videoCallButtonBorderRadius,
+        t,
+      ),
     );
   }
 }

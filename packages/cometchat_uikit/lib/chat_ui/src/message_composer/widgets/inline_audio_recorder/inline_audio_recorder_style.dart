@@ -121,7 +121,8 @@ class CometChatInlineAudioRecorderStyle {
 
   /// Merges this style with another, with the other taking precedence
   CometChatInlineAudioRecorderStyle merge(
-      CometChatInlineAudioRecorderStyle? other) {
+    CometChatInlineAudioRecorderStyle? other,
+  ) {
     if (other == null) return this;
     return CometChatInlineAudioRecorderStyle(
       backgroundColor: other.backgroundColor ?? backgroundColor,

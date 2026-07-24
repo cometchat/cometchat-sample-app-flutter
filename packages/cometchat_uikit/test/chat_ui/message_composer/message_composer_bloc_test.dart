@@ -34,10 +34,10 @@ class FakeUser extends Fake implements User {
     String name = 'Test User',
     bool blockedByMe = false,
     bool hasBlockedMe = false,
-  })  : _uid = uid,
-        _name = name,
-        _blockedByMe = blockedByMe,
-        _hasBlockedMe = hasBlockedMe;
+  }) : _uid = uid,
+       _name = name,
+       _blockedByMe = blockedByMe,
+       _hasBlockedMe = hasBlockedMe;
 
   @override
   String get uid => _uid;
@@ -54,8 +54,8 @@ class FakeGroup extends Fake implements Group {
   final String _name;
 
   FakeGroup({String guid = 'test_group', String name = 'Test Group'})
-      : _guid = guid,
-        _name = name;
+    : _guid = guid,
+      _name = name;
 
   @override
   String get guid => _guid;
@@ -69,9 +69,9 @@ class FakeTextMessage extends Fake implements TextMessage {
   final String _muid;
 
   FakeTextMessage({int id = 1, String text = 'Hello', String muid = 'muid_1'})
-      : _id = id,
-        _text = text,
-        _muid = muid;
+    : _id = id,
+      _text = text,
+      _muid = muid;
 
   @override
   int get id => _id;
@@ -144,16 +144,21 @@ void main() {
 
   setUp(() {
     repo = MockMessageComposerRepository();
-    when(() => repo.getLoggedInUser())
-        .thenAnswer((_) async => Success(FakeUser()));
-    when(() => repo.startTyping(
-          receiverUid: any(named: 'receiverUid'),
-          receiverType: any(named: 'receiverType'),
-        )).thenAnswer((_) async => const Success(null));
-    when(() => repo.endTyping(
-          receiverUid: any(named: 'receiverUid'),
-          receiverType: any(named: 'receiverType'),
-        )).thenAnswer((_) async => const Success(null));
+    when(
+      () => repo.getLoggedInUser(),
+    ).thenAnswer((_) async => Success(FakeUser()));
+    when(
+      () => repo.startTyping(
+        receiverUid: any(named: 'receiverUid'),
+        receiverType: any(named: 'receiverType'),
+      ),
+    ).thenAnswer((_) async => const Success(null));
+    when(
+      () => repo.endTyping(
+        receiverUid: any(named: 'receiverUid'),
+        receiverType: any(named: 'receiverType'),
+      ),
+    ).thenAnswer((_) async => const Success(null));
   });
 
   // =========================================================================
@@ -173,7 +178,10 @@ void main() {
     });
 
     test('initial state has user set when user provided', () {
-      final bloc = _makeBloc(repo, user: FakeUser(uid: 'alice', name: 'Alice'));
+      final bloc = _makeBloc(
+        repo,
+        user: FakeUser(uid: 'alice', name: 'Alice'),
+      );
       expect(bloc.state.user?.uid, 'alice');
       expect(bloc.state.receiverId, 'alice');
       expect(bloc.state.receiverType, 'user');
@@ -329,8 +337,9 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       '#1178 send updates compose text to empty after sending',
       build: () {
-        when(() => repo.sendTextMessage(any()))
-            .thenAnswer((_) async => Success(FakeTextMessage(text: 'Hello')));
+        when(
+          () => repo.sendTextMessage(any()),
+        ).thenAnswer((_) async => Success(FakeTextMessage(text: 'Hello')));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -381,10 +390,12 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'UserBlockedStatusChanged updates user blocked state',
       build: () => _makeBloc(repo),
-      act: (bloc) => bloc.add(UserBlockedStatusChanged(
-        user: FakeUser(uid: 'test_user', blockedByMe: true),
-        isBlocked: true,
-      )),
+      act: (bloc) => bloc.add(
+        UserBlockedStatusChanged(
+          user: FakeUser(uid: 'test_user', blockedByMe: true),
+          isBlocked: true,
+        ),
+      ),
       verify: (bloc) {
         // The bloc should handle the blocked status
         expect(bloc.state.status, isNot(MessageComposerStatus.error));
@@ -488,14 +499,12 @@ void main() {
     });
 
     test('userIsNotBlocked returns false when user is blocked by me', () {
-      final state = MessageComposerState(
-          user: FakeUser(blockedByMe: true));
+      final state = MessageComposerState(user: FakeUser(blockedByMe: true));
       expect(state.userIsNotBlocked, isFalse);
     });
 
     test('userIsNotBlocked returns false when user has blocked me', () {
-      final state = MessageComposerState(
-          user: FakeUser(hasBlockedMe: true));
+      final state = MessageComposerState(user: FakeUser(hasBlockedMe: true));
       expect(state.userIsNotBlocked, isFalse);
     });
 
@@ -592,7 +601,8 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'ComposeMessageReceived updates compose text',
       build: () => _makeBloc(repo),
-      act: (bloc) => bloc.add(const ComposeMessageReceived(text: 'Injected text')),
+      act: (bloc) =>
+          bloc.add(const ComposeMessageReceived(text: 'Injected text')),
       verify: (bloc) {
         expect(bloc.state.composeText, 'Injected text');
       },
@@ -601,10 +611,12 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'ComposeMessageReceived with non-matching id is ignored',
       build: () => _makeBloc(repo),
-      act: (bloc) => bloc.add(const ComposeMessageReceived(
-        text: 'Should be ignored',
-        id: {'uid': 'different_user'},
-      )),
+      act: (bloc) => bloc.add(
+        const ComposeMessageReceived(
+          text: 'Should be ignored',
+          id: {'uid': 'different_user'},
+        ),
+      ),
       verify: (bloc) {
         // If the id doesn't match, the text should not be updated
         // (depends on _isForThisWidget logic)

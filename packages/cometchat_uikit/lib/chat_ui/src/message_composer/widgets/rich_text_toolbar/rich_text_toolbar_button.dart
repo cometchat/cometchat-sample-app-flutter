@@ -35,8 +35,9 @@ class RichTextToolbarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveStyle =
-        CometChatRichTextToolbarStyle.of(context).merge(style);
+    final effectiveStyle = CometChatRichTextToolbarStyle.of(
+      context,
+    ).merge(style);
 
     final buttonSize = effectiveStyle.buttonSize ?? 36;
     final iconSize = effectiveStyle.iconSize ?? 20;
@@ -62,9 +63,12 @@ class RichTextToolbarButton extends StatelessWidget {
       selected: isActive,
       enabled: !isDisabled,
       child: Tooltip(
-        message: isDisabled 
+        message: isDisabled
             ? '${formatType.label} (incompatible with current format)'
             : formatType.label,
+        // The toolbar sits at the bottom of the composer; show the bubble above
+        // the button so it isn't pinned to the screen edge on web.
+        preferBelow: false,
         child: InkWell(
           onTap: isDisabled ? null : onTap,
           borderRadius: BorderRadius.circular(4),
@@ -75,11 +79,7 @@ class RichTextToolbarButton extends StatelessWidget {
               color: backgroundColor,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Icon(
-              formatType.icon,
-              size: iconSize,
-              color: iconColor,
-            ),
+            child: Icon(formatType.icon, size: iconSize, color: iconColor),
           ),
         ),
       ),

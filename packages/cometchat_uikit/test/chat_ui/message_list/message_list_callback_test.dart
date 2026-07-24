@@ -127,7 +127,11 @@ class FakeMessagesRequest extends Fake implements MessagesRequest {}
 // Helpers
 // ---------------------------------------------------------------------------
 
-MessageListBloc _makeBloc(MockMessageListRepository repo, {User? user, Group? group}) {
+MessageListBloc _makeBloc(
+  MockMessageListRepository repo, {
+  User? user,
+  Group? group,
+}) {
   return MessageListBloc(
     getMessagesUseCase: GetMessagesUseCase(repo),
     loadOlderMessagesUseCase: LoadOlderMessagesUseCase(repo),
@@ -142,62 +146,84 @@ MessageListBloc _makeBloc(MockMessageListRepository repo, {User? user, Group? gr
   );
 }
 
-void _stubRepoSuccess(MockMessageListRepository repo, {List<BaseMessage>? messages}) {
-  when(() => repo.getLoggedInUser())
-      .thenAnswer((_) async => Success(FakeUser()));
-  when(() => repo.getMessages(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-        limit: any(named: 'limit'),
-        parentMessageId: any(named: 'parentMessageId'),
-        types: any(named: 'types'),
-        categories: any(named: 'categories'),
-        hideReplies: any(named: 'hideReplies'),
-        withParent: any(named: 'withParent'),
-      )).thenAnswer((_) async => Success(messages ?? []));
-  when(() => repo.getConversation(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-      )).thenAnswer((_) async => Success(FakeConversation()));
-  when(() => repo.fetchPreviousMessages(
-        request: any(named: 'request'),
-      )).thenAnswer((_) async => const Success([]));
-  when(() => repo.fetchNextMessages(
-        request: any(named: 'request'),
-      )).thenAnswer((_) async => const Success([]));
-  when(() => repo.markAsRead(any()))
-      .thenAnswer((_) async => const Success(null));
-  when(() => repo.markAsDelivered(any()))
-      .thenAnswer((_) async => const Success(null));
+void _stubRepoSuccess(
+  MockMessageListRepository repo, {
+  List<BaseMessage>? messages,
+}) {
+  when(
+    () => repo.getLoggedInUser(),
+  ).thenAnswer((_) async => Success(FakeUser()));
+  when(
+    () => repo.getMessages(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+      limit: any(named: 'limit'),
+      parentMessageId: any(named: 'parentMessageId'),
+      types: any(named: 'types'),
+      categories: any(named: 'categories'),
+      hideReplies: any(named: 'hideReplies'),
+      withParent: any(named: 'withParent'),
+    ),
+  ).thenAnswer((_) async => Success(messages ?? []));
+  when(
+    () => repo.getConversation(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+    ),
+  ).thenAnswer((_) async => Success(FakeConversation()));
+  when(
+    () => repo.fetchPreviousMessages(request: any(named: 'request')),
+  ).thenAnswer((_) async => const Success([]));
+  when(
+    () => repo.fetchNextMessages(request: any(named: 'request')),
+  ).thenAnswer((_) async => const Success([]));
+  when(
+    () => repo.markAsRead(any()),
+  ).thenAnswer((_) async => const Success(null));
+  when(
+    () => repo.markAsDelivered(any()),
+  ).thenAnswer((_) async => const Success(null));
 }
 
-void _stubRepoFailure(MockMessageListRepository repo, {String errorMessage = 'Network error'}) {
-  when(() => repo.getLoggedInUser())
-      .thenAnswer((_) async => Success(FakeUser()));
-  when(() => repo.getMessages(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-        limit: any(named: 'limit'),
-        parentMessageId: any(named: 'parentMessageId'),
-        types: any(named: 'types'),
-        categories: any(named: 'categories'),
-        hideReplies: any(named: 'hideReplies'),
-        withParent: any(named: 'withParent'),
-      )).thenAnswer((_) async => Failure(message: errorMessage, code: 'FETCH_ERROR'));
-  when(() => repo.getConversation(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-      )).thenAnswer((_) async => Success(FakeConversation()));
-  when(() => repo.fetchPreviousMessages(
-        request: any(named: 'request'),
-      )).thenAnswer((_) async => const Success([]));
-  when(() => repo.fetchNextMessages(
-        request: any(named: 'request'),
-      )).thenAnswer((_) async => const Success([]));
-  when(() => repo.markAsRead(any()))
-      .thenAnswer((_) async => const Success(null));
-  when(() => repo.markAsDelivered(any()))
-      .thenAnswer((_) async => const Success(null));
+void _stubRepoFailure(
+  MockMessageListRepository repo, {
+  String errorMessage = 'Network error',
+}) {
+  when(
+    () => repo.getLoggedInUser(),
+  ).thenAnswer((_) async => Success(FakeUser()));
+  when(
+    () => repo.getMessages(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+      limit: any(named: 'limit'),
+      parentMessageId: any(named: 'parentMessageId'),
+      types: any(named: 'types'),
+      categories: any(named: 'categories'),
+      hideReplies: any(named: 'hideReplies'),
+      withParent: any(named: 'withParent'),
+    ),
+  ).thenAnswer(
+    (_) async => Failure(message: errorMessage, code: 'FETCH_ERROR'),
+  );
+  when(
+    () => repo.getConversation(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+    ),
+  ).thenAnswer((_) async => Success(FakeConversation()));
+  when(
+    () => repo.fetchPreviousMessages(request: any(named: 'request')),
+  ).thenAnswer((_) async => const Success([]));
+  when(
+    () => repo.fetchNextMessages(request: any(named: 'request')),
+  ).thenAnswer((_) async => const Success([]));
+  when(
+    () => repo.markAsRead(any()),
+  ).thenAnswer((_) async => const Success(null));
+  when(
+    () => repo.markAsDelivered(any()),
+  ).thenAnswer((_) async => const Success(null));
 }
 
 // ---------------------------------------------------------------------------
@@ -227,10 +253,12 @@ void main() {
       _stubRepoSuccess(repo, messages: messages);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.status, MessageListStatus.loaded);
@@ -243,10 +271,12 @@ void main() {
       _stubRepoSuccess(repo, messages: messages);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.messages.length, 10);
@@ -261,10 +291,12 @@ void main() {
       _stubRepoSuccess(repo, messages: messages);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       // The widget layer calls onLoad(state.messages) when status == loaded
@@ -279,19 +311,21 @@ void main() {
       _stubRepoSuccess(repo, messages: initialMessages);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.hasMoreOlder, isTrue);
 
       // Stub older messages for pagination
       final olderMessages = List.generate(5, (i) => FakeTextMessage(i + 100));
-      when(() => repo.fetchPreviousMessages(
-            request: any(named: 'request'),
-          )).thenAnswer((_) async => Success(olderMessages));
+      when(
+        () => repo.fetchPreviousMessages(request: any(named: 'request')),
+      ).thenAnswer((_) async => Success(olderMessages));
 
       bloc.add(const LoadOlderMessages());
       await Future.delayed(const Duration(milliseconds: 80));
@@ -317,10 +351,12 @@ void main() {
       _stubRepoSuccess(repo, messages: []);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.status, MessageListStatus.empty);
@@ -332,10 +368,12 @@ void main() {
       _stubRepoSuccess(repo, messages: []);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       // Widget layer calls onEmpty() when status == empty
@@ -370,10 +408,12 @@ void main() {
       _stubRepoFailure(repo, errorMessage: 'Network error');
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.status, MessageListStatus.error);
@@ -385,10 +425,12 @@ void main() {
       _stubRepoFailure(repo, errorMessage: 'Connection timeout');
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.status, MessageListStatus.error);
@@ -400,10 +442,12 @@ void main() {
       _stubRepoFailure(repo, errorMessage: 'Server unavailable');
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       // Widget layer calls onError(CometChatException(...)) when status == error
@@ -417,17 +461,22 @@ void main() {
       _stubRepoSuccess(repo, messages: messages);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
       expect(bloc.state.status, MessageListStatus.loaded);
 
       // Now simulate failure on load older
-      when(() => repo.fetchPreviousMessages(
-            request: any(named: 'request'),
-          )).thenAnswer((_) async => Failure(message: 'Pagination failed', code: 'LOAD_ERROR'));
+      when(
+        () => repo.fetchPreviousMessages(request: any(named: 'request')),
+      ).thenAnswer(
+        (_) async =>
+            const Failure(message: 'Pagination failed', code: 'LOAD_ERROR'),
+      );
 
       bloc.add(const LoadOlderMessages());
       await Future.delayed(const Duration(milliseconds: 80));
@@ -455,10 +504,12 @@ void main() {
       _stubRepoSuccess(repo, messages: initialMessages);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       final newMessage = FakeTextMessage(2, sender: FakeUser('other_user'));
@@ -474,10 +525,12 @@ void main() {
       _stubRepoSuccess(repo, messages: [originalMessage]);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
       expect(bloc.state.messages.length, 1);
 
@@ -493,10 +546,12 @@ void main() {
       _stubRepoSuccess(repo, messages: messages);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
       expect(bloc.state.messages.length, 2);
 
@@ -524,10 +579,12 @@ void main() {
       _stubRepoSuccess(repo, messages: messages);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
       expect(bloc.state.status, MessageListStatus.loaded);
 
@@ -539,26 +596,31 @@ void main() {
       await bloc.close();
     });
 
-    test('LoadNewerMessages loads newer page when hasMoreNewer is true', () async {
-      final messages = List.generate(5, (i) => FakeTextMessage(i + 1));
-      _stubRepoSuccess(repo, messages: messages);
+    test(
+      'LoadNewerMessages loads newer page when hasMoreNewer is true',
+      () async {
+        final messages = List.generate(5, (i) => FakeTextMessage(i + 1));
+        _stubRepoSuccess(repo, messages: messages);
 
-      final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
-      await Future.delayed(const Duration(milliseconds: 80));
+        final bloc = _makeBloc(repo);
+        bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_user',
+            conversationType: 'user',
+          ),
+        );
+        await Future.delayed(const Duration(milliseconds: 80));
 
-      // LoadNewerMessages is a no-op when hasMoreNewer is false (default)
-      bloc.add(const LoadNewerMessages());
-      await Future.delayed(const Duration(milliseconds: 80));
+        // LoadNewerMessages is a no-op when hasMoreNewer is false (default)
+        bloc.add(const LoadNewerMessages());
+        await Future.delayed(const Duration(milliseconds: 80));
 
-      // State remains loaded — event is handled gracefully
-      expect(bloc.state.status, MessageListStatus.loaded);
-      expect(bloc.state.messages.length, 5);
-      await bloc.close();
-    });
+        // State remains loaded — event is handled gracefully
+        expect(bloc.state.status, MessageListStatus.loaded);
+        expect(bloc.state.messages.length, 5);
+        await bloc.close();
+      },
+    );
   });
 
   // =========================================================================
@@ -577,10 +639,12 @@ void main() {
       _stubRepoSuccess(repo, messages: messages);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       // AddReaction event is accepted by the bloc without throwing
@@ -597,10 +661,12 @@ void main() {
       _stubRepoSuccess(repo, messages: messages);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       // RemoveReaction event is accepted by the bloc without throwing

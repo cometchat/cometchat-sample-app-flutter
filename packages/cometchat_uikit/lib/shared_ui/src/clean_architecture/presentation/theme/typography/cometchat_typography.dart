@@ -2,7 +2,6 @@ import "../../../clean_architecture.dart";
 import 'package:flutter/material.dart';
 
 class CometChatTypography extends ThemeExtension<CometChatTypography> {
-
   ///[heading1] defines the styling for the text displayed in the heading1
   final CometChatTextStyleHeading1? heading1;
 
@@ -33,11 +32,8 @@ class CometChatTypography extends ThemeExtension<CometChatTypography> {
   ///[title] defines the styling for the text displayed in the title
   final CometChatTextStyleTitle? title;
 
-
-
-
   const CometChatTypography({
-     this.heading1,
+    this.heading1,
     this.heading2,
     this.heading3,
     this.heading4,
@@ -47,7 +43,6 @@ class CometChatTypography extends ThemeExtension<CometChatTypography> {
     this.button,
     this.link,
     this.title,
-
   });
 
   static CometChatTypography of(BuildContext context) => CometChatTypography(
@@ -107,7 +102,10 @@ class CometChatTypography extends ThemeExtension<CometChatTypography> {
   }
 
   @override
-   ThemeExtension<CometChatTypography> lerp(ThemeExtension<CometChatTypography>? other, double t) {
+  ThemeExtension<CometChatTypography> lerp(
+    ThemeExtension<CometChatTypography>? other,
+    double t,
+  ) {
     if (other is! CometChatTypography) {
       return this;
     }
@@ -124,6 +122,4 @@ class CometChatTypography extends ThemeExtension<CometChatTypography> {
       title: title?.lerp(other.title, t),
     );
   }
-  
-
 }

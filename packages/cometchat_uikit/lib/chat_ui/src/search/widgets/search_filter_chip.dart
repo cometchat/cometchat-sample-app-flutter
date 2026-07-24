@@ -49,28 +49,33 @@ class SearchFilterChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final bgColor = isSelected
         ? (selectedColor ??
-            colorPalette.secondaryButtonBackground ??
-            Colors.transparent)
+              colorPalette.secondaryButtonBackground ??
+              Colors.transparent)
         : (unselectedColor ?? colorPalette.background3 ?? Colors.transparent);
 
     final txtColor = isSelected
         ? (selectedTextColor ?? colorPalette.textWhite)
-        : (unselectedTextColor ?? colorPalette.textSecondary ?? Colors.transparent);
+        : (unselectedTextColor ??
+              colorPalette.textSecondary ??
+              Colors.transparent);
 
     final icnColor = isSelected
         ? (selectedIconColor ?? colorPalette.iconWhite ?? Colors.transparent)
         : (unselectedIconColor ??
-            colorPalette.iconSecondary ??
-            Colors.transparent);
+              colorPalette.iconSecondary ??
+              Colors.transparent);
 
     final border = isSelected
         ? (selectedBorder ??
-            Border.all(
-                color: colorPalette.neutral800 ?? Colors.transparent, width: 1))
+              Border.all(
+                color: colorPalette.neutral800 ?? Colors.transparent,
+                width: 1,
+              ))
         : (unSelectedBorder ??
-            Border.all(
+              Border.all(
                 color: colorPalette.borderLight ?? Colors.transparent,
-                width: 1));
+                width: 1,
+              ));
 
     final radius =
         borderRadius ?? BorderRadius.circular(spacing.radiusMax ?? 20);

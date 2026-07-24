@@ -16,7 +16,11 @@ class AudioStateRepositoryImpl implements AudioStateRepository {
     String? localPath,
   ) async {
     try {
-      final result = await remoteDataSource.getAudioState(id, audioUrl, localPath);
+      final result = await remoteDataSource.getAudioState(
+        id,
+        audioUrl,
+        localPath,
+      );
       return Success(result);
     } catch (e) {
       return Failure(message: 'Failed to get audio state: $e');
@@ -36,9 +40,13 @@ class AudioStateRepositoryImpl implements AudioStateRepository {
   }
 
   @override
-  Stream<Result<AudioStateUpdateEntity>> getAudioStateStream(int audioId) async* {
+  Stream<Result<AudioStateUpdateEntity>> getAudioStateStream(
+    int audioId,
+  ) async* {
     try {
-      await for (final update in remoteDataSource.getAudioStateStream(audioId)) {
+      await for (final update in remoteDataSource.getAudioStateStream(
+        audioId,
+      )) {
         yield Success(update);
       }
     } catch (e) {

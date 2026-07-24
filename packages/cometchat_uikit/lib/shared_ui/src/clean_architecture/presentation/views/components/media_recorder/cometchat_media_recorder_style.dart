@@ -13,40 +13,41 @@ import 'package:flutter/material.dart';
 ///  );
 ///  ```
 ///
-class CometChatMediaRecorderStyle extends ThemeExtension<CometChatMediaRecorderStyle> {
-  CometChatMediaRecorderStyle
-      ({this.backgroundColor,
-      this.border,
-      this.borderRadius,
-      this.textStyle,
-      this.textColor,
-      this.deleteButtonIconColor,
-      this.deleteButtonBackgroundColor,
-      this.deleteButtonBorderRadius,
-      this.deleteButtonBorder,
-      this.startButtonIconColor,
-      this.startButtonBackgroundColor,
-      this.startButtonBorderRadius,
-      this.startButtonBorder,
-      this.pauseButtonIconColor,
-      this.pauseButtonBackgroundColor,
-      this.pauseButtonBorderRadius,
-      this.pauseButtonBorder,
-      this.stopButtonIconColor,
-      this.stopButtonBackgroundColor,
-      this.stopButtonBorderRadius,
-      this.stopButtonBorder,
-      this.sendButtonIconColor,
-      this.sendButtonBackgroundColor,
-      this.sendButtonBorderRadius,
-      this.sendButtonBorder,
-      this.playButtonIconColor,
-      this.recordIndicatorIconColor,
-      this.recordIndicatorBackgroundColor,
-      this.recordIndicatorBorderRadius,
-      this.recordIndicatorBorder,
-      this.recordIndicatorColor,
-  this.audioBubbleStyle
+class CometChatMediaRecorderStyle
+    extends ThemeExtension<CometChatMediaRecorderStyle> {
+  CometChatMediaRecorderStyle({
+    this.backgroundColor,
+    this.border,
+    this.borderRadius,
+    this.textStyle,
+    this.textColor,
+    this.deleteButtonIconColor,
+    this.deleteButtonBackgroundColor,
+    this.deleteButtonBorderRadius,
+    this.deleteButtonBorder,
+    this.startButtonIconColor,
+    this.startButtonBackgroundColor,
+    this.startButtonBorderRadius,
+    this.startButtonBorder,
+    this.pauseButtonIconColor,
+    this.pauseButtonBackgroundColor,
+    this.pauseButtonBorderRadius,
+    this.pauseButtonBorder,
+    this.stopButtonIconColor,
+    this.stopButtonBackgroundColor,
+    this.stopButtonBorderRadius,
+    this.stopButtonBorder,
+    this.sendButtonIconColor,
+    this.sendButtonBackgroundColor,
+    this.sendButtonBorderRadius,
+    this.sendButtonBorder,
+    this.playButtonIconColor,
+    this.recordIndicatorIconColor,
+    this.recordIndicatorBackgroundColor,
+    this.recordIndicatorBorderRadius,
+    this.recordIndicatorBorder,
+    this.recordIndicatorColor,
+    this.audioBubbleStyle,
   });
 
   ///[backgroundColor] defines the background color of the media recorder widget.
@@ -127,23 +128,23 @@ class CometChatMediaRecorderStyle extends ThemeExtension<CometChatMediaRecorderS
   ///[playButtonIconColor] defines the color of the play button icon.
   final Color? playButtonIconColor;
 
-  ///[recordButtonIconColor] defines the color of the record button icon.
+  ///[recordIndicatorIconColor] defines the color of the record button icon.
   final Color? recordIndicatorIconColor;
 
-  ///[recordButtonBackgroundColor] defines the background color of the record button.
+  ///[recordIndicatorBackgroundColor] defines the background color of the record button.
   final Color? recordIndicatorBackgroundColor;
 
-  ///[recordButtonBorderRadius] defines the border radius of the record button.
+  ///[recordIndicatorBorderRadius] defines the border radius of the record button.
   final BorderRadiusGeometry? recordIndicatorBorderRadius;
 
-  ///[recordButtonBorder] defines the border of the record button.
+  ///[recordIndicatorBorder] defines the border of the record button.
   final BoxBorder? recordIndicatorBorder;
 
   ///[recordIndicatorColor] defines the color of the record indicator.
   final Color? recordIndicatorColor;
 
   ///[audioBubbleStyle] defines the style of the audio bubble.
-  final CometChatAudioBubbleStyle? audioBubbleStyle;
+  final CometChatVoiceNoteBubbleStyle? audioBubbleStyle;
 
   @override
   CometChatMediaRecorderStyle copyWith({
@@ -181,10 +182,10 @@ class CometChatMediaRecorderStyle extends ThemeExtension<CometChatMediaRecorderS
     BorderRadiusGeometry? recordIndicatorBorderRadius,
     BoxBorder? recordIndicatorBorder,
     Color? recordIndicatorColor,
-    CometChatAudioBubbleStyle? audioBubbleStyle
-}) {
-   return CometChatMediaRecorderStyle(
-     backgroundColor: backgroundColor,
+    CometChatVoiceNoteBubbleStyle? audioBubbleStyle,
+  }) {
+    return CometChatMediaRecorderStyle(
+      backgroundColor: backgroundColor,
       border: border,
       borderRadius: borderRadius,
       textStyle: textStyle,
@@ -215,47 +216,154 @@ class CometChatMediaRecorderStyle extends ThemeExtension<CometChatMediaRecorderS
       recordIndicatorBorderRadius: recordIndicatorBorderRadius,
       recordIndicatorBorder: recordIndicatorBorder,
       recordIndicatorColor: recordIndicatorColor,
-      audioBubbleStyle: audioBubbleStyle
-   );
+      audioBubbleStyle: audioBubbleStyle,
+    );
   }
 
   @override
-  CometChatMediaRecorderStyle lerp(covariant ThemeExtension<CometChatMediaRecorderStyle>? other, double t) {
-    if(other is! CometChatMediaRecorderStyle) {
+  CometChatMediaRecorderStyle lerp(
+    covariant ThemeExtension<CometChatMediaRecorderStyle>? other,
+    double t,
+  ) {
+    if (other is! CometChatMediaRecorderStyle) {
       return this;
     }
     return copyWith(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       textStyle: TextStyle.lerp(textStyle, other.textStyle, t),
       textColor: Color.lerp(textColor, other.textColor, t),
-      deleteButtonIconColor: Color.lerp(deleteButtonIconColor, other.deleteButtonIconColor, t),
-      deleteButtonBackgroundColor: Color.lerp(deleteButtonBackgroundColor, other.deleteButtonBackgroundColor, t),
-      deleteButtonBorderRadius: BorderRadiusGeometry.lerp(deleteButtonBorderRadius, other.deleteButtonBorderRadius, t),
-      deleteButtonBorder: BoxBorder.lerp(deleteButtonBorder, other.deleteButtonBorder, t),
-      pauseButtonBackgroundColor: Color.lerp(pauseButtonBackgroundColor, other.pauseButtonBackgroundColor, t),
-      pauseButtonBorderRadius: BorderRadiusGeometry.lerp(pauseButtonBorderRadius, other.pauseButtonBorderRadius, t),
-      pauseButtonBorder: BoxBorder.lerp(pauseButtonBorder, other.pauseButtonBorder, t),
-      pauseButtonIconColor: Color.lerp(pauseButtonIconColor, other.pauseButtonIconColor, t),
-      playButtonIconColor: Color.lerp(playButtonIconColor, other.playButtonIconColor, t),
-      recordIndicatorBackgroundColor: Color.lerp(recordIndicatorBackgroundColor, other.recordIndicatorBackgroundColor, t),
-      recordIndicatorBorderRadius: BorderRadiusGeometry.lerp(recordIndicatorBorderRadius, other.recordIndicatorBorderRadius, t),
-      recordIndicatorBorder: BoxBorder.lerp(recordIndicatorBorder, other.recordIndicatorBorder, t),
-      recordIndicatorColor: Color.lerp(recordIndicatorColor, other.recordIndicatorColor, t),
-      recordIndicatorIconColor: Color.lerp(recordIndicatorIconColor, other.recordIndicatorIconColor, t),
-      sendButtonBackgroundColor: Color.lerp(sendButtonBackgroundColor, other.sendButtonBackgroundColor, t),
-      sendButtonBorderRadius: BorderRadiusGeometry.lerp(sendButtonBorderRadius, other.sendButtonBorderRadius, t),
-      sendButtonIconColor: Color.lerp(sendButtonIconColor, other.sendButtonIconColor, t),
+      deleteButtonIconColor: Color.lerp(
+        deleteButtonIconColor,
+        other.deleteButtonIconColor,
+        t,
+      ),
+      deleteButtonBackgroundColor: Color.lerp(
+        deleteButtonBackgroundColor,
+        other.deleteButtonBackgroundColor,
+        t,
+      ),
+      deleteButtonBorderRadius: BorderRadiusGeometry.lerp(
+        deleteButtonBorderRadius,
+        other.deleteButtonBorderRadius,
+        t,
+      ),
+      deleteButtonBorder: BoxBorder.lerp(
+        deleteButtonBorder,
+        other.deleteButtonBorder,
+        t,
+      ),
+      pauseButtonBackgroundColor: Color.lerp(
+        pauseButtonBackgroundColor,
+        other.pauseButtonBackgroundColor,
+        t,
+      ),
+      pauseButtonBorderRadius: BorderRadiusGeometry.lerp(
+        pauseButtonBorderRadius,
+        other.pauseButtonBorderRadius,
+        t,
+      ),
+      pauseButtonBorder: BoxBorder.lerp(
+        pauseButtonBorder,
+        other.pauseButtonBorder,
+        t,
+      ),
+      pauseButtonIconColor: Color.lerp(
+        pauseButtonIconColor,
+        other.pauseButtonIconColor,
+        t,
+      ),
+      playButtonIconColor: Color.lerp(
+        playButtonIconColor,
+        other.playButtonIconColor,
+        t,
+      ),
+      recordIndicatorBackgroundColor: Color.lerp(
+        recordIndicatorBackgroundColor,
+        other.recordIndicatorBackgroundColor,
+        t,
+      ),
+      recordIndicatorBorderRadius: BorderRadiusGeometry.lerp(
+        recordIndicatorBorderRadius,
+        other.recordIndicatorBorderRadius,
+        t,
+      ),
+      recordIndicatorBorder: BoxBorder.lerp(
+        recordIndicatorBorder,
+        other.recordIndicatorBorder,
+        t,
+      ),
+      recordIndicatorColor: Color.lerp(
+        recordIndicatorColor,
+        other.recordIndicatorColor,
+        t,
+      ),
+      recordIndicatorIconColor: Color.lerp(
+        recordIndicatorIconColor,
+        other.recordIndicatorIconColor,
+        t,
+      ),
+      sendButtonBackgroundColor: Color.lerp(
+        sendButtonBackgroundColor,
+        other.sendButtonBackgroundColor,
+        t,
+      ),
+      sendButtonBorderRadius: BorderRadiusGeometry.lerp(
+        sendButtonBorderRadius,
+        other.sendButtonBorderRadius,
+        t,
+      ),
+      sendButtonIconColor: Color.lerp(
+        sendButtonIconColor,
+        other.sendButtonIconColor,
+        t,
+      ),
 
-      startButtonBackgroundColor: Color.lerp(startButtonBackgroundColor, other.startButtonBackgroundColor, t),
-      startButtonBorderRadius: BorderRadiusGeometry.lerp(startButtonBorderRadius, other.startButtonBorderRadius, t),
-      startButtonBorder: BoxBorder.lerp(startButtonBorder, other.startButtonBorder, t),
-      startButtonIconColor: Color.lerp(startButtonIconColor, other.startButtonIconColor, t),
-      stopButtonBackgroundColor: Color.lerp(stopButtonBackgroundColor, other.stopButtonBackgroundColor, t),
-      stopButtonBorderRadius: BorderRadiusGeometry.lerp(stopButtonBorderRadius, other.stopButtonBorderRadius, t),
-      stopButtonBorder: BoxBorder.lerp(stopButtonBorder, other.stopButtonBorder, t),
-      stopButtonIconColor: Color.lerp(stopButtonIconColor, other.stopButtonIconColor, t),
+      startButtonBackgroundColor: Color.lerp(
+        startButtonBackgroundColor,
+        other.startButtonBackgroundColor,
+        t,
+      ),
+      startButtonBorderRadius: BorderRadiusGeometry.lerp(
+        startButtonBorderRadius,
+        other.startButtonBorderRadius,
+        t,
+      ),
+      startButtonBorder: BoxBorder.lerp(
+        startButtonBorder,
+        other.startButtonBorder,
+        t,
+      ),
+      startButtonIconColor: Color.lerp(
+        startButtonIconColor,
+        other.startButtonIconColor,
+        t,
+      ),
+      stopButtonBackgroundColor: Color.lerp(
+        stopButtonBackgroundColor,
+        other.stopButtonBackgroundColor,
+        t,
+      ),
+      stopButtonBorderRadius: BorderRadiusGeometry.lerp(
+        stopButtonBorderRadius,
+        other.stopButtonBorderRadius,
+        t,
+      ),
+      stopButtonBorder: BoxBorder.lerp(
+        stopButtonBorder,
+        other.stopButtonBorder,
+        t,
+      ),
+      stopButtonIconColor: Color.lerp(
+        stopButtonIconColor,
+        other.stopButtonIconColor,
+        t,
+      ),
       audioBubbleStyle: audioBubbleStyle?.lerp(other.audioBubbleStyle, t),
     );
   }
@@ -264,7 +372,7 @@ class CometChatMediaRecorderStyle extends ThemeExtension<CometChatMediaRecorderS
     return CometChatMediaRecorderStyle();
   }
 
-  CometChatMediaRecorderStyle merge(CometChatMediaRecorderStyle? style){
+  CometChatMediaRecorderStyle merge(CometChatMediaRecorderStyle? style) {
     if (style == null) return this;
     return copyWith(
       backgroundColor: style.backgroundColor,
@@ -300,5 +408,4 @@ class CometChatMediaRecorderStyle extends ThemeExtension<CometChatMediaRecorderS
       audioBubbleStyle: style.audioBubbleStyle,
     );
   }
-
 }

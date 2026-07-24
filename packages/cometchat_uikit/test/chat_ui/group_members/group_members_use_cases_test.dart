@@ -56,11 +56,13 @@ void main() {
     });
 
     test('delegates to repository with valid params', () async {
-      when(() => repo.getGroupMembers(
-            guid: any(named: 'guid'),
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getGroupMembers(
+          guid: any(named: 'guid'),
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase(guid: 'g1');
       expect(result.isSuccess, isTrue);
@@ -68,27 +70,31 @@ void main() {
     });
 
     test('passes searchKeyword to repository', () async {
-      when(() => repo.getGroupMembers(
-            guid: any(named: 'guid'),
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getGroupMembers(
+          guid: any(named: 'guid'),
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       await useCase(guid: 'g1', searchKeyword: 'john');
-      verify(() => repo.getGroupMembers(
-            guid: 'g1',
-            limit: 30,
-            searchKeyword: 'john',
-          )).called(1);
+      verify(
+        () =>
+            repo.getGroupMembers(guid: 'g1', limit: 30, searchKeyword: 'john'),
+      ).called(1);
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.getGroupMembers(
-            guid: any(named: 'guid'),
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-          )).thenAnswer((_) async =>
-              const Failure(message: 'Fetch failed', code: 'FETCH_ERR'));
+      when(
+        () => repo.getGroupMembers(
+          guid: any(named: 'guid'),
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+        ),
+      ).thenAnswer(
+        (_) async => const Failure(message: 'Fetch failed', code: 'FETCH_ERR'),
+      );
 
       final result = await useCase(guid: 'g1');
       expect(result.isFailure, isTrue);
@@ -121,10 +127,12 @@ void main() {
     });
 
     test('delegates to repository with valid params', () async {
-      when(() => repo.kickGroupMember(
-            guid: any(named: 'guid'),
-            uid: any(named: 'uid'),
-          )).thenAnswer((_) async => const Success(null));
+      when(
+        () => repo.kickGroupMember(
+          guid: any(named: 'guid'),
+          uid: any(named: 'uid'),
+        ),
+      ).thenAnswer((_) async => const Success(null));
 
       final result = await useCase(guid: 'g1', uid: 'uid_1');
       expect(result.isSuccess, isTrue);
@@ -132,11 +140,14 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.kickGroupMember(
-            guid: any(named: 'guid'),
-            uid: any(named: 'uid'),
-          )).thenAnswer((_) async =>
-              const Failure(message: 'Kick failed', code: 'KICK_ERR'));
+      when(
+        () => repo.kickGroupMember(
+          guid: any(named: 'guid'),
+          uid: any(named: 'uid'),
+        ),
+      ).thenAnswer(
+        (_) async => const Failure(message: 'Kick failed', code: 'KICK_ERR'),
+      );
 
       final result = await useCase(guid: 'g1', uid: 'uid_1');
       expect(result.isFailure, isTrue);
@@ -169,10 +180,12 @@ void main() {
     });
 
     test('delegates to repository with valid params', () async {
-      when(() => repo.banGroupMember(
-            guid: any(named: 'guid'),
-            uid: any(named: 'uid'),
-          )).thenAnswer((_) async => const Success(null));
+      when(
+        () => repo.banGroupMember(
+          guid: any(named: 'guid'),
+          uid: any(named: 'uid'),
+        ),
+      ).thenAnswer((_) async => const Success(null));
 
       final result = await useCase(guid: 'g1', uid: 'uid_1');
       expect(result.isSuccess, isTrue);
@@ -211,19 +224,19 @@ void main() {
     });
 
     test('delegates to repository with valid params', () async {
-      when(() => repo.updateMemberScope(
-            guid: any(named: 'guid'),
-            uid: any(named: 'uid'),
-            scope: any(named: 'scope'),
-          )).thenAnswer((_) async => const Success(null));
+      when(
+        () => repo.updateMemberScope(
+          guid: any(named: 'guid'),
+          uid: any(named: 'uid'),
+          scope: any(named: 'scope'),
+        ),
+      ).thenAnswer((_) async => const Success(null));
 
       final result = await useCase(guid: 'g1', uid: 'uid_1', scope: 'admin');
       expect(result.isSuccess, isTrue);
-      verify(() => repo.updateMemberScope(
-            guid: 'g1',
-            uid: 'uid_1',
-            scope: 'admin',
-          )).called(1);
+      verify(
+        () => repo.updateMemberScope(guid: 'g1', uid: 'uid_1', scope: 'admin'),
+      ).called(1);
     });
   });
 }

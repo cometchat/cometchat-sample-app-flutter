@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Exception thrown when remote data source operations fail.
 class MessageListRemoteDataSourceException implements Exception {
@@ -23,10 +23,7 @@ class GetMessagesResult {
   final MessagesRequest request;
   final List<BaseMessage> messages;
 
-  const GetMessagesResult({
-    required this.request,
-    required this.messages,
-  });
+  const GetMessagesResult({required this.request, required this.messages});
 }
 
 /// Abstract interface for message list remote data source.
@@ -133,7 +130,8 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
     } catch (e) {
       if (e is MessageListRemoteDataSourceException) rethrow;
       throw MessageListRemoteDataSourceException(
-        message: 'Unexpected error while fetching previous messages: ${e.toString()}',
+        message:
+            'Unexpected error while fetching previous messages: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -154,7 +152,8 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
     } catch (e) {
       if (e is MessageListRemoteDataSourceException) rethrow;
       throw MessageListRemoteDataSourceException(
-        message: 'Unexpected error while fetching next messages: ${e.toString()}',
+        message:
+            'Unexpected error while fetching next messages: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -171,11 +170,13 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
         },
         onError: (CometChatException exception) {
           if (!completer.isCompleted) {
-            completer.completeError(MessageListRemoteDataSourceException(
-              message: exception.message ?? 'Failed to mark message as read',
-              code: exception.code,
-              originalException: exception,
-            ));
+            completer.completeError(
+              MessageListRemoteDataSourceException(
+                message: exception.message ?? 'Failed to mark message as read',
+                code: exception.code,
+                originalException: exception,
+              ),
+            );
           }
         },
       );
@@ -189,7 +190,8 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
     } catch (e) {
       if (e is MessageListRemoteDataSourceException) rethrow;
       throw MessageListRemoteDataSourceException(
-        message: 'Unexpected error while marking message as read: ${e.toString()}',
+        message:
+            'Unexpected error while marking message as read: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -206,11 +208,14 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
         },
         onError: (CometChatException exception) {
           if (!completer.isCompleted) {
-            completer.completeError(MessageListRemoteDataSourceException(
-              message: exception.message ?? 'Failed to mark message as delivered',
-              code: exception.code,
-              originalException: exception,
-            ));
+            completer.completeError(
+              MessageListRemoteDataSourceException(
+                message:
+                    exception.message ?? 'Failed to mark message as delivered',
+                code: exception.code,
+                originalException: exception,
+              ),
+            );
           }
         },
       );
@@ -224,7 +229,8 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
     } catch (e) {
       if (e is MessageListRemoteDataSourceException) rethrow;
       throw MessageListRemoteDataSourceException(
-        message: 'Unexpected error while marking message as delivered: ${e.toString()}',
+        message:
+            'Unexpected error while marking message as delivered: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -242,7 +248,8 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
       );
     } catch (e) {
       throw MessageListRemoteDataSourceException(
-        message: 'Unexpected error while getting logged in user: ${e.toString()}',
+        message:
+            'Unexpected error while getting logged in user: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -263,11 +270,13 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
         },
         onError: (CometChatException exception) {
           if (!completer.isCompleted) {
-            completer.completeError(MessageListRemoteDataSourceException(
-              message: exception.message ?? 'Failed to get conversation',
-              code: exception.code,
-              originalException: exception,
-            ));
+            completer.completeError(
+              MessageListRemoteDataSourceException(
+                message: exception.message ?? 'Failed to get conversation',
+                code: exception.code,
+                originalException: exception,
+              ),
+            );
           }
         },
       );
@@ -298,11 +307,14 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
         },
         onError: (CometChatException exception) {
           if (!completer.isCompleted) {
-            completer.completeError(MessageListRemoteDataSourceException(
-              message: exception.message ?? 'Failed to mark message as unread',
-              code: exception.code,
-              originalException: exception,
-            ));
+            completer.completeError(
+              MessageListRemoteDataSourceException(
+                message:
+                    exception.message ?? 'Failed to mark message as unread',
+                code: exception.code,
+                originalException: exception,
+              ),
+            );
           }
         },
       );
@@ -316,7 +328,8 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
     } catch (e) {
       if (e is MessageListRemoteDataSourceException) rethrow;
       throw MessageListRemoteDataSourceException(
-        message: 'Unexpected error while marking message as unread: ${e.toString()}',
+        message:
+            'Unexpected error while marking message as unread: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -330,11 +343,13 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
       },
       onError: (CometChatException exception) {
         if (!completer.isCompleted) {
-          completer.completeError(MessageListRemoteDataSourceException(
-            message: exception.message ?? 'Failed to fetch previous messages',
-            code: exception.code,
-            originalException: exception,
-          ));
+          completer.completeError(
+            MessageListRemoteDataSourceException(
+              message: exception.message ?? 'Failed to fetch previous messages',
+              code: exception.code,
+              originalException: exception,
+            ),
+          );
         }
       },
     );
@@ -349,11 +364,13 @@ class MessageListRemoteDataSourceImpl implements MessageListRemoteDataSource {
       },
       onError: (CometChatException exception) {
         if (!completer.isCompleted) {
-          completer.completeError(MessageListRemoteDataSourceException(
-            message: exception.message ?? 'Failed to fetch next messages',
-            code: exception.code,
-            originalException: exception,
-          ));
+          completer.completeError(
+            MessageListRemoteDataSourceException(
+              message: exception.message ?? 'Failed to fetch next messages',
+              code: exception.code,
+              originalException: exception,
+            ),
+          );
         }
       },
     );

@@ -5,14 +5,14 @@ import '../../../../../../cometchat_uikit_shared.dart';
 ///upon pressing that child widget down and sliding it to the left menu items are revealed
 class SwipeTile extends StatefulWidget {
   ///creates widget for right swipe options on list tile
-  const SwipeTile(
-      {super.key,
-      required this.child,
-      required this.menuItems,
-      this.state,
-      this.onTap,
-      this.id,
-      });
+  const SwipeTile({
+    super.key,
+    required this.child,
+    required this.menuItems,
+    this.state,
+    this.onTap,
+    this.id,
+  });
 
   final Widget child;
 
@@ -36,7 +36,9 @@ class _SwipeTileState extends State<SwipeTile>
   initState() {
     super.initState();
     _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200));
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
   }
 
   @override
@@ -49,9 +51,10 @@ class _SwipeTileState extends State<SwipeTile>
   Widget build(BuildContext context) {
     int length = widget.menuItems.length;
 
-    final animation =
-        Tween(begin: const Offset(0.0, 0.0), end: Offset(-0.2 * length, 0.0))
-            .animate(CurveTween(curve: Curves.decelerate).animate(_controller));
+    final animation = Tween(
+      begin: const Offset(0.0, 0.0),
+      end: Offset(-0.2 * length, 0.0),
+    ).animate(CurveTween(curve: Curves.decelerate).animate(_controller));
 
     return GestureDetector(
       onTap: widget.onTap != null
@@ -101,7 +104,7 @@ class _SwipeTileState extends State<SwipeTile>
                 );
               },
             ),
-          )
+          ),
         ],
       ),
     );
@@ -110,15 +113,14 @@ class _SwipeTileState extends State<SwipeTile>
 
 class SwipeTileOptions extends StatelessWidget {
   ///Default CometChat menu widget shows
-  const SwipeTileOptions(
-      {super.key, required this.menuItems, this.id});
+  const SwipeTileOptions({super.key, required this.menuItems, this.id});
 
   /// List of menu items
   final List<CometChatOption> menuItems;
 
   final String? id;
 
-  getFirstWidget(CometChatOption item) {
+  GestureDetector getFirstWidget(CometChatOption item) {
     return GestureDetector(
       key: UniqueKey(),
       onTap: () {
@@ -142,34 +144,34 @@ class SwipeTileOptions extends StatelessWidget {
             if (item.title != null)
               Text(
                 item.title!,
-                style: item.titleStyle ??
+                style:
+                    item.titleStyle ??
                     const TextStyle(color: Colors.white, fontSize: 12),
                 maxLines: 1,
                 overflow: TextOverflow.fade,
-              )
+              ),
           ],
         ),
       ),
     );
   }
 
-  getPopUpMenuButtons(List<CometChatOption> menuItems) {
+  PopupMenuButton<CometChatOption> getPopUpMenuButtons(
+    List<CometChatOption> menuItems,
+  ) {
     return PopupMenuButton<CometChatOption>(
       itemBuilder: (context) => menuItems
-          .map((item) => PopupMenuItem<CometChatOption>(
-                value: item,
-                child: Text(
-                  item.title ?? "",
-                  style:item.titleStyle,
-                ),
-              ))
+          .map(
+            (item) => PopupMenuItem<CometChatOption>(
+              value: item,
+              child: Text(item.title ?? "", style: item.titleStyle),
+            ),
+          )
           .toList(),
       onSelected: (CometChatOption option) {
         performOnClick(option);
       },
-      icon: Icon(
-        Icons.adaptive.more,
-      ),
+      icon: Icon(Icons.adaptive.more),
     );
   }
 
@@ -191,14 +193,16 @@ class SwipeTileOptions extends StatelessWidget {
       moreOptions = getPopUpMenuButtons(hiddenMenuItems);
     }
 
-    return Row(children: [
-      Expanded(child: firstWidget ?? Container()),
-      if (secondWidget != null) Expanded(child: secondWidget),
-      if (moreOptions != null) Expanded(child: moreOptions)
-    ]);
+    return Row(
+      children: [
+        Expanded(child: firstWidget ?? Container()),
+        if (secondWidget != null) Expanded(child: secondWidget),
+        if (moreOptions != null) Expanded(child: moreOptions),
+      ],
+    );
   }
 
-  performOnClick(CometChatOption option) {
+  void performOnClick(CometChatOption option) {
     // if (option is CometChatGroupMemberOption<CometChatGroupMembersController>) {
     //   if (option.onClick2 != null) {
     //     option.onClick2!();

@@ -48,9 +48,9 @@ class _CometChatAIConversationStarterViewState
     if (!_themeInitialized) {
       _style =
           CometChatThemeHelper.getTheme<CometChatAIConversationStarterStyle>(
-        context: context,
-        defaultTheme: CometChatAIConversationStarterStyle.of,
-      ).merge(widget.style);
+            context: context,
+            defaultTheme: CometChatAIConversationStarterStyle.of,
+          ).merge(widget.style);
       _colorPalette = CometChatThemeHelper.getColorPalette(context);
       _spacing = CometChatThemeHelper.getSpacing(context);
       _typography = CometChatThemeHelper.getTypography(context);
@@ -134,26 +134,29 @@ class _CometChatAIConversationStarterViewState
                         vertical: _spacing.padding2 ?? 0,
                       ),
                       decoration: BoxDecoration(
-                        color: _style.backgroundColor ??
-                            _colorPalette.background1,
-                        border: _style.border ??
+                        color:
+                            _style.backgroundColor ?? _colorPalette.background1,
+                        border:
+                            _style.border ??
                             Border.all(
-                              color: _colorPalette.borderLight ??
+                              color:
+                                  _colorPalette.borderLight ??
                                   Colors.transparent,
                               width: 1,
                             ),
-                        borderRadius: _style.borderRadius ??
+                        borderRadius:
+                            _style.borderRadius ??
                             BorderRadius.all(
                               Radius.circular(_spacing.radiusMax ?? 0),
                             ),
                       ),
                       child: Text(
                         _replies[index],
-                        style: _style.itemTextStyle ??
+                        style:
+                            _style.itemTextStyle ??
                             TextStyle(
                               fontSize: _typography.body?.regular?.fontSize,
-                              fontWeight:
-                                  _typography.body?.regular?.fontWeight,
+                              fontWeight: _typography.body?.regular?.fontWeight,
                               color: _colorPalette.textPrimary,
                             ),
                       ),
@@ -161,7 +164,7 @@ class _CometChatAIConversationStarterViewState
                   ),
                 );
               },
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
             ),
           ],
         ),

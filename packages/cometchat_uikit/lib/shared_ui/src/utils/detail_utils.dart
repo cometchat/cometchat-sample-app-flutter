@@ -1,41 +1,40 @@
-import '../../cometchat_uikit_shared.dart';import 'package:flutter/material.dart';
+import '../../cometchat_uikit_shared.dart';
+import 'package:flutter/material.dart';
 
 ///[DetailUtils] is a Utility class that provides
-///the default options and templates available in [CometChatDetails]
+///the default options and templates available in `CometChatDetails`
 ///which allows users to block and unblock other users
 ///group members to view, add, ban other members
 class DetailUtils {
-  static List<CometChatGroupMemberOption> getDefaultGroupMemberOptions(
-      {User? loggedInUser,
-      Group? group,
-      GroupMember? member,
-      required BuildContext context,
-        bool? hideKickMemberOption,
-        bool? hideBanMemberOption,
-        bool? hideScopeChangeOption,
-      }) {
+  static List<CometChatGroupMemberOption> getDefaultGroupMemberOptions({
+    User? loggedInUser,
+    Group? group,
+    GroupMember? member,
+    required BuildContext context,
+    bool? hideKickMemberOption,
+    bool? hideBanMemberOption,
+    bool? hideScopeChangeOption,
+  }) {
     return [
-      if(hideScopeChangeOption != true) getScopeChangeOption(context),
-      if(hideBanMemberOption != true) getBanOption(context),
-      if(hideKickMemberOption != true) getKickOption(context),
-    ]
-        .where((option) {
-          final result =validateGroupMemberOptions(
-              loggedInUserScope: loggedInUser?.uid == group?.owner
-                  ? GroupMemberScope.owner
-                  : group?.scope ?? GroupMemberScope.participant,
-              memberScope: member?.uid == group?.owner
-                  ? GroupMemberScope.owner
-                  : member?.scope ?? GroupMemberScope.participant,
-              optionId: option.id);
-          if(option.id==GroupMemberOptionConstants.changeScope){
-            return result.isNotEmpty;
-          } else {
-            return result;
-          }
-
-    })
-        .toList();
+      if (hideScopeChangeOption != true) getScopeChangeOption(context),
+      if (hideBanMemberOption != true) getBanOption(context),
+      if (hideKickMemberOption != true) getKickOption(context),
+    ].where((option) {
+      final result = validateGroupMemberOptions(
+        loggedInUserScope: loggedInUser?.uid == group?.owner
+            ? GroupMemberScope.owner
+            : group?.scope ?? GroupMemberScope.participant,
+        memberScope: member?.uid == group?.owner
+            ? GroupMemberScope.owner
+            : member?.scope ?? GroupMemberScope.participant,
+        optionId: option.id,
+      );
+      if (option.id == GroupMemberOptionConstants.changeScope) {
+        return result.isNotEmpty;
+      } else {
+        return result;
+      }
+    }).toList();
   }
 
   static CometChatGroupMemberOption getKickOption(BuildContext context) {
@@ -69,45 +68,50 @@ class DetailUtils {
 
   static CometChatDetailsOption getViewMemberOption(BuildContext context) {
     return CometChatDetailsOption(
-        id: GroupOptionConstants.viewMembers,
-        title: Translations.of(context).viewMembers,
-        packageName: UIConstants.packageName,
-        tail: const Icon(Icons.navigate_next),
-        titleStyle: _getPrimaryGroupOptionTextStyle());
+      id: GroupOptionConstants.viewMembers,
+      title: Translations.of(context).viewMembers,
+      packageName: UIConstants.packageName,
+      tail: const Icon(Icons.navigate_next),
+      titleStyle: _getPrimaryGroupOptionTextStyle(),
+    );
   }
 
   static CometChatDetailsOption getBannedMemberOption(BuildContext context) {
     return CometChatDetailsOption(
-        id: GroupOptionConstants.bannedMembers,
-        title: Translations.of(context).bannedMembers,
-        packageName: UIConstants.packageName,
-        tail: const Icon(Icons.navigate_next),
-        titleStyle: _getPrimaryGroupOptionTextStyle());
+      id: GroupOptionConstants.bannedMembers,
+      title: Translations.of(context).bannedMembers,
+      packageName: UIConstants.packageName,
+      tail: const Icon(Icons.navigate_next),
+      titleStyle: _getPrimaryGroupOptionTextStyle(),
+    );
   }
 
   static CometChatDetailsOption getAddMembersOption(BuildContext context) {
     return CometChatDetailsOption(
-        id: GroupOptionConstants.addMembers,
-        title: Translations.of(context).addMembers,
-        packageName: UIConstants.packageName,
-        tail: const Icon(Icons.navigate_next),
-        titleStyle: _getPrimaryGroupOptionTextStyle());
+      id: GroupOptionConstants.addMembers,
+      title: Translations.of(context).addMembers,
+      packageName: UIConstants.packageName,
+      tail: const Icon(Icons.navigate_next),
+      titleStyle: _getPrimaryGroupOptionTextStyle(),
+    );
   }
 
   static CometChatDetailsOption getLeaveGroupOption(BuildContext context) {
     return CometChatDetailsOption(
-        id: GroupOptionConstants.leave,
-        title: Translations.of(context).leaveGroup,
-        packageName: UIConstants.packageName,
-        titleStyle: _getSecondaryGroupOptionTextStyle());
+      id: GroupOptionConstants.leave,
+      title: Translations.of(context).leaveGroup,
+      packageName: UIConstants.packageName,
+      titleStyle: _getSecondaryGroupOptionTextStyle(),
+    );
   }
 
   static CometChatDetailsOption getDeleteGroupOption(BuildContext context) {
     return CometChatDetailsOption(
-        id: GroupOptionConstants.delete,
-        title: Translations.of(context).deleteAndExit,
-        packageName: UIConstants.packageName,
-        titleStyle: _getSecondaryGroupOptionTextStyle());
+      id: GroupOptionConstants.delete,
+      title: Translations.of(context).deleteAndExit,
+      packageName: UIConstants.packageName,
+      titleStyle: _getSecondaryGroupOptionTextStyle(),
+    );
   }
 
   static CometChatDetailsOption getBlockUserOption(BuildContext context) {
@@ -130,10 +134,11 @@ class DetailUtils {
 
   static CometChatDetailsOption getViewProfileOption(BuildContext context) {
     return CometChatDetailsOption(
-        id: UserOptionConstants.viewProfile,
-        title: Translations.of(context).viewProfile,
-        packageName: UIConstants.packageName,
-        titleStyle: _getPrimaryOptionTextStyle());
+      id: UserOptionConstants.viewProfile,
+      title: Translations.of(context).viewProfile,
+      packageName: UIConstants.packageName,
+      titleStyle: _getPrimaryOptionTextStyle(),
+    );
   }
 
   static CometChatDetailsOption getLeaveOption(BuildContext context) {
@@ -157,7 +162,8 @@ class DetailUtils {
     BuildContext context,
     User? loggedInUser,
     User? user,
-    Group? group) {
+    Group? group,
+  ) {
     return CometChatDetailsTemplate(
       id: DetailsTemplateConstants.primaryActions,
       hideItemSeparator: true,
@@ -165,66 +171,84 @@ class DetailUtils {
       options: (user, group, context) => user != null
           ? []
           : [
-              getViewMemberOption(context!),
-              getAddMembersOption(context),
-              getBannedMemberOption(context)
-            ]
-              .where((option) => validateDetailOptions(
-                  loggedInUserScope: loggedInUser?.uid == group?.owner
-                      ? GroupMemberScope.owner
-                      : group?.scope ?? GroupMemberScope.participant,
-                  optionId: option.id))
-              .toList(),
+                  getViewMemberOption(context!),
+                  getAddMembersOption(context),
+                  getBannedMemberOption(context),
+                ]
+                .where(
+                  (option) => validateDetailOptions(
+                    loggedInUserScope: loggedInUser?.uid == group?.owner
+                        ? GroupMemberScope.owner
+                        : group?.scope ?? GroupMemberScope.participant,
+                    optionId: option.id,
+                  ),
+                )
+                .toList(),
     );
   }
 
   static CometChatDetailsTemplate? getSecondaryDetailsTemplate(
-      BuildContext context, User? loggedInUser, User? user, Group? group) {
+    BuildContext context,
+    User? loggedInUser,
+    User? user,
+    Group? group,
+  ) {
     if (user != null) {
       return CometChatDetailsTemplate(
-          id: DetailsTemplateConstants.secondaryActions,
-          title: Translations.of(context).privacyAndSecurity,
-          hideItemSeparator: true,
-          hideSectionSeparator: false,
-          options: (user, group, context) => [
-                getBlockUserOption(context!),
-                getUnBlockUserOption(context)
-              ]
-                  .where((option) =>
-                      validateUserOptions(loggedInUser, user, option.id))
-                  .toList());
+        id: DetailsTemplateConstants.secondaryActions,
+        title: Translations.of(context).privacyAndSecurity,
+        hideItemSeparator: true,
+        hideSectionSeparator: false,
+        options: (user, group, context) =>
+            [getBlockUserOption(context!), getUnBlockUserOption(context)]
+                .where(
+                  (option) =>
+                      validateUserOptions(loggedInUser, user, option.id),
+                )
+                .toList(),
+      );
     } else if (group != null) {
       return CometChatDetailsTemplate(
-          id: DetailsTemplateConstants.secondaryActions,
-          title: Translations.of(context).more,
-          hideItemSeparator: true,
-          hideSectionSeparator: false,
-          options: (user, group, context) => [
-                getLeaveGroupOption(context!),
-                getDeleteGroupOption(context)
-              ]
-                  .where((option) => validateDetailOptions(
-                      loggedInUserScope: loggedInUser?.uid == group?.owner
-                          ? GroupMemberScope.owner
-                          : group?.scope ?? GroupMemberScope.participant,
-                      optionId: option.id))
-                  .toList());
+        id: DetailsTemplateConstants.secondaryActions,
+        title: Translations.of(context).more,
+        hideItemSeparator: true,
+        hideSectionSeparator: false,
+        options: (user, group, context) =>
+            [getLeaveGroupOption(context!), getDeleteGroupOption(context)]
+                .where(
+                  (option) => validateDetailOptions(
+                    loggedInUserScope: loggedInUser?.uid == group?.owner
+                        ? GroupMemberScope.owner
+                        : group?.scope ?? GroupMemberScope.participant,
+                    optionId: option.id,
+                  ),
+                )
+                .toList(),
+      );
     }
     return null;
   }
 
   static List<CometChatDetailsTemplate> getDefaultDetailsTemplates(
-      BuildContext context, User? loggedInUser,
-      {User? user, Group? group}) {
+    BuildContext context,
+    User? loggedInUser, {
+    User? user,
+    Group? group,
+  }) {
     if (user != null || group != null) {
-      CometChatDetailsTemplate? primaryTemplate =
-          getPrimaryDetailsTemplate(context, loggedInUser, user, group);
-      CometChatDetailsTemplate? secondaryTemplate =
-          getSecondaryDetailsTemplate(context, loggedInUser, user, group);
-      return [
-        if (primaryTemplate != null) primaryTemplate,
-        if (secondaryTemplate != null) secondaryTemplate
-      ];
+      CometChatDetailsTemplate? primaryTemplate = getPrimaryDetailsTemplate(
+        context,
+        loggedInUser,
+        user,
+        group,
+      );
+      CometChatDetailsTemplate? secondaryTemplate = getSecondaryDetailsTemplate(
+        context,
+        loggedInUser,
+        user,
+        group,
+      );
+      return [?primaryTemplate, ?secondaryTemplate];
     } else {
       return [];
     }
@@ -235,26 +259,27 @@ class DetailUtils {
   }
 
   static TextStyle _getSecondaryGroupOptionTextStyle() {
-    return const TextStyle(
-        color:  Color(0xffFF3B30));
+    return const TextStyle(color: Color(0xffFF3B30));
   }
 
   static TextStyle _getPrimaryOptionTextStyle() {
-    return const TextStyle(
-        color:  Color(0xff3399FF));
+    return const TextStyle(color: Color(0xff3399FF));
   }
 
-  static dynamic validateDetailOptions(
-      {required String loggedInUserScope, required String optionId}) {
+  static dynamic validateDetailOptions({
+    required String loggedInUserScope,
+    required String optionId,
+  }) {
     return _allowedDetailOptions[loggedInUserScope]?[optionId];
   }
 
-  static dynamic validateGroupMemberOptions(
-      {required String loggedInUserScope,
-      String memberScope = GroupMemberScope.participant,
-      required String optionId}) {
-    return _allowedGroupMemberOptions[loggedInUserScope + memberScope]
-        ?[optionId];
+  static dynamic validateGroupMemberOptions({
+    required String loggedInUserScope,
+    String memberScope = GroupMemberScope.participant,
+    required String optionId,
+  }) {
+    return _allowedGroupMemberOptions[loggedInUserScope +
+        memberScope]?[optionId];
   }
 
   static final Map<String, Map<String, dynamic>> _allowedDetailOptions = {
@@ -263,28 +288,28 @@ class DetailUtils {
       GroupOptionConstants.delete: false, //Details
       GroupOptionConstants.leave: true, //Details
       GroupOptionConstants.bannedMembers: false, //Details
-      GroupOptionConstants.viewMembers: true //Details
+      GroupOptionConstants.viewMembers: true, //Details
     },
     GroupMemberScope.moderator: {
       GroupOptionConstants.addMembers: false,
       GroupOptionConstants.delete: false,
       GroupOptionConstants.leave: true,
       GroupOptionConstants.bannedMembers: true,
-      GroupOptionConstants.viewMembers: true
+      GroupOptionConstants.viewMembers: true,
     },
     GroupMemberScope.admin: {
       GroupOptionConstants.addMembers: true,
       GroupOptionConstants.delete: true,
       GroupOptionConstants.leave: true,
       GroupOptionConstants.bannedMembers: true,
-      GroupOptionConstants.viewMembers: true
+      GroupOptionConstants.viewMembers: true,
     },
     GroupMemberScope.owner: {
       GroupOptionConstants.addMembers: true,
       GroupOptionConstants.delete: true,
       GroupOptionConstants.leave: true,
       GroupOptionConstants.bannedMembers: true,
-      GroupOptionConstants.viewMembers: true
+      GroupOptionConstants.viewMembers: true,
     },
   };
 
@@ -319,7 +344,7 @@ class DetailUtils {
       GroupMemberOptionConstants.unban: true,
       GroupMemberOptionConstants.changeScope: [
         GroupMemberScope.participant,
-        GroupMemberScope.moderator
+        GroupMemberScope.moderator,
       ],
     },
     GroupMemberScope.moderator + GroupMemberScope.moderator: {
@@ -328,7 +353,7 @@ class DetailUtils {
       GroupMemberOptionConstants.unban: true,
       GroupMemberOptionConstants.changeScope: <String>[
         GroupMemberScope.participant,
-        GroupMemberScope.moderator
+        GroupMemberScope.moderator,
       ],
     },
     GroupMemberScope.moderator + GroupMemberScope.admin: {
@@ -350,7 +375,7 @@ class DetailUtils {
       GroupMemberOptionConstants.changeScope: <String>[
         GroupMemberScope.participant,
         GroupMemberScope.admin,
-        GroupMemberScope.moderator
+        GroupMemberScope.moderator,
       ],
     },
     GroupMemberScope.admin + GroupMemberScope.moderator: {
@@ -360,7 +385,7 @@ class DetailUtils {
       GroupMemberOptionConstants.changeScope: <String>[
         GroupMemberScope.participant,
         GroupMemberScope.admin,
-        GroupMemberScope.moderator
+        GroupMemberScope.moderator,
       ],
     },
     GroupMemberScope.admin + GroupMemberScope.admin: {
@@ -370,7 +395,7 @@ class DetailUtils {
       GroupMemberOptionConstants.changeScope: <String>[
         GroupMemberScope.participant,
         GroupMemberScope.admin,
-        GroupMemberScope.moderator
+        GroupMemberScope.moderator,
       ],
     },
     GroupMemberScope.admin + GroupMemberScope.owner: {
@@ -386,7 +411,7 @@ class DetailUtils {
       GroupMemberOptionConstants.changeScope: <String>[
         GroupMemberScope.participant,
         GroupMemberScope.admin,
-        GroupMemberScope.moderator
+        GroupMemberScope.moderator,
       ],
     },
     GroupMemberScope.owner + GroupMemberScope.moderator: {
@@ -396,7 +421,7 @@ class DetailUtils {
       GroupMemberOptionConstants.changeScope: <String>[
         GroupMemberScope.participant,
         GroupMemberScope.admin,
-        GroupMemberScope.moderator
+        GroupMemberScope.moderator,
       ],
     },
     GroupMemberScope.owner + GroupMemberScope.admin: {
@@ -406,7 +431,7 @@ class DetailUtils {
       GroupMemberOptionConstants.changeScope: <String>[
         GroupMemberScope.participant,
         GroupMemberScope.admin,
-        GroupMemberScope.moderator
+        GroupMemberScope.moderator,
       ],
     },
     GroupMemberScope.owner + GroupMemberScope.owner: {

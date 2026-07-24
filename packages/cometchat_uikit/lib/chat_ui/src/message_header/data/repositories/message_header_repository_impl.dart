@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../domain/repositories/message_header_repository.dart';
 
@@ -23,10 +23,7 @@ class MessageHeaderRepositoryImpl implements MessageHeaderRepository {
       final user = await completer.future;
       return Success(user);
     } on CometChatException catch (e) {
-      return Failure(
-        message: e.message ?? 'Failed to get user',
-        code: e.code,
-      );
+      return Failure(message: e.message ?? 'Failed to get user', code: e.code);
     } catch (e) {
       return Failure(message: 'Failed to get user: $e');
     }
@@ -50,10 +47,7 @@ class MessageHeaderRepositoryImpl implements MessageHeaderRepository {
       final group = await completer.future;
       return Success(group);
     } on CometChatException catch (e) {
-      return Failure(
-        message: e.message ?? 'Failed to get group',
-        code: e.code,
-      );
+      return Failure(message: e.message ?? 'Failed to get group', code: e.code);
     } catch (e) {
       return Failure(message: 'Failed to get group: $e');
     }

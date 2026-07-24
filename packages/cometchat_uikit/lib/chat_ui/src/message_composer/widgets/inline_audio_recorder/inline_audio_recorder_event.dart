@@ -22,9 +22,9 @@ class PauseRecording extends InlineAudioRecorderEvent {
 class ResumeRecording extends InlineAudioRecorderEvent {
   /// Whether this is a fresh restart (old recording lost) or true resume
   final bool isFreshRestart;
-  
+
   const ResumeRecording({this.isFreshRestart = false});
-  
+
   @override
   List<Object?> get props => [isFreshRestart];
 }
@@ -89,10 +89,7 @@ class RecordingCompleted extends InlineAudioRecorderEvent {
   final String filePath;
   final Duration duration;
 
-  const RecordingCompleted({
-    required this.filePath,
-    required this.duration,
-  });
+  const RecordingCompleted({required this.filePath, required this.duration});
 
   @override
   List<Object?> get props => [filePath, duration];

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Base class for all message list events
 /// Uses Equatable for proper event comparison in BLoC
@@ -31,7 +31,13 @@ class LoadMessages extends MessageListEvent {
   });
 
   @override
-  List<Object?> get props => [conversationWith, conversationType, parentMessageId, types, categories];
+  List<Object?> get props => [
+    conversationWith,
+    conversationType,
+    parentMessageId,
+    types,
+    categories,
+  ];
 }
 
 /// Load older messages (pagination - scroll up)
@@ -315,9 +321,7 @@ class ForceEmptyState extends MessageListEvent {
 class LoadLastAgentConversation extends MessageListEvent {
   final String conversationWith;
 
-  const LoadLastAgentConversation({
-    required this.conversationWith,
-  });
+  const LoadLastAgentConversation({required this.conversationWith});
 
   @override
   List<Object?> get props => [conversationWith];

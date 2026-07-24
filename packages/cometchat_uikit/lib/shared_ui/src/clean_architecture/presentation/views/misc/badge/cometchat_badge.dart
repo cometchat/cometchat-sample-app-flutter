@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../../../../cometchat_uikit_shared.dart';
 
@@ -41,8 +40,9 @@ class CometChatBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final badgeStyle = CometChatThemeHelper.getTheme<CometChatBadgeStyle>(
-            context: context, defaultTheme: CometChatBadgeStyle.of)
-        .merge(style);
+      context: context,
+      defaultTheme: CometChatBadgeStyle.of,
+    ).merge(style);
     final typography = CometChatThemeHelper.getTypography(context);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
@@ -51,41 +51,39 @@ class CometChatBadge extends StatelessWidget {
         ? Container(
             height: height ?? 16,
             width: width ?? ((count < 10) ? 16 : null),
-            padding: padding ??
+            padding:
+                padding ??
                 EdgeInsets.symmetric(
                   vertical: spacing.padding ?? 0,
                   horizontal: spacing.padding1 ?? 0,
                 ),
             decoration: BoxDecoration(
               shape: (badgeStyle.borderRadius == null)
-                  ? badgeStyle.boxShape ?? ((count <= 9) ? BoxShape.circle : BoxShape.rectangle):BoxShape.rectangle,
+                  ? badgeStyle.boxShape ??
+                        ((count <= 9) ? BoxShape.circle : BoxShape.rectangle)
+                  : BoxShape.rectangle,
               borderRadius: (badgeStyle.borderRadius != null)
                   ? badgeStyle.borderRadius
                   : (count <= 9)
-                      ? null
-                      : BorderRadius.all(
-                          Radius.circular(
-                            spacing.radius5 ?? 0,
-                          ),
-                        ),
+                  ? null
+                  : BorderRadius.all(Radius.circular(spacing.radius5 ?? 0)),
               border: badgeStyle.border,
               color: badgeStyle.backgroundColor ?? colorPalette.primary,
             ),
             child: FittedBox(
               child: Text(
                 "${count <= 999 ? count : '999+'}",
-                style: TextStyle(
-                  color: badgeStyle.textColor ?? colorPalette.buttonIconColor,
-                  fontSize: typography.caption1?.regular?.fontSize,
-                  fontWeight: typography.caption1?.regular?.fontWeight,
-                  fontFamily: typography.caption1?.regular?.fontFamily,
-                )
-                    .merge(
-                      badgeStyle.textStyle,
-                    )
-                    .copyWith(
-                      color: badgeStyle.textColor,
-                    ),
+                style:
+                    TextStyle(
+                          color:
+                              badgeStyle.textColor ??
+                              colorPalette.buttonIconColor,
+                          fontSize: typography.caption1?.regular?.fontSize,
+                          fontWeight: typography.caption1?.regular?.fontWeight,
+                          fontFamily: typography.caption1?.regular?.fontFamily,
+                        )
+                        .merge(badgeStyle.textStyle)
+                        .copyWith(color: badgeStyle.textColor),
               ),
             ),
           )

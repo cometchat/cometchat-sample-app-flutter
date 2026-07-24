@@ -26,6 +26,7 @@
 ///   selection: controller.selection,
 /// ));
 /// ```
+library;
 
 // Domain layer exports
 export 'domain/domain.dart';

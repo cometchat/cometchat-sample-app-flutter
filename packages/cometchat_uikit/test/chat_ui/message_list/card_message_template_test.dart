@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 
 import 'package:cometchat_chat_uikit/shared_ui/cometchat_uikit_shared.dart';
-import 'package:cometchat_chat_uikit/chat_ui/src/message_list/utils/message_template_utils.dart';
 
 // ---------------------------------------------------------------------------
 // Fakes
@@ -44,8 +41,8 @@ class FakeCardMessage extends Fake implements CardMessage {
     this._id, {
     Map<String, dynamic>? card,
     String senderUid = 'other_user',
-  })  : _card = card,
-        _senderUid = senderUid;
+  }) : _card = card,
+       _senderUid = senderUid;
 
   @override
   int get id => _id;
@@ -129,12 +126,15 @@ void main() {
       expect(template.type, MessageTypeConstants.card);
     });
 
-    test('legacy getCardMessageTemplate returns template with category "interactive"', () {
-      final template = MessageTemplateUtils.getCardMessageTemplate();
+    test(
+      'legacy getCardMessageTemplate returns template with category "interactive"',
+      () {
+        final template = MessageTemplateUtils.getCardMessageTemplate();
 
-      expect(template.category, MessageCategoryConstants.interactive);
-      expect(template.type, MessageTypeConstants.card);
-    });
+        expect(template.category, MessageCategoryConstants.interactive);
+        expect(template.type, MessageTypeConstants.card);
+      },
+    );
 
     test('both card templates are registered in getAllMessageTemplates', () {
       final templates = MessageTemplateUtils.getAllMessageTemplates();
@@ -145,8 +145,11 @@ void main() {
             t.type == MessageTypeConstants.card &&
             t.category == MessageCategoryConstants.card,
       );
-      expect(cardBubbleTemplates.length, 1,
-          reason: 'New card bubble template should be registered');
+      expect(
+        cardBubbleTemplates.length,
+        1,
+        reason: 'New card bubble template should be registered',
+      );
 
       // Find the legacy card template (category: interactive)
       final legacyCardTemplates = templates.where(
@@ -154,8 +157,11 @@ void main() {
             t.type == MessageTypeConstants.card &&
             t.category == MessageCategoryConstants.interactive,
       );
-      expect(legacyCardTemplates.length, 1,
-          reason: 'Legacy card template should still be registered');
+      expect(
+        legacyCardTemplates.length,
+        1,
+        reason: 'Legacy card template should still be registered',
+      );
     });
 
     test('getAllMessageTypes includes card type', () {
@@ -203,10 +209,16 @@ void main() {
       );
 
       final optionIds = options.map((o) => o.id).toList();
-      expect(optionIds, isNot(contains(MessageOptionConstants.editMessage)),
-          reason: 'Card messages should not have edit option');
-      expect(optionIds, isNot(contains(MessageOptionConstants.copyMessage)),
-          reason: 'Card messages should not have copy option');
+      expect(
+        optionIds,
+        isNot(contains(MessageOptionConstants.editMessage)),
+        reason: 'Card messages should not have edit option',
+      );
+      expect(
+        optionIds,
+        isNot(contains(MessageOptionConstants.copyMessage)),
+        reason: 'Card messages should not have copy option',
+      );
     });
 
     testWidgets('card options include reply', (tester) async {
@@ -242,7 +254,10 @@ void main() {
             builder: (context) {
               options = MessageTemplateUtils.getCardBubbleOptions(
                 FakeUser(), // uid: 'test_user'
-                FakeCardMessage(1, senderUid: 'test_user'), // sender = logged in
+                FakeCardMessage(
+                  1,
+                  senderUid: 'test_user',
+                ), // sender = logged in
                 context,
                 null,
                 null,
@@ -257,8 +272,9 @@ void main() {
       expect(optionIds, contains(MessageOptionConstants.deleteMessage));
     });
 
-    testWidgets('card options include message info for own messages',
-        (tester) async {
+    testWidgets('card options include message info for own messages', (
+      tester,
+    ) async {
       late List<CometChatMessageOption> options;
 
       await tester.pumpWidget(
@@ -282,8 +298,9 @@ void main() {
       expect(optionIds, contains(MessageOptionConstants.messageInformation));
     });
 
-    testWidgets('card options include reply in thread for 1:1 chat',
-        (tester) async {
+    testWidgets('card options include reply in thread for 1:1 chat', (
+      tester,
+    ) async {
       late List<CometChatMessageOption> options;
 
       await tester.pumpWidget(
@@ -307,8 +324,9 @@ void main() {
       expect(optionIds, contains(MessageOptionConstants.replyInThreadMessage));
     });
 
-    testWidgets('card options never include edit even for own messages',
-        (tester) async {
+    testWidgets('card options never include edit even for own messages', (
+      tester,
+    ) async {
       late List<CometChatMessageOption> options;
 
       await tester.pumpWidget(
@@ -329,12 +347,16 @@ void main() {
       );
 
       final optionIds = options.map((o) => o.id).toList();
-      expect(optionIds, isNot(contains(MessageOptionConstants.editMessage)),
-          reason: 'Card messages cannot be edited even by sender');
+      expect(
+        optionIds,
+        isNot(contains(MessageOptionConstants.editMessage)),
+        reason: 'Card messages cannot be edited even by sender',
+      );
     });
 
-    testWidgets('card options never include copy even for own messages',
-        (tester) async {
+    testWidgets('card options never include copy even for own messages', (
+      tester,
+    ) async {
       late List<CometChatMessageOption> options;
 
       await tester.pumpWidget(
@@ -355,63 +377,73 @@ void main() {
       );
 
       final optionIds = options.map((o) => o.id).toList();
-      expect(optionIds, isNot(contains(MessageOptionConstants.copyMessage)),
-          reason: 'Card messages cannot be copied');
-    });
-
-    testWidgets('card options respect additionalConfigurations.hideReplyOption',
-        (tester) async {
-      late List<CometChatMessageOption> options;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) {
-              options = MessageTemplateUtils.getCardBubbleOptions(
-                FakeUser(),
-                FakeCardMessage(1, senderUid: 'other_user'),
-                context,
-                null,
-                AdditionalConfigurations(hideReplyOption: true),
-              );
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
+      expect(
+        optionIds,
+        isNot(contains(MessageOptionConstants.copyMessage)),
+        reason: 'Card messages cannot be copied',
       );
-
-      final optionIds = options.map((o) => o.id).toList();
-      expect(optionIds, isNot(contains(MessageOptionConstants.replyMessage)));
     });
 
     testWidgets(
-        'card options respect additionalConfigurations.hideDeleteMessageOption',
-        (tester) async {
-      late List<CometChatMessageOption> options;
+      'card options respect additionalConfigurations.hideReplyOption',
+      (tester) async {
+        late List<CometChatMessageOption> options;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) {
-              options = MessageTemplateUtils.getCardBubbleOptions(
-                FakeUser(),
-                FakeCardMessage(1, senderUid: 'test_user'),
-                context,
-                null,
-                AdditionalConfigurations(hideDeleteMessageOption: true),
-              );
-              return const SizedBox.shrink();
-            },
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (context) {
+                options = MessageTemplateUtils.getCardBubbleOptions(
+                  FakeUser(),
+                  FakeCardMessage(1, senderUid: 'other_user'),
+                  context,
+                  null,
+                  AdditionalConfigurations(hideReplyOption: true),
+                );
+                return const SizedBox.shrink();
+              },
+            ),
           ),
-        ),
-      );
+        );
 
-      final optionIds = options.map((o) => o.id).toList();
-      expect(optionIds, isNot(contains(MessageOptionConstants.deleteMessage)));
-    });
+        final optionIds = options.map((o) => o.id).toList();
+        expect(optionIds, isNot(contains(MessageOptionConstants.replyMessage)));
+      },
+    );
 
-    testWidgets('card options include sendMessagePrivately in group chat',
-        (tester) async {
+    testWidgets(
+      'card options respect additionalConfigurations.hideDeleteMessageOption',
+      (tester) async {
+        late List<CometChatMessageOption> options;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (context) {
+                options = MessageTemplateUtils.getCardBubbleOptions(
+                  FakeUser(),
+                  FakeCardMessage(1, senderUid: 'test_user'),
+                  context,
+                  null,
+                  AdditionalConfigurations(hideDeleteMessageOption: true),
+                );
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        final optionIds = options.map((o) => o.id).toList();
+        expect(
+          optionIds,
+          isNot(contains(MessageOptionConstants.deleteMessage)),
+        );
+      },
+    );
+
+    testWidgets('card options include sendMessagePrivately in group chat', (
+      tester,
+    ) async {
       late List<CometChatMessageOption> options;
 
       await tester.pumpWidget(
@@ -432,14 +464,14 @@ void main() {
       );
 
       final optionIds = options.map((o) => o.id).toList();
-      expect(optionIds,
-          contains(MessageOptionConstants.sendMessagePrivately));
+      expect(optionIds, contains(MessageOptionConstants.sendMessagePrivately));
     });
   });
 
   group('Card Message Template — Deleted Card Handling', () {
-    testWidgets('contentView shows deleted bubble for deleted card message',
-        (tester) async {
+    testWidgets('contentView shows deleted bubble for deleted card message', (
+      tester,
+    ) async {
       final template = MessageTemplateUtils.getCardBubbleTemplate();
       final deletedCard = _DeletedFakeCardMessage(1);
 

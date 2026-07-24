@@ -31,19 +31,20 @@ class AudioWaveformPainter extends CustomPainter {
     if (amplitudes.isEmpty) return;
 
     final barCount = amplitudes.length;
-    
+
     // Calculate bar dimensions based on available width
     final effectiveWidth = availableWidth ?? size.width;
     final totalBarWidth = effectiveWidth / barCount;
     // Use 60% of slot width for bar, rest for spacing
     final effectiveBarWidth = (totalBarWidth * 0.6).clamp(2.0, 6.0);
-    
+
     final playedBarCount = (progress * barCount).floor();
 
     for (int i = 0; i < barCount; i++) {
       final amplitude = amplitudes[i];
-      final barHeight = minBarHeight + (amplitude * (maxBarHeight - minBarHeight));
-      
+      final barHeight =
+          minBarHeight + (amplitude * (maxBarHeight - minBarHeight));
+
       // Center bars vertically
       final top = (size.height - barHeight) / 2;
       // Center bar within its slot

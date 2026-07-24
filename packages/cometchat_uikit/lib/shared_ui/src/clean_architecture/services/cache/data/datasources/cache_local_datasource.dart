@@ -10,19 +10,13 @@ abstract class CacheLocalDataSource {
   });
 
   /// Get from cache
-  Future<Result<T?>> get<T>({
-    required String key,
-  });
+  Future<Result<T?>> get<T>({required String key});
 
   /// Check if exists
-  Future<Result<bool>> exists({
-    required String key,
-  });
+  Future<Result<bool>> exists({required String key});
 
   /// Delete from cache
-  Future<Result<void>> delete({
-    required String key,
-  });
+  Future<Result<void>> delete({required String key});
 
   /// Clear all cache
   Future<Result<void>> clearAll();
@@ -35,7 +29,7 @@ abstract class CacheLocalDataSource {
 class CacheLocalDataSourceImpl implements CacheLocalDataSource {
   /// In-memory cache storage
   final Map<String, dynamic> _cache = {};
-  
+
   /// Cache metadata
   final Map<String, DateTime?> _expiryTimes = {};
 
@@ -47,7 +41,7 @@ class CacheLocalDataSourceImpl implements CacheLocalDataSource {
   }) async {
     try {
       _cache[key] = value;
-      
+
       if (ttl != null) {
         _expiryTimes[key] = DateTime.now().add(ttl);
       } else {
@@ -65,9 +59,7 @@ class CacheLocalDataSourceImpl implements CacheLocalDataSource {
   }
 
   @override
-  Future<Result<T?>> get<T>({
-    required String key,
-  }) async {
+  Future<Result<T?>> get<T>({required String key}) async {
     try {
       // Check if cache exists
       if (!_cache.containsKey(key)) {
@@ -93,9 +85,7 @@ class CacheLocalDataSourceImpl implements CacheLocalDataSource {
   }
 
   @override
-  Future<Result<bool>> exists({
-    required String key,
-  }) async {
+  Future<Result<bool>> exists({required String key}) async {
     try {
       if (!_cache.containsKey(key)) {
         return const Success(false);
@@ -120,9 +110,7 @@ class CacheLocalDataSourceImpl implements CacheLocalDataSource {
   }
 
   @override
-  Future<Result<void>> delete({
-    required String key,
-  }) async {
+  Future<Result<void>> delete({required String key}) async {
     try {
       _cache.remove(key);
       _expiryTimes.remove(key);

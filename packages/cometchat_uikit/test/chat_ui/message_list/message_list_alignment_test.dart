@@ -57,8 +57,8 @@ class FakeTextMessage extends Fake implements TextMessage {
   final int _parentMessageId;
 
   FakeTextMessage(this._id, {User? sender, int parentMessageId = 0})
-      : _sender = sender,
-        _parentMessageId = parentMessageId;
+    : _sender = sender,
+      _parentMessageId = parentMessageId;
 
   @override
   int get id => _id;
@@ -182,22 +182,27 @@ MessageListBloc _makeBloc(
 }
 
 void _stubRepo(MockMessageListRepository repo, {List<BaseMessage>? messages}) {
-  when(() => repo.getLoggedInUser())
-      .thenAnswer((_) async => Success(FakeUser()));
-  when(() => repo.getMessages(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-        limit: any(named: 'limit'),
-        parentMessageId: any(named: 'parentMessageId'),
-        types: any(named: 'types'),
-        categories: any(named: 'categories'),
-        hideReplies: any(named: 'hideReplies'),
-        withParent: any(named: 'withParent'),
-      )).thenAnswer((_) async => Success(messages ?? []));
-  when(() => repo.getConversation(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-      )).thenAnswer((_) async => Success(FakeConversation()));
+  when(
+    () => repo.getLoggedInUser(),
+  ).thenAnswer((_) async => Success(FakeUser()));
+  when(
+    () => repo.getMessages(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+      limit: any(named: 'limit'),
+      parentMessageId: any(named: 'parentMessageId'),
+      types: any(named: 'types'),
+      categories: any(named: 'categories'),
+      hideReplies: any(named: 'hideReplies'),
+      withParent: any(named: 'withParent'),
+    ),
+  ).thenAnswer((_) async => Success(messages ?? []));
+  when(
+    () => repo.getConversation(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+    ),
+  ).thenAnswer((_) async => Success(FakeConversation()));
 }
 
 /// Determines bubble alignment based on message sender and chat alignment mode.
@@ -276,7 +281,9 @@ void main() {
 
     test('multiple sent messages all align right', () {
       final messages = List.generate(
-          5, (i) => FakeTextMessage(i + 1, sender: loggedInUser));
+        5,
+        (i) => FakeTextMessage(i + 1, sender: loggedInUser),
+      );
       for (final msg in messages) {
         final alignment = _getBubbleAlignment(
           message: msg,
@@ -288,8 +295,10 @@ void main() {
     });
 
     test('multiple received messages all align left', () {
-      final messages =
-          List.generate(5, (i) => FakeTextMessage(i + 1, sender: otherUser));
+      final messages = List.generate(
+        5,
+        (i) => FakeTextMessage(i + 1, sender: otherUser),
+      );
       for (final msg in messages) {
         final alignment = _getBubbleAlignment(
           message: msg,
@@ -310,11 +319,13 @@ void main() {
       ];
 
       final alignments = messages
-          .map((msg) => _getBubbleAlignment(
-                message: msg,
-                loggedInUser: loggedInUser,
-                chatAlignment: ChatAlignment.standard,
-              ))
+          .map(
+            (msg) => _getBubbleAlignment(
+              message: msg,
+              loggedInUser: loggedInUser,
+              chatAlignment: ChatAlignment.standard,
+            ),
+          )
           .toList();
 
       expect(alignments[0], equals(BubbleAlignment.right));
@@ -436,39 +447,44 @@ void main() {
       expect(alignment, equals(BubbleAlignment.center));
     });
 
-    test('messages loaded in group have correct alignment per sender', () async {
-      final messages = [
-        FakeTextMessage(1, sender: loggedInUser),
-        FakeTextMessage(2, sender: otherUser),
-        FakeTextMessage(3, sender: loggedInUser),
-      ];
-      _stubRepo(repo, messages: messages);
+    test(
+      'messages loaded in group have correct alignment per sender',
+      () async {
+        final messages = [
+          FakeTextMessage(1, sender: loggedInUser),
+          FakeTextMessage(2, sender: otherUser),
+          FakeTextMessage(3, sender: loggedInUser),
+        ];
+        _stubRepo(repo, messages: messages);
 
-      final bloc = _makeBloc(repo, user: null, group: FakeGroup());
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_group',
-        conversationType: 'group',
-      ));
-      await Future.delayed(const Duration(milliseconds: 80));
-
-      expect(bloc.state.status, MessageListStatus.loaded);
-      expect(bloc.state.messages.length, 3);
-
-      // Verify alignment logic for each message
-      for (final msg in bloc.state.messages) {
-        final alignment = _getBubbleAlignment(
-          message: msg,
-          loggedInUser: loggedInUser,
-          chatAlignment: ChatAlignment.standard,
+        final bloc = _makeBloc(repo, user: null, group: FakeGroup());
+        bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_group',
+            conversationType: 'group',
+          ),
         );
-        if (msg.sender?.uid == loggedInUser.uid) {
-          expect(alignment, equals(BubbleAlignment.right));
-        } else {
-          expect(alignment, equals(BubbleAlignment.left));
+        await Future.delayed(const Duration(milliseconds: 80));
+
+        expect(bloc.state.status, MessageListStatus.loaded);
+        expect(bloc.state.messages.length, 3);
+
+        // Verify alignment logic for each message
+        for (final msg in bloc.state.messages) {
+          final alignment = _getBubbleAlignment(
+            message: msg,
+            loggedInUser: loggedInUser,
+            chatAlignment: ChatAlignment.standard,
+          );
+          if (msg.sender?.uid == loggedInUser.uid) {
+            expect(alignment, equals(BubbleAlignment.right));
+          } else {
+            expect(alignment, equals(BubbleAlignment.left));
+          }
         }
-      }
-      await bloc.close();
-    });
+        await bloc.close();
+      },
+    );
   });
 
   // =========================================================================

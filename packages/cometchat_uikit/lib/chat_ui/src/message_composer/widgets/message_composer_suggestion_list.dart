@@ -76,10 +76,11 @@ class MessageComposerSuggestionList extends StatelessWidget {
     final effectiveTypography =
         typography ?? CometChatThemeHelper.getTypography(context);
 
-    final effectiveStyle = CometChatThemeHelper.getTheme<CometChatSuggestionListStyle>(
-      context: context,
-      defaultTheme: CometChatSuggestionListStyle.of,
-    ).merge(style);
+    final effectiveStyle =
+        CometChatThemeHelper.getTheme<CometChatSuggestionListStyle>(
+          context: context,
+          defaultTheme: CometChatSuggestionListStyle.of,
+        ).merge(style);
 
     return Semantics(
       label: 'Suggestion list with ${suggestions.length} items',
@@ -91,27 +92,29 @@ class MessageComposerSuggestionList extends StatelessWidget {
           effectiveSpacing.margin1 ?? 4,
         ),
         padding: EdgeInsets.symmetric(vertical: effectiveSpacing.padding2 ?? 8),
-        constraints: BoxConstraints(
-          maxHeight: _calculateMaxHeight(),
-        ),
+        constraints: BoxConstraints(maxHeight: _calculateMaxHeight()),
         decoration: BoxDecoration(
-          color: effectiveStyle.backgroundColor ?? effectiveColorPalette.background1,
-          border: effectiveStyle.border ??
+          color:
+              effectiveStyle.backgroundColor ??
+              effectiveColorPalette.background1,
+          border:
+              effectiveStyle.border ??
               Border.all(
                 width: 1,
                 color: effectiveColorPalette.borderDark ?? Colors.transparent,
               ),
-          borderRadius: effectiveStyle.borderRadius ??
+          borderRadius:
+              effectiveStyle.borderRadius ??
               BorderRadius.circular(effectiveSpacing.radius4 ?? 12),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xff10182808).withValues(alpha: .03),
+              color: const Color(0x10182808).withValues(alpha: .03),
               spreadRadius: -2,
               blurRadius: 6,
               offset: const Offset(0, 4),
             ),
             BoxShadow(
-              color: const Color(0xff10182808).withValues(alpha: .08),
+              color: const Color(0x10182808).withValues(alpha: .08),
               spreadRadius: -4,
               blurRadius: 16,
               offset: const Offset(0, 12),
@@ -188,14 +191,18 @@ class MessageComposerSuggestionList extends StatelessWidget {
                     Flexible(
                       child: Text(
                         item.title ?? "",
-                        style: TextStyle(
-                          fontSize: typography.heading4?.medium?.fontSize,
-                          fontWeight: typography.heading4?.medium?.fontWeight,
-                          fontFamily: typography.heading4?.medium?.fontFamily,
-                          color: colorPalette.textPrimary,
-                        )
-                            .merge(effectiveStyle.textStyle)
-                            .copyWith(color: effectiveStyle.textColor),
+                        style:
+                            TextStyle(
+                                  fontSize:
+                                      typography.heading4?.medium?.fontSize,
+                                  fontWeight:
+                                      typography.heading4?.medium?.fontWeight,
+                                  fontFamily:
+                                      typography.heading4?.medium?.fontFamily,
+                                  color: colorPalette.textPrimary,
+                                )
+                                .merge(effectiveStyle.textStyle)
+                                .copyWith(color: effectiveStyle.textColor),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
@@ -205,15 +212,22 @@ class MessageComposerSuggestionList extends StatelessWidget {
                       Expanded(
                         child: Text(
                           item.subtitle!,
-                          style: TextStyle(
-                            fontSize: typography.body?.regular?.fontSize,
-                            fontWeight: typography.body?.regular?.fontWeight,
-                            fontFamily: typography.body?.regular?.fontFamily,
-                            color: colorPalette.textSecondary,
-                          )
-                              .merge(effectiveStyle.textStyle)
-                              .copyWith(
-                                  color: effectiveStyle.textColor?.withValues(alpha: 0.6)),
+                          style:
+                              TextStyle(
+                                    fontSize:
+                                        typography.body?.regular?.fontSize,
+                                    fontWeight:
+                                        typography.body?.regular?.fontWeight,
+                                    fontFamily:
+                                        typography.body?.regular?.fontFamily,
+                                    color: colorPalette.textSecondary,
+                                  )
+                                  .merge(effectiveStyle.textStyle)
+                                  .copyWith(
+                                    color: effectiveStyle.textColor?.withValues(
+                                      alpha: 0.6,
+                                    ),
+                                  ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),

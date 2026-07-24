@@ -1,13 +1,6 @@
 /// Domain Layer - Audio State Entity
 /// Represents the state of an audio bubble playback
-enum PlayState {
-  init,
-  loading,
-  playing,
-  paused,
-  stopped,
-  error,
-}
+enum PlayState { init, loading, playing, paused, stopped, error }
 
 class AudioStateEntity {
   final int id;

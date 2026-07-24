@@ -73,16 +73,19 @@ void main() {
       verify(() => mockBloc.add(any(that: isA<ReportViewed>()))).called(1);
     });
 
-    test('does not re-report "viewed" for same item on subsequent visibility', () {
-      final item = _makeItem(id: 'item_1');
+    test(
+      'does not re-report "viewed" for same item on subsequent visibility',
+      () {
+        final item = _makeItem(id: 'item_1');
 
-      tracker.onItemVisible(item);
-      tracker.onItemHidden(item);
-      tracker.onItemVisible(item);
+        tracker.onItemVisible(item);
+        tracker.onItemHidden(item);
+        tracker.onItemVisible(item);
 
-      // Should only be called once (deduplicated)
-      verify(() => mockBloc.add(any(that: isA<ReportViewed>()))).called(1);
-    });
+        // Should only be called once (deduplicated)
+        verify(() => mockBloc.add(any(that: isA<ReportViewed>()))).called(1);
+      },
+    );
 
     // -----------------------------------------------------------------------
     // Read timer
@@ -102,20 +105,23 @@ void main() {
       verify(() => mockBloc.add(any(that: isA<MarkItemAsRead>()))).called(1);
     });
 
-    test('does NOT dispatch MarkItemAsRead if item hidden before 1 second', () async {
-      final item = _makeItem(id: 'item_1');
+    test(
+      'does NOT dispatch MarkItemAsRead if item hidden before 1 second',
+      () async {
+        final item = _makeItem(id: 'item_1');
 
-      tracker.onItemVisible(item);
+        tracker.onItemVisible(item);
 
-      // Hide after 500ms (before the 1s threshold)
-      await Future.delayed(const Duration(milliseconds: 500));
-      tracker.onItemHidden(item);
+        // Hide after 500ms (before the 1s threshold)
+        await Future.delayed(const Duration(milliseconds: 500));
+        tracker.onItemHidden(item);
 
-      // Wait past the threshold
-      await Future.delayed(const Duration(milliseconds: 700));
+        // Wait past the threshold
+        await Future.delayed(const Duration(milliseconds: 700));
 
-      verifyNever(() => mockBloc.add(any(that: isA<MarkItemAsRead>())));
-    });
+        verifyNever(() => mockBloc.add(any(that: isA<MarkItemAsRead>())));
+      },
+    );
 
     test('does not start read timer for already-read items', () async {
       final item = _makeItem(id: 'item_1', readAt: 1700000100);
@@ -129,22 +135,25 @@ void main() {
       verifyNever(() => mockBloc.add(any(that: isA<MarkItemAsRead>())));
     });
 
-    test('does not re-dispatch MarkItemAsRead for already-marked items', () async {
-      final item = _makeItem(id: 'item_1');
+    test(
+      'does not re-dispatch MarkItemAsRead for already-marked items',
+      () async {
+        final item = _makeItem(id: 'item_1');
 
-      // First visibility cycle — should mark as read
-      tracker.onItemVisible(item);
-      await Future.delayed(const Duration(milliseconds: 1100));
-      verify(() => mockBloc.add(any(that: isA<MarkItemAsRead>()))).called(1);
+        // First visibility cycle — should mark as read
+        tracker.onItemVisible(item);
+        await Future.delayed(const Duration(milliseconds: 1100));
+        verify(() => mockBloc.add(any(that: isA<MarkItemAsRead>()))).called(1);
 
-      // Second visibility cycle — should NOT mark as read again
-      tracker.onItemHidden(item);
-      tracker.onItemVisible(item);
-      await Future.delayed(const Duration(milliseconds: 1100));
+        // Second visibility cycle — should NOT mark as read again
+        tracker.onItemHidden(item);
+        tracker.onItemVisible(item);
+        await Future.delayed(const Duration(milliseconds: 1100));
 
-      // Still only 1 call total
-      verifyNever(() => mockBloc.add(any(that: isA<MarkItemAsRead>())));
-    });
+        // Still only 1 call total
+        verifyNever(() => mockBloc.add(any(that: isA<MarkItemAsRead>())));
+      },
+    );
 
     // -----------------------------------------------------------------------
     // markAsAlreadyRead

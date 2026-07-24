@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:cometchat_cards/cometchat_cards.dart';
 
@@ -29,9 +28,9 @@ class FakeCardMessage extends Fake implements CardMessage {
     Map<String, dynamic>? card,
     String? text,
     String? fallbackText,
-  })  : _card = card,
-        _text = text,
-        _fallbackText = fallbackText;
+  }) : _card = card,
+       _text = text,
+       _fallbackText = fallbackText;
 
   @override
   int get id => 1001;
@@ -105,7 +104,7 @@ const _cardWithButton = {
       'id': 'btn1',
       'type': 'button',
       'label': 'Click Me',
-      'action': {'type': 'openUrl', 'url': 'https://example.com'}
+      'action': {'type': 'openUrl', 'url': 'https://example.com'},
     },
   ],
   'fallbackText': 'A card with a button',
@@ -135,7 +134,7 @@ const _cardWithMultipleElements = {
       'id': 'btn1',
       'type': 'button',
       'label': 'Action',
-      'action': {'type': 'openUrl', 'url': 'https://cometchat.com'}
+      'action': {'type': 'openUrl', 'url': 'https://cometchat.com'},
     },
   ],
   'fallbackText': 'Multi-element card',
@@ -175,8 +174,9 @@ Widget _buildTestWidget(
 void main() {
   group('CometChatCardBubble — One-on-One Conversation Cards', () {
     group('Rendering', () {
-      testWidgets('renders CometChatCardView when card data is present',
-          (tester) async {
+      testWidgets('renders CometChatCardView when card data is present', (
+        tester,
+      ) async {
         final message = FakeCardMessage(card: _validCardJson);
 
         await tester.pumpWidget(_buildTestWidget(message));
@@ -199,19 +199,20 @@ void main() {
         expect(find.text('Action'), findsOneWidget);
       });
 
-      testWidgets('renders button element and responds to tap',
-          (tester) async {
+      testWidgets('renders button element and responds to tap', (tester) async {
         final message = FakeCardMessage(card: _cardWithButton);
         CometChatCardActionEvent? receivedEvent;
         CardMessage? receivedMessage;
 
-        await tester.pumpWidget(_buildTestWidget(
-          message,
-          onCardAction: (msg, action) {
-            receivedMessage = msg;
-            receivedEvent = action;
-          },
-        ));
+        await tester.pumpWidget(
+          _buildTestWidget(
+            message,
+            onCardAction: (msg, action) {
+              receivedMessage = msg;
+              receivedEvent = action;
+            },
+          ),
+        );
         await tester.pump();
 
         expect(find.text('Click Me'), findsOneWidget);
@@ -251,8 +252,9 @@ void main() {
         expect(find.byType(CometChatCardView), findsNothing);
       });
 
-      testWidgets('shows fallbackText when card data is empty map',
-          (tester) async {
+      testWidgets('shows fallbackText when card data is empty map', (
+        tester,
+      ) async {
         final message = FakeCardMessage(
           card: {},
           fallbackText: 'Empty card fallback',
@@ -265,8 +267,9 @@ void main() {
         expect(find.byType(CometChatCardView), findsNothing);
       });
 
-      testWidgets('shows getText when fallbackText is null and card is null',
-          (tester) async {
+      testWidgets('shows getText when fallbackText is null and card is null', (
+        tester,
+      ) async {
         final message = FakeCardMessage(
           card: null,
           text: 'Text message content',
@@ -279,8 +282,9 @@ void main() {
         expect(find.text('Text message content'), findsOneWidget);
       });
 
-      testWidgets('shows "Card Message" when all fallbacks are null',
-          (tester) async {
+      testWidgets('shows "Card Message" when all fallbacks are null', (
+        tester,
+      ) async {
         final message = FakeCardMessage(
           card: null,
           text: null,
@@ -295,8 +299,9 @@ void main() {
         expect(find.byType(Text), findsOneWidget);
       });
 
-      testWidgets('prefers fallbackText over getText for fallback display',
-          (tester) async {
+      testWidgets('prefers fallbackText over getText for fallback display', (
+        tester,
+      ) async {
         final message = FakeCardMessage(
           card: null,
           text: 'Should not show',
@@ -312,68 +317,77 @@ void main() {
     });
 
     group('Theme Mode', () {
-      testWidgets('passes explicit themeMode to CometChatCardView',
-          (tester) async {
+      testWidgets('passes explicit themeMode to CometChatCardView', (
+        tester,
+      ) async {
         final message = FakeCardMessage(card: _validCardJson);
 
-        await tester.pumpWidget(_buildTestWidget(
-          message,
-          themeMode: CometChatCardThemeMode.dark,
-        ));
+        await tester.pumpWidget(
+          _buildTestWidget(message, themeMode: CometChatCardThemeMode.dark),
+        );
         await tester.pump();
 
-        final cardView =
-            tester.widget<CometChatCardView>(find.byType(CometChatCardView));
+        final cardView = tester.widget<CometChatCardView>(
+          find.byType(CometChatCardView),
+        );
         expect(cardView.themeMode, CometChatCardThemeMode.dark);
       });
 
-      testWidgets('resolves themeMode from platform brightness when null',
-          (tester) async {
+      testWidgets('resolves themeMode from platform brightness when null', (
+        tester,
+      ) async {
         final message = FakeCardMessage(card: _validCardJson);
 
-        await tester.pumpWidget(MaterialApp(
-          theme: ThemeData.light(),
-          home: MediaQuery(
-            data: const MediaQueryData(size: Size(800, 600)),
-            child: Scaffold(
-              body: SingleChildScrollView(
-                child: CometChatCardBubble(message: message),
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData.light(),
+            home: MediaQuery(
+              data: const MediaQueryData(size: Size(800, 600)),
+              child: Scaffold(
+                body: SingleChildScrollView(
+                  child: CometChatCardBubble(message: message),
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump();
 
-        final cardView =
-            tester.widget<CometChatCardView>(find.byType(CometChatCardView));
+        final cardView = tester.widget<CometChatCardView>(
+          find.byType(CometChatCardView),
+        );
         expect(cardView.themeMode, CometChatCardThemeMode.light);
       });
 
       testWidgets('resolves dark themeMode in dark theme', (tester) async {
         final message = FakeCardMessage(card: _validCardJson);
 
-        await tester.pumpWidget(MaterialApp(
-          theme: ThemeData.dark(),
-          home: MediaQuery(
-            data: const MediaQueryData(size: Size(800, 600)),
-            child: Scaffold(
-              body: SingleChildScrollView(
-                child: CometChatCardBubble(message: message),
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData.dark(),
+            home: MediaQuery(
+              data: const MediaQueryData(size: Size(800, 600)),
+              child: Scaffold(
+                body: SingleChildScrollView(
+                  child: CometChatCardBubble(message: message),
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump();
 
-        final cardView =
-            tester.widget<CometChatCardView>(find.byType(CometChatCardView));
+        final cardView = tester.widget<CometChatCardView>(
+          find.byType(CometChatCardView),
+        );
         expect(cardView.themeMode, CometChatCardThemeMode.dark);
       });
     });
 
     group('Action Handling', () {
-      testWidgets('onCardAction is NOT called when callback is null',
-          (tester) async {
+      testWidgets('onCardAction is NOT called when callback is null', (
+        tester,
+      ) async {
         final message = FakeCardMessage(card: _cardWithButton);
 
         // Should not throw
@@ -385,15 +399,18 @@ void main() {
         // No assertion failure = success
       });
 
-      testWidgets('onCardAction receives correct message reference',
-          (tester) async {
+      testWidgets('onCardAction receives correct message reference', (
+        tester,
+      ) async {
         final message = FakeCardMessage(card: _cardWithButton);
         CardMessage? capturedMessage;
 
-        await tester.pumpWidget(_buildTestWidget(
-          message,
-          onCardAction: (msg, _) => capturedMessage = msg,
-        ));
+        await tester.pumpWidget(
+          _buildTestWidget(
+            message,
+            onCardAction: (msg, _) => capturedMessage = msg,
+          ),
+        );
         await tester.pump();
 
         await tester.tap(find.text('Click Me'));
@@ -407,16 +424,18 @@ void main() {
       testWidgets('card bubble occupies ~65% of screen width', (tester) async {
         final message = FakeCardMessage(card: _validCardJson);
 
-        await tester.pumpWidget(MaterialApp(
-          home: MediaQuery(
-            data: const MediaQueryData(size: Size(800, 600)),
-            child: Scaffold(
-              body: SingleChildScrollView(
-                child: CometChatCardBubble(message: message),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: MediaQuery(
+              data: const MediaQueryData(size: Size(800, 600)),
+              child: Scaffold(
+                body: SingleChildScrollView(
+                  child: CometChatCardBubble(message: message),
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump();
 
         // The NoIntrinsicCardWrapper should constrain width
@@ -426,41 +445,51 @@ void main() {
     });
 
     group('Card JSON Encoding', () {
-      test('complex card data is correctly JSON-encoded to CometChatCardView', () {
-        final complexCard = {
-          'version': '1.0',
-          'body': [
-            {
-              'id': 'col1',
-              'type': 'column',
-              'items': [
-                {'id': 'icon1', 'type': 'icon', 'name': 'https://example.com/icon.png', 'size': 24},
-                {'id': 't1', 'type': 'text', 'content': 'Nested in column'},
-              ],
-            },
-          ],
-          'fallbackText': 'Complex card',
-        };
+      test(
+        'complex card data is correctly JSON-encoded to CometChatCardView',
+        () {
+          final complexCard = {
+            'version': '1.0',
+            'body': [
+              {
+                'id': 'col1',
+                'type': 'column',
+                'items': [
+                  {
+                    'id': 'icon1',
+                    'type': 'icon',
+                    'name': 'https://example.com/icon.png',
+                    'size': 24,
+                  },
+                  {'id': 't1', 'type': 'text', 'content': 'Nested in column'},
+                ],
+              },
+            ],
+            'fallbackText': 'Complex card',
+          };
 
-        // Verify the card data will be properly JSON-encoded
-        final encoded = jsonEncode(complexCard);
-        final decoded = jsonDecode(encoded) as Map<String, dynamic>;
-        expect(decoded['version'], '1.0');
-        expect((decoded['body'] as List).length, 1);
-        expect((decoded['body'] as List)[0]['type'], 'column');
-        expect((decoded['body'] as List)[0]['items'], isA<List>());
-        expect(((decoded['body'] as List)[0]['items'] as List).length, 2);
-      });
+          // Verify the card data will be properly JSON-encoded
+          final encoded = jsonEncode(complexCard);
+          final decoded = jsonDecode(encoded) as Map<String, dynamic>;
+          expect(decoded['version'], '1.0');
+          expect((decoded['body'] as List).length, 1);
+          expect((decoded['body'] as List)[0]['type'], 'column');
+          expect((decoded['body'] as List)[0]['items'], isA<List>());
+          expect(((decoded['body'] as List)[0]['items'] as List).length, 2);
+        },
+      );
 
-      testWidgets('card message passes encoded JSON to CometChatCardView',
-          (tester) async {
+      testWidgets('card message passes encoded JSON to CometChatCardView', (
+        tester,
+      ) async {
         final message = FakeCardMessage(card: _validCardJson);
 
         await tester.pumpWidget(_buildTestWidget(message));
         await tester.pump();
 
-        final cardView =
-            tester.widget<CometChatCardView>(find.byType(CometChatCardView));
+        final cardView = tester.widget<CometChatCardView>(
+          find.byType(CometChatCardView),
+        );
         final decoded = jsonDecode(cardView.cardJson) as Map<String, dynamic>;
         expect(decoded['version'], '1.0');
         expect((decoded['body'] as List).length, 1);

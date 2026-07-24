@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/conversations_repository.dart';
 
@@ -10,11 +10,11 @@ class GetConversationUseCase {
   const GetConversationUseCase(this.repository);
 
   /// Execute the use case to get a conversation
-  /// 
+  ///
   /// [conversationWith] - UID/GUID of the user/group
   /// [conversationType] - Type of conversation ('user' or 'group')
-  /// 
-  /// Returns Result<Conversation> containing conversation or failure
+  ///
+  /// Returns `Result<Conversation>` containing conversation or failure
   Future<Result<Conversation>> call({
     required String conversationWith,
     required String conversationType,

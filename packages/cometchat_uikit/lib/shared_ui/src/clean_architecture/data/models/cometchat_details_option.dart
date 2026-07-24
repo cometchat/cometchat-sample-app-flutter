@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import "package:cometchat_sdk/cometchat_sdk.dart";
+import "package:cometchat_sdk/cometchat_sdk.dart" hide CardMessage;
 import 'cometchat_base_options.dart';
 import '../../presentation/view_models/cometchat_details_controller_protocol.dart';
 
@@ -37,20 +37,26 @@ class CometChatDetailsOption extends CometChatBaseOptions {
   double? height;
 
   ///[onClick] call function which takes 3 parameter , and one of user or group is populated at a time
-  Function(User? user, Group? group, String section,
-      CometChatDetailsControllerProtocol state)? onClick;
+  Function(
+    User? user,
+    Group? group,
+    String section,
+    CometChatDetailsControllerProtocol state,
+  )?
+  onClick;
 
   ///[CometChatDetailsOption] constructor requires [id] , [title] and [onClick] while initializing.
-  CometChatDetailsOption(
-      {this.customView,
-      this.onClick,
-      this.tail,
-      required super.id,
-      this.height,
-      super.title,
-      super.icon,
-      super.packageName,
-      super.titleStyle});
+  CometChatDetailsOption({
+    this.customView,
+    this.onClick,
+    this.tail,
+    required super.id,
+    this.height,
+    super.title,
+    super.icon,
+    super.packageName,
+    super.titleStyle,
+  });
 
   @override
   String toString() {

@@ -35,9 +35,9 @@ class CometChatMessageOption {
   ///[icon] of the option
   Widget? icon;
 
-  ///[onClick] of the option
+  ///[onItemClick] of the option
   Function(BaseMessage message, CometChatMessageListControllerProtocol state)?
-      onItemClick;
+  onItemClick;
 
   ///[messageOptionSheetStyle] is a [CometChatMessageOptionSheetStyle] that can be used to style message option sheet
   final CometChatMessageOptionSheetStyle? messageOptionSheetStyle;
@@ -60,10 +60,10 @@ class CometChatMessageOption {
     );
   }
 
-  ///[toActionItemFromFunction] takes a function as parameter and converts [CometChatMessageOption] to [ActionItem] with the function [onClick] as onItemClick
+  ///[toActionItemFromFunction] takes a function as parameter and converts [CometChatMessageOption] to [ActionItem] with the function `onClick` as onItemClick
   ActionItem toActionItemFromFunction(
     Function(BaseMessage message, CometChatMessageListControllerProtocol state)?
-        passedFunction,
+    passedFunction,
   ) {
     return ActionItem(
       id: id,

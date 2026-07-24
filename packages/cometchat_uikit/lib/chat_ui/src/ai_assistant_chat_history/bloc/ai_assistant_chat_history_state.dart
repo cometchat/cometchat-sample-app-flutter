@@ -1,14 +1,8 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Status enum for AI Assistant Chat History.
-enum AIAssistantChatHistoryStatus {
-  initial,
-  loading,
-  loaded,
-  empty,
-  error,
-}
+enum AIAssistantChatHistoryStatus { initial, loading, loaded, empty, error }
 
 /// Immutable state for the AI Assistant Chat History BLoC.
 class AIAssistantChatHistoryState extends Equatable {
@@ -38,14 +32,14 @@ class AIAssistantChatHistoryState extends Equatable {
 
   @override
   List<Object?> get props => [
-        _version,
-        status,
-        messages,
-        hasMore,
-        isLoadingMore,
-        errorMessage,
-        loggedInUser,
-      ];
+    _version,
+    status,
+    messages,
+    hasMore,
+    isLoadingMore,
+    errorMessage,
+    loggedInUser,
+  ];
 
   AIAssistantChatHistoryState copyWith({
     AIAssistantChatHistoryStatus? status,

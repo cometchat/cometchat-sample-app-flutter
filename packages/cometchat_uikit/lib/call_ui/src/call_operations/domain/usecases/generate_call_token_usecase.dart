@@ -8,7 +8,10 @@ class GenerateCallTokenUseCase {
 
   Future<Result<String>> call(String sessionId) async {
     if (sessionId.isEmpty) {
-      return const Failure(message: 'Session ID is required', code: 'MISSING_SESSION_ID');
+      return const Failure(
+        message: 'Session ID is required',
+        code: 'MISSING_SESSION_ID',
+      );
     }
     return repository.generateCallToken(sessionId);
   }

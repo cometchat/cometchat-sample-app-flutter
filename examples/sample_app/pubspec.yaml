@@ -1,7 +1,7 @@
 name: sample_app
 description: "A sample app"
 publish_to: 'none'
-version: 6.0.5
+version: 6.1.0
 
 environment:
   sdk: ^3.6.0
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cometchat_chat_uikit: ^6.0.5
+  cometchat_chat_uikit: ^6.1.0
 
 dev_dependencies:
   flutter_test:

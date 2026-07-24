@@ -841,6 +841,41 @@ class TranslationsDe extends Translations {
   String get failedToLoadImage => 'Bild konnte nicht geladen werden';
 
   @override
+  String get uploadFailed => 'Upload fehlgeschlagen';
+
+  @override
+  String get tapToRetry => 'Zum Wiederholen tippen';
+
+  @override
+  String get dropFilesHere => 'Dateien hier ablegen';
+
+  @override
+  String get attachmentCountLimit =>
+      'Du kannst bis zu {limit} Dateien pro Nachricht anhängen.';
+
+  @override
+  String get attachmentFileSizeLimit =>
+      'Jede Datei muss kleiner als {limit} sein.';
+
+  @override
+  String get fileListShowMore => '+{count} weitere';
+
+  @override
+  String get fileListShowLess => 'Weniger anzeigen';
+
+  @override
+  String get searchImagesCount => '{count} Bilder';
+
+  @override
+  String get searchVideosCount => '{count} Videos';
+
+  @override
+  String get searchAudiosCount => '{count} Audios';
+
+  @override
+  String get searchFilesCount => '{count} Dateien';
+
+  @override
   String get transferOwnership => 'Eigentum übertragen';
 
   @override
@@ -1268,16 +1303,20 @@ class TranslationsDe extends Translations {
   @override
   String get type => 'Eingabetyp';
   @override
-  String get messageBlockedByModeration => 'Ihre Nachricht wurde aufgrund der Moderationsrichtlinien blockiert.';
+  String get messageBlockedByModeration =>
+      'Ihre Nachricht wurde aufgrund der Moderationsrichtlinien blockiert.';
 
   @override
-  String get cantSendMessageBlockedUser => 'Nachricht kann nicht gesendet werden, da der Benutzer blockiert ist';
+  String get cantSendMessageBlockedUser =>
+      'Nachricht kann nicht gesendet werden, da der Benutzer blockiert ist';
 
   @override
-  String get cantSendMessageNotMember => 'Du kannst keine Nachrichten an diese Gruppe senden, da du kein Mitglied mehr bist';
+  String get cantSendMessageNotMember =>
+      'Du kannst keine Nachrichten an diese Gruppe senden, da du kein Mitglied mehr bist';
 
   @override
-  String get youAreNoLongerPartOfThisGroup => 'Du bist nicht mehr Teil dieser Gruppe';
+  String get youAreNoLongerPartOfThisGroup =>
+      'Du bist nicht mehr Teil dieser Gruppe';
 
   @override
   String get busy => "Beschäftigt";
@@ -1286,10 +1325,12 @@ class TranslationsDe extends Translations {
   String get noConversationHistoryFound => "Kein Gesprächsverlauf gefunden.";
 
   @override
-  String get somethingWentWrongTryAgain => "Etwas ist schiefgelaufen. Bitte versuche es erneut.";
+  String get somethingWentWrongTryAgain =>
+      "Etwas ist schiefgelaufen. Bitte versuche es erneut.";
 
   @override
-  String get startChatByTappingNewChat => 'Beginne einen Chat, indem du auf die Schaltfläche "Neuer Chat" tippst.';
+  String get startChatByTappingNewChat =>
+      'Beginne einen Chat, indem du auf die Schaltfläche "Neuer Chat" tippst.';
 
   @override
   String get chatHistory => "Chatverlauf";
@@ -1312,7 +1353,8 @@ class TranslationsDe extends Translations {
   String get noInternetConnection => "Keine Internetverbindung";
 
   @override
-  String get logoutFailedTryAgain => "Abmeldung fehlgeschlagen. Bitte erneut versuchen.";
+  String get logoutFailedTryAgain =>
+      "Abmeldung fehlgeschlagen. Bitte erneut versuchen.";
 
   @override
   String get thinking => "Denke...";
@@ -1321,7 +1363,8 @@ class TranslationsDe extends Translations {
   String get aiAssistants => "KI-Assistenten";
 
   @override
-  String get notifyEveryoneInThisGroup => "Alle in dieser Gruppe benachrichtigen";
+  String get notifyEveryoneInThisGroup =>
+      "Alle in dieser Gruppe benachrichtigen";
 
   @override
   String get notifyAll => "alle";
@@ -1336,7 +1379,8 @@ class TranslationsDe extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

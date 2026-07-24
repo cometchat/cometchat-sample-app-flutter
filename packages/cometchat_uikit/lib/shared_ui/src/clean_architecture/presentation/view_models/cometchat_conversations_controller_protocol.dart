@@ -2,33 +2,39 @@ import '../../../../cometchat_uikit_shared.dart';
 
 mixin CometChatConversationsControllerProtocol
     implements CometChatListProtocol<Conversation> {
-  updateUserStatus(User user, String status);
+  void updateUserStatus(User user, String status);
 
-  deleteConversation(Conversation conversation);
+  void deleteConversation(Conversation conversation);
 
-  resetUnreadCount(BaseMessage message);
+  void resetUnreadCount(BaseMessage message);
 
-  updateLastMessage(BaseMessage message);
+  void updateLastMessage(BaseMessage message);
 
-  updateGroup(Group group);
+  void updateGroup(Group group);
 
-  removeGroup(String guid);
+  void removeGroup(String guid);
 
-  updateLastMessageOnEdited(BaseMessage message);
+  void updateLastMessageOnEdited(BaseMessage message);
 
-  refreshSingleConversation(BaseMessage message, bool isActionMessage,
-      {bool? remove});
+  void refreshSingleConversation(
+    BaseMessage message,
+    bool isActionMessage, {
+    bool? remove,
+  });
 
   ///Update the conversation with new conversation Object matched according to conversation id ,  if not matched inserted at top
-  updateConversation(Conversation conversation);
+  void updateConversation(Conversation conversation);
 
-  setReceipts(MessageReceipt receipt);
+  void setReceipts(MessageReceipt receipt);
 
-  setTypingIndicator(TypingIndicator typingIndicator, bool isTypingStarted);
+  void setTypingIndicator(
+    TypingIndicator typingIndicator,
+    bool isTypingStarted,
+  );
 
   void deleteConversationFromIndex(int index);
 
-  playNotificationSound(BaseMessage message);
+  void playNotificationSound(BaseMessage message);
 
   bool getHideThreadIndicator(Conversation conversation);
 

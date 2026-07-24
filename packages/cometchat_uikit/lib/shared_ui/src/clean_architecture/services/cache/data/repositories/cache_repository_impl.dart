@@ -18,23 +18,17 @@ class CacheRepositoryImpl implements CacheRepository {
   }
 
   @override
-  Future<Result<T?>> get<T>({
-    required String key,
-  }) async {
+  Future<Result<T?>> get<T>({required String key}) async {
     return localDataSource.get(key: key);
   }
 
   @override
-  Future<Result<bool>> exists({
-    required String key,
-  }) async {
+  Future<Result<bool>> exists({required String key}) async {
     return localDataSource.exists(key: key);
   }
 
   @override
-  Future<Result<void>> delete({
-    required String key,
-  }) async {
+  Future<Result<void>> delete({required String key}) async {
     return localDataSource.delete(key: key);
   }
 

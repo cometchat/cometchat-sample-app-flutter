@@ -1,5 +1,3 @@
-
-
 import 'cometchat_list_controller.dart';
 import '../clean_architecture/core/constants/enums.dart';
 
@@ -11,7 +9,7 @@ mixin CometChatSelectable<T1, T2> on CometChatListController<T1, T2> {
   //Hold all selected elements
   Map<T2, T1> selectionMap = {};
 
-  select(T1 element) {
+  void select(T1 element) {
     if (selectionMode == SelectionMode.single) {
       selectionMap.clear();
       selectionMap[getKey(element)] = element;
@@ -22,13 +20,13 @@ mixin CometChatSelectable<T1, T2> on CometChatListController<T1, T2> {
     }
   }
 
-  deSelect(T1 element) {
+  void deSelect(T1 element) {
     selectionMap.remove(getKey(element));
     update();
   }
 
   //called when clicked on certain item which internally calls [select] or [deselect] method
-  onTap(T1 element) {
+  void onTap(T1 element) {
     if (selectionMode == null || selectionMode == SelectionMode.none) return;
 
     if (selectionMap[getKey(element)] == null) {

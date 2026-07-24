@@ -7,33 +7,44 @@ class MicrophoneVisualizer extends StatefulWidget {
   final Color? color;
   final BorderRadiusGeometry? borderRadius;
 
-  const MicrophoneVisualizer({Key? key, required this.isAnimating, required this.startSize, required this.endSize, this.color, this.borderRadius})
-      : super(key: key);
+  const MicrophoneVisualizer({
+    super.key,
+    required this.isAnimating,
+    required this.startSize,
+    required this.endSize,
+    this.color,
+    this.borderRadius,
+  });
 
   @override
-  _MicrophoneVisualizerState createState() => _MicrophoneVisualizerState();
+  State<MicrophoneVisualizer> createState() => _MicrophoneVisualizerState();
 }
 
-class _MicrophoneVisualizerState extends State<MicrophoneVisualizer> with SingleTickerProviderStateMixin {
+class _MicrophoneVisualizerState extends State<MicrophoneVisualizer>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _sizeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 750), // Duration of one cycle
-    )..addStatusListener((status) {
-      // Keep repeating the animation
-      if (status == AnimationStatus.completed) {
-        _controller.reverse();
-      } else if (status == AnimationStatus.dismissed) {
-        _controller.forward();
-      }
-    });
+    _controller =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 750), // Duration of one cycle
+        )..addStatusListener((status) {
+          // Keep repeating the animation
+          if (status == AnimationStatus.completed) {
+            _controller.reverse();
+          } else if (status == AnimationStatus.dismissed) {
+            _controller.forward();
+          }
+        });
 
-    _sizeAnimation = Tween<double>(begin: widget.startSize, end: widget.endSize).animate(_controller);
+    _sizeAnimation = Tween<double>(
+      begin: widget.startSize,
+      end: widget.endSize,
+    ).animate(_controller);
   }
 
   @override

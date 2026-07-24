@@ -30,7 +30,8 @@ import 'package:flutter/material.dart';
 ///  ),
 ///  );
 ///  ```
-class CometChatChangeScopeStyle extends ThemeExtension<CometChatChangeScopeStyle> {
+class CometChatChangeScopeStyle
+    extends ThemeExtension<CometChatChangeScopeStyle> {
   ///[backgroundColor] defines the background color of the widget
   final Color? backgroundColor;
 
@@ -98,7 +99,7 @@ class CometChatChangeScopeStyle extends ThemeExtension<CometChatChangeScopeStyle
   final Color? selectedTileColor;
 
   static CometChatChangeScopeStyle of(BuildContext context) =>
-       CometChatChangeScopeStyle();
+      CometChatChangeScopeStyle();
 
   CometChatChangeScopeStyle({
     this.backgroundColor,
@@ -155,17 +156,24 @@ class CometChatChangeScopeStyle extends ThemeExtension<CometChatChangeScopeStyle
       borderRadius: borderRadius ?? this.borderRadius,
       border: border ?? this.border,
       radioButtonColor: radioButtonColor ?? this.radioButtonColor,
-      radioButtonSelectedColor: radioButtonSelectedColor ?? this.radioButtonSelectedColor,
+      radioButtonSelectedColor:
+          radioButtonSelectedColor ?? this.radioButtonSelectedColor,
       scopeTextStyle: scopeTextStyle ?? this.scopeTextStyle,
-      selectedScopeTextStyle: selectedScopeTextStyle ?? this.selectedScopeTextStyle,
-      cancelButtonBackgroundColor: cancelButtonBackgroundColor ?? this.cancelButtonBackgroundColor,
+      selectedScopeTextStyle:
+          selectedScopeTextStyle ?? this.selectedScopeTextStyle,
+      cancelButtonBackgroundColor:
+          cancelButtonBackgroundColor ?? this.cancelButtonBackgroundColor,
       cancelButtonBorder: cancelButtonBorder ?? this.cancelButtonBorder,
-      cancelButtonTextStyle: cancelButtonTextStyle ?? this.cancelButtonTextStyle,
-      cancelButtonBorderRadius: cancelButtonBorderRadius ?? this.cancelButtonBorderRadius,
-      saveButtonBackgroundColor: saveButtonBackgroundColor ?? this.saveButtonBackgroundColor,
+      cancelButtonTextStyle:
+          cancelButtonTextStyle ?? this.cancelButtonTextStyle,
+      cancelButtonBorderRadius:
+          cancelButtonBorderRadius ?? this.cancelButtonBorderRadius,
+      saveButtonBackgroundColor:
+          saveButtonBackgroundColor ?? this.saveButtonBackgroundColor,
       saveButtonBorder: saveButtonBorder ?? this.saveButtonBorder,
       saveButtonTextStyle: saveButtonTextStyle ?? this.saveButtonTextStyle,
-      saveButtonBorderRadius: saveButtonBorderRadius ?? this.saveButtonBorderRadius,
+      saveButtonBorderRadius:
+          saveButtonBorderRadius ?? this.saveButtonBorderRadius,
       scopeSectionBorder: scopeSectionBorder ?? this.scopeSectionBorder,
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
       subtitleTextStyle: subtitleTextStyle ?? this.subtitleTextStyle,
@@ -205,34 +213,100 @@ class CometChatChangeScopeStyle extends ThemeExtension<CometChatChangeScopeStyle
   }
 
   @override
-  CometChatChangeScopeStyle lerp(ThemeExtension<CometChatChangeScopeStyle>? other, double t) {
-  if (other is! CometChatChangeScopeStyle) {
-  return this;
-  }
-  return CometChatChangeScopeStyle(
-  backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
-  borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
-  radioButtonColor: Color.lerp(radioButtonColor, other.radioButtonColor, t),
-  radioButtonSelectedColor: Color.lerp(radioButtonSelectedColor, other.radioButtonSelectedColor, t),
-  scopeTextStyle: TextStyle.lerp(scopeTextStyle, other.scopeTextStyle, t),
-  selectedScopeTextStyle: TextStyle.lerp(selectedScopeTextStyle, other.selectedScopeTextStyle, t),
-  cancelButtonBackgroundColor: Color.lerp(cancelButtonBackgroundColor, other.cancelButtonBackgroundColor, t),
-  cancelButtonBorder: BorderSide.lerp(cancelButtonBorder ?? BorderSide.none, other.cancelButtonBorder ?? BorderSide.none, t),
-  cancelButtonTextStyle: TextStyle.lerp(cancelButtonTextStyle, other.cancelButtonTextStyle, t),
-  cancelButtonBorderRadius: BorderRadiusGeometry.lerp(cancelButtonBorderRadius, other.cancelButtonBorderRadius, t),
-  saveButtonBackgroundColor: Color.lerp(saveButtonBackgroundColor, other.saveButtonBackgroundColor, t),
-  saveButtonBorder: BorderSide.lerp(saveButtonBorder ?? BorderSide.none, other.saveButtonBorder ?? BorderSide.none, t),
-  saveButtonTextStyle: TextStyle.lerp(saveButtonTextStyle, other.saveButtonTextStyle, t),
-  saveButtonBorderRadius: BorderRadiusGeometry.lerp(saveButtonBorderRadius, other.saveButtonBorderRadius, t),
-  scopeSectionBorder: BoxBorder.lerp(scopeSectionBorder, other.scopeSectionBorder, t),
-  titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
-  subtitleTextStyle: TextStyle.lerp(subtitleTextStyle, other.subtitleTextStyle, t),
-  iconColor: Color.lerp(iconColor, other.iconColor, t),
-  iconBackgroundColor: Color.lerp(iconBackgroundColor, other.iconBackgroundColor, t),
-    tileColor: Color.lerp(tileColor, other.tileColor, t),
-    selectedTileColor: Color.lerp(selectedTileColor, other.selectedTileColor, t),
-    border: BoxBorder.lerp(border ?? Border.all(), other.border ?? Border.all(), t),
-
-  );
+  CometChatChangeScopeStyle lerp(
+    ThemeExtension<CometChatChangeScopeStyle>? other,
+    double t,
+  ) {
+    if (other is! CometChatChangeScopeStyle) {
+      return this;
+    }
+    return CometChatChangeScopeStyle(
+      backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
+      radioButtonColor: Color.lerp(radioButtonColor, other.radioButtonColor, t),
+      radioButtonSelectedColor: Color.lerp(
+        radioButtonSelectedColor,
+        other.radioButtonSelectedColor,
+        t,
+      ),
+      scopeTextStyle: TextStyle.lerp(scopeTextStyle, other.scopeTextStyle, t),
+      selectedScopeTextStyle: TextStyle.lerp(
+        selectedScopeTextStyle,
+        other.selectedScopeTextStyle,
+        t,
+      ),
+      cancelButtonBackgroundColor: Color.lerp(
+        cancelButtonBackgroundColor,
+        other.cancelButtonBackgroundColor,
+        t,
+      ),
+      cancelButtonBorder: BorderSide.lerp(
+        cancelButtonBorder ?? BorderSide.none,
+        other.cancelButtonBorder ?? BorderSide.none,
+        t,
+      ),
+      cancelButtonTextStyle: TextStyle.lerp(
+        cancelButtonTextStyle,
+        other.cancelButtonTextStyle,
+        t,
+      ),
+      cancelButtonBorderRadius: BorderRadiusGeometry.lerp(
+        cancelButtonBorderRadius,
+        other.cancelButtonBorderRadius,
+        t,
+      ),
+      saveButtonBackgroundColor: Color.lerp(
+        saveButtonBackgroundColor,
+        other.saveButtonBackgroundColor,
+        t,
+      ),
+      saveButtonBorder: BorderSide.lerp(
+        saveButtonBorder ?? BorderSide.none,
+        other.saveButtonBorder ?? BorderSide.none,
+        t,
+      ),
+      saveButtonTextStyle: TextStyle.lerp(
+        saveButtonTextStyle,
+        other.saveButtonTextStyle,
+        t,
+      ),
+      saveButtonBorderRadius: BorderRadiusGeometry.lerp(
+        saveButtonBorderRadius,
+        other.saveButtonBorderRadius,
+        t,
+      ),
+      scopeSectionBorder: BoxBorder.lerp(
+        scopeSectionBorder,
+        other.scopeSectionBorder,
+        t,
+      ),
+      titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
+      subtitleTextStyle: TextStyle.lerp(
+        subtitleTextStyle,
+        other.subtitleTextStyle,
+        t,
+      ),
+      iconColor: Color.lerp(iconColor, other.iconColor, t),
+      iconBackgroundColor: Color.lerp(
+        iconBackgroundColor,
+        other.iconBackgroundColor,
+        t,
+      ),
+      tileColor: Color.lerp(tileColor, other.tileColor, t),
+      selectedTileColor: Color.lerp(
+        selectedTileColor,
+        other.selectedTileColor,
+        t,
+      ),
+      border: BoxBorder.lerp(
+        border ?? Border.all(),
+        other.border ?? Border.all(),
+        t,
+      ),
+    );
   }
 }

@@ -1,16 +1,25 @@
-import '../../../cometchat_uikit_shared.dart' hide BaseInteractiveElement, ButtonElement, ElementEntity, ActionEntity, APIAction, URLNavigationAction, CustomAction;
+import '../../../cometchat_uikit_shared.dart'
+    hide
+        BaseInteractiveElement,
+        ButtonElement,
+        ElementEntity,
+        ActionEntity,
+        APIAction,
+        URLNavigationAction,
+        CustomAction;
 import 'base_interactive_element.dart';
 import '../interactive_actions/action_entity.dart';
+
 /// Represents a button model class , used to draw button element .
 class ButtonElement extends BaseInteractiveElement {
-  ButtonElement(
-      {super.elementType = UIElementTypeConstants.button,
-      required super.elementId,
-      required this.buttonText,
-      super.action,
-      String? description,
-      bool? disableAfterInteracted})
-      : super(disableAfterInteracted: disableAfterInteracted ?? false);
+  ButtonElement({
+    super.elementType = UIElementTypeConstants.button,
+    required super.elementId,
+    required this.buttonText,
+    super.action,
+    String? description,
+    bool? disableAfterInteracted,
+  }) : super(disableAfterInteracted: disableAfterInteracted ?? false);
 
   String buttonText;
 

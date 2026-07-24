@@ -4,11 +4,7 @@ abstract class AppException implements Exception {
   final String? code;
   final dynamic originalException;
 
-  AppException({
-    required this.message,
-    this.code,
-    this.originalException,
-  });
+  AppException({required this.message, this.code, this.originalException});
 
   @override
   String toString() => 'AppException: $message (code: $code)';
@@ -17,14 +13,10 @@ abstract class AppException implements Exception {
 /// Exception from remote API/SDK
 class RemoteException extends AppException {
   RemoteException({
-    required String message,
-    String? code,
-    dynamic originalException,
-  }) : super(
-    message: message,
-    code: code,
-    originalException: originalException,
-  );
+    required super.message,
+    super.code,
+    super.originalException,
+  });
 
   @override
   String toString() => 'RemoteException: $message';
@@ -32,15 +24,7 @@ class RemoteException extends AppException {
 
 /// Exception from local storage
 class LocalException extends AppException {
-  LocalException({
-    required String message,
-    String? code,
-    dynamic originalException,
-  }) : super(
-    message: message,
-    code: code,
-    originalException: originalException,
-  );
+  LocalException({required super.message, super.code, super.originalException});
 
   @override
   String toString() => 'LocalException: $message';
@@ -49,14 +33,10 @@ class LocalException extends AppException {
 /// Exception from invalid input
 class ValidationException extends AppException {
   ValidationException({
-    required String message,
-    String? code,
-    dynamic originalException,
-  }) : super(
-    message: message,
-    code: code,
-    originalException: originalException,
-  );
+    required super.message,
+    super.code,
+    super.originalException,
+  });
 
   @override
   String toString() => 'ValidationException: $message';
@@ -65,14 +45,10 @@ class ValidationException extends AppException {
 /// Unknown/unexpected exception
 class UnknownException extends AppException {
   UnknownException({
-    required String message,
-    String? code,
-    dynamic originalException,
-  }) : super(
-    message: message,
-    code: code,
-    originalException: originalException,
-  );
+    required super.message,
+    super.code,
+    super.originalException,
+  });
 
   @override
   String toString() => 'UnknownException: $message';

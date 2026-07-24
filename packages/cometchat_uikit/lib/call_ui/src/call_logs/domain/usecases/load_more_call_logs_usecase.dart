@@ -15,7 +15,7 @@ class LoadMoreCallLogsUseCase {
   /// [limit] - Maximum number of call logs to fetch (default: 30)
   /// [currentCallLogs] - Currently loaded call logs to prevent duplicates
   ///
-  /// Returns Result<List<CallLog>> containing additional call logs or failure.
+  /// Returns `Result<List<CallLog>>` containing additional call logs or failure.
   Future<Result<List<CallLog>>> call({
     int limit = 30,
     List<CallLog>? currentCallLogs,
@@ -36,9 +36,7 @@ class LoadMoreCallLogsUseCase {
     }
 
     // Delegate to repository to fetch more call logs
-    final result = await repository.getCallLogs(
-      limit: limit,
-    );
+    final result = await repository.getCallLogs(limit: limit);
 
     // Handle deduplication if current call logs are provided
     return result.map((newCallLogs) {

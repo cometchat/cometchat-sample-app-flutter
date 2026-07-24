@@ -3,6 +3,7 @@
 /// This file exports all modular widget components extracted from
 /// the CometChatGroups widget for better maintainability
 /// and reusability.
+library;
 
 // State Views will be exported here as they are implemented:
 // export 'groups_loading_view.dart';

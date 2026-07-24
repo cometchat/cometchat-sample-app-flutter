@@ -31,9 +31,9 @@ class CometChatEmailFormatter extends CometChatTextFormatter {
     super.user,
     super.group,
   }) : super(
-          trackingCharacter: null,
-          pattern: pattern ?? RegExp(RegexConstants.emailRegexPattern),
-        ) {
+         trackingCharacter: null,
+         pattern: pattern ?? RegExp(RegexConstants.emailRegexPattern),
+       ) {
     pattern ??= RegExp(RegexConstants.emailRegexPattern);
   }
 
@@ -50,7 +50,9 @@ class CometChatEmailFormatter extends CometChatTextFormatter {
     if (messageInputTextStyle != null) {
       return messageInputTextStyle!(context);
     }
-    CometChatTypography typography = CometChatThemeHelper.getTypography(context);
+    CometChatTypography typography = CometChatThemeHelper.getTypography(
+      context,
+    );
     return TextStyle(
       fontWeight: typography.body?.regular?.fontWeight,
       fontSize: typography.body?.regular?.fontSize,
@@ -66,45 +68,65 @@ class CometChatEmailFormatter extends CometChatTextFormatter {
 
   @override
   TextStyle getMessageBubbleTextStyle(
-      BuildContext context, BubbleAlignment? alignment,
-      {bool forConversation = false}) {
+    BuildContext context,
+    BubbleAlignment? alignment, {
+    bool forConversation = false,
+  }) {
     if (messageBubbleTextStyle != null) {
-      return messageBubbleTextStyle!(context, alignment,
-          forConversation: forConversation);
+      return messageBubbleTextStyle!(
+        context,
+        alignment,
+        forConversation: forConversation,
+      );
     } else {
-      CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
-      CometChatTypography typography = CometChatThemeHelper.getTypography(context);
+      CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(
+        context,
+      );
+      CometChatTypography typography = CometChatThemeHelper.getTypography(
+        context,
+      );
       return TextStyle(
-          color: alignment == BubbleAlignment.right
-              ?colorPalette.white
-              : colorPalette.neutral900,
-          fontWeight: typography.body?.regular?.fontWeight,
-          fontSize: typography.body?.regular?.fontSize,
-          fontFamily: typography.body?.regular?.fontFamily,
-          decoration: TextDecoration.underline);
+        color: alignment == BubbleAlignment.right
+            ? colorPalette.white
+            : colorPalette.neutral900,
+        fontWeight: typography.body?.regular?.fontWeight,
+        fontSize: typography.body?.regular?.fontSize,
+        fontFamily: typography.body?.regular?.fontFamily,
+        decoration: TextDecoration.underline,
+      );
     }
   }
 
   @override
   void onChange(
-      TextEditingController textEditingController, String previousText) {
+    TextEditingController textEditingController,
+    String previousText,
+  ) {
     // No operation needed for email formatter
   }
 
   @override
   List<AttributedText> getAttributedText(
-      String text, BuildContext context, BubbleAlignment? alignment,
-      {List<AttributedText>? existingAttributes,
-      Function(String)? onTap,
-      bool forConversation = false}) {
-    return super.getAttributedText(text, context, alignment,
-        existingAttributes: existingAttributes,
-        onTap: onTap ??
-            (text) async {
-              if (pattern != null && pattern!.hasMatch(text)) {
-                await launchUrl(Uri.parse(('mailto:$text')));
-              }
-            },
-        forConversation: forConversation);
+    String text,
+    BuildContext context,
+    BubbleAlignment? alignment, {
+    List<AttributedText>? existingAttributes,
+    Function(String)? onTap,
+    bool forConversation = false,
+  }) {
+    return super.getAttributedText(
+      text,
+      context,
+      alignment,
+      existingAttributes: existingAttributes,
+      onTap:
+          onTap ??
+          (text) async {
+            if (pattern != null && pattern!.hasMatch(text)) {
+              await launchUrl(Uri.parse(('mailto:$text')));
+            }
+          },
+      forConversation: forConversation,
+    );
   }
 }

@@ -5,7 +5,7 @@ import '../repositories/rich_text_repository.dart';
 /// Use case for detecting which formats are active at cursor position
 ///
 /// Validates cursor position and delegates to repository.detectActiveFormats()
-/// Returns Result<Set<FormatType>> with active formats or failure
+/// Returns `Result<Set<FormatType>>` with active formats or failure
 class DetectActiveFormatsUseCase {
   final RichTextRepository repository;
 
@@ -18,7 +18,7 @@ class DetectActiveFormatsUseCase {
   /// - Cursor position must be <= text.length
   ///
   /// Returns:
-  /// - Success<Set<FormatType>> with active formats at position
+  /// - `Success<Set<FormatType>>` with active formats at position
   /// - Failure if validation fails or detection operation fails
   Future<Result<Set<FormatType>>> call({
     required String text,

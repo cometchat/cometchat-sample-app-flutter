@@ -14,29 +14,19 @@ abstract class StreamRemoteDataSource {
   });
 
   /// Stop stream
-  Future<Result<void>> stopStream({
-    required String streamId,
-  });
+  Future<Result<void>> stopStream({required String streamId});
 
   /// Pause stream
-  Future<Result<void>> pauseStream({
-    required String streamId,
-  });
+  Future<Result<void>> pauseStream({required String streamId});
 
   /// Resume stream
-  Future<Result<void>> resumeStream({
-    required String streamId,
-  });
+  Future<Result<void>> resumeStream({required String streamId});
 
   /// Get stream duration
-  Future<Result<Duration>> getStreamDuration({
-    required String url,
-  });
+  Future<Result<Duration>> getStreamDuration({required String url});
 
   /// Get current position
-  Future<Result<Duration>> getCurrentPosition({
-    required String streamId,
-  });
+  Future<Result<Duration>> getCurrentPosition({required String streamId});
 
   /// Seek to position
   Future<Result<void>> seekToPosition({
@@ -45,9 +35,7 @@ abstract class StreamRemoteDataSource {
   });
 
   /// Get status stream
-  Stream<StreamStatusUpdate> getStreamStatusStream({
-    required String streamId,
-  });
+  Stream<StreamStatusUpdate> getStreamStatusStream({required String streamId});
 }
 
 /// Implementation using video_player (works for both audio and video)
@@ -55,10 +43,11 @@ abstract class StreamRemoteDataSource {
 class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
   /// Map of stream ID to controller
   final Map<String, VideoPlayerController> _controllers = {};
-  
+
   /// Map of stream ID to status stream controller
-  final Map<String, StreamController<StreamStatusUpdate>> _statusControllers = {};
-  
+  final Map<String, StreamController<StreamStatusUpdate>> _statusControllers =
+      {};
+
   /// Map of stream ID to position update timer
   final Map<String, Timer> _positionTimers = {};
 
@@ -104,10 +93,10 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
 
       // Initialize the controller
       await controller.initialize();
-      
+
       // Store controller
       _controllers[streamId] = controller;
-      
+
       // Create status stream controller
       final statusController = StreamController<StreamStatusUpdate>.broadcast();
       _statusControllers[streamId] = statusController;
@@ -134,14 +123,16 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
       );
 
       // Emit initial status
-      statusController.add(StreamStatusUpdate(
-        status: StreamPlaybackStatus.playing,
-        position: Duration.zero,
-        duration: controller.value.duration,
-        bufferedPosition: controller.value.buffered.isNotEmpty
-            ? controller.value.buffered.last.end
-            : Duration.zero,
-      ));
+      statusController.add(
+        StreamStatusUpdate(
+          status: StreamPlaybackStatus.playing,
+          position: Duration.zero,
+          duration: controller.value.duration,
+          bufferedPosition: controller.value.buffered.isNotEmpty
+              ? controller.value.buffered.last.end
+              : Duration.zero,
+        ),
+      );
 
       return Success(stream);
     } catch (e) {
@@ -160,19 +151,21 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
       if (controller != null && controller.value.isInitialized) {
         await controller.pause();
         await controller.seekTo(Duration.zero);
-        
+
         // Emit stopped status
-        _statusControllers[streamId]?.add(StreamStatusUpdate(
-          status: StreamPlaybackStatus.stopped,
-          position: Duration.zero,
-          duration: controller.value.duration,
-          bufferedPosition: Duration.zero,
-        ));
+        _statusControllers[streamId]?.add(
+          StreamStatusUpdate(
+            status: StreamPlaybackStatus.stopped,
+            position: Duration.zero,
+            duration: controller.value.duration,
+            bufferedPosition: Duration.zero,
+          ),
+        );
       }
-      
+
       // Clean up resources
       await _disposeStream(streamId);
-      
+
       return const Success(null);
     } catch (e) {
       return Failure(
@@ -189,16 +182,18 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
       final controller = _controllers[streamId];
       if (controller != null && controller.value.isInitialized) {
         await controller.pause();
-        
+
         // Emit paused status
-        _statusControllers[streamId]?.add(StreamStatusUpdate(
-          status: StreamPlaybackStatus.paused,
-          position: controller.value.position,
-          duration: controller.value.duration,
-          bufferedPosition: controller.value.buffered.isNotEmpty
-              ? controller.value.buffered.last.end
-              : Duration.zero,
-        ));
+        _statusControllers[streamId]?.add(
+          StreamStatusUpdate(
+            status: StreamPlaybackStatus.paused,
+            position: controller.value.position,
+            duration: controller.value.duration,
+            bufferedPosition: controller.value.buffered.isNotEmpty
+                ? controller.value.buffered.last.end
+                : Duration.zero,
+          ),
+        );
       }
       return const Success(null);
     } catch (e) {
@@ -216,19 +211,25 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
       final controller = _controllers[streamId];
       if (controller != null && controller.value.isInitialized) {
         await controller.play();
-        
+
         // Restart position timer
-        _startPositionTimer(streamId, controller, _statusControllers[streamId]!);
-        
+        _startPositionTimer(
+          streamId,
+          controller,
+          _statusControllers[streamId]!,
+        );
+
         // Emit playing status
-        _statusControllers[streamId]?.add(StreamStatusUpdate(
-          status: StreamPlaybackStatus.playing,
-          position: controller.value.position,
-          duration: controller.value.duration,
-          bufferedPosition: controller.value.buffered.isNotEmpty
-              ? controller.value.buffered.last.end
-              : Duration.zero,
-        ));
+        _statusControllers[streamId]?.add(
+          StreamStatusUpdate(
+            status: StreamPlaybackStatus.playing,
+            position: controller.value.position,
+            duration: controller.value.duration,
+            bufferedPosition: controller.value.buffered.isNotEmpty
+                ? controller.value.buffered.last.end
+                : Duration.zero,
+          ),
+        );
       }
       return const Success(null);
     } catch (e) {
@@ -245,14 +246,18 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
     try {
       // Create temporary controller to get duration
       VideoPlayerController tempController;
-      
+
       if (url.startsWith('http://') || url.startsWith('https://')) {
         tempController = VideoPlayerController.networkUrl(Uri.parse(url));
       } else if (!kIsWeb && url.startsWith('file://')) {
         final filePath = url.replaceFirst('file://', '');
-        tempController = VideoPlayerController.networkUrl(Uri.parse('file://$filePath'));
+        tempController = VideoPlayerController.networkUrl(
+          Uri.parse('file://$filePath'),
+        );
       } else if (!kIsWeb) {
-        tempController = VideoPlayerController.networkUrl(Uri.parse('file://$url'));
+        tempController = VideoPlayerController.networkUrl(
+          Uri.parse('file://$url'),
+        );
       } else {
         return const Failure(
           message: 'Local file duration not supported on web',
@@ -275,7 +280,9 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
   }
 
   @override
-  Future<Result<Duration>> getCurrentPosition({required String streamId}) async {
+  Future<Result<Duration>> getCurrentPosition({
+    required String streamId,
+  }) async {
     try {
       final controller = _controllers[streamId];
       if (controller != null && controller.value.isInitialized) {
@@ -300,18 +307,20 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
       final controller = _controllers[streamId];
       if (controller != null && controller.value.isInitialized) {
         await controller.seekTo(position);
-        
+
         // Emit updated position
-        _statusControllers[streamId]?.add(StreamStatusUpdate(
-          status: controller.value.isPlaying 
-              ? StreamPlaybackStatus.playing 
-              : StreamPlaybackStatus.paused,
-          position: position,
-          duration: controller.value.duration,
-          bufferedPosition: controller.value.buffered.isNotEmpty
-              ? controller.value.buffered.last.end
-              : Duration.zero,
-        ));
+        _statusControllers[streamId]?.add(
+          StreamStatusUpdate(
+            status: controller.value.isPlaying
+                ? StreamPlaybackStatus.playing
+                : StreamPlaybackStatus.paused,
+            position: position,
+            duration: controller.value.duration,
+            bufferedPosition: controller.value.buffered.isNotEmpty
+                ? controller.value.buffered.last.end
+                : Duration.zero,
+          ),
+        );
       }
       return const Success(null);
     } catch (e) {
@@ -324,13 +333,12 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
   }
 
   @override
-  Stream<StreamStatusUpdate> getStreamStatusStream({
-    required String streamId,
-  }) {
+  Stream<StreamStatusUpdate> getStreamStatusStream({required String streamId}) {
     try {
       // Create status controller if it doesn't exist
       if (!_statusControllers.containsKey(streamId)) {
-        _statusControllers[streamId] = StreamController<StreamStatusUpdate>.broadcast();
+        _statusControllers[streamId] =
+            StreamController<StreamStatusUpdate>.broadcast();
       }
       return _statusControllers[streamId]!.stream;
     } catch (e) {
@@ -345,25 +353,29 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
     StreamController<StreamStatusUpdate> statusController,
   ) {
     if (controller.value.hasError) {
-      statusController.add(StreamStatusUpdate(
-        status: StreamPlaybackStatus.error,
-        position: controller.value.position,
-        duration: controller.value.duration,
-        bufferedPosition: Duration.zero,
-        errorMessage: controller.value.errorDescription,
-      ));
+      statusController.add(
+        StreamStatusUpdate(
+          status: StreamPlaybackStatus.error,
+          position: controller.value.position,
+          duration: controller.value.duration,
+          bufferedPosition: Duration.zero,
+          errorMessage: controller.value.errorDescription,
+        ),
+      );
       return;
     }
 
     // Check if playback completed
     if (controller.value.position >= controller.value.duration &&
         controller.value.duration > Duration.zero) {
-      statusController.add(StreamStatusUpdate(
-        status: StreamPlaybackStatus.completed,
-        position: controller.value.duration,
-        duration: controller.value.duration,
-        bufferedPosition: controller.value.duration,
-      ));
+      statusController.add(
+        StreamStatusUpdate(
+          status: StreamPlaybackStatus.completed,
+          position: controller.value.duration,
+          duration: controller.value.duration,
+          bufferedPosition: controller.value.duration,
+        ),
+      );
     }
   }
 
@@ -377,18 +389,23 @@ class StreamRemoteDataSourceImpl implements StreamRemoteDataSource {
     _positionTimers[streamId]?.cancel();
 
     // Create new timer for position updates (every 100ms)
-    _positionTimers[streamId] = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      if (controller.value.isInitialized && controller.value.isPlaying) {
-        statusController.add(StreamStatusUpdate(
-          status: StreamPlaybackStatus.playing,
-          position: controller.value.position,
-          duration: controller.value.duration,
-          bufferedPosition: controller.value.buffered.isNotEmpty
-              ? controller.value.buffered.last.end
-              : Duration.zero,
-        ));
-      }
-    });
+    _positionTimers[streamId] = Timer.periodic(
+      const Duration(milliseconds: 100),
+      (timer) {
+        if (controller.value.isInitialized && controller.value.isPlaying) {
+          statusController.add(
+            StreamStatusUpdate(
+              status: StreamPlaybackStatus.playing,
+              position: controller.value.position,
+              duration: controller.value.duration,
+              bufferedPosition: controller.value.buffered.isNotEmpty
+                  ? controller.value.buffered.last.end
+                  : Duration.zero,
+            ),
+          );
+        }
+      },
+    );
   }
 
   /// Internal: Dispose stream resources

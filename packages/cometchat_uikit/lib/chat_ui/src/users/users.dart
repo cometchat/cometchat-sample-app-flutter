@@ -17,6 +17,7 @@
 ///   onItemTap: (context, user) => print('Tapped: ${user.name}'),
 /// );
 /// ```
+library;
 
 // BLoC
 export 'bloc/bloc.dart';

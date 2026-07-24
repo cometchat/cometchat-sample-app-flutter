@@ -11,7 +11,7 @@ class CallingConfiguration {
     this.groupSessionSettingsBuilder,
   });
 
-  ///[outgoingCallConfiguration] is a object of [OutgoingCallConfiguration] which sets the configuration for outgoing call
+  ///[outgoingCallConfiguration] is a object of [CometChatOutgoingCallConfiguration] which sets the configuration for outgoing call
   final CometChatOutgoingCallConfiguration? outgoingCallConfiguration;
 
   ///[incomingCallConfiguration] is a object of [CometChatIncomingCallConfiguration] which sets the configuration for incoming call

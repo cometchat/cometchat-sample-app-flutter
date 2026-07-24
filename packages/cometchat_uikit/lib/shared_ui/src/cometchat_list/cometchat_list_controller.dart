@@ -12,7 +12,8 @@ class CometChatListException implements Exception {
   CometChatListException(this.code, this.message, [this.details]);
 
   @override
-  String toString() => 'CometChatListException($code): $message${details != null ? ' - $details' : ''}';
+  String toString() =>
+      'CometChatListException($code): $message${details != null ? ' - $details' : ''}';
 }
 
 ///Common Controller Class which holds the logic to fetch data from different request builders
@@ -41,8 +42,13 @@ abstract class CometChatListController<T1, T2> extends ChangeNotifier
   /// prevents both fetchNext & fetchPrevious from running at same time
   bool isFetching = false;
 
-  CometChatListController(this.request,
-      {this.onError, this.isFetchNext = true, this.onLoad, this.onEmpty});
+  CometChatListController(
+    this.request, {
+    this.onError,
+    this.isFetchNext = true,
+    this.onLoad,
+    this.onEmpty,
+  });
 
   // ---------------------------------------------------------------------------
   // Lifecycle stubs — replaces GetxController's onInit / onClose / update
@@ -115,7 +121,7 @@ abstract class CometChatListController<T1, T2> extends ChangeNotifier
     }
   }
 
-  _onError(CometChatListException e) {
+  void _onError(CometChatListException e) {
     if (kDebugMode) {
       print("Error ${e.details}");
     }
@@ -126,7 +132,7 @@ abstract class CometChatListController<T1, T2> extends ChangeNotifier
   }
 
   @override
-  loadMoreElements({bool Function(T1 element)? isIncluded}) async {
+  Future<void> loadMoreElements({bool Function(T1 element)? isIncluded}) async {
     if (isFetching) return;
 
     isFetching = true;
@@ -251,7 +257,7 @@ abstract class CometChatListController<T1, T2> extends ChangeNotifier
     }
   }
 
-  updateElementAt(T1 element, int index) {
+  void updateElementAt(T1 element, int index) {
     list[index] = element;
     update();
   }

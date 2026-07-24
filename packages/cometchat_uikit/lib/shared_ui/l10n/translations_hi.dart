@@ -834,6 +834,41 @@ class TranslationsHi extends Translations {
   String get failedToLoadImage => 'छवि लोड करने में विफल';
 
   @override
+  String get uploadFailed => 'अपलोड विफल';
+
+  @override
+  String get tapToRetry => 'पुनः प्रयास के लिए टैप करें';
+
+  @override
+  String get dropFilesHere => 'फ़ाइलें यहाँ छोड़ें';
+
+  @override
+  String get attachmentCountLimit =>
+      'आप प्रति संदेश अधिकतम {limit} फ़ाइलें संलग्न कर सकते हैं।';
+
+  @override
+  String get attachmentFileSizeLimit =>
+      'प्रत्येक फ़ाइल {limit} से कम होनी चाहिए।';
+
+  @override
+  String get fileListShowMore => '+{count} और';
+
+  @override
+  String get fileListShowLess => 'कम दिखाएं';
+
+  @override
+  String get searchImagesCount => '{count} छवियां';
+
+  @override
+  String get searchVideosCount => '{count} वीडियो';
+
+  @override
+  String get searchAudiosCount => '{count} ऑडियो';
+
+  @override
+  String get searchFilesCount => '{count} फ़ाइलें';
+
+  @override
   String get transferOwnership => 'स्वामित्व ट्रांसफर करें';
 
   @override
@@ -1259,16 +1294,20 @@ class TranslationsHi extends Translations {
   @override
   String get type => 'टाइप';
   @override
-  String get messageBlockedByModeration => 'आपका संदेश मोडरेशन नीतियों के कारण ब्लॉक कर दिया गया।';
+  String get messageBlockedByModeration =>
+      'आपका संदेश मोडरेशन नीतियों के कारण ब्लॉक कर दिया गया।';
 
   @override
-  String get cantSendMessageBlockedUser => "संदेश नहीं भेजा जा सकता क्योंकि उपयोगकर्ता अवरुद्ध है।";
+  String get cantSendMessageBlockedUser =>
+      "संदेश नहीं भेजा जा सकता क्योंकि उपयोगकर्ता अवरुद्ध है।";
 
   @override
-  String get cantSendMessageNotMember => "आप इस समूह को संदेश नहीं भेज सकते क्योंकि आप अब इसके सदस्य नहीं हैं।";
+  String get cantSendMessageNotMember =>
+      "आप इस समूह को संदेश नहीं भेज सकते क्योंकि आप अब इसके सदस्य नहीं हैं।";
 
   @override
-  String get youAreNoLongerPartOfThisGroup => 'आप अब इस समूह का हिस्सा नहीं हैं।';
+  String get youAreNoLongerPartOfThisGroup =>
+      'आप अब इस समूह का हिस्सा नहीं हैं।';
 
   @override
   String get busy => "व्यस्त";
@@ -1277,10 +1316,12 @@ class TranslationsHi extends Translations {
   String get noConversationHistoryFound => "कोई बातचीत इतिहास नहीं मिला।";
 
   @override
-  String get somethingWentWrongTryAgain => "हमारी ओर से कुछ गलत हो गया। कृपया दोबारा प्रयास करें।";
+  String get somethingWentWrongTryAgain =>
+      "हमारी ओर से कुछ गलत हो गया। कृपया दोबारा प्रयास करें।";
 
   @override
-  String get startChatByTappingNewChat => '“नई चैट” बटन पर टैप करके चैट शुरू करें।';
+  String get startChatByTappingNewChat =>
+      '“नई चैट” बटन पर टैप करके चैट शुरू करें।';
 
   @override
   String get chatHistory => "चैट इतिहास";
@@ -1323,7 +1364,8 @@ class TranslationsHi extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

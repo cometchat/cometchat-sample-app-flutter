@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 
 /// Repository interface for conversations data operations
@@ -23,9 +23,7 @@ abstract class ConversationsRepository {
   Future<Result<void>> deleteConversation(String conversationId);
 
   /// Update a conversation
-  Future<Result<Conversation>> updateConversation(
-    Conversation conversation,
-  );
+  Future<Result<Conversation>> updateConversation(Conversation conversation);
 
   /// Get the currently logged-in user
   Future<Result<User?>> getLoggedInUser();

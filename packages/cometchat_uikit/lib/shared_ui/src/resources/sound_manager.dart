@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../../cometchat_uikit_shared.dart';
-import '../clean_architecture/core/utils/platform_utils/platform_file_utils.dart' as platform;
+import '../clean_architecture/core/utils/platform_utils/platform_file_utils.dart'
+    as platform;
 
 ///[SoundManager] is an utility component that provides an audio player
 class SoundManager {
@@ -14,12 +15,12 @@ class SoundManager {
 
   SoundManager._internal();
 
-  void play(
-      {required Sound sound,
-        String? customSound,
-        String? packageName, // Use it only when using other plugin
-        bool? isLooping = false,
-      }) async {
+  void play({
+    required Sound sound,
+    String? customSound,
+    String? packageName, // Use it only when using other plugin
+    bool? isLooping = false,
+  }) async {
     if (kIsWeb) return;
 
     String soundPath = "";
@@ -27,7 +28,9 @@ class SoundManager {
     if (customSound != null && customSound.isNotEmpty) {
       soundPath = customSound;
 
-      if (platform.platformIsAndroid() && packageName != null && packageName.isNotEmpty) {
+      if (platform.platformIsAndroid() &&
+          packageName != null &&
+          packageName.isNotEmpty) {
         soundPath = soundPath;
       }
     } else {
@@ -38,8 +41,11 @@ class SoundManager {
       }
     }
     try {
-    await UIConstants.channel.invokeMethod("playCustomSound",
-        {'assetAudioPath': soundPath, 'package': packageName, 'isLooping': isLooping});
+      await UIConstants.channel.invokeMethod("playCustomSound", {
+        'assetAudioPath': soundPath,
+        'package': packageName,
+        'isLooping': isLooping,
+      });
     } catch (e) {
       if (e.toString().contains('AUDIO_FOCUS_FAILED')) {
         debugPrint('Audio focus not available. Notification sound skipped.');
@@ -72,9 +78,6 @@ class SoundManager {
       case Sound.incomingCall:
         soundType = "assets/sound/incoming_call.wav";
         break;
-      default:
-        soundType = "assets/beep.mp3";
-        break;
     }
 
     return soundType;
@@ -86,5 +89,5 @@ enum Sound {
   outgoingMessage,
   incomingMessageFromOther,
   outgoingCall,
-  incomingCall
+  incomingCall,
 }

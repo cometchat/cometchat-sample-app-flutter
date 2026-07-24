@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../cometchat_calls_uikit.dart';
 import '../../../cometchat_chat_uikit.dart';
 
-
-///[CometChatOutgoingCallConfiguration] is a data class that has configuration properties for  [CometChatOutgoingCallScreen]
+///[CometChatOutgoingCallConfiguration] is a data class that has configuration properties for  [CometChatOutgoingCall]
 ///
 /// ```dart
 /// CometChatOutgoingCallConfiguration(

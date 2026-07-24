@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../../../../../../cometchat_uikit_shared.dart';
 
@@ -13,15 +12,15 @@ import '../../../../../../cometchat_uikit_shared.dart';
 /// borderRadius: BorderRadius.circular(10),
 /// )
 /// ```
-class CometChatMessageBubbleStyle extends ThemeExtension<CometChatMessageBubbleStyle> {
-  ///[CometChatMessageBubbleStyle] constructor requires [width], [height], [background], [border], [borderRadius], [gradient] and [padding] while initializing.
-  const CometChatMessageBubbleStyle(
-      {this.backgroundImage,
-      this.backgroundColor,
-      this.border,
-      this.borderRadius
-      });
-
+class CometChatMessageBubbleStyle
+    extends ThemeExtension<CometChatMessageBubbleStyle> {
+  ///[CometChatMessageBubbleStyle] constructor requires `width`, `height`, `background`, [border], [borderRadius], `gradient` and `padding` while initializing.
+  const CometChatMessageBubbleStyle({
+    this.backgroundImage,
+    this.backgroundColor,
+    this.border,
+    this.borderRadius,
+  });
 
   ///[backgroundImage] provides background image to the message bubble
   final DecorationImage? backgroundImage;
@@ -53,17 +52,25 @@ class CometChatMessageBubbleStyle extends ThemeExtension<CometChatMessageBubbleS
   }
 
   @override
-  CometChatMessageBubbleStyle lerp(CometChatMessageBubbleStyle? other, double t) {
+  CometChatMessageBubbleStyle lerp(
+    CometChatMessageBubbleStyle? other,
+    double t,
+  ) {
     if (other == null) return this;
     return CometChatMessageBubbleStyle(
       backgroundImage: other.backgroundImage ?? backgroundImage,
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
     );
   }
 
-  static CometChatMessageBubbleStyle of(BuildContext context) => const CometChatMessageBubbleStyle();
+  static CometChatMessageBubbleStyle of(BuildContext context) =>
+      const CometChatMessageBubbleStyle();
 
   CometChatMessageBubbleStyle merge(CometChatMessageBubbleStyle? style) {
     if (style == null) return this;
@@ -74,5 +81,4 @@ class CometChatMessageBubbleStyle extends ThemeExtension<CometChatMessageBubbleS
       borderRadius: style.borderRadius,
     );
   }
-
 }

@@ -82,7 +82,8 @@ class _CometChatAvatarState extends State<CometChatAvatar> {
     }
 
     if (parts.length >= 2) {
-      return (getFirstCharacter(parts[0]) + getFirstCharacter(parts[1])).toUpperCase();
+      return (getFirstCharacter(parts[0]) + getFirstCharacter(parts[1]))
+          .toUpperCase();
     } else if (parts.isNotEmpty && parts[0].isNotEmpty) {
       Runes runes = parts[0].runes;
       if (runes.length >= 2) {
@@ -100,21 +101,26 @@ class _CometChatAvatarState extends State<CometChatAvatar> {
     super.didChangeDependencies();
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
       _avatarStyle = CometChatThemeHelper.getTheme<CometChatAvatarStyle>(
-          context: context, defaultTheme: CometChatAvatarStyle.of)
-          .merge(widget.style);
+        context: context,
+        defaultTheme: CometChatAvatarStyle.of,
+      ).merge(widget.style);
       // Use passed values OR fallback to lookup (for standalone usage)
-      _typography = widget.typography ?? CometChatThemeHelper.getTypography(context);
-      _colorPalette = widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+      _typography =
+          widget.typography ?? CometChatThemeHelper.getTypography(context);
+      _colorPalette =
+          widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
       _spacing = widget.spacing ?? CometChatThemeHelper.getSpacing(context);
       // Cache screen size ONCE to avoid MediaQuery rebuilds during keyboard animation
       final screenSize = MediaQuery.sizeOf(context);
       final screenWidth = screenSize.width;
       final screenHeight = screenSize.height;
-      _cachedAvatarSize = (screenWidth < screenHeight ? screenWidth : screenHeight) * 0.1;
+      _cachedAvatarSize =
+          (screenWidth < screenHeight ? screenWidth : screenHeight) * 0.1;
       _cachedTextSize = _cachedAvatarSize * 0.2;
       _themeInitialized = true;
     }
@@ -126,17 +132,20 @@ class _CometChatAvatarState extends State<CometChatAvatar> {
     // Update style if it changed
     if (widget.style != oldWidget.style) {
       _avatarStyle = CometChatThemeHelper.getTheme<CometChatAvatarStyle>(
-          context: context, defaultTheme: CometChatAvatarStyle.of)
-          .merge(widget.style);
+        context: context,
+        defaultTheme: CometChatAvatarStyle.of,
+      ).merge(widget.style);
     }
     // Update cached theme values if they changed
-    if (widget.colorPalette != oldWidget.colorPalette && widget.colorPalette != null) {
+    if (widget.colorPalette != oldWidget.colorPalette &&
+        widget.colorPalette != null) {
       _colorPalette = widget.colorPalette;
     }
     if (widget.spacing != oldWidget.spacing && widget.spacing != null) {
       _spacing = widget.spacing;
     }
-    if (widget.typography != oldWidget.typography && widget.typography != null) {
+    if (widget.typography != oldWidget.typography &&
+        widget.typography != null) {
       _typography = widget.typography;
     }
   }
@@ -145,7 +154,7 @@ class _CometChatAvatarState extends State<CometChatAvatar> {
   Widget build(BuildContext context) {
     String url = "";
     String text = "AB";
-    
+
     final avatarStyle = _avatarStyle!;
     final typography = _typography!;
     final colorPalette = _colorPalette!;
@@ -154,7 +163,7 @@ class _CometChatAvatarState extends State<CometChatAvatar> {
     // Use cached sizes to avoid MediaQuery rebuilds during keyboard animation
     final avatarSize = _cachedAvatarSize;
     final textSize = _cachedTextSize;
-    
+
     // Check if Text should be visible or image
     if (widget.image != null && widget.image!.isNotEmpty) {
       url = widget.image!;
@@ -171,60 +180,57 @@ class _CometChatAvatarState extends State<CometChatAvatar> {
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
-        borderRadius: avatarStyle.borderRadius ??
-            BorderRadius.all(
-              Radius.circular(spacing.radiusMax ?? 0),
-            ),
+        borderRadius:
+            avatarStyle.borderRadius ??
+            BorderRadius.all(Radius.circular(spacing.radiusMax ?? 0)),
         border: avatarStyle.border,
         color: avatarStyle.backgroundColor ?? colorPalette.extendedPrimary500,
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.all(
-          Radius.circular(spacing.radiusMax ?? 0),
-        ),
+        borderRadius: BorderRadius.all(Radius.circular(spacing.radiusMax ?? 0)),
         child: url.isNotEmpty
             ? Image.network(
-          url,
-          fit: BoxFit.cover,
-          errorBuilder: (context, object, stackTrace) {
-            return Center(
-              child: Text(
-                text,
-                style: TextStyle(
-                  color: avatarStyle.placeHolderTextColor ??
-                      colorPalette.buttonIconColor,
-                  fontSize: typography.heading2?.bold?.fontSize,
-                  fontWeight: typography.heading2?.bold?.fontWeight,
-                  fontFamily: typography.heading2?.bold?.fontFamily,
-                )
-                    .merge(
-                  avatarStyle.placeHolderTextStyle,
-                )
-                    .copyWith(
-                  color: avatarStyle.placeHolderTextColor,
+                url,
+                fit: BoxFit.cover,
+                errorBuilder: (context, object, stackTrace) {
+                  return Center(
+                    child: Text(
+                      text,
+                      style:
+                          TextStyle(
+                                color:
+                                    avatarStyle.placeHolderTextColor ??
+                                    colorPalette.buttonIconColor,
+                                fontSize: typography.heading2?.bold?.fontSize,
+                                fontWeight:
+                                    typography.heading2?.bold?.fontWeight,
+                                fontFamily:
+                                    typography.heading2?.bold?.fontFamily,
+                              )
+                              .merge(avatarStyle.placeHolderTextStyle)
+                              .copyWith(
+                                color: avatarStyle.placeHolderTextColor,
+                              ),
+                    ),
+                  );
+                },
+              )
+            : Center(
+                child: Text(
+                  text,
+                  style:
+                      TextStyle(
+                            color:
+                                avatarStyle.placeHolderTextColor ??
+                                colorPalette.buttonIconColor,
+                            fontSize: textSize,
+                            fontWeight: typography.heading2?.bold?.fontWeight,
+                            fontFamily: typography.heading2?.bold?.fontFamily,
+                          )
+                          .merge(avatarStyle.placeHolderTextStyle)
+                          .copyWith(color: avatarStyle.placeHolderTextColor),
                 ),
               ),
-            );
-          },
-        )
-            : Center(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: avatarStyle.placeHolderTextColor ??
-                  colorPalette.buttonIconColor,
-              fontSize: textSize,
-              fontWeight: typography.heading2?.bold?.fontWeight,
-              fontFamily: typography.heading2?.bold?.fontFamily,
-            )
-                .merge(
-              avatarStyle.placeHolderTextStyle,
-            )
-                .copyWith(
-              color: avatarStyle.placeHolderTextColor,
-            ),
-          ),
-        ),
       ),
     );
   }

@@ -1,4 +1,4 @@
-import "package:cometchat_sdk/cometchat_sdk.dart";
+import "package:cometchat_sdk/cometchat_sdk.dart" hide CardMessage;
 import 'package:flutter/material.dart';
 import 'cometchat_text_formatter.dart';
 import 'attributed_text.dart';
@@ -23,7 +23,7 @@ import 'package:url_launcher/url_launcher.dart';
 ///     ```
 class CometChatPhoneNumberFormatter extends CometChatTextFormatter {
   CometChatPhoneNumberFormatter({
-    String? trackingCharacter,
+    super.trackingCharacter,
     RegExp? pattern,
     super.showLoadingIndicator,
     super.onSearch,
@@ -36,9 +36,8 @@ class CometChatPhoneNumberFormatter extends CometChatTextFormatter {
     super.user,
     super.group,
   }) : super(
-          trackingCharacter: trackingCharacter,
-          pattern: pattern ?? RegExp(RegexConstants.phoneNumberRegexPattern),
-        );  
+         pattern: pattern ?? RegExp(RegexConstants.phoneNumberRegexPattern),
+       );
   @override
   void init() {
     pattern ??= RegExp(RegexConstants.phoneNumberRegexPattern);
@@ -62,45 +61,65 @@ class CometChatPhoneNumberFormatter extends CometChatTextFormatter {
 
   @override
   TextStyle getMessageBubbleTextStyle(
-      BuildContext context, BubbleAlignment? alignment,
-      {bool forConversation = false}) {
+    BuildContext context,
+    BubbleAlignment? alignment, {
+    bool forConversation = false,
+  }) {
     if (messageBubbleTextStyle != null) {
-      return messageBubbleTextStyle!(context, alignment,
-          forConversation: forConversation);
+      return messageBubbleTextStyle!(
+        context,
+        alignment,
+        forConversation: forConversation,
+      );
     } else {
-      CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
-      CometChatTypography typography = CometChatThemeHelper.getTypography(context);
+      CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(
+        context,
+      );
+      CometChatTypography typography = CometChatThemeHelper.getTypography(
+        context,
+      );
       return TextStyle(
-          color: alignment == BubbleAlignment.right
-              ?colorPalette.white
-              : colorPalette.neutral900,
-          fontWeight: typography.body?.regular?.fontWeight,
-          fontSize: typography.body?.regular?.fontSize,
-          fontFamily: typography.body?.regular?.fontFamily,
-          decoration: TextDecoration.underline);
+        color: alignment == BubbleAlignment.right
+            ? colorPalette.white
+            : colorPalette.neutral900,
+        fontWeight: typography.body?.regular?.fontWeight,
+        fontSize: typography.body?.regular?.fontSize,
+        fontFamily: typography.body?.regular?.fontFamily,
+        decoration: TextDecoration.underline,
+      );
     }
   }
 
   @override
   void onChange(
-      TextEditingController textEditingController, String previousText) {
+    TextEditingController textEditingController,
+    String previousText,
+  ) {
     // TODO: implement onChange
   }
 
   @override
   List<AttributedText> getAttributedText(
-      String text, BuildContext context, BubbleAlignment? alignment,
-      {List<AttributedText>? existingAttributes,
-      Function(String)? onTap,
-      bool forConversation = false}) {
-    return super.getAttributedText(text, context, alignment,
-        existingAttributes: existingAttributes,
-        onTap: onTap ??
-            (text) async {
-              if (pattern != null && pattern!.hasMatch(text)) {
-                await launchUrl(Uri.parse(('tel:$text')));
-              }
-            },
-        forConversation: forConversation);
+    String text,
+    BuildContext context,
+    BubbleAlignment? alignment, {
+    List<AttributedText>? existingAttributes,
+    Function(String)? onTap,
+    bool forConversation = false,
+  }) {
+    return super.getAttributedText(
+      text,
+      context,
+      alignment,
+      existingAttributes: existingAttributes,
+      onTap:
+          onTap ??
+          (text) async {
+            if (pattern != null && pattern!.hasMatch(text)) {
+              await launchUrl(Uri.parse(('tel:$text')));
+            }
+          },
+      forConversation: forConversation,
+    );
   }
 }

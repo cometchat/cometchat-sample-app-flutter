@@ -2,32 +2,31 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-
 ///[CometChatSpacing] is a class that holds the spacing values for the CometChat UI Kit.
 class CometChatSpacing extends ThemeExtension<CometChatSpacing> {
-   CometChatSpacing({
-   this.spacing=2,
-    this.spacing1=4,
-    this.spacing2=8,
-    this.spacing3=12,
-    this.spacing4=16,
-    this.spacing5=20,
-    this.spacing6=24,
-    this.spacing7=28,
-    this.spacing8=32,
-    this.spacing9=36,
-    this.spacing10=40,
-    this.spacing11=44,
-    this.spacing12=48,
-    this.spacing13=52,
-    this.spacing14=56,
-    this.spacing15=60,
-    this.spacing16=64,
-    this.spacing17=68,
-    this.spacing18=72,
-    this.spacing19=76,
-    this.spacing20=80,
-    this.spacingMax=1000,
+  CometChatSpacing({
+    this.spacing = 2,
+    this.spacing1 = 4,
+    this.spacing2 = 8,
+    this.spacing3 = 12,
+    this.spacing4 = 16,
+    this.spacing5 = 20,
+    this.spacing6 = 24,
+    this.spacing7 = 28,
+    this.spacing8 = 32,
+    this.spacing9 = 36,
+    this.spacing10 = 40,
+    this.spacing11 = 44,
+    this.spacing12 = 48,
+    this.spacing13 = 52,
+    this.spacing14 = 56,
+    this.spacing15 = 60,
+    this.spacing16 = 64,
+    this.spacing17 = 68,
+    this.spacing18 = 72,
+    this.spacing19 = 76,
+    this.spacing20 = 80,
+    this.spacingMax = 1000,
     this.padding,
     this.padding1,
     this.padding2,
@@ -60,7 +59,7 @@ class CometChatSpacing extends ThemeExtension<CometChatSpacing> {
     this.margin18,
     this.margin19,
     this.margin20,
-     this.radius,
+    this.radius,
     this.radius1,
     this.radius2,
     this.radius3,
@@ -68,52 +67,52 @@ class CometChatSpacing extends ThemeExtension<CometChatSpacing> {
     this.radius5,
     this.radius6,
     this.radiusMax,
-  }){
+  }) {
     //initializing padding
-    padding??=spacing;
-    padding1??=spacing1;
-    padding2??=spacing2;
-    padding3??=spacing3;
-    padding4??=spacing4;
-    padding5??=spacing5;
-    padding6??=spacing6;
-    padding7??=spacing7;
-    padding8??=spacing8;
-    padding9??=spacing9;
-    padding10??=spacing10;
+    padding ??= spacing;
+    padding1 ??= spacing1;
+    padding2 ??= spacing2;
+    padding3 ??= spacing3;
+    padding4 ??= spacing4;
+    padding5 ??= spacing5;
+    padding6 ??= spacing6;
+    padding7 ??= spacing7;
+    padding8 ??= spacing8;
+    padding9 ??= spacing9;
+    padding10 ??= spacing10;
 
     //initializing margin
-    margin??=spacing;
-    margin1??=spacing1;
-    margin2??=spacing2;
-    margin3??=spacing3;
-    margin4??=spacing4;
-    margin5??=spacing5;
-    margin6??=spacing6;
-    margin7??=spacing7;
-    margin8??=spacing8;
-    margin9??=spacing9;
-    margin10??=spacing10;
-    margin11??=spacing11;
-    margin12??=spacing12;
-    margin13??=spacing13;
-    margin14??=spacing14;
-    margin15??=spacing15;
-    margin16??=spacing16;
-    margin17??=spacing17;
-    margin18??=spacing18;
-    margin19??=spacing19;
-    margin20??=spacing20;
+    margin ??= spacing;
+    margin1 ??= spacing1;
+    margin2 ??= spacing2;
+    margin3 ??= spacing3;
+    margin4 ??= spacing4;
+    margin5 ??= spacing5;
+    margin6 ??= spacing6;
+    margin7 ??= spacing7;
+    margin8 ??= spacing8;
+    margin9 ??= spacing9;
+    margin10 ??= spacing10;
+    margin11 ??= spacing11;
+    margin12 ??= spacing12;
+    margin13 ??= spacing13;
+    margin14 ??= spacing14;
+    margin15 ??= spacing15;
+    margin16 ??= spacing16;
+    margin17 ??= spacing17;
+    margin18 ??= spacing18;
+    margin19 ??= spacing19;
+    margin20 ??= spacing20;
 
     //initializing radius
-    radius??=spacing;
-    radius1??=spacing1;
-    radius2??=spacing2;
-    radius3??=spacing3;
-    radius4??=spacing4;
-    radius5??=spacing5;
-    radius6??=spacing6;
-    radiusMax??=spacingMax;
+    radius ??= spacing;
+    radius1 ??= spacing1;
+    radius2 ??= spacing2;
+    radius3 ??= spacing3;
+    radius4 ??= spacing4;
+    radius5 ??= spacing5;
+    radius6 ??= spacing6;
+    radiusMax ??= spacingMax;
   }
 
   ///[spacing] defines the spacing value of 2.
@@ -215,7 +214,6 @@ class CometChatSpacing extends ThemeExtension<CometChatSpacing> {
   ///[padding10] defines the padding value of 40 obtained from [spacing10].
   double? padding10;
 
-
   ///[margin] defines the default margin value of 2 obtained from [spacing].
   double? margin;
 
@@ -279,31 +277,29 @@ class CometChatSpacing extends ThemeExtension<CometChatSpacing> {
   ///[margin20] defines the margin value of 80 obtained from [spacing20].
   double? margin20;
 
-   ///[radius] defines the radius value of 2 obtained from [spacing].
-   double? radius;
-    ///[radius1] defines the radius value of 4 obtained from [spacing1].
-    double? radius1;
+  ///[radius] defines the radius value of 2 obtained from [spacing].
+  double? radius;
 
-    ///[radius2] defines the radius value of 8 obtained from [spacing2].
-    double? radius2;
+  ///[radius1] defines the radius value of 4 obtained from [spacing1].
+  double? radius1;
 
-    ///[radius3] defines the radius value of 12 obtained from [spacing3].
-    double? radius3;
+  ///[radius2] defines the radius value of 8 obtained from [spacing2].
+  double? radius2;
 
-    ///[radius4] defines the radius value of 16 obtained from [spacing4].
-    double? radius4;
+  ///[radius3] defines the radius value of 12 obtained from [spacing3].
+  double? radius3;
 
-    ///[radius5] defines the radius value of 20 obtained from [spacing5].
-    double? radius5;
+  ///[radius4] defines the radius value of 16 obtained from [spacing4].
+  double? radius4;
 
-    ///[radius6] defines the radius value of 24 obtained from [spacing6].
-    double? radius6;
+  ///[radius5] defines the radius value of 20 obtained from [spacing5].
+  double? radius5;
 
-    ///[radiusMax] defines the maximum radius value of 1000 obtained from [spacingMax].
-    double? radiusMax;
+  ///[radius6] defines the radius value of 24 obtained from [spacing6].
+  double? radius6;
 
-
-
+  ///[radiusMax] defines the maximum radius value of 1000 obtained from [spacingMax].
+  double? radiusMax;
 
   @override
   CometChatSpacing copyWith({
@@ -449,7 +445,10 @@ class CometChatSpacing extends ThemeExtension<CometChatSpacing> {
   }
 
   @override
-  CometChatSpacing lerp(covariant ThemeExtension<CometChatSpacing>? other, double t) {
+  CometChatSpacing lerp(
+    covariant ThemeExtension<CometChatSpacing>? other,
+    double t,
+  ) {
     if (other is! CometChatSpacing) {
       return this;
     }
@@ -521,7 +520,7 @@ class CometChatSpacing extends ThemeExtension<CometChatSpacing> {
 
   static CometChatSpacing of(BuildContext context) => CometChatSpacing();
 
-  CometChatSpacing merge(CometChatSpacing? other){
+  CometChatSpacing merge(CometChatSpacing? other) {
     if (other == null) return this;
     return copyWith(
       spacing: other.spacing,
@@ -585,7 +584,7 @@ class CometChatSpacing extends ThemeExtension<CometChatSpacing> {
       radius4: other.radius4,
       radius5: other.radius5,
       radius6: other.radius6,
-      radiusMax: other.radiusMax,);
+      radiusMax: other.radiusMax,
+    );
   }
-
 }

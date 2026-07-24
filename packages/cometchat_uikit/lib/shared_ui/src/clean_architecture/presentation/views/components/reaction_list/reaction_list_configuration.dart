@@ -1,6 +1,7 @@
 import "../../../../clean_architecture.dart";
 import 'package:flutter/material.dart';
-import '../../../../../../cometchat_uikit_shared.dart' show CometChatAvatarStyle, ListItemStyle;
+import '../../../../../../cometchat_uikit_shared.dart'
+    show CometChatAvatarStyle, ListItemStyle;
 
 ///[ReactionListConfiguration] is a class which is used to set the configuration for the reaction list
 ///It takes [reactionRequestBuilder], [errorStateView], [errorStateText], [loadingStateView], [emptyStateView], [emptyStateText], [avatarStyle], [onTap], [reactionListStyle], [selectedReaction], [listItemStyle], [messageObject], [theme] as a parameter
@@ -11,21 +12,21 @@ import '../../../../../../cometchat_uikit_shared.dart' show CometChatAvatarStyle
 /// avatarStyle: AvatarStyle()
 /// );
 class ReactionListConfiguration {
-  ReactionListConfiguration(
-      {this.reactionRequestBuilder,
-      this.errorStateView,
-      this.errorStateText,
-      this.loadingStateView,
-      this.emptyStateView,
-      this.emptyStateText,
-      this.loadingIcon,
-      this.avatarStyle,
-      this.onTap,
-      this.reactionListStyle,
-      this.selectedReaction,
-      this.listItemStyle,
-      this.messageObject
-      });
+  ReactionListConfiguration({
+    this.reactionRequestBuilder,
+    this.errorStateView,
+    this.errorStateText,
+    this.loadingStateView,
+    this.emptyStateView,
+    this.emptyStateText,
+    this.loadingIcon,
+    this.avatarStyle,
+    this.onTap,
+    this.reactionListStyle,
+    this.selectedReaction,
+    this.listItemStyle,
+    this.messageObject,
+  });
 
   ///[reactionRequestBuilder] is a parameter used to fetch the reactions of a particular message
   final ReactionsRequestBuilder? reactionRequestBuilder;
@@ -65,5 +66,4 @@ class ReactionListConfiguration {
 
   ///[messageObject] is a parameter used to set the message object for which the reactions are to be fetched
   final BaseMessage? messageObject;
-
 }

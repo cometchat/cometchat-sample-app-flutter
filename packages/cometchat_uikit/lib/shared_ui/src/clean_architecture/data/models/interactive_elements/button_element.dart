@@ -1,14 +1,15 @@
 import '../../../clean_architecture.dart';
+
 /// Represents a button model class , used to draw button element .
 class ButtonElement extends BaseInteractiveElement {
-  ButtonElement(
-      {super.elementType = UIElementTypeConstants.button,
-      required super.elementId,
-      required this.buttonText,
-      super.action,
-      String? description,
-      bool? disableAfterInteracted})
-      : super(disableAfterInteracted: disableAfterInteracted ?? false);
+  ButtonElement({
+    super.elementType = UIElementTypeConstants.button,
+    required super.elementId,
+    required this.buttonText,
+    super.action,
+    String? description,
+    bool? disableAfterInteracted,
+  }) : super(disableAfterInteracted: disableAfterInteracted ?? false);
 
   String buttonText;
 

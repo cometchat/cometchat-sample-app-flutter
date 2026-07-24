@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../core/constants/enums.dart';
 import '../../../theme/colors/cometchat_color_palette.dart';
 import '../../../theme/typography/cometchat_typography.dart';
@@ -13,10 +13,7 @@ class FileBubbleFactory extends BubbleFactory<MediaMessage> {
   final CometChatFileBubbleStyle? style;
   final Icon? downloadIcon;
 
-  FileBubbleFactory({
-    this.style,
-    this.downloadIcon,
-  });
+  FileBubbleFactory({this.style, this.downloadIcon});
 
   @override
   Widget build(

@@ -24,18 +24,18 @@ class UIKitSettings {
   final DateTimeFormatterCallback? dateTimeFormatterCallback;
 
   UIKitSettings._builder(UIKitSettingsBuilder builder)
-      : appId = builder.appId,
-        region = builder.region,
-        subscriptionType = builder.subscriptionType,
-        autoEstablishSocketConnection =
-            builder.autoEstablishSocketConnection ?? true,
-        authKey = builder.authKey,
-        enableCalls = builder.enableCalls,
-        callingConfiguration = builder.callingConfiguration,
-        adminHost = builder.adminHost,
-        clientHost = builder.clientHost,
-        roles = builder.roles,
-        dateTimeFormatterCallback = builder.dateTimeFormatterCallback;
+    : appId = builder.appId,
+      region = builder.region,
+      subscriptionType = builder.subscriptionType,
+      autoEstablishSocketConnection =
+          builder.autoEstablishSocketConnection ?? true,
+      authKey = builder.authKey,
+      enableCalls = builder.enableCalls,
+      callingConfiguration = builder.callingConfiguration,
+      adminHost = builder.adminHost,
+      clientHost = builder.clientHost,
+      roles = builder.roles,
+      dateTimeFormatterCallback = builder.dateTimeFormatterCallback;
 }
 
 ///Builder class for [UIKitSettings]

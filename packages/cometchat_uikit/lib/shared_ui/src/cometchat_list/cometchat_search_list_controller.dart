@@ -1,4 +1,3 @@
-
 import '../../../shared_ui/cometchat_uikit_shared.dart';
 
 ///An abstract class which holds the logic for searching in different lists
@@ -17,14 +16,14 @@ abstract class CometChatSearchListController<T1, T2>
     OnLoad<T1>? onLoad,
     OnEmpty? onEmpty,
   }) : super(
-          searchKeyword != null && searchKeyword != ''
-              ? builderProtocol.getSearchRequest(searchKeyword)
-              : builderProtocol.getRequest(),
-          onError: onError,
-          isFetchNext: isFetchNext,
-          onEmpty: onEmpty,
-          onLoad: onLoad,
-        );
+         searchKeyword != null && searchKeyword != ''
+             ? builderProtocol.getSearchRequest(searchKeyword)
+             : builderProtocol.getRequest(),
+         onError: onError,
+         isFetchNext: isFetchNext,
+         onEmpty: onEmpty,
+         onLoad: onLoad,
+       );
 
   @override
   onSearch(String val) {

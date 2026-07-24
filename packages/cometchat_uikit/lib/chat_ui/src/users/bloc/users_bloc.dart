@@ -79,7 +79,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
   ValueNotifier<String> getStatusNotifier(String uid) {
     return _statusNotifiers.putIfAbsent(
       uid,
-          () => ValueNotifier<String>('offline'),
+      () => ValueNotifier<String>('offline'),
     );
   }
 
@@ -104,9 +104,12 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
     this.includeBlockedUsers = false,
     this.disableSDKListeners = false,
     this.usersRequestBuilder,
-  })  : getUsersUseCase = getUsersUseCase ?? _getServiceLocator().getUsersUseCase,
-        getLoggedInUserUseCase = getLoggedInUserUseCase ?? _getServiceLocator().getLoggedInUserUseCase,
-        super(const UsersInitial()) {
+  }) : getUsersUseCase =
+           getUsersUseCase ?? _getServiceLocator().getUsersUseCase,
+       getLoggedInUserUseCase =
+           getLoggedInUserUseCase ??
+           _getServiceLocator().getLoggedInUserUseCase,
+       super(const UsersInitial()) {
     // Register event handlers
     on<LoadUsers>(_onLoadUsers);
     on<LoadMoreUsers>(_onLoadMoreUsers);
@@ -130,7 +133,6 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
     // Initialize and register SDK listeners
     _initializeAndRegisterListeners();
   }
-
 
   // ============================================================
   // OPTIMIZATION: Map-based lookup helpers
@@ -281,15 +283,11 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
     add(_UserUnblockedUpdate(user: user));
   }
 
-
   // ============================================================
   // EVENT HANDLERS
   // ============================================================
 
-  Future<void> _onLoadUsers(
-      LoadUsers event,
-      Emitter<UsersState> emit,
-      ) async {
+  Future<void> _onLoadUsers(LoadUsers event, Emitter<UsersState> emit) async {
     // Silent refresh: keep existing list visible, skip loading shimmer.
     final isSilentRefresh = event.silent || state is UsersLoaded;
 
@@ -325,7 +323,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
         for (final user in users) {
           _statusNotifiers.putIfAbsent(
             user.uid,
-                () => ValueNotifier<String>(user.status ?? 'offline'),
+            () => ValueNotifier<String>(user.status ?? 'offline'),
           );
         }
         replaceAll(users);
@@ -336,9 +334,9 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
   }
 
   Future<void> _onLoadMoreUsers(
-      LoadMoreUsers event,
-      Emitter<UsersState> emit,
-      ) async {
+    LoadMoreUsers event,
+    Emitter<UsersState> emit,
+  ) async {
     if (state is! UsersLoaded) return;
 
     final currentState = state as UsersLoaded;
@@ -370,7 +368,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
       for (final user in newUsers) {
         _statusNotifiers.putIfAbsent(
           user.uid,
-              () => ValueNotifier<String>(user.status ?? 'offline'),
+          () => ValueNotifier<String>(user.status ?? 'offline'),
         );
       }
 
@@ -380,20 +378,24 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
       // Always emit the correct hasMore and isLoadingMore after replaceAll,
       // since onListReplaced no longer sets hasMore.
       if (state is UsersLoaded) {
-        emit((state as UsersLoaded).copyWith(hasMore: hasMorePages, isLoadingMore: false));
+        emit(
+          (state as UsersLoaded).copyWith(
+            hasMore: hasMorePages,
+            isLoadingMore: false,
+          ),
+        );
       }
     } else if (result is Failure) {
-      emit(UsersError(
-        message: result.message,
-        previousUsers: currentState.users,
-      ));
+      emit(
+        UsersError(message: result.message, previousUsers: currentState.users),
+      );
     }
   }
 
   Future<void> _onRefreshUsers(
-      RefreshUsers event,
-      Emitter<UsersState> emit,
-      ) async {
+    RefreshUsers event,
+    Emitter<UsersState> emit,
+  ) async {
     add(LoadUsers(searchKeyword: _currentSearchKeyword, silent: true));
   }
 
@@ -404,9 +406,9 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
   /// - Stores the original users list before searching
   /// - Restores the original list when search is cleared
   Future<void> _onSearchUsers(
-      SearchUsers event,
-      Emitter<UsersState> emit,
-      ) async {
+    SearchUsers event,
+    Emitter<UsersState> emit,
+  ) async {
     // Cancel any pending search request
     _searchDebounceTimer?.cancel();
 
@@ -446,9 +448,9 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
 
   /// Execute the actual search API call (called after debounce)
   Future<void> _onExecuteSearch(
-      _ExecuteSearch event,
-      Emitter<UsersState> emit,
-      ) async {
+    _ExecuteSearch event,
+    Emitter<UsersState> emit,
+  ) async {
     _currentSearchKeyword = event.keyword;
 
     // Reset the SDK request cursor for a new search
@@ -474,33 +476,30 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
         for (final user in users) {
           _statusNotifiers.putIfAbsent(
             user.uid,
-                () => ValueNotifier<String>(user.status ?? 'offline'),
+            () => ValueNotifier<String>(user.status ?? 'offline'),
           );
         }
         replaceAll(users);
       }
     } else if (result is Failure) {
-      emit(UsersError(
-        message: result.message,
-        previousUsers: _originalUsers,
-      ));
+      emit(UsersError(message: result.message, previousUsers: _originalUsers));
     }
   }
 
   /// Restore original users after search is cleared
   void _onRestoreOriginalUsers(
-      _RestoreOriginalUsers event,
-      Emitter<UsersState> emit,
-      ) {
+    _RestoreOriginalUsers event,
+    Emitter<UsersState> emit,
+  ) {
     // Reset the SDK request cursor so next pagination uses the non-search request
     getUsersUseCase.resetRequest();
     replaceAll(event.users);
   }
 
   void _onToggleUserSelection(
-      ToggleUserSelection event,
-      Emitter<UsersState> emit,
-      ) {
+    ToggleUserSelection event,
+    Emitter<UsersState> emit,
+  ) {
     if (state is! UsersLoaded) return;
 
     final currentState = state as UsersLoaded;
@@ -516,19 +515,16 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
   }
 
   void _onClearUserSelection(
-      ClearUserSelection event,
-      Emitter<UsersState> emit,
-      ) {
+    ClearUserSelection event,
+    Emitter<UsersState> emit,
+  ) {
     if (state is! UsersLoaded) return;
 
     final currentState = state as UsersLoaded;
     emit(currentState.copyWith(selectedUsers: {}));
   }
 
-  void _onUpdateUser(
-      UpdateUser event,
-      Emitter<UsersState> emit,
-      ) {
+  void _onUpdateUser(UpdateUser event, Emitter<UsersState> emit) {
     if (state is! UsersLoaded) return;
 
     final userIndex = _findUserIndex(event.user.uid);
@@ -541,10 +537,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
     updateItem(userIndex, event.user);
   }
 
-  void _onUserStatusUpdate(
-      _UserStatusUpdate event,
-      Emitter<UsersState> emit,
-      ) {
+  void _onUserStatusUpdate(_UserStatusUpdate event, Emitter<UsersState> emit) {
     if (state is! UsersLoaded) return;
 
     final matchingIndex = _findUserIndex(event.userId);
@@ -570,18 +563,18 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
   }
 
   void _onConnectionStateUpdate(
-      _ConnectionStateUpdate event,
-      Emitter<UsersState> emit,
-      ) {
+    _ConnectionStateUpdate event,
+    Emitter<UsersState> emit,
+  ) {
     if (event.isConnected && state is UsersLoaded) {
       add(const RefreshUsers());
     }
   }
 
   void _onUserBlockedUpdate(
-      _UserBlockedUpdate event,
-      Emitter<UsersState> emit,
-      ) {
+    _UserBlockedUpdate event,
+    Emitter<UsersState> emit,
+  ) {
     if (state is! UsersLoaded) return;
 
     final userIndex = _findUserIndex(event.user.uid);
@@ -592,9 +585,9 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
   }
 
   void _onUserUnblockedUpdate(
-      _UserUnblockedUpdate event,
-      Emitter<UsersState> emit,
-      ) {
+    _UserUnblockedUpdate event,
+    Emitter<UsersState> emit,
+  ) {
     if (state is! UsersLoaded) return;
 
     final userIndex = _findUserIndex(event.user.uid);
@@ -604,23 +597,15 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> with ListBase<User> {
     updateItem(userIndex, event.user);
   }
 
-  void _onListStateChanged(
-      _ListStateChanged event,
-      Emitter<UsersState> emit,
-      ) {
+  void _onListStateChanged(_ListStateChanged event, Emitter<UsersState> emit) {
     if (event.isEmpty) {
       emit(const UsersEmpty());
     } else {
       final currentState = state;
       if (currentState is UsersLoaded) {
-        emit(currentState.copyWith(
-          users: event.users,
-        ));
+        emit(currentState.copyWith(users: event.users));
       } else {
-        emit(UsersLoaded(
-          users: event.users,
-          hasMore: true,
-        ));
+        emit(UsersLoaded(users: event.users, hasMore: true));
       }
     }
   }
@@ -689,10 +674,7 @@ class _ListStateChanged extends UsersEvent {
   final List<User> users;
   final bool isEmpty;
 
-  const _ListStateChanged({
-    required this.users,
-    required this.isEmpty,
-  });
+  const _ListStateChanged({required this.users, required this.isEmpty});
 
   @override
   List<Object?> get props => [users, isEmpty];

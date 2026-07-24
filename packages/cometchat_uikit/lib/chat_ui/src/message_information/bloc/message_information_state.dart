@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Status enum for message information state
 enum MessageInformationStatus {
@@ -78,11 +78,11 @@ class MessageInformationState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        parentMessage,
-        receipts,
-        user,
-        group,
-        errorMessage,
-      ];
+    status,
+    parentMessage,
+    receipts,
+    user,
+    group,
+    errorMessage,
+  ];
 }

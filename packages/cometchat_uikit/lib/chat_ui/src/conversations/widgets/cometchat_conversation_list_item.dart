@@ -247,13 +247,18 @@ class CometChatConversationListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveColorPalette = colorPalette ?? CometChatThemeHelper.getColorPalette(context);
-    final effectiveSpacing = spacing ?? CometChatThemeHelper.getSpacing(context);
-    final effectiveTypography = typography ?? CometChatThemeHelper.getTypography(context);
-    final effectiveStyle = style ?? CometChatConversationListItemStyle.fromTheme(context);
+    final effectiveColorPalette =
+        colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+    final effectiveSpacing =
+        spacing ?? CometChatThemeHelper.getSpacing(context);
+    final effectiveTypography =
+        typography ?? CometChatThemeHelper.getTypography(context);
+    final effectiveStyle =
+        style ?? CometChatConversationListItemStyle.fromTheme(context);
 
     final backgroundColor = isSelected
-        ? (effectiveStyle.selectedBackgroundColor ?? effectiveColorPalette.background4)
+        ? (effectiveStyle.selectedBackgroundColor ??
+              effectiveColorPalette.background4)
         : (effectiveStyle.backgroundColor ?? effectiveColorPalette.background1);
 
     return Semantics(
@@ -262,7 +267,9 @@ class CometChatConversationListItem extends StatelessWidget {
       selected: isSelected,
       child: InkWell(
         onTap: () => onItemClick(conversation),
-        onLongPress: onItemLongClick != null ? () => onItemLongClick!(conversation) : null,
+        onLongPress: onItemLongClick != null
+            ? () => onItemLongClick!(conversation)
+            : null,
         child: Container(
           color: backgroundColor,
           padding: EdgeInsets.symmetric(
@@ -272,20 +279,46 @@ class CometChatConversationListItem extends StatelessWidget {
           child: Row(
             children: [
               if (selectionMode != SelectionMode.none)
-                _buildSelectionCheckbox(effectiveStyle, effectiveColorPalette, effectiveSpacing),
-              _buildLeadingView(context, effectiveStyle, effectiveColorPalette, effectiveSpacing),
+                _buildSelectionCheckbox(
+                  effectiveStyle,
+                  effectiveColorPalette,
+                  effectiveSpacing,
+                ),
+              _buildLeadingView(
+                context,
+                effectiveStyle,
+                effectiveColorPalette,
+                effectiveSpacing,
+              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildTitleView(context, effectiveStyle, effectiveColorPalette, effectiveTypography),
+                    _buildTitleView(
+                      context,
+                      effectiveStyle,
+                      effectiveColorPalette,
+                      effectiveTypography,
+                    ),
                     const SizedBox(height: 2),
-                    _buildSubtitleView(context, effectiveStyle, effectiveColorPalette, effectiveTypography, effectiveSpacing),
+                    _buildSubtitleView(
+                      context,
+                      effectiveStyle,
+                      effectiveColorPalette,
+                      effectiveTypography,
+                      effectiveSpacing,
+                    ),
                   ],
                 ),
               ),
-              _buildTrailingView(context, effectiveStyle, effectiveColorPalette, effectiveTypography, effectiveSpacing),
+              _buildTrailingView(
+                context,
+                effectiveStyle,
+                effectiveColorPalette,
+                effectiveTypography,
+                effectiveSpacing,
+              ),
             ],
           ),
         ),
@@ -295,11 +328,14 @@ class CometChatConversationListItem extends StatelessWidget {
 
   String _buildAccessibilityLabel(BuildContext context) {
     final conversationName = _getConversationTitle();
-    final lastMessageText = conv_utils.ConversationUtils.getLastMessageText(context, conversation.lastMessage);
+    final lastMessageText = conv_utils.ConversationUtils.getLastMessageText(
+      context,
+      conversation.lastMessage,
+    );
     final parts = <String>[conversationName];
     if (lastMessageText.isNotEmpty) parts.add(lastMessageText);
-    if ((conversation.unreadMessageCount ?? 0) > 0) {
-      parts.add('${conversation.unreadMessageCount ?? 0} unread messages');
+    if (conversation.unreadMessageCount > 0) {
+      parts.add('${conversation.unreadMessageCount} unread messages');
     }
     if (isSelected) parts.add('selected');
     return parts.join(', ');
@@ -323,15 +359,21 @@ class CometChatConversationListItem extends StatelessWidget {
           onChanged: (value) => onSelectionToggle?.call(),
           fillColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
-              return effectiveStyle.checkBoxCheckedBackgroundColor ?? effectiveColorPalette.primary;
+              return effectiveStyle.checkBoxCheckedBackgroundColor ??
+                  effectiveColorPalette.primary;
             }
             return effectiveStyle.checkBoxBackgroundColor ?? Colors.transparent;
           }),
           shape: RoundedRectangleBorder(
-            borderRadius: effectiveStyle.checkBoxBorderRadius ?? BorderRadius.circular(effectiveSpacing.radius1 ?? 4),
+            borderRadius:
+                effectiveStyle.checkBoxBorderRadius ??
+                BorderRadius.circular(effectiveSpacing.radius1 ?? 4),
           ),
           side: BorderSide(
-            color: effectiveStyle.checkBoxStrokeColor ?? effectiveColorPalette.borderDefault ?? Colors.grey,
+            color:
+                effectiveStyle.checkBoxStrokeColor ??
+                effectiveColorPalette.borderDefault ??
+                Colors.grey,
             width: effectiveStyle.checkBoxStrokeWidth ?? 1.5,
           ),
         ),
@@ -346,25 +388,31 @@ class CometChatConversationListItem extends StatelessWidget {
     CometChatSpacing effectiveSpacing,
   ) {
     if (leadingView != null) {
-      final customView = leadingView!(conversation, typingIndicators.isNotEmpty ? typingIndicators.first : null);
+      final customView = leadingView!(
+        conversation,
+        typingIndicators.isNotEmpty ? typingIndicators.first : null,
+      );
       return customView ?? const SizedBox.shrink();
     }
 
-    final effectiveTypography = typography ?? CometChatThemeHelper.getTypography(context);
-    
+    final effectiveTypography =
+        typography ?? CometChatThemeHelper.getTypography(context);
+
     // Create avatar style with explicit text size to match old behavior
-    final effectiveAvatarStyle = (avatarStyle ?? effectiveStyle.avatarStyle ?? const CometChatAvatarStyle()).copyWith(
-      placeHolderTextStyle: TextStyle(
-        fontSize: effectiveTypography.heading2?.bold?.fontSize,
-        fontWeight: effectiveTypography.heading2?.bold?.fontWeight,
-        fontFamily: effectiveTypography.heading2?.bold?.fontFamily,
-      ),
-    );
+    final effectiveAvatarStyle =
+        (avatarStyle ??
+                effectiveStyle.avatarStyle ??
+                const CometChatAvatarStyle())
+            .copyWith(
+              placeHolderTextStyle: TextStyle(
+                fontSize: effectiveTypography.heading2?.bold?.fontSize,
+                fontWeight: effectiveTypography.heading2?.bold?.fontWeight,
+                fontFamily: effectiveTypography.heading2?.bold?.fontFamily,
+              ),
+            );
 
     return Padding(
-      padding: EdgeInsets.only(
-        right: effectiveSpacing.padding3 ?? 12,
-      ),
+      padding: EdgeInsets.only(right: effectiveSpacing.padding3 ?? 12),
       child: Stack(
         children: [
           CometChatAvatar(
@@ -385,12 +433,18 @@ class CometChatConversationListItem extends StatelessWidget {
                 width: statusIndicatorWidth ?? 14,
                 backgroundImage: _getStatusIndicatorIcon(effectiveColorPalette),
                 style: CometChatStatusIndicatorStyle(
-                  border: statusIndicatorStyle?.border ?? effectiveStyle.statusIndicatorStyle?.border ??
+                  border:
+                      statusIndicatorStyle?.border ??
+                      effectiveStyle.statusIndicatorStyle?.border ??
                       Border.all(
                         width: effectiveSpacing.spacing ?? 0,
-                        color: effectiveColorPalette.background1 ?? Colors.transparent,
+                        color:
+                            effectiveColorPalette.background1 ??
+                            Colors.transparent,
                       ),
-                  backgroundColor: _getStatusIndicatorBackgroundColor(effectiveColorPalette),
+                  backgroundColor: _getStatusIndicatorBackgroundColor(
+                    effectiveColorPalette,
+                  ),
                 ),
               ),
             ),
@@ -406,15 +460,23 @@ class CometChatConversationListItem extends StatelessWidget {
     CometChatTypography effectiveTypography,
   ) {
     if (titleView != null) {
-      final customView = titleView!(conversation, typingIndicators.isNotEmpty ? typingIndicators.first : null);
+      final customView = titleView!(
+        conversation,
+        typingIndicators.isNotEmpty ? typingIndicators.first : null,
+      );
       return customView ?? const SizedBox.shrink();
     }
 
     return Text(
       _getConversationTitle(),
-      style: (effectiveStyle.titleTextStyle ?? effectiveTypography.heading4?.medium)?.copyWith(
-        color: effectiveStyle.titleTextColor ?? effectiveColorPalette.textPrimary,
-      ),
+      style:
+          (effectiveStyle.titleTextStyle ??
+                  effectiveTypography.heading4?.medium)
+              ?.copyWith(
+                color:
+                    effectiveStyle.titleTextColor ??
+                    effectiveColorPalette.textPrimary,
+              ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );
@@ -428,7 +490,10 @@ class CometChatConversationListItem extends StatelessWidget {
     CometChatSpacing effectiveSpacing,
   ) {
     if (subtitleView != null) {
-      final customView = subtitleView!(conversation, typingIndicators.isNotEmpty ? typingIndicators.first : null);
+      final customView = subtitleView!(
+        conversation,
+        typingIndicators.isNotEmpty ? typingIndicators.first : null,
+      );
       return customView ?? const SizedBox.shrink();
     }
 
@@ -445,9 +510,11 @@ class CometChatConversationListItem extends StatelessWidget {
 
       return Text(
         typingText,
-        style: (typingIndicatorStyle?.textStyle ?? effectiveStyle.typingIndicatorStyle?.textStyle ?? effectiveTypography.body?.regular)?.copyWith(
-          color: effectiveColorPalette.textHighlight,
-        ),
+        style:
+            (typingIndicatorStyle?.textStyle ??
+                    effectiveStyle.typingIndicatorStyle?.textStyle ??
+                    effectiveTypography.body?.regular)
+                ?.copyWith(color: effectiveColorPalette.textHighlight),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
@@ -474,21 +541,26 @@ class CometChatConversationListItem extends StatelessWidget {
           SizedBox(width: effectiveSpacing.padding1 ?? 4),
         ],
         Expanded(
-          child: _buildLastMessageText(context, effectiveStyle, effectiveColorPalette, effectiveTypography),
+          child: _buildLastMessageText(
+            context,
+            effectiveStyle,
+            effectiveColorPalette,
+            effectiveTypography,
+          ),
         ),
       ],
     );
   }
-  
+
   /// Returns the appropriate typing indicator text based on number of typers
   /// - 1 user typing in user conversation: "is typing..."
   /// - 1 user typing in group: "Name is typing..."
   /// - 2+ users typing: "N people are typing..."
   String _getTypingText(BuildContext context) {
     final count = typingIndicators.length;
-    
+
     if (count == 0) return '';
-    
+
     if (count == 1) {
       // For user conversations, show just "is typing..."
       // For group conversations, show "Name is typing..."
@@ -508,16 +580,19 @@ class CometChatConversationListItem extends StatelessWidget {
     CometChatColorPalette effectiveColorPalette,
     CometChatTypography effectiveTypography,
   ) {
-    TextStyle subtitleStyle = TextStyle(
-      overflow: TextOverflow.ellipsis,
-      color: effectiveStyle.subtitleTextColor ?? effectiveColorPalette.textSecondary,
-      fontSize: effectiveTypography.body?.regular?.fontSize,
-      fontWeight: effectiveTypography.body?.regular?.fontWeight,
-      fontFamily: effectiveTypography.body?.regular?.fontFamily,
-      letterSpacing: 0,
-    ).merge(effectiveStyle.subtitleTextStyle).copyWith(
-      color: effectiveStyle.subtitleTextColor,
-    );
+    TextStyle subtitleStyle =
+        TextStyle(
+              overflow: TextOverflow.ellipsis,
+              color:
+                  effectiveStyle.subtitleTextColor ??
+                  effectiveColorPalette.textSecondary,
+              fontSize: effectiveTypography.body?.regular?.fontSize,
+              fontWeight: effectiveTypography.body?.regular?.fontWeight,
+              fontFamily: effectiveTypography.body?.regular?.fontFamily,
+              letterSpacing: 0,
+            )
+            .merge(effectiveStyle.subtitleTextStyle)
+            .copyWith(color: effectiveStyle.subtitleTextColor);
 
     AdditionalConfigurations? configurations;
 
@@ -526,8 +601,8 @@ class CometChatConversationListItem extends StatelessWidget {
       // Pass all formatters including MarkdownTextFormatter so the conversation
       // subtitle renders with the same rich formatting as message bubbles
       // (bold, italic, code, etc.) but truncated to a single line.
-      List<CometChatTextFormatter> allFormatters = textFormatters ??
-          MessageTemplateUtils.getDefaultTextFormatters();
+      List<CometChatTextFormatter> allFormatters =
+          textFormatters ?? MessageTemplateUtils.getDefaultTextFormatters();
       // Ensure MarkdownTextFormatter is present for rich text rendering
       if (!allFormatters.any((f) => f is MarkdownTextFormatter)) {
         allFormatters = [MarkdownTextFormatter(), ...allFormatters];
@@ -537,9 +612,7 @@ class CometChatConversationListItem extends StatelessWidget {
           formatter.message = conversation.lastMessage as TextMessage;
         }
       }
-      configurations = AdditionalConfigurations(
-        textFormatters: allFormatters,
-      );
+      configurations = AdditionalConfigurations(textFormatters: allFormatters);
     }
 
     return ConversationSubtitleUtils.getConversationSubtitle(
@@ -556,8 +629,9 @@ class CometChatConversationListItem extends StatelessWidget {
     // receipt icon (matches message-bubble behavior).
     final lastMessage = conversation.lastMessage;
     if (lastMessage != null &&
-        ModerationCheckUtil.instance
-            .isMessageDisapprovedFromModeration(lastMessage)) {
+        ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(
+          lastMessage,
+        )) {
       return Icon(
         Icons.error_outline,
         size: 16,
@@ -601,7 +675,10 @@ class CometChatConversationListItem extends StatelessWidget {
     CometChatSpacing effectiveSpacing,
   ) {
     if (trailingView != null) {
-      final customView = trailingView!(conversation, typingIndicators.isNotEmpty ? typingIndicators.first : null);
+      final customView = trailingView!(
+        conversation,
+        typingIndicators.isNotEmpty ? typingIndicators.first : null,
+      );
       return customView ?? const SizedBox.shrink();
     }
 
@@ -614,23 +691,23 @@ class CometChatConversationListItem extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.only(
-        left: effectiveSpacing.padding2 ?? 0,
-      ),
+      padding: EdgeInsets.only(left: effectiveSpacing.padding2 ?? 0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: _buildTimestamp(context, effectiveStyle, effectiveColorPalette, effectiveTypography, effectiveSpacing),
+            child: _buildTimestamp(
+              context,
+              effectiveStyle,
+              effectiveColorPalette,
+              effectiveTypography,
+              effectiveSpacing,
+            ),
           ),
-          const SizedBox(
-            height: 6.5,
-          ),
-          Flexible(
-            child: _buildUnreadBadge(effectiveStyle),
-          ),
+          const SizedBox(height: 6.5),
+          Flexible(child: _buildUnreadBadge(effectiveStyle)),
         ],
       ),
     );
@@ -653,19 +730,24 @@ class CometChatConversationListItem extends StatelessWidget {
       isTransparentBackground: true,
       style: CometChatDateStyle(
         backgroundColor: effectiveColorPalette.transparent,
-        textStyle: TextStyle(
-          color: effectiveColorPalette.textSecondary,
-          fontSize: effectiveTypography.caption1?.regular?.fontSize,
-          fontWeight: effectiveTypography.caption1?.regular?.fontWeight,
-          fontFamily: effectiveTypography.caption1?.regular?.fontFamily,
-        ).merge(dateStyle?.textStyle ?? effectiveStyle.dateStyle?.textStyle).copyWith(
-              color: dateStyle?.textColor ?? effectiveStyle.dateStyle?.textColor,
-            ),
-        border: Border.all(
-          width: 0,
-          color: Colors.transparent,
-        ),
-        borderRadius: dateStyle?.borderRadius ?? effectiveStyle.dateStyle?.borderRadius,
+        textStyle:
+            TextStyle(
+                  color: effectiveColorPalette.textSecondary,
+                  fontSize: effectiveTypography.caption1?.regular?.fontSize,
+                  fontWeight: effectiveTypography.caption1?.regular?.fontWeight,
+                  fontFamily: effectiveTypography.caption1?.regular?.fontFamily,
+                )
+                .merge(
+                  dateStyle?.textStyle ?? effectiveStyle.dateStyle?.textStyle,
+                )
+                .copyWith(
+                  color:
+                      dateStyle?.textColor ??
+                      effectiveStyle.dateStyle?.textColor,
+                ),
+        border: Border.all(width: 0, color: Colors.transparent),
+        borderRadius:
+            dateStyle?.borderRadius ?? effectiveStyle.dateStyle?.borderRadius,
         textColor: dateStyle?.textColor ?? effectiveStyle.dateStyle?.textColor,
       ),
       pattern: DateTimePattern.dayDateTimeFormat,
@@ -674,12 +756,17 @@ class CometChatConversationListItem extends StatelessWidget {
   }
 
   Widget _buildUnreadBadge(CometChatConversationListItemStyle effectiveStyle) {
-    final count = conversation.unreadMessageCount ?? 0;
+    final count = conversation.unreadMessageCount;
     return CometChatBadge(
       count: count,
-      width: (count < 10) ? 20 : null, // Fixed 20x20 circle for single digit, auto-width for multi-digit
+      width: (count < 10)
+          ? 20
+          : null, // Fixed 20x20 circle for single digit, auto-width for multi-digit
       height: 20,
-      style: badgeStyle ?? effectiveStyle.badgeStyle ?? const CometChatBadgeStyle(),
+      style:
+          badgeStyle ??
+          effectiveStyle.badgeStyle ??
+          const CometChatBadgeStyle(),
     );
   }
 
@@ -710,18 +797,20 @@ class CometChatConversationListItem extends StatelessWidget {
     return config.show;
   }
 
-  Color? _getStatusIndicatorBackgroundColor(CometChatColorPalette effectiveColorPalette) {
+  Color? _getStatusIndicatorBackgroundColor(
+    CometChatColorPalette effectiveColorPalette,
+  ) {
     final config = StatusIndicatorHelper.getStatusIndicator(
       conversation: conversation,
       hideUserStatus: hideUserStatus,
       hideGroupType: hideGroupType,
     );
-    
+
     // If there's a color (for online users), use it
     if (config.color != null) {
       return config.color;
     }
-    
+
     // If there's an icon (for group types), use specific colors based on group type
     if (config.icon != null && conversation.conversationWith is Group) {
       final group = conversation.conversationWith as Group;
@@ -733,7 +822,7 @@ class CometChatConversationListItem extends StatelessWidget {
         return effectiveColorPalette.warning ?? Colors.yellow;
       }
     }
-    
+
     return null;
   }
 
@@ -746,11 +835,13 @@ class CometChatConversationListItem extends StatelessWidget {
 
     if (config.icon != null && conversation.conversationWith is Group) {
       final group = conversation.conversationWith as Group;
-      
+
       // Use custom icons if provided, otherwise use default icons with proper color
-      if (group.type == CometChatGroupType.private && privateGroupIcon != null) {
+      if (group.type == CometChatGroupType.private &&
+          privateGroupIcon != null) {
         return privateGroupIcon;
-      } else if (group.type == CometChatGroupType.password && protectedGroupIcon != null) {
+      } else if (group.type == CometChatGroupType.password &&
+          protectedGroupIcon != null) {
         return protectedGroupIcon;
       } else {
         // Return default icon with white color (background1)
@@ -786,10 +877,18 @@ class CometChatConversationListItem extends StatelessWidget {
     final lastMessage = conversation.lastMessage;
     if (lastMessage == null) return 'in_progress';
 
-    if (lastMessage.readAt != null && lastMessage.readAt!.millisecondsSinceEpoch > 0) return 'read';
-    if (lastMessage.deliveredAt != null && lastMessage.deliveredAt!.millisecondsSinceEpoch > 0) return 'delivered';
-    if (lastMessage.sentAt != null && lastMessage.sentAt!.millisecondsSinceEpoch > 0) return 'sent';
+    if (lastMessage.readAt != null &&
+        lastMessage.readAt!.millisecondsSinceEpoch > 0) {
+      return 'read';
+    }
+    if (lastMessage.deliveredAt != null &&
+        lastMessage.deliveredAt!.millisecondsSinceEpoch > 0) {
+      return 'delivered';
+    }
+    if (lastMessage.sentAt != null &&
+        lastMessage.sentAt!.millisecondsSinceEpoch > 0) {
+      return 'sent';
+    }
     return 'in_progress';
   }
-
 }

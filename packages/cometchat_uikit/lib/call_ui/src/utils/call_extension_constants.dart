@@ -1,4 +1,1 @@
-enum CallWorkFlow {
-  defaultCalling,
-  directCalling,
-}
+enum CallWorkFlow { defaultCalling, directCalling }

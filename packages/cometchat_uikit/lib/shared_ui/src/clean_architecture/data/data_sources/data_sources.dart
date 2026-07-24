@@ -38,7 +38,7 @@ class MessageDataSourceImpl implements MessageDataSource {
       //   limit: limit,
       //   offset: offset,
       // );
-      
+
       return const Success([]);
     } catch (e) {
       return Failure(
@@ -156,10 +156,7 @@ class UserDataSourceImpl implements UserDataSource {
 /// Abstract data source for group operations
 abstract class GroupDataSource {
   Future<Result<GroupEntity>> getGroup(String groupId);
-  Future<Result<List<GroupEntity>>> getGroups({
-    int limit = 50,
-    int offset = 0,
-  });
+  Future<Result<List<GroupEntity>>> getGroups({int limit = 50, int offset = 0});
 
   Stream<GroupEntity> getGroupUpdatesStream(String groupId);
 }

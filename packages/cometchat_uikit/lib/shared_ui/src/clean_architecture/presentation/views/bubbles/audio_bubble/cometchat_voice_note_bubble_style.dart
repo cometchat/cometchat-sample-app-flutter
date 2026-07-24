@@ -1,13 +1,13 @@
-
 import 'package:flutter/material.dart';
 import "../../../../clean_architecture.dart";
-import '../../../../../../cometchat_uikit_shared.dart' show CometChatAvatarStyle, CometChatDateStyle, CometChatMessageReceiptStyle;
+import '../../../../../../cometchat_uikit_shared.dart'
+    show CometChatAvatarStyle, CometChatDateStyle, CometChatMessageReceiptStyle;
 
-///[CometChatAudioBubbleStyle] is a data class that has styling-related properties
-///to customize the appearance of [CometChatAudioBubble]
+///[CometChatVoiceNoteBubbleStyle] is a data class that has styling-related properties
+///to customize the appearance of [CometChatVoiceNoteBubble]
 ///
 /// ```dart
-/// CometChatAudioBubbleStyle(
+/// CometChatVoiceNoteBubbleStyle(
 /// playIconColor: Colors.white,
 /// playIconBackgroundColor: Colors.red,
 /// backgroundColor: Colors.white,
@@ -15,9 +15,9 @@ import '../../../../../../cometchat_uikit_shared.dart' show CometChatAvatarStyle
 /// borderRadius: BorderRadius.circular(10),
 /// );
 /// ```
-class CometChatAudioBubbleStyle
-    extends ThemeExtension<CometChatAudioBubbleStyle> {
-  const CometChatAudioBubbleStyle({
+class CometChatVoiceNoteBubbleStyle
+    extends ThemeExtension<CometChatVoiceNoteBubbleStyle> {
+  const CometChatVoiceNoteBubbleStyle({
     this.playIconColor,
     this.playIconBackgroundColor,
     this.backgroundColor,
@@ -84,11 +84,11 @@ class CometChatAudioBubbleStyle
   ///[durationTextStyle] provides style to the duration text
   final TextStyle? durationTextStyle;
 
-  static CometChatAudioBubbleStyle of(BuildContext context) =>
-      const CometChatAudioBubbleStyle();
+  static CometChatVoiceNoteBubbleStyle of(BuildContext context) =>
+      const CometChatVoiceNoteBubbleStyle();
 
   @override
-  CometChatAudioBubbleStyle copyWith({
+  CometChatVoiceNoteBubbleStyle copyWith({
     Color? playIconColor,
     Color? backgroundColor,
     BoxBorder? border,
@@ -105,33 +105,34 @@ class CometChatAudioBubbleStyle
     CometChatMessageReceiptStyle? messageReceiptStyle,
     Color? durationTextColor,
     TextStyle? durationTextStyle,
-  }) =>
-      CometChatAudioBubbleStyle(
-        playIconColor: playIconColor ?? this.playIconColor,
-        backgroundColor: backgroundColor ?? this.backgroundColor,
-        border: border ?? this.border,
-        borderRadius: borderRadius ?? this.borderRadius,
-        playIconBackgroundColor:
-            playIconBackgroundColor ?? this.playIconBackgroundColor,
-        audioBarColor: audioBarColor ?? this.audioBarColor,
-        downloadIconColor: downloadIconColor ?? this.downloadIconColor,
-        messageBubbleAvatarStyle:
-            messageBubbleAvatarStyle ?? this.messageBubbleAvatarStyle,
-        messageBubbleDateStyle:
-            messageBubbleDateStyle ?? this.messageBubbleDateStyle,
-        messageBubbleBackgroundImage:
-            messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
-        threadedMessageIndicatorTextStyle: threadedMessageIndicatorTextStyle ??
-            this.threadedMessageIndicatorTextStyle,
-        threadedMessageIndicatorIconColor: threadedMessageIndicatorIconColor ??
-            this.threadedMessageIndicatorIconColor,
-        senderNameTextStyle: senderNameTextStyle ?? this.senderNameTextStyle,
-        messageReceiptStyle: messageReceiptStyle ?? this.messageReceiptStyle,
-        durationTextColor: durationTextColor ?? this.durationTextColor,
-        durationTextStyle: durationTextStyle ?? this.durationTextStyle,
-      );
+  }) => CometChatVoiceNoteBubbleStyle(
+    playIconColor: playIconColor ?? this.playIconColor,
+    backgroundColor: backgroundColor ?? this.backgroundColor,
+    border: border ?? this.border,
+    borderRadius: borderRadius ?? this.borderRadius,
+    playIconBackgroundColor:
+        playIconBackgroundColor ?? this.playIconBackgroundColor,
+    audioBarColor: audioBarColor ?? this.audioBarColor,
+    downloadIconColor: downloadIconColor ?? this.downloadIconColor,
+    messageBubbleAvatarStyle:
+        messageBubbleAvatarStyle ?? this.messageBubbleAvatarStyle,
+    messageBubbleDateStyle:
+        messageBubbleDateStyle ?? this.messageBubbleDateStyle,
+    messageBubbleBackgroundImage:
+        messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
+    threadedMessageIndicatorTextStyle:
+        threadedMessageIndicatorTextStyle ??
+        this.threadedMessageIndicatorTextStyle,
+    threadedMessageIndicatorIconColor:
+        threadedMessageIndicatorIconColor ??
+        this.threadedMessageIndicatorIconColor,
+    senderNameTextStyle: senderNameTextStyle ?? this.senderNameTextStyle,
+    messageReceiptStyle: messageReceiptStyle ?? this.messageReceiptStyle,
+    durationTextColor: durationTextColor ?? this.durationTextColor,
+    durationTextStyle: durationTextStyle ?? this.durationTextStyle,
+  );
 
-  CometChatAudioBubbleStyle merge(CometChatAudioBubbleStyle? style) {
+  CometChatVoiceNoteBubbleStyle merge(CometChatVoiceNoteBubbleStyle? style) {
     if (style == null) return this;
     return copyWith(
       backgroundColor: style.backgroundColor,
@@ -156,41 +157,81 @@ class CometChatAudioBubbleStyle
   }
 
   @override
-  CometChatAudioBubbleStyle lerp(CometChatAudioBubbleStyle? other, double t) {
+  CometChatVoiceNoteBubbleStyle lerp(
+    CometChatVoiceNoteBubbleStyle? other,
+    double t,
+  ) {
     if (other == null) return this;
-    return CometChatAudioBubbleStyle(
+    return CometChatVoiceNoteBubbleStyle(
       playIconColor: Color.lerp(playIconColor, other.playIconColor, t),
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
-      playIconBackgroundColor:
-          Color.lerp(playIconBackgroundColor, other.playIconBackgroundColor, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
+      playIconBackgroundColor: Color.lerp(
+        playIconBackgroundColor,
+        other.playIconBackgroundColor,
+        t,
+      ),
       audioBarColor: Color.lerp(audioBarColor, other.audioBarColor, t),
-      downloadIconColor:
-          Color.lerp(downloadIconColor, other.downloadIconColor, t),
-      messageBubbleAvatarStyle:
-          messageBubbleAvatarStyle?.lerp(other.messageBubbleAvatarStyle, t),
-      messageBubbleDateStyle:
-          messageBubbleDateStyle?.lerp(other.messageBubbleDateStyle, t),
+      downloadIconColor: Color.lerp(
+        downloadIconColor,
+        other.downloadIconColor,
+        t,
+      ),
+      messageBubbleAvatarStyle: messageBubbleAvatarStyle?.lerp(
+        other.messageBubbleAvatarStyle,
+        t,
+      ),
+      messageBubbleDateStyle: messageBubbleDateStyle?.lerp(
+        other.messageBubbleDateStyle,
+        t,
+      ),
       messageBubbleBackgroundImage: DecorationImage.lerp(
-          messageBubbleBackgroundImage, other.messageBubbleBackgroundImage, t),
+        messageBubbleBackgroundImage,
+        other.messageBubbleBackgroundImage,
+        t,
+      ),
       threadedMessageIndicatorTextStyle: TextStyle.lerp(
-          threadedMessageIndicatorTextStyle,
-          other.threadedMessageIndicatorTextStyle,
-          t),
+        threadedMessageIndicatorTextStyle,
+        other.threadedMessageIndicatorTextStyle,
+        t,
+      ),
       threadedMessageIndicatorIconColor: Color.lerp(
-          threadedMessageIndicatorIconColor,
-          other.threadedMessageIndicatorIconColor,
-          t),
-      senderNameTextStyle:
-          TextStyle.lerp(senderNameTextStyle, other.senderNameTextStyle, t),
-      messageReceiptStyle:
-          messageReceiptStyle?.lerp(other.messageReceiptStyle, t),
-      durationTextColor:
-          Color.lerp(durationTextColor, other.durationTextColor, t),
-      durationTextStyle:
-          TextStyle.lerp(durationTextStyle, other.durationTextStyle, t),
+        threadedMessageIndicatorIconColor,
+        other.threadedMessageIndicatorIconColor,
+        t,
+      ),
+      senderNameTextStyle: TextStyle.lerp(
+        senderNameTextStyle,
+        other.senderNameTextStyle,
+        t,
+      ),
+      messageReceiptStyle: messageReceiptStyle?.lerp(
+        other.messageReceiptStyle,
+        t,
+      ),
+      durationTextColor: Color.lerp(
+        durationTextColor,
+        other.durationTextColor,
+        t,
+      ),
+      durationTextStyle: TextStyle.lerp(
+        durationTextStyle,
+        other.durationTextStyle,
+        t,
+      ),
     );
   }
 }
+
+/// Legacy name for [CometChatVoiceNoteBubbleStyle].
+///
+/// Kept so existing integrations keep compiling. Registering this as a
+/// [ThemeExtension] under either name resolves the same instance — the alias
+/// and the class share one runtime type.
+@Deprecated('Renamed to CometChatVoiceNoteBubbleStyle.')
+typedef CometChatAudioBubbleStyle = CometChatVoiceNoteBubbleStyle;

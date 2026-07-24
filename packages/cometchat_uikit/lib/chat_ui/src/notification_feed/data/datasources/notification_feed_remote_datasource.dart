@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Exception thrown when remote data source operations fail.
 class NotificationFeedRemoteException implements Exception {
@@ -70,8 +70,7 @@ class NotificationFeedRemoteDataSourceImpl
           if (!completer.isCompleted) {
             completer.completeError(
               NotificationFeedRemoteException(
-                message:
-                    exception.message ?? 'Failed to fetch feed items',
+                message: exception.message ?? 'Failed to fetch feed items',
                 code: exception.code,
                 originalException: exception,
               ),
@@ -108,8 +107,7 @@ class NotificationFeedRemoteDataSourceImpl
           if (!completer.isCompleted) {
             completer.completeError(
               NotificationFeedRemoteException(
-                message:
-                    exception.message ?? 'Failed to fetch categories',
+                message: exception.message ?? 'Failed to fetch categories',
                 code: exception.code,
                 originalException: exception,
               ),
@@ -123,8 +121,7 @@ class NotificationFeedRemoteDataSourceImpl
       rethrow;
     } catch (e) {
       throw NotificationFeedRemoteException(
-        message:
-            'Unexpected error while fetching categories: ${e.toString()}',
+        message: 'Unexpected error while fetching categories: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -146,7 +143,8 @@ class NotificationFeedRemoteDataSourceImpl
           if (!completer.isCompleted) {
             completer.completeError(
               NotificationFeedRemoteException(
-                message: exception.message ??
+                message:
+                    exception.message ??
                     'Failed to mark feed item as delivered',
                 code: exception.code,
                 originalException: exception,
@@ -161,8 +159,7 @@ class NotificationFeedRemoteDataSourceImpl
       rethrow;
     } catch (e) {
       throw NotificationFeedRemoteException(
-        message:
-            'Unexpected error while marking as delivered: ${e.toString()}',
+        message: 'Unexpected error while marking as delivered: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -225,8 +222,8 @@ class NotificationFeedRemoteDataSourceImpl
           if (!completer.isCompleted) {
             completer.completeError(
               NotificationFeedRemoteException(
-                message: exception.message ??
-                    'Failed to report feed engagement',
+                message:
+                    exception.message ?? 'Failed to report feed engagement',
                 code: exception.code,
                 originalException: exception,
               ),
@@ -240,8 +237,7 @@ class NotificationFeedRemoteDataSourceImpl
       rethrow;
     } catch (e) {
       throw NotificationFeedRemoteException(
-        message:
-            'Unexpected error while reporting engagement: ${e.toString()}',
+        message: 'Unexpected error while reporting engagement: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -262,8 +258,7 @@ class NotificationFeedRemoteDataSourceImpl
           if (!completer.isCompleted) {
             completer.completeError(
               NotificationFeedRemoteException(
-                message: exception.message ??
-                    'Failed to get unread count',
+                message: exception.message ?? 'Failed to get unread count',
                 code: exception.code,
                 originalException: exception,
               ),
@@ -277,8 +272,7 @@ class NotificationFeedRemoteDataSourceImpl
       rethrow;
     } catch (e) {
       throw NotificationFeedRemoteException(
-        message:
-            'Unexpected error while getting unread count: ${e.toString()}',
+        message: 'Unexpected error while getting unread count: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -300,8 +294,7 @@ class NotificationFeedRemoteDataSourceImpl
           if (!completer.isCompleted) {
             completer.completeError(
               NotificationFeedRemoteException(
-                message: exception.message ??
-                    'Failed to get feed item',
+                message: exception.message ?? 'Failed to get feed item',
                 code: exception.code,
                 originalException: exception,
               ),
@@ -315,8 +308,7 @@ class NotificationFeedRemoteDataSourceImpl
       rethrow;
     } catch (e) {
       throw NotificationFeedRemoteException(
-        message:
-            'Unexpected error while getting feed item: ${e.toString()}',
+        message: 'Unexpected error while getting feed item: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }

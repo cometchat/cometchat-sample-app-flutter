@@ -71,7 +71,12 @@ class _CometChatAIConversationSummaryViewState
   @override
   void didChangeMetrics() {
     final value = WidgetsBinding
-        .instance.platformDispatcher.views.first.viewInsets.bottom;
+        .instance
+        .platformDispatcher
+        .views
+        .first
+        .viewInsets
+        .bottom;
     final keyboardOpen = value > 0;
     if (keyboardOpen != _isKeyboardOpen) {
       setState(() => _isKeyboardOpen = keyboardOpen);
@@ -84,9 +89,9 @@ class _CometChatAIConversationSummaryViewState
     if (!_themeInitialized) {
       _style =
           CometChatThemeHelper.getTheme<CometChatAIConversationSummaryStyle>(
-        context: context,
-        defaultTheme: CometChatAIConversationSummaryStyle.of,
-      ).merge(widget.aiConversationSummaryStyle);
+            context: context,
+            defaultTheme: CometChatAIConversationSummaryStyle.of,
+          ).merge(widget.aiConversationSummaryStyle);
       _colorPalette = CometChatThemeHelper.getColorPalette(context);
       _spacing = CometChatThemeHelper.getSpacing(context);
       _typography = CometChatThemeHelper.getTypography(context);
@@ -143,8 +148,7 @@ class _CometChatAIConversationSummaryViewState
             margin: EdgeInsets.only(bottom: _spacing.margin2 ?? 0),
             decoration: BoxDecoration(
               color: Colors.grey,
-              borderRadius:
-                  BorderRadius.circular(_spacing.radiusMax ?? 0),
+              borderRadius: BorderRadius.circular(_spacing.radiusMax ?? 0),
             ),
           );
         },
@@ -175,21 +179,20 @@ class _CometChatAIConversationSummaryViewState
       content: _isLoading
           ? _buildLoading()
           : _isError
-              ? _buildError()
-              : (widget.customView != null)
-                  ? widget.customView!(_summary, context)
-                  : Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _spacing.padding1 ?? 0),
-                      child: Text(
-                        _summary,
-                        style: TextStyle(
-                          color: _colorPalette.textPrimary,
-                          fontSize: _typography.body?.regular?.fontSize,
-                          fontWeight: _typography.body?.regular?.fontWeight,
-                        ).merge(_style.summaryTextStyle),
-                      ),
-                    ),
+          ? _buildError()
+          : (widget.customView != null)
+          ? widget.customView!(_summary, context)
+          : Padding(
+              padding: EdgeInsets.symmetric(vertical: _spacing.padding1 ?? 0),
+              child: Text(
+                _summary,
+                style: TextStyle(
+                  color: _colorPalette.textPrimary,
+                  fontSize: _typography.body?.regular?.fontSize,
+                  fontWeight: _typography.body?.regular?.fontWeight,
+                ).merge(_style.summaryTextStyle),
+              ),
+            ),
       style: DecoratedContainerStyle(
         backgroundColor: _style.backgroundColor,
         borderRadius: _style.borderRadius,
@@ -206,14 +209,16 @@ class _CometChatAIConversationSummaryViewState
       ),
       onCloseIconTap: () {
         final idMap = UIEventUtils.createMap(
-            widget.user?.uid, widget.group?.guid, 0);
+          widget.user?.uid,
+          widget.group?.guid,
+          0,
+        );
         if (widget.onCloseIconTap != null) {
           widget.onCloseIconTap!(idMap);
         } else {
           idMap[AIUtils.extensionKey] =
               AIFeatureConstants.aiConversationSummary;
-          CometChatUIEvents.hidePanel(
-              idMap, CustomUIPosition.composerTop);
+          CometChatUIEvents.hidePanel(idMap, CustomUIPosition.composerTop);
         }
       },
     );

@@ -11,10 +11,7 @@ class LinkData extends Equatable {
   final String displayText;
 
   /// Creates a [LinkData] with the specified URL and display text.
-  const LinkData({
-    required this.url,
-    required this.displayText,
-  });
+  const LinkData({required this.url, required this.displayText});
 
   @override
   List<Object?> get props => [url, displayText];

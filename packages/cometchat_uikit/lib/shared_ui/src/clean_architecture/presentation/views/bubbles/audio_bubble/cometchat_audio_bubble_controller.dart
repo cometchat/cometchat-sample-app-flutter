@@ -3,11 +3,13 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/utils/platform_utils/platform_file_utils.dart' as platform;
+import '../../../../core/utils/platform_utils/platform_file_utils.dart'
+    as platform;
 
 // Conditional import for web audio player
 import 'web_audio_player_stub.dart'
-    if (dart.library.html) 'web_audio_player.dart' as web_player;
+    if (dart.library.js_interop) 'web_audio_player.dart'
+    as web_player;
 
 /// Global state manager for audio bubbles to preserve playback state across widget rebuilds
 class AudioStateManager {
@@ -34,10 +36,16 @@ class AudioStateManager {
       if (localPath != null && localPath.isNotEmpty) {
         state.updateLocalPath(localPath);
       }
+      // NOTE: audioUrl is deliberately not refreshed here. It is final, and the
+      // only updater (updateLocalPath) disposes the live controller — so
+      // refreshing it would tear players down mid-playback on every
+      // _checkFileExists. A state cached before its upload finished therefore
+      // keeps a stale audioUrl; harmless while the local file exists, which is
+      // the only case that reaches this branch today. Fixing it properly means
+      // separating "new source" from "drop the controller".
     }
     return _audioStates[id]!;
   }
-
 
   /// Remove audio state when bubble is permanently disposed
   void removeAudioState(int id) {
@@ -89,7 +97,8 @@ class AudioBubbleState {
   Duration? _totalDuration;
   Duration _currentPosition = Duration.zero;
 
-  final StreamController<AudioStateUpdate> _stateController = StreamController<AudioStateUpdate>.broadcast();
+  final StreamController<AudioStateUpdate> _stateController =
+      StreamController<AudioStateUpdate>.broadcast();
 
   AudioBubbleState({
     required this.id,
@@ -108,18 +117,33 @@ class AudioBubbleState {
   /// Completer to prevent concurrent initialization calls
   Completer<void>? _initCompleter;
 
-  Future<void> initializeController() async {
+  /// Hard cap on a single [initializeController] attempt.
+  ///
+  /// A controller opened on a local file that another controller is tearing
+  /// down can hang instead of throwing: the shared MediaCodec event handler
+  /// dies with the other player and `initialize()` never returns. That happens
+  /// when a message is acknowledged — the optimistic (id 0) bubble and the
+  /// real-id bubble briefly hold two players on the same recording. Without a
+  /// deadline the `finally` below never runs, so `_isInitializing` stays true
+  /// and the bubble spins until the message list is disposed.
+  static const Duration _initTimeout = Duration(seconds: 6);
+
+  Future<void> initializeController({bool isRetry = false}) async {
     debugPrint("initializeController: $id");
 
     // If already initialized, return immediately
     if (kIsWeb && _webPlayer != null && _webPlayer!.isInitialized) return;
-    if (!kIsWeb && _controller != null && _controller!.value.isInitialized) return;
+    if (!kIsWeb && _controller != null && _controller!.value.isInitialized) {
+      return;
+    }
 
     // If initialization is already in progress, wait for it
     if (_isInitializing && _initCompleter != null) {
       await _initCompleter!.future;
       return;
     }
+
+    bool timedOut = false;
 
     try {
       _initCompleter = Completer<void>();
@@ -140,7 +164,9 @@ class AudioBubbleState {
         final success = await _webPlayer!.initialize(audioUrl!);
 
         if (!success) {
-          debugPrint('[AudioBubbleState] Web audio player failed to initialize for id: $id');
+          debugPrint(
+            '[AudioBubbleState] Web audio player failed to initialize for id: $id',
+          );
           _webPlayer?.dispose();
           _webPlayer = null;
           _isInitializing = false;
@@ -149,7 +175,9 @@ class AudioBubbleState {
         }
 
         _totalDuration = _webPlayer!.duration;
-        debugPrint('[AudioBubbleState] Web audio initialized for id: $id, duration: $_totalDuration');
+        debugPrint(
+          '[AudioBubbleState] Web audio initialized for id: $id, duration: $_totalDuration',
+        );
 
         // Listen for position updates
         _webPositionSub = _webPlayer!.positionStream.listen((pos) {
@@ -165,13 +193,12 @@ class AudioBubbleState {
         _webCompletionSub = _webPlayer!.completionStream.listen((_) {
           stopAudio();
         });
-
       } else {
         // Native: use VideoPlayerController
         final bool hasValidLocalFile =
             localPath != null &&
-                localPath!.isNotEmpty &&
-                platform.fileExistsSync(localPath!);
+            localPath!.isNotEmpty &&
+            platform.fileExistsSync(localPath!);
 
         if (hasValidLocalFile) {
           debugPrint("Using LOCAL audio file: $localPath");
@@ -182,9 +209,7 @@ class AudioBubbleState {
 
           _controller = VideoPlayerController.networkUrl(
             Uri.parse('file://$localPath'),
-            videoPlayerOptions: VideoPlayerOptions(
-              mixWithOthers: true,
-            ),
+            videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
           );
         } else if (audioUrl != null && audioUrl!.isNotEmpty) {
           debugPrint("Using NETWORK audio url: $audioUrl");
@@ -195,9 +220,7 @@ class AudioBubbleState {
 
           _controller = VideoPlayerController.networkUrl(
             Uri.parse(audioUrl!),
-            videoPlayerOptions: VideoPlayerOptions(
-              mixWithOthers: true,
-            ),
+            videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
           );
         } else {
           debugPrint("No valid audio source found for id: $id");
@@ -206,10 +229,12 @@ class AudioBubbleState {
           return;
         }
 
-        await _controller!.initialize();
+        await _controller!.initialize().timeout(_initTimeout);
 
         if (!_controller!.value.isInitialized) {
-          debugPrint('[AudioBubbleState] Controller failed to initialize for id: $id');
+          debugPrint(
+            '[AudioBubbleState] Controller failed to initialize for id: $id',
+          );
           _disposeController();
           _isInitializing = false;
           _notifyStateUpdate();
@@ -217,11 +242,22 @@ class AudioBubbleState {
         }
 
         _totalDuration = _controller!.value.duration;
-        debugPrint('[AudioBubbleState] Initialized successfully for id: $id, duration: $_totalDuration');
+        debugPrint(
+          '[AudioBubbleState] Initialized successfully for id: $id, duration: $_totalDuration',
+        );
 
         _controller!.addListener(_onControllerUpdate);
       }
-
+    } on TimeoutException {
+      // The player never answered — almost always the teardown race described
+      // on [_initTimeout]. Drop the wedged controller so the retry below (or a
+      // later play tap) can build a fresh one.
+      timedOut = true;
+      debugPrint(
+        '[AudioBubbleState] initialize() timed out after '
+        '${_initTimeout.inSeconds}s for id: $id${isRetry ? ' (retry)' : ''}',
+      );
+      _disposeController();
     } catch (e, stack) {
       debugPrint("Error initializing audio controller for id: $id — $e");
       debugPrintStack(stackTrace: stack);
@@ -233,6 +269,16 @@ class AudioBubbleState {
       _initCompleter?.complete();
       _initCompleter = null;
       _notifyStateUpdate();
+    }
+
+    // One retry, and one only — `isRetry` makes a second timeout fall through
+    // instead of recursing. By now the player we raced with has finished
+    // tearing down, so the fresh controller usually succeeds. Deliberately
+    // outside the try/finally: the state is already consistent here, so the
+    // recursive call starts from a clean slate rather than re-entering while
+    // _isInitializing is still true.
+    if (timedOut && !isRetry) {
+      await initializeController(isRetry: true);
     }
   }
 
@@ -253,7 +299,9 @@ class AudioBubbleState {
         await initializeController();
       }
       if (_webPlayer == null || !_webPlayer!.isInitialized) {
-        debugPrint('[AudioBubbleState] Cannot play — web player not initialized for id: $id');
+        debugPrint(
+          '[AudioBubbleState] Cannot play — web player not initialized for id: $id',
+        );
         _playState = PlayStates.stopped;
         _notifyStateUpdate();
         return;
@@ -264,7 +312,9 @@ class AudioBubbleState {
         await _webPlayer!.play();
         _notifyStateUpdate();
       } catch (e, stack) {
-        debugPrint('[AudioBubbleState] Error playing web audio for id: $id — $e');
+        debugPrint(
+          '[AudioBubbleState] Error playing web audio for id: $id — $e',
+        );
         debugPrintStack(stackTrace: stack);
         _playState = PlayStates.stopped;
         _notifyStateUpdate();
@@ -275,7 +325,9 @@ class AudioBubbleState {
       }
       final controller = _controller;
       if (controller == null || !controller.value.isInitialized) {
-        debugPrint('[AudioBubbleState] Cannot play — controller not initialized for id: $id');
+        debugPrint(
+          '[AudioBubbleState] Cannot play — controller not initialized for id: $id',
+        );
         _playState = PlayStates.stopped;
         _notifyStateUpdate();
         return;
@@ -348,14 +400,20 @@ class AudioBubbleState {
     if (kIsWeb) {
       if (_webPlayer != null && _totalDuration != null) {
         final position = Duration(
-          milliseconds: (_totalDuration!.inMilliseconds * progress.clamp(0.0, 1.0)).round(),
+          milliseconds:
+              (_totalDuration!.inMilliseconds * progress.clamp(0.0, 1.0))
+                  .round(),
         );
         await seekTo(position);
       }
     } else {
-      if (_controller != null && _controller!.value.isInitialized && _totalDuration != null) {
+      if (_controller != null &&
+          _controller!.value.isInitialized &&
+          _totalDuration != null) {
         final position = Duration(
-          milliseconds: (_totalDuration!.inMilliseconds * progress.clamp(0.0, 1.0)).round(),
+          milliseconds:
+              (_totalDuration!.inMilliseconds * progress.clamp(0.0, 1.0))
+                  .round(),
         );
         await seekTo(position);
       }
@@ -367,18 +425,21 @@ class AudioBubbleState {
     if (_totalDuration == null || _totalDuration!.inMilliseconds == 0) {
       return 0.0;
     }
-    return (_currentPosition.inMilliseconds / _totalDuration!.inMilliseconds).clamp(0.0, 1.0);
+    return (_currentPosition.inMilliseconds / _totalDuration!.inMilliseconds)
+        .clamp(0.0, 1.0);
   }
 
   void _notifyStateUpdate() {
     if (!_stateController.isClosed) {
-      _stateController.add(AudioStateUpdate(
-        id: id,
-        playState: _playState,
-        isInitializing: _isInitializing,
-        totalDuration: _totalDuration,
-        currentPosition: _currentPosition,
-      ));
+      _stateController.add(
+        AudioStateUpdate(
+          id: id,
+          playState: _playState,
+          isInitializing: _isInitializing,
+          totalDuration: _totalDuration,
+          currentPosition: _currentPosition,
+        ),
+      );
     }
   }
 
@@ -410,7 +471,6 @@ class AudioBubbleState {
     _notifyStateUpdate();
   }
 
-
   void _disposeController() {
     _controller?.removeListener(_onControllerUpdate);
     _controller?.dispose();
@@ -425,7 +485,6 @@ class AudioBubbleState {
     _webPlayer?.dispose();
     _webPlayer = null;
   }
-
 
   void dispose() {
     _controller?.removeListener(_onControllerUpdate);

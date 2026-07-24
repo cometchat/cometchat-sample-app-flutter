@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import 'message_composer_datasource.dart';
 
 /// Implementation of MessageComposerDataSource using CometChat SDK
@@ -33,16 +33,22 @@ class MessageComposerDataSourceImpl implements MessageComposerDataSource {
     final completer = Completer<MediaMessage>();
 
     // Pass raw filesystem path — file:// prefix breaks MultipartFile.fromFile()
-    debugPrint('[ComposerDatasource] sendMediaMessage — file: ${message.file}, type: ${message.type}');
+    debugPrint(
+      '[ComposerDatasource] sendMediaMessage — file: ${message.file}, type: ${message.type}',
+    );
 
     await CometChat.sendMediaMessage(
       message,
       onSuccess: (MediaMessage sentMessage) {
-        debugPrint('[ComposerDatasource] sendMediaMessage SUCCESS — id: ${sentMessage.id}, attachment: ${sentMessage.attachment?.fileUrl}');
+        debugPrint(
+          '[ComposerDatasource] sendMediaMessage SUCCESS — id: ${sentMessage.id}, attachment: ${sentMessage.attachment?.fileUrl}',
+        );
         completer.complete(sentMessage);
       },
       onError: (CometChatException e) {
-        debugPrint('[ComposerDatasource] sendMediaMessage ERROR — code: ${e.code}, message: ${e.message}, details: ${e.details}');
+        debugPrint(
+          '[ComposerDatasource] sendMediaMessage ERROR — code: ${e.code}, message: ${e.message}, details: ${e.details}',
+        );
         completer.completeError(
           MessageComposerDataSourceException(
             message: e.message ?? 'Failed to send media message',
@@ -80,7 +86,7 @@ class MessageComposerDataSourceImpl implements MessageComposerDataSource {
   }
 
   @override
-  Future<BaseMessage> editMessage(TextMessage message) async {
+  Future<BaseMessage> editMessage(BaseMessage message) async {
     final completer = Completer<BaseMessage>();
 
     CometChat.editMessage(
@@ -107,21 +113,12 @@ class MessageComposerDataSourceImpl implements MessageComposerDataSource {
     required String receiverUid,
     required String receiverType,
   }) {
-    CometChat.startTyping(
-      receiverUid: receiverUid,
-      receiverType: receiverType,
-    );
+    CometChat.startTyping(receiverUid: receiverUid, receiverType: receiverType);
   }
 
   @override
-  void endTyping({
-    required String receiverUid,
-    required String receiverType,
-  }) {
-    CometChat.endTyping(
-      receiverUid: receiverUid,
-      receiverType: receiverType,
-    );
+  void endTyping({required String receiverUid, required String receiverType}) {
+    CometChat.endTyping(receiverUid: receiverUid, receiverType: receiverType);
   }
 
   @override

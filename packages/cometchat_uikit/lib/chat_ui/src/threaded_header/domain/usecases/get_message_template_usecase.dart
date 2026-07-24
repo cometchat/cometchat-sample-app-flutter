@@ -1,5 +1,4 @@
 import '../../../../../cometchat_chat_uikit.dart';
-import '../repositories/threaded_header_repository.dart';
 
 /// Use case for resolving a message template by category and type.
 class GetMessageTemplateUseCase {

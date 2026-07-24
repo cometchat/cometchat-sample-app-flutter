@@ -54,7 +54,10 @@ class _CometChatMessageSwipeState extends State<CometChatMessageSwipe>
   void _onHorizontalDragUpdate(DragUpdateDetails details) {
     if (!widget.enabled) return;
     // Only allow rightward drag
-    final newOffset = (_dragOffset + details.delta.dx).clamp(0.0, widget.maxDragDistance);
+    final newOffset = (_dragOffset + details.delta.dx).clamp(
+      0.0,
+      widget.maxDragDistance,
+    );
     setState(() => _dragOffset = newOffset);
 
     if (!_triggered && _dragOffset >= widget.swipeThreshold) {
@@ -67,11 +70,12 @@ class _CometChatMessageSwipeState extends State<CometChatMessageSwipe>
     if (!widget.enabled) return;
     _triggered = false;
     // Snap back to 0
-    _snapAnimation = Tween<double>(begin: _dragOffset, end: 0.0).animate(
-      CurvedAnimation(parent: _snapController, curve: Curves.easeOut),
-    )..addListener(() {
-        setState(() => _dragOffset = _snapAnimation.value);
-      });
+    _snapAnimation =
+        Tween<double>(begin: _dragOffset, end: 0.0).animate(
+          CurvedAnimation(parent: _snapController, curve: Curves.easeOut),
+        )..addListener(() {
+          setState(() => _dragOffset = _snapAnimation.value);
+        });
     _snapController.forward(from: 0.0);
   }
 

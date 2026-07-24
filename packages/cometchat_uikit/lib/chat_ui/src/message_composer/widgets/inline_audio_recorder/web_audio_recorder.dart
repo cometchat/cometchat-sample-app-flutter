@@ -1,26 +1,25 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:async';
-import 'dart:html' as html;
-import 'dart:typed_data';
-import 'dart:web_audio' as web_audio;
+import 'dart:js_interop';
 import 'package:flutter/foundation.dart';
+import 'package:web/web.dart' as web;
 
 /// Web-based audio recorder using the browser's MediaRecorder API directly.
 ///
 /// This avoids the `record` package entirely on web, eliminating the
 /// `record_linux` / `record_platform_interface` version mismatch issues.
-/// Uses `dart:html` + `dart:js` for browser API access (compatible with Flutter 3.38.x).
+/// Uses `package:web` + `dart:js_interop` for browser API access
+/// (WASM-compatible; replaces the legacy `dart:html` / `dart:web_audio` libs).
 class WebAudioRecorder {
   static final WebAudioRecorder _instance = WebAudioRecorder._internal();
   factory WebAudioRecorder() => _instance;
   WebAudioRecorder._internal();
 
-  html.MediaRecorder? _mediaRecorder;
-  html.MediaStream? _mediaStream;
+  web.MediaRecorder? _mediaRecorder;
+  web.MediaStream? _mediaStream;
   // Web Audio API for amplitude metering
-  web_audio.AudioContext? _audioContext;
-  web_audio.AnalyserNode? _analyserNode;
-  final List<html.Blob> _chunks = [];
+  web.AudioContext? _audioContext;
+  web.AnalyserNode? _analyserNode;
+  final List<web.Blob> _chunks = [];
   String? _recordedBlobUrl;
   Uint8List? _recordedBytes;
   bool _isRecording = false;
@@ -42,27 +41,28 @@ class WebAudioRecorder {
   Future<bool> startRecording() async {
     try {
       // Request microphone access
-      _mediaStream = await html.window.navigator.mediaDevices!.getUserMedia({
-        'audio': true,
-        'video': false,
-      });
-
-      if (_mediaStream == null) {
-        debugPrint('[WebAudioRecorder] Failed to get media stream');
-        return false;
-      }
+      final stream = await web.window.navigator.mediaDevices
+          .getUserMedia(
+            web.MediaStreamConstraints(audio: true.toJS, video: false.toJS),
+          )
+          .toDart;
+      _mediaStream = stream;
 
       // Set up AudioContext + AnalyserNode for amplitude metering
       try {
-        _audioContext = web_audio.AudioContext();
-        _analyserNode = _audioContext!.createAnalyser();
-        _analyserNode!.fftSize = 256;
+        final audioContext = web.AudioContext();
+        _audioContext = audioContext;
+        final analyserNode = audioContext.createAnalyser();
+        analyserNode.fftSize = 256;
+        _analyserNode = analyserNode;
 
         // Create media stream source and connect to analyser
-        final source = _audioContext!.createMediaStreamSource(_mediaStream!);
-        source.connectNode(_analyserNode!);
+        final source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyserNode);
       } catch (e) {
-        debugPrint('[WebAudioRecorder] Could not set up amplitude metering: $e');
+        debugPrint(
+          '[WebAudioRecorder] Could not set up amplitude metering: $e',
+        );
         // Continue without amplitude — recording still works
         _audioContext = null;
         _analyserNode = null;
@@ -74,23 +74,31 @@ class WebAudioRecorder {
       _recordedBytes = null;
 
       // Try opus first, fall back to webm
-      final mimeType = html.MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      final mimeType =
+          web.MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
           ? 'audio/webm;codecs=opus'
           : 'audio/webm';
 
-      _mediaRecorder = html.MediaRecorder(_mediaStream!, {'mimeType': mimeType});
+      final recorder = web.MediaRecorder(
+        stream,
+        web.MediaRecorderOptions(mimeType: mimeType),
+      );
+      _mediaRecorder = recorder;
 
       // Listen for data chunks
-      _mediaRecorder!.addEventListener('dataavailable', (html.Event event) {
-        final blobEvent = event as html.BlobEvent;
-        final data = blobEvent.data;
-        if (data != null && data.size > 0) {
-          _chunks.add(data);
-        }
-      });
+      recorder.addEventListener(
+        'dataavailable',
+        (web.Event event) {
+          final blobEvent = event as web.BlobEvent;
+          final data = blobEvent.data;
+          if (data.size > 0) {
+            _chunks.add(data);
+          }
+        }.toJS,
+      );
 
       // Start recording with 250ms timeslice for regular data events
-      _mediaRecorder!.start(250);
+      recorder.start(250);
       _isRecording = true;
       _isPaused = false;
 
@@ -107,7 +115,8 @@ class WebAudioRecorder {
 
   /// Stop recording and return the recorded audio as bytes
   Future<RecordingResult?> stopRecording() async {
-    if (_mediaRecorder == null) return null;
+    final recorder = _mediaRecorder;
+    if (recorder == null) return null;
 
     try {
       _stopAmplitudePolling();
@@ -115,11 +124,14 @@ class WebAudioRecorder {
       // Create a completer to wait for the final data
       final completer = Completer<void>();
 
-      _mediaRecorder!.addEventListener('stop', (html.Event event) {
-        if (!completer.isCompleted) completer.complete();
-      });
+      recorder.addEventListener(
+        'stop',
+        (web.Event event) {
+          if (!completer.isCompleted) completer.complete();
+        }.toJS,
+      );
 
-      _mediaRecorder!.stop();
+      recorder.stop();
       _isRecording = false;
       _isPaused = false;
 
@@ -135,42 +147,22 @@ class WebAudioRecorder {
       }
 
       // Create blob from chunks
-      final blob = html.Blob(_chunks, _mediaRecorder!.mimeType);
+      final blob = web.Blob(
+        _chunks.toJS,
+        web.BlobPropertyBag(type: recorder.mimeType),
+      );
 
       // Create blob URL
-      _recordedBlobUrl = html.Url.createObjectUrlFromBlob(blob);
+      _recordedBlobUrl = web.URL.createObjectURL(blob);
       debugPrint(
-          '[WebAudioRecorder] Recording stopped, blob size: ${blob.size}, url: $_recordedBlobUrl');
+        '[WebAudioRecorder] Recording stopped, blob size: ${blob.size}, url: $_recordedBlobUrl',
+      );
 
       // Read blob as bytes for upload
       Uint8List? bytes;
       try {
-        final reader = html.FileReader();
-        final readCompleter = Completer<Uint8List>();
-
-        reader.onLoadEnd.listen((_) {
-          final result = reader.result;
-          if (result != null && result is ByteBuffer) {
-            readCompleter.complete(result.asUint8List());
-          } else if (result != null && result is Uint8List) {
-            readCompleter.complete(result);
-          } else {
-            readCompleter.completeError('FileReader result is null or unexpected type');
-          }
-        });
-
-        reader.onError.listen((_) {
-          if (!readCompleter.isCompleted) {
-            readCompleter.completeError('FileReader error');
-          }
-        });
-
-        reader.readAsArrayBuffer(blob);
-        bytes = await readCompleter.future.timeout(
-          const Duration(seconds: 5),
-          onTimeout: () => Uint8List(0),
-        );
-
+        final arrayBuffer = await blob.arrayBuffer().toDart;
+        bytes = arrayBuffer.toDart.asUint8List();
         if (bytes.isNotEmpty) {
           debugPrint('[WebAudioRecorder] Read ${bytes.length} bytes from blob');
         }
@@ -192,9 +184,10 @@ class WebAudioRecorder {
 
   /// Pause recording
   Future<void> pauseRecording() async {
-    if (_mediaRecorder == null || !_isRecording) return;
+    final recorder = _mediaRecorder;
+    if (recorder == null || !_isRecording) return;
     try {
-      _mediaRecorder!.pause();
+      recorder.pause();
       _isPaused = true;
       _stopAmplitudePolling();
       debugPrint('[WebAudioRecorder] Recording paused');
@@ -205,9 +198,10 @@ class WebAudioRecorder {
 
   /// Resume recording
   Future<void> resumeRecording() async {
-    if (_mediaRecorder == null || !_isPaused) return;
+    final recorder = _mediaRecorder;
+    if (recorder == null || !_isPaused) return;
     try {
-      _mediaRecorder!.resume();
+      recorder.resume();
       _isPaused = false;
       _startAmplitudePolling();
       debugPrint('[WebAudioRecorder] Recording resumed');
@@ -220,10 +214,11 @@ class WebAudioRecorder {
   Future<void> dispose() async {
     _stopAmplitudePolling();
 
-    if (_mediaRecorder != null) {
+    final recorder = _mediaRecorder;
+    if (recorder != null) {
       try {
         if (_isRecording || _isPaused) {
-          _mediaRecorder!.stop();
+          recorder.stop();
         }
       } catch (_) {}
     }
@@ -242,7 +237,7 @@ class WebAudioRecorder {
     // Revoke blob URL to free memory
     if (_recordedBlobUrl != null) {
       try {
-        html.Url.revokeObjectUrl(_recordedBlobUrl!);
+        web.URL.revokeObjectURL(_recordedBlobUrl!);
       } catch (_) {}
       _recordedBlobUrl = null;
     }
@@ -256,8 +251,9 @@ class WebAudioRecorder {
   Uint8List? get recordedBytes => _recordedBytes;
 
   void _stopMediaStream() {
-    if (_mediaStream != null) {
-      final tracks = _mediaStream!.getTracks();
+    final stream = _mediaStream;
+    if (stream != null) {
+      final tracks = stream.getTracks().toDart;
       for (final track in tracks) {
         track.stop();
       }
@@ -266,9 +262,10 @@ class WebAudioRecorder {
   }
 
   void _closeAudioContext() {
-    if (_audioContext != null) {
+    final ctx = _audioContext;
+    if (ctx != null) {
       try {
-        _audioContext!.close();
+        ctx.close();
       } catch (_) {}
       _audioContext = null;
       _analyserNode = null;
@@ -277,31 +274,32 @@ class WebAudioRecorder {
 
   void _startAmplitudePolling() {
     _amplitudeTimer?.cancel();
-    _amplitudeTimer = Timer.periodic(
-      const Duration(milliseconds: 100),
-      (_) {
-        if (_analyserNode == null || !_isRecording || _isPaused) return;
-        try {
-          final bufferLength = _analyserNode!.frequencyBinCount ?? 128;
-          final dataArray = Uint8List(bufferLength);
-          _analyserNode!.getByteTimeDomainData(dataArray);
+    _amplitudeTimer = Timer.periodic(const Duration(milliseconds: 100), (_) {
+      final analyser = _analyserNode;
+      if (analyser == null || !_isRecording || _isPaused) return;
+      try {
+        final bufferLength = analyser.frequencyBinCount;
+        // `getByteTimeDomainData` requires a JSUint8Array; allocate a Dart
+        // buffer, hand the JS view to the native call, then read it back.
+        final jsArray = Uint8List(bufferLength).toJS;
+        analyser.getByteTimeDomainData(jsArray);
+        final dataArray = jsArray.toDart;
 
-          // Calculate RMS amplitude from time domain data
-          double sum = 0;
-          for (int i = 0; i < bufferLength; i++) {
-            final sample = (dataArray[i] - 128) / 128.0;
-            sum += sample * sample;
-          }
-          final rms = (sum / bufferLength);
-          // Normalize to 0.0-1.0 range with some amplification
-          final normalized = (rms * 4.0).clamp(0.0, 1.0);
+        // Calculate RMS amplitude from time domain data
+        double sum = 0;
+        for (int i = 0; i < bufferLength; i++) {
+          final sample = (dataArray[i] - 128) / 128.0;
+          sum += sample * sample;
+        }
+        final rms = (sum / bufferLength);
+        // Normalize to 0.0-1.0 range with some amplification
+        final normalized = (rms * 4.0).clamp(0.0, 1.0);
 
-          if (!_amplitudeController.isClosed) {
-            _amplitudeController.add(normalized);
-          }
-        } catch (_) {}
-      },
-    );
+        if (!_amplitudeController.isClosed) {
+          _amplitudeController.add(normalized);
+        }
+      } catch (_) {}
+    });
   }
 
   void _stopAmplitudePolling() {

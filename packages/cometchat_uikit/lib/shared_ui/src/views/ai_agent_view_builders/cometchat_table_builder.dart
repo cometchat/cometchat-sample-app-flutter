@@ -21,10 +21,12 @@ class CometChatAiAssistantTableBuilder extends StatefulWidget {
   });
 
   @override
-  State<CometChatAiAssistantTableBuilder> createState() => _CometChatAiAssistantTableBuilderState();
+  State<CometChatAiAssistantTableBuilder> createState() =>
+      _CometChatAiAssistantTableBuilderState();
 }
 
-class _CometChatAiAssistantTableBuilderState extends State<CometChatAiAssistantTableBuilder> {
+class _CometChatAiAssistantTableBuilderState
+    extends State<CometChatAiAssistantTableBuilder> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -87,18 +89,20 @@ class _CometChatAiAssistantTableBuilderState extends State<CometChatAiAssistantT
 
         for (final match in matches) {
           if (match.start > lastEnd) {
-            spans.add(TextSpan(
-              text: text.substring(lastEnd, match.start),
-              style: TextStyle(
-                fontSize: widget.typography?.caption1?.regular?.fontSize,
-                fontWeight: isHeader
-                    ? widget.typography?.caption1?.medium?.fontWeight
-                    : widget.typography?.caption1?.regular?.fontWeight,
-                color: isHeader
-                    ? widget.colorPalette?.textPrimary
-                    : widget.colorPalette?.textSecondary,
+            spans.add(
+              TextSpan(
+                text: text.substring(lastEnd, match.start),
+                style: TextStyle(
+                  fontSize: widget.typography?.caption1?.regular?.fontSize,
+                  fontWeight: isHeader
+                      ? widget.typography?.caption1?.medium?.fontWeight
+                      : widget.typography?.caption1?.regular?.fontWeight,
+                  color: isHeader
+                      ? widget.colorPalette?.textPrimary
+                      : widget.colorPalette?.textSecondary,
+                ),
               ),
-            ));
+            );
           }
 
           final linkText = match.group(1) ?? '';
@@ -124,18 +128,20 @@ class _CometChatAiAssistantTableBuilderState extends State<CometChatAiAssistantT
         }
 
         if (lastEnd < text.length) {
-          spans.add(TextSpan(
-            text: text.substring(lastEnd),
-            style: TextStyle(
-              fontSize: widget.typography?.caption1?.regular?.fontSize,
-              fontWeight: isHeader
-                  ? widget.typography?.caption1?.medium?.fontWeight
-                  : widget.typography?.caption1?.regular?.fontWeight,
-              color: isHeader
-                  ? widget.colorPalette?.textPrimary
-                  : widget.colorPalette?.textSecondary,
+          spans.add(
+            TextSpan(
+              text: text.substring(lastEnd),
+              style: TextStyle(
+                fontSize: widget.typography?.caption1?.regular?.fontSize,
+                fontWeight: isHeader
+                    ? widget.typography?.caption1?.medium?.fontWeight
+                    : widget.typography?.caption1?.regular?.fontWeight,
+                color: isHeader
+                    ? widget.colorPalette?.textPrimary
+                    : widget.colorPalette?.textSecondary,
+              ),
             ),
-          ));
+          );
         }
 
         content = RichText(
@@ -159,13 +165,14 @@ class _CometChatAiAssistantTableBuilderState extends State<CometChatAiAssistantT
           fontWeight: isBoldMarkdown
               ? widget.typography?.caption1?.medium?.fontWeight
               : (isHeader
-                  ? widget.typography?.caption1?.medium?.fontWeight
-                  : widget.typography?.caption1?.regular?.fontWeight),
+                    ? widget.typography?.caption1?.medium?.fontWeight
+                    : widget.typography?.caption1?.regular?.fontWeight),
           color: isBoldMarkdown
-              ? widget.colorPalette?.textPrimary ?? widget.colorPalette?.textSecondary
+              ? widget.colorPalette?.textPrimary ??
+                    widget.colorPalette?.textSecondary
               : (isHeader
-                  ? widget.colorPalette?.textPrimary
-                  : widget.colorPalette?.textSecondary),
+                    ? widget.colorPalette?.textPrimary
+                    : widget.colorPalette?.textSecondary),
         ),
         textAlign: align,
         softWrap: true,
@@ -174,8 +181,12 @@ class _CometChatAiAssistantTableBuilderState extends State<CometChatAiAssistantT
 
     content = Padding(
       padding: EdgeInsets.only(
-        top: isHeader ? (widget.spacing?.padding2 ?? 2) : (widget.spacing?.padding3 ?? 8),
-        bottom: isHeader ? (widget.spacing?.padding2 ?? 2) : (widget.spacing?.padding3 ?? 8),
+        top: isHeader
+            ? (widget.spacing?.padding2 ?? 2)
+            : (widget.spacing?.padding3 ?? 8),
+        bottom: isHeader
+            ? (widget.spacing?.padding2 ?? 2)
+            : (widget.spacing?.padding3 ?? 8),
         left: widget.spacing?.padding2 ?? 6,
         right: widget.spacing?.padding2 ?? 6,
       ),
@@ -274,15 +285,22 @@ class _CometChatAiAssistantTableBuilderState extends State<CometChatAiAssistantT
                       ? BoxDecoration(
                           color: widget.colorPalette?.background4,
                           borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(widget.spacing?.radius3 ?? 12),
-                            topRight: Radius.circular(widget.spacing?.radius3 ?? 12),
+                            topLeft: Radius.circular(
+                              widget.spacing?.radius3 ?? 12,
+                            ),
+                            topRight: Radius.circular(
+                              widget.spacing?.radius3 ?? 12,
+                            ),
                           ),
                         )
                       : BoxDecoration(
                           borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(widget.spacing?.radius3 ?? 12),
-                            bottomRight:
-                                Radius.circular(widget.spacing?.radius3 ?? 12),
+                            bottomLeft: Radius.circular(
+                              widget.spacing?.radius3 ?? 12,
+                            ),
+                            bottomRight: Radius.circular(
+                              widget.spacing?.radius3 ?? 12,
+                            ),
                           ),
                         ),
                   children: row.fields.map((field) {

@@ -16,11 +16,17 @@ import 'package:flutter/material.dart';
 ///  backgroundColor: Colors.black,
 ///  );
 ///  ```
-class CometChatLinkPreviewBubbleStyle extends ThemeExtension<CometChatLinkPreviewBubbleStyle> {
-  const CometChatLinkPreviewBubbleStyle(
-      {this.titleStyle, this.urlStyle, this.tileColor, this.backgroundColor, this.descriptionStyle,
-      this.borderRadius, this.border
-      });
+class CometChatLinkPreviewBubbleStyle
+    extends ThemeExtension<CometChatLinkPreviewBubbleStyle> {
+  const CometChatLinkPreviewBubbleStyle({
+    this.titleStyle,
+    this.urlStyle,
+    this.tileColor,
+    this.backgroundColor,
+    this.descriptionStyle,
+    this.borderRadius,
+    this.border,
+  });
 
   ///[titleStyle] styles the name of the website
   final TextStyle? titleStyle;
@@ -44,27 +50,29 @@ class CometChatLinkPreviewBubbleStyle extends ThemeExtension<CometChatLinkPrevie
   final BorderRadius? borderRadius;
 
   @override
-  CometChatLinkPreviewBubbleStyle copyWith(
-      {TextStyle? titleStyle,
-      TextStyle? urlStyle,
-      Color? tileColor,
-      Color? backgroundColor,
-        TextStyle? descriptionStyle,
-      BoxBorder? border,
-      BorderRadius? borderRadius
-      }) {
+  CometChatLinkPreviewBubbleStyle copyWith({
+    TextStyle? titleStyle,
+    TextStyle? urlStyle,
+    Color? tileColor,
+    Color? backgroundColor,
+    TextStyle? descriptionStyle,
+    BoxBorder? border,
+    BorderRadius? borderRadius,
+  }) {
     return CometChatLinkPreviewBubbleStyle(
-        titleStyle: titleStyle ?? this.titleStyle,
-        urlStyle: urlStyle ?? this.urlStyle,
-        tileColor: tileColor ?? this.tileColor,
-        backgroundColor: backgroundColor ?? this.backgroundColor,
-        descriptionStyle: descriptionStyle ?? this.descriptionStyle,
-        border: border ?? this.border,
-        borderRadius: borderRadius ?? this.borderRadius
+      titleStyle: titleStyle ?? this.titleStyle,
+      urlStyle: urlStyle ?? this.urlStyle,
+      tileColor: tileColor ?? this.tileColor,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      descriptionStyle: descriptionStyle ?? this.descriptionStyle,
+      border: border ?? this.border,
+      borderRadius: borderRadius ?? this.borderRadius,
     );
   }
 
-  CometChatLinkPreviewBubbleStyle merge(CometChatLinkPreviewBubbleStyle? other) {
+  CometChatLinkPreviewBubbleStyle merge(
+    CometChatLinkPreviewBubbleStyle? other,
+  ) {
     if (other == null) return this;
     return copyWith(
       titleStyle: other.titleStyle,
@@ -73,24 +81,31 @@ class CometChatLinkPreviewBubbleStyle extends ThemeExtension<CometChatLinkPrevie
       backgroundColor: other.backgroundColor,
       descriptionStyle: other.descriptionStyle,
       border: other.border,
-      borderRadius: other.borderRadius
+      borderRadius: other.borderRadius,
     );
   }
 
- static CometChatLinkPreviewBubbleStyle of(BuildContext context) {
+  static CometChatLinkPreviewBubbleStyle of(BuildContext context) {
     return const CometChatLinkPreviewBubbleStyle();
   }
 
   @override
-  CometChatLinkPreviewBubbleStyle lerp(CometChatLinkPreviewBubbleStyle? other, double t) {
+  CometChatLinkPreviewBubbleStyle lerp(
+    CometChatLinkPreviewBubbleStyle? other,
+    double t,
+  ) {
     return CometChatLinkPreviewBubbleStyle(
       titleStyle: TextStyle.lerp(titleStyle, other?.titleStyle, t),
       urlStyle: TextStyle.lerp(urlStyle, other?.urlStyle, t),
       tileColor: Color.lerp(tileColor, other?.tileColor, t),
       backgroundColor: Color.lerp(backgroundColor, other?.backgroundColor, t),
-      descriptionStyle: TextStyle.lerp(descriptionStyle, other?.descriptionStyle, t),
+      descriptionStyle: TextStyle.lerp(
+        descriptionStyle,
+        other?.descriptionStyle,
+        t,
+      ),
       border: BoxBorder.lerp(border, other?.border, t),
-      borderRadius: BorderRadius.lerp(borderRadius, other?.borderRadius, t)
+      borderRadius: BorderRadius.lerp(borderRadius, other?.borderRadius, t),
     );
   }
 }

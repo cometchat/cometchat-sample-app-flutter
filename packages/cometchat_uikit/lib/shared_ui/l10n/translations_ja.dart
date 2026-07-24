@@ -812,6 +812,39 @@ class TranslationsJa extends Translations {
   String get failedToLoadImage => '画像の読み込みに失敗しました';
 
   @override
+  String get uploadFailed => 'アップロードに失敗しました';
+
+  @override
+  String get tapToRetry => 'タップして再試行';
+
+  @override
+  String get dropFilesHere => 'ここにファイルをドロップ';
+
+  @override
+  String get attachmentCountLimit => '1つのメッセージに添付できるファイルは最大{limit}件です。';
+
+  @override
+  String get attachmentFileSizeLimit => '各ファイルは{limit}未満である必要があります。';
+
+  @override
+  String get fileListShowMore => '+{count}件';
+
+  @override
+  String get fileListShowLess => '表示を減らす';
+
+  @override
+  String get searchImagesCount => '画像{count}件';
+
+  @override
+  String get searchVideosCount => '動画{count}件';
+
+  @override
+  String get searchAudiosCount => '音声{count}件';
+
+  @override
+  String get searchFilesCount => 'ファイル{count}件';
+
+  @override
   String get transferOwnership => '所有権の移転';
 
   @override
@@ -1206,8 +1239,7 @@ class TranslationsJa extends Translations {
   @override
   String get type => 'タイプ';
   @override
-  String get createGroupEmptyString =>
-      'グループを作成する前に、すべての必須項目を入力してください。';
+  String get createGroupEmptyString => 'グループを作成する前に、すべての必須項目を入力してください。';
   @override
   String get messageBlockedByModeration => 'あなたのメッセージはモデレーションポリシーによりブロックされました。';
 
@@ -1215,7 +1247,8 @@ class TranslationsJa extends Translations {
   String get cantSendMessageBlockedUser => "ユーザーがブロックされているため、メッセージを送信できません。";
 
   @override
-  String get cantSendMessageNotMember => "あなたはもうこのグループのメンバーではないため、メッセージを送信できません。";
+  String get cantSendMessageNotMember =>
+      "あなたはもうこのグループのメンバーではないため、メッセージを送信できません。";
 
   @override
   String get youAreNoLongerPartOfThisGroup => 'あなたはもうこのグループの一員ではありません。';
@@ -1273,7 +1306,8 @@ class TranslationsJa extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";
@@ -1296,4 +1330,3 @@ class TranslationsJa extends Translations {
   @override
   String get harassment => "Harassment";
 }
-

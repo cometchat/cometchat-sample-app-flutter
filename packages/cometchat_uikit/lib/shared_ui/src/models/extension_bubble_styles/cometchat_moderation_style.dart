@@ -46,14 +46,25 @@ class CometChatModerationStyle
 
   @override
   CometChatModerationStyle lerp(
-      covariant CometChatModerationStyle? other, double t) {
+    covariant CometChatModerationStyle? other,
+    double t,
+  ) {
     return CometChatModerationStyle(
       moderationBackgroundColor: Color.lerp(
-          moderationBackgroundColor, other?.moderationBackgroundColor, t),
-      moderationTextStyle:
-          TextStyle.lerp(moderationTextStyle, other?.moderationTextStyle, t),
-      moderationIconTint:
-          Color.lerp(moderationIconTint, other?.moderationIconTint, t),
+        moderationBackgroundColor,
+        other?.moderationBackgroundColor,
+        t,
+      ),
+      moderationTextStyle: TextStyle.lerp(
+        moderationTextStyle,
+        other?.moderationTextStyle,
+        t,
+      ),
+      moderationIconTint: Color.lerp(
+        moderationIconTint,
+        other?.moderationIconTint,
+        t,
+      ),
     );
   }
 }

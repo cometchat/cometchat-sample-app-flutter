@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/notification_feed_event.dart';
 import '../bloc/notification_feed_state.dart';

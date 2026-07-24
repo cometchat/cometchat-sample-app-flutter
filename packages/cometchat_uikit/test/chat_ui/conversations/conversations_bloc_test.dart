@@ -52,7 +52,8 @@ ConversationsBloc _makeBloc(MockConversationsRepository repo) {
     getLoggedInUserUseCase: GetLoggedInUserUseCase(repo),
     getConversationUseCase: GetConversationUseCase(repo),
     markAsDeliveredUseCase: MarkAsDeliveredUseCase(repo),
-    disableSDKListeners: true, // prevent real SDK listener registration in tests
+    disableSDKListeners:
+        true, // prevent real SDK listener registration in tests
   );
 }
 
@@ -73,10 +74,12 @@ void main() {
     setUp(() {
       repo = MockConversationsRepository();
       // Default stubs
-      when(() => repo.getLoggedInUser())
-          .thenAnswer((_) async => Success(FakeUser()));
-      when(() => repo.getConversations(limit: any(named: 'limit')))
-          .thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getLoggedInUser(),
+      ).thenAnswer((_) async => Success(FakeUser()));
+      when(
+        () => repo.getConversations(limit: any(named: 'limit')),
+      ).thenAnswer((_) async => const Success([]));
     });
 
     // -----------------------------------------------------------------------
@@ -96,30 +99,26 @@ void main() {
     blocTest<ConversationsBloc, ConversationsState>(
       'emits [Loading, Empty] when no conversations returned',
       build: () {
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => const Success([]));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => const Success([]));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
-      expect: () => [
-        isA<ConversationsLoading>(),
-        isA<ConversationsEmpty>(),
-      ],
+      expect: () => [isA<ConversationsLoading>(), isA<ConversationsEmpty>()],
     );
 
     blocTest<ConversationsBloc, ConversationsState>(
       'emits [Loading, Loaded] when conversations returned',
       build: () {
         final convs = [FakeConversation('conv_1'), FakeConversation('conv_2')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
-      expect: () => [
-        isA<ConversationsLoading>(),
-        isA<ConversationsLoaded>(),
-      ],
+      expect: () => [isA<ConversationsLoading>(), isA<ConversationsLoaded>()],
       verify: (bloc) {
         final state = bloc.state as ConversationsLoaded;
         expect(state.conversations.length, 2);
@@ -129,19 +128,16 @@ void main() {
     blocTest<ConversationsBloc, ConversationsState>(
       'emits [Loading, Error] when repository fails',
       build: () {
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async =>
-                const Failure(message: 'Network error', code: 'NET_ERR'));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer(
+          (_) async => const Failure(message: 'Network error', code: 'NET_ERR'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
-      expect: () => [
-        isA<ConversationsLoading>(),
-        isA<ConversationsError>(),
-      ],
+      expect: () => [isA<ConversationsLoading>(), isA<ConversationsError>()],
     );
-
-
 
     // -----------------------------------------------------------------------
     // DeleteConversation
@@ -150,11 +146,16 @@ void main() {
     blocTest<ConversationsBloc, ConversationsState>(
       'removes conversation from loaded list on delete',
       build: () {
-        final convs = [FakeConversation('user_uid1'), FakeConversation('user_uid2')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
-        when(() => repo.deleteConversation(any()))
-            .thenAnswer((_) async => const Success(null));
+        final convs = [
+          FakeConversation('user_uid1'),
+          FakeConversation('user_uid2'),
+        ];
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.deleteConversation(any()),
+        ).thenAnswer((_) async => const Success(null));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -176,11 +177,16 @@ void main() {
     blocTest<ConversationsBloc, ConversationsState>(
       'DeleteConversation calls repository with correct conversation ID',
       build: () {
-        final convs = [FakeConversation('user_abc'), FakeConversation('user_xyz')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
-        when(() => repo.deleteConversation(any()))
-            .thenAnswer((_) async => const Success(null));
+        final convs = [
+          FakeConversation('user_abc'),
+          FakeConversation('user_xyz'),
+        ];
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.deleteConversation(any()),
+        ).thenAnswer((_) async => const Success(null));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -197,11 +203,16 @@ void main() {
     blocTest<ConversationsBloc, ConversationsState>(
       'DeleteConversation keeps conversation in list when SDK delete fails',
       build: () {
-        final convs = [FakeConversation('user_keep'), FakeConversation('user_other')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
-        when(() => repo.deleteConversation(any()))
-            .thenAnswer((_) async => const Failure(message: 'Network error'));
+        final convs = [
+          FakeConversation('user_keep'),
+          FakeConversation('user_other'),
+        ];
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.deleteConversation(any()),
+        ).thenAnswer((_) async => const Failure(message: 'Network error'));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -222,10 +233,12 @@ void main() {
       'DeleteConversation on last remaining conversation transitions to Empty',
       build: () {
         final convs = [FakeConversation('only_one')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
-        when(() => repo.deleteConversation(any()))
-            .thenAnswer((_) async => const Success(null));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.deleteConversation(any()),
+        ).thenAnswer((_) async => const Success(null));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -247,11 +260,16 @@ void main() {
     blocTest<ConversationsBloc, ConversationsState>(
       'DeleteConversation with non-existent ID is a no-op',
       build: () {
-        final convs = [FakeConversation('existing_1'), FakeConversation('existing_2')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
-        when(() => repo.deleteConversation(any()))
-            .thenAnswer((_) async => const Success(null));
+        final convs = [
+          FakeConversation('existing_1'),
+          FakeConversation('existing_2'),
+        ];
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.deleteConversation(any()),
+        ).thenAnswer((_) async => const Success(null));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -274,8 +292,9 @@ void main() {
       'updates activeConversationId in loaded state',
       build: () {
         final convs = [FakeConversation('conv_1')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -297,8 +316,9 @@ void main() {
       'removes conversation without calling SDK delete',
       build: () {
         final convs = [FakeConversation('conv_1'), FakeConversation('conv_2')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -322,8 +342,9 @@ void main() {
       'RemoveConversation on last remaining conversation transitions to Empty',
       build: () {
         final convs = [FakeConversation('only_conv')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -364,8 +385,9 @@ void main() {
       'ignores LoadMoreConversations when hasMore is false',
       build: () {
         final initial = [FakeConversation('c1')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(initial));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(initial));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -377,10 +399,12 @@ void main() {
       verify: (bloc) {
         // paged repo call (with fromId) should never have been issued —
         // ignoring the initial non-paged LoadConversations call
-        verifyNever(() => repo.getConversations(
-              limit: any(named: 'limit'),
-              fromId: any(named: 'fromId', that: isNotNull),
-            ));
+        verifyNever(
+          () => repo.getConversations(
+            limit: any(named: 'limit'),
+            fromId: any(named: 'fromId', that: isNotNull),
+          ),
+        );
         final state = bloc.state as ConversationsLoaded;
         expect(state.conversations.length, 1);
       },
@@ -394,17 +418,20 @@ void main() {
       'updates existing conversation in place',
       build: () {
         final convs = [FakeConversation('c1'), FakeConversation('c2')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
         bloc.add(const LoadConversations());
         await Future.delayed(const Duration(milliseconds: 50));
-        bloc.add(UpdateConversation(
-          conversationId: 'c1',
-          updatedConversation: FakeConversation('c1'),
-        ));
+        bloc.add(
+          UpdateConversation(
+            conversationId: 'c1',
+            updatedConversation: FakeConversation('c1'),
+          ),
+        );
       },
       verify: (bloc) {
         final state = bloc.state as ConversationsLoaded;
@@ -416,17 +443,20 @@ void main() {
       'adds conversation when UpdateConversation target does not exist',
       build: () {
         final convs = [FakeConversation('c1')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
         bloc.add(const LoadConversations());
         await Future.delayed(const Duration(milliseconds: 50));
-        bloc.add(UpdateConversation(
-          conversationId: 'c_new',
-          updatedConversation: FakeConversation('c_new'),
-        ));
+        bloc.add(
+          UpdateConversation(
+            conversationId: 'c_new',
+            updatedConversation: FakeConversation('c_new'),
+          ),
+        );
       },
       verify: (bloc) {
         final state = bloc.state as ConversationsLoaded;
@@ -442,8 +472,9 @@ void main() {
       'toggles selection on/off and clears selection',
       build: () {
         final convs = [FakeConversation('c1'), FakeConversation('c2')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -463,8 +494,9 @@ void main() {
       'ClearConversationSelection empties the selection set',
       build: () {
         final convs = [FakeConversation('c1')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -487,8 +519,9 @@ void main() {
       'RefreshConversations reloads without emitting Loading',
       build: () {
         final convs = [FakeConversation('c1')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -520,7 +553,5 @@ void main() {
       expect(bloc.getTypingIndicators('does_not_exist'), isEmpty);
       bloc.close();
     });
-
-
   });
 }

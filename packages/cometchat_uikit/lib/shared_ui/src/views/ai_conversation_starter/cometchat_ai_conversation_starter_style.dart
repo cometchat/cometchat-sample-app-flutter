@@ -54,7 +54,8 @@ class CometChatAIConversationStarterStyle
   }
 
   CometChatAIConversationStarterStyle merge(
-      CometChatAIConversationStarterStyle? other) {
+    CometChatAIConversationStarterStyle? other,
+  ) {
     if (other == null) return this;
     return copyWith(
       itemTextStyle: other.itemTextStyle,
@@ -71,8 +72,9 @@ class CometChatAIConversationStarterStyle
 
   @override
   CometChatAIConversationStarterStyle lerp(
-      covariant ThemeExtension<CometChatAIConversationStarterStyle>? other,
-      double t) {
+    covariant ThemeExtension<CometChatAIConversationStarterStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatAIConversationStarterStyle) return this;
     return CometChatAIConversationStarterStyle(
       itemTextStyle: TextStyle.lerp(itemTextStyle, other.itemTextStyle, t),
@@ -83,8 +85,11 @@ class CometChatAIConversationStarterStyle
       emptyIconTint: Color.lerp(emptyIconTint, other.emptyIconTint, t),
       shadowColor: Color.lerp(shadowColor, other.shadowColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
     );
   }
 }

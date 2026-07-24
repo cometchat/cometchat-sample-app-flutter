@@ -98,10 +98,7 @@ class SendCustomMessage extends MessageComposerEvent {
   final Map<String, String> customData;
   final String type;
 
-  const SendCustomMessage({
-    required this.customData,
-    required this.type,
-  });
+  const SendCustomMessage({required this.customData, required this.type});
 
   @override
   List<Object?> get props => [customData, type];
@@ -126,10 +123,11 @@ class ClearEditMessage extends MessageComposerEvent {
   const ClearEditMessage();
 }
 
-/// Submit the edited text message
+/// Submit the edited message (a [TextMessage], or a caption-bearing
+/// [MediaMessage] when editing text sent alongside attachments).
 class EditTextMessage extends MessageComposerEvent {
-  final TextMessage? processedMessage;
-  
+  final BaseMessage? processedMessage;
+
   const EditTextMessage({this.processedMessage});
 
   @override
@@ -179,11 +177,7 @@ class ShowPanel extends MessageComposerEvent {
   final CustomUIPosition position;
   final Widget Function(BuildContext) builder;
 
-  const ShowPanel({
-    this.id,
-    required this.position,
-    required this.builder,
-  });
+  const ShowPanel({this.id, required this.position, required this.builder});
 
   @override
   List<Object?> get props => [id, position];
@@ -194,10 +188,7 @@ class HidePanel extends MessageComposerEvent {
   final Map<String, dynamic>? id;
   final CustomUIPosition position;
 
-  const HidePanel({
-    this.id,
-    required this.position,
-  });
+  const HidePanel({this.id, required this.position});
 
   @override
   List<Object?> get props => [id, position];
@@ -206,8 +197,6 @@ class HidePanel extends MessageComposerEvent {
 // ============================================================================
 // AI Streaming Events
 // ============================================================================
-
-
 
 // ============================================================================
 // Internal Events (triggered by SDK listeners)
@@ -228,10 +217,7 @@ class ComposeMessageReceived extends MessageComposerEvent {
   final String text;
   final Map<String, dynamic>? id;
 
-  const ComposeMessageReceived({
-    required this.text,
-    this.id,
-  });
+  const ComposeMessageReceived({required this.text, this.id});
 
   @override
   List<Object?> get props => [text, id];
@@ -255,10 +241,7 @@ class UserBlockedStatusChanged extends MessageComposerEvent {
   final User user;
   final bool isBlocked;
 
-  const UserBlockedStatusChanged({
-    required this.user,
-    required this.isBlocked,
-  });
+  const UserBlockedStatusChanged({required this.user, required this.isBlocked});
 
   @override
   List<Object?> get props => [user, isBlocked];

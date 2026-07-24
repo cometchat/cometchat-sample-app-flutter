@@ -827,6 +827,40 @@ class TranslationsTr extends Translations {
   String get failedToLoadImage => 'Resim yüklenemedi';
 
   @override
+  String get uploadFailed => 'Yükleme başarısız';
+
+  @override
+  String get tapToRetry => 'Yeniden denemek için dokunun';
+
+  @override
+  String get dropFilesHere => 'Dosyaları buraya bırakın';
+
+  @override
+  String get attachmentCountLimit =>
+      'Mesaj başına en fazla {limit} dosya ekleyebilirsiniz.';
+
+  @override
+  String get attachmentFileSizeLimit => 'Her dosya {limit} altında olmalıdır.';
+
+  @override
+  String get fileListShowMore => '+{count} daha';
+
+  @override
+  String get fileListShowLess => 'Daha az göster';
+
+  @override
+  String get searchImagesCount => '{count} görsel';
+
+  @override
+  String get searchVideosCount => '{count} video';
+
+  @override
+  String get searchAudiosCount => '{count} ses';
+
+  @override
+  String get searchFilesCount => '{count} dosya';
+
+  @override
   String get transferOwnership => 'Sahiplik Devri';
 
   @override
@@ -1245,16 +1279,20 @@ class TranslationsTr extends Translations {
   String get createGroupEmptyString =>
       'Lütfen bir grup oluşturmadan önce tüm zorunlu alanları doldurun.';
   @override
-  String get messageBlockedByModeration => 'Mesajınız moderasyon politikaları nedeniyle engellendi.';
+  String get messageBlockedByModeration =>
+      'Mesajınız moderasyon politikaları nedeniyle engellendi.';
 
   @override
-  String get cantSendMessageBlockedUser => "Kullanıcı engellendiği için mesaj gönderilemiyor.";
+  String get cantSendMessageBlockedUser =>
+      "Kullanıcı engellendiği için mesaj gönderilemiyor.";
 
   @override
-  String get cantSendMessageNotMember => "Artık bu grubun üyesi olmadığınız için mesaj gönderemezsiniz.";
+  String get cantSendMessageNotMember =>
+      "Artık bu grubun üyesi olmadığınız için mesaj gönderemezsiniz.";
 
   @override
-  String get youAreNoLongerPartOfThisGroup => 'Artık bu grubun bir parçası değilsiniz.';
+  String get youAreNoLongerPartOfThisGroup =>
+      'Artık bu grubun bir parçası değilsiniz.';
 
   @override
   String get busy => "Meşgul";
@@ -1263,10 +1301,12 @@ class TranslationsTr extends Translations {
   String get noConversationHistoryFound => "Konuşma geçmişi bulunamadı.";
 
   @override
-  String get somethingWentWrongTryAgain => "Bizim tarafımızda bir hata oluştu. Lütfen tekrar deneyin.";
+  String get somethingWentWrongTryAgain =>
+      "Bizim tarafımızda bir hata oluştu. Lütfen tekrar deneyin.";
 
   @override
-  String get startChatByTappingNewChat => '"Yeni Sohbet" düğmesine dokunarak sohbet başlatın.';
+  String get startChatByTappingNewChat =>
+      '"Yeni Sohbet" düğmesine dokunarak sohbet başlatın.';
 
   @override
   String get chatHistory => "Sohbet Geçmişi";
@@ -1309,7 +1349,8 @@ class TranslationsTr extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

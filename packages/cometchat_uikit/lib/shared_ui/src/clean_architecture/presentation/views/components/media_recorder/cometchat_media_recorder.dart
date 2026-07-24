@@ -25,18 +25,18 @@ import 'media_recorder_bloc.dart';
 ///  ```
 ///
 class CometChatMediaRecorder extends StatefulWidget {
-  const CometChatMediaRecorder(
-      {super.key,
-      this.onSubmit,
-      this.onClose,
-      this.style,
-      this.padding,
-      this.startButtonIcon,
-      this.pauseButtonIcon,
-      this.deleteButtonIcon,
-      this.stopButtonIcon,
-      this.sendButtonIcon
-      });
+  const CometChatMediaRecorder({
+    super.key,
+    this.onSubmit,
+    this.onClose,
+    this.style,
+    this.padding,
+    this.startButtonIcon,
+    this.pauseButtonIcon,
+    this.deleteButtonIcon,
+    this.stopButtonIcon,
+    this.sendButtonIcon,
+  });
 
   ///[onSubmit] provides callback to the submit Icon/widget
   final Function(BuildContext, String)? onSubmit;
@@ -44,7 +44,7 @@ class CometChatMediaRecorder extends StatefulWidget {
   ///[onClose] provides callback to the close Icon/widget
   final Function? onClose;
 
-  ///[mediaRecorderStyle] provides style to the media recorder
+  ///[style] provides style to the media recorder
   final CometChatMediaRecorderStyle? style;
 
   ///[padding] provides padding to the media recorder
@@ -94,8 +94,9 @@ class _CometChatMediaRecorderState extends State<CometChatMediaRecorder> {
   void didChangeDependencies() {
     mediaRecorderStyle =
         CometChatThemeHelper.getTheme<CometChatMediaRecorderStyle>(
-            context: context, defaultTheme: CometChatMediaRecorderStyle.of)
-            .merge(widget.style);
+          context: context,
+          defaultTheme: CometChatMediaRecorderStyle.of,
+        ).merge(widget.style);
     colorPalette = CometChatThemeHelper.getColorPalette(context);
     spacing = CometChatThemeHelper.getSpacing(context);
     typography = CometChatThemeHelper.getTypography(context);
@@ -114,16 +115,23 @@ class _CometChatMediaRecorderState extends State<CometChatMediaRecorder> {
             previous.filePath != current.filePath,
         builder: (context, state) {
           return Container(
-            padding: widget.padding ??
+            padding:
+                widget.padding ??
                 EdgeInsets.only(
-                    bottom: spacing.padding5 ?? 0, top: spacing.padding3 ?? 0),
+                  bottom: spacing.padding5 ?? 0,
+                  top: spacing.padding3 ?? 0,
+                ),
             decoration: BoxDecoration(
-              color: mediaRecorderStyle.backgroundColor ?? colorPalette.background1,
+              color:
+                  mediaRecorderStyle.backgroundColor ??
+                  colorPalette.background1,
               border: mediaRecorderStyle.border,
-              borderRadius: mediaRecorderStyle.borderRadius ??
+              borderRadius:
+                  mediaRecorderStyle.borderRadius ??
                   BorderRadius.only(
-                      topLeft: Radius.circular(spacing.radius6 ?? 0),
-                      topRight: Radius.circular(spacing.radius6 ?? 0)),
+                    topLeft: Radius.circular(spacing.radius6 ?? 0),
+                    topRight: Radius.circular(spacing.radius6 ?? 0),
+                  ),
             ),
             child: Padding(
               padding: EdgeInsets.all(spacing.padding5 ?? 0),
@@ -134,26 +142,37 @@ class _CometChatMediaRecorderState extends State<CometChatMediaRecorder> {
                   Padding(
                     padding: EdgeInsets.only(bottom: spacing.padding5 ?? 0),
                     child: state.isCompleted
-                        ? CometChatAudioBubbleV2(
+                        ? CometChatAudioPlayer(
                             metadata: {
                               AudioBubbleConstants.localPath: state.filePath,
-                              AudioBubbleConstants.usedByMediaRecorder: true
+                              AudioBubbleConstants.usedByMediaRecorder: true,
                             },
                             alignment: BubbleAlignment.right,
                             width: MediaQuery.sizeOf(context).width - 40,
                             padding: EdgeInsets.all(spacing.padding2 ?? 0),
-                            style: CometChatAudioBubbleStyle(
-                              playIconColor: mediaRecorderStyle.playButtonIconColor,
+                            style: CometChatVoiceNoteBubbleStyle(
+                              playIconColor:
+                                  mediaRecorderStyle.playButtonIconColor,
                               backgroundColor: colorPalette.primary,
-                              borderRadius:
-                                  BorderRadius.circular(spacing.radius3 ?? 0),
+                              borderRadius: BorderRadius.circular(
+                                spacing.radius3 ?? 0,
+                              ),
                             ).merge(mediaRecorderStyle.audioBubbleStyle),
                           )
                         : _getAudioAnimation(
-                            state, mediaRecorderStyle, colorPalette, typography, spacing),
+                            state,
+                            mediaRecorderStyle,
+                            colorPalette,
+                            typography,
+                            spacing,
+                          ),
                   ),
                   _getActionItems(
-                      state, mediaRecorderStyle, colorPalette, spacing)
+                    state,
+                    mediaRecorderStyle,
+                    colorPalette,
+                    spacing,
+                  ),
                 ],
               ),
             ),
@@ -164,146 +183,172 @@ class _CometChatMediaRecorderState extends State<CometChatMediaRecorder> {
   }
 
   Widget _getActionItems(
-      MediaRecorderState state,
-      CometChatMediaRecorderStyle mediaRecorderStyle,
-      CometChatColorPalette colorPalette,
-      CometChatSpacing spacing) {
+    MediaRecorderState state,
+    CometChatMediaRecorderStyle mediaRecorderStyle,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (state.isCompleted || state.duration > Duration.zero)
           _buttonWrapper(
-              IconButton(
-                  padding: const EdgeInsets.all(0),
-                  constraints: const BoxConstraints(),
-                  icon: widget.deleteButtonIcon ??
-                      Image.asset(
-                        AssetConstants.delete48px,
-                        package: UIConstants.packageName,
-                        color: mediaRecorderStyle.deleteButtonIconColor ??
-                            colorPalette.iconSecondary,
-                      ),
-                  onPressed: () async {
-                    _bloc.add(const CancelRecordingEvent());
-                    if (widget.onClose != null) {
-                      widget.onClose!();
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  }),
-              24,
-              colorPalette,
-              spacing,
-              mediaRecorderStyle.deleteButtonBackgroundColor,
-              mediaRecorderStyle.deleteButtonBorderRadius,
-              mediaRecorderStyle.deleteButtonBorder),
+            IconButton(
+              padding: const EdgeInsets.all(0),
+              constraints: const BoxConstraints(),
+              icon:
+                  widget.deleteButtonIcon ??
+                  Image.asset(
+                    AssetConstants.delete48px,
+                    package: UIConstants.packageName,
+                    color:
+                        mediaRecorderStyle.deleteButtonIconColor ??
+                        colorPalette.iconSecondary,
+                  ),
+              onPressed: () async {
+                _bloc.add(const CancelRecordingEvent());
+                if (widget.onClose != null) {
+                  widget.onClose!();
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            24,
+            colorPalette,
+            spacing,
+            mediaRecorderStyle.deleteButtonBackgroundColor,
+            mediaRecorderStyle.deleteButtonBorderRadius,
+            mediaRecorderStyle.deleteButtonBorder,
+          ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: spacing.padding5 ?? 0),
           child: state.isCompleted
               ? _getSendButton(state, mediaRecorderStyle, colorPalette, spacing)
               : _getRecordButtons(
-                  state, mediaRecorderStyle, colorPalette, spacing),
+                  state,
+                  mediaRecorderStyle,
+                  colorPalette,
+                  spacing,
+                ),
         ),
         if (state.isCompleted || state.duration > Duration.zero)
           _buttonWrapper(
-              state.isCompleted
-                  ? _getStartButton(
-                      state, mediaRecorderStyle, colorPalette, spacing)
-                  : _getStopButton(
-                      state, mediaRecorderStyle, colorPalette, spacing),
-              24,
-              colorPalette,
-              spacing,
-              state.isCompleted
-                  ? mediaRecorderStyle.startButtonBackgroundColor
-                  : mediaRecorderStyle.stopButtonBackgroundColor,
-              state.isCompleted
-                  ? mediaRecorderStyle.startButtonBorderRadius
-                  : mediaRecorderStyle.stopButtonBorderRadius,
-              state.isCompleted
-                  ? mediaRecorderStyle.startButtonBorder
-                  : mediaRecorderStyle.stopButtonBorder)
+            state.isCompleted
+                ? _getStartButton(
+                    state,
+                    mediaRecorderStyle,
+                    colorPalette,
+                    spacing,
+                  )
+                : _getStopButton(
+                    state,
+                    mediaRecorderStyle,
+                    colorPalette,
+                    spacing,
+                  ),
+            24,
+            colorPalette,
+            spacing,
+            state.isCompleted
+                ? mediaRecorderStyle.startButtonBackgroundColor
+                : mediaRecorderStyle.stopButtonBackgroundColor,
+            state.isCompleted
+                ? mediaRecorderStyle.startButtonBorderRadius
+                : mediaRecorderStyle.stopButtonBorderRadius,
+            state.isCompleted
+                ? mediaRecorderStyle.startButtonBorder
+                : mediaRecorderStyle.stopButtonBorder,
+          ),
       ],
     );
   }
 
   Widget _buttonWrapper(
-      Widget child,
-      double size,
-      CometChatColorPalette colorPalette,
-      CometChatSpacing spacing,
-      Color? backgroundColor,
-      BorderRadiusGeometry? borderRadius,
-      BoxBorder? border) {
+    Widget child,
+    double size,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+    Color? backgroundColor,
+    BorderRadiusGeometry? borderRadius,
+    BoxBorder? border,
+  ) {
     return Container(
       padding: EdgeInsets.all(spacing.padding2 ?? 0),
       decoration: BoxDecoration(
-          color: backgroundColor ?? colorPalette.background1,
-          border: border ??
-              Border.all(
-                  color: colorPalette.borderLight ?? Colors.transparent,
-                  width: 1),
-          borderRadius:
-              borderRadius ?? BorderRadius.circular(spacing.radiusMax ?? 0),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0x0F101828).withValues(alpha: .06),
-              blurRadius: 4,
-              spreadRadius: -2,
-              offset: const Offset(0, 2),
+        color: backgroundColor ?? colorPalette.background1,
+        border:
+            border ??
+            Border.all(
+              color: colorPalette.borderLight ?? Colors.transparent,
+              width: 1,
             ),
-            BoxShadow(
-              color: const Color(0x0F101828).withValues(alpha: .1),
-              blurRadius: 8,
-              spreadRadius: -2,
-              offset: const Offset(0, 4),
-            )
-          ]),
+        borderRadius:
+            borderRadius ?? BorderRadius.circular(spacing.radiusMax ?? 0),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x0F101828).withValues(alpha: .06),
+            blurRadius: 4,
+            spreadRadius: -2,
+            offset: const Offset(0, 2),
+          ),
+          BoxShadow(
+            color: const Color(0x0F101828).withValues(alpha: .1),
+            blurRadius: 8,
+            spreadRadius: -2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: SizedBox(height: size, width: size, child: child),
     );
   }
 
   Widget _getSendButton(
-      MediaRecorderState state,
-      CometChatMediaRecorderStyle mediaRecorderStyle,
-      CometChatColorPalette colorPalette,
-      CometChatSpacing spacing) {
+    MediaRecorderState state,
+    CometChatMediaRecorderStyle mediaRecorderStyle,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+  ) {
     return _buttonWrapper(
-        IconButton(
-          padding: const EdgeInsets.all(0),
-          constraints: const BoxConstraints(),
-          splashRadius: 32,
-          icon: widget.sendButtonIcon ??
-              Image.asset(
-                AssetConstants.mediaRecorderSendIcon,
-                package: UIConstants.packageName,
-                color: mediaRecorderStyle.sendButtonIconColor,
-              ),
-          onPressed: () {
-            if (state.isCompleted &&
-                state.filePath != null &&
-                state.filePath!.isNotEmpty) {
-              if (widget.onSubmit != null) {
-                widget.onSubmit!(context, state.filePath!);
-              }
-              Navigator.pop(context);
+      IconButton(
+        padding: const EdgeInsets.all(0),
+        constraints: const BoxConstraints(),
+        splashRadius: 32,
+        icon:
+            widget.sendButtonIcon ??
+            Image.asset(
+              AssetConstants.mediaRecorderSendIcon,
+              package: UIConstants.packageName,
+              color: mediaRecorderStyle.sendButtonIconColor,
+            ),
+        onPressed: () {
+          if (state.isCompleted &&
+              state.filePath != null &&
+              state.filePath!.isNotEmpty) {
+            if (widget.onSubmit != null) {
+              widget.onSubmit!(context, state.filePath!);
             }
-          },
-        ),
-        32,
-        colorPalette,
-        spacing,
-        mediaRecorderStyle.sendButtonBackgroundColor,
-        mediaRecorderStyle.sendButtonBorderRadius,
-        mediaRecorderStyle.sendButtonBorder);
+            Navigator.pop(context);
+          }
+        },
+      ),
+      32,
+      colorPalette,
+      spacing,
+      mediaRecorderStyle.sendButtonBackgroundColor,
+      mediaRecorderStyle.sendButtonBorderRadius,
+      mediaRecorderStyle.sendButtonBorder,
+    );
   }
 
   Widget _getAudioAnimation(
-      MediaRecorderState state,
-      CometChatMediaRecorderStyle mediaRecorderStyle,
-      CometChatColorPalette colorPalette,
-      CometChatTypography typography,
-      CometChatSpacing spacing) {
+    MediaRecorderState state,
+    CometChatMediaRecorderStyle mediaRecorderStyle,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatSpacing spacing,
+  ) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -319,10 +364,12 @@ class _CometChatMediaRecorderState extends State<CometChatMediaRecorder> {
                   isAnimating: state.isRecording,
                   startSize: 80,
                   endSize: 120,
-                  color: mediaRecorderStyle.recordIndicatorBackgroundColor
+                  color:
+                      mediaRecorderStyle.recordIndicatorBackgroundColor
                           ?.withValues(alpha: .05) ??
                       colorPalette.extendedPrimary50,
-                  borderRadius: mediaRecorderStyle.recordIndicatorBorderRadius ??
+                  borderRadius:
+                      mediaRecorderStyle.recordIndicatorBorderRadius ??
                       BorderRadius.circular(spacing.radiusMax ?? 0),
                 ),
               if (state.isRecording)
@@ -330,29 +377,33 @@ class _CometChatMediaRecorderState extends State<CometChatMediaRecorder> {
                   isAnimating: state.isRecording,
                   startSize: 80,
                   endSize: 100,
-                  color: mediaRecorderStyle.recordIndicatorBackgroundColor
+                  color:
+                      mediaRecorderStyle.recordIndicatorBackgroundColor
                           ?.withValues(alpha: .1) ??
                       colorPalette.extendedPrimary100,
-                  borderRadius: mediaRecorderStyle.recordIndicatorBorderRadius ??
+                  borderRadius:
+                      mediaRecorderStyle.recordIndicatorBorderRadius ??
                       BorderRadius.circular(spacing.radiusMax ?? 0),
                 ),
               Container(
                 padding: EdgeInsets.all(spacing.padding4 ?? 0),
                 decoration: BoxDecoration(
-                    color: (state.duration > Duration.zero
-                        ? mediaRecorderStyle.recordIndicatorBackgroundColor ??
+                  color: (state.duration > Duration.zero
+                      ? mediaRecorderStyle.recordIndicatorBackgroundColor ??
                             colorPalette.iconHighlight
-                        : mediaRecorderStyle.recordIndicatorBackgroundColor
+                      : mediaRecorderStyle.recordIndicatorBackgroundColor
                                 ?.withValues(alpha: .2) ??
                             colorPalette.extendedPrimary200),
-                    borderRadius:
-                        mediaRecorderStyle.recordIndicatorBorderRadius ??
-                            BorderRadius.circular(spacing.radiusMax ?? 0),
-                    border: mediaRecorderStyle.recordIndicatorBorder),
+                  borderRadius:
+                      mediaRecorderStyle.recordIndicatorBorderRadius ??
+                      BorderRadius.circular(spacing.radiusMax ?? 0),
+                  border: mediaRecorderStyle.recordIndicatorBorder,
+                ),
                 child: Image.asset(
                   AssetConstants.mic96px,
                   package: UIConstants.packageName,
-                  color: mediaRecorderStyle.recordIndicatorIconColor ??
+                  color:
+                      mediaRecorderStyle.recordIndicatorIconColor ??
                       colorPalette.white,
                   height: 48,
                   width: 48,
@@ -365,20 +416,22 @@ class _CometChatMediaRecorderState extends State<CometChatMediaRecorder> {
             ? Text(
                 _formatDuration(state.duration),
                 style: TextStyle(
-                  color: mediaRecorderStyle.textColor ??
+                  color:
+                      mediaRecorderStyle.textColor ??
                       mediaRecorderStyle.textStyle?.color ??
                       colorPalette.textPrimary,
-                  fontSize: mediaRecorderStyle.textStyle?.fontSize ??
+                  fontSize:
+                      mediaRecorderStyle.textStyle?.fontSize ??
                       typography.heading4?.regular?.fontSize,
-                  fontWeight: mediaRecorderStyle.textStyle?.fontWeight ??
+                  fontWeight:
+                      mediaRecorderStyle.textStyle?.fontWeight ??
                       typography.heading4?.regular?.fontWeight,
-                  fontFamily: mediaRecorderStyle.textStyle?.fontFamily ??
+                  fontFamily:
+                      mediaRecorderStyle.textStyle?.fontFamily ??
                       typography.heading4?.regular?.fontFamily,
                 ),
               )
-            : const SizedBox(
-                height: 19,
-              ),
+            : const SizedBox(height: 19),
       ],
     );
   }
@@ -392,80 +445,94 @@ class _CometChatMediaRecorderState extends State<CometChatMediaRecorder> {
   }
 
   Widget _getStopButton(
-      MediaRecorderState state,
-      CometChatMediaRecorderStyle mediaRecorderStyle,
-      CometChatColorPalette colorPalette,
-      CometChatSpacing spacing) {
+    MediaRecorderState state,
+    CometChatMediaRecorderStyle mediaRecorderStyle,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+  ) {
     return IconButton(
-        padding: const EdgeInsets.all(0),
-        constraints: const BoxConstraints(),
-        icon: widget.stopButtonIcon ??
-            Image.asset(
-              AssetConstants.stop48px,
-              package: UIConstants.packageName,
-              color: mediaRecorderStyle.stopButtonIconColor ??
-                  colorPalette.iconSecondary,
-            ),
-        onPressed: () => _bloc.add(const StopRecordingEvent()));
+      padding: const EdgeInsets.all(0),
+      constraints: const BoxConstraints(),
+      icon:
+          widget.stopButtonIcon ??
+          Image.asset(
+            AssetConstants.stop48px,
+            package: UIConstants.packageName,
+            color:
+                mediaRecorderStyle.stopButtonIconColor ??
+                colorPalette.iconSecondary,
+          ),
+      onPressed: () => _bloc.add(const StopRecordingEvent()),
+    );
   }
 
   Widget _getRecordButtons(
-      MediaRecorderState state,
-      CometChatMediaRecorderStyle mediaRecorderStyle,
-      CometChatColorPalette colorPalette,
-      CometChatSpacing spacing) {
+    MediaRecorderState state,
+    CometChatMediaRecorderStyle mediaRecorderStyle,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+  ) {
     return _buttonWrapper(
-        state.isRecording
-            ? _getPauseButton(state, mediaRecorderStyle, colorPalette, spacing)
-            : _getStartButton(state, mediaRecorderStyle, colorPalette, spacing),
-        32,
-        colorPalette,
-        spacing,
-        state.isRecording
-            ? mediaRecorderStyle.pauseButtonBackgroundColor
-            : mediaRecorderStyle.startButtonBackgroundColor,
-        state.isRecording
-            ? mediaRecorderStyle.pauseButtonBorderRadius
-            : mediaRecorderStyle.startButtonBorderRadius,
-        state.isRecording
-            ? mediaRecorderStyle.pauseButtonBorder
-            : mediaRecorderStyle.startButtonBorder);
+      state.isRecording
+          ? _getPauseButton(state, mediaRecorderStyle, colorPalette, spacing)
+          : _getStartButton(state, mediaRecorderStyle, colorPalette, spacing),
+      32,
+      colorPalette,
+      spacing,
+      state.isRecording
+          ? mediaRecorderStyle.pauseButtonBackgroundColor
+          : mediaRecorderStyle.startButtonBackgroundColor,
+      state.isRecording
+          ? mediaRecorderStyle.pauseButtonBorderRadius
+          : mediaRecorderStyle.startButtonBorderRadius,
+      state.isRecording
+          ? mediaRecorderStyle.pauseButtonBorder
+          : mediaRecorderStyle.startButtonBorder,
+    );
   }
 
   Widget _getStartButton(
-      MediaRecorderState state,
-      CometChatMediaRecorderStyle mediaRecorderStyle,
-      CometChatColorPalette colorPalette,
-      CometChatSpacing spacing) {
+    MediaRecorderState state,
+    CometChatMediaRecorderStyle mediaRecorderStyle,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+  ) {
     return IconButton(
-        padding: const EdgeInsets.all(0),
-        constraints: const BoxConstraints(),
-        icon: widget.startButtonIcon ??
-            Image.asset(
-              AssetConstants.mic96px,
-              package: UIConstants.packageName,
-              color: mediaRecorderStyle.startButtonIconColor ??
-                  (state.isCompleted
-                      ? colorPalette.iconSecondary
-                      : colorPalette.error),
-            ),
-        onPressed: () => _bloc.add(const StartRecordingEvent()));
+      padding: const EdgeInsets.all(0),
+      constraints: const BoxConstraints(),
+      icon:
+          widget.startButtonIcon ??
+          Image.asset(
+            AssetConstants.mic96px,
+            package: UIConstants.packageName,
+            color:
+                mediaRecorderStyle.startButtonIconColor ??
+                (state.isCompleted
+                    ? colorPalette.iconSecondary
+                    : colorPalette.error),
+          ),
+      onPressed: () => _bloc.add(const StartRecordingEvent()),
+    );
   }
 
   Widget _getPauseButton(
-      MediaRecorderState state,
-      CometChatMediaRecorderStyle mediaRecorderStyle,
-      CometChatColorPalette colorPalette,
-      CometChatSpacing spacing) {
+    MediaRecorderState state,
+    CometChatMediaRecorderStyle mediaRecorderStyle,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+  ) {
     return IconButton(
-        padding: const EdgeInsets.all(0),
-        constraints: const BoxConstraints(),
-        icon: widget.pauseButtonIcon ??
-            Image.asset(
-              AssetConstants.pause72px,
-              package: UIConstants.packageName,
-              color: mediaRecorderStyle.pauseButtonIconColor ?? colorPalette.error,
-            ),
-        onPressed: () => _bloc.add(const PauseRecordingEvent()));
+      padding: const EdgeInsets.all(0),
+      constraints: const BoxConstraints(),
+      icon:
+          widget.pauseButtonIcon ??
+          Image.asset(
+            AssetConstants.pause72px,
+            package: UIConstants.packageName,
+            color:
+                mediaRecorderStyle.pauseButtonIconColor ?? colorPalette.error,
+          ),
+      onPressed: () => _bloc.add(const PauseRecordingEvent()),
+    );
   }
 }

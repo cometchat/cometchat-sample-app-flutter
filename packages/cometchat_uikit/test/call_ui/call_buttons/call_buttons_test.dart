@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
 
 import 'package:cometchat_chat_uikit/call_ui/src/call_buttons/bloc/call_buttons_event.dart';
@@ -70,10 +69,7 @@ void main() {
     });
 
     test('copyWith preserves unchanged fields', () {
-      const state = CallButtonsState(
-        isDisabled: true,
-        isCallInProgress: true,
-      );
+      const state = CallButtonsState(isDisabled: true, isCallInProgress: true);
       final updated = state.copyWith(errorMessage: 'Error');
       expect(updated.isDisabled, isTrue);
       expect(updated.isCallInProgress, isTrue);
@@ -217,10 +213,7 @@ void main() {
     });
 
     test('state can represent call in progress', () {
-      const state = CallButtonsState(
-        isDisabled: true,
-        isCallInProgress: true,
-      );
+      const state = CallButtonsState(isDisabled: true, isCallInProgress: true);
       expect(state.isCallInProgress, isTrue);
       expect(state.isDisabled, isTrue);
     });

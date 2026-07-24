@@ -22,14 +22,10 @@ abstract class NotificationRemoteDataSource {
   });
 
   /// Mark as read
-  Future<Result<void>> markAsRead({
-    required String notificationId,
-  });
+  Future<Result<void>> markAsRead({required String notificationId});
 
   /// Delete notification
-  Future<Result<void>> deleteNotification({
-    required String notificationId,
-  });
+  Future<Result<void>> deleteNotification({required String notificationId});
 
   /// Clear all
   Future<Result<void>> clearAll();
@@ -42,7 +38,7 @@ abstract class NotificationRemoteDataSource {
 class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   /// Map to store notifications in memory (can be replaced with local db)
   final Map<String, NotificationEntity> _notifications = {};
-  
+
   /// Stream controller for notification updates
   late final StreamController<NotificationEntity> _notificationController =
       StreamController<NotificationEntity>.broadcast();
@@ -90,15 +86,12 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   }) async {
     try {
       final notifications = _notifications.values.toList();
-      
+
       // Sort by creation date (newest first)
       notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      
+
       // Apply pagination
-      final paginated = notifications
-          .skip(offset)
-          .take(limit)
-          .toList();
+      final paginated = notifications.skip(offset).take(limit).toList();
 
       return Success(paginated);
     } on Exception catch (e) {
@@ -111,9 +104,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   }
 
   @override
-  Future<Result<void>> markAsRead({
-    required String notificationId,
-  }) async {
+  Future<Result<void>> markAsRead({required String notificationId}) async {
     try {
       if (_notifications.containsKey(notificationId)) {
         final notification = _notifications[notificationId]!;

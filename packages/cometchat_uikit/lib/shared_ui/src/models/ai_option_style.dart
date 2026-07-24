@@ -57,8 +57,11 @@ class AIOptionsStyle extends ThemeExtension<AIOptionsStyle> {
     return AIOptionsStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: Border.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
       titleColor: Color.lerp(titleColor, other.titleColor, t),
       iconColor: Color.lerp(iconColor, other.iconColor, t),

@@ -33,10 +33,7 @@ abstract class ReactionsState extends Equatable {
   final List<ReactionCount> reactionList;
   final String? animatingReaction;
 
-  const ReactionsState({
-    required this.reactionList,
-    this.animatingReaction,
-  });
+  const ReactionsState({required this.reactionList, this.animatingReaction});
 
   List<ReactionCount> get visibleReactions {
     if (reactionList.length > 4) {
@@ -51,7 +48,9 @@ abstract class ReactionsState extends Equatable {
 
   bool get extraReactedByMe {
     if (reactionList.length > 4) {
-      return reactionList.sublist(3).any((element) => element.reactedByMe == true);
+      return reactionList
+          .sublist(3)
+          .any((element) => element.reactedByMe == true);
     }
     return false;
   }
@@ -78,7 +77,7 @@ class ReactionsAnimating extends ReactionsState {
 // BLoC
 class ReactionsBloc extends Bloc<ReactionsEvent, ReactionsState> {
   ReactionsBloc({required List<ReactionCount> initialReactions})
-      : super(ReactionsInitial(reactionList: initialReactions)) {
+    : super(ReactionsInitial(reactionList: initialReactions)) {
     on<UpdateReactions>(_onUpdateReactions);
     on<AnimateReaction>(_onAnimateReaction);
   }
@@ -94,10 +93,12 @@ class ReactionsBloc extends Bloc<ReactionsEvent, ReactionsState> {
     AnimateReaction event,
     Emitter<ReactionsState> emit,
   ) async {
-    emit(ReactionsAnimating(
-      reactionList: state.reactionList,
-      animatingReaction: event.reaction,
-    ));
+    emit(
+      ReactionsAnimating(
+        reactionList: state.reactionList,
+        animatingReaction: event.reaction,
+      ),
+    );
 
     await Future.delayed(const Duration(milliseconds: 300));
 

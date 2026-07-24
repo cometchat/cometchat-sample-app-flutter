@@ -1,13 +1,16 @@
-import '../../../../../cometchat_uikit_shared.dart' show UIElementTypeConstants, ModelFieldConstants;
+import '../../../../../cometchat_uikit_shared.dart'
+    show UIElementTypeConstants, ModelFieldConstants;
 import 'element_entity.dart';
+
 /// Represents a label model class , used to draw label .
 class LabelElement extends ElementEntity {
   String text;
 
-  LabelElement(
-      {super.elementType = UIElementTypeConstants.label,
-      required super.elementId,
-      required this.text});
+  LabelElement({
+    super.elementType = UIElementTypeConstants.label,
+    required super.elementId,
+    required this.text,
+  });
 
   @override
   Map<String, dynamic> toMap() {

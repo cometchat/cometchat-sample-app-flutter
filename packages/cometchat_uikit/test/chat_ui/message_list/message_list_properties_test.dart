@@ -7,7 +7,6 @@ import 'package:mocktail/mocktail.dart' as mt;
 
 import 'package:cometchat_chat_uikit/chat_ui/src/message_list/bloc/message_list_bloc.dart';
 import 'package:cometchat_chat_uikit/chat_ui/src/message_list/bloc/message_list_event.dart';
-import 'package:cometchat_chat_uikit/chat_ui/src/message_list/bloc/message_list_state.dart';
 import 'package:cometchat_chat_uikit/chat_ui/src/message_list/domain/repositories/message_list_repository.dart';
 import 'package:cometchat_chat_uikit/chat_ui/src/message_list/domain/usecases/get_messages_usecase.dart';
 import 'package:cometchat_chat_uikit/chat_ui/src/message_list/domain/usecases/load_older_messages_usecase.dart';
@@ -45,22 +44,27 @@ MessageListBloc _makeBloc(
   _MockMessageListRepository repo, {
   List<BaseMessage> initial = const [],
 }) {
-  when(() => repo.getLoggedInUser())
-      .thenAnswer((_) async => Success(_FakeUser()));
-  when(() => repo.getMessages(
-        conversationWith: mt.any(named: 'conversationWith'),
-        conversationType: mt.any(named: 'conversationType'),
-        limit: mt.any(named: 'limit'),
-        parentMessageId: mt.any(named: 'parentMessageId'),
-        types: mt.any(named: 'types'),
-        categories: mt.any(named: 'categories'),
-        hideReplies: mt.any(named: 'hideReplies'),
-        withParent: mt.any(named: 'withParent'),
-      )).thenAnswer((_) async => Success(initial));
-  when(() => repo.getConversation(
-        conversationWith: mt.any(named: 'conversationWith'),
-        conversationType: mt.any(named: 'conversationType'),
-      )).thenAnswer((_) async => Success(_FakeConversation()));
+  when(
+    () => repo.getLoggedInUser(),
+  ).thenAnswer((_) async => Success(_FakeUser()));
+  when(
+    () => repo.getMessages(
+      conversationWith: mt.any(named: 'conversationWith'),
+      conversationType: mt.any(named: 'conversationType'),
+      limit: mt.any(named: 'limit'),
+      parentMessageId: mt.any(named: 'parentMessageId'),
+      types: mt.any(named: 'types'),
+      categories: mt.any(named: 'categories'),
+      hideReplies: mt.any(named: 'hideReplies'),
+      withParent: mt.any(named: 'withParent'),
+    ),
+  ).thenAnswer((_) async => Success(initial));
+  when(
+    () => repo.getConversation(
+      conversationWith: mt.any(named: 'conversationWith'),
+      conversationType: mt.any(named: 'conversationType'),
+    ),
+  ).thenAnswer((_) async => Success(_FakeConversation()));
 
   return MessageListBloc(
     getMessagesUseCase: GetMessagesUseCase(repo),
@@ -86,17 +90,19 @@ Future<void> _propLookupRoundTrip(List<BaseMessage> messages) async {
   final repo = _MockMessageListRepository();
   final bloc = _makeBloc(repo, initial: messages);
 
-  bloc.add(const LoadMessages(
-    conversationWith: 'pbt_user',
-    conversationType: 'user',
-  ));
+  bloc.add(
+    const LoadMessages(conversationWith: 'pbt_user', conversationType: 'user'),
+  );
   await Future<void>.delayed(const Duration(milliseconds: 80));
 
   for (var i = 0; i < bloc.state.messages.length; i++) {
     final msg = bloc.state.messages[i];
     final foundIndex = bloc.findMessageIndex(msg.id);
-    expect(foundIndex, i,
-        reason: 'findMessageIndex(${msg.id}) should return $i, got $foundIndex');
+    expect(
+      foundIndex,
+      i,
+      reason: 'findMessageIndex(${msg.id}) should return $i, got $foundIndex',
+    );
   }
 
   await bloc.close();
@@ -107,17 +113,15 @@ Future<void> _propLookupRoundTrip(List<BaseMessage> messages) async {
 // (preserving existing order).
 // ---------------------------------------------------------------------------
 
-Future<void> _propMessageReceivedAppendsToEnd(
-    List<BaseMessage> initial) async {
+Future<void> _propMessageReceivedAppendsToEnd(List<BaseMessage> initial) async {
   if (initial.isEmpty) return;
 
   final repo = _MockMessageListRepository();
   final bloc = _makeBloc(repo, initial: initial);
 
-  bloc.add(const LoadMessages(
-    conversationWith: 'pbt_user',
-    conversationType: 'user',
-  ));
+  bloc.add(
+    const LoadMessages(conversationWith: 'pbt_user', conversationType: 'user'),
+  );
   await Future<void>.delayed(const Duration(milliseconds: 80));
 
   final newMsg = FakeBaseMessage(999999);
@@ -125,13 +129,19 @@ Future<void> _propMessageReceivedAppendsToEnd(
   await Future<void>.delayed(const Duration(milliseconds: 30));
 
   final state = bloc.state;
-  expect(state.messages.last.id, 999999,
-      reason: 'New message should be appended at end');
+  expect(
+    state.messages.last.id,
+    999999,
+    reason: 'New message should be appended at end',
+  );
 
   // Existing messages should maintain their relative order
   for (var i = 0; i < initial.length; i++) {
-    expect(state.messages[i].id, initial[i].id,
-        reason: 'Existing message at index $i should be preserved');
+    expect(
+      state.messages[i].id,
+      initial[i].id,
+      reason: 'Existing message at index $i should be preserved',
+    );
   }
 
   await bloc.close();
@@ -145,17 +155,19 @@ Future<void> _propFindMessageNullForMissing(List<BaseMessage> messages) async {
   final repo = _MockMessageListRepository();
   final bloc = _makeBloc(repo, initial: messages);
 
-  bloc.add(const LoadMessages(
-    conversationWith: 'pbt_user',
-    conversationType: 'user',
-  ));
+  bloc.add(
+    const LoadMessages(conversationWith: 'pbt_user', conversationType: 'user'),
+  );
   await Future<void>.delayed(const Duration(milliseconds: 80));
 
   // Use an ID that's guaranteed not to be in the list
   final maxId = messages.fold<int>(0, (max, m) => m.id > max ? m.id : max);
   final result = bloc.findMessage(maxId + 1000);
-  expect(result, isNull,
-      reason: 'findMessage for non-existent ID should return null');
+  expect(
+    result,
+    isNull,
+    reason: 'findMessage for non-existent ID should return null',
+  );
 
   await bloc.close();
 }
@@ -178,22 +190,25 @@ void main() {
     Glados2(
       any.intInRange(1, 30),
       any.listWithLengthInRange(0, 20, any.intInRange(1, 1000)),
-    ).test(
-      'cacheMessages then getCachedMessages returns all cached messages',
-      (_, messageIds) async {
-        final ds = MessageListLocalDataSourceImpl();
-        final messages = messageIds
-            .toSet()
-            .map((id) => FakeBaseMessage(id) as BaseMessage)
-            .toList();
+    ).test('cacheMessages then getCachedMessages returns all cached messages', (
+      _,
+      messageIds,
+    ) async {
+      final ds = MessageListLocalDataSourceImpl();
+      final messages = messageIds
+          .toSet()
+          .map((id) => FakeBaseMessage(id) as BaseMessage)
+          .toList();
 
-        await ds.cacheMessages('conv_1', messages);
-        final cached = await ds.getCachedMessages('conv_1');
+      await ds.cacheMessages('conv_1', messages);
+      final cached = await ds.getCachedMessages('conv_1');
 
-        expect(cached.length, messages.length,
-            reason: 'All cached messages should be retrievable');
-      },
-    );
+      expect(
+        cached.length,
+        messages.length,
+        reason: 'All cached messages should be retrievable',
+      );
+    });
 
     Glados(any.intInRange(1, 1000)).test(
       'removeCachedMessage then getCachedMessage returns null',
@@ -272,8 +287,11 @@ void main() {
         final a = bloc.getReceiptNotifier(messageId);
         final b = bloc.getReceiptNotifier(messageId);
 
-        expect(identical(a, b), isTrue,
-            reason: 'Same messageId should return same notifier instance');
+        expect(
+          identical(a, b),
+          isTrue,
+          reason: 'Same messageId should return same notifier instance',
+        );
 
         bloc.close();
       },
@@ -290,8 +308,11 @@ void main() {
         final a = bloc.getReceiptNotifier(id1);
         final b = bloc.getReceiptNotifier(id2);
 
-        expect(identical(a, b), isFalse,
-            reason: 'Different messageIds should return different notifiers');
+        expect(
+          identical(a, b),
+          isFalse,
+          reason: 'Different messageIds should return different notifiers',
+        );
 
         bloc.close();
       },

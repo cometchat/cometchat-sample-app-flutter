@@ -31,8 +31,7 @@ class FakeTextMessage extends Fake implements TextMessage {
   final int _id;
   final String _muid;
 
-  FakeTextMessage(this._id, {String? muid})
-      : _muid = muid ?? 'muid_$_id';
+  FakeTextMessage(this._id, {String? muid}) : _muid = muid ?? 'muid_$_id';
 
   @override
   int get id => _id;
@@ -156,26 +155,33 @@ MessageListBloc _makeBloc(MockMessageListRepository repo) {
 }
 
 void _stubDefaults(MockMessageListRepository repo) {
-  when(() => repo.getLoggedInUser())
-      .thenAnswer((_) async => Success(FakeUser()));
-  when(() => repo.getMessages(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-        limit: any(named: 'limit'),
-        parentMessageId: any(named: 'parentMessageId'),
-        types: any(named: 'types'),
-        categories: any(named: 'categories'),
-        hideReplies: any(named: 'hideReplies'),
-        withParent: any(named: 'withParent'),
-      )).thenAnswer((_) async => const Success([]));
-  when(() => repo.getConversation(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-      )).thenAnswer((_) async => Success(FakeConversation()));
-  when(() => repo.markAsRead(any()))
-      .thenAnswer((_) async => const Success(null));
-  when(() => repo.markAsDelivered(any()))
-      .thenAnswer((_) async => const Success(null));
+  when(
+    () => repo.getLoggedInUser(),
+  ).thenAnswer((_) async => Success(FakeUser()));
+  when(
+    () => repo.getMessages(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+      limit: any(named: 'limit'),
+      parentMessageId: any(named: 'parentMessageId'),
+      types: any(named: 'types'),
+      categories: any(named: 'categories'),
+      hideReplies: any(named: 'hideReplies'),
+      withParent: any(named: 'withParent'),
+    ),
+  ).thenAnswer((_) async => const Success([]));
+  when(
+    () => repo.getConversation(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+    ),
+  ).thenAnswer((_) async => Success(FakeConversation()));
+  when(
+    () => repo.markAsRead(any()),
+  ).thenAnswer((_) async => const Success(null));
+  when(
+    () => repo.markAsDelivered(any()),
+  ).thenAnswer((_) async => const Success(null));
 }
 
 // ---------------------------------------------------------------------------
@@ -217,28 +223,42 @@ void main() {
       blocTest<MessageListBloc, MessageListState>(
         'emits [loading, loaded] when messages are returned',
         build: () {
-          final msgs = [FakeTextMessage(1), FakeTextMessage(2), FakeTextMessage(3)];
-          when(() => repo.getMessages(
-                conversationWith: any(named: 'conversationWith'),
-                conversationType: any(named: 'conversationType'),
-                limit: any(named: 'limit'),
-                parentMessageId: any(named: 'parentMessageId'),
-                types: any(named: 'types'),
-                categories: any(named: 'categories'),
-                hideReplies: any(named: 'hideReplies'),
-                withParent: any(named: 'withParent'),
-              )).thenAnswer((_) async => Success(msgs));
+          final msgs = [
+            FakeTextMessage(1),
+            FakeTextMessage(2),
+            FakeTextMessage(3),
+          ];
+          when(
+            () => repo.getMessages(
+              conversationWith: any(named: 'conversationWith'),
+              conversationType: any(named: 'conversationType'),
+              limit: any(named: 'limit'),
+              parentMessageId: any(named: 'parentMessageId'),
+              types: any(named: 'types'),
+              categories: any(named: 'categories'),
+              hideReplies: any(named: 'hideReplies'),
+              withParent: any(named: 'withParent'),
+            ),
+          ).thenAnswer((_) async => Success(msgs));
           return _makeBloc(repo);
         },
-        act: (bloc) => bloc.add(const LoadMessages(
-          conversationWith: 'test_user',
-          conversationType: 'user',
-        )),
+        act: (bloc) => bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_user',
+            conversationType: 'user',
+          ),
+        ),
         expect: () => [
-          isA<MessageListState>()
-              .having((s) => s.status, 'status', MessageListStatus.loading),
-          isA<MessageListState>()
-              .having((s) => s.status, 'status', MessageListStatus.loaded),
+          isA<MessageListState>().having(
+            (s) => s.status,
+            'status',
+            MessageListStatus.loading,
+          ),
+          isA<MessageListState>().having(
+            (s) => s.status,
+            'status',
+            MessageListStatus.loaded,
+          ),
         ],
         verify: (bloc) {
           expect(bloc.state.messages.length, 3);
@@ -250,22 +270,26 @@ void main() {
         'loaded state contains correct message count',
         build: () {
           final msgs = List.generate(15, (i) => FakeTextMessage(i + 1));
-          when(() => repo.getMessages(
-                conversationWith: any(named: 'conversationWith'),
-                conversationType: any(named: 'conversationType'),
-                limit: any(named: 'limit'),
-                parentMessageId: any(named: 'parentMessageId'),
-                types: any(named: 'types'),
-                categories: any(named: 'categories'),
-                hideReplies: any(named: 'hideReplies'),
-                withParent: any(named: 'withParent'),
-              )).thenAnswer((_) async => Success(msgs));
+          when(
+            () => repo.getMessages(
+              conversationWith: any(named: 'conversationWith'),
+              conversationType: any(named: 'conversationType'),
+              limit: any(named: 'limit'),
+              parentMessageId: any(named: 'parentMessageId'),
+              types: any(named: 'types'),
+              categories: any(named: 'categories'),
+              hideReplies: any(named: 'hideReplies'),
+              withParent: any(named: 'withParent'),
+            ),
+          ).thenAnswer((_) async => Success(msgs));
           return _makeBloc(repo);
         },
-        act: (bloc) => bloc.add(const LoadMessages(
-          conversationWith: 'test_user',
-          conversationType: 'user',
-        )),
+        act: (bloc) => bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_user',
+            conversationType: 'user',
+          ),
+        ),
         verify: (bloc) {
           expect(bloc.state.messageCount, 15);
           expect(bloc.state.isNotEmpty, isTrue);
@@ -282,15 +306,23 @@ void main() {
       blocTest<MessageListBloc, MessageListState>(
         'emits [loading, empty] when no messages returned',
         build: () => _makeBloc(repo),
-        act: (bloc) => bloc.add(const LoadMessages(
-          conversationWith: 'test_user',
-          conversationType: 'user',
-        )),
+        act: (bloc) => bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_user',
+            conversationType: 'user',
+          ),
+        ),
         expect: () => [
-          isA<MessageListState>()
-              .having((s) => s.status, 'status', MessageListStatus.loading),
-          isA<MessageListState>()
-              .having((s) => s.status, 'status', MessageListStatus.empty),
+          isA<MessageListState>().having(
+            (s) => s.status,
+            'status',
+            MessageListStatus.loading,
+          ),
+          isA<MessageListState>().having(
+            (s) => s.status,
+            'status',
+            MessageListStatus.empty,
+          ),
         ],
         verify: (bloc) {
           expect(bloc.state.messages, isEmpty);
@@ -304,8 +336,11 @@ void main() {
         build: () => _makeBloc(repo),
         act: (bloc) => bloc.add(const ForceEmptyState()),
         expect: () => [
-          isA<MessageListState>()
-              .having((s) => s.status, 'status', MessageListStatus.empty),
+          isA<MessageListState>().having(
+            (s) => s.status,
+            'status',
+            MessageListStatus.empty,
+          ),
         ],
         verify: (bloc) {
           expect(bloc.state.messages, isEmpty);
@@ -321,28 +356,40 @@ void main() {
       blocTest<MessageListBloc, MessageListState>(
         'emits [loading, error] when repository returns failure',
         build: () {
-          when(() => repo.getMessages(
-                conversationWith: any(named: 'conversationWith'),
-                conversationType: any(named: 'conversationType'),
-                limit: any(named: 'limit'),
-                parentMessageId: any(named: 'parentMessageId'),
-                types: any(named: 'types'),
-                categories: any(named: 'categories'),
-                hideReplies: any(named: 'hideReplies'),
-                withParent: any(named: 'withParent'),
-              )).thenAnswer((_) async =>
-              const Failure(message: 'Network error', code: 'NET_ERR'));
+          when(
+            () => repo.getMessages(
+              conversationWith: any(named: 'conversationWith'),
+              conversationType: any(named: 'conversationType'),
+              limit: any(named: 'limit'),
+              parentMessageId: any(named: 'parentMessageId'),
+              types: any(named: 'types'),
+              categories: any(named: 'categories'),
+              hideReplies: any(named: 'hideReplies'),
+              withParent: any(named: 'withParent'),
+            ),
+          ).thenAnswer(
+            (_) async =>
+                const Failure(message: 'Network error', code: 'NET_ERR'),
+          );
           return _makeBloc(repo);
         },
-        act: (bloc) => bloc.add(const LoadMessages(
-          conversationWith: 'test_user',
-          conversationType: 'user',
-        )),
+        act: (bloc) => bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_user',
+            conversationType: 'user',
+          ),
+        ),
         expect: () => [
-          isA<MessageListState>()
-              .having((s) => s.status, 'status', MessageListStatus.loading),
-          isA<MessageListState>()
-              .having((s) => s.status, 'status', MessageListStatus.error),
+          isA<MessageListState>().having(
+            (s) => s.status,
+            'status',
+            MessageListStatus.loading,
+          ),
+          isA<MessageListState>().having(
+            (s) => s.status,
+            'status',
+            MessageListStatus.error,
+          ),
         ],
         verify: (bloc) {
           expect(bloc.state.errorMessage, 'Network error');
@@ -353,23 +400,29 @@ void main() {
       blocTest<MessageListBloc, MessageListState>(
         'error state preserves error message',
         build: () {
-          when(() => repo.getMessages(
-                conversationWith: any(named: 'conversationWith'),
-                conversationType: any(named: 'conversationType'),
-                limit: any(named: 'limit'),
-                parentMessageId: any(named: 'parentMessageId'),
-                types: any(named: 'types'),
-                categories: any(named: 'categories'),
-                hideReplies: any(named: 'hideReplies'),
-                withParent: any(named: 'withParent'),
-              )).thenAnswer((_) async =>
-              const Failure(message: 'Server timeout', code: 'TIMEOUT'));
+          when(
+            () => repo.getMessages(
+              conversationWith: any(named: 'conversationWith'),
+              conversationType: any(named: 'conversationType'),
+              limit: any(named: 'limit'),
+              parentMessageId: any(named: 'parentMessageId'),
+              types: any(named: 'types'),
+              categories: any(named: 'categories'),
+              hideReplies: any(named: 'hideReplies'),
+              withParent: any(named: 'withParent'),
+            ),
+          ).thenAnswer(
+            (_) async =>
+                const Failure(message: 'Server timeout', code: 'TIMEOUT'),
+          );
           return _makeBloc(repo);
         },
-        act: (bloc) => bloc.add(const LoadMessages(
-          conversationWith: 'test_user',
-          conversationType: 'user',
-        )),
+        act: (bloc) => bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_user',
+            conversationType: 'user',
+          ),
+        ),
         verify: (bloc) {
           expect(bloc.state.status, MessageListStatus.error);
           expect(bloc.state.errorMessage, 'Server timeout');
@@ -387,22 +440,26 @@ void main() {
         build: () {
           // 30 messages = full page → hasMoreOlder should be true
           final msgs = List.generate(30, (i) => FakeTextMessage(i + 1));
-          when(() => repo.getMessages(
-                conversationWith: any(named: 'conversationWith'),
-                conversationType: any(named: 'conversationType'),
-                limit: any(named: 'limit'),
-                parentMessageId: any(named: 'parentMessageId'),
-                types: any(named: 'types'),
-                categories: any(named: 'categories'),
-                hideReplies: any(named: 'hideReplies'),
-                withParent: any(named: 'withParent'),
-              )).thenAnswer((_) async => Success(msgs));
+          when(
+            () => repo.getMessages(
+              conversationWith: any(named: 'conversationWith'),
+              conversationType: any(named: 'conversationType'),
+              limit: any(named: 'limit'),
+              parentMessageId: any(named: 'parentMessageId'),
+              types: any(named: 'types'),
+              categories: any(named: 'categories'),
+              hideReplies: any(named: 'hideReplies'),
+              withParent: any(named: 'withParent'),
+            ),
+          ).thenAnswer((_) async => Success(msgs));
           return _makeBloc(repo);
         },
-        act: (bloc) => bloc.add(const LoadMessages(
-          conversationWith: 'test_user',
-          conversationType: 'user',
-        )),
+        act: (bloc) => bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_user',
+            conversationType: 'user',
+          ),
+        ),
         verify: (bloc) {
           expect(bloc.state.hasMoreOlder, isTrue);
         },
@@ -413,22 +470,26 @@ void main() {
         build: () {
           // Less than limit → no more older messages
           final msgs = [FakeTextMessage(1), FakeTextMessage(2)];
-          when(() => repo.getMessages(
-                conversationWith: any(named: 'conversationWith'),
-                conversationType: any(named: 'conversationType'),
-                limit: any(named: 'limit'),
-                parentMessageId: any(named: 'parentMessageId'),
-                types: any(named: 'types'),
-                categories: any(named: 'categories'),
-                hideReplies: any(named: 'hideReplies'),
-                withParent: any(named: 'withParent'),
-              )).thenAnswer((_) async => Success(msgs));
+          when(
+            () => repo.getMessages(
+              conversationWith: any(named: 'conversationWith'),
+              conversationType: any(named: 'conversationType'),
+              limit: any(named: 'limit'),
+              parentMessageId: any(named: 'parentMessageId'),
+              types: any(named: 'types'),
+              categories: any(named: 'categories'),
+              hideReplies: any(named: 'hideReplies'),
+              withParent: any(named: 'withParent'),
+            ),
+          ).thenAnswer((_) async => Success(msgs));
           return _makeBloc(repo);
         },
-        act: (bloc) => bloc.add(const LoadMessages(
-          conversationWith: 'test_user',
-          conversationType: 'user',
-        )),
+        act: (bloc) => bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_user',
+            conversationType: 'user',
+          ),
+        ),
         verify: (bloc) {
           expect(bloc.state.hasMoreOlder, isFalse);
         },
@@ -437,8 +498,7 @@ void main() {
       blocTest<MessageListBloc, MessageListState>(
         'state tracks activeConversationId',
         build: () => _makeBloc(repo),
-        act: (bloc) =>
-            bloc.add(const SetActiveConversation('user_test_user')),
+        act: (bloc) => bloc.add(const SetActiveConversation('user_test_user')),
         verify: (bloc) {
           expect(bloc.state.activeConversationId, 'user_test_user');
         },
@@ -448,22 +508,26 @@ void main() {
         'state tracks loggedInUser after load',
         build: () {
           final msgs = [FakeTextMessage(1)];
-          when(() => repo.getMessages(
-                conversationWith: any(named: 'conversationWith'),
-                conversationType: any(named: 'conversationType'),
-                limit: any(named: 'limit'),
-                parentMessageId: any(named: 'parentMessageId'),
-                types: any(named: 'types'),
-                categories: any(named: 'categories'),
-                hideReplies: any(named: 'hideReplies'),
-                withParent: any(named: 'withParent'),
-              )).thenAnswer((_) async => Success(msgs));
+          when(
+            () => repo.getMessages(
+              conversationWith: any(named: 'conversationWith'),
+              conversationType: any(named: 'conversationType'),
+              limit: any(named: 'limit'),
+              parentMessageId: any(named: 'parentMessageId'),
+              types: any(named: 'types'),
+              categories: any(named: 'categories'),
+              hideReplies: any(named: 'hideReplies'),
+              withParent: any(named: 'withParent'),
+            ),
+          ).thenAnswer((_) async => Success(msgs));
           return _makeBloc(repo);
         },
-        act: (bloc) => bloc.add(const LoadMessages(
-          conversationWith: 'test_user',
-          conversationType: 'user',
-        )),
+        act: (bloc) => bloc.add(
+          const LoadMessages(
+            conversationWith: 'test_user',
+            conversationType: 'user',
+          ),
+        ),
         verify: (bloc) {
           expect(bloc.state.loggedInUser, isNotNull);
           expect(bloc.state.loggedInUser?.uid, 'test_user');
@@ -558,23 +622,27 @@ void main() {
         'ResetUnreadState clears unread anchor and count',
         build: () {
           final msgs = [FakeTextMessage(1)];
-          when(() => repo.getMessages(
-                conversationWith: any(named: 'conversationWith'),
-                conversationType: any(named: 'conversationType'),
-                limit: any(named: 'limit'),
-                parentMessageId: any(named: 'parentMessageId'),
-                types: any(named: 'types'),
-                categories: any(named: 'categories'),
-                hideReplies: any(named: 'hideReplies'),
-                withParent: any(named: 'withParent'),
-              )).thenAnswer((_) async => Success(msgs));
+          when(
+            () => repo.getMessages(
+              conversationWith: any(named: 'conversationWith'),
+              conversationType: any(named: 'conversationType'),
+              limit: any(named: 'limit'),
+              parentMessageId: any(named: 'parentMessageId'),
+              types: any(named: 'types'),
+              categories: any(named: 'categories'),
+              hideReplies: any(named: 'hideReplies'),
+              withParent: any(named: 'withParent'),
+            ),
+          ).thenAnswer((_) async => Success(msgs));
           return _makeBloc(repo);
         },
         act: (bloc) async {
-          bloc.add(const LoadMessages(
-            conversationWith: 'test_user',
-            conversationType: 'user',
-          ));
+          bloc.add(
+            const LoadMessages(
+              conversationWith: 'test_user',
+              conversationType: 'user',
+            ),
+          );
           await Future.delayed(const Duration(milliseconds: 100));
           bloc.add(const ResetUnreadState());
         },

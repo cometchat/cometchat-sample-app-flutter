@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../core/constants/enums.dart';
 import '../../../theme/colors/cometchat_color_palette.dart';
 import '../../../theme/typography/cometchat_typography.dart';
@@ -13,10 +13,7 @@ class DeletedBubbleFactory extends BubbleFactory<BaseMessage> {
   final TextStyle? textStyle;
   final Color? iconColor;
 
-  DeletedBubbleFactory({
-    this.textStyle,
-    this.iconColor,
-  });
+  DeletedBubbleFactory({this.textStyle, this.iconColor});
 
   @override
   Widget build(
@@ -27,7 +24,8 @@ class DeletedBubbleFactory extends BubbleFactory<BaseMessage> {
     CometChatTypography? typography,
     CometChatSpacing? spacing,
   }) {
-    final palette = colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+    final palette =
+        colorPalette ?? CometChatThemeHelper.getColorPalette(context);
     final typo = typography ?? CometChatThemeHelper.getTypography(context);
     final space = spacing ?? CometChatThemeHelper.getSpacing(context);
 
@@ -39,20 +37,18 @@ class DeletedBubbleFactory extends BubbleFactory<BaseMessage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.block,
-            size: 16,
-            color: iconColor ?? textColor,
-          ),
+          Icon(Icons.block, size: 16, color: iconColor ?? textColor),
           SizedBox(width: space.padding1 ?? 4),
           Text(
             Translations.of(context).thisMessageDeleted,
-            style: textStyle ?? TextStyle(
-              color: textColor,
-              fontSize: typo.body?.regular?.fontSize,
-              fontWeight: typo.body?.regular?.fontWeight,
-              fontStyle: FontStyle.italic,
-            ),
+            style:
+                textStyle ??
+                TextStyle(
+                  color: textColor,
+                  fontSize: typo.body?.regular?.fontSize,
+                  fontWeight: typo.body?.regular?.fontWeight,
+                  fontStyle: FontStyle.italic,
+                ),
           ),
         ],
       ),

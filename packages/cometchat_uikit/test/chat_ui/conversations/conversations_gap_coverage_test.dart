@@ -35,9 +35,9 @@ class FakeConversation extends Fake implements Conversation {
     AppEntity? conversationWith,
     BaseMessage? lastMessage,
     int unreadMessageCount = 0,
-  })  : _conversationWith = conversationWith ?? FakeAppEntity(),
-        _lastMessage = lastMessage,
-        _unreadMessageCount = unreadMessageCount;
+  }) : _conversationWith = conversationWith ?? FakeAppEntity(),
+       _lastMessage = lastMessage,
+       _unreadMessageCount = unreadMessageCount;
 
   @override
   String? get conversationId => _id;
@@ -89,9 +89,9 @@ class FakeUser extends Fake implements User {
     String uid = 'test_user',
     String name = 'Test User',
     String status = CometChatUserStatus.online,
-  })  : _uid = uid,
-        _name = name,
-        _status = status;
+  }) : _uid = uid,
+       _name = name,
+       _status = status;
 
   @override
   String get uid => _uid;
@@ -112,9 +112,9 @@ class FakeGroup extends Fake implements Group {
     String guid = 'test_group',
     String name = 'Test Group',
     int membersCount = 5,
-  })  : _guid = guid,
-        _name = name,
-        _membersCount = membersCount;
+  }) : _guid = guid,
+       _name = name,
+       _membersCount = membersCount;
 
   @override
   String get guid => _guid;
@@ -134,13 +134,10 @@ class FakeTextMessage extends Fake implements TextMessage {
   final String _text;
   final DateTime? _sentAt;
 
-  FakeTextMessage({
-    int id = 1,
-    String text = 'Hello',
-    DateTime? sentAt,
-  })  : _id = id,
-        _text = text,
-        _sentAt = sentAt ?? DateTime.now();
+  FakeTextMessage({int id = 1, String text = 'Hello', DateTime? sentAt})
+    : _id = id,
+      _text = text,
+      _sentAt = sentAt ?? DateTime.now();
 
   @override
   int get id => _id;
@@ -182,10 +179,12 @@ void main() {
 
   setUp(() {
     repo = MockConversationsRepository();
-    when(() => repo.getLoggedInUser())
-        .thenAnswer((_) async => Success(FakeUser()));
-    when(() => repo.getConversations(limit: any(named: 'limit')))
-        .thenAnswer((_) async => const Success([]));
+    when(
+      () => repo.getLoggedInUser(),
+    ).thenAnswer((_) async => Success(FakeUser()));
+    when(
+      () => repo.getConversations(limit: any(named: 'limit')),
+    ).thenAnswer((_) async => const Success([]));
   });
 
   // =========================================================================
@@ -202,8 +201,9 @@ void main() {
           FakeConversation('c2'),
           FakeConversation('c3'),
         ];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -230,8 +230,9 @@ void main() {
       'toggling same conversation twice deselects it (toggle semantics)',
       build: () {
         final convs = [FakeConversation('c1'), FakeConversation('c2')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -254,13 +255,16 @@ void main() {
   // =========================================================================
 
   group('Typing indicator matching', () {
-    test('getTypingNotifier returns same notifier for same conversation ID', () {
-      final bloc = _makeBloc(repo);
-      final notifier1 = bloc.getTypingNotifier('conv_1');
-      final notifier2 = bloc.getTypingNotifier('conv_1');
-      expect(identical(notifier1, notifier2), isTrue);
-      bloc.close();
-    });
+    test(
+      'getTypingNotifier returns same notifier for same conversation ID',
+      () {
+        final bloc = _makeBloc(repo);
+        final notifier1 = bloc.getTypingNotifier('conv_1');
+        final notifier2 = bloc.getTypingNotifier('conv_1');
+        expect(identical(notifier1, notifier2), isTrue);
+        bloc.close();
+      },
+    );
 
     test('getTypingNotifier returns different notifiers for different IDs', () {
       final bloc = _makeBloc(repo);
@@ -310,8 +314,9 @@ void main() {
           FakeConversation('second'),
           FakeConversation('third'),
         ];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -333,8 +338,9 @@ void main() {
           FakeConversation('c4'),
           FakeConversation('c5'),
         ];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -356,8 +362,9 @@ void main() {
       build: () {
         final user = FakeUser(uid: 'alice', name: 'Alice');
         final convs = [FakeConversation('user_alice', conversationWith: user)];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -373,10 +380,15 @@ void main() {
     blocTest<ConversationsBloc, ConversationsState>(
       'group conversation exposes group name and member count for rendering',
       build: () {
-        final group = FakeGroup(guid: 'team', name: 'Team Chat', membersCount: 12);
+        final group = FakeGroup(
+          guid: 'team',
+          name: 'Team Chat',
+          membersCount: 12,
+        );
         final convs = [FakeConversation('group_team', conversationWith: group)];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -394,8 +406,9 @@ void main() {
       build: () {
         final msg = FakeTextMessage(text: 'Hey there!');
         final convs = [FakeConversation('c1', lastMessage: msg)];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -417,8 +430,9 @@ void main() {
       'handles large list (100 conversations)',
       build: () {
         final convs = List.generate(100, (i) => FakeConversation('conv_$i'));
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -432,8 +446,9 @@ void main() {
       'handles conversation without last message',
       build: () {
         final convs = [FakeConversation('c1', lastMessage: null)];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -447,15 +462,22 @@ void main() {
       'handles mixed user and group conversations',
       build: () {
         final convs = [
-          FakeConversation('user_alice',
-              conversationWith: FakeUser(uid: 'alice', name: 'Alice')),
-          FakeConversation('group_team',
-              conversationWith: FakeGroup(guid: 'team', name: 'Team')),
-          FakeConversation('user_bob',
-              conversationWith: FakeUser(uid: 'bob', name: 'Bob')),
+          FakeConversation(
+            'user_alice',
+            conversationWith: FakeUser(uid: 'alice', name: 'Alice'),
+          ),
+          FakeConversation(
+            'group_team',
+            conversationWith: FakeGroup(guid: 'team', name: 'Team'),
+          ),
+          FakeConversation(
+            'user_bob',
+            conversationWith: FakeUser(uid: 'bob', name: 'Bob'),
+          ),
         ];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -476,10 +498,12 @@ void main() {
           FakeConversation('c2'),
           FakeConversation('c3'),
         ];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
-        when(() => repo.deleteConversation(any()))
-            .thenAnswer((_) async => const Success(null));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.deleteConversation(any()),
+        ).thenAnswer((_) async => const Success(null));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -510,8 +534,9 @@ void main() {
       'unread count change is reflected in state (content change)',
       build: () {
         final convs = [FakeConversation('c1', unreadMessageCount: 5)];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -526,8 +551,9 @@ void main() {
       build: () {
         // When exactly 30 items returned, hasMore should be true
         final convs = List.generate(30, (i) => FakeConversation('c_$i'));
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -541,8 +567,9 @@ void main() {
       'hasMore is false when fewer than limit items returned',
       build: () {
         final convs = [FakeConversation('c1'), FakeConversation('c2')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -563,18 +590,23 @@ void main() {
       'UpdateConversation on existing ID updates in-place without changing count',
       build: () {
         final convs = [FakeConversation('c1'), FakeConversation('c2')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
         bloc.add(const LoadConversations());
         await Future.delayed(const Duration(milliseconds: 50));
-        bloc.add(UpdateConversation(
-          conversationId: 'c1',
-          updatedConversation: FakeConversation('c1',
-              lastMessage: FakeTextMessage(text: 'Updated!')),
-        ));
+        bloc.add(
+          UpdateConversation(
+            conversationId: 'c1',
+            updatedConversation: FakeConversation(
+              'c1',
+              lastMessage: FakeTextMessage(text: 'Updated!'),
+            ),
+          ),
+        );
       },
       verify: (bloc) {
         final state = bloc.state as ConversationsLoaded;
@@ -586,17 +618,20 @@ void main() {
       'UpdateConversation with new ID adds to list',
       build: () {
         final convs = [FakeConversation('c1')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
         bloc.add(const LoadConversations());
         await Future.delayed(const Duration(milliseconds: 50));
-        bloc.add(UpdateConversation(
-          conversationId: 'c_new',
-          updatedConversation: FakeConversation('c_new'),
-        ));
+        bloc.add(
+          UpdateConversation(
+            conversationId: 'c_new',
+            updatedConversation: FakeConversation('c_new'),
+          ),
+        );
       },
       verify: (bloc) {
         final state = bloc.state as ConversationsLoaded;
@@ -616,8 +651,9 @@ void main() {
       'ResetUnreadCount event is accepted without error',
       build: () {
         final convs = [FakeConversation('c1', unreadMessageCount: 10)];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -643,8 +679,9 @@ void main() {
       build: () {
         // conversationWith defaults to FakeAppEntity when not provided
         final convs = [FakeConversation('c1')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -658,8 +695,9 @@ void main() {
       'conversation with null lastMessage does not crash on access',
       build: () {
         final convs = [FakeConversation('c1', lastMessage: null)];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadConversations()),
@@ -685,8 +723,9 @@ void main() {
   group('ConversationsLoaded — copyWith', () {
     test('copyWith preserves unchanged fields', () async {
       final convs = [FakeConversation('c1'), FakeConversation('c2')];
-      when(() => repo.getConversations(limit: any(named: 'limit')))
-          .thenAnswer((_) async => Success(convs));
+      when(
+        () => repo.getConversations(limit: any(named: 'limit')),
+      ).thenAnswer((_) async => Success(convs));
       final bloc = _makeBloc(repo);
       bloc.add(const LoadConversations());
       await Future.delayed(const Duration(milliseconds: 80));
@@ -717,7 +756,7 @@ void main() {
     test('copyWith with selectedConversations replaces selection', () {
       final original = ConversationsLoaded(
         conversations: [FakeConversation('c1')],
-        selectedConversations: {'c1'},
+        selectedConversations: const {'c1'},
       );
       final copied = original.copyWith(selectedConversations: {'c2', 'c3'});
 
@@ -734,8 +773,9 @@ void main() {
       'SetActiveConversation stores the active conversation ID',
       build: () {
         final convs = [FakeConversation('c1'), FakeConversation('c2')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -753,8 +793,9 @@ void main() {
       'SetActiveConversation with different ID updates active conversation',
       build: () {
         final convs = [FakeConversation('c1'), FakeConversation('c2')];
-        when(() => repo.getConversations(limit: any(named: 'limit')))
-            .thenAnswer((_) async => Success(convs));
+        when(
+          () => repo.getConversations(limit: any(named: 'limit')),
+        ).thenAnswer((_) async => Success(convs));
         return _makeBloc(repo);
       },
       act: (bloc) async {

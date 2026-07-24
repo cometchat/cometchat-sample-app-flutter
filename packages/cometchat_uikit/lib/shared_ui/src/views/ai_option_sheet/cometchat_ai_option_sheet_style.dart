@@ -50,14 +50,22 @@ class CometChatAiOptionSheetStyle
 
   @override
   CometChatAiOptionSheetStyle lerp(
-      ThemeExtension<CometChatAiOptionSheetStyle>? other, double t) {
+    ThemeExtension<CometChatAiOptionSheetStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatAiOptionSheetStyle) return this;
     return CometChatAiOptionSheetStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       border: BorderSide.lerp(
-          border ?? BorderSide.none, other.border ?? BorderSide.none, t),
+        border ?? BorderSide.none,
+        other.border ?? BorderSide.none,
+        t,
+      ),
       iconColor: Color.lerp(iconColor, other.iconColor, t),
       textStyle: TextStyle.lerp(textStyle, other.textStyle, t),
     );

@@ -56,9 +56,7 @@ class ConversationsLoadingView extends StatelessWidget {
             child: Row(
               children: [
                 Padding(
-                  padding: EdgeInsets.only(
-                    right: spacing.padding3 ?? 0,
-                  ),
+                  padding: EdgeInsets.only(right: spacing.padding3 ?? 0),
                   child: const CircleAvatar(
                     radius: 24,
                     backgroundColor: Colors.grey,

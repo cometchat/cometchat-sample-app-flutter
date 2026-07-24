@@ -11,7 +11,8 @@ import 'package:cometchat_chat_uikit/shared_ui/src/clean_architecture/core/resul
 // Mocks
 // ---------------------------------------------------------------------------
 
-class MockRemoteDataSource extends Mock implements MessageListRemoteDataSource {}
+class MockRemoteDataSource extends Mock
+    implements MessageListRemoteDataSource {}
 
 class MockLocalDataSource extends Mock implements MessageListLocalDataSource {}
 
@@ -71,19 +72,23 @@ void main() {
   group('getMessages', () {
     test('returns success with messages from remote', () async {
       final messages = [FakeBaseMessage(1), FakeBaseMessage(2)];
-      when(() => remote.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => GetMessagesResult(
-            request: FakeMessagesRequest(),
-            messages: messages,
-          ));
+      when(
+        () => remote.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer(
+        (_) async => GetMessagesResult(
+          request: FakeMessagesRequest(),
+          messages: messages,
+        ),
+      );
       when(() => local.cacheMessages(any(), any())).thenAnswer((_) async {});
 
       final result = await repo.getMessages(
@@ -97,19 +102,23 @@ void main() {
 
     test('caches messages after successful remote fetch', () async {
       final messages = [FakeBaseMessage(1)];
-      when(() => remote.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => GetMessagesResult(
-            request: FakeMessagesRequest(),
-            messages: messages,
-          ));
+      when(
+        () => remote.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer(
+        (_) async => GetMessagesResult(
+          request: FakeMessagesRequest(),
+          messages: messages,
+        ),
+      );
       when(() => local.cacheMessages(any(), any())).thenAnswer((_) async {});
 
       await repo.getMessages(
@@ -121,19 +130,21 @@ void main() {
     });
 
     test('does not cache when messages are empty', () async {
-      when(() => remote.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => GetMessagesResult(
-            request: FakeMessagesRequest(),
-            messages: [],
-          ));
+      when(
+        () => remote.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer(
+        (_) async =>
+            GetMessagesResult(request: FakeMessagesRequest(), messages: []),
+      );
 
       await repo.getMessages(
         conversationWith: 'test_user',
@@ -145,20 +156,23 @@ void main() {
 
     test('falls back to cache when remote fails', () async {
       final cached = [FakeBaseMessage(10)];
-      when(() => remote.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenThrow(const MessageListRemoteDataSourceException(
-        message: 'Network error',
-      ));
-      when(() => local.getCachedMessages(any()))
-          .thenAnswer((_) async => cached);
+      when(
+        () => remote.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenThrow(
+        const MessageListRemoteDataSourceException(message: 'Network error'),
+      );
+      when(
+        () => local.getCachedMessages(any()),
+      ).thenAnswer((_) async => cached);
 
       final result = await repo.getMessages(
         conversationWith: 'test_user',
@@ -170,21 +184,24 @@ void main() {
     });
 
     test('returns failure when both remote and cache fail', () async {
-      when(() => remote.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenThrow(const MessageListRemoteDataSourceException(
-        message: 'Network error',
-        code: 'NET_ERR',
-      ));
-      when(() => local.getCachedMessages(any()))
-          .thenAnswer((_) async => []);
+      when(
+        () => remote.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenThrow(
+        const MessageListRemoteDataSourceException(
+          message: 'Network error',
+          code: 'NET_ERR',
+        ),
+      );
+      when(() => local.getCachedMessages(any())).thenAnswer((_) async => []);
 
       final result = await repo.getMessages(
         conversationWith: 'test_user',
@@ -197,19 +214,23 @@ void main() {
 
     test('builds correct conversation ID for user type', () async {
       final messages = [FakeBaseMessage(1)];
-      when(() => remote.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => GetMessagesResult(
-            request: FakeMessagesRequest(),
-            messages: messages,
-          ));
+      when(
+        () => remote.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer(
+        (_) async => GetMessagesResult(
+          request: FakeMessagesRequest(),
+          messages: messages,
+        ),
+      );
       when(() => local.cacheMessages(any(), any())).thenAnswer((_) async {});
 
       await repo.getMessages(
@@ -222,19 +243,23 @@ void main() {
 
     test('builds correct conversation ID for group type', () async {
       final messages = [FakeBaseMessage(1)];
-      when(() => remote.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => GetMessagesResult(
-            request: FakeMessagesRequest(),
-            messages: messages,
-          ));
+      when(
+        () => remote.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer(
+        (_) async => GetMessagesResult(
+          request: FakeMessagesRequest(),
+          messages: messages,
+        ),
+      );
       when(() => local.cacheMessages(any(), any())).thenAnswer((_) async {});
 
       await repo.getMessages(
@@ -253,8 +278,9 @@ void main() {
   group('fetchPreviousMessages', () {
     test('returns success with messages from remote', () async {
       final messages = [FakeBaseMessage(1)];
-      when(() => remote.fetchPreviousMessages(request: any(named: 'request')))
-          .thenAnswer((_) async => messages);
+      when(
+        () => remote.fetchPreviousMessages(request: any(named: 'request')),
+      ).thenAnswer((_) async => messages);
 
       final result = await repo.fetchPreviousMessages(
         request: FakeMessagesRequest(),
@@ -265,11 +291,14 @@ void main() {
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.fetchPreviousMessages(request: any(named: 'request')))
-          .thenThrow(const MessageListRemoteDataSourceException(
-        message: 'Fetch failed',
-        code: 'FETCH_ERR',
-      ));
+      when(
+        () => remote.fetchPreviousMessages(request: any(named: 'request')),
+      ).thenThrow(
+        const MessageListRemoteDataSourceException(
+          message: 'Fetch failed',
+          code: 'FETCH_ERR',
+        ),
+      );
 
       final result = await repo.fetchPreviousMessages(
         request: FakeMessagesRequest(),
@@ -286,8 +315,9 @@ void main() {
   group('fetchNextMessages', () {
     test('returns success with messages from remote', () async {
       final messages = [FakeBaseMessage(5)];
-      when(() => remote.fetchNextMessages(request: any(named: 'request')))
-          .thenAnswer((_) async => messages);
+      when(
+        () => remote.fetchNextMessages(request: any(named: 'request')),
+      ).thenAnswer((_) async => messages);
 
       final result = await repo.fetchNextMessages(
         request: FakeMessagesRequest(),
@@ -298,10 +328,11 @@ void main() {
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.fetchNextMessages(request: any(named: 'request')))
-          .thenThrow(const MessageListRemoteDataSourceException(
-        message: 'Fetch failed',
-      ));
+      when(
+        () => remote.fetchNextMessages(request: any(named: 'request')),
+      ).thenThrow(
+        const MessageListRemoteDataSourceException(message: 'Fetch failed'),
+      );
 
       final result = await repo.fetchNextMessages(
         request: FakeMessagesRequest(),
@@ -365,8 +396,7 @@ void main() {
 
   group('getLoggedInUser', () {
     test('returns user from remote', () async {
-      when(() => remote.getLoggedInUser())
-          .thenAnswer((_) async => FakeUser());
+      when(() => remote.getLoggedInUser()).thenAnswer((_) async => FakeUser());
 
       final result = await repo.getLoggedInUser();
 
@@ -390,10 +420,12 @@ void main() {
 
   group('getConversation', () {
     test('returns conversation from remote', () async {
-      when(() => remote.getConversation(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-          )).thenAnswer((_) async => FakeConversation());
+      when(
+        () => remote.getConversation(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+        ),
+      ).thenAnswer((_) async => FakeConversation());
 
       final result = await repo.getConversation(
         conversationWith: 'test_user',
@@ -404,10 +436,12 @@ void main() {
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.getConversation(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-          )).thenThrow(
+      when(
+        () => remote.getConversation(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+        ),
+      ).thenThrow(
         const MessageListRemoteDataSourceException(message: 'Not found'),
       );
 
@@ -426,8 +460,9 @@ void main() {
 
   group('markMessageAsUnread', () {
     test('returns conversation from remote on success', () async {
-      when(() => remote.markMessageAsUnread(any()))
-          .thenAnswer((_) async => FakeConversation());
+      when(
+        () => remote.markMessageAsUnread(any()),
+      ).thenAnswer((_) async => FakeConversation());
 
       final result = await repo.markMessageAsUnread(FakeBaseMessage(1));
 
@@ -456,19 +491,23 @@ void main() {
         localDataSource: null,
       );
       final messages = [FakeBaseMessage(1)];
-      when(() => remote.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => GetMessagesResult(
-            request: FakeMessagesRequest(),
-            messages: messages,
-          ));
+      when(
+        () => remote.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer(
+        (_) async => GetMessagesResult(
+          request: FakeMessagesRequest(),
+          messages: messages,
+        ),
+      );
 
       final result = await repoNoLocal.getMessages(
         conversationWith: 'test_user',
@@ -479,12 +518,15 @@ void main() {
       verifyNever(() => local.cacheMessages(any(), any()));
     });
 
-    test('getMessages returns failure without fallback when remote fails', () async {
-      final repoNoLocal = MessageListRepositoryImpl(
-        remoteDataSource: remote,
-        localDataSource: null,
-      );
-      when(() => remote.getMessages(
+    test(
+      'getMessages returns failure without fallback when remote fails',
+      () async {
+        final repoNoLocal = MessageListRepositoryImpl(
+          remoteDataSource: remote,
+          localDataSource: null,
+        );
+        when(
+          () => remote.getMessages(
             conversationWith: any(named: 'conversationWith'),
             conversationType: any(named: 'conversationType'),
             limit: any(named: 'limit'),
@@ -493,16 +535,18 @@ void main() {
             categories: any(named: 'categories'),
             hideReplies: any(named: 'hideReplies'),
             withParent: any(named: 'withParent'),
-          )).thenThrow(const MessageListRemoteDataSourceException(
-        message: 'Network error',
-      ));
+          ),
+        ).thenThrow(
+          const MessageListRemoteDataSourceException(message: 'Network error'),
+        );
 
-      final result = await repoNoLocal.getMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      );
+        final result = await repoNoLocal.getMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        );
 
-      expect(result.isFailure, isTrue);
-    });
+        expect(result.isFailure, isTrue);
+      },
+    );
   });
 }

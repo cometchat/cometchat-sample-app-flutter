@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/groups_repository.dart';
 
@@ -20,7 +20,7 @@ class LoadMoreGroupsUseCase {
   /// [joinedOnly] - If true, only return groups the user has joined
   /// [currentGroups] - Currently loaded groups to prevent duplicates
   ///
-  /// Returns Result<List<Group>> containing additional groups or failure
+  /// Returns `Result<List<Group>>` containing additional groups or failure
   Future<Result<List<Group>>> call({
     int limit = 30,
     String? searchKeyword,

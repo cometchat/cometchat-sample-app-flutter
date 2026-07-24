@@ -837,6 +837,41 @@ class TranslationsFr extends Translations {
   String get failedToLoadImage => 'Impossible de charger l\'image';
 
   @override
+  String get uploadFailed => 'Échec de l\'envoi';
+
+  @override
+  String get tapToRetry => 'Appuyez pour réessayer';
+
+  @override
+  String get dropFilesHere => 'Déposez les fichiers ici';
+
+  @override
+  String get attachmentCountLimit =>
+      'Vous pouvez joindre jusqu\'à {limit} fichiers par message.';
+
+  @override
+  String get attachmentFileSizeLimit =>
+      'Chaque fichier doit faire moins de {limit}.';
+
+  @override
+  String get fileListShowMore => '+{count} de plus';
+
+  @override
+  String get fileListShowLess => 'Afficher moins';
+
+  @override
+  String get searchImagesCount => '{count} images';
+
+  @override
+  String get searchVideosCount => '{count} vidéos';
+
+  @override
+  String get searchAudiosCount => '{count} audios';
+
+  @override
+  String get searchFilesCount => '{count} fichiers';
+
+  @override
   String get transferOwnership => 'Transférer la propriété';
 
   @override
@@ -1266,28 +1301,35 @@ class TranslationsFr extends Translations {
   @override
   String get type => 'Tapez';
   @override
-  String get messageBlockedByModeration => 'Votre message a été bloqué en raison des politiques de modération.';
+  String get messageBlockedByModeration =>
+      'Votre message a été bloqué en raison des politiques de modération.';
 
   @override
-  String get cantSendMessageBlockedUser => "Impossible d’envoyer le message car l’utilisateur est bloqué.";
+  String get cantSendMessageBlockedUser =>
+      "Impossible d’envoyer le message car l’utilisateur est bloqué.";
 
   @override
-  String get cantSendMessageNotMember => "Vous ne pouvez pas envoyer de messages à ce groupe car vous n’en faites plus partie.";
+  String get cantSendMessageNotMember =>
+      "Vous ne pouvez pas envoyer de messages à ce groupe car vous n’en faites plus partie.";
 
   @override
-  String get youAreNoLongerPartOfThisGroup => 'Vous ne faites plus partie de ce groupe.';
+  String get youAreNoLongerPartOfThisGroup =>
+      'Vous ne faites plus partie de ce groupe.';
 
   @override
   String get busy => "Occupé";
 
   @override
-  String get noConversationHistoryFound => "Aucun historique de conversation trouvé.";
+  String get noConversationHistoryFound =>
+      "Aucun historique de conversation trouvé.";
 
   @override
-  String get somethingWentWrongTryAgain => "Une erreur s'est produite de notre côté. Veuillez réessayer.";
+  String get somethingWentWrongTryAgain =>
+      "Une erreur s'est produite de notre côté. Veuillez réessayer.";
 
   @override
-  String get startChatByTappingNewChat => 'Commencez une discussion en appuyant sur le bouton "Nouvelle discussion".';
+  String get startChatByTappingNewChat =>
+      'Commencez une discussion en appuyant sur le bouton "Nouvelle discussion".';
 
   @override
   String get chatHistory => "Historique des discussions";
@@ -1316,7 +1358,8 @@ class TranslationsFr extends Translations {
   String get aiAssistants => "Assistants IA";
 
   @override
-  String get notifyEveryoneInThisGroup => "Notifier tout le monde dans ce groupe";
+  String get notifyEveryoneInThisGroup =>
+      "Notifier tout le monde dans ce groupe";
 
   @override
   String get notifyAll => "tous";
@@ -1331,7 +1374,8 @@ class TranslationsFr extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

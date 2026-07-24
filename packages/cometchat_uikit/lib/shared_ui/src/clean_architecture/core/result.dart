@@ -16,17 +16,13 @@ abstract class Result<T> {
   bool get isFailure => this is Failure;
 }
 
-/// Failure state that can be returned from any Result<T>
+/// Failure state that can be returned from any `Result<T>`
 class Failure extends Result<Never> {
   final String message;
   final String? code;
   final Exception? exception;
 
-  const Failure({
-    required this.message,
-    this.code,
-    this.exception,
-  });
+  const Failure({required this.message, this.code, this.exception});
 
   @override
   R fold<R>(
@@ -62,26 +58,17 @@ class Success<T> extends Result<T> {
 extension ResultExtension<T> on Result<T> {
   /// Get data or null if failure
   T? getOrNull() {
-    return fold(
-      (_) => null,
-      (data) => data,
-    );
+    return fold((_) => null, (data) => data);
   }
 
   /// Execute callback on success
   void onSuccess(void Function(T) callback) {
-    fold(
-      (_) {},
-      (data) => callback(data),
-    );
+    fold((_) {}, (data) => callback(data));
   }
 
   /// Execute callback on failure
   void onFailure(void Function(Failure) callback) {
-    fold(
-      (failure) => callback(failure),
-      (_) {},
-    );
+    fold((failure) => callback(failure), (_) {});
   }
 
   /// Map success value to another type

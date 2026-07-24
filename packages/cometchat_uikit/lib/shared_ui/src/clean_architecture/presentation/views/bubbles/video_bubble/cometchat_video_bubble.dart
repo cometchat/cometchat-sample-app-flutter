@@ -14,6 +14,9 @@ import 'video_player.dart';
 ///      ),
 /// );
 /// ```
+@Deprecated(
+  'Use CometChatVideosBubble instead — the multi-attachment bubble family (enableMultipleAttachments) replaces the single-attachment media bubbles.',
+)
 class CometChatVideoBubble extends StatefulWidget {
   const CometChatVideoBubble({
     super.key,
@@ -96,13 +99,17 @@ class _CometChatVideoBubbleState extends State<CometChatVideoBubble> {
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     // But re-initialize when brightness changes (dark mode toggle)
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _themeInitialized && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _themeInitialized && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
-      videoBubbleStyle = CometChatThemeHelper.getTheme<CometChatVideoBubbleStyle>(
-              context: context, defaultTheme: CometChatVideoBubbleStyle.of)
-          .merge(widget.style);
+      videoBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatVideoBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatVideoBubbleStyle.of,
+          ).merge(widget.style);
       // Use passed values OR fallback to lookup (for standalone usage)
-      colorPalette = widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+      colorPalette =
+          widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
       spacing = widget.spacing ?? CometChatThemeHelper.getSpacing(context);
       // Cache platform brightness to detect dark mode changes
       _cachedBrightness = currentBrightness;
@@ -115,12 +122,15 @@ class _CometChatVideoBubbleState extends State<CometChatVideoBubble> {
     super.didUpdateWidget(oldWidget);
     // Update style if it changed
     if (widget.style != oldWidget.style) {
-      videoBubbleStyle = CometChatThemeHelper.getTheme<CometChatVideoBubbleStyle>(
-              context: context, defaultTheme: CometChatVideoBubbleStyle.of)
-          .merge(widget.style);
+      videoBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatVideoBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatVideoBubbleStyle.of,
+          ).merge(widget.style);
     }
     // Update cached theme values if they changed
-    if (widget.colorPalette != oldWidget.colorPalette && widget.colorPalette != null) {
+    if (widget.colorPalette != oldWidget.colorPalette &&
+        widget.colorPalette != null) {
       colorPalette = widget.colorPalette!;
     }
     if (widget.spacing != oldWidget.spacing && widget.spacing != null) {
@@ -132,6 +142,10 @@ class _CometChatVideoBubbleState extends State<CometChatVideoBubble> {
     return Image.network(
       imageUrl,
       fit: BoxFit.cover,
+      // CanvasKit needs CORS to fetch pixels; fall back to an <img> element
+      // when the CDN response lacks the headers (fixes thumbnails going
+      // blank on web — same fix already applied to CometChatImageBubble).
+      webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) {
           return child;
@@ -143,24 +157,26 @@ class _CometChatVideoBubbleState extends State<CometChatVideoBubble> {
             strokeWidth: 2.0,
             value: loadingProgress.expectedTotalBytes != null
                 ? loadingProgress.cumulativeBytesLoaded /
-                    loadingProgress.expectedTotalBytes!
+                      loadingProgress.expectedTotalBytes!
                 : null,
           ),
         );
       },
-      errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-        if (retries > 2) {
-          return const SizedBox();
-        }
-        return _getImageWidget(imageUrl, retries + 1);
-      },
+      errorBuilder:
+          (BuildContext context, Object exception, StackTrace? stackTrace) {
+            if (retries > 2) {
+              return const SizedBox();
+            }
+            return _getImageWidget(imageUrl, retries + 1);
+          },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onClick ??
+      onTap:
+          widget.onClick ??
           () {
             final localPath = FileUtils.getLocalFilePath(widget.metadata);
 
@@ -174,16 +190,18 @@ class _CometChatVideoBubbleState extends State<CometChatVideoBubble> {
 
             if (videoUrl != null) {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => VideoPlayer(
-                            backIcon: colorPalette.primary,
-                            handleColor: colorPalette.borderLight,
-                            playedColor: colorPalette.primary,
-                            fullScreenBackground: colorPalette.black,
-                            videoUrl: videoUrl ?? "",
-                            playFromFile: playFromFile,
-                          )));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VideoPlayer(
+                    backIcon: colorPalette.primary,
+                    handleColor: colorPalette.borderLight,
+                    playedColor: colorPalette.primary,
+                    fullScreenBackground: colorPalette.black,
+                    videoUrl: videoUrl ?? "",
+                    playFromFile: playFromFile,
+                  ),
+                ),
+              );
             }
           },
       child: Container(
@@ -194,7 +212,8 @@ class _CometChatVideoBubbleState extends State<CometChatVideoBubble> {
         padding: widget.padding,
         decoration: BoxDecoration(
           border: videoBubbleStyle.border,
-          borderRadius: videoBubbleStyle.borderRadius ??
+          borderRadius:
+              videoBubbleStyle.borderRadius ??
               BorderRadius.circular(spacing.radius3 ?? 0),
           color: videoBubbleStyle.backgroundColor ?? colorPalette.background3,
         ),
@@ -202,7 +221,9 @@ class _CometChatVideoBubbleState extends State<CometChatVideoBubble> {
         child: Stack(
           children: [
             widget.thumbnailUrl != null && widget.thumbnailUrl!.isNotEmpty
-                ? Positioned.fill(child: _getImageWidget(widget.thumbnailUrl!, 0))
+                ? Positioned.fill(
+                    child: _getImageWidget(widget.thumbnailUrl!, 0),
+                  )
                 : const SizedBox(),
             if (widget.videoUrl != null && widget.videoUrl!.isNotEmpty)
               widget.placeHolder ??
@@ -212,23 +233,26 @@ class _CometChatVideoBubbleState extends State<CometChatVideoBubble> {
                       height: 64,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: videoBubbleStyle.playIconBackgroundColor ??
+                        color:
+                            videoBubbleStyle.playIconBackgroundColor ??
                             ((_cachedBrightness == Brightness.light
                                     ? colorPalette.neutral500
                                     : colorPalette.neutral900))
                                 ?.withValues(alpha: 0.6),
                       ),
-                      child: widget.playIcon ??
+                      child:
+                          widget.playIcon ??
                           Icon(
                             Icons.play_arrow,
                             size: 56.0,
-                            color: videoBubbleStyle.playIconColor ??
+                            color:
+                                videoBubbleStyle.playIconColor ??
                                 (_cachedBrightness == Brightness.light
                                     ? colorPalette.neutral50
                                     : colorPalette.neutral900),
                           ),
                     ),
-                  )
+                  ),
           ],
         ),
       ),

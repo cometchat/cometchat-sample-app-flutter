@@ -49,9 +49,10 @@ class MessageInformationBloc
   /// service locator.
   MessageInformationBloc({
     FetchMessageReceiptsUseCase? fetchMessageReceiptsUseCase,
-  })  : fetchMessageReceiptsUseCase = fetchMessageReceiptsUseCase ??
-            _getServiceLocator().fetchMessageReceiptsUseCase,
-        super(const MessageInformationState()) {
+  }) : fetchMessageReceiptsUseCase =
+           fetchMessageReceiptsUseCase ??
+           _getServiceLocator().fetchMessageReceiptsUseCase,
+       super(const MessageInformationState()) {
     // Register event handlers
     on<InitializeMessageInformation>(_onInitialize);
     on<FetchMessageReceipts>(_onFetchReceipts);
@@ -114,25 +115,26 @@ class MessageInformationBloc
         readAt: parentMessage.readAt,
       );
 
-      emit(state.copyWith(
-        status: MessageInformationStatus.loaded,
-        parentMessage: parentMessage,
-        receipts: [receipt],
-        user: user,
-      ));
+      emit(
+        state.copyWith(
+          status: MessageInformationStatus.loaded,
+          parentMessage: parentMessage,
+          receipts: [receipt],
+          user: user,
+        ),
+      );
     } else if (group != null) {
       // Group conversation: Fetch receipts from SDK
       // **Requirement 2.2**
-      emit(state.copyWith(
-        parentMessage: parentMessage,
-        group: group,
-      ));
+      emit(state.copyWith(parentMessage: parentMessage, group: group));
 
       // Dispatch fetch event with sender UID for exclusion
-      add(FetchMessageReceipts(
-        messageId: parentMessage.id,
-        senderUid: parentMessage.sender?.uid,
-      ));
+      add(
+        FetchMessageReceipts(
+          messageId: parentMessage.id,
+          senderUid: parentMessage.sender?.uid,
+        ),
+      );
     }
   }
 
@@ -159,16 +161,20 @@ class MessageInformationBloc
           .where((receipt) => receipt.sender.uid != event.senderUid)
           .toList();
 
-      emit(state.copyWith(
-        status: MessageInformationStatus.loaded,
-        receipts: receipts,
-      ));
+      emit(
+        state.copyWith(
+          status: MessageInformationStatus.loaded,
+          receipts: receipts,
+        ),
+      );
     } else if (result is Failure) {
       // **Requirement 2.4**
-      emit(state.copyWith(
-        status: MessageInformationStatus.error,
-        errorMessage: result.message,
-      ));
+      emit(
+        state.copyWith(
+          status: MessageInformationStatus.error,
+          errorMessage: result.message,
+        ),
+      );
     }
   }
 
@@ -413,8 +419,7 @@ class MessageInformationBloc
 /// - onMessagesDelivered (update receipt with delivered timestamp)
 ///
 /// **Requirements: 5.1, 5.2**
-class _MessageInformationUIMessageListener
-    with CometChatMessageEventListener {
+class _MessageInformationUIMessageListener with CometChatMessageEventListener {
   final void Function(MessageReceipt) onMessagesReadCallback;
   final void Function(MessageReceipt) onMessagesDeliveredCallback;
 

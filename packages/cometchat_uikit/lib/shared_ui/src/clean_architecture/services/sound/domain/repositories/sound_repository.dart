@@ -25,7 +25,5 @@ abstract class SoundRepository {
   });
 
   /// Stop current playing sound
-  Future<Result<void>> stopSound({
-    required String soundId,
-  });
+  Future<Result<void>> stopSound({required String soundId});
 }

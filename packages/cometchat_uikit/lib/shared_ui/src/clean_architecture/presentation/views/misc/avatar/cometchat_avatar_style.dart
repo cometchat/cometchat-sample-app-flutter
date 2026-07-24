@@ -71,18 +71,30 @@ class CometChatAvatarStyle extends ThemeExtension<CometChatAvatarStyle> {
 
   @override
   CometChatAvatarStyle lerp(
-      ThemeExtension<CometChatAvatarStyle>? other, double t) {
+    ThemeExtension<CometChatAvatarStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatAvatarStyle) {
       return this;
     }
     return CometChatAvatarStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: Border.lerp(border, other.border, t),
-      placeHolderTextStyle:
-          TextStyle.lerp(placeHolderTextStyle, other.placeHolderTextStyle, t),
-      placeHolderTextColor:
-          Color.lerp(placeHolderTextColor, other.placeHolderTextColor, t),
-      borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      placeHolderTextStyle: TextStyle.lerp(
+        placeHolderTextStyle,
+        other.placeHolderTextStyle,
+        t,
+      ),
+      placeHolderTextColor: Color.lerp(
+        placeHolderTextColor,
+        other.placeHolderTextColor,
+        t,
+      ),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
     );
   }
 }

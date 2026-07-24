@@ -5,7 +5,7 @@ import '../../domain/repositories/sound_repository.dart';
 
 /// Repository Implementation - Mediates between Use Cases and Data Sources
 /// This is the Data Layer connecting to Domain Layer
-/// 
+///
 /// Responsibilities:
 /// 1. Delegate calls to appropriate data sources
 /// 2. Handle any cross-datasource logic
@@ -15,9 +15,7 @@ class SoundRepositoryImpl implements SoundRepository {
 
   /// Constructor accepts injected data source
   /// This allows easy testing and switching implementations
-  SoundRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  SoundRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<Result<SoundEntity>> playSound({

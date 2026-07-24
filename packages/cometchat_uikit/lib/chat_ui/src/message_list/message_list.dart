@@ -1,13 +1,13 @@
 /// Barrel export for message_list module
-/// 
+///
 /// This module provides the CometChatMessageList component with Clean Architecture.
-/// 
+///
 /// ## Architecture
 /// - BLoC for state management (flutter_bloc)
 /// - Repository pattern for data access
 /// - Use cases for business logic
 /// - Service locator for dependency injection
-/// 
+///
 /// ## Usage
 /// ```dart
 /// CometChatMessageList(
@@ -17,6 +17,7 @@
 ///   },
 /// )
 /// ```
+library;
 
 // BLoC exports
 export 'bloc/bloc.dart';

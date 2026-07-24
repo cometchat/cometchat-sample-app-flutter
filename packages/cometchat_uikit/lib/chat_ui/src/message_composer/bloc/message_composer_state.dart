@@ -6,19 +6,26 @@ import '../../../../cometchat_chat_uikit.dart';
 enum MessageComposerStatus {
   /// Initial/idle state
   idle,
+
   /// Sending a message
   sending,
+
   /// Editing a message
   editing,
+
   /// Replying to a message
   replying,
+
   /// AI is generating content
   /// @deprecated AI features have been removed
   aiGenerating,
+
   /// Recording audio message
   recording,
+
   /// Operation completed successfully
   success,
+
   /// Operation failed with error
   error,
 }
@@ -167,41 +174,46 @@ class MessageComposerState extends Equatable {
       loggedInUser: loggedInUser ?? this.loggedInUser,
       composeText: composeText ?? this.composeText,
       editMessage: clearEditMessage ? null : (editMessage ?? this.editMessage),
-      replyMessage:
-          clearReplyMessage ? null : (replyMessage ?? this.replyMessage),
+      replyMessage: clearReplyMessage
+          ? null
+          : (replyMessage ?? this.replyMessage),
       sentMessage: clearSentMessage ? null : (sentMessage ?? this.sentMessage),
-      errorMessage:
-          clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
       parentMessageId: parentMessageId ?? this.parentMessageId,
       isTyping: isTyping ?? this.isTyping,
       headerPanel: clearHeaderPanel ? null : (headerPanel ?? this.headerPanel),
       footerPanel: clearFooterPanel ? null : (footerPanel ?? this.footerPanel),
-      previewPanel:
-          clearPreviewPanel ? null : (previewPanel ?? this.previewPanel),
+      previewPanel: clearPreviewPanel
+          ? null
+          : (previewPanel ?? this.previewPanel),
       composerId: composerId ?? this.composerId,
-      lockedBottomPadding: clearLockedBottomPadding ? null : (lockedBottomPadding ?? this.lockedBottomPadding),
+      lockedBottomPadding: clearLockedBottomPadding
+          ? null
+          : (lockedBottomPadding ?? this.lockedBottomPadding),
       isActiveStreaming: isActiveStreaming ?? this.isActiveStreaming,
     );
   }
 
   @override
   List<Object?> get props => [
-        status,
-        user,
-        group,
-        loggedInUser,
-        composeText,
-        editMessage,
-        replyMessage,
-        sentMessage,
-        errorMessage,
-        parentMessageId,
-        isTyping,
-        headerPanel,
-        footerPanel,
-        previewPanel,
-        composerId,
-        lockedBottomPadding,
-        isActiveStreaming,
-      ];
+    status,
+    user,
+    group,
+    loggedInUser,
+    composeText,
+    editMessage,
+    replyMessage,
+    sentMessage,
+    errorMessage,
+    parentMessageId,
+    isTyping,
+    headerPanel,
+    footerPanel,
+    previewPanel,
+    composerId,
+    lockedBottomPadding,
+    isActiveStreaming,
+  ];
 }

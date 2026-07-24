@@ -10,19 +10,13 @@ abstract class CacheRepository {
   });
 
   /// Get from cache
-  Future<Result<T?>> get<T>({
-    required String key,
-  });
+  Future<Result<T?>> get<T>({required String key});
 
   /// Check if cache exists and not expired
-  Future<Result<bool>> exists({
-    required String key,
-  });
+  Future<Result<bool>> exists({required String key});
 
   /// Delete from cache
-  Future<Result<void>> delete({
-    required String key,
-  });
+  Future<Result<void>> delete({required String key});
 
   /// Clear all cache
   Future<Result<void>> clearAll();

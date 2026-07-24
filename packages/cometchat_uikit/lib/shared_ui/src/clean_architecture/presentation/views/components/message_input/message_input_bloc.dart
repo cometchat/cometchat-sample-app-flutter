@@ -53,10 +53,7 @@ class MentionAddedEvent extends MessageInputEvent {
   final String userId;
   final String userName;
 
-  const MentionAddedEvent({
-    required this.userId,
-    required this.userName,
-  });
+  const MentionAddedEvent({required this.userId, required this.userName});
 
   @override
   List<Object?> get props => [userId, userName];
@@ -124,10 +121,7 @@ class Mention extends Equatable {
   final String userId;
   final String userName;
 
-  const Mention({
-    required this.userId,
-    required this.userName,
-  });
+  const Mention({required this.userId, required this.userName});
 
   @override
   List<Object?> get props => [userId, userName];
@@ -160,13 +154,13 @@ abstract class MessageInputState extends Equatable {
 
   @override
   List<Object?> get props => [
-        text,
-        attachments,
-        mentions,
-        showEmojiPicker,
-        showAttachmentPicker,
-        error,
-      ];
+    text,
+    attachments,
+    mentions,
+    showEmojiPicker,
+    showAttachmentPicker,
+    error,
+  ];
 }
 
 class MessageInputInitial extends MessageInputState {
@@ -240,19 +234,18 @@ class MessageInputBloc extends Bloc<MessageInputEvent, MessageInputState> {
     InitializeInputEvent event,
     Emitter<MessageInputState> emit,
   ) {
-    emit(MessageInputEditing(
-      text: event.initialText ?? '',
-      attachments: const [],
-      mentions: const [],
-      showEmojiPicker: false,
-      showAttachmentPicker: false,
-    ));
+    emit(
+      MessageInputEditing(
+        text: event.initialText ?? '',
+        attachments: const [],
+        mentions: const [],
+        showEmojiPicker: false,
+        showAttachmentPicker: false,
+      ),
+    );
   }
 
-  void _onTextChanged(
-    TextChangedEvent event,
-    Emitter<MessageInputState> emit,
-  ) {
+  void _onTextChanged(TextChangedEvent event, Emitter<MessageInputState> emit) {
     if (state is MessageInputEditing) {
       final currentState = state as MessageInputEditing;
       emit(currentState.copyWith(text: event.text));
@@ -266,10 +259,9 @@ class MessageInputBloc extends Bloc<MessageInputEvent, MessageInputState> {
     if (state is MessageInputEditing) {
       final currentState = state as MessageInputEditing;
       final newAttachments = List<Attachment>.from(currentState.attachments)
-        ..add(Attachment(
-          path: event.attachmentPath,
-          type: event.attachmentType,
-        ));
+        ..add(
+          Attachment(path: event.attachmentPath, type: event.attachmentType),
+        );
       emit(currentState.copyWith(attachments: newAttachments));
     }
   }
@@ -294,41 +286,36 @@ class MessageInputBloc extends Bloc<MessageInputEvent, MessageInputState> {
     if (state is MessageInputEditing) {
       final currentState = state as MessageInputEditing;
       final newMentions = List<Mention>.from(currentState.mentions)
-        ..add(Mention(
-          userId: event.userId,
-          userName: event.userName,
-        ));
+        ..add(Mention(userId: event.userId, userName: event.userName));
       emit(currentState.copyWith(mentions: newMentions));
     }
   }
 
-  void _onSendMessage(
-    SendMessageEvent event,
-    Emitter<MessageInputState> emit,
-  ) {
+  void _onSendMessage(SendMessageEvent event, Emitter<MessageInputState> emit) {
     if (state is MessageInputEditing) {
       final currentState = state as MessageInputEditing;
       if (currentState.canSend) {
-        emit(MessageInputSending(
-          text: currentState.text,
-          attachments: currentState.attachments,
-          mentions: currentState.mentions,
-        ));
+        emit(
+          MessageInputSending(
+            text: currentState.text,
+            attachments: currentState.attachments,
+            mentions: currentState.mentions,
+          ),
+        );
       }
     }
   }
 
-  void _onClearInput(
-    ClearInputEvent event,
-    Emitter<MessageInputState> emit,
-  ) {
-    emit(const MessageInputEditing(
-      text: '',
-      attachments: [],
-      mentions: [],
-      showEmojiPicker: false,
-      showAttachmentPicker: false,
-    ));
+  void _onClearInput(ClearInputEvent event, Emitter<MessageInputState> emit) {
+    emit(
+      const MessageInputEditing(
+        text: '',
+        attachments: [],
+        mentions: [],
+        showEmojiPicker: false,
+        showAttachmentPicker: false,
+      ),
+    );
   }
 
   void _onShowEmojiPicker(
@@ -337,10 +324,12 @@ class MessageInputBloc extends Bloc<MessageInputEvent, MessageInputState> {
   ) {
     if (state is MessageInputEditing) {
       final currentState = state as MessageInputEditing;
-      emit(currentState.copyWith(
-        showEmojiPicker: event.show,
-        showAttachmentPicker: false, // Close attachment picker
-      ));
+      emit(
+        currentState.copyWith(
+          showEmojiPicker: event.show,
+          showAttachmentPicker: false, // Close attachment picker
+        ),
+      );
     }
   }
 
@@ -350,10 +339,12 @@ class MessageInputBloc extends Bloc<MessageInputEvent, MessageInputState> {
   ) {
     if (state is MessageInputEditing) {
       final currentState = state as MessageInputEditing;
-      emit(currentState.copyWith(
-        showAttachmentPicker: event.show,
-        showEmojiPicker: false, // Close emoji picker
-      ));
+      emit(
+        currentState.copyWith(
+          showAttachmentPicker: event.show,
+          showEmojiPicker: false, // Close emoji picker
+        ),
+      );
     }
   }
 
@@ -363,13 +354,15 @@ class MessageInputBloc extends Bloc<MessageInputEvent, MessageInputState> {
   ) {
     emit(const MessageInputSent());
     // Reset to editing state
-    emit(const MessageInputEditing(
-      text: '',
-      attachments: [],
-      mentions: [],
-      showEmojiPicker: false,
-      showAttachmentPicker: false,
-    ));
+    emit(
+      const MessageInputEditing(
+        text: '',
+        attachments: [],
+        mentions: [],
+        showEmojiPicker: false,
+        showAttachmentPicker: false,
+      ),
+    );
   }
 
   void _onMessageSentError(
@@ -377,20 +370,24 @@ class MessageInputBloc extends Bloc<MessageInputEvent, MessageInputState> {
     Emitter<MessageInputState> emit,
   ) {
     if (state is MessageInputSending) {
-      emit(MessageInputError(
-        text: state.text,
-        attachments: state.attachments,
-        mentions: state.mentions,
-        error: event.error,
-      ));
+      emit(
+        MessageInputError(
+          text: state.text,
+          attachments: state.attachments,
+          mentions: state.mentions,
+          error: event.error,
+        ),
+      );
       // Return to editing state
-      emit(MessageInputEditing(
-        text: state.text,
-        attachments: state.attachments,
-        mentions: state.mentions,
-        showEmojiPicker: false,
-        showAttachmentPicker: false,
-      ));
+      emit(
+        MessageInputEditing(
+          text: state.text,
+          attachments: state.attachments,
+          mentions: state.mentions,
+          showEmojiPicker: false,
+          showAttachmentPicker: false,
+        ),
+      );
     }
   }
 }

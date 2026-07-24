@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/groups_repository.dart';
 
@@ -24,7 +24,7 @@ class JoinGroupUseCase {
   /// [groupType] - The type of group (public, private, password)
   /// [password] - Required for password-protected groups
   ///
-  /// Returns Result<Group> containing the joined group or failure
+  /// Returns `Result<Group>` containing the joined group or failure
   Future<Result<Group>> call({
     required String guid,
     required String groupType,

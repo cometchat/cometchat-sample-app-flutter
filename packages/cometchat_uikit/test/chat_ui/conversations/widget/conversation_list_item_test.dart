@@ -1,7 +1,5 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
@@ -16,16 +14,16 @@ Widget _wrap(Widget child) {
 
 /// Minimal User fake — just enough for the list item's rendering path.
 class _FakeUser extends Fake implements User {
-  _FakeUser({required this.name, this.uid = 'u1', this.status = 'offline'});
+  _FakeUser({required this.name});
 
   @override
   final String name;
 
   @override
-  final String uid;
+  String get uid => 'u1';
 
   @override
-  final String status;
+  String get status => 'online';
 
   @override
   String? get avatar => null;
@@ -36,18 +34,15 @@ class _FakeUser extends Fake implements User {
 
 /// Minimal Conversation fake whose `conversationWith` is a [User].
 class _FakeConversation extends Fake implements Conversation {
-  _FakeConversation({
-    required User user,
-    this.conversationId = 'user_u1',
-    int unreadMessageCount = 0,
-  })  : _user = user,
-        _unreadMessageCount = unreadMessageCount;
+  _FakeConversation({required User user, int unreadMessageCount = 0})
+    : _user = user,
+      _unreadMessageCount = unreadMessageCount;
 
   final User _user;
   final int _unreadMessageCount;
 
   @override
-  final String conversationId;
+  String get conversationId => 'c1';
 
   @override
   int get unreadMessageCount => _unreadMessageCount;
@@ -122,54 +117,50 @@ void main() {
       expect(longPressedConv, same(conv));
     });
 
-    testWidgets(
-      'shows a selection checkbox when selectionMode != none',
-      (tester) async {
-        final conv = _FakeConversation(user: _FakeUser(name: 'Dan'));
+    testWidgets('shows a selection checkbox when selectionMode != none', (
+      tester,
+    ) async {
+      final conv = _FakeConversation(user: _FakeUser(name: 'Dan'));
 
-        await mockNetworkImagesFor(() async {
-          await tester.pumpWidget(
-            _wrap(
-              CometChatConversationListItem(
-                conversation: conv,
-                onItemClick: (_) {},
-                selectionMode: SelectionMode.multiple,
-                isSelected: false,
-              ),
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversationListItem(
+              conversation: conv,
+              onItemClick: (_) {},
+              selectionMode: SelectionMode.multiple,
+              isSelected: false,
             ),
-          );
-          await tester.pump();
-        });
+          ),
+        );
+        await tester.pump();
+      });
 
-        expect(find.byType(Checkbox), findsOneWidget);
-        final cb = tester.widget<Checkbox>(find.byType(Checkbox));
-        expect(cb.value, isFalse);
-      },
-    );
+      expect(find.byType(Checkbox), findsOneWidget);
+      final cb = tester.widget<Checkbox>(find.byType(Checkbox));
+      expect(cb.value, isFalse);
+    });
 
-    testWidgets(
-      'checkbox is checked when isSelected is true',
-      (tester) async {
-        final conv = _FakeConversation(user: _FakeUser(name: 'Eve'));
+    testWidgets('checkbox is checked when isSelected is true', (tester) async {
+      final conv = _FakeConversation(user: _FakeUser(name: 'Eve'));
 
-        await mockNetworkImagesFor(() async {
-          await tester.pumpWidget(
-            _wrap(
-              CometChatConversationListItem(
-                conversation: conv,
-                onItemClick: (_) {},
-                selectionMode: SelectionMode.multiple,
-                isSelected: true,
-              ),
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversationListItem(
+              conversation: conv,
+              onItemClick: (_) {},
+              selectionMode: SelectionMode.multiple,
+              isSelected: true,
             ),
-          );
-          await tester.pump();
-        });
+          ),
+        );
+        await tester.pump();
+      });
 
-        final cb = tester.widget<Checkbox>(find.byType(Checkbox));
-        expect(cb.value, isTrue);
-      },
-    );
+      final cb = tester.widget<Checkbox>(find.byType(Checkbox));
+      expect(cb.value, isTrue);
+    });
 
     testWidgets('leadingView slot overrides default avatar', (tester) async {
       final conv = _FakeConversation(user: _FakeUser(name: 'Frank'));
@@ -180,7 +171,7 @@ void main() {
             CometChatConversationListItem(
               conversation: conv,
               onItemClick: (_) {},
-              leadingView: (_, __) => const SizedBox(
+              leadingView: (_, _) => const SizedBox(
                 key: Key('custom-leading'),
                 width: 40,
                 height: 40,
@@ -203,10 +194,8 @@ void main() {
             CometChatConversationListItem(
               conversation: conv,
               onItemClick: (_) {},
-              titleView: (_, __) => const Text(
-                'Custom Title',
-                key: Key('custom-title'),
-              ),
+              titleView: (_, _) =>
+                  const Text('Custom Title', key: Key('custom-title')),
             ),
           ),
         );

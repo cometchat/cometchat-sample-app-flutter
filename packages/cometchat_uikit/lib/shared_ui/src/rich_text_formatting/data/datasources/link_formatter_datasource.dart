@@ -4,7 +4,6 @@ import '../models/formatter_result.dart';
 import '../models/attributed_text_data.dart';
 import 'formatter_datasource.dart';
 
-
 /// Formatter data source for links using [text](url) syntax.
 ///
 /// This formatter handles link formatting in Markdown style:
@@ -49,7 +48,8 @@ class LinkFormatterDataSource implements FormatterDataSource {
     // If inside a code block, insert raw URL only (no markdown link syntax)
     if (metadata != null && _isInsideCodeBlock(text, selection.start)) {
       final rawUrl = url;
-      final newText = text.substring(0, selection.start) +
+      final newText =
+          text.substring(0, selection.start) +
           rawUrl +
           text.substring(selection.end);
       final newCursorPos = selection.start + rawUrl.length;
@@ -64,7 +64,8 @@ class LinkFormatterDataSource implements FormatterDataSource {
       // No selection - insert placeholder with markers and URL
       final linkText = displayText ?? placeholderText;
       final insertText = '[$linkText]($url)';
-      final newText = text.substring(0, selection.start) +
+      final newText =
+          text.substring(0, selection.start) +
           insertText +
           text.substring(selection.end);
 
@@ -81,31 +82,39 @@ class LinkFormatterDataSource implements FormatterDataSource {
       // Check if selection is already a link
       final beforeSelection = selection.start >= openingMarker.length
           ? text.substring(
-              selection.start - openingMarker.length, selection.start)
+              selection.start - openingMarker.length,
+              selection.start,
+            )
           : '';
 
       // Find the closing marker after selection
       final afterSelectionStart = selection.end;
-      final afterSelectionEnd = afterSelectionStart + closingMarker.length <= text.length
+      final afterSelectionEnd =
+          afterSelectionStart + closingMarker.length <= text.length
           ? afterSelectionStart + closingMarker.length
           : text.length;
-      final afterSelection = text.substring(afterSelectionStart, afterSelectionEnd);
+      final afterSelection = text.substring(
+        afterSelectionStart,
+        afterSelectionEnd,
+      );
 
       if (beforeSelection == openingMarker && afterSelection == closingMarker) {
         // Already a link - check if we should remove it or update it
         // Find the URL part: ](url)
         final urlStart = selection.end + closingMarker.length;
         final urlEndMatch = text.indexOf(')', urlStart);
-        
+
         if (urlEndMatch != -1) {
           if (metadata == null) {
             // Remove link formatting (toggle off)
             final linkText = text.substring(selection.start, selection.end);
-            final newText = text.substring(0, selection.start - openingMarker.length) +
+            final newText =
+                text.substring(0, selection.start - openingMarker.length) +
                 linkText +
                 text.substring(urlEndMatch + 1);
 
-            final newCursorPos = selection.start - openingMarker.length + linkText.length;
+            final newCursorPos =
+                selection.start - openingMarker.length + linkText.length;
 
             return FormatterResult(
               newText: newText,
@@ -114,13 +123,16 @@ class LinkFormatterDataSource implements FormatterDataSource {
             );
           } else {
             // Update existing link with new URL/text
-            final linkText = displayText ?? text.substring(selection.start, selection.end);
+            final linkText =
+                displayText ?? text.substring(selection.start, selection.end);
             final newLinkText = '[$linkText]($url)';
-            final newText = text.substring(0, selection.start - openingMarker.length) +
+            final newText =
+                text.substring(0, selection.start - openingMarker.length) +
                 newLinkText +
                 text.substring(urlEndMatch + 1);
 
-            final newCursorPos = selection.start - openingMarker.length + newLinkText.length;
+            final newCursorPos =
+                selection.start - openingMarker.length + newLinkText.length;
 
             return FormatterResult(
               newText: newText,
@@ -132,9 +144,11 @@ class LinkFormatterDataSource implements FormatterDataSource {
       }
 
       // Wrap selected text with link markers
-      final linkText = displayText ?? text.substring(selection.start, selection.end);
+      final linkText =
+          displayText ?? text.substring(selection.start, selection.end);
       final wrappedText = '[$linkText]($url)';
-      final newText = text.substring(0, selection.start) +
+      final newText =
+          text.substring(0, selection.start) +
           wrappedText +
           text.substring(selection.end);
 
@@ -180,11 +194,7 @@ class LinkFormatterDataSource implements FormatterDataSource {
         AttributedTextData(
           start: match.start,
           end: match.end,
-          attributes: {
-            'link': true,
-            'url': url,
-            'displayText': displayText,
-          },
+          attributes: {'link': true, 'url': url, 'displayText': displayText},
         ),
       );
     }
@@ -193,8 +203,11 @@ class LinkFormatterDataSource implements FormatterDataSource {
   }
 
   /// Code block pattern for detecting if cursor is inside a code block.
-  static final RegExp _codeBlockPattern =
-      RegExp(r'```(.+?)```', multiLine: true, dotAll: true);
+  static final RegExp _codeBlockPattern = RegExp(
+    r'```(.+?)```',
+    multiLine: true,
+    dotAll: true,
+  );
 
   /// Check if a position in the text is inside a code block.
   bool _isInsideCodeBlock(String text, int position) {
@@ -225,7 +238,8 @@ class LinkFormatterDataSource implements FormatterDataSource {
   }) {
     // If inside a code block, insert raw URL only (no markdown link syntax)
     if (_isInsideCodeBlock(text, selection.start)) {
-      final newText = text.substring(0, selection.start) +
+      final newText =
+          text.substring(0, selection.start) +
           url +
           text.substring(selection.end);
       final newCursorPos = selection.start + url.length;
@@ -240,7 +254,8 @@ class LinkFormatterDataSource implements FormatterDataSource {
     if (!selection.isCollapsed) {
       final selectedText = text.substring(selection.start, selection.end);
       final linkText = '[$selectedText]($url)';
-      final newText = text.substring(0, selection.start) +
+      final newText =
+          text.substring(0, selection.start) +
           linkText +
           text.substring(selection.end);
       final newCursorPos = selection.start + linkText.length;
@@ -252,7 +267,8 @@ class LinkFormatterDataSource implements FormatterDataSource {
     }
 
     // No selection, not in code block — insert raw URL at cursor
-    final newText = text.substring(0, selection.start) +
+    final newText =
+        text.substring(0, selection.start) +
         url +
         text.substring(selection.end);
     final newCursorPos = selection.start + url.length;

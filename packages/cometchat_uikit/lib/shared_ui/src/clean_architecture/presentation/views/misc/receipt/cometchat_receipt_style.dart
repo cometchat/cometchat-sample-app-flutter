@@ -69,15 +69,20 @@ class CometChatMessageReceiptStyle
 
   @override
   CometChatMessageReceiptStyle lerp(
-      ThemeExtension<CometChatMessageReceiptStyle>? other, double t) {
+    ThemeExtension<CometChatMessageReceiptStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatMessageReceiptStyle) {
       return this;
     }
     return CometChatMessageReceiptStyle(
       waitIconColor: Color.lerp(waitIconColor, other.waitIconColor, t),
       sentIconColor: Color.lerp(sentIconColor, other.sentIconColor, t),
-      deliveredIconColor:
-          Color.lerp(deliveredIconColor, other.deliveredIconColor, t),
+      deliveredIconColor: Color.lerp(
+        deliveredIconColor,
+        other.deliveredIconColor,
+        t,
+      ),
       readIconColor: Color.lerp(readIconColor, other.readIconColor, t),
       errorIconColor: Color.lerp(errorIconColor, other.errorIconColor, t),
     );

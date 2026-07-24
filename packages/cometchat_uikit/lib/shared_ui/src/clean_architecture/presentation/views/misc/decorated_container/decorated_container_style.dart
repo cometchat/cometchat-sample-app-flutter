@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-
 class DecoratedContainerStyle {
   const DecoratedContainerStyle({
     this.titleStyle,
     this.backgroundColor,
     this.border,
     this.borderRadius,
-    this.closeIconColor
+    this.closeIconColor,
   });
 
   ///[titleStyle] title text style
@@ -37,16 +36,14 @@ class DecoratedContainerStyle {
     );
   }
 
-  DecoratedContainerStyle copyWith(
-  {
+  DecoratedContainerStyle copyWith({
     TextStyle? titleStyle,
     Color? backgroundColor,
     BoxBorder? border,
     BorderRadiusGeometry? borderRadius,
-    Color? closeIconColor
-}
-      ) {
-   return DecoratedContainerStyle(
+    Color? closeIconColor,
+  }) {
+    return DecoratedContainerStyle(
       titleStyle: titleStyle ?? this.titleStyle,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       border: border ?? this.border,

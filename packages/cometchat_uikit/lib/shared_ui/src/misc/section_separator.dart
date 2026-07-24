@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 class SectionSeparator extends StatelessWidget {
-  const SectionSeparator(
-      {super.key,
-      this.height = 32,
-      required this.text,
-      this.dividerColor,
-      this.textStyle});
+  const SectionSeparator({
+    super.key,
+    this.height = 32,
+    required this.text,
+    this.dividerColor,
+    this.textStyle,
+  });
 
   final double height;
 
@@ -27,17 +28,20 @@ class SectionSeparator extends StatelessWidget {
           Divider(
             height: 1,
             thickness: 1,
-            color: dividerColor ?? const Color(0xff141414).withOpacity(0.1),
+            color:
+                dividerColor ?? const Color(0xff141414).withValues(alpha: 0.1),
           ),
           const SizedBox(height: 8),
           Text(
             text,
-            style: textStyle ??
+            style:
+                textStyle ??
                 TextStyle(
-                    color: const Color(0xff141414).withOpacity(0.5),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500),
-          )
+                  color: const Color(0xff141414).withValues(alpha: 0.5),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+          ),
         ],
       ),
     );

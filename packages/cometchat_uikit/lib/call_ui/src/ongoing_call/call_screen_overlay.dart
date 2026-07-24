@@ -55,8 +55,7 @@ class CallScreenOverlay {
       ),
     );
 
-    final overlay =
-        CallNavigationContext.navigatorKey.currentState?.overlay;
+    final overlay = CallNavigationContext.navigatorKey.currentState?.overlay;
     if (overlay != null && _entry != null) {
       overlay.insert(_entry!);
     }

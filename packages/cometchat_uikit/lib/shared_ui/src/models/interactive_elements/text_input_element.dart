@@ -1,5 +1,11 @@
-import '../../../cometchat_uikit_shared.dart' hide BaseInputElement, TextInputElement, ElementEntity, BaseInteractiveElement;
+import '../../../cometchat_uikit_shared.dart'
+    hide
+        BaseInputElement,
+        TextInputElement,
+        ElementEntity,
+        BaseInteractiveElement;
 import 'base_input_element.dart';
+
 /// Represents a text input model class , used to draw text input element .
 class TextInputElement extends BaseInputElement<String> {
   TextInputElement({

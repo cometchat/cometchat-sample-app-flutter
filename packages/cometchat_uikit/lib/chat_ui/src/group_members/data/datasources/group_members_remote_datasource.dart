@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/constants/ui_kit_constants.dart';
 
 /// Exception thrown when remote data source operations fail.
@@ -37,19 +37,13 @@ abstract class GroupMembersRemoteDataSource {
   ///
   /// [guid] - The group ID.
   /// [uid] - The user ID of the member to kick.
-  Future<void> kickGroupMember({
-    required String guid,
-    required String uid,
-  });
+  Future<void> kickGroupMember({required String guid, required String uid});
 
   /// Ban a member from the group.
   ///
   /// [guid] - The group ID.
   /// [uid] - The user ID of the member to ban.
-  Future<void> banGroupMember({
-    required String guid,
-    required String uid,
-  });
+  Future<void> banGroupMember({required String guid, required String uid});
 
   /// Update member scope (role) within the group.
   ///
@@ -94,14 +88,14 @@ class GroupMembersRemoteDataSourceImpl implements GroupMembersRemoteDataSource {
     try {
       // Check if we need to create a new request
       // (different guid, different search keyword, or no existing request)
-      final needsNewRequest = _currentRequest == null ||
+      final needsNewRequest =
+          _currentRequest == null ||
           _currentGuid != guid ||
           _currentSearchKeyword != searchKeyword;
 
       if (needsNewRequest) {
         // Create a new request builder
-        final requestBuilder = GroupMembersRequestBuilder(guid)
-          ..limit = limit;
+        final requestBuilder = GroupMembersRequestBuilder(guid)..limit = limit;
 
         if (searchKeyword != null && searchKeyword.isNotEmpty) {
           requestBuilder.searchKeyword = searchKeyword;
@@ -146,7 +140,8 @@ class GroupMembersRemoteDataSourceImpl implements GroupMembersRemoteDataSource {
     } catch (e) {
       if (e is GroupMembersRemoteDataSourceException) rethrow;
       throw GroupMembersRemoteDataSourceException(
-        message: 'Unexpected error while fetching group members: ${e.toString()}',
+        message:
+            'Unexpected error while fetching group members: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -283,7 +278,8 @@ class GroupMembersRemoteDataSourceImpl implements GroupMembersRemoteDataSource {
     } catch (e) {
       if (e is GroupMembersRemoteDataSourceException) rethrow;
       throw GroupMembersRemoteDataSourceException(
-        message: 'Unexpected error while updating member scope: ${e.toString()}',
+        message:
+            'Unexpected error while updating member scope: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -323,7 +319,8 @@ class GroupMembersRemoteDataSourceImpl implements GroupMembersRemoteDataSource {
     } catch (e) {
       if (e is GroupMembersRemoteDataSourceException) rethrow;
       throw GroupMembersRemoteDataSourceException(
-        message: 'Unexpected error while getting logged in user: ${e.toString()}',
+        message:
+            'Unexpected error while getting logged in user: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }

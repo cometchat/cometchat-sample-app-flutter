@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
 
@@ -69,13 +68,13 @@ class FakeTextMessage extends Fake implements TextMessage {
     DateTime? sentAt,
     DateTime? readAt,
     DateTime? deliveredAt,
-  })  : _text = text,
-        _muid = muid ?? 'muid_$_id',
-        _parentMessageId = parentMessageId,
-        _sender = sender,
-        _sentAt = sentAt ?? DateTime.now(),
-        _readAt = readAt,
-        _deliveredAt = deliveredAt;
+  }) : _text = text,
+       _muid = muid ?? 'muid_$_id',
+       _parentMessageId = parentMessageId,
+       _sender = sender,
+       _sentAt = sentAt ?? DateTime.now(),
+       _readAt = readAt,
+       _deliveredAt = deliveredAt;
 
   @override
   int get id => _id;
@@ -126,7 +125,8 @@ class FakeTextMessage extends Fake implements TextMessage {
   ModerationStatusEnum? get moderationStatus => _moderationStatus;
 
   @override
-  set moderationStatus(ModerationStatusEnum? value) => _moderationStatus = value;
+  set moderationStatus(ModerationStatusEnum? value) =>
+      _moderationStatus = value;
 
   @override
   BaseMessage? get quotedMessage => _quotedMessage;
@@ -201,27 +201,36 @@ MessageListBloc _makeBloc(
 }
 
 void _stubRepo(MockMessageListRepository repo, {List<BaseMessage>? messages}) {
-  when(() => repo.getLoggedInUser())
-      .thenAnswer((_) async => Success(FakeUser()));
-  when(() => repo.getMessages(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-        limit: any(named: 'limit'),
-        parentMessageId: any(named: 'parentMessageId'),
-        types: any(named: 'types'),
-        categories: any(named: 'categories'),
-        hideReplies: any(named: 'hideReplies'),
-        withParent: any(named: 'withParent'),
-      )).thenAnswer((_) async => Success(messages ?? []));
-  when(() => repo.getConversation(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-      )).thenAnswer((_) async => Success(FakeConversation()));
+  when(
+    () => repo.getLoggedInUser(),
+  ).thenAnswer((_) async => Success(FakeUser()));
+  when(
+    () => repo.getMessages(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+      limit: any(named: 'limit'),
+      parentMessageId: any(named: 'parentMessageId'),
+      types: any(named: 'types'),
+      categories: any(named: 'categories'),
+      hideReplies: any(named: 'hideReplies'),
+      withParent: any(named: 'withParent'),
+    ),
+  ).thenAnswer((_) async => Success(messages ?? []));
+  when(
+    () => repo.getConversation(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+    ),
+  ).thenAnswer((_) async => Success(FakeConversation()));
   // Real-time event handlers may invoke markAsRead/markAsDelivered when an
   // incoming message arrives. Stub them as no-ops so the test focuses on
   // the list mutation behaviour.
-  when(() => repo.markAsRead(any())).thenAnswer((_) async => Success(null));
-  when(() => repo.markAsDelivered(any())).thenAnswer((_) async => Success(null));
+  when(
+    () => repo.markAsRead(any()),
+  ).thenAnswer((_) async => const Success(null));
+  when(
+    () => repo.markAsDelivered(any()),
+  ).thenAnswer((_) async => const Success(null));
 }
 
 // ---------------------------------------------------------------------------
@@ -254,10 +263,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.status, MessageListStatus.loaded);
@@ -271,10 +282,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo, user: null, group: FakeGroup());
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_group',
-        conversationType: 'group',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_group',
+          conversationType: 'group',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.status, MessageListStatus.loaded);
@@ -288,10 +301,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.hasMoreOlder, isTrue);
@@ -304,10 +319,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.hasMoreOlder, isFalse);
@@ -319,10 +336,12 @@ void main() {
       _stubRepo(repo, messages: []);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.status, MessageListStatus.empty);
@@ -339,10 +358,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.messages[0].id, 1);
@@ -371,10 +392,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       bloc.add(MessageReceived(FakeTextMessage(2, text: 'new message')));
@@ -391,10 +414,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       bloc.add(MessageEdited(FakeTextMessage(1, text: 'edited')));
@@ -411,10 +436,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo, hideDeletedMessages: true);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       bloc.add(MessageDeleted(FakeTextMessage(1)));
@@ -431,10 +458,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       // Message for a different user — bloc should filter it
@@ -463,12 +492,15 @@ void main() {
     });
 
     // Android CSV #321
-    test('receipt notifier initial value is sent for messages with valid ID', () {
-      final bloc = _makeBloc(repo);
-      final notifier = bloc.getReceiptNotifier(42);
-      expect(notifier.value, MessageReceiptStatus.sent);
-      bloc.close();
-    });
+    test(
+      'receipt notifier initial value is sent for messages with valid ID',
+      () {
+        final bloc = _makeBloc(repo);
+        final notifier = bloc.getReceiptNotifier(42);
+        expect(notifier.value, MessageReceiptStatus.sent);
+        bloc.close();
+      },
+    );
 
     // Android CSV #325
     test('getReceiptNotifierForMessage returns sending for id=0 message', () {
@@ -480,22 +512,28 @@ void main() {
     });
 
     // Android CSV #330
-    test('getReceiptNotifierForMessage returns read for message with readAt', () {
-      final bloc = _makeBloc(repo);
-      final msg = FakeTextMessage(42, readAt: DateTime.now());
-      final notifier = bloc.getReceiptNotifierForMessage(msg);
-      expect(notifier.value, MessageReceiptStatus.read);
-      bloc.close();
-    });
+    test(
+      'getReceiptNotifierForMessage returns read for message with readAt',
+      () {
+        final bloc = _makeBloc(repo);
+        final msg = FakeTextMessage(42, readAt: DateTime.now());
+        final notifier = bloc.getReceiptNotifierForMessage(msg);
+        expect(notifier.value, MessageReceiptStatus.read);
+        bloc.close();
+      },
+    );
 
     // Android CSV #332
-    test('getReceiptNotifierForMessage returns delivered for message with deliveredAt', () {
-      final bloc = _makeBloc(repo);
-      final msg = FakeTextMessage(42, deliveredAt: DateTime.now());
-      final notifier = bloc.getReceiptNotifierForMessage(msg);
-      expect(notifier.value, MessageReceiptStatus.delivered);
-      bloc.close();
-    });
+    test(
+      'getReceiptNotifierForMessage returns delivered for message with deliveredAt',
+      () {
+        final bloc = _makeBloc(repo);
+        final msg = FakeTextMessage(42, deliveredAt: DateTime.now());
+        final notifier = bloc.getReceiptNotifierForMessage(msg);
+        expect(notifier.value, MessageReceiptStatus.delivered);
+        bloc.close();
+      },
+    );
   });
 
   // =========================================================================
@@ -588,10 +626,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
       bloc.add(const ResetUnreadState());
       await Future.delayed(const Duration(milliseconds: 30));
@@ -609,10 +649,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 100));
 
       expect(bloc.state.messages.length, 100);
@@ -790,10 +832,12 @@ void main() {
       final operations = <dynamic>[];
       final sub = bloc.operationsStream.listen(operations.add);
 
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 100));
 
       expect(operations, isNotEmpty);
@@ -807,10 +851,12 @@ void main() {
       _stubRepo(repo, messages: msgs);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       final operations = <dynamic>[];

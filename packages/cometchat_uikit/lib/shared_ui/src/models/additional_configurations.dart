@@ -75,7 +75,6 @@ class AdditionalConfigurations {
     this.hideFlagOption,
   });
 
-
   ///[textFormatters] is a list of [CometChatTextFormatter] that can be used to format text
   final List<CometChatTextFormatter>? textFormatters;
 
@@ -88,8 +87,8 @@ class AdditionalConfigurations {
   ///[videoBubbleStyle] is a [CometChatVideoBubbleStyle] that can be used to style video bubble
   final CometChatVideoBubbleStyle? videoBubbleStyle;
 
-  ///[audioBubbleStyle] is a [CometChatAudioBubbleStyle] that can be used to style audio bubble
-  final CometChatAudioBubbleStyle? audioBubbleStyle;
+  ///[audioBubbleStyle] is a [CometChatVoiceNoteBubbleStyle] that can be used to style audio bubble
+  final CometChatVoiceNoteBubbleStyle? audioBubbleStyle;
 
   ///[fileBubbleStyle] is a [CometChatFileBubbleStyle] that can be used to style file bubble
   final CometChatFileBubbleStyle? fileBubbleStyle;

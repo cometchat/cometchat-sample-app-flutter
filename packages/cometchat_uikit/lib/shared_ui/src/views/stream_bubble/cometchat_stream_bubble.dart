@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
-import 'package:cometchat_cards/cometchat_cards.dart';
 import '../../../cometchat_uikit_shared.dart';
 import '../no_intrinsic_card_wrapper.dart';
 
@@ -79,9 +78,9 @@ class _CometChatStreamBubbleState extends State<CometChatStreamBubble> {
     if (!_themeInitialized) {
       _bubbleStyle =
           CometChatThemeHelper.getTheme<CometChatAIAssistantBubbleStyle>(
-        context: context,
-        defaultTheme: CometChatAIAssistantBubbleStyle.of,
-      ).merge(widget.style);
+            context: context,
+            defaultTheme: CometChatAIAssistantBubbleStyle.of,
+          ).merge(widget.style);
       _colorPalette = CometChatThemeHelper.getColorPalette(context);
       _spacing = CometChatThemeHelper.getSpacing(context);
       _typography = CometChatThemeHelper.getTypography(context);
@@ -100,26 +99,27 @@ class _CometChatStreamBubbleState extends State<CometChatStreamBubble> {
 
     _streamSubscription = _queueManager
         .startStreamingForRunId(
-      runId,
-      onAiAssistantEvent: (event) async {
-        await Future.delayed(_queueManager.streamDelay);
-        _processEvent(event);
-      },
-      onError: (e) {
-        if (!mounted) return;
-        setState(() {
-          _hasError = true;
-          _errorText = e.message ?? '';
-        });
-      },
-    )
+          runId,
+          onAiAssistantEvent: (event) async {
+            await Future.delayed(_queueManager.streamDelay);
+            _processEvent(event);
+          },
+          onError: (e) {
+            if (!mounted) return;
+            setState(() {
+              _hasError = true;
+              _errorText = e.message ?? '';
+            });
+          },
+        )
         .listen(
-      (_) {},
-      onError: (err) =>
-          debugPrint('[CometChatStreamBubble][StreamError] $err'),
-      onDone: () => debugPrint(
-          '[CometChatStreamBubble][Done] Streaming completed for runId: $runId'),
-    );
+          (_) {},
+          onError: (err) =>
+              debugPrint('[CometChatStreamBubble][StreamError] $err'),
+          onDone: () => debugPrint(
+            '[CometChatStreamBubble][Done] Streaming completed for runId: $runId',
+          ),
+        );
   }
 
   void _processEvent(AIAssistantBaseEvent event) {
@@ -217,7 +217,9 @@ class _CometChatStreamBubbleState extends State<CometChatStreamBubble> {
       final existingMessage = _queueManager.getMessageById(runId);
       if (existingMessage != null) {
         _originalMessageText.putIfAbsent(
-            messageId, () => existingMessage.text ?? '');
+          messageId,
+          () => existingMessage.text ?? '',
+        );
         existingMessage.text =
             '${existingMessage.text}\n${event.executionText}';
         existingMessage.metadata?[AIConstants.aiShimmer] = false;
@@ -275,6 +277,7 @@ class _CometChatStreamBubbleState extends State<CometChatStreamBubble> {
   /// card_end — remove the loading placeholder.
   /// If the card was already rendered (via 'card' event), keep it visible.
   /// Only removes entries that are still in loading state (null).
+  // ignore: unused_element — retained for card_end event wiring
   void _handleCardEnd(AIAssistantCardEndedEvent event) {
     final cardId = event.cardId;
     if (cardId == null || cardId.isEmpty) return;
@@ -298,23 +301,21 @@ class _CometChatStreamBubbleState extends State<CometChatStreamBubble> {
         borderRadius: _bubbleStyle.borderRadius ?? BorderRadius.zero,
         color: _bubbleStyle.backgroundColor ?? _colorPalette.transparent,
       ),
-      padding: EdgeInsets.only(
-        top: MediaQuery.sizeOf(context).height * 0.0058,
-      ),
+      padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.0058),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CometChatShimmerEffect(
             linearGradient:
                 (widget.message.metadata?[AIConstants.aiShimmer] == true)
-                    ? LinearGradient(
-                        colors: [
-                          _colorPalette.textTertiary ?? Colors.transparent,
-                          _colorPalette.textPrimary ?? Colors.transparent,
-                          _colorPalette.textTertiary ?? Colors.transparent,
-                        ],
-                      )
-                    : null,
+                ? LinearGradient(
+                    colors: [
+                      _colorPalette.textTertiary ?? Colors.transparent,
+                      _colorPalette.textPrimary ?? Colors.transparent,
+                      _colorPalette.textTertiary ?? Colors.transparent,
+                    ],
+                  )
+                : null,
             child: NoIntrinsicScroll(
               child: GptMarkdownTheme(
                 gptThemeData: GptMarkdownThemeData(
@@ -329,14 +330,15 @@ class _CometChatStreamBubbleState extends State<CometChatStreamBubble> {
                 ),
                 child: GptMarkdown(
                   _text,
-                  style: TextStyle(
-                    color: _colorPalette.textPrimary,
-                    fontWeight: _typography.body?.regular?.fontWeight,
-                    fontSize: _typography.body?.regular?.fontSize,
-                    fontFamily: _typography.body?.regular?.fontFamily,
-                  )
-                      .merge(_bubbleStyle.textStyle)
-                      .copyWith(color: _bubbleStyle.textColor),
+                  style:
+                      TextStyle(
+                            color: _colorPalette.textPrimary,
+                            fontWeight: _typography.body?.regular?.fontWeight,
+                            fontSize: _typography.body?.regular?.fontSize,
+                            fontFamily: _typography.body?.regular?.fontFamily,
+                          )
+                          .merge(_bubbleStyle.textStyle)
+                          .copyWith(color: _bubbleStyle.textColor),
                   codeBuilder: (context, name, code, closed) {
                     return NoIntrinsicScroll(
                       child: CometChatAiAssistantCodeBlock(
@@ -478,7 +480,10 @@ class _CometChatStreamBubbleState extends State<CometChatStreamBubble> {
 
   /// Rendered card widget from parsed card JSON.
   Widget _buildRenderedCard(
-      String cardId, Map<String, dynamic> cardData, CometChatCardThemeMode themeMode) {
+    String cardId,
+    Map<String, dynamic> cardData,
+    CometChatCardThemeMode themeMode,
+  ) {
     final cardJson = jsonEncode(cardData);
     return NoIntrinsicCardWrapper(
       key: ValueKey('card_rendered_$cardId'),

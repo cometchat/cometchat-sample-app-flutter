@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 /// Service for managing global call state using ValueNotifier pattern.
 ///
-/// Replaces the GetX-based [CallStateController] singleton with a
+/// Replaces the GetX-based `CallStateController` singleton with a
 /// ValueNotifier-based implementation that integrates cleanly with BLoC architecture.
 ///
 /// Usage:

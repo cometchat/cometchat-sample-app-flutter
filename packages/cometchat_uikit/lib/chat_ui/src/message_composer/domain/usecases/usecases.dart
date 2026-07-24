@@ -1,4 +1,6 @@
 /// Barrel export for message composer use cases
+library;
+
 export 'send_text_message_usecase.dart';
 export 'send_media_message_usecase.dart';
 export 'send_custom_message_usecase.dart';

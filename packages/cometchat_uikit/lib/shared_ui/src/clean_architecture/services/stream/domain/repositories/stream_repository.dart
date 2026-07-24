@@ -23,29 +23,19 @@ abstract class StreamRepository {
   });
 
   /// Stop current playing stream
-  Future<Result<void>> stopStream({
-    required String streamId,
-  });
+  Future<Result<void>> stopStream({required String streamId});
 
   /// Pause current playing stream
-  Future<Result<void>> pauseStream({
-    required String streamId,
-  });
+  Future<Result<void>> pauseStream({required String streamId});
 
   /// Resume paused stream
-  Future<Result<void>> resumeStream({
-    required String streamId,
-  });
+  Future<Result<void>> resumeStream({required String streamId});
 
   /// Get stream duration
-  Future<Result<Duration>> getStreamDuration({
-    required String url,
-  });
+  Future<Result<Duration>> getStreamDuration({required String url});
 
   /// Get current playback position
-  Future<Result<Duration>> getCurrentPosition({
-    required String streamId,
-  });
+  Future<Result<Duration>> getCurrentPosition({required String streamId});
 
   /// Seek to position in stream
   Future<Result<void>> seekToPosition({
@@ -55,7 +45,5 @@ abstract class StreamRepository {
 
   /// Stream of stream playback status changes
   /// Emits status updates as stream plays
-  Stream<StreamStatusUpdate> getStreamStatusStream({
-    required String streamId,
-  });
+  Stream<StreamStatusUpdate> getStreamStatusStream({required String streamId});
 }

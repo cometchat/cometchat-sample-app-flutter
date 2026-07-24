@@ -62,7 +62,8 @@ class CometChatAIAssistantBubbleStyle
   }
 
   CometChatAIAssistantBubbleStyle merge(
-      CometChatAIAssistantBubbleStyle? style) {
+    CometChatAIAssistantBubbleStyle? style,
+  ) {
     if (style == null) return this;
     return copyWith(
       textStyle: style.textStyle,
@@ -77,19 +78,27 @@ class CometChatAIAssistantBubbleStyle
 
   @override
   CometChatAIAssistantBubbleStyle lerp(
-      CometChatAIAssistantBubbleStyle? other, double t) {
+    CometChatAIAssistantBubbleStyle? other,
+    double t,
+  ) {
     return CometChatAIAssistantBubbleStyle(
       textStyle: TextStyle.lerp(textStyle, other?.textStyle, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other?.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other?.borderRadius,
+        t,
+      ),
       textColor: Color.lerp(textColor, other?.textColor, t),
       backgroundColor: Color.lerp(backgroundColor, other?.backgroundColor, t),
-      messageBubbleAvatarStyle:
-          messageBubbleAvatarStyle?.lerp(other?.messageBubbleAvatarStyle, t),
+      messageBubbleAvatarStyle: messageBubbleAvatarStyle?.lerp(
+        other?.messageBubbleAvatarStyle,
+        t,
+      ),
       messageBubbleBackgroundImage: DecorationImage.lerp(
-          messageBubbleBackgroundImage,
-          other?.messageBubbleBackgroundImage,
-          t),
+        messageBubbleBackgroundImage,
+        other?.messageBubbleBackgroundImage,
+        t,
+      ),
     );
   }
 }

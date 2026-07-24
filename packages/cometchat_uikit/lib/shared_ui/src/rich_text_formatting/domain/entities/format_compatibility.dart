@@ -7,13 +7,15 @@
 ///   Code Block) are compatible with each other
 /// - Bullet List and Numbered List are mutually exclusive
 /// - All other combinations are allowed
+library;
+
 import 'format_type.dart';
 
 /// Provides format compatibility checking based on Slack's rules.
 class FormatCompatibility {
   FormatCompatibility._();
 
-  /// Compatibility matrix: Map<ActiveFormat, Set<CompatibleFormats>>
+  /// Compatibility matrix: `Map<ActiveFormat, Set<CompatibleFormats>>`
   /// If a format is NOT in the compatible set, it should be disabled.
   static const Map<FormatType, Set<FormatType>> _compatibilityMatrix = {
     FormatType.bold: {
@@ -137,7 +139,8 @@ class FormatCompatibility {
     // Check if target format is compatible with ALL active formats
     for (final activeFormat in activeFormats) {
       final compatibleFormats = _compatibilityMatrix[activeFormat];
-      if (compatibleFormats == null || !compatibleFormats.contains(targetFormat)) {
+      if (compatibleFormats == null ||
+          !compatibleFormats.contains(targetFormat)) {
         return false;
       }
     }
@@ -154,7 +157,8 @@ class FormatCompatibility {
     final disabledFormats = <FormatType>{};
 
     for (final format in FormatType.values) {
-      if (!activeFormats.contains(format) && !isCompatible(format, activeFormats)) {
+      if (!activeFormats.contains(format) &&
+          !isCompatible(format, activeFormats)) {
         disabledFormats.add(format);
       }
     }

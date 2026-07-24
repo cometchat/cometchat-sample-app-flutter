@@ -31,10 +31,15 @@ class MessageComposerSecondaryButtons extends StatelessWidget {
     this.spacing,
     this.attachmentButtonLink,
     this.attachmentOpenNotifier,
+    this.disabled = false,
   });
 
   /// Callback invoked when the attachment button is tapped.
   final VoidCallback onAttachmentTap;
+
+  /// When true, the button is dimmed and ignores taps — used while editing an
+  /// existing message's text, where adding new attachments isn't meaningful.
+  final bool disabled;
 
   /// Whether to hide the attachment button.
   final bool hideAttachmentButton;
@@ -95,7 +100,9 @@ class MessageComposerSecondaryButtons extends StatelessWidget {
         spacing ?? CometChatThemeHelper.getSpacing(context);
 
     final Color iconColor =
-        secondaryButtonIconColor ?? effectiveColorPalette.iconSecondary ?? Colors.grey;
+        secondaryButtonIconColor ??
+        effectiveColorPalette.iconSecondary ??
+        Colors.grey;
 
     return Semantics(
       label: 'Attachment button',
@@ -104,7 +111,11 @@ class MessageComposerSecondaryButtons extends StatelessWidget {
           color: secondaryButtonIconBackgroundColor,
           borderRadius: secondaryButtonBorderRadius,
         ),
-        child: _buildAttachmentButton(effectiveColorPalette, effectiveSpacing, iconColor),
+        child: _buildAttachmentButton(
+          effectiveColorPalette,
+          effectiveSpacing,
+          iconColor,
+        ),
       ),
     );
   }
@@ -114,7 +125,8 @@ class MessageComposerSecondaryButtons extends StatelessWidget {
     CometChatSpacing spacing,
     Color iconColor,
   ) {
-    Widget icon = attachmentIcon ??
+    Widget icon =
+        attachmentIcon ??
         Image.asset(
           AssetConstants.add,
           package: UIConstants.packageName,
@@ -140,11 +152,16 @@ class MessageComposerSecondaryButtons extends StatelessWidget {
       );
     }
 
+    if (disabled) {
+      icon = Opacity(opacity: 0.4, child: icon);
+    }
+
     final button = Semantics(
       label: 'Add attachment',
       button: true,
+      enabled: !disabled,
       child: GestureDetector(
-        onTap: onAttachmentTap,
+        onTap: disabled ? null : onAttachmentTap,
         child: icon,
       ),
     );

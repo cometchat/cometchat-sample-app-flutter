@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../cometchat_calls_uikit.dart';
 import '../../../cometchat_chat_uikit.dart';
 
-
-
 ///[CallButtonsConfiguration] is a data class that has configuration properties
 ///
 /// ```dart
@@ -34,7 +32,7 @@ class CallButtonsConfiguration {
   ///[onError] is a callback which gets called when there is an error in call
   final OnError? onError;
 
-  ///[outgoingCallConfiguration] is a object of [OutgoingCallConfiguration] which sets the configuration for outgoing call
+  ///[outgoingCallConfiguration] is a object of [CometChatOutgoingCallConfiguration] which sets the configuration for outgoing call
   final CometChatOutgoingCallConfiguration? outgoingCallConfiguration;
 
   ///[hideVoiceCallButton] is a bool which hides the voice call icon
@@ -51,5 +49,9 @@ class CallButtonsConfiguration {
 
   ///[callSettingsBuilder] is used to configure the meet settings builder
   final SessionSettingsBuilder Function(
-      User? user, Group? group, bool? isAudioOnly)? callSettingsBuilder;
+    User? user,
+    Group? group,
+    bool? isAudioOnly,
+  )?
+  callSettingsBuilder;
 }

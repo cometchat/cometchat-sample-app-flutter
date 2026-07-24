@@ -5,6 +5,7 @@ import 'package:cometchat_sdk/cometchat_sdk.dart' as cc;
 // Import all necessary dependencies
 import '../constants/ui_kit_constants.dart';
 import '../constants/asset_constants.dart';
+import 'attachment_utils.dart';
 import '../../data/models/cometchat_option.dart';
 import '../../data/models/interactive_message/scheduler_message.dart';
 import '../../presentation/theme/theme/cometchat_theme_helper.dart';
@@ -19,19 +20,19 @@ import '../../../../src/cometchat_ui_kit/cometchat_ui_kit.dart';
 ///provides the default action to execute on a conversation
 class ConversationUtils {
   /// Get default options for a conversation
-  /// 
+  ///
   /// **Deprecated**: This method previously required a controller parameter.
   /// Use [getDefaultOptionsWithCallback] instead to provide custom delete action.
   @Deprecated(
     'Use getDefaultOptionsWithCallback instead. '
-    'See CONVERSATIONS_MIGRATION_GUIDE.md for migration instructions.'
+    'See CONVERSATIONS_MIGRATION_GUIDE.md for migration instructions.',
   )
   static List<CometChatOption>? getDefaultOptions(
-      Conversation conversation,
-      dynamic controller,
-      BuildContext context,
-      CometChatColorPalette colorPalette,
-      ) {
+    Conversation conversation,
+    dynamic controller,
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+  ) {
     return getDefaultOptionsWithCallback(
       conversation: conversation,
       context: context,
@@ -41,7 +42,7 @@ class ConversationUtils {
   }
 
   /// Get default options for a conversation with custom delete callback
-  /// 
+  ///
   /// This is the new recommended way to get default conversation options.
   /// Provide a custom [onDelete] callback to handle deletion.
   static List<CometChatOption>? getDefaultOptionsWithCallback({
@@ -52,24 +53,26 @@ class ConversationUtils {
   }) {
     return [
       CometChatOption(
-          id: ConversationOptionConstants.delete,
-          icon: AssetConstants.delete,
-          packageName: UIConstants.packageName,
-          backgroundColor: colorPalette.background1,
-          iconTint: colorPalette.error,
-          title: Translations.of(context).delete,
-          onClick: () {
-            if (onDelete != null) {
-              onDelete(conversation);
-            }
-          },
+        id: ConversationOptionConstants.delete,
+        icon: AssetConstants.delete,
+        packageName: UIConstants.packageName,
+        backgroundColor: colorPalette.background1,
+        iconTint: colorPalette.error,
+        title: Translations.of(context).delete,
+        onClick: () {
+          if (onDelete != null) {
+            onDelete(conversation);
+          }
+        },
       ),
     ];
   }
 
   static String getLastCustomMessage(
-      Conversation conversation, BuildContext context) {
-    if(conversation.lastMessage is CustomMessage) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
+    if (conversation.lastMessage is CustomMessage) {
       CustomMessage customMessage = conversation.lastMessage as CustomMessage;
       String messageType = customMessage.type;
       String subtitle = '';
@@ -104,7 +107,9 @@ class ConversationUtils {
   /// If initiated by the logged-in user: "You've initiated a group call"
   /// If initiated by someone else: "{Name} has initiated a group call"
   static String _getGroupCallSubtitle(
-      BaseMessage message, BuildContext context) {
+    BaseMessage message,
+    BuildContext context,
+  ) {
     if (message.sender?.uid == CometChatUIKit.loggedInUser?.uid) {
       return Translations.of(context).youInitiatedGroupCall;
     } else {
@@ -129,22 +134,39 @@ class ConversationUtils {
     result = result.replaceAllMapped(RegExp(r'_{2}(.+?)_{2}'), (m) => m[1]!);
     // Italic (*text* or _text_)
     result = result.replaceAllMapped(RegExp(r'\*(.+?)\*'), (m) => m[1]!);
-    result = result.replaceAllMapped(RegExp(r'(?<=\s|^)_(.+?)_(?=\s|$)'), (m) => m[1]!);
+    result = result.replaceAllMapped(
+      RegExp(r'(?<=\s|^)_(.+?)_(?=\s|$)'),
+      (m) => m[1]!,
+    );
     // Strikethrough (~~text~~)
     result = result.replaceAllMapped(RegExp(r'~~(.+?)~~'), (m) => m[1]!);
     // Blockquote (>> or > at line start)
-    result = result.replaceAll(RegExp(r'(^|\n)>{1,2}\s?', multiLine: true), r'$1');
+    result = result.replaceAll(
+      RegExp(r'(^|\n)>{1,2}\s?', multiLine: true),
+      r'$1',
+    );
     // Headings (# ## ### etc.)
-    result = result.replaceAll(RegExp(r'(^|\n)#{1,6}\s+', multiLine: true), r'$1');
+    result = result.replaceAll(
+      RegExp(r'(^|\n)#{1,6}\s+', multiLine: true),
+      r'$1',
+    );
     // Unordered list markers (- or * at line start)
-    result = result.replaceAll(RegExp(r'(^|\n)[*\-]\s+', multiLine: true), r'$1');
+    result = result.replaceAll(
+      RegExp(r'(^|\n)[*\-]\s+', multiLine: true),
+      r'$1',
+    );
     // Ordered list markers (1. 2. etc.)
-    result = result.replaceAll(RegExp(r'(^|\n)\d+\.\s+', multiLine: true), r'$1');
+    result = result.replaceAll(
+      RegExp(r'(^|\n)\d+\.\s+', multiLine: true),
+      r'$1',
+    );
     return result.trim();
   }
 
   static String getLastMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     BaseMessage message = conversation.lastMessage!;
     String messageType = message.type;
     String subtitle;
@@ -154,60 +176,40 @@ class ConversationUtils {
         subtitle = (message as TextMessage).text;
         if (message.mentionedUsers.isNotEmpty) {
           subtitle = CometChatMentionsFormatter.getTextWithMentions(
-              message.text, message.mentionedUsers);
+            message.text,
+            message.mentionedUsers,
+          );
         }
         // Strip markdown syntax so subtitle shows plain text
         subtitle = stripMarkdownSyntax(subtitle);
         // Truncate long URLs in the subtitle for better display
         subtitle = _truncateUrlsInText(subtitle);
         break;
+      // image / video / file: caption → "{count} Images/…" → filename → label,
+      // exactly matching the search list (AttachmentUtils.previewSubtitleFor).
       case MessageTypeConstants.image:
-        subtitle = Translations.of(context).messageImage;
-        break;
       case MessageTypeConstants.video:
-        subtitle = Translations.of(context).messageVideo;
-        break;
       case MessageTypeConstants.file:
-        subtitle = _getFileMessageSubtitle(message, context);
+        subtitle = AttachmentUtils.previewSubtitleFor(message, context);
         break;
       case MessageTypeConstants.audio:
-        subtitle = _getAudioMessageSubtitle(message, context);
+        // A voice note (single, un-captioned, recording filename) keeps the
+        // friendly "Audio" label instead of showing a timestamped filename;
+        // picked audio files use the search-style preview (caption / count).
+        final isVoiceNote =
+            message is MediaMessage &&
+            (message.caption?.trim().isEmpty ?? true) &&
+            AttachmentUtils.attachmentsOf(message).length == 1 &&
+            message.attachment?.fileName != null &&
+            _isVoiceNoteName(message.attachment!.fileName);
+        subtitle = isVoiceNote
+            ? Translations.of(context).messageAudio
+            : AttachmentUtils.previewSubtitleFor(message, context);
         break;
       default:
         subtitle = messageType;
     }
     return subtitle;
-  }
-
-  /// Returns the subtitle text for a file message.
-  /// Prefers the attachment's file name when available so the preview shows
-  /// e.g. "report.pdf" instead of the generic "File".
-  static String _getFileMessageSubtitle(
-      BaseMessage message, BuildContext context) {
-    if (message is MediaMessage) {
-      final fileName = message.attachment?.fileName;
-      if (fileName != null && fileName.trim().isNotEmpty) {
-        return fileName;
-      }
-    }
-    return Translations.of(context).messageFile;
-  }
-
-  /// Returns the subtitle text for an audio message.
-  /// Uses the attachment's file name for non-voice-note audio (e.g. music
-  /// files); falls back to the localized "Audio" string for voice notes or
-  /// when no attachment name is present.
-  static String _getAudioMessageSubtitle(
-      BaseMessage message, BuildContext context) {
-    if (message is MediaMessage) {
-      final fileName = message.attachment?.fileName;
-      if (fileName != null &&
-          fileName.trim().isNotEmpty &&
-          !_isVoiceNoteName(fileName)) {
-        return fileName;
-      }
-    }
-    return Translations.of(context).messageAudio;
   }
 
   /// Heuristic: treat recordings produced by the composer as voice notes so
@@ -221,41 +223,39 @@ class ConversationUtils {
   }
 
   /// Truncates long URLs in text to make them more readable in conversation subtitles.
-  /// 
+  ///
   /// URLs longer than [maxUrlLength] characters are shortened to show the domain
   /// and a truncated path (e.g., "https://example.com/very/long/path..." becomes
   /// "example.com/very/lo...").
   static String _truncateUrlsInText(String text, {int maxUrlLength = 30}) {
     // Regular expression to match URLs
-    final urlRegex = RegExp(
-      r'https?://[^\s]+',
-      caseSensitive: false,
-    );
-    
+    final urlRegex = RegExp(r'https?://[^\s]+', caseSensitive: false);
+
     return text.replaceAllMapped(urlRegex, (match) {
       final url = match.group(0)!;
       if (url.length <= maxUrlLength) {
         return url;
       }
-      
+
       // Try to parse the URL to extract domain
       try {
         final uri = Uri.parse(url);
         final domain = uri.host;
         final path = uri.path;
-        
+
         // If just the domain fits, show domain + truncated path
         if (domain.length < maxUrlLength - 3) {
-          final remainingLength = maxUrlLength - domain.length - 3; // -3 for "..."
+          final remainingLength =
+              maxUrlLength - domain.length - 3; // -3 for "..."
           if (path.isNotEmpty && remainingLength > 0) {
-            final truncatedPath = path.length > remainingLength 
+            final truncatedPath = path.length > remainingLength
                 ? '${path.substring(0, remainingLength)}...'
                 : path;
             return '$domain$truncatedPath';
           }
           return '$domain...';
         }
-        
+
         // Domain itself is too long, truncate it
         return '${domain.substring(0, maxUrlLength - 3)}...';
       } catch (e) {
@@ -266,7 +266,9 @@ class ConversationUtils {
   }
 
   static String getLastInteractiveMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     BaseMessage message = conversation.lastMessage!;
     String messageType = message.type;
     String subtitle;
@@ -280,9 +282,12 @@ class ConversationUtils {
       case MessageTypeConstants.scheduler:
         SchedulerMessage schedulerMessage =
             SchedulerMessage.fromInteractiveMessage(
-                message as InteractiveMessage);
-        String meetingMessage =
-            SchedulerUtils.getSchedulerTitle(schedulerMessage, context);
+              message as InteractiveMessage,
+            );
+        String meetingMessage = SchedulerUtils.getSchedulerTitle(
+          schedulerMessage,
+          context,
+        );
         subtitle = "🗓️ $meetingMessage";
         break;
       default:
@@ -292,7 +297,9 @@ class ConversationUtils {
   }
 
   static String getLastActionMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     BaseMessage message = conversation.lastMessage!;
     String subtitle;
 
@@ -307,7 +314,9 @@ class ConversationUtils {
   }
 
   static String getLastCallMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     Call call = conversation.lastMessage as Call;
     User? conversationWithUser;
     Group? conversationWithGroup;
@@ -377,7 +386,9 @@ class ConversationUtils {
   }
 
   static String getLastConversationMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     String? messageCategory = conversation.lastMessage?.category;
     String subtitle;
     switch (messageCategory) {
@@ -415,7 +426,10 @@ class ConversationUtils {
   // return icon widget to be shown in the prefix to the last message
 
   static Widget getLastConversationIcon(
-      Conversation conversation, BuildContext context, Color? iconColor) {
+    Conversation conversation,
+    BuildContext context,
+    Color? iconColor,
+  ) {
     String? messageCategory = conversation.lastMessage?.category;
     Widget subtitle;
     switch (messageCategory) {
@@ -433,12 +447,7 @@ class ConversationUtils {
         break;
       case MessageCategoryConstants.interactive:
         // subtitle = getLastInteractiveWidget(conversation, context);
-        subtitle =  Icon(
-    Icons.block,
-    color:  iconColor,
-    size: 16,
-    )
-    ;
+        subtitle = Icon(Icons.block, color: iconColor, size: 16);
         break;
       default:
         subtitle = const SizedBox();
@@ -506,7 +515,8 @@ class ConversationUtils {
       final ext = (message.attachment?.fileExtension ?? '').toLowerCase();
       final mime = (message.attachment?.fileMimeType ?? '').toLowerCase();
 
-      if (ext == 'pdf' || mime == 'application/pdf') {        icon = Icons.picture_as_pdf;
+      if (ext == 'pdf' || mime == 'application/pdf') {
+        icon = Icons.picture_as_pdf;
       } else if (ext == 'doc' ||
           ext == 'docx' ||
           mime.contains('word') ||
@@ -568,7 +578,15 @@ class ConversationUtils {
     if (message is MediaMessage) {
       final fileName = message.attachment?.fileName ?? '';
       final ext = (message.attachment?.fileExtension ?? '').toLowerCase();
-      const musicExtensions = {'mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac', 'wma'};
+      const musicExtensions = {
+        'mp3',
+        'wav',
+        'm4a',
+        'aac',
+        'ogg',
+        'flac',
+        'wma',
+      };
 
       // Only switch to music icon when the attachment clearly isn't a
       // composer-generated voice recording.

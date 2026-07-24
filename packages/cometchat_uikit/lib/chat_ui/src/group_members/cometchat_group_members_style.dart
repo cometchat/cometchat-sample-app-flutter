@@ -5,7 +5,8 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 ///[CometChatGroupMembersStyle] is a data class that has styling-related properties
 ///to customize the appearance of [CometChatGroupMembers]
-class CometChatGroupMembersStyle extends ThemeExtension<CometChatGroupMembersStyle> {
+class CometChatGroupMembersStyle
+    extends ThemeExtension<CometChatGroupMembersStyle> {
   const CometChatGroupMembersStyle({
     this.titleStyle,
     this.backIconColor,
@@ -166,7 +167,7 @@ class CometChatGroupMembersStyle extends ThemeExtension<CometChatGroupMembersSty
 
   ///[emptyStateSubtitleTextStyle] provides styling for subtitle text to indicate user list is empty
   final TextStyle? emptyStateSubtitleTextStyle;
-  
+
   ///[emptyStateSubtitleTextColor] provides color for empty state subtitle text
   final Color? emptyStateSubtitleTextColor;
 
@@ -221,10 +222,8 @@ class CometChatGroupMembersStyle extends ThemeExtension<CometChatGroupMembersSty
   ///[optionsTextStyle] provides text style for options
   final TextStyle? optionsTextStyle;
 
-
   @override
-  CometChatGroupMembersStyle copyWith(
-  {
+  CometChatGroupMembersStyle copyWith({
     TextStyle? titleStyle,
     Color? backIconColor,
     Color? searchBackground,
@@ -285,7 +284,8 @@ class CometChatGroupMembersStyle extends ThemeExtension<CometChatGroupMembersSty
       searchBackground: searchBackground ?? this.searchBackground,
       searchBorderRadius: searchBorderRadius ?? this.searchBorderRadius,
       searchTextStyle: searchTextStyle ?? this.searchTextStyle,
-      searchPlaceholderStyle: searchPlaceholderStyle ?? this.searchPlaceholderStyle,
+      searchPlaceholderStyle:
+          searchPlaceholderStyle ?? this.searchPlaceholderStyle,
       searchIconColor: searchIconColor ?? this.searchIconColor,
       loadingIconColor: loadingIconColor ?? this.loadingIconColor,
       onlineStatusColor: onlineStatusColor ?? this.onlineStatusColor,
@@ -293,112 +293,308 @@ class CometChatGroupMembersStyle extends ThemeExtension<CometChatGroupMembersSty
       backgroundColor: backgroundColor ?? this.backgroundColor,
       border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
-      checkboxCheckedBackgroundColor: checkboxCheckedBackgroundColor ?? this.checkboxCheckedBackgroundColor,
-      checkboxBackgroundColor: checkboxBackgroundColor ?? this.checkboxBackgroundColor,
-      checkboxSelectedIconColor: checkboxSelectedIconColor ?? this.checkboxSelectedIconColor,
+      checkboxCheckedBackgroundColor:
+          checkboxCheckedBackgroundColor ?? this.checkboxCheckedBackgroundColor,
+      checkboxBackgroundColor:
+          checkboxBackgroundColor ?? this.checkboxBackgroundColor,
+      checkboxSelectedIconColor:
+          checkboxSelectedIconColor ?? this.checkboxSelectedIconColor,
       checkboxBorder: checkboxBorder ?? this.checkboxBorder,
       checkboxBorderRadius: checkboxBorderRadius ?? this.checkboxBorderRadius,
-        listItemSelectedBackgroundColor: listItemSelectedBackgroundColor ?? this.listItemSelectedBackgroundColor,
-        confirmDialogStyle: confirmDialogStyle ?? this.confirmDialogStyle,
-      errorStateSubtitleStyle: errorStateSubtitleStyle ?? this.errorStateSubtitleStyle,
-        avatarStyle: avatarStyle ?? this.avatarStyle,
-        statusIndicatorStyle: statusIndicatorStyle ?? this.statusIndicatorStyle,
+      listItemSelectedBackgroundColor:
+          listItemSelectedBackgroundColor ??
+          this.listItemSelectedBackgroundColor,
+      confirmDialogStyle: confirmDialogStyle ?? this.confirmDialogStyle,
+      errorStateSubtitleStyle:
+          errorStateSubtitleStyle ?? this.errorStateSubtitleStyle,
+      avatarStyle: avatarStyle ?? this.avatarStyle,
+      statusIndicatorStyle: statusIndicatorStyle ?? this.statusIndicatorStyle,
       errorStateTextStyle: errorStateTextStyle ?? this.errorStateTextStyle,
       listItemStyle: listItemStyle ?? this.listItemStyle,
-      retryButtonBackgroundColor: retryButtonBackgroundColor ?? this.retryButtonBackgroundColor,
+      retryButtonBackgroundColor:
+          retryButtonBackgroundColor ?? this.retryButtonBackgroundColor,
       retryButtonTextColor: retryButtonTextColor ?? this.retryButtonTextColor,
       retryButtonTextStyle: retryButtonTextStyle ?? this.retryButtonTextStyle,
       retryButtonBorder: retryButtonBorder ?? this.retryButtonBorder,
-      retryButtonBorderRadius: retryButtonBorderRadius ?? this.retryButtonBorderRadius,
+      retryButtonBorderRadius:
+          retryButtonBorderRadius ?? this.retryButtonBorderRadius,
       separatorHeight: separatorHeight ?? this.separatorHeight,
       separatorColor: separatorColor ?? this.separatorColor,
       emptyStateTextStyle: emptyStateTextStyle ?? this.emptyStateTextStyle,
       emptyStateTextColor: emptyStateTextColor ?? this.emptyStateTextColor,
-      emptyStateSubtitleTextStyle: emptyStateSubtitleTextStyle ?? this.emptyStateSubtitleTextStyle,
-      emptyStateSubtitleTextColor: emptyStateSubtitleTextColor ?? this.emptyStateSubtitleTextColor,
-      adminMemberScopeBackgroundColor: adminMemberScopeBackgroundColor ?? this.adminMemberScopeBackgroundColor,
-      moderatorMemberScopeBackgroundColor: moderatorMemberScopeBackgroundColor ?? this.moderatorMemberScopeBackgroundColor,
-      ownerMemberScopeBackgroundColor: ownerMemberScopeBackgroundColor ?? this.ownerMemberScopeBackgroundColor,
-      adminMemberScopeTextColor: adminMemberScopeTextColor ?? this.adminMemberScopeTextColor,
-      moderatorMemberScopeTextColor: moderatorMemberScopeTextColor ?? this.moderatorMemberScopeTextColor,
-      ownerMemberScopeTextColor: ownerMemberScopeTextColor ?? this.ownerMemberScopeTextColor,
-      adminMemberScopeBorder: adminMemberScopeBorder ?? this.adminMemberScopeBorder,
-      moderatorMemberScopeBorder: moderatorMemberScopeBorder ?? this.moderatorMemberScopeBorder,
-      adminMemberScopeTextStyle: adminMemberScopeTextStyle ?? this.adminMemberScopeTextStyle,
-      moderatorMemberScopeTextStyle: moderatorMemberScopeTextStyle ?? this.moderatorMemberScopeTextStyle,
-      ownerMemberScopeTextStyle: ownerMemberScopeTextStyle ?? this.ownerMemberScopeTextStyle,
-      ownerMemberScopeBorder: ownerMemberScopeBorder ?? this.ownerMemberScopeBorder,
+      emptyStateSubtitleTextStyle:
+          emptyStateSubtitleTextStyle ?? this.emptyStateSubtitleTextStyle,
+      emptyStateSubtitleTextColor:
+          emptyStateSubtitleTextColor ?? this.emptyStateSubtitleTextColor,
+      adminMemberScopeBackgroundColor:
+          adminMemberScopeBackgroundColor ??
+          this.adminMemberScopeBackgroundColor,
+      moderatorMemberScopeBackgroundColor:
+          moderatorMemberScopeBackgroundColor ??
+          this.moderatorMemberScopeBackgroundColor,
+      ownerMemberScopeBackgroundColor:
+          ownerMemberScopeBackgroundColor ??
+          this.ownerMemberScopeBackgroundColor,
+      adminMemberScopeTextColor:
+          adminMemberScopeTextColor ?? this.adminMemberScopeTextColor,
+      moderatorMemberScopeTextColor:
+          moderatorMemberScopeTextColor ?? this.moderatorMemberScopeTextColor,
+      ownerMemberScopeTextColor:
+          ownerMemberScopeTextColor ?? this.ownerMemberScopeTextColor,
+      adminMemberScopeBorder:
+          adminMemberScopeBorder ?? this.adminMemberScopeBorder,
+      moderatorMemberScopeBorder:
+          moderatorMemberScopeBorder ?? this.moderatorMemberScopeBorder,
+      adminMemberScopeTextStyle:
+          adminMemberScopeTextStyle ?? this.adminMemberScopeTextStyle,
+      moderatorMemberScopeTextStyle:
+          moderatorMemberScopeTextStyle ?? this.moderatorMemberScopeTextStyle,
+      ownerMemberScopeTextStyle:
+          ownerMemberScopeTextStyle ?? this.ownerMemberScopeTextStyle,
+      ownerMemberScopeBorder:
+          ownerMemberScopeBorder ?? this.ownerMemberScopeBorder,
       submitIconColor: submitIconColor ?? this.submitIconColor,
       changeScopeStyle: changeScopeStyle ?? this.changeScopeStyle,
-      optionsBackgroundColor: optionsBackgroundColor ?? this.optionsBackgroundColor,
+      optionsBackgroundColor:
+          optionsBackgroundColor ?? this.optionsBackgroundColor,
       optionsIconColor: optionsIconColor ?? this.optionsIconColor,
       optionsTextStyle: optionsTextStyle ?? this.optionsTextStyle,
     );
   }
 
   @override
-  CometChatGroupMembersStyle lerp(covariant CometChatGroupMembersStyle? other, double t) {
+  CometChatGroupMembersStyle lerp(
+    covariant CometChatGroupMembersStyle? other,
+    double t,
+  ) {
     if (other is! CometChatGroupMembersStyle) return this;
     return CometChatGroupMembersStyle(
       titleStyle: TextStyle.lerp(titleStyle, other.titleStyle, t),
       backIconColor: Color.lerp(backIconColor, other.backIconColor, t),
       searchBackground: Color.lerp(searchBackground, other.searchBackground, t),
-      searchBorderRadius: BorderRadius.lerp(searchBorderRadius, other.searchBorderRadius, t),
-      searchTextStyle: TextStyle.lerp(searchTextStyle, other.searchTextStyle, t),
-      searchPlaceholderStyle: TextStyle.lerp(searchPlaceholderStyle, other.searchPlaceholderStyle, t),
+      searchBorderRadius: BorderRadius.lerp(
+        searchBorderRadius,
+        other.searchBorderRadius,
+        t,
+      ),
+      searchTextStyle: TextStyle.lerp(
+        searchTextStyle,
+        other.searchTextStyle,
+        t,
+      ),
+      searchPlaceholderStyle: TextStyle.lerp(
+        searchPlaceholderStyle,
+        other.searchPlaceholderStyle,
+        t,
+      ),
       searchIconColor: Color.lerp(searchIconColor, other.searchIconColor, t),
       loadingIconColor: Color.lerp(loadingIconColor, other.loadingIconColor, t),
-     onlineStatusColor: Color.lerp(onlineStatusColor, other.onlineStatusColor, t),
+      onlineStatusColor: Color.lerp(
+        onlineStatusColor,
+        other.onlineStatusColor,
+        t,
+      ),
       listPadding: EdgeInsetsGeometry.lerp(listPadding, other.listPadding, t),
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
-      checkboxCheckedBackgroundColor: Color.lerp(checkboxCheckedBackgroundColor, other.checkboxCheckedBackgroundColor, t),
-      checkboxBackgroundColor: Color.lerp(checkboxBackgroundColor, other.checkboxBackgroundColor, t),
-      checkboxSelectedIconColor: Color.lerp(checkboxSelectedIconColor, other.checkboxSelectedIconColor, t),
-      checkboxBorderRadius: BorderRadiusGeometry.lerp(checkboxBorderRadius, other.checkboxBorderRadius, t),
-      checkboxBorder: BorderSide.lerp(checkboxBorder ?? const BorderSide(), other.checkboxBorder ?? const BorderSide(), t),
-        listItemSelectedBackgroundColor: Color.lerp(listItemSelectedBackgroundColor, other.listItemSelectedBackgroundColor, t),
-        confirmDialogStyle: confirmDialogStyle?.lerp(other.confirmDialogStyle, t),
-      errorStateTextStyle: TextStyle.lerp(errorStateTextStyle, other.errorStateTextStyle, t),
-      errorStateSubtitleStyle: TextStyle.lerp(errorStateSubtitleStyle, other.errorStateSubtitleStyle, t),
-        avatarStyle: avatarStyle?.lerp(other.avatarStyle, t),
-        statusIndicatorStyle: statusIndicatorStyle?.lerp(other.statusIndicatorStyle, t),
-      listItemStyle: ListItemStyle(
-        separatorColor: Color.lerp(listItemStyle?.separatorColor, other.listItemStyle?.separatorColor, t),
-        titleStyle: TextStyle.lerp(listItemStyle?.titleStyle, other.listItemStyle?.titleStyle, t),
-        borderRadius: BorderRadiusGeometry.lerp(listItemStyle?.borderRadius, other.listItemStyle?.borderRadius, t),
-        border: BoxBorder.lerp(listItemStyle?.border, other.listItemStyle?.border, t),
-        background: Color.lerp(listItemStyle?.background, other.listItemStyle?.background, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
       ),
-      retryButtonBackgroundColor: Color.lerp(retryButtonBackgroundColor, other.retryButtonBackgroundColor, t),
-      retryButtonTextColor: Color.lerp(retryButtonTextColor, other.retryButtonTextColor, t),
-      retryButtonBorder: BorderSide.lerp(retryButtonBorder ?? const BorderSide(), other.retryButtonBorder ?? const BorderSide(), t),
+      checkboxCheckedBackgroundColor: Color.lerp(
+        checkboxCheckedBackgroundColor,
+        other.checkboxCheckedBackgroundColor,
+        t,
+      ),
+      checkboxBackgroundColor: Color.lerp(
+        checkboxBackgroundColor,
+        other.checkboxBackgroundColor,
+        t,
+      ),
+      checkboxSelectedIconColor: Color.lerp(
+        checkboxSelectedIconColor,
+        other.checkboxSelectedIconColor,
+        t,
+      ),
+      checkboxBorderRadius: BorderRadiusGeometry.lerp(
+        checkboxBorderRadius,
+        other.checkboxBorderRadius,
+        t,
+      ),
+      checkboxBorder: BorderSide.lerp(
+        checkboxBorder ?? const BorderSide(),
+        other.checkboxBorder ?? const BorderSide(),
+        t,
+      ),
+      listItemSelectedBackgroundColor: Color.lerp(
+        listItemSelectedBackgroundColor,
+        other.listItemSelectedBackgroundColor,
+        t,
+      ),
+      confirmDialogStyle: confirmDialogStyle?.lerp(other.confirmDialogStyle, t),
+      errorStateTextStyle: TextStyle.lerp(
+        errorStateTextStyle,
+        other.errorStateTextStyle,
+        t,
+      ),
+      errorStateSubtitleStyle: TextStyle.lerp(
+        errorStateSubtitleStyle,
+        other.errorStateSubtitleStyle,
+        t,
+      ),
+      avatarStyle: avatarStyle?.lerp(other.avatarStyle, t),
+      statusIndicatorStyle: statusIndicatorStyle?.lerp(
+        other.statusIndicatorStyle,
+        t,
+      ),
+      listItemStyle: ListItemStyle(
+        separatorColor: Color.lerp(
+          listItemStyle?.separatorColor,
+          other.listItemStyle?.separatorColor,
+          t,
+        ),
+        titleStyle: TextStyle.lerp(
+          listItemStyle?.titleStyle,
+          other.listItemStyle?.titleStyle,
+          t,
+        ),
+        borderRadius: BorderRadiusGeometry.lerp(
+          listItemStyle?.borderRadius,
+          other.listItemStyle?.borderRadius,
+          t,
+        ),
+        border: BoxBorder.lerp(
+          listItemStyle?.border,
+          other.listItemStyle?.border,
+          t,
+        ),
+        background: Color.lerp(
+          listItemStyle?.background,
+          other.listItemStyle?.background,
+          t,
+        ),
+      ),
+      retryButtonBackgroundColor: Color.lerp(
+        retryButtonBackgroundColor,
+        other.retryButtonBackgroundColor,
+        t,
+      ),
+      retryButtonTextColor: Color.lerp(
+        retryButtonTextColor,
+        other.retryButtonTextColor,
+        t,
+      ),
+      retryButtonBorder: BorderSide.lerp(
+        retryButtonBorder ?? const BorderSide(),
+        other.retryButtonBorder ?? const BorderSide(),
+        t,
+      ),
       separatorColor: Color.lerp(separatorColor, other.separatorColor, t),
-      retryButtonBorderRadius: BorderRadiusGeometry.lerp(retryButtonBorderRadius, other.retryButtonBorderRadius, t),
-      retryButtonTextStyle: TextStyle.lerp(retryButtonTextStyle, other.retryButtonTextStyle, t),
+      retryButtonBorderRadius: BorderRadiusGeometry.lerp(
+        retryButtonBorderRadius,
+        other.retryButtonBorderRadius,
+        t,
+      ),
+      retryButtonTextStyle: TextStyle.lerp(
+        retryButtonTextStyle,
+        other.retryButtonTextStyle,
+        t,
+      ),
       separatorHeight: lerpDouble(separatorHeight, other.separatorHeight, t),
-      emptyStateTextStyle: TextStyle.lerp(emptyStateTextStyle, other.emptyStateTextStyle, t),
-      emptyStateTextColor: Color.lerp(emptyStateTextColor, other.emptyStateTextColor, t),
-      emptyStateSubtitleTextStyle: TextStyle.lerp(emptyStateSubtitleTextStyle, other.emptyStateSubtitleTextStyle, t),
-      emptyStateSubtitleTextColor: Color.lerp(emptyStateSubtitleTextColor, other.emptyStateSubtitleTextColor, t),
-      ownerMemberScopeBackgroundColor: Color.lerp(ownerMemberScopeBackgroundColor, other.ownerMemberScopeBackgroundColor, t),
-      moderatorMemberScopeBackgroundColor: Color.lerp(moderatorMemberScopeBackgroundColor, other.moderatorMemberScopeBackgroundColor, t),
-      adminMemberScopeBackgroundColor: Color.lerp(adminMemberScopeBackgroundColor, other.adminMemberScopeBackgroundColor, t),
-      ownerMemberScopeTextColor: Color.lerp(ownerMemberScopeTextColor, other.ownerMemberScopeTextColor, t),
-      moderatorMemberScopeTextColor: Color.lerp(moderatorMemberScopeTextColor, other.moderatorMemberScopeTextColor, t),
-      adminMemberScopeTextColor: Color.lerp(adminMemberScopeTextColor, other.adminMemberScopeTextColor, t),
-      ownerMemberScopeBorder: BoxBorder.lerp(ownerMemberScopeBorder ?? const Border(), other.ownerMemberScopeBorder ?? const Border(), t),
-      moderatorMemberScopeBorder: BoxBorder.lerp(moderatorMemberScopeBorder ?? const Border(), other.moderatorMemberScopeBorder ?? const Border(), t),
-      adminMemberScopeBorder: BoxBorder.lerp(adminMemberScopeBorder ?? const Border(), other.adminMemberScopeBorder ?? const Border(), t),
-      adminMemberScopeTextStyle: TextStyle.lerp(adminMemberScopeTextStyle, other.adminMemberScopeTextStyle, t),
-      moderatorMemberScopeTextStyle: TextStyle.lerp(moderatorMemberScopeTextStyle, other.moderatorMemberScopeTextStyle, t),
-      ownerMemberScopeTextStyle: TextStyle.lerp(ownerMemberScopeTextStyle, other.ownerMemberScopeTextStyle, t),
+      emptyStateTextStyle: TextStyle.lerp(
+        emptyStateTextStyle,
+        other.emptyStateTextStyle,
+        t,
+      ),
+      emptyStateTextColor: Color.lerp(
+        emptyStateTextColor,
+        other.emptyStateTextColor,
+        t,
+      ),
+      emptyStateSubtitleTextStyle: TextStyle.lerp(
+        emptyStateSubtitleTextStyle,
+        other.emptyStateSubtitleTextStyle,
+        t,
+      ),
+      emptyStateSubtitleTextColor: Color.lerp(
+        emptyStateSubtitleTextColor,
+        other.emptyStateSubtitleTextColor,
+        t,
+      ),
+      ownerMemberScopeBackgroundColor: Color.lerp(
+        ownerMemberScopeBackgroundColor,
+        other.ownerMemberScopeBackgroundColor,
+        t,
+      ),
+      moderatorMemberScopeBackgroundColor: Color.lerp(
+        moderatorMemberScopeBackgroundColor,
+        other.moderatorMemberScopeBackgroundColor,
+        t,
+      ),
+      adminMemberScopeBackgroundColor: Color.lerp(
+        adminMemberScopeBackgroundColor,
+        other.adminMemberScopeBackgroundColor,
+        t,
+      ),
+      ownerMemberScopeTextColor: Color.lerp(
+        ownerMemberScopeTextColor,
+        other.ownerMemberScopeTextColor,
+        t,
+      ),
+      moderatorMemberScopeTextColor: Color.lerp(
+        moderatorMemberScopeTextColor,
+        other.moderatorMemberScopeTextColor,
+        t,
+      ),
+      adminMemberScopeTextColor: Color.lerp(
+        adminMemberScopeTextColor,
+        other.adminMemberScopeTextColor,
+        t,
+      ),
+      ownerMemberScopeBorder: BoxBorder.lerp(
+        ownerMemberScopeBorder ?? const Border(),
+        other.ownerMemberScopeBorder ?? const Border(),
+        t,
+      ),
+      moderatorMemberScopeBorder: BoxBorder.lerp(
+        moderatorMemberScopeBorder ?? const Border(),
+        other.moderatorMemberScopeBorder ?? const Border(),
+        t,
+      ),
+      adminMemberScopeBorder: BoxBorder.lerp(
+        adminMemberScopeBorder ?? const Border(),
+        other.adminMemberScopeBorder ?? const Border(),
+        t,
+      ),
+      adminMemberScopeTextStyle: TextStyle.lerp(
+        adminMemberScopeTextStyle,
+        other.adminMemberScopeTextStyle,
+        t,
+      ),
+      moderatorMemberScopeTextStyle: TextStyle.lerp(
+        moderatorMemberScopeTextStyle,
+        other.moderatorMemberScopeTextStyle,
+        t,
+      ),
+      ownerMemberScopeTextStyle: TextStyle.lerp(
+        ownerMemberScopeTextStyle,
+        other.ownerMemberScopeTextStyle,
+        t,
+      ),
       submitIconColor: Color.lerp(submitIconColor, other.submitIconColor, t),
       changeScopeStyle: changeScopeStyle?.lerp(other.changeScopeStyle, t),
-      optionsBackgroundColor: Color.lerp(optionsBackgroundColor, other.optionsBackgroundColor, t),
+      optionsBackgroundColor: Color.lerp(
+        optionsBackgroundColor,
+        other.optionsBackgroundColor,
+        t,
+      ),
       optionsIconColor: Color.lerp(optionsIconColor, other.optionsIconColor, t),
-      optionsTextStyle: TextStyle.lerp(optionsTextStyle, other.optionsTextStyle, t),
+      optionsTextStyle: TextStyle.lerp(
+        optionsTextStyle,
+        other.optionsTextStyle,
+        t,
+      ),
     );
   }
 
@@ -445,7 +641,8 @@ class CometChatGroupMembersStyle extends ThemeExtension<CometChatGroupMembersSty
       moderatorMemberScopeTextStyle: other.moderatorMemberScopeTextStyle,
       ownerMemberScopeTextStyle: other.ownerMemberScopeTextStyle,
       ownerMemberScopeBackgroundColor: other.ownerMemberScopeBackgroundColor,
-      moderatorMemberScopeBackgroundColor: other.moderatorMemberScopeBackgroundColor,
+      moderatorMemberScopeBackgroundColor:
+          other.moderatorMemberScopeBackgroundColor,
       adminMemberScopeBackgroundColor: other.adminMemberScopeBackgroundColor,
       ownerMemberScopeTextColor: other.ownerMemberScopeTextColor,
       moderatorMemberScopeTextColor: other.moderatorMemberScopeTextColor,
@@ -463,5 +660,4 @@ class CometChatGroupMembersStyle extends ThemeExtension<CometChatGroupMembersSty
 
   static CometChatGroupMembersStyle of(BuildContext context) =>
       const CometChatGroupMembersStyle();
-
 }

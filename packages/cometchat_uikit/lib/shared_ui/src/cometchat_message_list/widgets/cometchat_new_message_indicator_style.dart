@@ -26,7 +26,8 @@ class CometChatNewMessageIndicatorStyle {
 
   /// Merges this style with [other]. Non-null values in [other] take precedence.
   CometChatNewMessageIndicatorStyle merge(
-      CometChatNewMessageIndicatorStyle? other) {
+    CometChatNewMessageIndicatorStyle? other,
+  ) {
     if (other == null) return this;
     return CometChatNewMessageIndicatorStyle(
       textColor: other.textColor ?? textColor,

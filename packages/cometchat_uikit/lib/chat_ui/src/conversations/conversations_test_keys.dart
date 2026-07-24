@@ -49,7 +49,9 @@ class ConversationsTestKeys {
   static const customErrorState = Key('cometchat_conversations_custom_error');
 
   /// Applied to the custom loadingStateView when provided
-  static const customLoadingState = Key('cometchat_conversations_custom_loading');
+  static const customLoadingState = Key(
+    'cometchat_conversations_custom_loading',
+  );
 
   // ─── Style Verification ────────────────────────────────────────────────────
   /// Applied to the title text widget (for style verification)

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../cometchat_calls_uikit.dart';
 import '../../../cometchat_chat_uikit.dart';
 
-
 ///[CometChatIncomingCallConfiguration] is a data class that has configuration properties
 ///
 /// ```dart

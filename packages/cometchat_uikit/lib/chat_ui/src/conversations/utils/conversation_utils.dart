@@ -37,10 +37,7 @@ class ConversationUtils {
   ///
   /// Handles different message types and returns appropriate placeholder text.
   /// Returns localized strings for media messages, custom messages, etc.
-  static String getLastMessageText(
-    BuildContext context,
-    BaseMessage? message,
-  ) {
+  static String getLastMessageText(BuildContext context, BaseMessage? message) {
     if (message == null) {
       return Translations.of(context).tapToStartConversation;
     }
@@ -116,7 +113,10 @@ class ConversationUtils {
 
   // Private helper methods
 
-  static String _getMediaMessageText(BuildContext context, MediaMessage message) {
+  static String _getMediaMessageText(
+    BuildContext context,
+    MediaMessage message,
+  ) {
     switch (message.type) {
       case CometChatMessageType.image:
         // Check if it's a GIF
@@ -135,7 +135,10 @@ class ConversationUtils {
     }
   }
 
-  static String _getCustomMessageText(BuildContext context, CustomMessage message) {
+  static String _getCustomMessageText(
+    BuildContext context,
+    CustomMessage message,
+  ) {
     // Check for conversation text first
     final conversationText = message.conversationText;
     if (conversationText != null && conversationText.isNotEmpty) {

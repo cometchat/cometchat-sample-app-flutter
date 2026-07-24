@@ -37,12 +37,15 @@ ConversationsBloc _makeBloc(
   _MockConversationsRepository repo, {
   List<Conversation> initial = const [],
 }) {
-  when(() => repo.getLoggedInUser())
-      .thenAnswer((_) async => Success(_FakeUser()));
-  when(() => repo.getConversations(limit: mt.any(named: 'limit')))
-      .thenAnswer((_) async => Success(initial));
-  when(() => repo.deleteConversation(mt.any()))
-      .thenAnswer((_) async => const Success(null));
+  when(
+    () => repo.getLoggedInUser(),
+  ).thenAnswer((_) async => Success(_FakeUser()));
+  when(
+    () => repo.getConversations(limit: mt.any(named: 'limit')),
+  ).thenAnswer((_) async => Success(initial));
+  when(
+    () => repo.deleteConversation(mt.any()),
+  ).thenAnswer((_) async => const Success(null));
 
   return ConversationsBloc(
     getConversationsUseCase: GetConversationsUseCase(repo),
@@ -55,9 +58,7 @@ ConversationsBloc _makeBloc(
   );
 }
 
-Future<ConversationsLoaded> _loadedWith(
-  List<Conversation> convs,
-) async {
+Future<ConversationsLoaded> _loadedWith(List<Conversation> convs) async {
   final repo = _MockConversationsRepository();
   final bloc = _makeBloc(repo, initial: convs);
   bloc.add(const LoadConversations());
@@ -72,17 +73,16 @@ Future<ConversationsLoaded> _loadedWith(
 // toggle(x) ∘ toggle(x) == noop
 // ---------------------------------------------------------------------------
 
-Future<void> _propSelectionToggleIdempotent(
-  IndexedList il,
-) async {
+Future<void> _propSelectionToggleIdempotent(IndexedList il) async {
   final repo = _MockConversationsRepository();
   final bloc = _makeBloc(repo, initial: il.list);
 
   bloc.add(const LoadConversations());
   await Future<void>.delayed(const Duration(milliseconds: 80));
 
-  final before =
-      Set<String>.from((bloc.state as ConversationsLoaded).selectedConversations);
+  final before = Set<String>.from(
+    (bloc.state as ConversationsLoaded).selectedConversations,
+  );
 
   bloc.add(ToggleConversationSelection(il.selectedId));
   bloc.add(ToggleConversationSelection(il.selectedId));
@@ -90,9 +90,13 @@ Future<void> _propSelectionToggleIdempotent(
 
   final after = (bloc.state as ConversationsLoaded).selectedConversations;
 
-  expect(after, equals(before),
-      reason: 'toggle twice on ${il.selectedId} should leave selection unchanged. '
-          'Before=$before After=$after');
+  expect(
+    after,
+    equals(before),
+    reason:
+        'toggle twice on ${il.selectedId} should leave selection unchanged. '
+        'Before=$before After=$after',
+  );
 
   await bloc.close();
 }
@@ -130,9 +134,13 @@ Future<void> _propRemovePreservesRemainder(IndexedList il) async {
     fail('Unexpected state after RemoveConversation: $state');
   }
 
-  expect(afterIds, equals(expectedIds),
-      reason: 'RemoveConversation(${il.selectedId}) should produce $expectedIds '
-          'but got $afterIds');
+  expect(
+    afterIds,
+    equals(expectedIds),
+    reason:
+        'RemoveConversation(${il.selectedId}) should produce $expectedIds '
+        'but got $afterIds',
+  );
 
   await bloc.close();
 }
@@ -165,8 +173,11 @@ Future<void> _propClearSelectionAlwaysEmpty(List<Conversation> convs) async {
   await Future<void>.delayed(const Duration(milliseconds: 20));
 
   final selected = (bloc.state as ConversationsLoaded).selectedConversations;
-  expect(selected, isEmpty,
-      reason: 'ClearConversationSelection should empty selection, got $selected');
+  expect(
+    selected,
+    isEmpty,
+    reason: 'ClearConversationSelection should empty selection, got $selected',
+  );
 
   await bloc.close();
 }
@@ -188,16 +199,16 @@ void main() {
     Glados2(
       any.intInRange(1, 20),
       any.listWithLengthInRange(0, 40, any.letterOrDigits),
-    ).test(
-      'size is always <= maxCacheSize after any sequence of puts',
-      (maxSize, keys) {
-        final cache = PreviewCache(maxCacheSize: maxSize);
-        for (final k in keys) {
-          cache.put(k, CachedPreview(formattedText: k));
-        }
-        expect(cache.size, lessThanOrEqualTo(maxSize));
-      },
-    );
+    ).test('size is always <= maxCacheSize after any sequence of puts', (
+      maxSize,
+      keys,
+    ) {
+      final cache = PreviewCache(maxCacheSize: maxSize);
+      for (final k in keys) {
+        cache.put(k, CachedPreview(formattedText: k));
+      }
+      expect(cache.size, lessThanOrEqualTo(maxSize));
+    });
 
     Glados2(
       any.intInRange(1, 10),
@@ -215,8 +226,11 @@ void main() {
         final lastKey = keys.last;
         if (lastKey.isEmpty) return; // empty keys are used in some fallbacks
         final got = cache.get(lastKey);
-        expect(got, isNotNull,
-            reason: 'Just-put key $lastKey should be retrievable');
+        expect(
+          got,
+          isNotNull,
+          reason: 'Just-put key $lastKey should be retrievable',
+        );
         expect(got!.formattedText, equals(lastKey));
       },
     );
@@ -224,20 +238,17 @@ void main() {
     Glados2(
       any.listWithLengthInRange(1, 20, any.letterOrDigits),
       any.positiveInt,
-    ).test(
-      'remove(k) + get(k) returns null for any prior state',
-      (keys, _) {
-        final cache = PreviewCache();
-        for (final k in keys) {
-          cache.put(k, CachedPreview(formattedText: k));
-        }
-        final target = keys.last;
-        cache.remove(target);
-        // If target also appeared earlier and was evicted between, cache.get
-        // legitimately returns null. Either way, post-remove get(target) is null.
-        expect(cache.get(target), isNull);
-      },
-    );
+    ).test('remove(k) + get(k) returns null for any prior state', (keys, _) {
+      final cache = PreviewCache();
+      for (final k in keys) {
+        cache.put(k, CachedPreview(formattedText: k));
+      }
+      final target = keys.last;
+      cache.remove(target);
+      // If target also appeared earlier and was evicted between, cache.get
+      // legitimately returns null. Either way, post-remove get(target) is null.
+      expect(cache.get(target), isNull);
+    });
   });
 
   // -------------------------------------------------------------------------
@@ -245,24 +256,28 @@ void main() {
   // -------------------------------------------------------------------------
 
   group('CachedPreview — properties', () {
-    Glados2(any.positiveInt, any.positiveInt).test(
-      'isExpired is monotone in elapsed time relative to TTL',
-      (ttlMillis, elapsedMillis) {
-        // Build a preview whose cachedAt is "elapsedMillis ago" with ttlMillis TTL.
-        final ttl = Duration(milliseconds: ttlMillis.clamp(1, 3600 * 1000));
-        final cachedAt = DateTime.now()
-            .subtract(Duration(milliseconds: elapsedMillis.clamp(0, 3600 * 1000)));
-        final preview = CachedPreview(
-          formattedText: 'p',
-          cachedAt: cachedAt,
-          ttl: ttl,
-        );
+    Glados2(
+      any.positiveInt,
+      any.positiveInt,
+    ).test('isExpired is monotone in elapsed time relative to TTL', (
+      ttlMillis,
+      elapsedMillis,
+    ) {
+      // Build a preview whose cachedAt is "elapsedMillis ago" with ttlMillis TTL.
+      final ttl = Duration(milliseconds: ttlMillis.clamp(1, 3600 * 1000));
+      final cachedAt = DateTime.now().subtract(
+        Duration(milliseconds: elapsedMillis.clamp(0, 3600 * 1000)),
+      );
+      final preview = CachedPreview(
+        formattedText: 'p',
+        cachedAt: cachedAt,
+        ttl: ttl,
+      );
 
-        // isExpired must be true iff now - cachedAt > ttl
-        final expected = DateTime.now().difference(cachedAt) > ttl;
-        expect(preview.isExpired, equals(expected));
-      },
-    );
+      // isExpired must be true iff now - cachedAt > ttl
+      final expected = DateTime.now().difference(cachedAt) > ttl;
+      expect(preview.isExpired, equals(expected));
+    });
   });
 
   // -------------------------------------------------------------------------
@@ -282,8 +297,11 @@ void main() {
         }
 
         await Future<void>.delayed(const Duration(milliseconds: 80));
-        expect(called, 1,
-            reason: 'N=$n rapid calls should coalesce to 1, got $called');
+        expect(
+          called,
+          1,
+          reason: 'N=$n rapid calls should coalesce to 1, got $called',
+        );
         d.dispose();
       },
     );
@@ -297,32 +315,38 @@ void main() {
     Glados2(
       distinctConversationsGen(maxLength: 10),
       distinctConversationsGen(maxLength: 10),
-    ).test(
-      'dedup result never contains ids already in currentConversations',
-      (current, incoming) async {
-        if (current.isEmpty) return; // from-id pagination requires non-empty
-        final repo = _MockConversationsRepository();
-        when(() => repo.getConversations(
-              limit: mt.any(named: 'limit'),
-              fromId: mt.any(named: 'fromId'),
-            )).thenAnswer((_) async => Success(incoming));
+    ).test('dedup result never contains ids already in currentConversations', (
+      current,
+      incoming,
+    ) async {
+      if (current.isEmpty) return; // from-id pagination requires non-empty
+      final repo = _MockConversationsRepository();
+      when(
+        () => repo.getConversations(
+          limit: mt.any(named: 'limit'),
+          fromId: mt.any(named: 'fromId'),
+        ),
+      ).thenAnswer((_) async => Success(incoming));
 
-        final useCase = LoadMoreConversationsUseCase(repo);
-        final result = await useCase(
-          fromId: current.last.conversationId!,
-          currentConversations: current,
-        );
+      final useCase = LoadMoreConversationsUseCase(repo);
+      final result = await useCase(
+        fromId: current.last.conversationId!,
+        currentConversations: current,
+      );
 
-        expect(result.isSuccess, isTrue);
-        result.onSuccess((data) {
-          final currentIds = current.map((c) => c.conversationId).toSet();
-          for (final c in data) {
-            expect(currentIds.contains(c.conversationId), isFalse,
-                reason: 'Dedup returned ${c.conversationId} which is already in current');
-          }
-        });
-      },
-    );
+      expect(result.isSuccess, isTrue);
+      result.onSuccess((data) {
+        final currentIds = current.map((c) => c.conversationId).toSet();
+        for (final c in data) {
+          expect(
+            currentIds.contains(c.conversationId),
+            isFalse,
+            reason:
+                'Dedup returned ${c.conversationId} which is already in current',
+          );
+        }
+      });
+    });
   });
 
   // -------------------------------------------------------------------------
@@ -357,10 +381,12 @@ void main() {
 
     // Sanity: _loadedWith helper is exercised at least once (keeps it used
     // and provides an early failure signal if the scaffolding regresses).
-    test('loaded-with helper produces ConversationsLoaded or ConversationsEmpty',
-        () async {
-      final state = await _loadedWith([FakeConversation('x1')]);
-      expect(state.conversations.length, 1);
-    });
+    test(
+      'loaded-with helper produces ConversationsLoaded or ConversationsEmpty',
+      () async {
+        final state = await _loadedWith([FakeConversation('x1')]);
+        expect(state.conversations.length, 1);
+      },
+    );
   });
 }

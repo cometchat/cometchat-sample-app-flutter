@@ -148,7 +148,7 @@ class CometChatListItem extends StatelessWidget {
     );
   }
 
-  Widget getTitle(context) {
+  Widget getTitle(BuildContext context) {
     if (titleView != null) {
       return titleView ?? const SizedBox();
     } else {
@@ -161,9 +161,7 @@ class CometChatListItem extends StatelessWidget {
           fontWeight: style.titleStyle?.fontWeight,
           fontFamily: style.titleStyle?.fontFamily,
           color: style.titleStyle?.color,
-        ).merge(
-          style.titleStyle,
-        ),
+        ).merge(style.titleStyle),
       );
     }
   }
@@ -198,23 +196,17 @@ class CometChatListItem extends StatelessWidget {
                     right: 0,
                     bottom: 0,
                     child: getStatus(),
-                  )
+                  ),
               ],
             ),
-            title: getTitle(
-              context,
-            ),
+            title: getTitle(context),
             subtitle: getSubtitle(),
             trailing: tailView,
             titlePadding: titlePadding,
             contentPadding: contentPadding,
           ),
           if (hideSeparator == false)
-            Divider(
-              thickness: 1,
-              height: 1,
-              color: style.separatorColor,
-            )
+            Divider(thickness: 1, height: 1, color: style.separatorColor),
         ],
       ),
     );
@@ -226,7 +218,6 @@ class CometChatListItem extends StatelessWidget {
 ///such that the widget is not constrained to a specific height
 class _CometChatListTile extends StatelessWidget {
   const _CometChatListTile({
-    Key? key,
     this.leading,
     this.title,
     this.subtitle,
@@ -234,7 +225,7 @@ class _CometChatListTile extends StatelessWidget {
     this.height,
     this.titlePadding,
     this.contentPadding,
-  }) : super(key: key);
+  });
 
   ///[leading] widget to be shown at the start of the tile
   final Widget? leading;
@@ -265,23 +256,18 @@ class _CometChatListTile extends StatelessWidget {
       padding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 0),
       child: Row(
         children: [
-          if (leading != null) leading!,
+          ?leading,
           Expanded(
             child: Padding(
-              padding: titlePadding ??
-                  EdgeInsets.only(
-                    left: spacing.padding3 ?? 0,
-                  ),
+              padding:
+                  titlePadding ?? EdgeInsets.only(left: spacing.padding3 ?? 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  title ?? const SizedBox(),
-                  if (subtitle != null) subtitle!,
-                ],
+                children: [title ?? const SizedBox(), ?subtitle],
               ),
             ),
           ),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );

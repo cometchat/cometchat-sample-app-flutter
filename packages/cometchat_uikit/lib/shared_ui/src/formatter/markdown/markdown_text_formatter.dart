@@ -58,13 +58,19 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
   static final _linkPattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
   static final _bulletPattern = RegExp(r'^- (.*)(?:$)', multiLine: true);
   static final _orderedPattern = RegExp(r'^(\d+)\. (.*)(?:$)', multiLine: true);
-  static final _blockquotePattern = RegExp(r'(^>[ ]?.*(?:\n>[ ]?.*)*)', multiLine: true);
+  static final _blockquotePattern = RegExp(
+    r'(^>[ ]?.*(?:\n>[ ]?.*)*)',
+    multiLine: true,
+  );
 
   /// Strip all markdown markers from text (for nested formats in underlyingText)
   static String _stripMarkers(String text) {
     var r = text;
     r = r.replaceAllMapped(_boldPattern, (m) => m.group(1) ?? '');
-    r = r.replaceAllMapped(_doubleUnderscoreItalicPattern, (m) => m.group(1) ?? '');
+    r = r.replaceAllMapped(
+      _doubleUnderscoreItalicPattern,
+      (m) => m.group(1) ?? '',
+    );
     r = r.replaceAllMapped(_italicPattern, (m) => m.group(1) ?? '');
     r = r.replaceAllMapped(_strikethroughPattern, (m) => m.group(1) ?? '');
     r = r.replaceAllMapped(_inlineCodePattern, (m) => m.group(1) ?? '');
@@ -85,7 +91,10 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
   void onScrollToBottom(TextEditingController textEditingController) {}
 
   @override
-  void onChange(TextEditingController textEditingController, String previousText) {}
+  void onChange(
+    TextEditingController textEditingController,
+    String previousText,
+  ) {}
 
   @override
   TextStyle getMessageInputTextStyle(BuildContext context) => const TextStyle();
@@ -134,69 +143,145 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
 
     // Block-level elements first (code blocks, blockquotes)
     if (enableCodeBlock) {
-      result = _collectCodeBlocks(text, context, alignment, colorPalette, result, onTap);
+      result = _collectCodeBlocks(
+        text,
+        context,
+        alignment,
+        colorPalette,
+        result,
+        onTap,
+      );
     }
     if (enableBlockquote) {
-      result = _collectBlockquotes(text, context, alignment, colorPalette, result, onTap);
+      result = _collectBlockquotes(
+        text,
+        context,
+        alignment,
+        colorPalette,
+        result,
+        onTap,
+      );
     }
 
     // Inline elements — skip matches inside code ranges
     if (enableBold) {
-      result = _collectInline(text, _boldPattern, context, alignment, result, onTap,
-          forConversation: forConversation,
-          excludeRanges: codeRanges,
-          styleBuilder: (cp, align, fc) => TextStyle(
-                fontWeight: FontWeight.bold,
-                color: _textColor(cp, align),
-              ));
+      result = _collectInline(
+        text,
+        _boldPattern,
+        context,
+        alignment,
+        result,
+        onTap,
+        forConversation: forConversation,
+        excludeRanges: codeRanges,
+        styleBuilder: (cp, align, fc) => TextStyle(
+          fontWeight: FontWeight.bold,
+          color: _textColor(cp, align),
+        ),
+      );
     }
     if (enableItalic) {
       // Double underscore __text__ first (before single _ catches inner part)
-      result = _collectInline(text, _doubleUnderscoreItalicPattern, context, alignment, result, onTap,
-          forConversation: forConversation,
-          excludeRanges: codeRanges,
-          styleBuilder: (cp, align, fc) => TextStyle(
-                fontStyle: FontStyle.italic,
-                color: _textColor(cp, align),
-              ));
-      result = _collectInline(text, _italicPattern, context, alignment, result, onTap,
-          forConversation: forConversation,
-          excludeRanges: codeRanges,
-          styleBuilder: (cp, align, fc) => TextStyle(
-                fontStyle: FontStyle.italic,
-                color: _textColor(cp, align),
-              ));
+      result = _collectInline(
+        text,
+        _doubleUnderscoreItalicPattern,
+        context,
+        alignment,
+        result,
+        onTap,
+        forConversation: forConversation,
+        excludeRanges: codeRanges,
+        styleBuilder: (cp, align, fc) => TextStyle(
+          fontStyle: FontStyle.italic,
+          color: _textColor(cp, align),
+        ),
+      );
+      result = _collectInline(
+        text,
+        _italicPattern,
+        context,
+        alignment,
+        result,
+        onTap,
+        forConversation: forConversation,
+        excludeRanges: codeRanges,
+        styleBuilder: (cp, align, fc) => TextStyle(
+          fontStyle: FontStyle.italic,
+          color: _textColor(cp, align),
+        ),
+      );
     }
     if (enableStrikethrough) {
-      result = _collectInline(text, _strikethroughPattern, context, alignment, result, onTap,
-          forConversation: forConversation,
-          excludeRanges: codeRanges,
-          styleBuilder: (cp, align, fc) => TextStyle(
-                decoration: TextDecoration.lineThrough,
-                color: _textColor(cp, align),
-              ));
+      result = _collectInline(
+        text,
+        _strikethroughPattern,
+        context,
+        alignment,
+        result,
+        onTap,
+        forConversation: forConversation,
+        excludeRanges: codeRanges,
+        styleBuilder: (cp, align, fc) => TextStyle(
+          decoration: TextDecoration.lineThrough,
+          color: _textColor(cp, align),
+        ),
+      );
     }
     if (enableUnderline) {
-      result = _collectInline(text, _underlinePattern, context, alignment, result, onTap,
-          forConversation: forConversation,
-          excludeRanges: codeRanges,
-          styleBuilder: (cp, align, fc) => TextStyle(
-                decoration: TextDecoration.underline,
-                color: _textColor(cp, align),
-              ));
+      result = _collectInline(
+        text,
+        _underlinePattern,
+        context,
+        alignment,
+        result,
+        onTap,
+        forConversation: forConversation,
+        excludeRanges: codeRanges,
+        styleBuilder: (cp, align, fc) => TextStyle(
+          decoration: TextDecoration.underline,
+          color: _textColor(cp, align),
+        ),
+      );
     }
     if (enableInlineCode) {
-      result = _collectInlineCode(text, context, alignment, colorPalette, result, onTap);
+      result = _collectInlineCode(
+        text,
+        context,
+        alignment,
+        colorPalette,
+        result,
+        onTap,
+      );
     }
     if (enableLink) {
-      result = _collectLinks(text, context, alignment, colorPalette, result,
-          excludeRanges: codeRanges);
+      result = _collectLinks(
+        text,
+        context,
+        alignment,
+        colorPalette,
+        result,
+        excludeRanges: codeRanges,
+      );
     }
     if (enableBulletList) {
-      result = _collectBullets(text, context, alignment, result, onTap, forConversation: forConversation);
+      result = _collectBullets(
+        text,
+        context,
+        alignment,
+        result,
+        onTap,
+        forConversation: forConversation,
+      );
     }
     if (enableOrderedList) {
-      result = _collectOrdered(text, context, alignment, result, onTap, forConversation: forConversation);
+      result = _collectOrdered(
+        text,
+        context,
+        alignment,
+        result,
+        onTap,
+        forConversation: forConversation,
+      );
     }
 
     return result;
@@ -223,24 +308,29 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
     Function(String)? onTap, {
     required bool forConversation,
     List<_Range> excludeRanges = const [],
-    required TextStyle Function(CometChatColorPalette, BubbleAlignment?, bool) styleBuilder,
+    required TextStyle Function(CometChatColorPalette, BubbleAlignment?, bool)
+    styleBuilder,
   }) {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final matches = pattern.allMatches(text);
     final attrs = matches
         .where((match) => !_overlapsAny(match.start, match.end, excludeRanges))
-        .where((match) => !_isFormattingNoise(match.group(1) ?? '', text[match.start]))
+        .where(
+          (match) =>
+              !_isFormattingNoise(match.group(1) ?? '', text[match.start]),
+        )
         .map((match) {
-      String? content = match.group(1);
-      if (content != null) content = _stripMarkers(content);
-      return AttributedText(
-        start: match.start,
-        end: match.end,
-        underlyingText: content,
-        style: styleBuilder(colorPalette, alignment, forConversation),
-        onTap: onTap,
-      );
-    }).toList();
+          String? content = match.group(1);
+          if (content != null) content = _stripMarkers(content);
+          return AttributedText(
+            start: match.start,
+            end: match.end,
+            underlyingText: content,
+            style: styleBuilder(colorPalette, alignment, forConversation),
+            onTap: onTap,
+          );
+        })
+        .toList();
 
     if (existing.isNotEmpty) {
       return mergeAttributedText(attrs, existing);
@@ -277,29 +367,27 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
     final spacing = CometChatThemeHelper.getSpacing(context);
     final isSent = alignment == BubbleAlignment.right;
     final backgroundColor = isSent
-        ? (colorPalette.white?.withValues(alpha: 0.2) ?? const Color(0x33FFFFFF))
+        ? (colorPalette.white?.withValues(alpha: 0.2) ??
+              const Color(0x33FFFFFF))
         : (colorPalette.background3 ?? const Color(0xFFF5F5F5));
     final textColor = isSent
         ? (colorPalette.white ?? Colors.white)
         : (colorPalette.textPrimary ?? Colors.black);
 
     final blocks = _findCodeBlocks(text);
-    final attrs = blocks
-        .where((b) => b.content.isNotEmpty)
-        .map((b) {
-          return AttributedText(
-            start: b.start,
-            end: b.end,
-            underlyingText: b.content,
-            style: TextStyle(fontFamily: 'monospace', color: textColor),
-            backgroundColor: backgroundColor,
-            padding: EdgeInsets.all(spacing.padding2 ?? 8),
-            borderRadius: (spacing.radius2 ?? 8).toDouble(),
-            isBlockElement: true,
-            onTap: onTap,
-          );
-        })
-        .toList();
+    final attrs = blocks.where((b) => b.content.isNotEmpty).map((b) {
+      return AttributedText(
+        start: b.start,
+        end: b.end,
+        underlyingText: b.content,
+        style: TextStyle(fontFamily: 'monospace', color: textColor),
+        backgroundColor: backgroundColor,
+        padding: EdgeInsets.all(spacing.padding2 ?? 8),
+        borderRadius: (spacing.radius2 ?? 8).toDouble(),
+        isBlockElement: true,
+        onTap: onTap,
+      );
+    }).toList();
 
     if (existing.isNotEmpty) return mergeAttributedText(attrs, existing);
     return attrs;
@@ -327,7 +415,13 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
 
         final end = closingPos != null ? closingPos + 3 : text.length;
         final contentEnd = closingPos ?? text.length;
-        blocks.add(_CodeBlock(blockStart, end, text.substring(contentStart, contentEnd).trim()));
+        blocks.add(
+          _CodeBlock(
+            blockStart,
+            end,
+            text.substring(contentStart, contentEnd).trim(),
+          ),
+        );
         i = end;
       } else {
         i++;
@@ -350,7 +444,8 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
   ) {
     final isSent = alignment == BubbleAlignment.right;
     final backgroundColor = isSent
-        ? (colorPalette.white?.withValues(alpha: 0.2) ?? const Color(0x33FFFFFF))
+        ? (colorPalette.white?.withValues(alpha: 0.2) ??
+              const Color(0x33FFFFFF))
         : (colorPalette.background3 ?? const Color(0xFFF5F5F5));
     final textColor = isSent
         ? (colorPalette.white ?? Colors.white)
@@ -393,7 +488,8 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
 
     // Background: 0.1 alpha translucent white for sent, neutral100 for received
     final backgroundColor = isSent
-        ? (colorPalette.white?.withValues(alpha: 0.1) ?? const Color(0x1AFFFFFF))
+        ? (colorPalette.white?.withValues(alpha: 0.1) ??
+              const Color(0x1AFFFFFF))
         : (colorPalette.neutral100 ?? const Color(0xFFF5F5F5));
 
     // Text: white for sent, textPrimary for received
@@ -417,12 +513,7 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
         ),
         backgroundColor: backgroundColor,
         padding: const EdgeInsets.only(left: 8, top: 4, bottom: 4, right: 4),
-        border: Border(
-          left: BorderSide(
-            color: borderColor,
-            width: 3,
-          ),
-        ),
+        border: Border(left: BorderSide(color: borderColor, width: 3)),
         isBlockElement: true,
         onTap: onTap,
       );
@@ -435,7 +526,11 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
   String _extractBlockquoteContent(String matchedText) {
     return matchedText
         .split('\n')
-        .map((line) => line.startsWith('> ') ? line.substring(2) : (line.startsWith('>') ? line.substring(1) : line))
+        .map(
+          (line) => line.startsWith('> ')
+              ? line.substring(2)
+              : (line.startsWith('>') ? line.substring(1) : line),
+        )
         .join('\n');
   }
 
@@ -456,20 +551,21 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
     final attrs = matches
         .where((match) => !_overlapsAny(match.start, match.end, excludeRanges))
         .map((match) {
-      final displayText = match.group(1) ?? '';
-      final url = match.group(2) ?? '';
-      return AttributedText(
-        start: match.start,
-        end: match.end,
-        underlyingText: displayText,
-        style: TextStyle(
-          decoration: TextDecoration.underline,
-          decorationColor: linkColor,
-          color: linkColor,
-        ),
-        onTap: (_) => _openUrl(url),
-      );
-    }).toList();
+          final displayText = match.group(1) ?? '';
+          final url = match.group(2) ?? '';
+          return AttributedText(
+            start: match.start,
+            end: match.end,
+            underlyingText: displayText,
+            style: TextStyle(
+              decoration: TextDecoration.underline,
+              decorationColor: linkColor,
+              color: linkColor,
+            ),
+            onTap: (_) => _openUrl(url),
+          );
+        })
+        .toList();
 
     if (existing.isNotEmpty) return mergeAttributedText(attrs, existing);
     return attrs;
@@ -498,7 +594,11 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
         start: match.start,
         end: match.start + 2, // "- " prefix only
         underlyingText: '• ',
-        style: getMessageBubbleTextStyle(context, alignment, forConversation: forConversation),
+        style: getMessageBubbleTextStyle(
+          context,
+          alignment,
+          forConversation: forConversation,
+        ),
         onTap: onTap,
       );
     }).toList();
@@ -524,7 +624,11 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
       return AttributedText(
         start: match.start,
         end: match.start + prefix.length,
-        style: getMessageBubbleTextStyle(context, alignment, forConversation: forConversation),
+        style: getMessageBubbleTextStyle(
+          context,
+          alignment,
+          forConversation: forConversation,
+        ),
         onTap: onTap,
       );
     }).toList();

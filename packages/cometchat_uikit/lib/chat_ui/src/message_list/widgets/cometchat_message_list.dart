@@ -10,27 +10,30 @@ import 'cometchat_message_action_overlay.dart';
 import 'cometchat_message_swipe.dart';
 
 /// Callback for thread replies click
-typedef ThreadRepliesClick = void Function(
-  BaseMessage message,
-  BuildContext context, {
-  CometChatMessageTemplate? template,
-});
+typedef ThreadRepliesClick =
+    void Function(
+      BaseMessage message,
+      BuildContext context, {
+      CometChatMessageTemplate? template,
+    });
 
 /// Builder function for message items with animation support
-typedef MessageItemBuilder = Widget Function(
-  BuildContext context,
-  BaseMessage message,
-  int index,
-  Animation<double> animation,
-);
+typedef MessageItemBuilder =
+    Widget Function(
+      BuildContext context,
+      BaseMessage message,
+      int index,
+      Animation<double> animation,
+    );
 
 /// Builder function for header and footer views
-typedef HeaderFooterBuilder = Widget? Function(
-  BuildContext context, {
-  User? user,
-  Group? group,
-  int? parentMessageId,
-});
+typedef HeaderFooterBuilder =
+    Widget? Function(
+      BuildContext context, {
+      User? user,
+      Group? group,
+      int? parentMessageId,
+    });
 
 /// Builder function for state views (empty, error, loading)
 typedef StateViewBuilder = Widget Function(BuildContext context);
@@ -71,6 +74,7 @@ class CometChatMessageList extends StatefulWidget {
     this.sentIcon,
     this.waitIcon,
     this.avatarVisibility = true,
+    this.enableMultipleAttachments = true,
     this.hideTimestamp,
     this.datePattern,
     this.dateSeparatorPattern,
@@ -119,7 +123,7 @@ class CometChatMessageList extends StatefulWidget {
       'who',
       'where',
       'how',
-      '?'
+      '?',
     ],
     this.suggestedMessages,
     this.hideSuggestedMessages = false,
@@ -134,10 +138,14 @@ class CometChatMessageList extends StatefulWidget {
     this.flagReasonLocalizer,
     this.hideFlagRemarkField = false,
     this.loadLastAgentConversation = false,
-  })  : assert(user != null || group != null,
-            "One of user or group should be passed"),
-        assert(user == null || group == null,
-            "Only one of user or group should be passed");
+  }) : assert(
+         user != null || group != null,
+         "One of user or group should be passed",
+       ),
+       assert(
+         user == null || group == null,
+         "Only one of user or group should be passed",
+       );
 
   final User? user;
   final Group? group;
@@ -164,7 +172,7 @@ class CometChatMessageList extends StatefulWidget {
   final OnLoad<BaseMessage>? onLoad;
   final OnEmpty? onEmpty;
   final Function(CometChatMessageListControllerProtocol controller)?
-      stateCallBack;
+  stateCallBack;
   final String? customSoundForMessages;
   final String? customSoundForMessagePackage;
   final Widget? readIcon;
@@ -172,6 +180,12 @@ class CometChatMessageList extends StatefulWidget {
   final Widget? sentIcon;
   final Widget? waitIcon;
   final bool? avatarVisibility;
+
+  ///[enableMultipleAttachments] routes media messages to the multi-attachment
+  ///bubble family (images / videos / audios / voice note / files) when true
+  ///(the default); false falls back to the deprecated single-attachment bubbles.
+  final bool enableMultipleAttachments;
+
   final bool? hideTimestamp;
   final String Function(BaseMessage message)? datePattern;
   final String Function(DateTime dateTime)? dateSeparatorPattern;
@@ -188,7 +202,7 @@ class CometChatMessageList extends StatefulWidget {
   final Function(String? emoji, BaseMessage message)? onReactionClick;
   final Function(String? emoji, BaseMessage message)? onReactionLongPress;
   final Function(String? reaction, BaseMessage? message)?
-      onReactionListItemClick;
+  onReactionListItemClick;
   final ReactionsRequestBuilder? reactionsRequestBuilder;
   final List<CometChatTextFormatter>? textFormatters;
   final AdditionalConfigurations? additionalConfigurations;
@@ -287,8 +301,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   Brightness? _cachedBrightness;
 
   // Sticky date notifier for the floating date header
-  final ValueNotifier<DateTime?> _stickyDateNotifier =
-      ValueNotifier<DateTime?>(null);
+  final ValueNotifier<DateTime?> _stickyDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
 
   // Shimmer overlay — covers the list during initial load, jump-to-message,
   // and load-from-unread. Fades out smoothly via AnimatedOpacity.
@@ -305,8 +320,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   Timer? _scrollShimmerSafetyTimer;
 
   // AI panel widget shown at the bottom of the message list
-  final ValueNotifier<Widget?> _bottomPanelWidget =
-      ValueNotifier<Widget?>(null);
+  final ValueNotifier<Widget?> _bottomPanelWidget = ValueNotifier<Widget?>(
+    null,
+  );
   late final String _uiEventListenerId;
 
   @override
@@ -399,15 +415,15 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // Cache bubble styles to avoid expensive lookups during rebuilds
     _cachedOutgoingStyle =
         CometChatThemeHelper.getTheme<CometChatOutgoingMessageBubbleStyle>(
-      context: context,
-      defaultTheme: CometChatOutgoingMessageBubbleStyle.of,
-    ).merge(_style.outgoingMessageBubbleStyle);
+          context: context,
+          defaultTheme: CometChatOutgoingMessageBubbleStyle.of,
+        ).merge(_style.outgoingMessageBubbleStyle);
 
     _cachedIncomingStyle =
         CometChatThemeHelper.getTheme<CometChatIncomingMessageBubbleStyle>(
-      context: context,
-      defaultTheme: CometChatIncomingMessageBubbleStyle.of,
-    ).merge(_style.incomingMessageBubbleStyle);
+          context: context,
+          defaultTheme: CometChatIncomingMessageBubbleStyle.of,
+        ).merge(_style.incomingMessageBubbleStyle);
   }
 
   void _initializeBlocs() {
@@ -438,7 +454,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       _messageListBloc = MessageListBloc(
         user: widget.user,
         group: widget.group,
-        parentMessageId: widget.parentMessageId ??
+        parentMessageId:
+            widget.parentMessageId ??
             widget.messagesRequestBuilder?.parentMessageId,
         types: types,
         categories: categories,
@@ -506,17 +523,22 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     final conversationType = widget.user != null ? 'user' : 'group';
     if (conversationWith != null) {
       if (widget.startFromUnreadMessages && widget.parentMessageId == null) {
-        _messageListBloc.add(LoadFromUnread(
-          conversationWith: conversationWith,
-          conversationType: conversationType,
-        ));
+        _messageListBloc.add(
+          LoadFromUnread(
+            conversationWith: conversationWith,
+            conversationType: conversationType,
+          ),
+        );
       } else {
-        _messageListBloc.add(LoadMessages(
-          conversationWith: conversationWith,
-          conversationType: conversationType,
-          parentMessageId: widget.parentMessageId ??
-              widget.messagesRequestBuilder?.parentMessageId,
-        ));
+        _messageListBloc.add(
+          LoadMessages(
+            conversationWith: conversationWith,
+            conversationType: conversationType,
+            parentMessageId:
+                widget.parentMessageId ??
+                widget.messagesRequestBuilder?.parentMessageId,
+          ),
+        );
       }
     }
   }
@@ -534,9 +556,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       _messageListBloc.add(const ForceEmptyState());
       return;
     }
-    _messageListBloc.add(LoadLastAgentConversation(
-      conversationWith: conversationWith,
-    ));
+    _messageListBloc.add(
+      LoadLastAgentConversation(conversationWith: conversationWith),
+    );
   }
 
   void _subscribeToOperations() {
@@ -544,16 +566,26 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       switch (op.type) {
         case MessageOperationType.insert:
           if (op.message != null) {
-            _animatedBloc.add(InsertMessage(op.message!,
-                index: op.index, animated: op.animated));
+            _animatedBloc.add(
+              InsertMessage(
+                op.message!,
+                index: op.index,
+                animated: op.animated,
+              ),
+            );
             // Trigger smart replies for incoming text messages
             _checkForSmartReplies(op.message!);
           }
           break;
         case MessageOperationType.insertAll:
           if (op.messages != null && op.messages!.isNotEmpty) {
-            _animatedBloc.add(InsertAllMessages(op.messages!,
-                index: op.index, animated: op.animated));
+            _animatedBloc.add(
+              InsertAllMessages(
+                op.messages!,
+                index: op.index,
+                animated: op.animated,
+              ),
+            );
           }
           break;
         case MessageOperationType.update:
@@ -563,8 +595,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           break;
         case MessageOperationType.remove:
           if (op.message != null) {
-            _animatedBloc
-                .add(RemoveMessage(op.message!, animated: op.animated));
+            _animatedBloc.add(
+              RemoveMessage(op.message!, animated: op.animated),
+            );
           }
           break;
         case MessageOperationType.set:
@@ -620,8 +653,11 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   }
 
   @override
-  void showPanel(Map<String, dynamic>? id, CustomUIPosition uiPosition,
-      WidgetBuilder child) {
+  void showPanel(
+    Map<String, dynamic>? id,
+    CustomUIPosition uiPosition,
+    WidgetBuilder child,
+  ) {
     if (!_isForThisWidget(id)) return;
     if (uiPosition == CustomUIPosition.messageListBottom) {
       _bottomPanelWidget.value = child(context);
@@ -690,7 +726,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       User? user;
       Group? group;
       if (message.receiverType == ReceiverTypeConstants.user) {
-        user = message.sender as User?;
+        user = message.sender;
       } else {
         group = message.receiver as Group?;
       }
@@ -703,10 +739,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       CometChatUIEvents.showPanel(
         id,
         CustomUIPosition.messageListBottom,
-        (context) => CometChatAISmartRepliesView(
-          user: user,
-          group: group,
-        ),
+        (context) => CometChatAISmartRepliesView(user: user, group: group),
       );
     });
   }
@@ -751,10 +784,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
                 valueListenable: _isJumpingToMessage,
                 builder: (context, isJumping, child) {
                   if (!isJumping) return const SizedBox.shrink();
-                  return IgnorePointer(
-                    ignoring: false,
-                    child: child!,
-                  );
+                  return IgnorePointer(ignoring: false, child: child!);
                 },
                 child: Container(
                   color: _colorPalette.background3 ?? Colors.white,
@@ -772,11 +802,13 @@ class _CometChatMessageListState extends State<CometChatMessageList>
 
   void _handleStateChanges(BuildContext context, MessageListState state) {
     if (state.status == MessageListStatus.error && widget.onError != null) {
-      widget.onError!(CometChatException(
-        'MESSAGE_LIST_ERROR',
-        state.errorMessage ?? 'An error occurred',
-        state.errorMessage ?? 'An error occurred',
-      ));
+      widget.onError!(
+        CometChatException(
+          'MESSAGE_LIST_ERROR',
+          state.errorMessage ?? 'An error occurred',
+          state.errorMessage ?? 'An error occurred',
+        ),
+      );
     }
     if (state.status == MessageListStatus.loaded && widget.onLoad != null) {
       widget.onLoad!(state.messages);
@@ -958,12 +990,13 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     final user = widget.user;
     final greetingMessage =
         user?.metadata?[AIConstants.greetingMessage]?.toString() ??
-            user?.name ??
-            '';
+        user?.name ??
+        '';
     final introMessage =
         user?.metadata?[AIConstants.introductoryMessage]?.toString() ?? '';
-    final suggestedMessages =
-        List<String>.from(user?.metadata?[AIConstants.suggestedMessages] ?? []);
+    final suggestedMessages = List<String>.from(
+      user?.metadata?[AIConstants.suggestedMessages] ?? [],
+    );
 
     return Center(
       child: Padding(
@@ -976,10 +1009,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
               SizedBox(
                 width: 60,
                 height: 60,
-                child: CometChatAvatar(
-                  image: user?.avatar,
-                  name: user?.name,
-                ),
+                child: CometChatAvatar(image: user?.avatar, name: user?.name),
               ),
               SizedBox(height: _spacing.spacing5 ?? 20),
               if (greetingMessage.isNotEmpty)
@@ -1015,11 +1045,13 @@ class _CometChatMessageListState extends State<CometChatMessageList>
                   children: suggestedMessages.map((msg) {
                     return Material(
                       color: Colors.transparent,
-                      borderRadius:
-                          BorderRadius.circular(_spacing.radiusMax ?? 20),
+                      borderRadius: BorderRadius.circular(
+                        _spacing.radiusMax ?? 20,
+                      ),
                       child: InkWell(
-                        borderRadius:
-                            BorderRadius.circular(_spacing.radiusMax ?? 20),
+                        borderRadius: BorderRadius.circular(
+                          _spacing.radiusMax ?? 20,
+                        ),
                         onTap: () {
                           CometChatUIEvents.ccComposeMessage(
                             msg,
@@ -1029,10 +1061,12 @@ class _CometChatMessageListState extends State<CometChatMessageList>
                         child: Ink(
                           decoration: BoxDecoration(
                             color: _colorPalette.background1,
-                            borderRadius:
-                                BorderRadius.circular(_spacing.radiusMax ?? 20),
+                            borderRadius: BorderRadius.circular(
+                              _spacing.radiusMax ?? 20,
+                            ),
                             border: Border.all(
-                              color: _colorPalette.borderDefault ??
+                              color:
+                                  _colorPalette.borderDefault ??
                                   Colors.transparent,
                               width: 1,
                             ),
@@ -1107,7 +1141,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   }
 
   Widget _buildMessageListContent(
-      BuildContext context, MessageListState state) {
+    BuildContext context,
+    MessageListState state,
+  ) {
     return Column(
       children: [
         // Header view
@@ -1130,16 +1166,16 @@ class _CometChatMessageListState extends State<CometChatMessageList>
                 reversed: true,
                 keyboardDismissBehavior:
                     defaultTargetPlatform == TargetPlatform.iOS
-                        ? ScrollViewKeyboardDismissBehavior.onDrag
-                        : ScrollViewKeyboardDismissBehavior.manual,
+                    ? ScrollViewKeyboardDismissBehavior.onDrag
+                    : ScrollViewKeyboardDismissBehavior.manual,
                 findMessageIndex: _messageListBloc.findMessageIndex,
                 loggedInUserId: _messageListBloc.state.loggedInUser?.uid,
                 onTopVisibleDateChanged:
                     (widget.hideStickyDate == true || _isAIUser)
-                        ? null
-                        : (date) {
-                            _stickyDateNotifier.value = date;
-                          },
+                    ? null
+                    : (date) {
+                        _stickyDateNotifier.value = date;
+                      },
                 onLoadOlder: () async {
                   _messageListBloc.add(const LoadOlderMessages());
                 },
@@ -1280,7 +1316,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         message.sender?.uid == _messageListBloc.state.loggedInUser?.uid;
     final bool isCenterAligned =
         message.category == MessageCategoryConstants.action ||
-            message.category == MessageCategoryConstants.call;
+        message.category == MessageCategoryConstants.call;
 
     // Agentic messages: AI assistant responses are always left-aligned (incoming)
     // Tool result/arguments messages are hidden
@@ -1320,7 +1356,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // AI assistant messages have transparent background (no bubble)
     final isAgenticMessage =
         message.category == CometChatMessageCategory.categoryAgentic ||
-            message.category == CometChatMessageCategory.streamMessage;
+        message.category == CometChatMessageCategory.streamMessage;
     if (isAgenticMessage) {
       backgroundColor = _colorPalette.transparent;
     }
@@ -1330,8 +1366,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // transparent background.
     final bool isStickerWithReply =
         message.category == MessageCategoryConstants.custom &&
-            message.type == ExtensionType.sticker &&
-            message.quotedMessage != null;
+        message.type == ExtensionType.sticker &&
+        message.quotedMessage != null;
     if (isStickerWithReply) {
       backgroundColor = isOutgoing
           ? _colorPalette.primary
@@ -1357,7 +1393,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     Widget bubbleView;
     Widget overlayBubbleView;
     if (message.deletedAt == null && template?.bubbleView != null) {
-      bubbleView = template!.bubbleView!(message, context, alignment) ??
+      bubbleView =
+          template!.bubbleView!(message, context, alignment) ??
           const SizedBox();
       overlayBubbleView =
           bubbleView; // Custom bubbleView — use as-is for overlay
@@ -1372,24 +1409,58 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           emojiCount: emojiCount,
         );
       } else {
-        contentView =
-            _getContentView(message, context, backgroundColor, alignment);
+        contentView = _getContentView(
+          message,
+          context,
+          backgroundColor,
+          alignment,
+        );
       }
 
       final bool isDeleted = message.deletedAt != null;
+
+      // Batch grouping: messages from one multi-attachment send share a
+      // metadata['batchId']. Within a consecutive run of the same batch, the
+      // avatar + sender name show only on the first message and the timestamp
+      // only on the last. Messages are ordered oldest→newest by index, so the
+      // "previous" (index-1) is older and the "next" (index+1) is newer.
+      // Deleted messages leave the batch: they render as a standalone delete
+      // bubble (normal padding + full rounding), and neighbors treat them as a
+      // batch boundary — matching how the server returns them after a reload
+      // (data/metadata stripped).
+      final dynamic batchId = message.metadata?['batchId'];
+      final bool inBatch =
+          message.deletedAt == null && batchId is String && batchId.isNotEmpty;
+      bool isFirstInBatch = true;
+      bool isLastInBatch = true;
+      if (inBatch) {
+        bool sameBatch(BaseMessage? m) =>
+            m != null &&
+            m.deletedAt == null &&
+            m.metadata?['batchId'] == batchId;
+        final msgs = _animatedBloc.state.messages;
+        final prev = (index > 0 && index - 1 < msgs.length)
+            ? msgs[index - 1]
+            : null;
+        final next = (index + 1 < msgs.length) ? msgs[index + 1] : null;
+        isFirstInBatch = !sameBatch(prev);
+        isLastInBatch = !sameBatch(next);
+      }
 
       // Build header view (sender name for group messages)
       Widget? headerView;
       if (!isDeleted &&
           !isCenterAligned &&
           !isOutgoing &&
-          widget.group != null) {
+          widget.group != null &&
+          (!inBatch || isFirstInBatch)) {
         headerView = _getHeaderView(message, bubbleStyleData);
       }
 
       // Build leading view (avatar) — in group chats or for AI assistant messages
       Widget? leadingView;
-      final showAvatarForAI = _isAIUser &&
+      final showAvatarForAI =
+          _isAIUser &&
           !isOutgoing &&
           (message.category == CometChatMessageCategory.categoryAgentic ||
               message.category == CometChatMessageCategory.streamMessage);
@@ -1397,8 +1468,15 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           !isOutgoing &&
           widget.avatarVisibility == true &&
           (widget.group != null || showAvatarForAI)) {
-        leadingView = _getAvatar(
-            message.sender, bubbleStyleData?.messageBubbleAvatarStyle);
+        final avatar = _getAvatar(
+          message.sender,
+          bubbleStyleData?.messageBubbleAvatarStyle,
+        );
+        // Keep the avatar's footprint (for alignment) but only show it on the
+        // first message of a batch.
+        leadingView = (inBatch && !isFirstInBatch)
+            ? Opacity(opacity: 0.0, child: avatar)
+            : avatar;
       }
 
       // Build footer view (timestamp, receipts) — skip for center-aligned and agentic messages
@@ -1407,18 +1485,42 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         footerView = _getFooterView(message, alignment, bubbleStyleData);
       }
 
-      // Build status info view — skip for center-aligned and agentic messages
+      // Build status info view — skip for center-aligned and agentic messages.
+      // Within a batch only the last message shows the timestamp + receipt. A
+      // non-last message mounts a status row ONLY while its send is actually in
+      // the ERROR state (so a failed send is never silent) — mounting an
+      // invisible error-only receipt would add the status row's padding to
+      // outgoing bubbles and break the uniform content inset vs incoming ones.
       Widget? statusInfoView;
       if (!isCenterAligned && !isAgenticMessage) {
-        statusInfoView =
-            _getStatusInfoView(message, alignment, bubbleStyleData);
+        if (inBatch && !isLastInBatch) {
+          final receiptStatus = _messageListBloc
+              .getReceiptNotifierForMessage(message)
+              .value;
+          if (receiptStatus == MessageReceiptStatus.error) {
+            statusInfoView = _getStatusInfoView(
+              message,
+              alignment,
+              bubbleStyleData,
+              showTimestamp: false,
+              receiptErrorOnly: true,
+            );
+          }
+        } else {
+          statusInfoView = _getStatusInfoView(
+            message,
+            alignment,
+            bubbleStyleData,
+          );
+        }
       }
 
       // Moderation banner — for disapproved messages the sender sees a bottom
       // banner explaining the block. v5 parity.
       final bool isModerated = _isMessageModerated(message);
-      final Widget? bottomView =
-          isModerated ? _buildModerationView(alignment) : null;
+      final Widget? bottomView = isModerated
+          ? _buildModerationView(alignment, message)
+          : null;
 
       // contentPadding is no longer needed — each bubble handles its own padding
       // For sticker messages with a reply, wrap the content in Align so the
@@ -1432,17 +1534,49 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         );
       }
 
+      // Batch messages read as one tight group: every bubble keeps its normal
+      // rounded corners, with an 8dp gap between batch members (4dp on each
+      // shared edge; normal spacing above the first and below the last).
+      EdgeInsetsGeometry? batchOuterPadding;
+      if (inBatch) {
+        batchOuterPadding = EdgeInsets.only(
+          left: _spacing.padding4 ?? 0,
+          right: _spacing.padding4 ?? 0,
+          top: isFirstInBatch ? (_spacing.padding2 ?? 0) : 4,
+          bottom: isLastInBatch ? (_spacing.padding2 ?? 0) : 4,
+        );
+      }
+
+      // The bubble's default contentPadding is (4, 4, 4, 0) — the bottom is
+      // normally filled by the timestamp row. The multi-attachment bubbles
+      // carry their own uniform 2dp inset instead, so zero the outer padding
+      // for them or the content sits 6dp from three edges and 2dp from the
+      // bottom. Voice notes keep the classic bubble padding.
+      final bool isMultiAttachmentMedia =
+          !isDeleted &&
+          widget.enableMultipleAttachments &&
+          message is MediaMessage &&
+          (message.type == MessageTypeConstants.image ||
+              message.type == MessageTypeConstants.video ||
+              message.type == MessageTypeConstants.file ||
+              (message.type == MessageTypeConstants.audio &&
+                  !CometChatVoiceNoteBubble.isVoiceNote(message)));
+
       bubbleView = CometChatMessageBubble(
         style: CometChatMessageBubbleStyle(
           backgroundColor: backgroundColor,
-          backgroundImage:
-              isDeleted ? null : bubbleStyleData?.messageBubbleBackgroundImage,
+          backgroundImage: isDeleted
+              ? null
+              : bubbleStyleData?.messageBubbleBackgroundImage,
           border: emojiCount > 0 ? null : bubbleStyleData?.border,
           borderRadius: isModerated
               ? _topOnlyBorderRadius(bubbleStyleData?.borderRadius)
               : bubbleStyleData?.borderRadius,
         ),
-        contentPadding: emojiCount > 0 ? EdgeInsets.zero : null,
+        contentPadding: (emojiCount > 0 || isMultiAttachmentMedia)
+            ? EdgeInsets.zero
+            : null,
+        outerPadding: batchOuterPadding,
         alignment: alignment,
         headerView: headerView,
         replyView: isDeleted ? null : _getReplyView(message, alignment),
@@ -1520,10 +1654,61 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // a full teardown/rebuild of expensive content widgets (image, video, etc.)
     final messageKey = message.id > 0 ? message.id : message.muid.hashCode;
     final editedHash = message.editedAt?.millisecondsSinceEpoch ?? 0;
-    final compositeKey = '$messageKey-$editedHash';
+    // deletedAt is part of the key so a delete forces the item to rebuild
+    // immediately (same reason editedAt is included for edits).
+    final deletedHash = message.deletedAt?.millisecondsSinceEpoch ?? 0;
+    final compositeKey = '$messageKey-$editedHash-$deletedHash';
 
     // Create a GlobalKey to measure the bubble size for the action overlay
     final bubbleKey = GlobalKey();
+
+    // Opens the message-options menu. Bound to long-press (touch) and, for a
+    // pointer-context-menu affordance, secondary tap / right-click (web +
+    // desktop) — so web users don't have to hold a message.
+    void openMessageActions() {
+      // Don't show actions for AI messages
+      if (_isAIUser) return;
+
+      // Don't show actions for action messages (deletes, timestamps),
+      // call messages (1-on-1), and group call/meeting messages (custom+meeting)
+      if (message.category == MessageCategoryConstants.action ||
+          message.category == MessageCategoryConstants.call ||
+          (message.category == MessageCategoryConstants.custom &&
+              message.type == MessageTypeConstants.meeting)) {
+        return;
+      }
+
+      // Measure the actual bubble size using the GlobalKey
+      Size? bubbleSize;
+      bool isFullyVisible = false;
+      final renderBox =
+          bubbleKey.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox != null && renderBox.hasSize) {
+        bubbleSize = renderBox.size;
+
+        // Check if bubble is fully visible in viewport
+        final bubblePosition = renderBox.localToGlobal(Offset.zero);
+        final bubbleTop = bubblePosition.dy;
+        final bubbleBottom = bubbleTop + bubbleSize.height;
+
+        final screenHeight = MediaQuery.sizeOf(context).height;
+        final safeAreaTop = MediaQuery.paddingOf(context).top;
+        final viewportTop = safeAreaTop + 60; // Account for header (~60px)
+        final viewportBottom =
+            screenHeight - 80; // Account for composer (~80px)
+
+        isFullyVisible =
+            bubbleTop >= viewportTop && bubbleBottom <= viewportBottom;
+      }
+
+      _showMessageActions(
+        message,
+        overlayBubbleView,
+        alignment,
+        isFullyVisible ? heroTag : null,
+        bubbleSize,
+      );
+    }
 
     // RepaintBoundary isolates each message item's repaints for better scroll performance
     // ValueKey with composite key ensures rebuild when message content changes
@@ -1539,79 +1724,39 @@ class _CometChatMessageListState extends State<CometChatMessageList>
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
                 color: highlightedId == message.id
-                    ? (_colorPalette.primary?.withOpacity(0.3) ??
-                        Colors.transparent)
+                    ? (_colorPalette.primary?.withValues(alpha: 0.3) ??
+                          Colors.transparent)
                     : Colors.transparent,
                 child: child!,
               );
             },
             child: GestureDetector(
-              onLongPress: () {
-                // Don't show actions for AI messages
-                if (_isAIUser) return;
-
-                // Don't show actions for action messages (deletes, timestamps),
-                // call messages (1-on-1), and group call/meeting messages (custom+meeting)
-                if (message.category == MessageCategoryConstants.action ||
-                    message.category == MessageCategoryConstants.call ||
-                    (message.category == MessageCategoryConstants.custom &&
-                        message.type == MessageTypeConstants.meeting)) return;
-
-                // Measure the actual bubble size using the GlobalKey
-                Size? bubbleSize;
-                bool isFullyVisible = false;
-                final renderBox =
-                    bubbleKey.currentContext?.findRenderObject() as RenderBox?;
-                if (renderBox != null && renderBox.hasSize) {
-                  bubbleSize = renderBox.size;
-
-                  // Check if bubble is fully visible in viewport
-                  // Get the bubble's position relative to the screen
-                  final bubblePosition = renderBox.localToGlobal(Offset.zero);
-                  final bubbleTop = bubblePosition.dy;
-                  final bubbleBottom = bubbleTop + bubbleSize.height;
-
-                  // Get viewport bounds (screen height minus safe areas)
-                  final screenHeight = MediaQuery.sizeOf(context).height;
-                  final safeAreaTop = MediaQuery.paddingOf(context).top;
-                  final viewportTop =
-                      safeAreaTop + 60; // Account for header (~60px)
-                  final viewportBottom =
-                      screenHeight - 80; // Account for composer (~80px)
-
-                  // Bubble is fully visible if entirely within viewport bounds
-                  isFullyVisible = bubbleTop >= viewportTop &&
-                      bubbleBottom <= viewportBottom;
-                }
-
-                // Only pass heroTag if bubble is fully visible, otherwise pass null
-                _showMessageActions(
-                  message,
-                  overlayBubbleView,
-                  alignment,
-                  isFullyVisible ? heroTag : null,
-                  bubbleSize,
-                );
-              },
-              child: Row(
+              onLongPress: openMessageActions,
+              // On web/desktop a hover-revealed ⋯ button opens the same menu
+              // (see [_MessageHoverActions]) — so those users don't have to
+              // hold a message; long-press stays for touch.
+              child: _MessageHoverActions(
+                onActions: openMessageActions,
+                enabled: _hoverActionsEnabled(message),
+                // Sent (right-aligned) → ⋯ on the bubble's left (free) side;
+                // received (left-aligned) → ⋯ on the right.
+                alignEnd: alignment == BubbleAlignment.right,
                 mainAxisAlignment: alignment == BubbleAlignment.left
                     ? MainAxisAlignment.start
                     : alignment == BubbleAlignment.center
-                        ? MainAxisAlignment.center
-                        : MainAxisAlignment.end,
-                children: [
-                  // Wrap in Hero only when bubble is fully visible in viewport
-                  // heroTag is set to the actual tag only when fully visible, null otherwise
-                  Builder(
-                    builder: (context) {
-                      return Material(
-                        key: bubbleKey,
-                        color: Colors.transparent,
-                        child: bubbleView,
-                      );
-                    },
-                  ),
-                ],
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.end,
+                iconColor: _colorPalette.iconSecondary,
+                backgroundColor: _colorPalette.background1,
+                bubble: Builder(
+                  builder: (context) {
+                    return Material(
+                      key: bubbleKey,
+                      color: Colors.transparent,
+                      child: bubbleView,
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -1634,11 +1779,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       return Column(
         key: ValueKey<String>(compositeKey),
         mainAxisSize: MainAxisSize.min,
-        children: [
-          if (dateSeparator != null) dateSeparator,
-          if (newMessageIndicator != null) newMessageIndicator,
-          swipeableWidget,
-        ],
+        children: [?dateSeparator, ?newMessageIndicator, swipeableWidget],
       );
     }
 
@@ -1646,6 +1787,25 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       key: ValueKey<String>(compositeKey),
       child: swipeableWidget,
     );
+  }
+
+  /// Whether the hover ⋯ actions button should be offered for [message] — only
+  /// on pointer platforms (web/desktop) and only for messages that actually
+  /// have an options menu (mirrors [openMessageActions]'s own guards).
+  bool _hoverActionsEnabled(BaseMessage message) {
+    final isPointerPlatform =
+        kIsWeb ||
+        defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.linux;
+    if (!isPointerPlatform || _isAIUser) return false;
+    if (message.category == MessageCategoryConstants.action ||
+        message.category == MessageCategoryConstants.call ||
+        (message.category == MessageCategoryConstants.custom &&
+            message.type == MessageTypeConstants.meeting)) {
+      return false;
+    }
+    return true;
   }
 
   /// Whether swipe-to-reply is allowed for this message
@@ -1708,7 +1868,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
 
   /// Get header view (sender name)
   Widget? _getHeaderView(
-      BaseMessage message, CometChatMessageBubbleStyleData? bubbleStyleData) {
+    BaseMessage message,
+    CometChatMessageBubbleStyleData? bubbleStyleData,
+  ) {
     final template = _resolveTemplate(message);
 
     if (template?.headerView != null) {
@@ -1728,28 +1890,6 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         overflow: TextOverflow.ellipsis,
       ),
     );
-  }
-
-  /// Returns a human-readable subtitle for a quoted/reply message type.
-  String _getReplySubtitleForType(String type, BuildContext context) {
-    switch (type) {
-      case MessageTypeConstants.image:
-        return Translations.of(context).messageImage;
-      case MessageTypeConstants.video:
-        return Translations.of(context).messageVideo;
-      case MessageTypeConstants.audio:
-        return Translations.of(context).messageAudio;
-      case MessageTypeConstants.file:
-        return Translations.of(context).messageFile;
-      case ExtensionType.extensionPoll:
-        return Translations.of(context).poll;
-      case ExtensionType.document:
-        return Translations.of(context).collaborativeDocument;
-      case ExtensionType.whiteboard:
-        return Translations.of(context).collaborativeWhiteboard;
-      default:
-        return type;
-    }
   }
 
   /// Build the quoted reply preview shown inside a bubble when a message is a reply.
@@ -1782,11 +1922,12 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     final String subtitle = isQuotedDeleted
         ? Translations.of(context).thisMessageDeleted
         : type == MessageTypeConstants.text
-            ? ConversationUtils.stripMarkdownSyntax(
-                (quoted is TextMessage) ? quoted.text : '')
-            : isSticker
-                ? Translations.of(context).customMessageSticker
-                : _getReplySubtitleForType(type, context);
+        ? ConversationUtils.stripMarkdownSyntax(
+            (quoted is TextMessage) ? quoted.text : '',
+          )
+        : isSticker
+        ? Translations.of(context).customMessageSticker
+        : AttachmentUtils.replySubtitleFor(quoted, context);
 
     // Build a formatted single-line RichText for text message reply previews
     Widget? formattedSubtitleWidget;
@@ -1794,16 +1935,18 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         type == MessageTypeConstants.text &&
         quoted is TextMessage) {
       final rawText = quoted.text;
-      final formatters =
-          FormatterUtils.ensureMarkdownFormatter(widget.textFormatters);
+      final formatters = FormatterUtils.ensureMarkdownFormatter(
+        widget.textFormatters,
+      );
       // Bind the formatters to the QUOTED message so mentions in the reply
       // preview resolve to user names (<@uid:..> → @Name) using the quoted
       // message's own mentionedUsers — not whichever message the shared
       // formatter instance was last bound to while building the main bubble.
       // Without this the reply shows the raw id until an unrelated rebuild
       // (e.g. scrolling away and back) happens to leave the right message bound.
-      final previousFormatterMessages =
-          formatters.map((f) => f.message).toList();
+      final previousFormatterMessages = formatters
+          .map((f) => f.message)
+          .toList();
       for (final formatter in formatters) {
         formatter.message = quoted;
       }
@@ -1853,7 +1996,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     final bgColor = isOutgoing
         ? Colors.white.withValues(alpha: 0.15)
         : _colorPalette.neutral100?.withValues(alpha: 0.5) ??
-            _colorPalette.background2;
+              _colorPalette.background2;
 
     return GestureDetector(
       onTap: repliedMessageId != null && repliedMessageId > 0
@@ -1876,18 +2019,21 @@ class _CometChatMessageListState extends State<CometChatMessageList>
                   ),
                 )
               : null,
-          messagePreviewTitleStyle:
-              isOutgoing ? const TextStyle(color: Colors.white) : null,
-          messagePreviewTitleColor:
-              isOutgoing ? Colors.white : _colorPalette.textPrimary,
+          messagePreviewTitleStyle: isOutgoing
+              ? const TextStyle(color: Colors.white)
+              : null,
+          messagePreviewTitleColor: isOutgoing
+              ? Colors.white
+              : _colorPalette.textPrimary,
           messagePreviewSubtitleStyle: isOutgoing
               ? TextStyle(color: Colors.white.withValues(alpha: 0.85))
               : null,
           messagePreviewSubtitleColor: isOutgoing
               ? Colors.white.withValues(alpha: 0.85)
               : _colorPalette.textSecondary,
-          replyMessagePreviewCloseIconColor:
-              isOutgoing ? Colors.white : _colorPalette.iconSecondary,
+          replyMessagePreviewCloseIconColor: isOutgoing
+              ? Colors.white
+              : _colorPalette.iconSecondary,
         ),
       ),
     );
@@ -1944,8 +2090,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      final index =
-          _animatedBloc.state.messages.indexWhere((m) => m.id == messageId);
+      final index = _animatedBloc.state.messages.indexWhere(
+        (m) => m.id == messageId,
+      );
       if (index == -1 || !_scrollController.hasClients) {
         _scrollToMessageAfterLayout(messageId, framesWaited + 1);
         return;
@@ -2005,7 +2152,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       AdditionalConfigurations? configurations =
           widget.additionalConfigurations;
       if (configurations == null) {
-        final formatters = widget.textFormatters ??
+        final formatters =
+            widget.textFormatters ??
             MessageTemplateUtils.getDefaultTextFormatters();
         if (formatters.isNotEmpty) {
           if (message is TextMessage) {
@@ -2023,8 +2171,16 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           );
         }
       }
-      return template!.contentView!(message, context, alignment,
-          additionalConfigurations: configurations);
+      // Inject the list-level multi-attachment flag (app-provided
+      // configurations keep an explicit value if they set one).
+      configurations.enableMultipleAttachments ??=
+          widget.enableMultipleAttachments;
+      return template!.contentView!(
+        message,
+        context,
+        alignment,
+        additionalConfigurations: configurations,
+      );
     }
 
     // Default content views for common message types
@@ -2061,7 +2217,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
 
     if (template?.contentView != null) {
       // Always create fresh formatters with message set for the overlay
-      final formatters = widget.textFormatters?.map((f) => f).toList() ??
+      final formatters =
+          widget.textFormatters?.map((f) => f).toList() ??
           MessageTemplateUtils.getDefaultTextFormatters();
       if (message is TextMessage) {
         for (final formatter in formatters) {
@@ -2075,9 +2232,14 @@ class _CometChatMessageListState extends State<CometChatMessageList>
             widget.additionalConfigurations?.linkPreviewBubbleStyle,
         deletedBubbleStyle: widget.additionalConfigurations?.deletedBubbleStyle,
         showMarkAsUnreadOption: widget.showMarkAsUnreadOption,
+        enableMultipleAttachments: widget.enableMultipleAttachments,
       );
-      return template!.contentView!(message, context, alignment,
-          additionalConfigurations: configurations);
+      return template!.contentView!(
+        message,
+        context,
+        alignment,
+        additionalConfigurations: configurations,
+      );
     }
 
     if (message is TextMessage) {
@@ -2153,14 +2315,19 @@ class _CometChatMessageListState extends State<CometChatMessageList>
               : _style.incomingMessageBubbleStyle?.fileBubbleStyle,
         );
       case MessageTypeConstants.audio:
-        return CometChatAudioBubbleV2(
+        // Fallback renderer for audio, including voice notes. The waveform
+        // player itself is CometChatAudioPlayer.
+        return CometChatVoiceNoteBubble(
           audioUrl: message.attachment?.fileUrl,
           title: message.attachment?.fileName,
           style: alignment == BubbleAlignment.right
-              ? _style.outgoingMessageBubbleStyle?.audioBubbleStyle
-              : _style.incomingMessageBubbleStyle?.audioBubbleStyle,
+              ? _style.outgoingMessageBubbleStyle?.effectiveVoiceNoteBubbleStyle
+              : _style
+                    .incomingMessageBubbleStyle
+                    ?.effectiveVoiceNoteBubbleStyle,
           alignment: alignment,
           id: message.id,
+          muid: message.muid,
           metadata: message.metadata,
           colorPalette: _colorPalette,
           spacing: _spacing,
@@ -2210,15 +2377,26 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   /// Build the moderation banner shown at the bottom of a disapproved bubble.
   /// Visually matches v5's `getModerationView` (warning icon + localized text,
   /// error100 background, bottom-rounded to fuse with the bubble).
-  Widget _buildModerationView(BubbleAlignment alignment) {
+  Widget _buildModerationView(BubbleAlignment alignment, BaseMessage message) {
     final moderationStyle =
         CometChatThemeHelper.getTheme<CometChatModerationStyle>(
-                context: context, defaultTheme: CometChatModerationStyle.of)
-            .merge(_cachedOutgoingStyle?.moderationStyle);
+          context: context,
+          defaultTheme: CometChatModerationStyle.of,
+        ).merge(_cachedOutgoingStyle?.moderationStyle);
 
     final radius = Radius.circular(_spacing.radius3 ?? 0);
 
-    return Container(
+    // Media bubbles render at a fixed width — min(72% screen, 280), see the
+    // multi-attachment bubbles (images/videos/audios/files). The banner sits
+    // inside the bubble's IntrinsicWidth, so if its intrinsic width exceeds
+    // the media's it stretches the bubble past the content, leaving a gap
+    // beside the image. Cap the banner to the media width; the text wraps.
+    final screenW = MediaQuery.sizeOf(context).width;
+    final double bannerMaxWidth = message is MediaMessage
+        ? (screenW * 0.72 < 280.0 ? screenW * 0.72 : 280.0)
+        : double.infinity;
+
+    final banner = Container(
       decoration: BoxDecoration(
         color:
             moderationStyle.moderationBackgroundColor ?? _colorPalette.error100,
@@ -2256,7 +2434,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
                 ),
                 child: Text(
                   Translations.of(context).messageBlockedByModeration,
-                  style: moderationStyle.moderationTextStyle ??
+                  style:
+                      moderationStyle.moderationTextStyle ??
                       TextStyle(
                         color: _colorPalette.error,
                         fontSize: _typography.body?.regular?.fontSize,
@@ -2269,6 +2448,12 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           ],
         ),
       ),
+    );
+
+    if (bannerMaxWidth == double.infinity) return banner;
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: bannerMaxWidth),
+      child: banner,
     );
   }
 
@@ -2310,8 +2495,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
               (r) => r.reaction == reaction && r.reactedByMe == true,
             );
             if (reactedByMe) {
-              _messageListBloc
-                  .add(RemoveReaction(message: message, reaction: reaction));
+              _messageListBloc.add(
+                RemoveReaction(message: message, reaction: reaction),
+              );
             } else {
               _handleReactionTap(message, reaction);
             }
@@ -2332,8 +2518,10 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   Widget? _getStatusInfoView(
     BaseMessage message,
     BubbleAlignment alignment,
-    CometChatMessageBubbleStyleData? bubbleStyleData,
-  ) {
+    CometChatMessageBubbleStyleData? bubbleStyleData, {
+    bool showTimestamp = true,
+    bool receiptErrorOnly = false,
+  }) {
     final template = _resolveTemplate(message);
 
     if (template?.statusInfoView != null) {
@@ -2351,10 +2539,13 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // Build status info items
     final List<Widget> statusItems = [];
 
-    // Show "Edited" label for edited text messages
+    // Show "Edited" for any edited `message`-category message — text plus
+    // image/video/audio/file, whose captions became editable with
+    // multi-attachment. Gating on `type == text` dated from when the SDK
+    // refused to edit anything else, and silently hid the tag on edited media
+    // captions. Custom/action/call are other categories and stay excluded.
     if (message.editedAt != null &&
-        message.category == MessageCategoryConstants.message &&
-        message.type == MessageTypeConstants.text) {
+        message.category == MessageCategoryConstants.message) {
       if (statusItems.isNotEmpty) {
         statusItems.add(SizedBox(width: _spacing.padding1 ?? 4));
       }
@@ -2374,7 +2565,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       );
     }
 
-    if (widget.hideTimestamp != true && message.sentAt != null) {
+    if (showTimestamp &&
+        widget.hideTimestamp != true &&
+        message.sentAt != null) {
       if (statusItems.isNotEmpty) {
         statusItems.add(SizedBox(width: _spacing.padding1 ?? 4));
       }
@@ -2395,7 +2588,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         statusItems.add(SizedBox(width: _spacing.padding1 ?? 4));
       }
       statusItems.add(
-        _getReceiptIcon(message, bubbleStyleData),
+        _getReceiptIcon(message, bubbleStyleData, errorOnly: receiptErrorOnly),
       );
     }
 
@@ -2426,8 +2619,15 @@ class _CometChatMessageListState extends State<CometChatMessageList>
 
   /// Get receipt icon based on message status
   /// Uses ValueListenableBuilder for isolated rebuilds when receipt status changes
+  ///
+  /// [errorOnly] renders the icon only in the error state — used on non-last
+  /// messages of a batch, where the spec hides receipts but a failed send must
+  /// never be silent.
   Widget _getReceiptIcon(
-      BaseMessage message, CometChatMessageBubbleStyleData? bubbleStyleData) {
+    BaseMessage message,
+    CometChatMessageBubbleStyleData? bubbleStyleData, {
+    bool errorOnly = false,
+  }) {
     // Moderated messages always show the error icon regardless of delivery
     // receipts — sender needs to see the send actually failed. v5 parity.
     final bool isModerated = _isMessageModerated(message);
@@ -2435,6 +2635,11 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     return ValueListenableBuilder<MessageReceiptStatus>(
       valueListenable: _messageListBloc.getReceiptNotifierForMessage(message),
       builder: (context, notifierStatus, child) {
+        if (errorOnly &&
+            !isModerated &&
+            notifierStatus != MessageReceiptStatus.error) {
+          return const SizedBox.shrink();
+        }
         final ReceiptStatus status;
         if (isModerated) {
           status = ReceiptStatus.error;
@@ -2480,7 +2685,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // baseline before any live increments arrive.
     if (message.replyCount > 0) {
       _messageListBloc.initializeThreadReplyCount(
-          message.id, message.replyCount);
+        message.id,
+        message.replyCount,
+      );
     }
 
     final notifier = _messageListBloc.getThreadReplyCountNotifier(message.id);
@@ -2488,9 +2695,11 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // Thread view sits OUTSIDE the bubble background (below it), so it renders
     // against the chat screen background — not the bubble color.  Use primary
     // for both incoming and outgoing so the text/icon is always visible.
-    final iconColor = bubbleStyleData?.threadedMessageIndicatorIconColor ??
+    final iconColor =
+        bubbleStyleData?.threadedMessageIndicatorIconColor ??
         _colorPalette.primary;
-    final textStyle = bubbleStyleData?.threadedMessageIndicatorTextStyle ??
+    final textStyle =
+        bubbleStyleData?.threadedMessageIndicatorTextStyle ??
         TextStyle(
           fontSize: _typography.caption1?.medium?.fontSize,
           color: _colorPalette.primary,
@@ -2506,8 +2715,11 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         return GestureDetector(
           onTap: () {
             if (widget.onThreadRepliesClick != null) {
-              widget.onThreadRepliesClick!(message, context,
-                  template: _resolveTemplate(message));
+              widget.onThreadRepliesClick!(
+                message,
+                context,
+                template: _resolveTemplate(message),
+              );
             }
           },
           child: Padding(
@@ -2515,8 +2727,11 @@ class _CometChatMessageListState extends State<CometChatMessageList>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.subdirectory_arrow_right,
-                    size: 16, color: iconColor),
+                Icon(
+                  Icons.subdirectory_arrow_right,
+                  size: 16,
+                  color: iconColor,
+                ),
                 SizedBox(width: _spacing.padding1 ?? 4),
                 Text(
                   '$replyCount ${replyCount == 1 ? Translations.of(context).reply : Translations.of(context).replies}',
@@ -2566,8 +2781,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
 
     final bool isStickerWithReply =
         message.category == MessageCategoryConstants.custom &&
-            message.type == ExtensionType.sticker &&
-            message.quotedMessage != null;
+        message.type == ExtensionType.sticker &&
+        message.quotedMessage != null;
     if (isStickerWithReply) {
       backgroundColor = isOutgoing
           ? _colorPalette.primary
@@ -2599,16 +2814,17 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         emojiCount: emojiCount,
       );
     } else {
-      contentView =
-          _getOverlayContentView(message, context, backgroundColor, alignment);
+      contentView = _getOverlayContentView(
+        message,
+        context,
+        backgroundColor,
+        alignment,
+      );
     }
 
     Widget? finalContentView = contentView;
     if (isStickerWithReply && contentView != null) {
-      finalContentView = Align(
-        alignment: Alignment.center,
-        child: contentView,
-      );
+      finalContentView = Align(alignment: Alignment.center, child: contentView);
     }
 
     // Build header view (sender name for group messages)
@@ -2631,14 +2847,16 @@ class _CometChatMessageListState extends State<CometChatMessageList>
 
     // Moderation banner — v5 parity (also shown in the long-press overlay).
     final bool isModerated = _isMessageModerated(message);
-    final Widget? bottomView =
-        isModerated ? _buildModerationView(alignment) : null;
+    final Widget? bottomView = isModerated
+        ? _buildModerationView(alignment, message)
+        : null;
 
     return CometChatMessageBubble(
       style: CometChatMessageBubbleStyle(
         backgroundColor: backgroundColor,
-        backgroundImage:
-            isDeleted ? null : bubbleStyleData?.messageBubbleBackgroundImage,
+        backgroundImage: isDeleted
+            ? null
+            : bubbleStyleData?.messageBubbleBackgroundImage,
         border: emojiCount > 0 ? null : bubbleStyleData?.border,
         borderRadius: isModerated
             ? _topOnlyBorderRadius(bubbleStyleData?.borderRadius)
@@ -2687,7 +2905,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       final loggedInUser = _messageListBloc.state.loggedInUser;
       if (loggedInUser != null) {
         // Build AdditionalConfigurations with showMarkAsUnreadOption if not provided externally
-        final configurations = widget.additionalConfigurations ??
+        final configurations =
+            widget.additionalConfigurations ??
             AdditionalConfigurations(
               showMarkAsUnreadOption: widget.showMarkAsUnreadOption,
               hideCopyMessageOption: widget.hideCopyMessageOption,
@@ -2737,7 +2956,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
 
     if (result != null && result.onItemClick != null) {
       debugPrint(
-          '[MessageList] _showMessageActions: result received, id=${result.id}');
+        '[MessageList] _showMessageActions: result received, id=${result.id}',
+      );
       // Wait for Hero animation to complete and UI to settle before executing action
       // This prevents issues when navigating to thread screen
       // Only delay if Hero animation was used (heroTag was provided)
@@ -2751,17 +2971,21 @@ class _CometChatMessageListState extends State<CometChatMessageList>
       }
     } else {
       debugPrint(
-          '[MessageList] _showMessageActions: result is null or onItemClick is null');
+        '[MessageList] _showMessageActions: result is null or onItemClick is null',
+      );
     }
   }
 
   /// Filter and convert CometChatMessageOption to ActionItem based on widget configuration
   List<ActionItem> _filterAndConvertOptions(
-      List<CometChatMessageOption>? options, BaseMessage message) {
+    List<CometChatMessageOption>? options,
+    BaseMessage message,
+  ) {
     if (options == null) return [];
 
     debugPrint(
-        '[MessageList] _filterAndConvertOptions: options count=${options.length}');
+      '[MessageList] _filterAndConvertOptions: options count=${options.length}',
+    );
     for (final opt in options) {
       debugPrint('[MessageList] Option: id=${opt.id}, title=${opt.title}');
     }
@@ -2780,7 +3004,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           return widget.hideMessagePrivatelyOption != true;
         case MessageOptionConstants.replyInThreadMessage:
           debugPrint(
-              '[MessageList] replyInThreadMessage filter: hideReplyInThreadOption=${widget.hideReplyInThreadOption}');
+            '[MessageList] replyInThreadMessage filter: hideReplyInThreadOption=${widget.hideReplyInThreadOption}',
+          );
           return widget.hideReplyInThreadOption != true;
         case MessageOptionConstants.replyMessage:
           return widget.hideReplyOption != true;
@@ -2816,7 +3041,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           // Handle inline reply option
           if (option.id == MessageOptionConstants.replyMessage) {
             debugPrint(
-                '[MessageList] Inline reply clicked for message id=${message.id}');
+              '[MessageList] Inline reply clicked for message id=${message.id}',
+            );
             CometChatMessageEvents.ccReplyToMessage(message);
             return;
           }
@@ -2824,16 +3050,22 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           // Handle reply in thread option specially
           if (option.id == MessageOptionConstants.replyInThreadMessage) {
             debugPrint(
-                '[MessageList] Reply in thread clicked, onThreadRepliesClick: ${widget.onThreadRepliesClick != null}, mounted: $mounted');
+              '[MessageList] Reply in thread clicked, onThreadRepliesClick: ${widget.onThreadRepliesClick != null}, mounted: $mounted',
+            );
             if (widget.onThreadRepliesClick != null && mounted) {
               final templateKey = '${message.category}_${message.type}';
               debugPrint(
-                  '[MessageList] Navigating to thread with templateKey: $templateKey');
-              widget.onThreadRepliesClick!(message, context,
-                  template: _resolveTemplate(message));
+                '[MessageList] Navigating to thread with templateKey: $templateKey',
+              );
+              widget.onThreadRepliesClick!(
+                message,
+                context,
+                template: _resolveTemplate(message),
+              );
             } else {
               debugPrint(
-                  '[MessageList] Cannot navigate: onThreadRepliesClick=${widget.onThreadRepliesClick != null}, mounted=$mounted');
+                '[MessageList] Cannot navigate: onThreadRepliesClick=${widget.onThreadRepliesClick != null}, mounted=$mounted',
+              );
             }
             return;
           }
@@ -2860,7 +3092,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
           if (option.id == MessageOptionConstants.editMessage) {
             // Fire the edit event with the message - composer listens to this
             CometChatMessageEvents.ccMessageEdited(
-                message, MessageEditStatus.inProgress);
+              message,
+              MessageEditStatus.inProgress,
+            );
             return;
           }
 
@@ -2992,15 +3226,8 @@ class _CometChatMessageListState extends State<CometChatMessageList>
 
     CometChatConfirmDialog(
       context: context,
-      icon: Icon(
-        Icons.delete_outline,
-        color: _colorPalette.error,
-        size: 48,
-      ),
-      title: Text(
-        Translations.of(context).delete,
-        textAlign: TextAlign.center,
-      ),
+      icon: Icon(Icons.delete_outline, color: _colorPalette.error, size: 48),
+      title: Text(Translations.of(context).delete, textAlign: TextAlign.center),
       messageText: Text(
         Translations.of(context).deleteMessageWarning,
         textAlign: TextAlign.center,
@@ -3078,5 +3305,93 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   /// Handle reaction tap
   void _handleReactionTap(BaseMessage message, String reaction) {
     _messageListBloc.add(AddReaction(message: message, reaction: reaction));
+  }
+}
+
+/// Reveals a small ⋯ "more actions" button beside a message bubble when the
+/// pointer hovers it (web/desktop) — the web-native way to reach the options
+/// menu without a long-press. The button sits on the bubble's FREE side:
+/// [alignEnd] (sent) → to the left of the bubble, otherwise (received) → to
+/// the right. Its footprint is always reserved so hovering doesn't shift the
+/// bubble; it just fades in. Renders only [bubble] (no wrapper) when [enabled]
+/// is false, so touch platforms are unchanged.
+class _MessageHoverActions extends StatefulWidget {
+  const _MessageHoverActions({
+    required this.bubble,
+    required this.onActions,
+    required this.enabled,
+    required this.alignEnd,
+    required this.mainAxisAlignment,
+    this.iconColor,
+    this.backgroundColor,
+  });
+
+  final Widget bubble;
+  final VoidCallback onActions;
+  final bool enabled;
+  final bool alignEnd;
+  final MainAxisAlignment mainAxisAlignment;
+  final Color? iconColor;
+  final Color? backgroundColor;
+
+  @override
+  State<_MessageHoverActions> createState() => _MessageHoverActionsState();
+}
+
+class _MessageHoverActionsState extends State<_MessageHoverActions> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.enabled) {
+      return Row(
+        mainAxisAlignment: widget.mainAxisAlignment,
+        children: [widget.bubble],
+      );
+    }
+
+    // Fades in on hover but keeps its footprint (so the bubble never shifts).
+    final button = AnimatedOpacity(
+      opacity: _hovering ? 1 : 0,
+      duration: const Duration(milliseconds: 120),
+      child: IgnorePointer(ignoring: !_hovering, child: _moreButton()),
+    );
+    const gap = SizedBox(width: 4);
+    final bubble = Flexible(child: widget.bubble);
+
+    return MouseRegion(
+      onEnter: (_) {
+        if (!_hovering) setState(() => _hovering = true);
+      },
+      onExit: (_) {
+        if (_hovering) setState(() => _hovering = false);
+      },
+      child: Row(
+        mainAxisAlignment: widget.mainAxisAlignment,
+        children: widget.alignEnd
+            ? [button, gap, bubble] // sent: ⋯ left of the bubble
+            : [bubble, gap, button], // received: ⋯ right of the bubble
+      ),
+    );
+  }
+
+  Widget _moreButton() {
+    return Material(
+      color: widget.backgroundColor ?? Colors.black54,
+      shape: const CircleBorder(),
+      elevation: 1,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: widget.onActions,
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: Icon(
+            Icons.more_horiz,
+            size: 16,
+            color: widget.iconColor ?? Colors.white,
+          ),
+        ),
+      ),
+    );
   }
 }

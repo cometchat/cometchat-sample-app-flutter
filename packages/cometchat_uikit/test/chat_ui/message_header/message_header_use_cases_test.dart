@@ -59,8 +59,9 @@ void main() {
     });
 
     test('delegates to repository with valid UID', () async {
-      when(() => repo.getUser(any()))
-          .thenAnswer((_) async => Success(FakeUser()));
+      when(
+        () => repo.getUser(any()),
+      ).thenAnswer((_) async => Success(FakeUser()));
 
       final result = await useCase('uid_1');
       expect(result.isSuccess, isTrue);
@@ -73,9 +74,10 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.getUser(any()))
-          .thenAnswer((_) async =>
-              const Failure(message: 'User not found', code: 'NOT_FOUND'));
+      when(() => repo.getUser(any())).thenAnswer(
+        (_) async =>
+            const Failure(message: 'User not found', code: 'NOT_FOUND'),
+      );
 
       final result = await useCase('uid_1');
       expect(result.isFailure, isTrue);
@@ -102,8 +104,9 @@ void main() {
     });
 
     test('delegates to repository with valid GUID', () async {
-      when(() => repo.getGroup(any()))
-          .thenAnswer((_) async => Success(FakeGroup()));
+      when(
+        () => repo.getGroup(any()),
+      ).thenAnswer((_) async => Success(FakeGroup()));
 
       final result = await useCase('guid_1');
       expect(result.isSuccess, isTrue);
@@ -116,9 +119,10 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.getGroup(any()))
-          .thenAnswer((_) async =>
-              const Failure(message: 'Group not found', code: 'NOT_FOUND'));
+      when(() => repo.getGroup(any())).thenAnswer(
+        (_) async =>
+            const Failure(message: 'Group not found', code: 'NOT_FOUND'),
+      );
 
       final result = await useCase('guid_1');
       expect(result.isFailure, isTrue);
@@ -139,8 +143,9 @@ void main() {
     });
 
     test('delegates to repository', () async {
-      when(() => repo.getLoggedInUser())
-          .thenAnswer((_) async => Success(FakeUser()));
+      when(
+        () => repo.getLoggedInUser(),
+      ).thenAnswer((_) async => Success(FakeUser()));
 
       final result = await useCase();
       expect(result.isSuccess, isTrue);
@@ -148,9 +153,9 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.getLoggedInUser())
-          .thenAnswer((_) async =>
-              const Failure(message: 'Not logged in', code: 'AUTH_ERR'));
+      when(() => repo.getLoggedInUser()).thenAnswer(
+        (_) async => const Failure(message: 'Not logged in', code: 'AUTH_ERR'),
+      );
 
       final result = await useCase();
       expect(result.isFailure, isTrue);

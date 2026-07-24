@@ -15,19 +15,14 @@ class StreamRepositoryImpl implements StreamRepository {
 
   /// Constructor accepts injected data source
   /// This allows easy testing and switching implementations
-  StreamRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  StreamRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<Result<StreamEntity>> playStream({
     required String url,
     required String streamId,
   }) async {
-    return remoteDataSource.playStream(
-      url: url,
-      streamId: streamId,
-    );
+    return remoteDataSource.playStream(url: url, streamId: streamId);
   }
 
   @override
@@ -51,7 +46,9 @@ class StreamRepositoryImpl implements StreamRepository {
   }
 
   @override
-  Future<Result<Duration>> getCurrentPosition({required String streamId}) async {
+  Future<Result<Duration>> getCurrentPosition({
+    required String streamId,
+  }) async {
     return remoteDataSource.getCurrentPosition(streamId: streamId);
   }
 
@@ -67,9 +64,7 @@ class StreamRepositoryImpl implements StreamRepository {
   }
 
   @override
-  Stream<StreamStatusUpdate> getStreamStatusStream({
-    required String streamId,
-  }) {
+  Stream<StreamStatusUpdate> getStreamStatusStream({required String streamId}) {
     return remoteDataSource.getStreamStatusStream(streamId: streamId);
   }
 }

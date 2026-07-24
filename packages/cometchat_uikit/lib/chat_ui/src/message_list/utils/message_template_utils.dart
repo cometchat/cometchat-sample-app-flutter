@@ -7,7 +7,8 @@ import '../../../../call_ui/src/calling_configuration.dart';
 import '../../../../call_ui/src/utils/call_utils.dart';
 import '../../../../call_ui/src/utils/call_extension_constants.dart';
 import '../../../../call_ui/src/ongoing_call/call_screen_overlay.dart';
-import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' show SessionSettingsBuilder, LayoutType;
+import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart'
+    show SessionSettingsBuilder, LayoutType;
 import '../../extensions/extension_constants.dart';
 import '../../extensions/polls/cometchat_polls_bubble.dart';
 import '../../extensions/stickers/cometchat_sticker_bubble.dart';
@@ -338,31 +339,39 @@ class MessageTemplateUtils {
     );
   }
 
-
   static List<CometChatMessageOption> getTextMessageOptions(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
-      AdditionalConfigurations? additionalConfigurations) {
+    User loggedInUser,
+    BaseMessage messageObject,
+    BuildContext context,
+    Group? group,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     List<CometChatMessageOption> messageOptionList = [];
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
     final style = additionalConfigurations?.messageOptionSheetStyle;
 
     if (messageObject.sender?.uid == loggedInUser.uid &&
-        ModerationCheckUtil.instance
-            .isMessageDisapprovedFromModeration(messageObject)) {
+        ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(
+          messageObject,
+        )) {
       if (additionalConfigurations?.hideCopyMessageOption != true) {
-        messageOptionList
-            .add(getCopyOption(context, colorPalette, typography, style));
+        messageOptionList.add(
+          getCopyOption(context, colorPalette, typography, style),
+        );
       }
 
       if (additionalConfigurations?.hideDeleteMessageOption != true &&
-          _validateOption(loggedInUser, messageObject, context, group,
-              MessageOptionConstants.deleteMessage)) {
-        messageOptionList
-            .add(getDeleteOption(context, colorPalette, typography, style));
+          _validateOption(
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            MessageOptionConstants.deleteMessage,
+          )) {
+        messageOptionList.add(
+          getDeleteOption(context, colorPalette, typography, style),
+        );
       }
 
       return messageOptionList;
@@ -370,141 +379,225 @@ class MessageTemplateUtils {
 
     if (additionalConfigurations?.hideReplyOption != true) {
       messageOptionList.add(
-          getReplyOption(context, colorPalette, typography, style));
+        getReplyOption(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideReplyInThreadOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.replyInThreadMessage)) {
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.replyInThreadMessage,
+        )) {
       messageOptionList.add(
-          getReplyInThreadOption(context, colorPalette, typography, style));
+        getReplyInThreadOption(context, colorPalette, typography, style),
+      );
     }
     if (additionalConfigurations?.hideShareMessageOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.shareMessage)) {
-      messageOptionList
-          .add(getShareOption(context, colorPalette, typography, style));
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.shareMessage,
+        )) {
+      messageOptionList.add(
+        getShareOption(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideCopyMessageOption != true) {
-      messageOptionList
-          .add(getCopyOption(context, colorPalette, typography, style));
+      messageOptionList.add(
+        getCopyOption(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideEditMessageOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.editMessage)) {
-      messageOptionList
-          .add(getEditOption(context, colorPalette, typography, style));
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.editMessage,
+        )) {
+      messageOptionList.add(
+        getEditOption(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideMessageInfoOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.messageInformation)) {
-      messageOptionList
-          .add(getMessageInfo(context, colorPalette, typography, style));
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.messageInformation,
+        )) {
+      messageOptionList.add(
+        getMessageInfo(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideDeleteMessageOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.deleteMessage)) {
-      messageOptionList
-          .add(getDeleteOption(context, colorPalette, typography, style));
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.deleteMessage,
+        )) {
+      messageOptionList.add(
+        getDeleteOption(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideMessagePrivatelyOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.sendMessagePrivately)) {
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.sendMessagePrivately,
+        )) {
       messageOptionList.add(
-          getSendMessagePrivately(context, colorPalette, typography, style));
+        getSendMessagePrivately(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.showMarkAsUnreadOption == true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.markAsUnread)) {
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.markAsUnread,
+        )) {
       messageOptionList.add(
-          getMarkAsUnreadOption(context, colorPalette, typography, style));
+        getMarkAsUnreadOption(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideFlagOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.reportMessage)) {
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.reportMessage,
+        )) {
       messageOptionList.add(
-          getReportOption(context, colorPalette, typography, style));
+        getReportOption(context, colorPalette, typography, style),
+      );
     }
 
     return messageOptionList;
   }
 
-
   static List<CometChatMessageOption> getImageMessageOptions(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
-      AdditionalConfigurations? additionalConfigurations) {
+    User loggedInUser,
+    BaseMessage messageObject,
+    BuildContext context,
+    Group? group,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     List<CometChatMessageOption> messageOptionList = [];
-    messageOptionList.addAll(MessageTemplateUtils.getCommonOptions(
-        loggedInUser, messageObject, context, group, additionalConfigurations));
+    messageOptionList.addAll(
+      MessageTemplateUtils.getCommonOptions(
+        loggedInUser,
+        messageObject,
+        context,
+        group,
+        additionalConfigurations,
+      ),
+    );
     return messageOptionList;
   }
-
 
   static List<CometChatMessageOption> getVideoMessageOptions(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
-      AdditionalConfigurations? additionalConfigurations) {
+    User loggedInUser,
+    BaseMessage messageObject,
+    BuildContext context,
+    Group? group,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     List<CometChatMessageOption> messageOptionList = [];
-    messageOptionList.addAll(MessageTemplateUtils.getCommonOptions(
-        loggedInUser, messageObject, context, group, additionalConfigurations));
+    messageOptionList.addAll(
+      MessageTemplateUtils.getCommonOptions(
+        loggedInUser,
+        messageObject,
+        context,
+        group,
+        additionalConfigurations,
+      ),
+    );
     return messageOptionList;
   }
-
 
   static List<CometChatMessageOption> getAudioMessageOptions(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
-      AdditionalConfigurations? additionalConfigurations) {
+    User loggedInUser,
+    BaseMessage messageObject,
+    BuildContext context,
+    Group? group,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     List<CometChatMessageOption> messageOptionList = [];
-    messageOptionList.addAll(MessageTemplateUtils.getCommonOptions(
-        loggedInUser, messageObject, context, group, additionalConfigurations));
+    messageOptionList.addAll(
+      MessageTemplateUtils.getCommonOptions(
+        loggedInUser,
+        messageObject,
+        context,
+        group,
+        additionalConfigurations,
+      ),
+    );
     // messageOptionList.add(getForwardOption(context));
     return messageOptionList;
   }
-
 
   static List<CometChatMessageOption> getFileMessageOptions(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
-      AdditionalConfigurations? additionalConfigurations) {
+    User loggedInUser,
+    BaseMessage messageObject,
+    BuildContext context,
+    Group? group,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     List<CometChatMessageOption> messageOptionList = [];
-    messageOptionList.addAll(MessageTemplateUtils.getCommonOptions(
-        loggedInUser, messageObject, context, group, additionalConfigurations));
+    messageOptionList.addAll(
+      MessageTemplateUtils.getCommonOptions(
+        loggedInUser,
+        messageObject,
+        context,
+        group,
+        additionalConfigurations,
+      ),
+    );
     // messageOptionList.add(getForwardOption(context));
     return messageOptionList;
   }
 
-
-  static Widget getDeleteMessageBubble(BaseMessage messageObject, BuildContext context,
-      CometChatDeletedBubbleStyle? style) {
-    CometChatColorPalette colorPalette =
-        CometChatThemeHelper.getColorPalette(context);
+  static Widget getDeleteMessageBubble(
+    BaseMessage messageObject,
+    BuildContext context,
+    CometChatDeletedBubbleStyle? style,
+  ) {
+    CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(
+      context,
+    );
     final style0 = CometChatThemeHelper.getTheme<CometChatDeletedBubbleStyle>(
-            context: context, defaultTheme: CometChatDeletedBubbleStyle.of)
-        .merge(style);
+      context: context,
+      defaultTheme: CometChatDeletedBubbleStyle.of,
+    ).merge(style);
     return CometChatDeletedBubble(
       style: CometChatDeletedBubbleStyle(
-        iconColor: style0.iconColor ??
+        iconColor:
+            style0.iconColor ??
             (messageObject.sender?.uid == CometChatUIKit.loggedInUser?.uid
                 ? colorPalette.white
                 : colorPalette.neutral600),
-        textColor: style0.textColor ??
+        textColor:
+            style0.textColor ??
             (messageObject.sender?.uid == CometChatUIKit.loggedInUser?.uid
                 ? colorPalette.white
                 : colorPalette.neutral600),
@@ -513,15 +606,13 @@ class MessageTemplateUtils {
   }
 
   static Widget getGroupActionBubble(
-      BaseMessage messageObject, CometChatActionBubbleStyle? style) {
+    BaseMessage messageObject,
+    CometChatActionBubbleStyle? style,
+  ) {
     cc.Action actionMessage = messageObject as cc.Action;
 
-    return CometChatActionBubble(
-      text: actionMessage.message,
-      style: style,
-    );
+    return CometChatActionBubble(text: actionMessage.message, style: style);
   }
-
 
   static CometChatMessageTemplate getTextMessageTemplate() {
     return CometChatMessageTemplate(
@@ -529,33 +620,46 @@ class MessageTemplateUtils {
       type: MessageTypeConstants.text,
       category: MessageCategoryConstants.message,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        TextMessage textMessage = message as TextMessage;
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            TextMessage textMessage = message as TextMessage;
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
 
-        return MessageTemplateUtils.getTextMessageContentView(
-            textMessage, context, alignment,
-            additionalConfigurations: additionalConfigurations);
-      },
+            return MessageTemplateUtils.getTextMessageContentView(
+              textMessage,
+              context,
+              alignment,
+              additionalConfigurations: additionalConfigurations,
+            );
+          },
       options: MessageTemplateUtils.getMessageOptions,
     );
   }
 
-
   static Widget getTextMessageContentView(
-      TextMessage message, BuildContext context, BubbleAlignment alignment,
-      {AdditionalConfigurations? additionalConfigurations}) {
+    TextMessage message,
+    BuildContext context,
+    BubbleAlignment alignment, {
+    AdditionalConfigurations? additionalConfigurations,
+  }) {
     final textBubble = MessageTemplateUtils.getTextMessageBubble(
-        message.text,
-        message,
-        context,
-        alignment,
-        additionalConfigurations?.textBubbleStyle,
-        additionalConfigurations?.textFormatters);
+      message.text,
+      message,
+      context,
+      alignment,
+      additionalConfigurations?.textBubbleStyle,
+      additionalConfigurations?.textFormatters,
+    );
 
     // Check for link preview extension data in message metadata
     final extensionMap = ExtensionModerator.extensionCheck(message);
@@ -584,84 +688,114 @@ class MessageTemplateUtils {
     return textBubble;
   }
 
-
   static CometChatMessageTemplate getAudioMessageTemplate() {
     return CometChatMessageTemplate(
       type: MessageTypeConstants.audio,
       category: MessageCategoryConstants.message,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        MediaMessage audioMessage = message as MediaMessage;
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            MediaMessage audioMessage = message as MediaMessage;
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
 
-        return MessageTemplateUtils.getAudioMessageContentView(
-          audioMessage,
-          context,
-          alignment,
-          additionalConfigurations: additionalConfigurations,
-        );
-      },
+            return MessageTemplateUtils.getAudioMessageContentView(
+              audioMessage,
+              context,
+              alignment,
+              additionalConfigurations: additionalConfigurations,
+            );
+          },
       options: MessageTemplateUtils.getMessageOptions,
     );
   }
-
 
   static CometChatMessageTemplate getVideoMessageTemplate() {
     return CometChatMessageTemplate(
       type: MessageTypeConstants.video,
       category: MessageCategoryConstants.message,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
 
-        return MessageTemplateUtils.getVideoMessageContentView(
-            message as MediaMessage, context, alignment,
-            additionalConfigurations: additionalConfigurations);
-      },
+            return MessageTemplateUtils.getVideoMessageContentView(
+              message as MediaMessage,
+              context,
+              alignment,
+              additionalConfigurations: additionalConfigurations,
+            );
+          },
       options: MessageTemplateUtils.getMessageOptions,
     );
   }
-
 
   static CometChatMessageTemplate getImageMessageTemplate() {
     return CometChatMessageTemplate(
       type: MessageTypeConstants.image,
       category: MessageCategoryConstants.message,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
 
-        return MessageTemplateUtils.getImageMessageContentView(
-            message as MediaMessage, context, alignment,
-            additionalConfigurations: additionalConfigurations);
-      },
+            return MessageTemplateUtils.getImageMessageContentView(
+              message as MediaMessage,
+              context,
+              alignment,
+              additionalConfigurations: additionalConfigurations,
+            );
+          },
       options: MessageTemplateUtils.getMessageOptions,
     );
   }
 
-
   static CometChatMessageTemplate getGroupActionTemplate() {
     return CometChatMessageTemplate(
-        type: MessageTypeConstants.groupActions,
-        category: MessageCategoryConstants.action,
-        contentView: (BaseMessage message, BuildContext context,
-            BubbleAlignment alignment,
-            {AdditionalConfigurations? additionalConfigurations}) {
-          return getGroupActionBubble(
-              message, additionalConfigurations?.actionBubbleStyle);
-        });
+      type: MessageTypeConstants.groupActions,
+      category: MessageCategoryConstants.action,
+      contentView:
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            return getGroupActionBubble(
+              message,
+              additionalConfigurations?.actionBubbleStyle,
+            );
+          },
+    );
   }
 
   static CometChatMessageTemplate getDefaultMessageActionsTemplate() {
@@ -671,27 +805,35 @@ class MessageTemplateUtils {
     );
   }
 
-
   static CometChatMessageTemplate getFileMessageTemplate() {
     return CometChatMessageTemplate(
       type: MessageTypeConstants.file,
       category: MessageCategoryConstants.message,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
 
-        return MessageTemplateUtils.getFileMessageContentView(
-            message as MediaMessage, context, alignment,
-            additionalConfigurations: additionalConfigurations);
-      },
+            return MessageTemplateUtils.getFileMessageContentView(
+              message as MediaMessage,
+              context,
+              alignment,
+              additionalConfigurations: additionalConfigurations,
+            );
+          },
       options: MessageTemplateUtils.getMessageOptions,
     );
   }
-
 
   static CometChatMessageTemplate getFormMessageTemplate() {
     return CometChatMessageTemplate(
@@ -699,52 +841,74 @@ class MessageTemplateUtils {
       type: MessageTypeConstants.form,
       category: MessageCategoryConstants.interactive,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
-        //TODO: Implement FormMessage ContentView
-        // FormMessage formMessage = message as FormMessage;
-        // return MessageUIService.getFormMessageContentView(
-        //     formMessage, context, alignment, theme);
-        return getMessageNotSupportedWidget(message, context);
-      },
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
+            //TODO: Implement FormMessage ContentView
+            // FormMessage formMessage = message as FormMessage;
+            // return MessageUIService.getFormMessageContentView(
+            //     formMessage, context, alignment, theme);
+            return getMessageNotSupportedWidget(message, context);
+          },
       //TODO: Implement FormMessage Options
       // options: MessageUIService.getFormMessageOptions,
-      options: (loggedInUser, messageObject, context, group,
-              additionalConfigurations) =>
-          [],
+      options:
+          (
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          ) => [],
     );
   }
-
 
   static CometChatMessageTemplate getSchedulerMessageTemplate() {
     return CometChatMessageTemplate(
       type: MessageTypeConstants.scheduler,
       category: MessageCategoryConstants.interactive,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
-        //TODO: Implement SchedulerMessage ContentView
-        // SchedulerMessage meetingMessage = message as SchedulerMessage;
-        // return MessageUIService.getSchedulerMessageContentView(
-        //     meetingMessage, context, alignment, theme);
-        return getMessageNotSupportedWidget(message, context);
-      },
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
+            //TODO: Implement SchedulerMessage ContentView
+            // SchedulerMessage meetingMessage = message as SchedulerMessage;
+            // return MessageUIService.getSchedulerMessageContentView(
+            //     meetingMessage, context, alignment, theme);
+            return getMessageNotSupportedWidget(message, context);
+          },
       //TODO: Implement SchedulerMessage Options
       // options: MessageUIService.getSchedulerMessageOptions,
-      options: (loggedInUser, messageObject, context, group,
-              additionalConfigurations) =>
-          [],
+      options:
+          (
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          ) => [],
     );
   }
-
 
   static List<CometChatMessageTemplate> getAllMessageTemplates() {
     List<CometChatMessageTemplate> templates = [
@@ -774,9 +938,10 @@ class MessageTemplateUtils {
     return templates;
   }
 
-
-  static CometChatMessageTemplate? getMessageTemplate(
-      {required String messageType, required String messageCategory}) {
+  static CometChatMessageTemplate? getMessageTemplate({
+    required String messageType,
+    required String messageCategory,
+  }) {
     CometChatMessageTemplate? template;
     if (messageCategory == MessageCategoryConstants.call) {
       // Handle call message templates
@@ -847,69 +1012,84 @@ class MessageTemplateUtils {
     return template;
   }
 
-
   static List<CometChatMessageOption> getMessageOptions(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
-      AdditionalConfigurations? additionalConfigurations) {
+    User loggedInUser,
+    BaseMessage messageObject,
+    BuildContext context,
+    Group? group,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     List<CometChatMessageOption> optionList = [];
     if (messageObject.category == MessageCategoryConstants.message) {
       switch (messageObject.type) {
         case MessageTypeConstants.text:
           optionList = MessageTemplateUtils.getTextMessageOptions(
-              loggedInUser,
-              messageObject,
-              context,
-              group,
-              additionalConfigurations);
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          );
           break;
         case MessageTypeConstants.image:
           optionList = MessageTemplateUtils.getImageMessageOptions(
-              loggedInUser,
-              messageObject,
-              context,
-              group,
-              additionalConfigurations);
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          );
           break;
         case MessageTypeConstants.video:
           optionList = MessageTemplateUtils.getVideoMessageOptions(
-              loggedInUser,
-              messageObject,
-              context,
-              group,
-              additionalConfigurations);
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          );
           break;
         case MessageTypeConstants.groupActions:
           optionList = [];
           break;
         case MessageTypeConstants.file:
           optionList = MessageTemplateUtils.getFileMessageOptions(
-              loggedInUser,
-              messageObject,
-              context,
-              group,
-              additionalConfigurations);
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          );
           break;
         case MessageTypeConstants.audio:
           optionList = MessageTemplateUtils.getAudioMessageOptions(
-              loggedInUser,
-              messageObject,
-              context,
-              group,
-              additionalConfigurations);
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          );
           break;
       }
     } else if (messageObject.category == MessageCategoryConstants.custom) {
-      optionList = MessageTemplateUtils.getCommonOptions(loggedInUser,
-          messageObject, context, group, additionalConfigurations);
+      optionList = MessageTemplateUtils.getCommonOptions(
+        loggedInUser,
+        messageObject,
+        context,
+        group,
+        additionalConfigurations,
+      );
     }
     return optionList;
   }
 
-  static bool _validateOption(User loggedInUser, BaseMessage messageObject,
-      BuildContext context, Group? group, String optionId) {
+  static bool _validateOption(
+    User loggedInUser,
+    BaseMessage messageObject,
+    BuildContext context,
+    Group? group,
+    String optionId,
+  ) {
     if (MessageOptionConstants.replyInThreadMessage == optionId &&
         messageObject.parentMessageId == 0) {
       return true;
@@ -932,7 +1112,8 @@ class MessageTemplateUtils {
       return true;
     }
 
-    bool memberIsNotParticipant = (group != null) &&
+    bool memberIsNotParticipant =
+        (group != null) &&
         ((group.owner == loggedInUser.uid) ||
             (group.scope != GroupMemberScope.participant));
 
@@ -971,13 +1152,13 @@ class MessageTemplateUtils {
     return false;
   }
 
-
   static List<CometChatMessageOption> getCommonOptions(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
-      AdditionalConfigurations? additionalConfigurations) {
+    User loggedInUser,
+    BaseMessage messageObject,
+    BuildContext context,
+    Group? group,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     List<CometChatMessageOption> messageOptionList = [];
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
@@ -985,74 +1166,145 @@ class MessageTemplateUtils {
 
     // 🚫 Moderation Disapproved: Only return DELETE if allowed
     if (messageObject.sender?.uid == loggedInUser.uid &&
-        ModerationCheckUtil.instance
-            .isMessageDisapprovedFromModeration(messageObject)) {
+        ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(
+          messageObject,
+        )) {
       if (additionalConfigurations?.hideDeleteMessageOption != true &&
-          _validateOption(loggedInUser, messageObject, context, group,
-              MessageOptionConstants.deleteMessage)) {
-        messageOptionList
-            .add(getDeleteOption(context, colorPalette, typography, style));
+          _validateOption(
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            MessageOptionConstants.deleteMessage,
+          )) {
+        messageOptionList.add(
+          getDeleteOption(context, colorPalette, typography, style),
+        );
       }
       return messageOptionList; // ✅ Only delete option is returned
     }
 
+    // Edit is offered on a media message only when it carries a caption
+    // (text sent alongside attachments is stored as MediaMessage.caption).
+    // Guard on a non-null, non-empty caption so caption-less media isn't
+    // given an Edit option that would have nothing to edit.
+    final String? caption = messageObject is MediaMessage
+        ? messageObject.caption?.trim()
+        : null;
+    if (caption != null &&
+        caption.isNotEmpty &&
+        additionalConfigurations?.hideEditMessageOption != true &&
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.editMessage,
+        )) {
+      messageOptionList.add(
+        getEditOption(context, colorPalette, typography, style),
+      );
+    }
+
     if (additionalConfigurations?.hideReplyOption != true) {
       messageOptionList.add(
-          getReplyOption(context, colorPalette, typography, style));
+        getReplyOption(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideReplyInThreadOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.replyInThreadMessage)) {
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.replyInThreadMessage,
+        )) {
       messageOptionList.add(
-          getReplyInThreadOption(context, colorPalette, typography, style));
+        getReplyInThreadOption(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideShareMessageOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.shareMessage)) {
-      messageOptionList
-          .add(getShareOption(context, colorPalette, typography, style));
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.shareMessage,
+        )) {
+      messageOptionList.add(
+        getShareOption(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideMessageInfoOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.messageInformation)) {
-      messageOptionList
-          .add(getMessageInfo(context, colorPalette, typography, style));
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.messageInformation,
+        )) {
+      messageOptionList.add(
+        getMessageInfo(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideDeleteMessageOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.deleteMessage)) {
-      messageOptionList
-          .add(getDeleteOption(context, colorPalette, typography, style));
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.deleteMessage,
+        )) {
+      messageOptionList.add(
+        getDeleteOption(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideMessagePrivatelyOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.sendMessagePrivately)) {
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.sendMessagePrivately,
+        )) {
       messageOptionList.add(
-          getSendMessagePrivately(context, colorPalette, typography, style));
+        getSendMessagePrivately(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.showMarkAsUnreadOption == true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.markAsUnread)) {
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.markAsUnread,
+        )) {
       messageOptionList.add(
-          getMarkAsUnreadOption(context, colorPalette, typography, style));
+        getMarkAsUnreadOption(context, colorPalette, typography, style),
+      );
     }
 
     if (additionalConfigurations?.hideFlagOption != true &&
-        _validateOption(loggedInUser, messageObject, context, group,
-            MessageOptionConstants.reportMessage)) {
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.reportMessage,
+        )) {
       messageOptionList.add(
-          getReportOption(context, colorPalette, typography, style));
+        getReportOption(context, colorPalette, typography, style),
+      );
     }
 
     return messageOptionList;
   }
-
 
   static List<String> getAllMessageTypes() {
     List<String> types = [
@@ -1104,61 +1356,150 @@ class MessageTemplateUtils {
     return categories;
   }
 
-
-  static Widget getAudioMessageContentView(
-      MediaMessage message, BuildContext context, BubbleAlignment alignment,
-      {AdditionalConfigurations? additionalConfigurations}) {
-    return MessageTemplateUtils.getAudioMessageBubble(
-        message.attachment?.fileUrl,
-        message.attachment?.fileName,
-        additionalConfigurations?.audioBubbleStyle,
-        message,
-        context,
-        alignment);
+  /// Appends the message caption beneath a single-attachment bubble, using the
+  /// same renderer as the multi-attachment gallery, so a captioned
+  /// one-attachment media message reads identically (the single image/video/
+  /// file/audio bubbles don't render captions themselves).
+  static Widget _withSingleCaption(
+    Widget bubble,
+    MediaMessage message,
+    BubbleAlignment alignment, {
+    AdditionalConfigurations? additionalConfigurations,
+  }) {
+    final caption = message.caption;
+    if (caption == null || caption.trim().isEmpty) return bubble;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        bubble,
+        CometChatMediaCaption(
+          caption: caption,
+          alignment: alignment,
+          formatters: FormatterUtils.ensureMarkdownFormatter(
+            additionalConfigurations?.textFormatters,
+          ),
+        ),
+      ],
+    );
   }
 
+  static Widget getAudioMessageContentView(
+    MediaMessage message,
+    BuildContext context,
+    BubbleAlignment alignment, {
+    AdditionalConfigurations? additionalConfigurations,
+  }) {
+    // Voice notes ALWAYS render via CometChatVoiceNoteBubble (below), on both
+    // values of enableMultipleAttachments — a voice note is single by nature
+    // and keeps the same look on both paths. Only non-voice audio *files* use
+    // the multi-attachment bubble.
+    if (!CometChatVoiceNoteBubble.isVoiceNote(message) &&
+        (additionalConfigurations?.enableMultipleAttachments ?? true)) {
+      return CometChatAudiosBubble(
+        message: message,
+        alignment: alignment,
+        formatters: FormatterUtils.ensureMarkdownFormatter(
+          additionalConfigurations?.textFormatters,
+        ),
+      );
+    }
+    // CometChatVoiceNoteBubble: voice notes (either flag), and audio files when
+    // enableMultipleAttachments is false (reached as CometChatAudioBubble).
+    return _withSingleCaption(
+      MessageTemplateUtils.getAudioMessageBubble(
+        message.attachment?.fileUrl,
+        message.attachment?.fileName,
+        additionalConfigurations?.effectiveVoiceNoteBubbleStyle,
+        message,
+        context,
+        alignment,
+      ),
+      message,
+      alignment,
+      additionalConfigurations: additionalConfigurations,
+    );
+  }
 
   static Widget getFileMessageContentView(
-      MediaMessage message, BuildContext context, BubbleAlignment alignment,
-      {AdditionalConfigurations? additionalConfigurations}) {
-    return MessageTemplateUtils.getFileMessageBubble(
+    MediaMessage message,
+    BuildContext context,
+    BubbleAlignment alignment, {
+    AdditionalConfigurations? additionalConfigurations,
+  }) {
+    if (additionalConfigurations?.enableMultipleAttachments ?? true) {
+      // Every attachment renders as a file card (legacy mixed-type messages
+      // from older clients land here too).
+      return CometChatFilesBubble(
+        message: message,
+        alignment: alignment,
+        formatters: FormatterUtils.ensureMarkdownFormatter(
+          additionalConfigurations?.textFormatters,
+        ),
+      );
+    }
+    // Deprecated single-attachment path (enableMultipleAttachments == false).
+    return _withSingleCaption(
+      MessageTemplateUtils.getFileMessageBubble(
         message.attachment?.fileUrl,
         message.attachment?.fileMimeType,
         message.attachment?.fileName,
         message.id,
         additionalConfigurations?.fileBubbleStyle,
         message,
-        alignment);
+        alignment,
+      ),
+      message,
+      alignment,
+      additionalConfigurations: additionalConfigurations,
+    );
   }
 
-
   static Widget getImageMessageContentView(
-      MediaMessage message, BuildContext context, BubbleAlignment alignment,
-      {AdditionalConfigurations? additionalConfigurations}) {
+    MediaMessage message,
+    BuildContext context,
+    BubbleAlignment alignment, {
+    AdditionalConfigurations? additionalConfigurations,
+  }) {
+    if (additionalConfigurations?.enableMultipleAttachments ?? true) {
+      return CometChatImagesBubble(
+        message: message,
+        alignment: alignment,
+        formatters: FormatterUtils.ensureMarkdownFormatter(
+          additionalConfigurations?.textFormatters,
+        ),
+      );
+    }
+    // Deprecated single-attachment path (enableMultipleAttachments == false).
     final imageThumbnailUrl = ThumbnailExtractionUtil.extractFromMetadata(
       message.metadata,
       tag: 'template.image.msg${message.id}',
     );
-    return MessageTemplateUtils.getImageMessageBubble(
-      message.attachment?.fileUrl,
-      AssetConstants.imagePlaceholder,
-      message.caption,
-      additionalConfigurations?.imageBubbleStyle,
+    return _withSingleCaption(
+      MessageTemplateUtils.getImageMessageBubble(
+        message.attachment?.fileUrl,
+        AssetConstants.imagePlaceholder,
+        message.caption,
+        additionalConfigurations?.imageBubbleStyle,
+        message,
+        null,
+        context,
+        thumbnailUrl: imageThumbnailUrl,
+      ),
       message,
-      null,
-      context,
-      thumbnailUrl: imageThumbnailUrl,
+      alignment,
+      additionalConfigurations: additionalConfigurations,
     );
   }
 
-
   static Widget getVideoMessageBubble(
-      String? videoUrl,
-      String? thumbnailUrl,
-      MediaMessage message,
-      Function()? onClick,
-      BuildContext context,
-      CometChatVideoBubbleStyle? style) {
+    String? videoUrl,
+    String? thumbnailUrl,
+    MediaMessage message,
+    Function()? onClick,
+    BuildContext context,
+    CometChatVideoBubbleStyle? style,
+  ) {
     return CometChatVideoBubble(
       videoUrl: videoUrl,
       thumbnailUrl: thumbnailUrl,
@@ -1167,30 +1508,49 @@ class MessageTemplateUtils {
     );
   }
 
-
   static Widget getVideoMessageContentView(
-      MediaMessage message, BuildContext context, BubbleAlignment alignment,
-      {AdditionalConfigurations? additionalConfigurations}) {
+    MediaMessage message,
+    BuildContext context,
+    BubbleAlignment alignment, {
+    AdditionalConfigurations? additionalConfigurations,
+  }) {
+    if (additionalConfigurations?.enableMultipleAttachments ?? true) {
+      return CometChatVideosBubble(
+        message: message,
+        alignment: alignment,
+        formatters: FormatterUtils.ensureMarkdownFormatter(
+          additionalConfigurations?.textFormatters,
+        ),
+      );
+    }
+    // Deprecated single-attachment path (enableMultipleAttachments == false).
     final thumbnailUrl = ThumbnailExtractionUtil.extractFromMetadata(
       message.metadata,
       tag: 'template.video.msg${message.id}',
     );
-    return MessageTemplateUtils.getVideoMessageBubble(
+    return _withSingleCaption(
+      MessageTemplateUtils.getVideoMessageBubble(
         message.attachment?.fileUrl,
         thumbnailUrl,
         message,
         null,
         context,
-        additionalConfigurations?.videoBubbleStyle);
+        additionalConfigurations?.videoBubbleStyle,
+      ),
+      message,
+      alignment,
+      additionalConfigurations: additionalConfigurations,
+    );
   }
 
   static Widget getTextMessageBubble(
-      String messageText,
-      TextMessage message,
-      BuildContext context,
-      BubbleAlignment alignment,
-      CometChatTextBubbleStyle? style,
-      List<CometChatTextFormatter>? formatters) {
+    String messageText,
+    TextMessage message,
+    BuildContext context,
+    BubbleAlignment alignment,
+    CometChatTextBubbleStyle? style,
+    List<CometChatTextFormatter>? formatters,
+  ) {
     return CometChatTextBubble(
       text: messageText,
       alignment: alignment,
@@ -1199,25 +1559,28 @@ class MessageTemplateUtils {
     );
   }
 
-
   static Widget getAudioMessageBubble(
-      String? audioUrl,
-      String? title,
-      CometChatAudioBubbleStyle? style,
-      MediaMessage message,
-      BuildContext context,
-      BubbleAlignment alignment) {
-    return CometChatAudioBubbleV2(
+    String? audioUrl,
+    String? title,
+    CometChatVoiceNoteBubbleStyle? style,
+    MediaMessage message,
+    BuildContext context,
+    BubbleAlignment alignment,
+  ) {
+    // Renders voice notes (on either flag) and, when enableMultipleAttachments
+    // is false, audio files too. The multi-attachment path uses
+    // CometChatAudiosBubble; the waveform player itself is CometChatAudioPlayer.
+    return CometChatVoiceNoteBubble(
       style: style,
       audioUrl: audioUrl,
       title: title,
       key: ValueKey('${message.id}_${message.muid}'),
       alignment: alignment,
       id: message.id,
+      muid: message.muid,
       metadata: message.metadata,
     );
   }
-
 
   static Widget getFileMessageBubble(
     String? fileUrl,
@@ -1243,7 +1606,6 @@ class MessageTemplateUtils {
     );
   }
 
-
   static Widget getImageMessageBubble(
     String? imageUrl,
     String? placeholderImage,
@@ -1255,15 +1617,15 @@ class MessageTemplateUtils {
     String? thumbnailUrl,
   }) {
     return CometChatImageBubble(
-        key: UniqueKey(),
-        imageUrl: imageUrl,
-        thumbnailUrl: thumbnailUrl,
-        placeholderImage: placeholderImage,
-        style: (style ?? const CometChatImageBubbleStyle()) as dynamic,
-        onClick: onClick,
-        metadata: message.metadata);
+      key: UniqueKey(),
+      imageUrl: imageUrl,
+      thumbnailUrl: thumbnailUrl,
+      placeholderImage: placeholderImage,
+      style: (style ?? const CometChatImageBubbleStyle()) as dynamic,
+      onClick: onClick,
+      metadata: message.metadata,
+    );
   }
-
 
   /// Returns the template for developer card messages (category: "card").
   ///
@@ -1275,18 +1637,23 @@ class MessageTemplateUtils {
       type: MessageTypeConstants.card,
       category: MessageCategoryConstants.card,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
 
-        final cardMessage = message as CardMessage;
-        return CometChatCardBubble(
-          message: cardMessage,
-        );
-      },
+            final cardMessage = message as CardMessage;
+            return CometChatCardBubble(message: cardMessage);
+          },
       options: getCardBubbleOptions,
     );
   }
@@ -1294,20 +1661,27 @@ class MessageTemplateUtils {
   /// Options for developer card messages: text options minus edit and copy.
   /// Preserves all conditional visibility logic (delete-only-for-own/admin, etc.)
   static List<CometChatMessageOption> getCardBubbleOptions(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
-      AdditionalConfigurations? additionalConfigurations) {
+    User loggedInUser,
+    BaseMessage messageObject,
+    BuildContext context,
+    Group? group,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     // Get the full text options, then remove edit and copy
     final textOptions = getTextMessageOptions(
-        loggedInUser, messageObject, context, group, additionalConfigurations);
-    textOptions.removeWhere((option) =>
-        option.id == MessageOptionConstants.editMessage ||
-        option.id == MessageOptionConstants.copyMessage);
+      loggedInUser,
+      messageObject,
+      context,
+      group,
+      additionalConfigurations,
+    );
+    textOptions.removeWhere(
+      (option) =>
+          option.id == MessageOptionConstants.editMessage ||
+          option.id == MessageOptionConstants.copyMessage,
+    );
     return textOptions;
   }
-
 
   static CometChatMessageTemplate getCardMessageTemplate() {
     return CometChatMessageTemplate(
@@ -1315,26 +1689,37 @@ class MessageTemplateUtils {
       type: MessageTypeConstants.card,
       category: MessageCategoryConstants.interactive,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
-        //TODO: Implement CardMessage ContentView
-        // CardMessage cardMessage = message as CardMessage;
-        // return MessageUIService.getCardMessageContentView(
-        //     cardMessage, context, alignment, theme);
-        return getMessageNotSupportedWidget(message, context);
-      },
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
+            //TODO: Implement CardMessage ContentView
+            // CardMessage cardMessage = message as CardMessage;
+            // return MessageUIService.getCardMessageContentView(
+            //     cardMessage, context, alignment, theme);
+            return getMessageNotSupportedWidget(message, context);
+          },
       //TODO: Implement CardMessage Options
       // options: MessageUIService.getCardMessageOptions,
-      options: (loggedInUser, messageObject, context, group,
-              additionalConfigurations) =>
-          [],
+      options:
+          (
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          ) => [],
     );
   }
-
 
   static List<CometChatTextFormatter> getDefaultTextFormatters() {
     return <CometChatTextFormatter>[
@@ -1350,13 +1735,19 @@ class MessageTemplateUtils {
     BuildContext context,
   ) {
     CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
-    CometChatTypography typography =
-        CometChatThemeHelper.getTypography(context);
-    CometChatColorPalette colorPalette =
-        CometChatThemeHelper.getColorPalette(context);
+    CometChatTypography typography = CometChatThemeHelper.getTypography(
+      context,
+    );
+    CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(
+      context,
+    );
     return Container(
-      padding: EdgeInsets.fromLTRB(spacing.padding2 ?? 0, spacing.padding2 ?? 0,
-          spacing.padding2 ?? 0, 0),
+      padding: EdgeInsets.fromLTRB(
+        spacing.padding2 ?? 0,
+        spacing.padding2 ?? 0,
+        spacing.padding2 ?? 0,
+        0,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.end,
@@ -1387,7 +1778,6 @@ class MessageTemplateUtils {
     );
   }
 
-
   // -------- Extension Message Templates --------
 
   static CometChatMessageTemplate getPollMessageTemplate() {
@@ -1395,141 +1785,160 @@ class MessageTemplateUtils {
       type: ExtensionType.extensionPoll,
       category: MessageCategoryConstants.custom,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
-        if (message is! CustomMessage) {
-          return getMessageNotSupportedWidget(message, context);
-        }
-        final customMessage = message;
-        final metadata = customMessage.customData;
-        if (metadata == null) {
-          return getMessageNotSupportedWidget(message, context);
-        }
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
+            if (message is! CustomMessage) {
+              return getMessageNotSupportedWidget(message, context);
+            }
+            final customMessage = message;
+            final metadata = customMessage.customData;
+            if (metadata == null) {
+              return getMessageNotSupportedWidget(message, context);
+            }
 
-        final String pollQuestion =
-            metadata['question']?.toString() ?? '';
-        final String loggedInUserUid =
-            CometChatUIKit.loggedInUser?.uid ?? '';
+            final String pollQuestion = metadata['question']?.toString() ?? '';
+            final String loggedInUserUid =
+                CometChatUIKit.loggedInUser?.uid ?? '';
 
-        // Extract poll results from message metadata injected extensions
-        Map<String, dynamic>? pollResults;
-        final msgMetadata = customMessage.metadata;
-        if (msgMetadata != null) {
-          final injected = msgMetadata['@injected'];
-          if (injected is Map && injected.containsKey('extensions')) {
-            final extensions = injected['extensions'];
-            if (extensions is Map && extensions.containsKey(ExtensionConstants.polls)) {
-              final pollData = extensions[ExtensionConstants.polls];
-              if (pollData is Map) {
-                pollResults = Map<String, dynamic>.from(pollData);
+            // Extract poll results from message metadata injected extensions
+            Map<String, dynamic>? pollResults;
+            final msgMetadata = customMessage.metadata;
+            if (msgMetadata != null) {
+              final injected = msgMetadata['@injected'];
+              if (injected is Map && injected.containsKey('extensions')) {
+                final extensions = injected['extensions'];
+                if (extensions is Map &&
+                    extensions.containsKey(ExtensionConstants.polls)) {
+                  final pollData = extensions[ExtensionConstants.polls];
+                  if (pollData is Map) {
+                    pollResults = Map<String, dynamic>.from(pollData);
+                  }
+                }
               }
             }
-          }
-        }
 
-        // Build options from poll results (has vote counts) or fall back to customData
-        List<PollOptions> options = [];
+            // Build options from poll results (has vote counts) or fall back to customData
+            List<PollOptions> options = [];
 
-        // Poll ID from extension metadata, fallback to message ID
-        final String pollId = (pollResults != null && pollResults['id'] != null)
-            ? pollResults['id'].toString()
-            : customMessage.id.toString();
+            // Poll ID from extension metadata, fallback to message ID
+            final String pollId =
+                (pollResults != null && pollResults['id'] != null)
+                ? pollResults['id'].toString()
+                : customMessage.id.toString();
 
-        if (pollResults != null) {
-          // Vote data lives under pollResults['results']['options']
-          // per CometChat docs: @injected.extensions.polls.results.options
-          final Map<String, dynamic>? resultsMap =
-              pollResults['results'] is Map
+            if (pollResults != null) {
+              // Vote data lives under pollResults['results']['options']
+              // per CometChat docs: @injected.extensions.polls.results.options
+              final Map<String, dynamic>? resultsMap =
+                  pollResults['results'] is Map
                   ? Map<String, dynamic>.from(pollResults['results'])
                   : null;
 
-          if (resultsMap != null && resultsMap.containsKey('options')) {
-            final Map<String, dynamic> opts =
-                Map<String, dynamic>.from(resultsMap['options'] ?? {});
-            for (var key in opts.keys) {
-              final opt = opts[key];
-              if (opt is Map) {
-                final Map<String, dynamic> votersMap =
-                    Map<String, dynamic>.from(opt['voters'] ?? {});
-                final List<User> voters = votersMap.entries
-                    .map((e) => User(
-                          uid: e.key,
-                          name: (e.value is Map ? e.value['name'] : null) ?? e.key,
-                          avatar: e.value is Map ? e.value['avatar'] : null,
-                        ))
-                    .toList();
-                options.add(PollOptions(
-                  id: key,
-                  optionText: opt['text']?.toString() ?? '',
-                  voteCount: opt['count'] ?? 0,
-                  votersUid: votersMap.keys.toList(),
-                  voters: voters,
-                ));
+              if (resultsMap != null && resultsMap.containsKey('options')) {
+                final Map<String, dynamic> opts = Map<String, dynamic>.from(
+                  resultsMap['options'] ?? {},
+                );
+                for (var key in opts.keys) {
+                  final opt = opts[key];
+                  if (opt is Map) {
+                    final Map<String, dynamic> votersMap =
+                        Map<String, dynamic>.from(opt['voters'] ?? {});
+                    final List<User> voters = votersMap.entries
+                        .map(
+                          (e) => User(
+                            uid: e.key,
+                            name:
+                                (e.value is Map ? e.value['name'] : null) ??
+                                e.key,
+                            avatar: e.value is Map ? e.value['avatar'] : null,
+                          ),
+                        )
+                        .toList();
+                    options.add(
+                      PollOptions(
+                        id: key,
+                        optionText: opt['text']?.toString() ?? '',
+                        voteCount: opt['count'] ?? 0,
+                        votersUid: votersMap.keys.toList(),
+                        voters: voters,
+                      ),
+                    );
+                  }
+                }
+              } else if (pollResults.containsKey('options')) {
+                // Fallback: poll exists but no votes yet — build from top-level options
+                final topOptions = pollResults['options'];
+                if (topOptions is Map) {
+                  for (var key in topOptions.keys) {
+                    options.add(
+                      PollOptions(
+                        id: key.toString(),
+                        optionText: topOptions[key]?.toString() ?? '',
+                        voteCount: 0,
+                        votersUid: [],
+                        voters: [],
+                      ),
+                    );
+                  }
+                }
+              }
+            } else if (metadata.containsKey('options')) {
+              // Fallback: build from customData options (no vote data)
+              final rawOptions = metadata['options'];
+              if (rawOptions is List) {
+                for (int i = 0; i < rawOptions.length; i++) {
+                  options.add(
+                    PollOptions(
+                      id: (i + 1).toString(),
+                      optionText: rawOptions[i]?.toString() ?? '',
+                      voteCount: 0,
+                      votersUid: [],
+                      voters: [],
+                    ),
+                  );
+                }
               }
             }
-          } else if (pollResults.containsKey('options')) {
-            // Fallback: poll exists but no votes yet — build from top-level options
-            final topOptions = pollResults['options'];
-            if (topOptions is Map) {
-              for (var key in topOptions.keys) {
-                options.add(PollOptions(
-                  id: key.toString(),
-                  optionText: topOptions[key]?.toString() ?? '',
-                  voteCount: 0,
-                  votersUid: [],
-                  voters: [],
-                ));
-              }
-            }
-          }
-        } else if (metadata.containsKey('options')) {
-          // Fallback: build from customData options (no vote data)
-          final rawOptions = metadata['options'];
-          if (rawOptions is List) {
-            for (int i = 0; i < rawOptions.length; i++) {
-              options.add(PollOptions(
-                id: (i + 1).toString(),
-                optionText: rawOptions[i]?.toString() ?? '',
-                voteCount: 0,
-                votersUid: [],
-                voters: [],
-              ));
-            }
-          }
-        }
 
-        return CometChatPollsBubble(
-          pollQuestion: pollQuestion,
-          options: options,
-          pollId: pollId,
-          loggedInUser: loggedInUserUid,
-          senderUid: customMessage.sender?.uid,
-          metadata: pollResults,
-          alignment: alignment,
-          choosePoll: (String vote, String id) async {
-            try {
-              await CometChat.callExtension(
-                ExtensionConstants.polls,
-                'POST',
-                ExtensionUrls.votePoll,
-                {'vote': vote, 'id': id},
-                onSuccess: (Map<String, dynamic> map) {
-                  debugPrint('[Polls] Vote success: $map');
-                },
-                onError: (CometChatException e) {
-                  debugPrint('[Polls] Vote error: ${e.code} ${e.message}');
-                },
-              );
-            } catch (e) {
-              debugPrint('[Polls] Vote exception: $e');
-            }
+            return CometChatPollsBubble(
+              pollQuestion: pollQuestion,
+              options: options,
+              pollId: pollId,
+              loggedInUser: loggedInUserUid,
+              senderUid: customMessage.sender?.uid,
+              metadata: pollResults,
+              alignment: alignment,
+              choosePoll: (String vote, String id) async {
+                try {
+                  await CometChat.callExtension(
+                    ExtensionConstants.polls,
+                    'POST',
+                    ExtensionUrls.votePoll,
+                    {'vote': vote, 'id': id},
+                    onSuccess: (Map<String, dynamic> map) {
+                      debugPrint('[Polls] Vote success: $map');
+                    },
+                    onError: (CometChatException e) {
+                      debugPrint('[Polls] Vote error: ${e.code} ${e.message}');
+                    },
+                  );
+                } catch (e) {
+                  debugPrint('[Polls] Vote exception: $e');
+                }
+              },
+            );
           },
-        );
-      },
       options: MessageTemplateUtils.getCommonOptions,
     );
   }
@@ -1539,23 +1948,38 @@ class MessageTemplateUtils {
       type: ExtensionType.sticker,
       category: MessageCategoryConstants.custom,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
-        if (message is! CustomMessage) {
-          return getMessageNotSupportedWidget(message, context);
-        }
-        return CometChatStickerBubble(
-          message: message,
-        );
-      },
-      options: (loggedInUser, messageObject, context, group,
-              additionalConfigurations) =>
-          MessageTemplateUtils.getCommonOptions(
-              loggedInUser, messageObject, context, group, additionalConfigurations),
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
+            if (message is! CustomMessage) {
+              return getMessageNotSupportedWidget(message, context);
+            }
+            return CometChatStickerBubble(message: message);
+          },
+      options:
+          (
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          ) => MessageTemplateUtils.getCommonOptions(
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          ),
     );
   }
 
@@ -1564,47 +1988,54 @@ class MessageTemplateUtils {
       type: ExtensionType.document,
       category: MessageCategoryConstants.custom,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
-        if (message is! CustomMessage) {
-          return getMessageNotSupportedWidget(message, context);
-        }
-        String? documentUrl;
-        final metadata = message.metadata;
-        if (metadata != null) {
-          final injected = metadata['@injected'];
-          if (injected is Map && injected.containsKey('extensions')) {
-            final extensions = injected['extensions'];
-            if (extensions is Map &&
-                extensions.containsKey(ExtensionConstants.document)) {
-              final docData = extensions[ExtensionConstants.document];
-              if (docData is Map) {
-                documentUrl = docData['document_url']?.toString();
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
+            if (message is! CustomMessage) {
+              return getMessageNotSupportedWidget(message, context);
+            }
+            String? documentUrl;
+            final metadata = message.metadata;
+            if (metadata != null) {
+              final injected = metadata['@injected'];
+              if (injected is Map && injected.containsKey('extensions')) {
+                final extensions = injected['extensions'];
+                if (extensions is Map &&
+                    extensions.containsKey(ExtensionConstants.document)) {
+                  final docData = extensions[ExtensionConstants.document];
+                  if (docData is Map) {
+                    documentUrl = docData['document_url']?.toString();
+                  }
+                }
               }
             }
-          }
-        }
-        documentUrl ??= message.customData?['document_url']?.toString();
+            documentUrl ??= message.customData?['document_url']?.toString();
 
-        return CometChatCollaborativeBubble(
-          url: documentUrl,
-          title: Translations.of(context).collaborativeDocument,
-          subtitle: Translations.of(context).openDocumentSubtitle,
-          buttonText: Translations.of(context).openDocument,
-          alignment: alignment,
-          icon: Image.asset(
-            AssetConstants.collaborativeDocumentFilled,
-            package: UIConstants.packageName,
-            height: 24,
-            width: 24,
-          ),
-          previewImage: AssetConstants.collaborativeDocumentPreview,
-        );
-      },
+            return CometChatCollaborativeBubble(
+              url: documentUrl,
+              title: Translations.of(context).collaborativeDocument,
+              subtitle: Translations.of(context).openDocumentSubtitle,
+              buttonText: Translations.of(context).openDocument,
+              alignment: alignment,
+              icon: Image.asset(
+                AssetConstants.collaborativeDocumentFilled,
+                package: UIConstants.packageName,
+                height: 24,
+                width: 24,
+              ),
+              previewImage: AssetConstants.collaborativeDocumentPreview,
+            );
+          },
       options: MessageTemplateUtils.getCommonOptions,
     );
   }
@@ -1614,47 +2045,54 @@ class MessageTemplateUtils {
       type: ExtensionType.whiteboard,
       category: MessageCategoryConstants.custom,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
-        if (message is! CustomMessage) {
-          return getMessageNotSupportedWidget(message, context);
-        }
-        String? whiteboardUrl;
-        final metadata = message.metadata;
-        if (metadata != null) {
-          final injected = metadata['@injected'];
-          if (injected is Map && injected.containsKey('extensions')) {
-            final extensions = injected['extensions'];
-            if (extensions is Map &&
-                extensions.containsKey(ExtensionConstants.whiteboard)) {
-              final wbData = extensions[ExtensionConstants.whiteboard];
-              if (wbData is Map) {
-                whiteboardUrl = wbData['board_url']?.toString();
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
+            if (message is! CustomMessage) {
+              return getMessageNotSupportedWidget(message, context);
+            }
+            String? whiteboardUrl;
+            final metadata = message.metadata;
+            if (metadata != null) {
+              final injected = metadata['@injected'];
+              if (injected is Map && injected.containsKey('extensions')) {
+                final extensions = injected['extensions'];
+                if (extensions is Map &&
+                    extensions.containsKey(ExtensionConstants.whiteboard)) {
+                  final wbData = extensions[ExtensionConstants.whiteboard];
+                  if (wbData is Map) {
+                    whiteboardUrl = wbData['board_url']?.toString();
+                  }
+                }
               }
             }
-          }
-        }
-        whiteboardUrl ??= message.customData?['board_url']?.toString();
+            whiteboardUrl ??= message.customData?['board_url']?.toString();
 
-        return CometChatCollaborativeBubble(
-          url: whiteboardUrl,
-          title: Translations.of(context).collaborativeWhiteboard,
-          subtitle: Translations.of(context).openWhiteboardSubtitle,
-          buttonText: Translations.of(context).openWhiteboard,
-          alignment: alignment,
-          icon: Image.asset(
-            AssetConstants.collaborativeWhiteBoardFilled,
-            package: UIConstants.packageName,
-            height: 24,
-            width: 24,
-          ),
-          previewImage: AssetConstants.collaborativeWhiteboardPreview,
-        );
-      },
+            return CometChatCollaborativeBubble(
+              url: whiteboardUrl,
+              title: Translations.of(context).collaborativeWhiteboard,
+              subtitle: Translations.of(context).openWhiteboardSubtitle,
+              buttonText: Translations.of(context).openWhiteboard,
+              alignment: alignment,
+              icon: Image.asset(
+                AssetConstants.collaborativeWhiteBoardFilled,
+                package: UIConstants.packageName,
+                height: 24,
+                width: 24,
+              ),
+              previewImage: AssetConstants.collaborativeWhiteboardPreview,
+            );
+          },
       options: MessageTemplateUtils.getCommonOptions,
     );
   }
@@ -1668,24 +2106,36 @@ class MessageTemplateUtils {
       type: CometChatMessageType.assistant,
       category: CometChatMessageCategory.categoryAgentic,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
-        if (message is AIAssistantMessage) {
-          return CometChatAIAssistantBubble(
-            message: message,
-            alignment: alignment,
-          );
-        }
-        // Fallback: render as text if somehow not AIAssistantMessage
-        return Text(message.toString());
-      },
-      options: (loggedInUser, messageObject, context, group,
-              additionalConfigurations) =>
-          [], // No long-press options for AI messages
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
+            if (message is AIAssistantMessage) {
+              return CometChatAIAssistantBubble(
+                message: message,
+                alignment: alignment,
+              );
+            }
+            // Fallback: render as text if somehow not AIAssistantMessage
+            return Text(message.toString());
+          },
+      options:
+          (
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          ) => [], // No long-press options for AI messages
     );
   }
 
@@ -1696,19 +2146,28 @@ class MessageTemplateUtils {
       type: CometChatMessageType.runStarted,
       category: CometChatMessageCategory.streamMessage,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message is StreamMessage) {
-          return CometChatStreamBubble(
-            message: message,
-            alignment: alignment,
-          );
-        }
-        return const SizedBox.shrink();
-      },
-      options: (loggedInUser, messageObject, context, group,
-              additionalConfigurations) =>
-          [], // No long-press options for stream messages
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message is StreamMessage) {
+              return CometChatStreamBubble(
+                message: message,
+                alignment: alignment,
+              );
+            }
+            return const SizedBox.shrink();
+          },
+      options:
+          (
+            loggedInUser,
+            messageObject,
+            context,
+            group,
+            additionalConfigurations,
+          ) => [], // No long-press options for stream messages
     );
   }
 
@@ -1718,21 +2177,35 @@ class MessageTemplateUtils {
       category: MessageCategoryConstants.custom,
       options: MessageTemplateUtils.getCommonOptions,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null || message is! CustomMessage) {
-          return getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
-        return _getCallBubble(message, context, alignment,
-            additionalConfigurations: additionalConfigurations);
-      },
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null || message is! CustomMessage) {
+              return getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
+            return _getCallBubble(
+              message,
+              context,
+              alignment,
+              additionalConfigurations: additionalConfigurations,
+            );
+          },
     );
   }
 
   static Widget _getCallBubble(
-      CustomMessage message, BuildContext context, BubbleAlignment alignment,
-      {AdditionalConfigurations? additionalConfigurations}) {
+    CustomMessage message,
+    BuildContext context,
+    BubbleAlignment alignment, {
+    AdditionalConfigurations? additionalConfigurations,
+  }) {
     final loggedInUser = CometChatUIKit.loggedInUser;
     String? callType;
     if (message.customData != null &&
@@ -1763,33 +2236,45 @@ class MessageTemplateUtils {
       subtitle = DateFormat('d MMM, hh:mm a').format(message.sentAt!);
     }
 
-    final callingConfig = CometChatUIKit.authenticationSettings?.callingConfiguration;
+    final callingConfig =
+        CometChatUIKit.authenticationSettings?.callingConfiguration;
 
     return CometChatCallBubble(
       title: title,
       iconUrl: icon,
       subtitle: subtitle,
-      onTap: (context) => _initiateDirectCall(context, receiver, message,
-          callingConfig: callingConfig,
-          call: Call(
-              receiverUid: receiver,
-              receiverType: CometChatReceiverType.group,
-              category: MessageCategoryConstants.call,
-              type: MessageTypeConstants.meeting)),
+      onTap: (context) => _initiateDirectCall(
+        context,
+        receiver,
+        message,
+        callingConfig: callingConfig,
+        call: Call(
+          receiverUid: receiver,
+          receiverType: CometChatReceiverType.group,
+          category: MessageCategoryConstants.call,
+          type: MessageTypeConstants.meeting,
+        ),
+      ),
       style: style,
       alignment: alignment,
     );
   }
 
   static void _initiateDirectCall(
-      BuildContext context, String sessionID, CustomMessage message,
-      {Call? call, CallingConfiguration? callingConfig}) async {
+    BuildContext context,
+    String sessionID,
+    CustomMessage message, {
+    Call? call,
+    CallingConfiguration? callingConfig,
+  }) async {
     SessionSettingsBuilder defaultSessionSettingsBuilder;
     if (callingConfig?.groupSessionSettingsBuilder != null) {
-      defaultSessionSettingsBuilder = callingConfig!.groupSessionSettingsBuilder!;
-    } else {
       defaultSessionSettingsBuilder =
-          SessionSettingsBuilder().setLayout(LayoutType.tile);
+          callingConfig!.groupSessionSettingsBuilder!;
+    } else {
+      defaultSessionSettingsBuilder = SessionSettingsBuilder().setLayout(
+        LayoutType.tile,
+      );
     }
     String? callType;
     String? sessionId;
@@ -1805,9 +2290,9 @@ class MessageTemplateUtils {
       // Workaround: SessionType.audio is not recognized by the native
       // Android SDK (beta bug). Use startVideoPaused + hide video buttons.
       defaultSessionSettingsBuilder
-        .startVideoPaused(true)
-        .hideSwitchCameraButton(true)
-        .hideToggleVideoButton(true);
+          .startVideoPaused(true)
+          .hideSwitchCameraButton(true)
+          .hideToggleVideoButton(true);
     }
     CallScreenOverlay.show(
       sessionId: sessionId ?? sessionID,
@@ -1822,38 +2307,55 @@ class MessageTemplateUtils {
       category: MessageCategoryConstants.call,
       footerView: null,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message is Call) {
-          final loggedInUser = CometChatUIKit.loggedInUser;
-          final CometChatColorPalette colorPalette =
-              CometChatThemeHelper.getColorPalette(context);
-          final typography = CometChatThemeHelper.getTypography(context);
-          return CometChatActionBubble(
-            text: CallUtils.getCallStatus(context, message, loggedInUser),
-            leadingIcon: Image.asset(
-              CallUtils.getCallIconByStatus(
-                  context, message, loggedInUser, true),
-              package: UIConstants.packageName,
-              color: CallUtils.getCallTextColor(
-                  context, message, loggedInUser, colorPalette),
-              height: 20,
-              width: 20,
-            ),
-            style: CometChatActionBubbleStyle(
-              textStyle: TextStyle(
-                  fontSize: typography.caption1?.regular?.fontSize,
-                  fontWeight: typography.caption1?.regular?.fontWeight,
-                  fontFamily: typography.caption1?.regular?.fontFamily,
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message is Call) {
+              final loggedInUser = CometChatUIKit.loggedInUser;
+              final CometChatColorPalette colorPalette =
+                  CometChatThemeHelper.getColorPalette(context);
+              final typography = CometChatThemeHelper.getTypography(context);
+              return CometChatActionBubble(
+                text: CallUtils.getCallStatus(context, message, loggedInUser),
+                leadingIcon: Image.asset(
+                  CallUtils.getCallIconByStatus(
+                    context,
+                    message,
+                    loggedInUser,
+                    true,
+                  ),
+                  package: UIConstants.packageName,
                   color: CallUtils.getCallTextColor(
-                      context, message, loggedInUser, colorPalette),
-                  letterSpacing: 0),
-            ).merge(additionalConfigurations?.actionBubbleStyle),
-          );
-        } else {
-          return null;
-        }
-      },
+                    context,
+                    message,
+                    loggedInUser,
+                    colorPalette,
+                  ),
+                  height: 20,
+                  width: 20,
+                ),
+                style: CometChatActionBubbleStyle(
+                  textStyle: TextStyle(
+                    fontSize: typography.caption1?.regular?.fontSize,
+                    fontWeight: typography.caption1?.regular?.fontWeight,
+                    fontFamily: typography.caption1?.regular?.fontFamily,
+                    color: CallUtils.getCallTextColor(
+                      context,
+                      message,
+                      loggedInUser,
+                      colorPalette,
+                    ),
+                    letterSpacing: 0,
+                  ),
+                ).merge(additionalConfigurations?.actionBubbleStyle),
+              );
+            } else {
+              return null;
+            }
+          },
     );
   }
 
@@ -1862,38 +2364,54 @@ class MessageTemplateUtils {
       type: CallTypeConstants.videoCall,
       category: MessageCategoryConstants.call,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message is Call) {
-          final loggedInUser = CometChatUIKit.loggedInUser;
-          final CometChatColorPalette colorPalette =
-              CometChatThemeHelper.getColorPalette(context);
-          final typography = CometChatThemeHelper.getTypography(context);
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message is Call) {
+              final loggedInUser = CometChatUIKit.loggedInUser;
+              final CometChatColorPalette colorPalette =
+                  CometChatThemeHelper.getColorPalette(context);
+              final typography = CometChatThemeHelper.getTypography(context);
 
-          return CometChatActionBubble(
-            text: CallUtils.getCallStatus(context, message, loggedInUser),
-            leadingIcon: Image.asset(
-              CallUtils.getCallIconByStatus(
-                  context, message, loggedInUser, false),
-              package: UIConstants.packageName,
-              color: CallUtils.getCallIconColor(
-                  context, message, loggedInUser, colorPalette),
-              height: 24,
-              width: 24,
-            ),
-            style: CometChatActionBubbleStyle(
-              textStyle: TextStyle(
-                fontSize: typography.caption1?.regular?.fontSize,
-                fontWeight: typography.caption1?.regular?.fontWeight,
-                color: CallUtils.getCallTextColor(
-                    context, message, loggedInUser, colorPalette),
-              ),
-            ).merge(additionalConfigurations?.actionBubbleStyle),
-          );
-        } else {
-          return null;
-        }
-      },
+              return CometChatActionBubble(
+                text: CallUtils.getCallStatus(context, message, loggedInUser),
+                leadingIcon: Image.asset(
+                  CallUtils.getCallIconByStatus(
+                    context,
+                    message,
+                    loggedInUser,
+                    false,
+                  ),
+                  package: UIConstants.packageName,
+                  color: CallUtils.getCallIconColor(
+                    context,
+                    message,
+                    loggedInUser,
+                    colorPalette,
+                  ),
+                  height: 24,
+                  width: 24,
+                ),
+                style: CometChatActionBubbleStyle(
+                  textStyle: TextStyle(
+                    fontSize: typography.caption1?.regular?.fontSize,
+                    fontWeight: typography.caption1?.regular?.fontWeight,
+                    color: CallUtils.getCallTextColor(
+                      context,
+                      message,
+                      loggedInUser,
+                      colorPalette,
+                    ),
+                  ),
+                ).merge(additionalConfigurations?.actionBubbleStyle),
+              );
+            } else {
+              return null;
+            }
+          },
     );
   }
 }

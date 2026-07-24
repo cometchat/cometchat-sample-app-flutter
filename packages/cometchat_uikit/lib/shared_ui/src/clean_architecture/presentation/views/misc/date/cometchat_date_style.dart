@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../../../../../../cometchat_uikit_shared.dart';
 
@@ -81,8 +80,11 @@ class CometChatDateStyle extends ThemeExtension<CometChatDateStyle> {
       border: Border.lerp(border, other.border, t),
       textStyle: TextStyle.lerp(textStyle, other.textStyle, t),
       textColor: Color.lerp(textColor, other.textColor, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
     );
   }
 }

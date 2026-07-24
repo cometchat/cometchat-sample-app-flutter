@@ -836,6 +836,41 @@ class TranslationsEs extends Translations {
   String get failedToLoadImage => 'No se pudo cargar la imagen';
 
   @override
+  String get uploadFailed => 'Error al subir';
+
+  @override
+  String get tapToRetry => 'Toca para reintentar';
+
+  @override
+  String get dropFilesHere => 'Suelta los archivos aquí';
+
+  @override
+  String get attachmentCountLimit =>
+      'Puedes adjuntar hasta {limit} archivos por mensaje.';
+
+  @override
+  String get attachmentFileSizeLimit =>
+      'Cada archivo debe ser inferior a {limit}.';
+
+  @override
+  String get fileListShowMore => '+{count} más';
+
+  @override
+  String get fileListShowLess => 'Mostrar menos';
+
+  @override
+  String get searchImagesCount => '{count} imágenes';
+
+  @override
+  String get searchVideosCount => '{count} videos';
+
+  @override
+  String get searchAudiosCount => '{count} audios';
+
+  @override
+  String get searchFilesCount => '{count} archivos';
+
+  @override
   String get transferOwnership => 'Transferir propiedad';
 
   @override
@@ -1262,28 +1297,35 @@ class TranslationsEs extends Translations {
   @override
   String get type => 'Escribir';
   @override
-  String get messageBlockedByModeration => 'Tu mensaje fue bloqueado debido a las políticas de moderación.';
+  String get messageBlockedByModeration =>
+      'Tu mensaje fue bloqueado debido a las políticas de moderación.';
 
   @override
-  String get cantSendMessageBlockedUser => "No se puede enviar el mensaje porque el usuario está bloqueado.";
+  String get cantSendMessageBlockedUser =>
+      "No se puede enviar el mensaje porque el usuario está bloqueado.";
 
   @override
-  String get cantSendMessageNotMember => "No puedes enviar mensajes a este grupo porque ya no eres miembro.";
+  String get cantSendMessageNotMember =>
+      "No puedes enviar mensajes a este grupo porque ya no eres miembro.";
 
   @override
-  String get youAreNoLongerPartOfThisGroup => 'Ya no formas parte de este grupo.';
+  String get youAreNoLongerPartOfThisGroup =>
+      'Ya no formas parte de este grupo.';
 
   @override
   String get busy => "Ocupado";
 
   @override
-  String get noConversationHistoryFound => "No se encontró historial de conversaciones.";
+  String get noConversationHistoryFound =>
+      "No se encontró historial de conversaciones.";
 
   @override
-  String get somethingWentWrongTryAgain => "Algo salió mal de nuestro lado. Por favor, inténtalo de nuevo.";
+  String get somethingWentWrongTryAgain =>
+      "Algo salió mal de nuestro lado. Por favor, inténtalo de nuevo.";
 
   @override
-  String get startChatByTappingNewChat => 'Inicia un chat tocando el botón "Nuevo chat".';
+  String get startChatByTappingNewChat =>
+      'Inicia un chat tocando el botón "Nuevo chat".';
 
   @override
   String get chatHistory => "Historial de chat";
@@ -1304,7 +1346,8 @@ class TranslationsEs extends Translations {
   @override
   String get noInternetConnection => "Sin conexión a Internet";
   @override
-  String get logoutFailedTryAgain => "Error al cerrar sesión. Inténtalo de nuevo.";
+  String get logoutFailedTryAgain =>
+      "Error al cerrar sesión. Inténtalo de nuevo.";
   @override
   String get thinking => "Pensando...";
   @override
@@ -1326,7 +1369,8 @@ class TranslationsEs extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

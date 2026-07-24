@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/groups_repository.dart';
 
@@ -25,7 +25,7 @@ class GetGroupsUseCase {
   /// [searchKeyword] - Optional search keyword to filter groups by name
   /// [joinedOnly] - If true, only return groups the user has joined
   ///
-  /// Returns Result<List<Group>> containing groups or failure
+  /// Returns `Result<List<Group>>` containing groups or failure
   Future<Result<List<Group>>> call({
     int limit = 30,
     String? searchKeyword,

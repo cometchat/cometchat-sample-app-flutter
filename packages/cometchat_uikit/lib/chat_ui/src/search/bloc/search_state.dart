@@ -1,22 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Status of the search operation
-enum SearchStatus {
-  initial,
-  loading,
-  loaded,
-  empty,
-  error,
-}
+enum SearchStatus { initial, loading, loaded, empty, error }
 
 /// Scope of what the search should show
-enum SearchScope {
-  conversations,
-  messages,
-  both,
-}
+enum SearchScope { conversations, messages, both }
 
 /// A filter chip definition with optional icon
 class SearchFilter extends Equatable {
@@ -24,11 +14,7 @@ class SearchFilter extends Equatable {
   final int group;
   final IconData? icon;
 
-  const SearchFilter({
-    required this.label,
-    required this.group,
-    this.icon,
-  });
+  const SearchFilter({required this.label, required this.group, this.icon});
 
   @override
   List<Object?> get props => [label, group, icon];
@@ -72,20 +58,20 @@ class SearchState extends Equatable {
 
   @override
   List<Object?> get props => [
-        searchText,
-        selectedFilters,
-        visibleFilters,
-        conversationsStatus,
-        conversations,
-        hasMoreConversations,
-        messagesStatus,
-        messages,
-        hasMoreMessages,
-        scope,
-        showConversations,
-        showMessages,
-        errorMessage,
-      ];
+    searchText,
+    selectedFilters,
+    visibleFilters,
+    conversationsStatus,
+    conversations,
+    hasMoreConversations,
+    messagesStatus,
+    messages,
+    hasMoreMessages,
+    scope,
+    showConversations,
+    showMessages,
+    errorMessage,
+  ];
 
   SearchState copyWith({
     String? searchText,
@@ -126,10 +112,12 @@ class SearchState extends Equatable {
   bool get isInitial => searchText.isEmpty && selectedFilters.isEmpty;
 
   bool get allEmpty {
-    final convEmpty = !showConversations ||
+    final convEmpty =
+        !showConversations ||
         conversationsStatus == SearchStatus.empty ||
         (conversationsStatus == SearchStatus.loaded && conversations.isEmpty);
-    final msgEmpty = !showMessages ||
+    final msgEmpty =
+        !showMessages ||
         messagesStatus == SearchStatus.empty ||
         (messagesStatus == SearchStatus.loaded && messages.isEmpty);
     return convEmpty && msgEmpty;
@@ -138,16 +126,14 @@ class SearchState extends Equatable {
   bool get allLoading {
     final convLoading =
         !showConversations || conversationsStatus == SearchStatus.loading;
-    final msgLoading =
-        !showMessages || messagesStatus == SearchStatus.loading;
+    final msgLoading = !showMessages || messagesStatus == SearchStatus.loading;
     return convLoading && msgLoading;
   }
 
   bool get allError {
     final convError =
         !showConversations || conversationsStatus == SearchStatus.error;
-    final msgError =
-        !showMessages || messagesStatus == SearchStatus.error;
+    final msgError = !showMessages || messagesStatus == SearchStatus.error;
     return convError && msgError;
   }
 

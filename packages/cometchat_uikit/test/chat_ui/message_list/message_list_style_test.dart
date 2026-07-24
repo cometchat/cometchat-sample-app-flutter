@@ -103,9 +103,7 @@ void main() {
           backgroundColor: Colors.red,
           emptyStateTextColor: Colors.green,
         );
-        final copied = original.copyWith(
-          backgroundColor: Colors.blue,
-        );
+        final copied = original.copyWith(backgroundColor: Colors.blue);
         expect(copied.backgroundColor, Colors.blue);
         expect(copied.emptyStateTextColor, Colors.green);
       });
@@ -133,7 +131,10 @@ void main() {
           border: const Border(top: BorderSide(color: Colors.blue, width: 3)),
           borderRadius: const BorderRadius.all(Radius.circular(16)),
         );
-        expect(copied.borderRadius, const BorderRadius.all(Radius.circular(16)));
+        expect(
+          copied.borderRadius,
+          const BorderRadius.all(Radius.circular(16)),
+        );
       });
 
       test('copyWith replaces empty state styles', () {
@@ -295,12 +296,8 @@ void main() {
       });
 
       test('lerp at t=0.5 interpolates colors', () {
-        const styleA = CometChatMessageListStyle(
-          backgroundColor: Colors.black,
-        );
-        const styleB = CometChatMessageListStyle(
-          backgroundColor: Colors.white,
-        );
+        const styleA = CometChatMessageListStyle(backgroundColor: Colors.black);
+        const styleB = CometChatMessageListStyle(backgroundColor: Colors.white);
         final result = styleA.lerp(styleB, 0.5);
         // Interpolated color should be between black and white
         expect(result.backgroundColor, isNotNull);
@@ -309,9 +306,7 @@ void main() {
       });
 
       test('lerp handles null values gracefully', () {
-        const styleA = CometChatMessageListStyle(
-          backgroundColor: Colors.red,
-        );
+        const styleA = CometChatMessageListStyle(backgroundColor: Colors.red);
         const styleB = CometChatMessageListStyle();
         final result = styleA.lerp(styleB, 0.5);
         // Color.lerp(Colors.red, null, 0.5) returns a partially transparent red
@@ -319,9 +314,7 @@ void main() {
       });
 
       test('lerp with non-CometChatMessageListStyle returns this', () {
-        const style = CometChatMessageListStyle(
-          backgroundColor: Colors.red,
-        );
+        const style = CometChatMessageListStyle(backgroundColor: Colors.red);
         // lerp checks `other is! CometChatMessageListStyle`
         // Since we can't easily pass a non-type, test with same type
         final result = style.lerp(null, 0.5);
@@ -403,12 +396,8 @@ void main() {
       });
 
       test('styles with different values have different properties', () {
-        const style1 = CometChatMessageListStyle(
-          backgroundColor: Colors.red,
-        );
-        const style2 = CometChatMessageListStyle(
-          backgroundColor: Colors.blue,
-        );
+        const style1 = CometChatMessageListStyle(backgroundColor: Colors.red);
+        const style2 = CometChatMessageListStyle(backgroundColor: Colors.blue);
         expect(style1.backgroundColor, isNot(style2.backgroundColor));
       });
     });

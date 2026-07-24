@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 
-
 ///[CometChatTextStyleTitle] is a class that gives the styling to the text displayed in the title
 class CometChatTextStyleTitle extends ThemeExtension<CometChatTextStyleTitle> {
-  const CometChatTextStyleTitle({
-    this.bold,
-    this.medium,
-    this.regular
-  });
+  const CometChatTextStyleTitle({this.bold, this.medium, this.regular});
 
   ///[bold] defines the styling for the text with FontWeight.w700.
   final TextStyle? bold;
+
   ///[medium] defines the styling for the text with FontWeight.w500.
   final TextStyle? medium;
+
   ///[regular] defines the styling for the text with FontWeight.w400.
   final TextStyle? regular;
-
 
   @override
   CometChatTextStyleTitle copyWith({
@@ -31,7 +27,10 @@ class CometChatTextStyleTitle extends ThemeExtension<CometChatTextStyleTitle> {
   }
 
   @override
-  CometChatTextStyleTitle lerp(covariant ThemeExtension<CometChatTextStyleTitle>? other, double t) {
+  CometChatTextStyleTitle lerp(
+    covariant ThemeExtension<CometChatTextStyleTitle>? other,
+    double t,
+  ) {
     if (other is! CometChatTextStyleTitle) {
       return this;
     }
@@ -42,24 +41,15 @@ class CometChatTextStyleTitle extends ThemeExtension<CometChatTextStyleTitle> {
     );
   }
 
-  static CometChatTextStyleTitle of(BuildContext context) => CometChatTextStyleTitle(
-      bold: _ccTextStyle(context).copyWith(
-        fontWeight: FontWeight.w700,
-      ),
-      medium: _ccTextStyle(context).copyWith(
-        fontWeight: FontWeight.w500,
-      ),
-      regular: _ccTextStyle(context).copyWith(
-        fontWeight: FontWeight.w400,
-      )
-  );
+  static CometChatTextStyleTitle of(BuildContext context) =>
+      CometChatTextStyleTitle(
+        bold: _ccTextStyle(context).copyWith(fontWeight: FontWeight.w700),
+        medium: _ccTextStyle(context).copyWith(fontWeight: FontWeight.w500),
+        regular: _ccTextStyle(context).copyWith(fontWeight: FontWeight.w400),
+      );
 
   static TextStyle _ccTextStyle(BuildContext context) {
-
-    return const TextStyle(
-      fontSize: 32,
-      fontWeight: FontWeight.w700,
-    );
+    return const TextStyle(fontSize: 32, fontWeight: FontWeight.w700);
   }
 
   CometChatTextStyleTitle merge(CometChatTextStyleTitle? other) {
@@ -70,5 +60,4 @@ class CometChatTextStyleTitle extends ThemeExtension<CometChatTextStyleTitle> {
       regular: regular?.merge(other.regular),
     );
   }
-
 }

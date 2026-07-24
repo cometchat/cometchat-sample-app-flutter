@@ -49,25 +49,27 @@ class CometChatMessagePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
-    CometChatColorPalette colorPalette =
-        CometChatThemeHelper.getColorPalette(context);
-    CometChatTypography typography =
-        CometChatThemeHelper.getTypography(context);
+    CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(
+      context,
+    );
+    CometChatTypography typography = CometChatThemeHelper.getTypography(
+      context,
+    );
     CometChatMessagePreviewStyle style =
         CometChatThemeHelper.getTheme<CometChatMessagePreviewStyle>(
-                context: context,
-                defaultTheme: CometChatMessagePreviewStyle.of)
-            .merge(messagePreviewStyle);
+          context: context,
+          defaultTheme: CometChatMessagePreviewStyle.of,
+        ).merge(messagePreviewStyle);
 
     return ClipRRect(
-      borderRadius: style.messagePreviewBorderRadius ??
-          BorderRadius.all(
-            Radius.circular(spacing.radius2 ?? 0),
-          ),
+      borderRadius:
+          style.messagePreviewBorderRadius ??
+          BorderRadius.all(Radius.circular(spacing.radius2 ?? 0)),
       child: Container(
         decoration: BoxDecoration(
           color: style.messagePreviewBackground,
-          border: style.messagePreviewBorder ??
+          border:
+              style.messagePreviewBorder ??
               Border(
                 top: BorderSide.none,
                 bottom: BorderSide.none,
@@ -79,17 +81,13 @@ class CometChatMessagePreview extends StatelessWidget {
               ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(
-            spacing.padding2 ?? 0,
-          ),
+          padding: EdgeInsets.all(spacing.padding2 ?? 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(
-                  bottom: spacing.padding1 ?? 0,
-                ),
+                padding: EdgeInsets.only(bottom: spacing.padding1 ?? 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -97,25 +95,29 @@ class CometChatMessagePreview extends StatelessWidget {
                       messagePreviewTitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: typography.caption1?.medium?.fontSize,
-                        fontWeight: typography.caption1?.medium?.fontWeight,
-                        color: colorPalette.textHighlight,
-                      ).merge(style.messagePreviewTitleStyle).copyWith(
-                            color: style.messagePreviewTitleColor,
-                          ),
+                      style:
+                          TextStyle(
+                                fontSize: typography.caption1?.medium?.fontSize,
+                                fontWeight:
+                                    typography.caption1?.medium?.fontWeight,
+                                color: colorPalette.textHighlight,
+                              )
+                              .merge(style.messagePreviewTitleStyle)
+                              .copyWith(color: style.messagePreviewTitleColor),
                     ),
                     if (hideCloseButton == false)
                       GestureDetector(
                         onTap: onCloseClick,
-                        child: messagePreviewCloseButtonIcon ??
+                        child:
+                            messagePreviewCloseButtonIcon ??
                             Icon(
                               Icons.close,
                               size: 16,
-                              color: style.closeIconColor ??
+                              color:
+                                  style.closeIconColor ??
                                   colorPalette.iconSecondary,
                             ),
-                      )
+                      ),
                   ],
                 ),
               ),
@@ -144,7 +146,7 @@ class CometChatMessagePreview extends StatelessWidget {
                           width: 40,
                           height: 40,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                          errorBuilder: (_, _, _) => const SizedBox.shrink(),
                         ),
                       ),
                     ),
@@ -153,22 +155,33 @@ class CometChatMessagePreview extends StatelessWidget {
                       constraints: BoxConstraints(
                         maxWidth: MediaQuery.sizeOf(context).width * 0.4,
                       ),
-                      child: subtitleWidget ?? Text(
-                        messagePreviewSubtitle,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: typography.caption1?.regular?.fontSize,
-                          fontWeight: typography.caption1?.regular?.fontWeight,
-                          color: colorPalette.textSecondary,
-                        ).merge(style.messagePreviewSubtitleStyle).copyWith(
-                              color: style.messagePreviewSubtitleColor,
-                            ),
-                      ),
+                      child:
+                          subtitleWidget ??
+                          Text(
+                            messagePreviewSubtitle,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style:
+                                TextStyle(
+                                      fontSize: typography
+                                          .caption1
+                                          ?.regular
+                                          ?.fontSize,
+                                      fontWeight: typography
+                                          .caption1
+                                          ?.regular
+                                          ?.fontWeight,
+                                      color: colorPalette.textSecondary,
+                                    )
+                                    .merge(style.messagePreviewSubtitleStyle)
+                                    .copyWith(
+                                      color: style.messagePreviewSubtitleColor,
+                                    ),
+                          ),
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -226,7 +239,7 @@ class CometChatMessagePreviewStyle
       closeIconColor: other.closeIconColor ?? closeIconColor,
       replyMessagePreviewCloseIconColor:
           other.replyMessagePreviewCloseIconColor ??
-              replyMessagePreviewCloseIconColor,
+          replyMessagePreviewCloseIconColor,
     );
   }
 
@@ -257,34 +270,58 @@ class CometChatMessagePreviewStyle
       messagePreviewSubtitleColor:
           messagePreviewSubtitleColor ?? this.messagePreviewSubtitleColor,
       closeIconColor: closeIconColor ?? this.closeIconColor,
-      replyMessagePreviewCloseIconColor: replyMessagePreviewCloseIconColor ??
+      replyMessagePreviewCloseIconColor:
+          replyMessagePreviewCloseIconColor ??
           this.replyMessagePreviewCloseIconColor,
     );
   }
 
   @override
   CometChatMessagePreviewStyle lerp(
-      ThemeExtension<CometChatMessagePreviewStyle>? other, double t) {
+    ThemeExtension<CometChatMessagePreviewStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatMessagePreviewStyle) return this;
     return CometChatMessagePreviewStyle(
-      messagePreviewBackground:
-          Color.lerp(messagePreviewBackground, other.messagePreviewBackground, t),
-      messagePreviewBorder: t < 0.5 ? messagePreviewBorder : other.messagePreviewBorder,
+      messagePreviewBackground: Color.lerp(
+        messagePreviewBackground,
+        other.messagePreviewBackground,
+        t,
+      ),
+      messagePreviewBorder: t < 0.5
+          ? messagePreviewBorder
+          : other.messagePreviewBorder,
       messagePreviewBorderRadius: BorderRadius.lerp(
-          messagePreviewBorderRadius, other.messagePreviewBorderRadius, t),
-      messagePreviewTitleStyle:
-          TextStyle.lerp(messagePreviewTitleStyle, other.messagePreviewTitleStyle, t),
-      messagePreviewTitleColor:
-          Color.lerp(messagePreviewTitleColor, other.messagePreviewTitleColor, t),
+        messagePreviewBorderRadius,
+        other.messagePreviewBorderRadius,
+        t,
+      ),
+      messagePreviewTitleStyle: TextStyle.lerp(
+        messagePreviewTitleStyle,
+        other.messagePreviewTitleStyle,
+        t,
+      ),
+      messagePreviewTitleColor: Color.lerp(
+        messagePreviewTitleColor,
+        other.messagePreviewTitleColor,
+        t,
+      ),
       messagePreviewSubtitleStyle: TextStyle.lerp(
-          messagePreviewSubtitleStyle, other.messagePreviewSubtitleStyle, t),
+        messagePreviewSubtitleStyle,
+        other.messagePreviewSubtitleStyle,
+        t,
+      ),
       messagePreviewSubtitleColor: Color.lerp(
-          messagePreviewSubtitleColor, other.messagePreviewSubtitleColor, t),
+        messagePreviewSubtitleColor,
+        other.messagePreviewSubtitleColor,
+        t,
+      ),
       closeIconColor: Color.lerp(closeIconColor, other.closeIconColor, t),
       replyMessagePreviewCloseIconColor: Color.lerp(
-          replyMessagePreviewCloseIconColor,
-          other.replyMessagePreviewCloseIconColor,
-          t),
+        replyMessagePreviewCloseIconColor,
+        other.replyMessagePreviewCloseIconColor,
+        t,
+      ),
     );
   }
 }

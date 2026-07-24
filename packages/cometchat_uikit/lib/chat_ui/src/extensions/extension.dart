@@ -41,4 +41,3 @@ export 'image_moderation/image_moderation_filter_style.dart';
 
 //thumbnail generation
 export 'thumbnail_generation/thumbnail_generation_configuration.dart';
-

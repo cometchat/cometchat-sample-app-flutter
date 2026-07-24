@@ -73,11 +73,15 @@ class CometChatRichTextToolbarStyle
     return CometChatRichTextToolbarStyle(
       backgroundColor: colorPalette.background2,
       buttonColor: Colors.transparent,
-      activeButtonColor: colorPalette.neutral300?.withValues(alpha: 0.2) ?? Colors.black.withValues(alpha: 0.08),
+      activeButtonColor:
+          colorPalette.neutral300?.withValues(alpha: 0.2) ??
+          Colors.black.withValues(alpha: 0.08),
       disabledButtonColor: Colors.transparent,
       buttonIconColor: colorPalette.iconSecondary,
       activeButtonIconColor: colorPalette.neutral900 ?? Colors.black,
-      disabledButtonIconColor: colorPalette.iconSecondary?.withValues(alpha: 0.3),
+      disabledButtonIconColor: colorPalette.iconSecondary?.withValues(
+        alpha: 0.3,
+      ),
       borderRadius: BorderRadius.circular(spacing.radius2 ?? 8),
       buttonSpacing: 16,
       padding: EdgeInsets.symmetric(
@@ -156,17 +160,32 @@ class CometChatRichTextToolbarStyle
     return CometChatRichTextToolbarStyle(
       backgroundColor: Color.lerp(backgroundColor, other?.backgroundColor, t),
       buttonColor: Color.lerp(buttonColor, other?.buttonColor, t),
-      activeButtonColor:
-          Color.lerp(activeButtonColor, other?.activeButtonColor, t),
-      disabledButtonColor:
-          Color.lerp(disabledButtonColor, other?.disabledButtonColor, t),
+      activeButtonColor: Color.lerp(
+        activeButtonColor,
+        other?.activeButtonColor,
+        t,
+      ),
+      disabledButtonColor: Color.lerp(
+        disabledButtonColor,
+        other?.disabledButtonColor,
+        t,
+      ),
       buttonIconColor: Color.lerp(buttonIconColor, other?.buttonIconColor, t),
-      activeButtonIconColor:
-          Color.lerp(activeButtonIconColor, other?.activeButtonIconColor, t),
+      activeButtonIconColor: Color.lerp(
+        activeButtonIconColor,
+        other?.activeButtonIconColor,
+        t,
+      ),
       disabledButtonIconColor: Color.lerp(
-          disabledButtonIconColor, other?.disabledButtonIconColor, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other?.borderRadius, t),
+        disabledButtonIconColor,
+        other?.disabledButtonIconColor,
+        t,
+      ),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other?.borderRadius,
+        t,
+      ),
       border: BoxBorder.lerp(border, other?.border, t),
       buttonSpacing: lerpDouble(buttonSpacing, other?.buttonSpacing, t),
       buttonSize: lerpDouble(buttonSize, other?.buttonSize, t),

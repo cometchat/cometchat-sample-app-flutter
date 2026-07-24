@@ -2,6 +2,7 @@
 ///
 /// Exports the BLoC, events, and state classes for the threaded header,
 /// along with re-exports of domain, data, and DI layers for convenient access.
+library;
 
 // BLoC exports
 export 'threaded_header_bloc.dart';

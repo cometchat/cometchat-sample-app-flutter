@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
-import 'package:cometchat_cards/cometchat_cards.dart';
 import '../../../cometchat_uikit_shared.dart';
 import '../no_intrinsic_card_wrapper.dart';
 
@@ -35,9 +34,9 @@ class CometChatAIAssistantBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final aiAssistantBubbleStyle =
         CometChatThemeHelper.getTheme<CometChatAIAssistantBubbleStyle>(
-      context: context,
-      defaultTheme: CometChatAIAssistantBubbleStyle.of,
-    ).merge(style);
+          context: context,
+          defaultTheme: CometChatAIAssistantBubbleStyle.of,
+        ).merge(style);
 
     final typography = CometChatThemeHelper.getTypography(context);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
@@ -56,23 +55,32 @@ class CometChatAIAssistantBubble extends StatelessWidget {
       decoration: BoxDecoration(
         border: aiAssistantBubbleStyle.border,
         borderRadius: aiAssistantBubbleStyle.borderRadius ?? BorderRadius.zero,
-        color: aiAssistantBubbleStyle.backgroundColor ??
-            colorPalette.transparent,
+        color:
+            aiAssistantBubbleStyle.backgroundColor ?? colorPalette.transparent,
       ),
-      padding: EdgeInsets.only(
-        top: MediaQuery.sizeOf(context).height * 0.0058,
-      ),
+      padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.0058),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (hasElements)
             ..._buildElementBlocks(
-                context, elements!, colorPalette, typography, spacing,
-                aiAssistantBubbleStyle)
+              context,
+              elements,
+              colorPalette,
+              typography,
+              spacing,
+              aiAssistantBubbleStyle,
+            )
           else
-            _buildTextContent(context, contentText, colorPalette,
-                typography, spacing, aiAssistantBubbleStyle),
+            _buildTextContent(
+              context,
+              contentText,
+              colorPalette,
+              typography,
+              spacing,
+              aiAssistantBubbleStyle,
+            ),
           // Copy button at bottom-left (only for text content)
           if (!hasElements && contentText.isNotEmpty)
             Padding(
@@ -127,8 +135,14 @@ class CometChatAIAssistantBubble extends StatelessWidget {
           final textContent = data?.toString() ?? '';
           if (textContent.isNotEmpty) {
             widgets.add(
-              _buildTextContent(context, textContent, colorPalette,
-                  typography, spacing, aiAssistantBubbleStyle),
+              _buildTextContent(
+                context,
+                textContent,
+                colorPalette,
+                typography,
+                spacing,
+                aiAssistantBubbleStyle,
+              ),
             );
           }
           break;
@@ -140,16 +154,15 @@ class CometChatAIAssistantBubble extends StatelessWidget {
             final cardJson = jsonEncode(cardData);
             final resolvedThemeMode =
                 Theme.of(context).brightness == Brightness.dark
-                    ? CometChatCardThemeMode.dark
-                    : CometChatCardThemeMode.light;
+                ? CometChatCardThemeMode.dark
+                : CometChatCardThemeMode.light;
             final cardWidth = MediaQuery.sizeOf(context).width * 0.65;
 
             // Wrap in _NoIntrinsicSizeWidget to prevent IntrinsicWidth
             // from querying LayoutBuilder inside CometChatCardView
             widgets.add(
               Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: spacing.padding2 ?? 4),
+                padding: EdgeInsets.symmetric(vertical: spacing.padding2 ?? 4),
                 child: NoIntrinsicCardWrapper(
                   width: cardWidth,
                   child: CometChatCardView(
@@ -158,8 +171,7 @@ class CometChatAIAssistantBubble extends StatelessWidget {
                     onAction: (CometChatCardActionEvent action) {
                       // Agent card: emit event only (no prop path for nested cards)
                       if (message != null) {
-                        CometChatUIEvents.ccCardActionClicked(
-                            message!, action);
+                        CometChatUIEvents.ccCardActionClicked(message!, action);
                       }
                     },
                   ),
@@ -201,14 +213,15 @@ class CometChatAIAssistantBubble extends StatelessWidget {
         ),
         child: GptMarkdown(
           contentText,
-          style: TextStyle(
-            color: colorPalette.textPrimary,
-            fontWeight: typography.body?.regular?.fontWeight,
-            fontSize: typography.body?.regular?.fontSize,
-            fontFamily: typography.body?.regular?.fontFamily,
-          )
-              .merge(aiAssistantBubbleStyle.textStyle)
-              .copyWith(color: aiAssistantBubbleStyle.textColor),
+          style:
+              TextStyle(
+                    color: colorPalette.textPrimary,
+                    fontWeight: typography.body?.regular?.fontWeight,
+                    fontSize: typography.body?.regular?.fontSize,
+                    fontFamily: typography.body?.regular?.fontFamily,
+                  )
+                  .merge(aiAssistantBubbleStyle.textStyle)
+                  .copyWith(color: aiAssistantBubbleStyle.textColor),
           codeBuilder: (context, name, code, closed) {
             return NoIntrinsicScroll(
               child: CometChatAiAssistantCodeBlock(
@@ -254,5 +267,4 @@ class CometChatAIAssistantBubble extends StatelessWidget {
       ),
     );
   }
-
 }

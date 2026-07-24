@@ -55,10 +55,8 @@ class MessageComposerServiceLocator {
     _dataSource = dataSource ?? MessageComposerDataSourceImpl();
 
     // Initialize repository
-    _repository = repository ??
-        MessageComposerRepositoryImpl(
-          dataSource: _dataSource,
-        );
+    _repository =
+        repository ?? MessageComposerRepositoryImpl(dataSource: _dataSource);
 
     // Initialize use cases
     _sendTextMessageUseCase = SendTextMessageUseCase(_repository);
@@ -67,7 +65,9 @@ class MessageComposerServiceLocator {
     _editMessageUseCase = EditMessageUseCase(_repository);
     _startTypingUseCase = StartTypingUseCase(_repository);
     _endTypingUseCase = EndTypingUseCase(_repository);
-    _getLoggedInUserUseCase = GetMessageComposerLoggedInUserUseCase(_repository);
+    _getLoggedInUserUseCase = GetMessageComposerLoggedInUserUseCase(
+      _repository,
+    );
 
     _isInitialized = true;
   }

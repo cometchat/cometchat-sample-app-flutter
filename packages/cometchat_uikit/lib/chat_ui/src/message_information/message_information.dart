@@ -2,6 +2,7 @@
 ///
 /// This file exports all public APIs for the message information component,
 /// including the widget, style, and BLoC layer (which re-exports domain/data/di).
+library;
 
 // Widget exports
 export 'widgets/widgets.dart';

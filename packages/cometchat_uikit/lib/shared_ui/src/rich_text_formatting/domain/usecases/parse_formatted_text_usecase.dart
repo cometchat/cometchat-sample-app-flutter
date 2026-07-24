@@ -5,7 +5,7 @@ import '../repositories/rich_text_repository.dart';
 /// Use case for parsing formatted text into segments
 ///
 /// Delegates to repository.parseFormattedText()
-/// Returns Result<List<FormattedSegment>> with parsed segments or failure
+/// Returns `Result<List<FormattedSegment>>` with parsed segments or failure
 class ParseFormattedTextUseCase {
   final RichTextRepository repository;
 
@@ -16,7 +16,7 @@ class ParseFormattedTextUseCase {
   /// No validation required - repository handles all parsing logic
   ///
   /// Returns:
-  /// - Success<List<FormattedSegment>> with parsed segments
+  /// - `Success<List<FormattedSegment>>` with parsed segments
   /// - Failure if parsing operation fails
   Future<Result<List<FormattedSegment>>> call(String text) async {
     // Delegate to repository

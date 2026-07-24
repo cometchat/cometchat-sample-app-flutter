@@ -835,6 +835,41 @@ class TranslationsMs extends Translations {
   String get failedToLoadImage => 'Gagal Memuatkan Imej';
 
   @override
+  String get uploadFailed => 'Muat naik gagal';
+
+  @override
+  String get tapToRetry => 'Ketik untuk cuba semula';
+
+  @override
+  String get dropFilesHere => 'Lepaskan fail di sini';
+
+  @override
+  String get attachmentCountLimit =>
+      'Anda boleh melampirkan sehingga {limit} fail setiap mesej.';
+
+  @override
+  String get attachmentFileSizeLimit =>
+      'Setiap fail mesti kurang daripada {limit}.';
+
+  @override
+  String get fileListShowMore => '+{count} lagi';
+
+  @override
+  String get fileListShowLess => 'Tunjukkan kurang';
+
+  @override
+  String get searchImagesCount => '{count} imej';
+
+  @override
+  String get searchVideosCount => '{count} video';
+
+  @override
+  String get searchAudiosCount => '{count} audio';
+
+  @override
+  String get searchFilesCount => '{count} fail';
+
+  @override
   String get transferOwnership => 'Pindahkan Pemilikan';
 
   @override
@@ -1246,16 +1281,20 @@ class TranslationsMs extends Translations {
   String get createGroupEmptyString =>
       'Sila isikan semua medan yang diperlukan sebelum membuat kumpulan.';
   @override
-  String get messageBlockedByModeration => 'Mesej anda telah disekat kerana dasar moderasi.';
+  String get messageBlockedByModeration =>
+      'Mesej anda telah disekat kerana dasar moderasi.';
 
   @override
-  String get cantSendMessageBlockedUser => "Tidak boleh hantar mesej kerana pengguna telah disekat.";
+  String get cantSendMessageBlockedUser =>
+      "Tidak boleh hantar mesej kerana pengguna telah disekat.";
 
   @override
-  String get cantSendMessageNotMember => "Anda tidak boleh menghantar mesej ke kumpulan ini kerana anda bukan lagi ahli.";
+  String get cantSendMessageNotMember =>
+      "Anda tidak boleh menghantar mesej ke kumpulan ini kerana anda bukan lagi ahli.";
 
   @override
-  String get youAreNoLongerPartOfThisGroup => 'Anda bukan lagi sebahagian daripada kumpulan ini.';
+  String get youAreNoLongerPartOfThisGroup =>
+      'Anda bukan lagi sebahagian daripada kumpulan ini.';
 
   @override
   String get busy => "Sibuk";
@@ -1264,10 +1303,12 @@ class TranslationsMs extends Translations {
   String get noConversationHistoryFound => "Tiada sejarah perbualan ditemui.";
 
   @override
-  String get somethingWentWrongTryAgain => "Terdapat masalah di pihak kami. Sila cuba lagi.";
+  String get somethingWentWrongTryAgain =>
+      "Terdapat masalah di pihak kami. Sila cuba lagi.";
 
   @override
-  String get startChatByTappingNewChat => 'Mulakan perbualan dengan mengetik butang "Perbualan Baru".';
+  String get startChatByTappingNewChat =>
+      'Mulakan perbualan dengan mengetik butang "Perbualan Baru".';
 
   @override
   String get chatHistory => "Sejarah Perbualan";
@@ -1295,7 +1336,8 @@ class TranslationsMs extends Translations {
   String get aiAssistants => "Pembantu AI";
 
   @override
-  String get notifyEveryoneInThisGroup => "Beritahu semua orang dalam kumpulan ini";
+  String get notifyEveryoneInThisGroup =>
+      "Beritahu semua orang dalam kumpulan ini";
 
   @override
   String get notifyAll => "semua";
@@ -1310,7 +1352,8 @@ class TranslationsMs extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";
@@ -1333,4 +1376,3 @@ class TranslationsMs extends Translations {
   @override
   String get harassment => "Harassment";
 }
-

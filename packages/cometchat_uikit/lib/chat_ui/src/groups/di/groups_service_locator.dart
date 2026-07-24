@@ -15,7 +15,8 @@ import '../data/repositories/groups_repository_impl.dart';
 /// Requirements: 4.1, 4.2, 4.3, 4.4, 4.5
 class GroupsServiceLocator {
   // Singleton pattern with private constructor (Requirement 4.1)
-  static final GroupsServiceLocator _instance = GroupsServiceLocator._internal();
+  static final GroupsServiceLocator _instance =
+      GroupsServiceLocator._internal();
   GroupsServiceLocator._internal();
   static GroupsServiceLocator get instance => _instance;
 
@@ -44,9 +45,7 @@ class GroupsServiceLocator {
     _remoteDataSource = GroupsRemoteDataSourceImpl();
 
     // Initialize repository
-    _repository = GroupsRepositoryImpl(
-      remoteDataSource: _remoteDataSource,
-    );
+    _repository = GroupsRepositoryImpl(remoteDataSource: _remoteDataSource);
 
     // Initialize use cases
     _getGroupsUseCase = GetGroupsUseCase(_repository);

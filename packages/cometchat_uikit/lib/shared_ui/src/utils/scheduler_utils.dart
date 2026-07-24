@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-import '../../cometchat_uikit_shared.dart' hide TimeStampGeneration, DateTimeExtension, DateTimeExtension2;
+import '../../cometchat_uikit_shared.dart'
+    hide TimeStampGeneration, DateTimeExtension, DateTimeExtension2;
 import 'timezone_utils/date_time.dart';
 import 'timezone_utils/env.dart';
-
-
 
 class SchedulerUtils {
   static String getTimeZoneIdentifiers(String zone) {
@@ -26,27 +25,27 @@ class SchedulerUtils {
     "Etc/GMT+10": {
       "abbr": "HST",
       "sabbr": "HDT",
-      "name": "Hawaiian Standard Time"
+      "name": "Hawaiian Standard Time",
     },
     "Pacific/Honolulu": {
       "abbr": "HST",
       "sabbr": "HDT",
-      "name": "Hawaiian Standard Time"
+      "name": "Hawaiian Standard Time",
     },
     "Pacific/Johnston": {
       "abbr": "HST",
       "sabbr": "HDT",
-      "name": "Hawaiian Standard Time"
+      "name": "Hawaiian Standard Time",
     },
     "Pacific/Rarotonga": {
       "abbr": "HST",
       "sabbr": "HDT",
-      "name": "Hawaiian Standard Time"
+      "name": "Hawaiian Standard Time",
     },
     "Pacific/Tahiti": {
       "abbr": "HST",
       "sabbr": "HDT",
-      "name": "Hawaiian Standard Time"
+      "name": "Hawaiian Standard Time",
     },
     "America/Anchorage": {"abbr": "AKDT", "name": "Alaskan Standard Time"},
     "America/Juneau": {"abbr": "AKDT", "name": "Alaskan Standard Time"},
@@ -55,29 +54,29 @@ class SchedulerUtils {
     "America/Yakutat": {"abbr": "AKDT", "name": "Alaskan Standard Time"},
     "America/Santa_Isabel": {
       "abbr": "PDT",
-      "name": "Pacific Standard Time (Mexico)"
+      "name": "Pacific Standard Time (Mexico)",
     },
     "America/Los_Angeles": {
       "abbr": "PST",
       "sabbr": "PDT",
-      "name": "Pacific Standard Time"
+      "name": "Pacific Standard Time",
     },
     "America/Tijuana": {
       "abbr": "PST",
       "sabbr": "PDT",
-      "name": "Pacific Standard Time"
+      "name": "Pacific Standard Time",
     },
     "America/Vancouver": {
       "abbr": "PST",
       "sabbr": "PDT",
-      "name": "Pacific Standard Time"
+      "name": "Pacific Standard Time",
     },
     "PST8PDT": {"abbr": "PST", "sabbr": "PDT", "name": "Pacific Standard Time"},
     "America/Creston": {"abbr": "UMST", "name": "US Mountain Standard Time"},
     "America/Dawson": {"abbr": "UMST", "name": "US Mountain Standard Time"},
     "America/Dawson_Creek": {
       "abbr": "UMST",
-      "name": "US Mountain Standard Time"
+      "name": "US Mountain Standard Time",
     },
     "America/Hermosillo": {"abbr": "UMST", "name": "US Mountain Standard Time"},
     "America/Phoenix": {"abbr": "UMST", "name": "US Mountain Standard Time"},
@@ -85,11 +84,11 @@ class SchedulerUtils {
     "Etc/GMT+7": {"abbr": "UMST", "name": "US Mountain Standard Time"},
     "America/Chihuahua": {
       "abbr": "MDT",
-      "name": "Mountain Standard Time (Mexico)"
+      "name": "Mountain Standard Time (Mexico)",
     },
     "America/Mazatlan": {
       "abbr": "MDT",
-      "name": "Mountain Standard Time (Mexico)"
+      "name": "Mountain Standard Time (Mexico)",
     },
     "America/Boise": {"abbr": "MDT", "name": "Mountain Standard Time"},
     "America/Cambridge_Bay": {"abbr": "MDT", "name": "Mountain Standard Time"},
@@ -102,48 +101,48 @@ class SchedulerUtils {
     "America/Belize": {"abbr": "CAST", "name": "Central America Standard Time"},
     "America/Costa_Rica": {
       "abbr": "CAST",
-      "name": "Central America Standard Time"
+      "name": "Central America Standard Time",
     },
     "America/El_Salvador": {
       "abbr": "CAST",
-      "name": "Central America Standard Time"
+      "name": "Central America Standard Time",
     },
     "America/Guatemala": {
       "abbr": "CAST",
-      "name": "Central America Standard Time"
+      "name": "Central America Standard Time",
     },
     "America/Managua": {
       "abbr": "CAST",
-      "name": "Central America Standard Time"
+      "name": "Central America Standard Time",
     },
     "America/Tegucigalpa": {
       "abbr": "CAST",
-      "name": "Central America Standard Time"
+      "name": "Central America Standard Time",
     },
     "Etc/GMT+6": {"abbr": "CAST", "name": "Central America Standard Time"},
     "Pacific/Galapagos": {
       "abbr": "CAST",
-      "name": "Central America Standard Time"
+      "name": "Central America Standard Time",
     },
     "America/Chicago": {"abbr": "CDT", "name": "Central Standard Time"},
     "America/Indiana/Knox": {"abbr": "CDT", "name": "Central Standard Time"},
     "America/Indiana/Tell_City": {
       "abbr": "CDT",
-      "name": "Central Standard Time"
+      "name": "Central Standard Time",
     },
     "America/Matamoros": {"abbr": "CDT", "name": "Central Standard Time"},
     "America/Menominee": {"abbr": "CDT", "name": "Central Standard Time"},
     "America/North_Dakota/Beulah": {
       "abbr": "CDT",
-      "name": "Central Standard Time"
+      "name": "Central Standard Time",
     },
     "America/North_Dakota/Center": {
       "abbr": "CDT",
-      "name": "Central Standard Time"
+      "name": "Central Standard Time",
     },
     "America/North_Dakota/New_Salem": {
       "abbr": "CDT",
-      "name": "Central Standard Time"
+      "name": "Central Standard Time",
     },
     "America/Rainy_River": {"abbr": "CDT", "name": "Central Standard Time"},
     "America/Rankin_Inlet": {"abbr": "CDT", "name": "Central Standard Time"},
@@ -152,28 +151,28 @@ class SchedulerUtils {
     "CST6CDT": {"abbr": "CDT", "name": "Central Standard Time"},
     "America/Bahia_Banderas": {
       "abbr": "CDT",
-      "name": "Central Standard Time (Mexico)"
+      "name": "Central Standard Time (Mexico)",
     },
     "America/Cancun": {"abbr": "CDT", "name": "Central Standard Time (Mexico)"},
     "America/Merida": {"abbr": "CDT", "name": "Central Standard Time (Mexico)"},
     "America/Mexico_City": {
       "abbr": "CDT",
-      "name": "Central Standard Time (Mexico)"
+      "name": "Central Standard Time (Mexico)",
     },
     "America/Monterrey": {
       "abbr": "CDT",
-      "name": "Central Standard Time (Mexico)"
+      "name": "Central Standard Time (Mexico)",
     },
     "America/Regina": {"abbr": "CCST", "name": "Canada Central Standard Time"},
     "America/Swift_Current": {
       "abbr": "CCST",
-      "name": "Canada Central Standard Time"
+      "name": "Canada Central Standard Time",
     },
     "America/Bogota": {"abbr": "SPST", "name": "SA Pacific Standard Time"},
     "America/Cayman": {"abbr": "SPST", "name": "SA Pacific Standard Time"},
     "America/Coral_Harbour": {
       "abbr": "SPST",
-      "name": "SA Pacific Standard Time"
+      "name": "SA Pacific Standard Time",
     },
     "America/Eirunepe": {"abbr": "SPST", "name": "SA Pacific Standard Time"},
     "America/Guayaquil": {"abbr": "SPST", "name": "SA Pacific Standard Time"},
@@ -185,96 +184,96 @@ class SchedulerUtils {
     "America/Detroit": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Havana": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Indiana/Petersburg": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Indiana/Vincennes": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Indiana/Winamac": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Iqaluit": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Kentucky/Monticello": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Louisville": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Montreal": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Nassau": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/New_York": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Nipigon": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Pangnirtung": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Port-au-Prince": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Thunder_Bay": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Eastern Standard Time"
+      "name": "Eastern Standard Time",
     },
     "America/Toronto": {"abbr": "EST", "name": "Eastern Standard Time"},
     "America/Indiana/Marengo": {
       "abbr": "UEDT",
-      "name": "US Eastern Standard Time"
+      "name": "US Eastern Standard Time",
     },
     "America/Indiana/Vevay": {
       "abbr": "UEDT",
-      "name": "US Eastern Standard Time"
+      "name": "US Eastern Standard Time",
     },
     "America/Indianapolis": {
       "abbr": "UEDT",
-      "name": "US Eastern Standard Time"
+      "name": "US Eastern Standard Time",
     },
     "America/Caracas": {"abbr": "VST", "name": "Venezuela Standard Time"},
     "America/Asuncion": {
       "abbr": "PYT",
       "sabbr": "PYST",
-      "name": "Paraguay Standard Time"
+      "name": "Paraguay Standard Time",
     },
     "America/Glace_Bay": {"abbr": "ADT", "name": "Atlantic Standard Time"},
     "America/Goose_Bay": {"abbr": "ADT", "name": "Atlantic Standard Time"},
@@ -284,11 +283,11 @@ class SchedulerUtils {
     "Atlantic/Bermuda": {"abbr": "ADT", "name": "Atlantic Standard Time"},
     "America/Campo_Grande": {
       "abbr": "CBST",
-      "name": "Central Brazilian Standard Time"
+      "name": "Central Brazilian Standard Time",
     },
     "America/Cuiaba": {
       "abbr": "CBST",
-      "name": "Central Brazilian Standard Time"
+      "name": "Central Brazilian Standard Time",
     },
     "America/Anguilla": {"abbr": "SWST", "name": "SA Western Standard Time"},
     "America/Antigua": {"abbr": "SWST", "name": "SA Western Standard Time"},
@@ -296,7 +295,7 @@ class SchedulerUtils {
     "America/Barbados": {"abbr": "SWST", "name": "SA Western Standard Time"},
     "America/Blanc-Sablon": {
       "abbr": "SWST",
-      "name": "SA Western Standard Time"
+      "name": "SA Western Standard Time",
     },
     "America/Boa_Vista": {"abbr": "SWST", "name": "SA Western Standard Time"},
     "America/Curacao": {"abbr": "SWST", "name": "SA Western Standard Time"},
@@ -309,7 +308,7 @@ class SchedulerUtils {
     "America/La_Paz": {"abbr": "SWST", "name": "SA Western Standard Time"},
     "America/Lower_Princes": {
       "abbr": "SWST",
-      "name": "SA Western Standard Time"
+      "name": "SA Western Standard Time",
     },
     "America/Manaus": {"abbr": "SWST", "name": "SA Western Standard Time"},
     "America/Marigot": {"abbr": "SWST", "name": "SA Western Standard Time"},
@@ -317,17 +316,17 @@ class SchedulerUtils {
     "America/Montserrat": {"abbr": "SWST", "name": "SA Western Standard Time"},
     "America/Port_of_Spain": {
       "abbr": "SWST",
-      "name": "SA Western Standard Time"
+      "name": "SA Western Standard Time",
     },
     "America/Porto_Velho": {"abbr": "SWST", "name": "SA Western Standard Time"},
     "America/Puerto_Rico": {"abbr": "SWST", "name": "SA Western Standard Time"},
     "America/Santo_Domingo": {
       "abbr": "SWST",
-      "name": "SA Western Standard Time"
+      "name": "SA Western Standard Time",
     },
     "America/St_Barthelemy": {
       "abbr": "SWST",
-      "name": "SA Western Standard Time"
+      "name": "SA Western Standard Time",
     },
     "America/St_Kitts": {"abbr": "SWST", "name": "SA Western Standard Time"},
     "America/St_Lucia": {"abbr": "SWST", "name": "SA Western Standard Time"},
@@ -340,92 +339,92 @@ class SchedulerUtils {
     "America/St_Johns": {"abbr": "NDT", "name": "Newfoundland Standard Time"},
     "America/Sao_Paulo": {
       "abbr": "ESAST",
-      "name": "E. South America Standard Time"
+      "name": "E. South America Standard Time",
     },
     "America/Argentina/Buenos_Aires": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Argentina/Catamarca": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Argentina/Cordoba": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Argentina/Jujuy": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Argentina/La_Rioja": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Argentina/Mendoza": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Argentina/Rio_Gallegos": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Argentina/Salta": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Argentina/San_Juan": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Argentina/San_Luis": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Argentina/Tucuman": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Argentina/Ushuaia": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Buenos_Aires": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Catamarca": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Cordoba": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Jujuy": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Mendoza": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Argentina Standard Time"
+      "name": "Argentina Standard Time",
     },
     "America/Araguaina": {"abbr": "SEST", "name": "SA Eastern Standard Time"},
     "America/Belem": {"abbr": "SEST", "name": "SA Eastern Standard Time"},
@@ -442,7 +441,7 @@ class SchedulerUtils {
     "America/Montevideo": {
       "abbr": "MST",
       "sabbr": "MDT",
-      "name": "Montevideo Standard Time"
+      "name": "Montevideo Standard Time",
     },
     "America/Bahia": {"abbr": "BST", "name": "Bahia Standard Time"},
     "America/Noronha": {"abbr": "U", "name": "UTC-02"},
@@ -500,108 +499,108 @@ class SchedulerUtils {
     "Europe/Belgrade": {"abbr": "CEDT", "name": "Central Europe Standard Time"},
     "Europe/Bratislava": {
       "abbr": "CEDT",
-      "name": "Central Europe Standard Time"
+      "name": "Central Europe Standard Time",
     },
     "Europe/Budapest": {"abbr": "CEDT", "name": "Central Europe Standard Time"},
     "Europe/Ljubljana": {
       "abbr": "CEDT",
-      "name": "Central Europe Standard Time"
+      "name": "Central Europe Standard Time",
     },
     "Europe/Podgorica": {
       "abbr": "CEDT",
-      "name": "Central Europe Standard Time"
+      "name": "Central Europe Standard Time",
     },
     "Europe/Prague": {"abbr": "CEDT", "name": "Central Europe Standard Time"},
     "Europe/Tirane": {"abbr": "CEDT", "name": "Central Europe Standard Time"},
     "Africa/Ceuta": {
       "abbr": "CET",
       "sabbr": "CEST",
-      "name": "Central European Time"
+      "name": "Central European Time",
     },
     "Europe/Brussels": {
       "abbr": "CET",
       "sabbr": "CEST",
-      "name": "Central European Time"
+      "name": "Central European Time",
     },
     "Europe/Copenhagen": {
       "abbr": "CET",
       "sabbr": "CEST",
-      "name": "Central European Time"
+      "name": "Central European Time",
     },
     "Europe/Madrid": {
       "abbr": "CET",
       "sabbr": "CEST",
-      "name": "Central European Time"
+      "name": "Central European Time",
     },
     "Europe/Paris": {
       "abbr": "CET",
       "sabbr": "CEST",
-      "name": "Central European Time"
+      "name": "Central European Time",
     },
     "Europe/Sarajevo": {
       "abbr": "CEDT",
-      "name": "Central European Standard Time"
+      "name": "Central European Standard Time",
     },
     "Europe/Skopje": {"abbr": "CEDT", "name": "Central European Standard Time"},
     "Europe/Warsaw": {"abbr": "CEDT", "name": "Central European Standard Time"},
     "Europe/Zagreb": {"abbr": "CEDT", "name": "Central European Standard Time"},
     "Africa/Algiers": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Bangui": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Brazzaville": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Douala": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Kinshasa": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Lagos": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Libreville": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Luanda": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Malabo": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Ndjamena": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Niamey": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Porto-Novo": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Africa/Tunis": {
       "abbr": "WCAST",
-      "name": "W. Central Africa Standard Time"
+      "name": "W. Central Africa Standard Time",
     },
     "Etc/GMT-1": {"abbr": "WCAST", "name": "W. Central Africa Standard Time"},
     "Africa/Windhoek": {
       "abbr": "NST",
       "sabbr": "NDT",
-      "name": "Namibia Standard Time"
+      "name": "Namibia Standard Time",
     },
     "Asia/Nicosia": {"abbr": "GDT", "name": "GTB Standard Time"},
     "Europe/Athens": {"abbr": "GDT", "name": "GTB Standard Time"},
@@ -611,7 +610,7 @@ class SchedulerUtils {
     "Africa/Cairo": {
       "abbr": "EST",
       "sabbr": "EDT",
-      "name": "Egypt Standard Time"
+      "name": "Egypt Standard Time",
     },
     "Asia/Damascus": {"abbr": "SDT", "name": "Syria Standard Time"},
     "Europe/Helsinki": {"abbr": "EEDT", "name": "E. Europe Standard Time"},
@@ -630,7 +629,7 @@ class SchedulerUtils {
     "Africa/Harare": {"abbr": "SAST", "name": "South Africa Standard Time"},
     "Africa/Johannesburg": {
       "abbr": "SAST",
-      "name": "South Africa Standard Time"
+      "name": "South Africa Standard Time",
     },
     "Africa/Kigali": {"abbr": "SAST", "name": "South Africa Standard Time"},
     "Africa/Lubumbashi": {"abbr": "SAST", "name": "South Africa Standard Time"},
@@ -646,95 +645,95 @@ class SchedulerUtils {
     "Asia/Baghdad": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Arabic Standard Time"
+      "name": "Arabic Standard Time",
     },
     "Europe/Kaliningrad": {"abbr": "KST", "name": "Kaliningrad Standard Time"},
     "Asia/Aden": {"abbr": "AST", "sabbr": "ADT", "name": "Arab Standard Time"},
     "Asia/Bahrain": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Arab Standard Time"
+      "name": "Arab Standard Time",
     },
     "Asia/Kuwait": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Arab Standard Time"
+      "name": "Arab Standard Time",
     },
     "Asia/Qatar": {"abbr": "AST", "sabbr": "ADT", "name": "Arab Standard Time"},
     "Asia/Riyadh": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Arab Standard Time"
+      "name": "Arab Standard Time",
     },
     "Africa/Addis_Ababa": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Africa/Asmera": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Africa/Dar_es_Salaam": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Africa/Djibouti": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Africa/Juba": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Africa/Kampala": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Africa/Khartoum": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Africa/Mogadishu": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Africa/Nairobi": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Antarctica/Syowa": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Etc/GMT-3": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Indian/Antananarivo": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Indian/Comoro": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Indian/Mayotte": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Africa Standard Time"
+      "name": "E. Africa Standard Time",
     },
     "Europe/Kirov": {"abbr": "MSK", "name": "Moscow Standard Time"},
     "Europe/Moscow": {"abbr": "MSK", "name": "Moscow Standard Time"},
@@ -748,44 +747,44 @@ class SchedulerUtils {
     "Asia/Dubai": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Arabian Standard Time"
+      "name": "Arabian Standard Time",
     },
     "Asia/Muscat": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Arabian Standard Time"
+      "name": "Arabian Standard Time",
     },
     "Etc/GMT-4": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Arabian Standard Time"
+      "name": "Arabian Standard Time",
     },
     "Asia/Baku": {"abbr": "ADT", "name": "Azerbaijan Standard Time"},
     "Indian/Mahe": {
       "abbr": "MST",
       "sabbr": "MDT",
-      "name": "Mauritius Standard Time"
+      "name": "Mauritius Standard Time",
     },
     "Indian/Mauritius": {
       "abbr": "MST",
       "sabbr": "MDT",
-      "name": "Mauritius Standard Time"
+      "name": "Mauritius Standard Time",
     },
     "Indian/Reunion": {
       "abbr": "MST",
       "sabbr": "MDT",
-      "name": "Mauritius Standard Time"
+      "name": "Mauritius Standard Time",
     },
     "Asia/Tbilisi": {"abbr": "GET", "name": "Georgian Standard Time"},
     "Asia/Yerevan": {
       "abbr": "CST",
       "sabbr": "CDT",
-      "name": "Caucasus Standard Time"
+      "name": "Caucasus Standard Time",
     },
     "Asia/Kabul": {
       "abbr": "AST",
       "sabbr": "ADT",
-      "name": "Afghanistan Standard Time"
+      "name": "Afghanistan Standard Time",
     },
     "Antarctica/Mawson": {"abbr": "WAST", "name": "West Asia Standard Time"},
     "Asia/Aqtau": {"abbr": "WAST", "name": "West Asia Standard Time"},
@@ -806,7 +805,7 @@ class SchedulerUtils {
     "Asia/Kathmandu": {
       "abbr": "NST",
       "sabbr": "NDT",
-      "name": "Nepal Standard Time"
+      "name": "Nepal Standard Time",
     },
     "Antarctica/Vostok": {"abbr": "CAST", "name": "Central Asia Standard Time"},
     "Asia/Almaty": {"abbr": "CAST", "name": "Central Asia Standard Time"},
@@ -820,12 +819,12 @@ class SchedulerUtils {
     "Asia/Rangoon": {
       "abbr": "MST",
       "sabbr": "MDT",
-      "name": "Myanmar Standard Time"
+      "name": "Myanmar Standard Time",
     },
     "Indian/Cocos": {
       "abbr": "MST",
       "sabbr": "MDT",
-      "name": "Myanmar Standard Time"
+      "name": "Myanmar Standard Time",
     },
     "Antarctica/Davis": {"abbr": "SAST", "name": "SE Asia Standard Time"},
     "Asia/Bangkok": {"abbr": "SAST", "name": "SE Asia Standard Time"},
@@ -839,27 +838,27 @@ class SchedulerUtils {
     "Indian/Christmas": {"abbr": "SAST", "name": "SE Asia Standard Time"},
     "Asia/Novokuznetsk": {
       "abbr": "NCAST",
-      "name": "N. Central Asia Standard Time"
+      "name": "N. Central Asia Standard Time",
     },
     "Asia/Novosibirsk": {
       "abbr": "NCAST",
-      "name": "N. Central Asia Standard Time"
+      "name": "N. Central Asia Standard Time",
     },
     "Asia/Omsk": {"abbr": "NCAST", "name": "N. Central Asia Standard Time"},
     "Asia/Hong_Kong": {
       "abbr": "CST",
       "sabbr": "CDT",
-      "name": "China Standard Time"
+      "name": "China Standard Time",
     },
     "Asia/Macau": {
       "abbr": "CST",
       "sabbr": "CDT",
-      "name": "China Standard Time"
+      "name": "China Standard Time",
     },
     "Asia/Shanghai": {
       "abbr": "CST",
       "sabbr": "CDT",
-      "name": "China Standard Time"
+      "name": "China Standard Time",
     },
     "Asia/Krasnoyarsk": {"abbr": "NAST", "name": "North Asia Standard Time"},
     "Asia/Brunei": {"abbr": "MPST", "name": "Singapore Standard Time"},
@@ -884,46 +883,46 @@ class SchedulerUtils {
     "Asia/Seoul": {"abbr": "KST", "name": "Korea Standard Time"},
     "Australia/Adelaide": {
       "abbr": "CAST",
-      "name": "Cen. Australia Standard Time"
+      "name": "Cen. Australia Standard Time",
     },
     "Australia/Broken_Hill": {
       "abbr": "CAST",
-      "name": "Cen. Australia Standard Time"
+      "name": "Cen. Australia Standard Time",
     },
     "Australia/Darwin": {
       "abbr": "ACST",
       "sabbr": "ACDT",
-      "name": "AUS Central Standard Time"
+      "name": "AUS Central Standard Time",
     },
     "Australia/Brisbane": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Australia Standard Time"
+      "name": "E. Australia Standard Time",
     },
     "Australia/Lindeman": {
       "abbr": "EAST",
       "sabbr": "EASST",
-      "name": "E. Australia Standard Time"
+      "name": "E. Australia Standard Time",
     },
     "Australia/Melbourne": {
       "abbr": "AEST",
       "sabbr": "AEDT",
-      "name": "AUS Eastern Standard Time"
+      "name": "AUS Eastern Standard Time",
     },
     "Australia/Sydney": {
       "abbr": "AEST",
       "sabbr": "AEDT",
-      "name": "AUS Eastern Standard Time"
+      "name": "AUS Eastern Standard Time",
     },
     "Antarctica/DumontDUrville": {
       "abbr": "WPST",
-      "name": "West Pacific Standard Time"
+      "name": "West Pacific Standard Time",
     },
     "Etc/GMT-10": {"abbr": "WPST", "name": "West Pacific Standard Time"},
     "Pacific/Guam": {"abbr": "WPST", "name": "West Pacific Standard Time"},
     "Pacific/Port_Moresby": {
       "abbr": "WPST",
-      "name": "West Pacific Standard Time"
+      "name": "West Pacific Standard Time",
     },
     "Pacific/Saipan": {"abbr": "WPST", "name": "West Pacific Standard Time"},
     "Pacific/Truk": {"abbr": "WPST", "name": "West Pacific Standard Time"},
@@ -934,13 +933,13 @@ class SchedulerUtils {
     "Asia/Yakutsk": {"abbr": "YST", "name": "Yakutsk Standard Time"},
     "Antarctica/Macquarie": {
       "abbr": "CPST",
-      "name": "Central Pacific Standard Time"
+      "name": "Central Pacific Standard Time",
     },
     "Etc/GMT-11": {"abbr": "CPST", "name": "Central Pacific Standard Time"},
     "Pacific/Efate": {"abbr": "CPST", "name": "Central Pacific Standard Time"},
     "Pacific/Guadalcanal": {
       "abbr": "CPST",
-      "name": "Central Pacific Standard Time"
+      "name": "Central Pacific Standard Time",
     },
     "Pacific/Kosrae": {"abbr": "CPST", "name": "Central Pacific Standard Time"},
     "Pacific/Noumea": {"abbr": "CPST", "name": "Central Pacific Standard Time"},
@@ -951,12 +950,12 @@ class SchedulerUtils {
     "Antarctica/McMurdo": {
       "abbr": "NZST",
       "sabbr": "NZDT",
-      "name": "New Zealand Standard Time"
+      "name": "New Zealand Standard Time",
     },
     "Pacific/Auckland": {
       "abbr": "NZST",
       "sabbr": "NZDT",
-      "name": "New Zealand Standard Time"
+      "name": "New Zealand Standard Time",
     },
     "Etc/GMT-12": {"abbr": "U", "name": "UTC+12"},
     "Pacific/Funafuti": {"abbr": "U", "name": "UTC+12"},
@@ -970,22 +969,22 @@ class SchedulerUtils {
     "Asia/Anadyr": {
       "abbr": "MST",
       "sabbr": "MDT",
-      "name": "Magadan Standard Time"
+      "name": "Magadan Standard Time",
     },
     "Asia/Kamchatka": {
       "abbr": "MST",
       "sabbr": "MDT",
-      "name": "Magadan Standard Time"
+      "name": "Magadan Standard Time",
     },
     "Asia/Magadan": {
       "abbr": "MST",
       "sabbr": "MDT",
-      "name": "Magadan Standard Time"
+      "name": "Magadan Standard Time",
     },
     "Asia/Srednekolymsk": {
       "abbr": "MST",
       "sabbr": "MDT",
-      "name": "Magadan Standard Time"
+      "name": "Magadan Standard Time",
     },
     "Etc/GMT-13": {"abbr": "TST", "name": "Tonga Standard Time"},
     "Pacific/Enderbury": {"abbr": "TST", "name": "Tonga Standard Time"},
@@ -1017,34 +1016,45 @@ class SchedulerUtils {
       List<DateTimeRange>? nextDayBlockedTime;
       String day2 = DateFormat('yMd').format(from.add(const Duration(days: 1)));
       if (blockedDates.containsKey(day2)) {
-        nextDayBlockedTime =
-            blockedDates[day2]!["timings"].cast<DateTimeRange>();
+        nextDayBlockedTime = blockedDates[day2]!["timings"]
+            .cast<DateTimeRange>();
       }
 
-      availableSlots =
-          getAvailableSlots(from, messageTimeZone, localTimeZone, availability);
+      availableSlots = getAvailableSlots(
+        from,
+        messageTimeZone,
+        localTimeZone,
+        availability,
+      );
 
       DateTime nextDay = from.add(const Duration(days: 1));
       List<DateTimeRange>? nextDayAvailableSlots;
 
       nextDayAvailableSlots = getAvailableSlots(
-          nextDay, messageTimeZone, localTimeZone, availability);
+        nextDay,
+        messageTimeZone,
+        localTimeZone,
+        availability,
+      );
 
       List<DateTime> generatedTimeStamps = generateTimeStamps(
-          from,
-          availableSlots,
-          blockedTime ?? [],
-          interval,
-          bufferTime,
-          TimeFormat.twelveHour,
-          nextDayAvailableSlots,
-          nextDayBlockedTime ?? []);
+        from,
+        availableSlots,
+        blockedTime ?? [],
+        interval,
+        bufferTime,
+        TimeFormat.twelveHour,
+        nextDayAvailableSlots,
+        nextDayBlockedTime ?? [],
+      );
 
       if (generatedTimeStamps.isNotEmpty) {
         if (generatedTimeStamps.length > limit - cumulativeTimeSlots.length) {
-          cumulativeTimeSlots.addAll(generatedTimeStamps
-              .sublist(0, limit - cumulativeTimeSlots.length)
-              .toList());
+          cumulativeTimeSlots.addAll(
+            generatedTimeStamps
+                .sublist(0, limit - cumulativeTimeSlots.length)
+                .toList(),
+          );
         } else {
           cumulativeTimeSlots.addAll(generatedTimeStamps);
         }
@@ -1056,19 +1066,24 @@ class SchedulerUtils {
   }
 
   static List<DateTime> generateTimeStamps(
-      DateTime selectedDate,
-      List<DateTimeRange> availableSlots,
-      List<DateTimeRange> blockedSlots,
-      int meetingDuration,
-      Duration bufferTime,
-      TimeFormat timeFormat,
-      List<DateTimeRange> nextDayAvailableSlots,
-      List<DateTimeRange> nextDayBlockedSlots) {
+    DateTime selectedDate,
+    List<DateTimeRange> availableSlots,
+    List<DateTimeRange> blockedSlots,
+    int meetingDuration,
+    Duration bufferTime,
+    TimeFormat timeFormat,
+    List<DateTimeRange> nextDayAvailableSlots,
+    List<DateTimeRange> nextDayBlockedSlots,
+  ) {
     List<DateTime> generatedTimeStamps = [];
 
     List<DateTimeRange> mergedSlots = blockedSlots.isNotEmpty
         ? adjustAvailableSlots(
-            availableSlots, blockedSlots, bufferTime, selectedDate)
+            availableSlots,
+            blockedSlots,
+            bufferTime,
+            selectedDate,
+          )
         : availableSlots;
 
     for (var slot in mergedSlots) {
@@ -1089,11 +1104,12 @@ class SchedulerUtils {
             generatedTimeStamps.validateEntry(from)) {
           if (nextDayAvailableSlots.isNotEmpty &&
               !checkTimeIsOverlapping(
-                  DateTimeRange(start: from, end: proposedTime),
-                  nextDayAvailableSlots,
-                  nextDayBlockedSlots,
-                  bufferTime,
-                  selectedDate)) {
+                DateTimeRange(start: from, end: proposedTime),
+                nextDayAvailableSlots,
+                nextDayBlockedSlots,
+                bufferTime,
+                selectedDate,
+              )) {
             generatedTimeStamps.add(from);
           }
         }
@@ -1109,10 +1125,14 @@ class SchedulerUtils {
   }
 
   static bool checkBlockedSlotStatus(
-      List<DateTimeRange> blockedSlots, int bufferTime, DateTime proposedTime) {
+    List<DateTimeRange> blockedSlots,
+    int bufferTime,
+    DateTime proposedTime,
+  ) {
     return blockedSlots.any((blockedSlot) {
-      DateTime bufferedBlockedTo =
-          blockedSlot.end.add(Duration(minutes: bufferTime));
+      DateTime bufferedBlockedTo = blockedSlot.end.add(
+        Duration(minutes: bufferTime),
+      );
 
       return proposedTime.isBefore(bufferedBlockedTo) &&
           proposedTime.isAfter(blockedSlot.start);
@@ -1129,8 +1149,11 @@ class SchedulerUtils {
     return formattedTime;
   }
 
-  static Future<Map<String, Map<String, dynamic>>> fetchICSFile(String? url,
-      String timeZone, Function(CometChatException) onError) async {
+  static Future<Map<String, Map<String, dynamic>>> fetchICSFile(
+    String? url,
+    String timeZone,
+    Function(CometChatException) onError,
+  ) async {
     Map<String, Map<String, dynamic>> blockedDates = {};
 
     if (url != null && url.isNotEmpty) {
@@ -1142,28 +1165,45 @@ class SchedulerUtils {
           final events = parseICS(icsContent, timeZone);
           blockedDates = events;
         } else {
-          onError(CometChatException("ERR", "FAILED_TO_LOAD_ICS_FILE",
-              "Failed to load ICS file: ${response.statusCode}"));
+          onError(
+            CometChatException(
+              "ERR",
+              "FAILED_TO_LOAD_ICS_FILE",
+              "Failed to load ICS file: ${response.statusCode}",
+            ),
+          );
           if (kDebugMode) {
             print('Failed to load ICS file: ${response.statusCode}');
           }
         }
       } catch (e) {
-        onError(CometChatException(
-            "ERR", "UNABLE_TO_PARSE_ICS_FILE", "Unable to parse ICS file: $e"));
+        onError(
+          CometChatException(
+            "ERR",
+            "UNABLE_TO_PARSE_ICS_FILE",
+            "Unable to parse ICS file: $e",
+          ),
+        );
         if (kDebugMode) {
           print('Error: caught while parsing icsFile $e');
         }
       }
     } else {
-      onError(CometChatException("ERR", "INVALID_API_ENDPOINT",
-          "the api endpoint is either null of empty"));
+      onError(
+        CometChatException(
+          "ERR",
+          "INVALID_API_ENDPOINT",
+          "the api endpoint is either null of empty",
+        ),
+      );
     }
     return blockedDates;
   }
 
   static Map<String, Map<String, dynamic>> parseICS(
-      String icsContent, String timeZone) {
+    String icsContent,
+    String timeZone,
+  ) {
     // Split ICS content into lines
     final lines = LineSplitter.split(icsContent);
 
@@ -1242,14 +1282,16 @@ class SchedulerUtils {
             int difference = endTime.difference(startTime).inDays;
             if (difference > 0) {
               blockedDuration = DateTimeRange(
-                  start: blockedDuration.start,
-                  end: DateTime(
-                      blockedDuration.start.year,
-                      blockedDuration.start.month,
-                      blockedDuration.start.day,
-                      23,
-                      59,
-                      59));
+                start: blockedDuration.start,
+                end: DateTime(
+                  blockedDuration.start.year,
+                  blockedDuration.start.month,
+                  blockedDuration.start.day,
+                  23,
+                  59,
+                  59,
+                ),
+              );
               blockedDates[day]!['timings'].add(blockedDuration);
               blockedDates[day]!['fullDayOut'] = false;
               while (difference > 1) {
@@ -1260,15 +1302,28 @@ class SchedulerUtils {
                   blockedDates[day] = {
                     "timings": [],
                     "weekday": DateFormat('EEEE').format(startTime),
-                    "fullDayOut": true
+                    "fullDayOut": true,
                   };
                 }
 
                 blockedDuration = DateTimeRange(
-                    start: DateTime(startTime.year, startTime.month,
-                        startTime.day, 0, 0, 0),
-                    end: DateTime(startTime.year, startTime.month,
-                        startTime.day, 23, 59, 59));
+                  start: DateTime(
+                    startTime.year,
+                    startTime.month,
+                    startTime.day,
+                    0,
+                    0,
+                    0,
+                  ),
+                  end: DateTime(
+                    startTime.year,
+                    startTime.month,
+                    startTime.day,
+                    23,
+                    59,
+                    59,
+                  ),
+                );
                 blockedDates[day]!['timings'].add(blockedDuration);
                 difference--;
               }
@@ -1282,9 +1337,16 @@ class SchedulerUtils {
               }
 
               blockedDuration = DateTimeRange(
-                  start: DateTime(
-                      endTime.year, endTime.month, endTime.day, 0, 0, 0),
-                  end: endTime);
+                start: DateTime(
+                  endTime.year,
+                  endTime.month,
+                  endTime.day,
+                  0,
+                  0,
+                  0,
+                ),
+                end: endTime,
+              );
             } else {
               blockedDuration = DateTimeRange(start: startTime, end: endTime);
             }
@@ -1303,18 +1365,20 @@ class SchedulerUtils {
     "thursday",
     "friday",
     "saturday",
-    "sunday"
+    "sunday",
   ];
 
   static List<DateTimeRange> getAvailableSlots(
-      DateTime selectedDateTime,
-      String messageTimeZone,
-      String localTimeZone,
-      Map<String, List<TimeRange>>? availability) {
+    DateTime selectedDateTime,
+    String messageTimeZone,
+    String localTimeZone,
+    Map<String, List<TimeRange>>? availability,
+  ) {
     // initializing start time and end time in local time zone
     DateTime localStartTime = selectedDateTime;
-    DateTime localEndTime = selectedDateTime
-        .add(const Duration(hours: 23, minutes: 59, seconds: 59));
+    DateTime localEndTime = selectedDateTime.add(
+      const Duration(hours: 23, minutes: 59, seconds: 59),
+    );
     List<DateTimeRange> totalAvailableSlots = [];
 
     if (messageTimeZone == localTimeZone) {
@@ -1322,51 +1386,75 @@ class SchedulerUtils {
           availability?[weekdays[localStartTime.weekday - 1]] ?? [];
 
       for (TimeRange start in availableSlots) {
-        DateTime startTime = localStartTime.add(Duration(
+        DateTime startTime = localStartTime.add(
+          Duration(
             hours: int.parse(start.from.substring(0, 2)),
-            minutes: int.parse(start.from.substring(2))));
+            minutes: int.parse(start.from.substring(2)),
+          ),
+        );
 
-        DateTime endTime = localStartTime.add(Duration(
+        DateTime endTime = localStartTime.add(
+          Duration(
             hours: int.parse(start.to.substring(0, 2)),
-            minutes: int.parse(start.to.substring(2))));
+            minutes: int.parse(start.to.substring(2)),
+          ),
+        );
 
         if (startTime.isAfter(localStartTime) ||
             startTime.isAtSameMomentAs(localStartTime) &&
                 endTime.isAfter(startTime)) {
-          totalAvailableSlots.add(DateTimeRange(
-              start: startTime.toLocal(), end: endTime.toLocal()));
+          totalAvailableSlots.add(
+            DateTimeRange(start: startTime.toLocal(), end: endTime.toLocal()),
+          );
         }
       }
     } else {
       // converting today and next day to provided time zone
-      DateTime internationalStartTime =
-          getConvertedTime(localStartTime, messageTimeZone);
-      DateTime internationalEndTime =
-          getConvertedTime(localEndTime, messageTimeZone);
+      DateTime internationalStartTime = getConvertedTime(
+        localStartTime,
+        messageTimeZone,
+      );
+      DateTime internationalEndTime = getConvertedTime(
+        localEndTime,
+        messageTimeZone,
+      );
 
       List<TimeRange> availableSlots1 =
           availability?[weekdays[internationalStartTime.weekday - 1]] ?? [];
 
-      DateTime baseStart = internationalStartTime.subtract(Duration(
+      DateTime baseStart = internationalStartTime.subtract(
+        Duration(
           hours: internationalStartTime.hour,
           minutes: internationalStartTime.minute,
           seconds: internationalStartTime.second,
           microseconds: internationalStartTime.microsecond,
-          milliseconds: internationalStartTime.millisecond));
+          milliseconds: internationalStartTime.millisecond,
+        ),
+      );
 
       for (TimeRange start in availableSlots1) {
-        DateTime startTime = baseStart.add(Duration(
+        DateTime startTime = baseStart.add(
+          Duration(
             hours: int.parse(start.from.substring(0, 2)),
-            minutes: int.parse(start.from.substring(2))));
+            minutes: int.parse(start.from.substring(2)),
+          ),
+        );
 
-        DateTime endTime = baseStart.add(Duration(
+        DateTime endTime = baseStart.add(
+          Duration(
             hours: int.parse(start.to.substring(0, 2)),
-            minutes: int.parse(start.to.substring(2))));
+            minutes: int.parse(start.to.substring(2)),
+          ),
+        );
 
-        startTime =
-            SchedulerUtils.getConvertedTime(startTime.toLocal(), localTimeZone);
-        endTime =
-            SchedulerUtils.getConvertedTime(endTime.toLocal(), localTimeZone);
+        startTime = SchedulerUtils.getConvertedTime(
+          startTime.toLocal(),
+          localTimeZone,
+        );
+        endTime = SchedulerUtils.getConvertedTime(
+          endTime.toLocal(),
+          localTimeZone,
+        );
 
         if ((startTime.day == selectedDateTime.day ||
                 endTime.day == selectedDateTime.day) &&
@@ -1380,8 +1468,9 @@ class SchedulerUtils {
             endTime = localEndTime;
           }
 
-          totalAvailableSlots
-              .add(DateTimeRange(start: startTime, end: endTime));
+          totalAvailableSlots.add(
+            DateTimeRange(start: startTime, end: endTime),
+          );
         }
       }
 
@@ -1389,26 +1478,39 @@ class SchedulerUtils {
         List<TimeRange> availableSlots2 =
             availability?[weekdays[internationalEndTime.weekday - 1]] ?? [];
 
-        DateTime baseEnd = internationalEndTime.subtract(Duration(
+        DateTime baseEnd = internationalEndTime.subtract(
+          Duration(
             hours: internationalEndTime.hour,
             minutes: internationalEndTime.minute,
             seconds: internationalEndTime.second,
             microseconds: internationalEndTime.microsecond,
-            milliseconds: internationalEndTime.millisecond));
+            milliseconds: internationalEndTime.millisecond,
+          ),
+        );
 
         for (TimeRange start in availableSlots2) {
-          DateTime startTime = baseEnd.add(Duration(
+          DateTime startTime = baseEnd.add(
+            Duration(
               hours: int.parse(start.from.substring(0, 2)),
-              minutes: int.parse(start.from.substring(2))));
+              minutes: int.parse(start.from.substring(2)),
+            ),
+          );
 
-          DateTime endTime = baseEnd.add(Duration(
+          DateTime endTime = baseEnd.add(
+            Duration(
               hours: int.parse(start.to.substring(0, 2)),
-              minutes: int.parse(start.to.substring(2))));
+              minutes: int.parse(start.to.substring(2)),
+            ),
+          );
 
           startTime = SchedulerUtils.getConvertedTime(
-              startTime.toLocal(), localTimeZone);
-          endTime =
-              SchedulerUtils.getConvertedTime(endTime.toLocal(), localTimeZone);
+            startTime.toLocal(),
+            localTimeZone,
+          );
+          endTime = SchedulerUtils.getConvertedTime(
+            endTime.toLocal(),
+            localTimeZone,
+          );
           if ((startTime.day == selectedDateTime.day ||
                   endTime.day == selectedDateTime.day) &&
               endTime.isAfter(startTime)) {
@@ -1418,8 +1520,9 @@ class SchedulerUtils {
             if (endTime.day > selectedDateTime.day) {
               endTime = localEndTime;
             }
-            totalAvailableSlots
-                .add(DateTimeRange(start: startTime, end: endTime));
+            totalAvailableSlots.add(
+              DateTimeRange(start: startTime, end: endTime),
+            );
           }
         }
       }
@@ -1428,10 +1531,11 @@ class SchedulerUtils {
   }
 
   static List<DateTimeRange> adjustAvailableSlots(
-      List<DateTimeRange> availableSlots,
-      List<DateTimeRange> blockedSlots,
-      Duration bufferTime,
-      DateTime selectedDate) {
+    List<DateTimeRange> availableSlots,
+    List<DateTimeRange> blockedSlots,
+    Duration bufferTime,
+    DateTime selectedDate,
+  ) {
     List<DateTimeRange> adjustedSlots = [];
 
     for (var availableSlot in availableSlots) {
@@ -1441,13 +1545,25 @@ class SchedulerUtils {
         DateTime blockedStart = blockedSlot.start;
         DateTime blockedEnd = blockedSlot.end;
         if (blockedEnd.day > selectedDate.day) {
-          blockedEnd = DateTime(selectedDate.year, selectedDate.month,
-              selectedDate.day, 23, 59, 59);
+          blockedEnd = DateTime(
+            selectedDate.year,
+            selectedDate.month,
+            selectedDate.day,
+            23,
+            59,
+            59,
+          );
           // bufferTime = Duration.zero;
         }
         if (blockedStart.day < selectedDate.day) {
           blockedStart = DateTime(
-              selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 0);
+            selectedDate.year,
+            selectedDate.month,
+            selectedDate.day,
+            0,
+            0,
+            0,
+          );
         }
 
         if (availableStart.isBefore(blockedEnd) &&
@@ -1455,21 +1571,28 @@ class SchedulerUtils {
           // Adjust the available slot
           if (availableStart.isBefore(blockedStart)) {
             if (blockedEnd.add(bufferTime).isBefore(availableEnd)) {
-              adjustedSlots
-                  .add(DateTimeRange(start: availableStart, end: blockedStart));
+              adjustedSlots.add(
+                DateTimeRange(start: availableStart, end: blockedStart),
+              );
               availableStart = blockedEnd.add(bufferTime);
             }
-            adjustedSlots
-                .add(DateTimeRange(start: availableStart, end: availableEnd));
+            adjustedSlots.add(
+              DateTimeRange(start: availableStart, end: availableEnd),
+            );
           } else {
             if (blockedEnd.isBefore(availableEnd)) {
-              adjustedSlots.add(DateTimeRange(
-                  start: blockedEnd.add(bufferTime), end: availableEnd));
+              adjustedSlots.add(
+                DateTimeRange(
+                  start: blockedEnd.add(bufferTime),
+                  end: availableEnd,
+                ),
+              );
             }
           }
         } else if (blockedEnd.isAtSameMomentAs(availableStart)) {
-          adjustedSlots.add(DateTimeRange(
-              start: blockedEnd.add(bufferTime), end: availableEnd));
+          adjustedSlots.add(
+            DateTimeRange(start: blockedEnd.add(bufferTime), end: availableEnd),
+          );
         } else {
           adjustedSlots.add(availableSlot);
         }
@@ -1480,16 +1603,21 @@ class SchedulerUtils {
   }
 
   static bool checkTimeIsOverlapping(
-      DateTimeRange meeting,
-      List<DateTimeRange> availableSlots,
-      List<DateTimeRange> blockedSlots,
-      Duration bufferTime,
-      DateTime selectedDate) {
+    DateTimeRange meeting,
+    List<DateTimeRange> availableSlots,
+    List<DateTimeRange> blockedSlots,
+    Duration bufferTime,
+    DateTime selectedDate,
+  ) {
     bool isOverlapping = false;
 
     List<DateTimeRange> mergedSlots = blockedSlots.isNotEmpty
         ? adjustAvailableSlots(
-            availableSlots, blockedSlots, bufferTime, selectedDate)
+            availableSlots,
+            blockedSlots,
+            bufferTime,
+            selectedDate,
+          )
         : availableSlots;
     for (var mergedSlot in mergedSlots) {
       if (mergedSlot.timeIsValid(meeting)) {
@@ -1501,30 +1629,39 @@ class SchedulerUtils {
   }
 
   static DateTime nearestSelectableDate(
-      DateTime selectedDay,
-      DateTime? from,
-      DateTime? to,
-      Map<String, Map<String, dynamic>> blockedDates,
-      Map<String, List<TimeRange>>? availability) {
+    DateTime selectedDay,
+    DateTime? from,
+    DateTime? to,
+    Map<String, Map<String, dynamic>> blockedDates,
+    Map<String, List<TimeRange>>? availability,
+  ) {
     if (isDateSelectable(selectedDay, from, to, blockedDates, availability)) {
       return selectedDay;
     } else {
-      return nearestSelectableDate(selectedDay.add(const Duration(days: 1)),
-          from, to, blockedDates, availability);
+      return nearestSelectableDate(
+        selectedDay.add(const Duration(days: 1)),
+        from,
+        to,
+        blockedDates,
+        availability,
+      );
     }
   }
 
   static bool isDateSelectable(
-      DateTime selectedDate,
-      DateTime? from,
-      DateTime? to,
-      Map<String, Map<String, dynamic>> blockedDates,
-      Map<String, List<TimeRange>>? availability) {
+    DateTime selectedDate,
+    DateTime? from,
+    DateTime? to,
+    Map<String, Map<String, dynamic>> blockedDates,
+    Map<String, List<TimeRange>>? availability,
+  ) {
     String day = DateFormat('yMd').format(selectedDate);
     DateTime now = DateTime.now();
-    bool isBlocked = blockedDates.containsKey(day) &&
+    bool isBlocked =
+        blockedDates.containsKey(day) &&
         blockedDates[day]?["fullDayOut"] == true;
-    bool isNotAvailable = availability != null &&
+    bool isNotAvailable =
+        availability != null &&
         (availability[SchedulerUtils.weekdays[selectedDate.weekday - 1]] ==
                 null ||
             (availability[SchedulerUtils.weekdays[selectedDate.weekday - 1]] !=
@@ -1544,16 +1681,29 @@ class SchedulerUtils {
         selectedDate.isBefore(to ?? now.add(const Duration(days: 1)));
   }
 
-  static Map<String, dynamic> getActionRequestBody(SchedulerMessage message,
-      DateTime meetStartAt, Duration duration, String timeZoneCode) {
+  static Map<String, dynamic> getActionRequestBody(
+    SchedulerMessage message,
+    DateTime meetStartAt,
+    Duration duration,
+    String timeZoneCode,
+  ) {
     return {
       "payload": message.interactiveData,
-      "data": getActionRequestData(message, meetStartAt, duration, timeZoneCode)
+      "data": getActionRequestData(
+        message,
+        meetStartAt,
+        duration,
+        timeZoneCode,
+      ),
     };
   }
 
-  static Map<String, dynamic> getActionRequestData(SchedulerMessage message,
-      DateTime meetStartAt, Duration duration, String timeZoneCode) {
+  static Map<String, dynamic> getActionRequestData(
+    SchedulerMessage message,
+    DateTime meetStartAt,
+    Duration duration,
+    String timeZoneCode,
+  ) {
     return {
       "conversationId": message.conversationId,
       "senderId": message.sender?.uid,
@@ -1570,7 +1720,9 @@ class SchedulerUtils {
   }
 
   static String getSchedulerTitle(
-      SchedulerMessage schedulerMessage, BuildContext context) {
+    SchedulerMessage schedulerMessage,
+    BuildContext context,
+  ) {
     return schedulerMessage.title ??
         "${Translations.of(context).meetingWith} ${schedulerMessage.sender?.name ?? ''}";
   }
@@ -1584,7 +1736,8 @@ class SchedulerUtils {
   }
 
   static Map<String, List<dynamic>> getAvailabilityJson(
-      Map<String, List<TimeRange>>? availability) {
+    Map<String, List<TimeRange>>? availability,
+  ) {
     Map<String, List<dynamic>> availabilityJson = {};
     availability?.forEach((key, value) {
       List<Map<String, String>> timeRanges = [];
@@ -1647,8 +1800,9 @@ extension TimeStampGeneration on List<DateTime> {
 
   DateTime getMax() {
     List<DateTime> dateTimes = this;
-    return dateTimes
-        .reduce((value, element) => value.isAfter(element) ? value : element);
+    return dateTimes.reduce(
+      (value, element) => value.isAfter(element) ? value : element,
+    );
   }
 
   bool validateEntry(DateTime dateTime) {

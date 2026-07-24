@@ -62,9 +62,9 @@ class FakeTextMessage extends Fake implements TextMessage {
     User? sender,
     int parentMessageId = 0,
     int replyCount = 0,
-  })  : _sender = sender,
-        _parentMessageId = parentMessageId,
-        _replyCount = replyCount;
+  }) : _sender = sender,
+       _parentMessageId = parentMessageId,
+       _replyCount = replyCount;
 
   @override
   int get id => _id;
@@ -192,22 +192,27 @@ MessageListBloc _makeBloc(
 }
 
 void _stubRepo(MockMessageListRepository repo, {List<BaseMessage>? messages}) {
-  when(() => repo.getLoggedInUser())
-      .thenAnswer((_) async => Success(FakeUser()));
-  when(() => repo.getMessages(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-        limit: any(named: 'limit'),
-        parentMessageId: any(named: 'parentMessageId'),
-        types: any(named: 'types'),
-        categories: any(named: 'categories'),
-        hideReplies: any(named: 'hideReplies'),
-        withParent: any(named: 'withParent'),
-      )).thenAnswer((_) async => Success(messages ?? []));
-  when(() => repo.getConversation(
-        conversationWith: any(named: 'conversationWith'),
-        conversationType: any(named: 'conversationType'),
-      )).thenAnswer((_) async => Success(FakeConversation()));
+  when(
+    () => repo.getLoggedInUser(),
+  ).thenAnswer((_) async => Success(FakeUser()));
+  when(
+    () => repo.getMessages(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+      limit: any(named: 'limit'),
+      parentMessageId: any(named: 'parentMessageId'),
+      types: any(named: 'types'),
+      categories: any(named: 'categories'),
+      hideReplies: any(named: 'hideReplies'),
+      withParent: any(named: 'withParent'),
+    ),
+  ).thenAnswer((_) async => Success(messages ?? []));
+  when(
+    () => repo.getConversation(
+      conversationWith: any(named: 'conversationWith'),
+      conversationType: any(named: 'conversationType'),
+    ),
+  ).thenAnswer((_) async => Success(FakeConversation()));
 }
 
 // ---------------------------------------------------------------------------
@@ -450,10 +455,12 @@ void main() {
       _stubRepo(repo, messages: messages);
 
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       expect(bloc.state.status, MessageListStatus.loaded);
@@ -503,10 +510,13 @@ void main() {
       repo = MockMessageListRepository();
     });
 
-    test('hideReplies defaults to true (thread replies hidden from main list)', () {
-      const hideReplies = true;
-      expect(hideReplies, isTrue);
-    });
+    test(
+      'hideReplies defaults to true (thread replies hidden from main list)',
+      () {
+        const hideReplies = true;
+        expect(hideReplies, isTrue);
+      },
+    );
 
     test('messages with parentMessageId > 0 are thread replies', () {
       final threadReply = FakeTextMessage(1, parentMessageId: 5);
@@ -521,22 +531,26 @@ void main() {
     test('hideReplies is passed to repository for SDK filtering', () async {
       _stubRepo(repo);
       final bloc = _makeBloc(repo);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
-      verify(() => repo.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).called(1);
+      verify(
+        () => repo.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).called(1);
       await bloc.close();
     });
   });
@@ -619,10 +633,12 @@ void main() {
       _stubRepo(repo, messages: messages);
 
       final bloc = _makeBloc(repo, hideDeletedMessages: true);
-      bloc.add(const LoadMessages(
-        conversationWith: 'test_user',
-        conversationType: 'user',
-      ));
+      bloc.add(
+        const LoadMessages(
+          conversationWith: 'test_user',
+          conversationType: 'user',
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 80));
 
       // BLoC loads messages regardless of widget-level visibility flags

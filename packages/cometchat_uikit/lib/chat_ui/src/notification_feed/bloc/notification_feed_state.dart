@@ -1,13 +1,8 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Screen state enum for the notification feed.
-enum NotificationFeedScreenState {
-  loading,
-  loaded,
-  empty,
-  error,
-}
+enum NotificationFeedScreenState { loading, loaded, empty, error }
 
 /// Immutable state class for the NotificationFeedBloc.
 ///
@@ -71,19 +66,19 @@ class NotificationFeedState extends Equatable {
 
   @override
   List<Object?> get props => [
-        _version,
-        items,
-        categories,
-        activeCategory,
-        totalUnreadCount,
-        categoryUnreadCounts,
-        screenState,
-        isLoadingMore,
-        isRefreshing,
-        hasMorePages,
-        error,
-        isOffline,
-      ];
+    _version,
+    items,
+    categories,
+    activeCategory,
+    totalUnreadCount,
+    categoryUnreadCounts,
+    screenState,
+    isLoadingMore,
+    isRefreshing,
+    hasMorePages,
+    error,
+    isOffline,
+  ];
 
   /// Create a copy of this state with updated fields.
   NotificationFeedState copyWith({
@@ -104,11 +99,11 @@ class NotificationFeedState extends Equatable {
     return NotificationFeedState(
       items: items ?? this.items,
       categories: categories ?? this.categories,
-      activeCategory:
-          clearActiveCategory ? null : (activeCategory ?? this.activeCategory),
+      activeCategory: clearActiveCategory
+          ? null
+          : (activeCategory ?? this.activeCategory),
       totalUnreadCount: totalUnreadCount ?? this.totalUnreadCount,
-      categoryUnreadCounts:
-          categoryUnreadCounts ?? this.categoryUnreadCounts,
+      categoryUnreadCounts: categoryUnreadCounts ?? this.categoryUnreadCounts,
       screenState: screenState ?? this.screenState,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       isRefreshing: isRefreshing ?? this.isRefreshing,

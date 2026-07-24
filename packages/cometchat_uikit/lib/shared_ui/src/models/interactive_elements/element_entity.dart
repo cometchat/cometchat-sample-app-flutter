@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../../cometchat_uikit_shared.dart' hide ElementEntity, ButtonElement, LabelElement, CheckBoxElement, DropdownElement, RadioButtonElement, TextInputElement, SingleSelectElement, DateTimeElement, BaseInteractiveElement;
+import '../../../cometchat_uikit_shared.dart'
+    hide
+        ElementEntity,
+        ButtonElement,
+        LabelElement,
+        CheckBoxElement,
+        DropdownElement,
+        RadioButtonElement,
+        TextInputElement,
+        SingleSelectElement,
+        DateTimeElement,
+        BaseInteractiveElement;
 import 'button_element.dart';
 import 'label_element.dart';
 import 'checkbox_element.dart';
@@ -9,11 +20,9 @@ import 'radio_button_element.dart';
 import 'text_input_element.dart';
 import 'single_select_element.dart';
 import 'date_time_element.dart';
+
 class ElementEntity {
-  ElementEntity({
-    required this.elementType,
-    required this.elementId,
-  });
+  ElementEntity({required this.elementType, required this.elementId});
 
   String elementType;
   String elementId;
@@ -60,7 +69,8 @@ class ElementEntity {
       return DateTimeElement.fromMap(map);
     }
     return ElementEntity(
-        elementId: map[ModelFieldConstants.elementId],
-        elementType: map[ModelFieldConstants.elementType]);
+      elementId: map[ModelFieldConstants.elementId],
+      elementType: map[ModelFieldConstants.elementType],
+    );
   }
 }

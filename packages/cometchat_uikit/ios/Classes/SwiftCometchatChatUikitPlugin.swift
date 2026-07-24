@@ -53,6 +53,11 @@ UINavigationControllerDelegate {
     var filePickerResult: FlutterResult?
     private var audioRecorder: AudioRecorder?
 
+    // Retains the export ("Save as") picker's delegate for its lifetime. Kept
+    // separate from `filePickerResult`/the import picker so the two flows never
+    // cross-talk through the shared UIDocumentPickerDelegate methods.
+    private var pendingSaveDelegate: SaveAsPickerDelegate?
+
     // MARK: - Plugin Register
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
@@ -219,6 +224,10 @@ UINavigationControllerDelegate {
         case "stopPlayer":
             audioPlayer?.stop()
             result(true)
+        case "getClipboardImage":
+            result(getClipboardImage())
+        case "saveFileWithPicker":
+            saveFileWithPicker(args: args, result: result)
         case "open_file":
             openFile(args: args)
             result(true)
@@ -232,10 +241,51 @@ UINavigationControllerDelegate {
         }
     }
 
+    /// Reads a file off the system pasteboard (e.g. copied from Files or
+    /// Photos) — image, video, audio OR document. Prefers original PNG/JPEG
+    /// bytes for images; otherwise maps the first concrete pasteboard type to
+    /// its MIME/extension and returns its data. Plain-text/URL types are
+    /// skipped so a normal text paste isn't captured. Returns
+    /// `["bytes": FlutterStandardTypedData, "mimeType": String, "fileName": String]`
+    /// or nil when the pasteboard holds no file.
+    private func getClipboardImage() -> [String: Any]? {
+        let pasteboard = UIPasteboard.general
+        if let png = pasteboard.data(forPasteboardType: "public.png") {
+            return ["bytes": FlutterStandardTypedData(bytes: png), "mimeType": "image/png", "fileName": "pasted_image.png"]
+        }
+        if let jpeg = pasteboard.data(forPasteboardType: "public.jpeg") {
+            return ["bytes": FlutterStandardTypedData(bytes: jpeg), "mimeType": "image/jpeg", "fileName": "pasted_image.jpg"]
+        }
+        // General path: the first pasteboard type carrying real data whose UTI
+        // maps to a concrete MIME (video/audio/pdf/etc.). Text/URL are skipped.
+        if #available(iOS 14.0, *) {
+            for uti in pasteboard.types {
+                guard let type = UTType(uti) else { continue }
+                if type.conforms(to: .plainText) || type.conforms(to: .utf8PlainText)
+                    || type.conforms(to: .url) || type.conforms(to: .text) {
+                    continue
+                }
+                guard let mime = type.preferredMIMEType,
+                      let ext = type.preferredFilenameExtension,
+                      let data = pasteboard.data(forPasteboardType: uti),
+                      !data.isEmpty else { continue }
+                let base = mime.hasPrefix("video/") ? "pasted_video"
+                    : mime.hasPrefix("audio/") ? "pasted_audio"
+                    : mime.hasPrefix("image/") ? "pasted_image" : "pasted_file"
+                return ["bytes": FlutterStandardTypedData(bytes: data), "mimeType": mime, "fileName": "\(base).\(ext)"]
+            }
+        }
+        if pasteboard.hasImages, let image = pasteboard.image, let png = image.pngData() {
+            return ["bytes": FlutterStandardTypedData(bytes: png), "mimeType": "image/png", "fileName": "pasted_image.png"]
+        }
+        return nil
+    }
+
     // MARK: - File Picker
     private func pickFile(args: [String: Any], result: @escaping FlutterResult) {
         filePickerResult = result
         let type = args["type"] as? String ?? "file"
+        let allowMultiple = args["allowMultipleSelection"] as? Bool ?? false
 
         DispatchQueue.main.async {
             guard let controller = CometchatChatUikitPlugin.uiViewController else { return }
@@ -250,6 +300,9 @@ UINavigationControllerDelegate {
                 self.imagePicker.mediaTypes = ["public.image", "public.movie"]
                 controller.present(self.imagePicker, animated: true)
             } else {
+                // Multi-select for documents/audio — the delegate already
+                // returns every picked URL.
+                self.documentPicker.allowsMultipleSelection = allowMultiple
                 controller.present(self.documentPicker, animated: true)
             }
         }
@@ -402,6 +455,66 @@ UINavigationControllerDelegate {
         CometchatChatUikitPlugin.uiViewController?.present(preview, animated: true)
     }
 
+    // MARK: - Save As (document export)
+    /// "Save as" — presents the system location picker (export mode) so the user
+    /// chooses where the file lands. Uses the cached local copy when present,
+    /// else downloads the URL to a temp file first. Result to Flutter: a
+    /// non-empty string on success, or nil on cancel/failure.
+    private func saveFileWithPicker(args: [String: Any], result: @escaping FlutterResult) {
+        let urlStr = args["url"] as? String
+        let fileName = (args["fileName"] as? String) ?? "download"
+        let localPath = args["path"] as? String
+
+        func present(_ fileURL: URL) {
+            DispatchQueue.main.async {
+                guard let vc = CometchatChatUikitPlugin.uiViewController else {
+                    result(nil)
+                    return
+                }
+                let picker: UIDocumentPickerViewController
+                if #available(iOS 14.0, *) {
+                    picker = UIDocumentPickerViewController(forExporting: [fileURL], asCopy: true)
+                } else {
+                    picker = UIDocumentPickerViewController(url: fileURL, in: .exportToService)
+                }
+                let delegate = SaveAsPickerDelegate { [weak self] saved in
+                    self?.pendingSaveDelegate = nil
+                    result(saved ? "saved" : nil)
+                }
+                picker.delegate = delegate
+                self.pendingSaveDelegate = delegate
+                vc.present(picker, animated: true)
+            }
+        }
+
+        if let localPath = localPath,
+           FileManager.default.fileExists(atPath: localPath) {
+            present(URL(fileURLWithPath: localPath))
+            return
+        }
+
+        guard let urlStr = urlStr, let remote = URL(string: urlStr) else {
+            result(nil)
+            return
+        }
+        let task = URLSession.shared.downloadTask(with: remote) { tempURL, response, error in
+            guard let tempURL = tempURL, error == nil else {
+                DispatchQueue.main.async { result(nil) }
+                return
+            }
+            let dest = FileManager.default.temporaryDirectory
+                .appendingPathComponent(fileName)
+            try? FileManager.default.removeItem(at: dest)
+            do {
+                try FileManager.default.moveItem(at: tempURL, to: dest)
+                present(dest)
+            } catch {
+                DispatchQueue.main.async { result(nil) }
+            }
+        }
+        task.resume()
+    }
+
     public func numberOfPreviewItems(in controller: QLPreviewController) -> Int { 1 }
     public func previewController(_ controller: QLPreviewController,
     previewItemAt index: Int) -> QLPreviewItem {
@@ -516,10 +629,38 @@ UINavigationControllerDelegate {
                 DispatchQueue.main.async {
                     completion(amplitudes)
                 }
-                
+
             } catch {
                 DispatchQueue.main.async { completion([]) }
             }
         }
+    }
+}
+
+/// A dedicated delegate for the "Save as" export picker, kept separate from the
+/// plugin's own `UIDocumentPickerDelegate` (which drives the import/pickFile
+/// flow) so the two never cross-talk. Reports exactly once whether the user
+/// picked a destination.
+final class SaveAsPickerDelegate: NSObject, UIDocumentPickerDelegate {
+    private let onDone: (Bool) -> Void
+    private var finished = false
+
+    init(onDone: @escaping (Bool) -> Void) {
+        self.onDone = onDone
+    }
+
+    private func finish(_ saved: Bool) {
+        if finished { return }
+        finished = true
+        onDone(saved)
+    }
+
+    func documentPicker(_ controller: UIDocumentPickerViewController,
+                        didPickDocumentsAt urls: [URL]) {
+        finish(!urls.isEmpty)
+    }
+
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        finish(false)
     }
 }

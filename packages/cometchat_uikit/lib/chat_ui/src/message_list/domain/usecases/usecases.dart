@@ -1,7 +1,7 @@
 /// Use Cases for Message List Module
 ///
 /// This barrel file exports all use cases for the message list domain layer.
-library message_list_usecases;
+library;
 
 export 'get_messages_usecase.dart';
 export 'load_older_messages_usecase.dart';

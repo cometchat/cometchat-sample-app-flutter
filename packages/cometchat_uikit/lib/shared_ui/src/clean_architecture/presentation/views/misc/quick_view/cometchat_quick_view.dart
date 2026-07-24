@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 ///
 /// If no `background` color is provided, it defaults to white.
 class CometChatQuickView extends StatelessWidget {
-  const CometChatQuickView(
-      {super.key,
-      required this.title,
-      this.subtitle,
-      this.quickViewStyle});
+  const CometChatQuickView({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.quickViewStyle,
+  });
 
   /// The main title displayed in the quick view.
   final String title;
@@ -23,45 +24,41 @@ class CometChatQuickView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Row(
       children: [
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color:
-                  quickViewStyle?.background,
+              color: quickViewStyle?.background,
               shape: BoxShape.rectangle,
               border: quickViewStyle?.border,
-              borderRadius: const BorderRadius.all(
-                  Radius.circular(4.0)),
+              borderRadius: const BorderRadius.all(Radius.circular(4.0)),
             ),
             child: Container(
-                padding: const EdgeInsets.all(6.0),
-                decoration: BoxDecoration(
-                    color: quickViewStyle?.background ?? Colors.white,
-                    shape: BoxShape.rectangle,
-                    border: Border(
-                      left: BorderSide(
-                        color: quickViewStyle?.leadingBarTint ?? Colors.transparent, // Border color
-                        width: quickViewStyle?.leadingBarWidth ??
-                            4.0, // Border width
-                      ),
-                    )),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title,
-                        style: quickViewStyle?.titleStyle),
-                    const SizedBox(
-                      height: 4.0,
-                    ),
-                    if (subtitle != null)
-                      Text(subtitle!,
-                          style:quickViewStyle?.subtitleStyle)
-                  ],
-                )),
+              padding: const EdgeInsets.all(6.0),
+              decoration: BoxDecoration(
+                color: quickViewStyle?.background ?? Colors.white,
+                shape: BoxShape.rectangle,
+                border: Border(
+                  left: BorderSide(
+                    color:
+                        quickViewStyle?.leadingBarTint ??
+                        Colors.transparent, // Border color
+                    width:
+                        quickViewStyle?.leadingBarWidth ?? 4.0, // Border width
+                  ),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: quickViewStyle?.titleStyle),
+                  const SizedBox(height: 4.0),
+                  if (subtitle != null)
+                    Text(subtitle!, style: quickViewStyle?.subtitleStyle),
+                ],
+              ),
+            ),
           ),
         ),
       ],

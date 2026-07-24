@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../core/constants/enums.dart';
 import '../../../theme/colors/cometchat_color_palette.dart';
 import '../../../theme/typography/cometchat_typography.dart';
 import '../../../theme/spacing/cometchat_spacing.dart';
-import '../audio_bubble/cometchat_audio_bubble_v2.dart';
-import '../audio_bubble/cometchat_audio_bubble_style.dart';
+import '../audio_bubble/cometchat_audio_player.dart';
+import '../audio_bubble/cometchat_voice_note_bubble_style.dart';
 import 'bubble_factory.dart';
 
 /// Factory for creating audio message bubbles.
 class AudioBubbleFactory extends BubbleFactory<MediaMessage> {
-  final CometChatAudioBubbleStyle? style;
+  final CometChatVoiceNoteBubbleStyle? style;
   final Icon? playIcon;
   final Icon? pauseIcon;
 
-  AudioBubbleFactory({
-    this.style,
-    this.playIcon,
-    this.pauseIcon,
-  });
+  AudioBubbleFactory({this.style, this.playIcon, this.pauseIcon});
 
   @override
   Widget build(
@@ -29,7 +25,7 @@ class AudioBubbleFactory extends BubbleFactory<MediaMessage> {
     CometChatTypography? typography,
     CometChatSpacing? spacing,
   }) {
-    return CometChatAudioBubbleV2(
+    return CometChatAudioPlayer(
       audioUrl: message.attachment?.fileUrl,
       title: message.attachment?.fileName,
       style: style,

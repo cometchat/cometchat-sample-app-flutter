@@ -26,10 +26,7 @@ Future<String?> showCometChatEmojiKeyboard({
 }
 
 class CometChatEmojiKeyboard extends StatefulWidget {
-  const CometChatEmojiKeyboard({
-    super.key,
-    required this.colorPalette,
-  });
+  const CometChatEmojiKeyboard({super.key, required this.colorPalette});
 
   final CometChatColorPalette colorPalette;
 
@@ -40,11 +37,11 @@ class CometChatEmojiKeyboard extends StatefulWidget {
 class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
   int _currentCategory = 0;
   late ScrollController _scrollController;
-  
+
   // Pre-computed category offsets for fast scrolling
   List<double> _categoryOffsets = [];
   bool _isScrollingToCategory = false;
-  
+
   // Cache flattened emoji list for efficient access
   late List<_EmojiItem> _flatEmojiList;
   late List<int> _categoryStartIndices;
@@ -60,25 +57,22 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
   void _buildFlatEmojiList() {
     _flatEmojiList = [];
     _categoryStartIndices = [];
-    
+
     for (int i = 0; i < emojiData.length; i++) {
       _categoryStartIndices.add(_flatEmojiList.length);
       for (final emoji in emojiData[i].emojies) {
-        _flatEmojiList.add(_EmojiItem(
-          emoji: emoji.emoji,
-          categoryIndex: i,
-        ));
+        _flatEmojiList.add(_EmojiItem(emoji: emoji.emoji, categoryIndex: i));
       }
     }
   }
 
   void _onScroll() {
     if (_isScrollingToCategory) return;
-    
+
     // Find current category based on scroll position
     final offset = _scrollController.offset;
     int newCategory = 0;
-    
+
     for (int i = 0; i < _categoryOffsets.length; i++) {
       if (offset >= _categoryOffsets[i]) {
         newCategory = i;
@@ -86,7 +80,7 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
         break;
       }
     }
-    
+
     if (newCategory != _currentCategory) {
       setState(() {
         _currentCategory = newCategory;
@@ -95,24 +89,26 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
   }
 
   void _scrollToCategory(int categoryIndex) async {
-    if (categoryIndex < 0 || categoryIndex >= _categoryStartIndices.length) return;
-    
+    if (categoryIndex < 0 || categoryIndex >= _categoryStartIndices.length) {
+      return;
+    }
+
     _isScrollingToCategory = true;
     setState(() {
       _currentCategory = categoryIndex;
     });
-    
+
     // Calculate approximate offset (8 emojis per row, ~48px per row)
     final startIndex = _categoryStartIndices[categoryIndex];
     final rowIndex = startIndex ~/ 8;
     final offset = rowIndex * 48.0;
-    
+
     await _scrollController.animateTo(
       offset.clamp(0.0, _scrollController.position.maxScrollExtent),
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOut,
     );
-    
+
     _isScrollingToCategory = false;
   }
 
@@ -140,7 +136,7 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -150,12 +146,10 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
         children: [
           // Header with notch and category name
           _buildHeader(colorPalette, spacing, typography),
-          
+
           // Emoji grid - optimized with single GridView
-          Expanded(
-            child: _buildEmojiGrid(colorPalette, typography, spacing),
-          ),
-          
+          Expanded(child: _buildEmojiGrid(colorPalette, typography, spacing)),
+
           // Category tabs
           _buildCategoryTabs(colorPalette, spacing),
         ],
@@ -236,10 +230,7 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
           return GestureDetector(
             onTap: () => Navigator.pop(context, item.emoji),
             child: Center(
-              child: Text(
-                item.emoji,
-                style: const TextStyle(fontSize: 24),
-              ),
+              child: Text(item.emoji, style: const TextStyle(fontSize: 24)),
             ),
           );
         },
@@ -286,7 +277,9 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
                     color: _currentCategory == i
                         ? colorPalette.extendedPrimary100
                         : colorPalette.transparent,
-                    borderRadius: BorderRadius.circular(spacing.radiusMax ?? 24),
+                    borderRadius: BorderRadius.circular(
+                      spacing.radiusMax ?? 24,
+                    ),
                   ),
                   child: Center(
                     child: Image.asset(
@@ -313,8 +306,5 @@ class _EmojiItem {
   final String emoji;
   final int categoryIndex;
 
-  const _EmojiItem({
-    required this.emoji,
-    required this.categoryIndex,
-  });
+  const _EmojiItem({required this.emoji, required this.categoryIndex});
 }

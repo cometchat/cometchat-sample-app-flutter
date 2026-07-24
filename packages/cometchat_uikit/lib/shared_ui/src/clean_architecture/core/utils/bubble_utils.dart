@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'platform_utils/platform_file_utils.dart' as platform;
 
@@ -8,11 +7,13 @@ class BubbleUtils {
     r'^(.*?)((mailto:)?[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z][A-Z]+)',
     caseSensitive: false,
   );
-  static final urlRegex =
-      RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
+  static final urlRegex = RegExp(
+    r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+',
+  );
 
-  static final phoneNumberRegex =
-      RegExp(r'^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}');
+  static final phoneNumberRegex = RegExp(
+    r'^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}',
+  );
 
   static Future<String?> downloadFile(String fileUrl, String fileName) async {
     if (kIsWeb) {

@@ -22,9 +22,7 @@ class CometchatHighlightBuilder extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: colorPalette?.background4,
-        borderRadius: BorderRadius.circular(
-          spacing?.radius2 ?? 0,
-        ),
+        borderRadius: BorderRadius.circular(spacing?.radius2 ?? 0),
       ),
       padding: EdgeInsets.symmetric(
         horizontal: spacing?.spacing1 ?? 0,

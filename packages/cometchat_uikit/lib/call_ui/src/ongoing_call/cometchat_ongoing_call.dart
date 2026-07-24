@@ -4,8 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../cometchat_calls_uikit.dart';
 import '../../../cometchat_chat_uikit.dart';
-import 'bloc/ongoing_call_bloc.dart';
-import 'bloc/ongoing_call_state.dart';
 
 /// [CometChatOngoingCall] is a widget that displays the ongoing call screen.
 ///
@@ -33,13 +31,13 @@ class CometChatOngoingCall extends StatefulWidget {
   final OngoingCallBloc? bloc;
 
   const CometChatOngoingCall({
-    Key? key,
+    super.key,
     required this.sessionSettingsBuilder,
     required this.sessionId,
     this.callWorkFlow,
     this.onError,
     this.bloc,
-  }) : super(key: key);
+  });
 
   @override
   State<CometChatOngoingCall> createState() => _CometChatOngoingCallState();
@@ -53,7 +51,8 @@ class _CometChatOngoingCallState extends State<CometChatOngoingCall> {
   void initState() {
     super.initState();
     _isExternalBloc = widget.bloc != null;
-    _bloc = widget.bloc ??
+    _bloc =
+        widget.bloc ??
         OngoingCallBloc(
           sessionSettingsBuilder: widget.sessionSettingsBuilder,
           sessionId: widget.sessionId,
@@ -106,7 +105,9 @@ class _CometChatOngoingCallState extends State<CometChatOngoingCall> {
             // On Android the Calls SDK renders its own native UI outside
             // Flutter's widget tree. Return a transparent widget so the
             // native layer shows through. Skip the loading screen entirely.
-            if (state.callingWidget == null && !kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+            if (state.callingWidget == null &&
+                !kIsWeb &&
+                defaultTargetPlatform == TargetPlatform.android) {
               return const SizedBox.shrink();
             }
 

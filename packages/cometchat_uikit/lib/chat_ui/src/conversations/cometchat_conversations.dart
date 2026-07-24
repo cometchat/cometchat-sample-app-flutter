@@ -138,7 +138,7 @@ class CometChatConversations extends StatefulWidget {
 
   ///[subtitleView] to set subtitle for each conversation
   final Widget? Function(BuildContext context, Conversation conversation)?
-      subtitleView;
+  subtitleView;
 
   ///[trailingView] to set tailView for each conversation
   final Widget? Function(Conversation conversation)? trailingView;
@@ -291,20 +291,28 @@ class CometChatConversations extends StatefulWidget {
   final Widget? submitIcon;
 
   ///[setOptions] sets List of actions available on the long press of list item
-  final List<CometChatOption>? Function(Conversation conversation,
-      ConversationsBloc bloc, BuildContext context)? setOptions;
+  final List<CometChatOption>? Function(
+    Conversation conversation,
+    ConversationsBloc bloc,
+    BuildContext context,
+  )?
+  setOptions;
 
   ///[addOptions] adds into the current List of actions available on the long press of list item
-  final List<CometChatOption>? Function(Conversation conversation,
-      ConversationsBloc bloc, BuildContext context)? addOptions;
+  final List<CometChatOption>? Function(
+    Conversation conversation,
+    ConversationsBloc bloc,
+    BuildContext context,
+  )?
+  addOptions;
 
   ///[leadingView] to set leading view for each conversation
   final Widget? Function(BuildContext context, Conversation conversation)?
-      leadingView;
+  leadingView;
 
   ///[titleView] to set title view for each conversation
   final Widget? Function(BuildContext context, Conversation conversation)?
-      titleView;
+  titleView;
 
   ///[onError] callback triggered when the component encounters an error
   final OnError? onError;
@@ -410,20 +418,25 @@ class _CometChatConversationsState extends State<CometChatConversations>
     colorPalette = CometChatThemeHelper.getColorPalette(context);
     spacing = CometChatThemeHelper.getSpacing(context);
     style = CometChatThemeHelper.getTheme<CometChatConversationsStyle>(
-            context: context, defaultTheme: CometChatConversationsStyle.of)
-        .merge(widget.conversationsStyle);
+      context: context,
+      defaultTheme: CometChatConversationsStyle.of,
+    ).merge(widget.conversationsStyle);
     statusStyle = CometChatThemeHelper.getTheme<CometChatStatusIndicatorStyle>(
-            context: context, defaultTheme: CometChatStatusIndicatorStyle.of)
-        .merge(style.statusIndicatorStyle);
+      context: context,
+      defaultTheme: CometChatStatusIndicatorStyle.of,
+    ).merge(style.statusIndicatorStyle);
     typingStyle = CometChatThemeHelper.getTheme<CometChatTypingIndicatorStyle>(
-            context: context, defaultTheme: CometChatTypingIndicatorStyle.of)
-        .merge(style.typingIndicatorStyle);
+      context: context,
+      defaultTheme: CometChatTypingIndicatorStyle.of,
+    ).merge(style.typingIndicatorStyle);
     receiptStyle = CometChatThemeHelper.getTheme<CometChatMessageReceiptStyle>(
-            context: context, defaultTheme: CometChatMessageReceiptStyle.of)
-        .merge(style.receiptStyle);
+      context: context,
+      defaultTheme: CometChatMessageReceiptStyle.of,
+    ).merge(style.receiptStyle);
     datesStyle = CometChatThemeHelper.getTheme<CometChatDateStyle>(
-            context: context, defaultTheme: CometChatDateStyle.of)
-        .merge(style.dateStyle);
+      context: context,
+      defaultTheme: CometChatDateStyle.of,
+    ).merge(style.dateStyle);
   }
 
   // RouteAware callbacks - track when this route is visible
@@ -534,26 +547,29 @@ class _CometChatConversationsState extends State<CometChatConversations>
                   selectedCount > 0
                       ? "$selectedCount"
                       : widget.title ?? cc.Translations.of(context).chats,
-                  style: TextStyle(
-                    color: colorPalette.textPrimary,
-                    fontSize: typography.heading1?.bold?.fontSize,
-                    fontWeight: typography.heading1?.bold?.fontWeight,
-                    fontFamily: typography.heading1?.bold?.fontFamily,
-                  )
-                      .merge(style.titleTextStyle)
-                      .copyWith(color: style.titleTextColor),
+                  style:
+                      TextStyle(
+                            color: colorPalette.textPrimary,
+                            fontSize: typography.heading1?.bold?.fontSize,
+                            fontWeight: typography.heading1?.bold?.fontWeight,
+                            fontFamily: typography.heading1?.bold?.fontFamily,
+                          )
+                          .merge(style.titleTextStyle)
+                          .copyWith(color: style.titleTextColor),
                 );
               },
             ),
             titleSpacing: widget.showBackButton ? 0 : 16,
             hideSearch: widget.hideSearch ?? true,
             searchBoxIcon: widget.searchBoxIcon,
-            searchPadding: widget.searchPadding ??
+            searchPadding:
+                widget.searchPadding ??
                 EdgeInsets.symmetric(
                   horizontal: spacing.padding4 ?? 0,
                   vertical: spacing.padding3 ?? 0,
                 ),
-            searchContentPadding: widget.searchContentPadding ??
+            searchContentPadding:
+                widget.searchContentPadding ??
                 EdgeInsets.symmetric(
                   horizontal: spacing.padding3 ?? 0,
                   vertical: spacing.padding2 ?? 0,
@@ -564,13 +580,15 @@ class _CometChatConversationsState extends State<CometChatConversations>
             hideAppBar: widget.hideAppbar,
             backIcon: BlocBuilder<ConversationsBloc, ConversationsState>(
               builder: (context, state) {
-                final hasSelection = state is ConversationsLoaded &&
+                final hasSelection =
+                    state is ConversationsLoaded &&
                     state.selectedConversations.isNotEmpty;
                 return hasSelection
                     ? IconButton(
                         onPressed: () {
-                          conversationsBloc
-                              .add(const ClearConversationSelection());
+                          conversationsBloc.add(
+                            const ClearConversationSelection(),
+                          );
                         },
                         icon: Icon(
                           Icons.clear,
@@ -580,15 +598,15 @@ class _CometChatConversationsState extends State<CometChatConversations>
                         padding: EdgeInsets.zero,
                       )
                     : (widget.backButton ??
-                        IconButton(
-                          onPressed: widget.onBack,
-                          icon: Icon(
-                            Icons.arrow_back,
-                            color: colorPalette.iconPrimary,
-                            size: 24,
-                          ),
-                          padding: EdgeInsets.zero,
-                        ));
+                          IconButton(
+                            onPressed: widget.onBack,
+                            icon: Icon(
+                              Icons.arrow_back,
+                              color: colorPalette.iconPrimary,
+                              size: 24,
+                            ),
+                            padding: EdgeInsets.zero,
+                          ));
               },
             ),
             showBackButton: widget.showBackButton,
@@ -601,18 +619,15 @@ class _CometChatConversationsState extends State<CometChatConversations>
             ],
             style: ListBaseStyle(
               background: style.backgroundColor ?? colorPalette.background1,
-              titleStyle: TextStyle(
-                color: style.titleTextColor ?? colorPalette.textPrimary,
-                fontSize: typography.heading1?.bold?.fontSize,
-                fontWeight: typography.heading1?.bold?.fontWeight,
-                fontFamily: typography.heading1?.bold?.fontFamily,
-              )
-                  .merge(
-                    style.titleTextStyle,
-                  )
-                  .copyWith(
-                    color: style.titleTextColor,
-                  ),
+              titleStyle:
+                  TextStyle(
+                        color: style.titleTextColor ?? colorPalette.textPrimary,
+                        fontSize: typography.heading1?.bold?.fontSize,
+                        fontWeight: typography.heading1?.bold?.fontWeight,
+                        fontFamily: typography.heading1?.bold?.fontFamily,
+                      )
+                      .merge(style.titleTextStyle)
+                      .copyWith(color: style.titleTextColor),
               backIconTint: style.backIconColor ?? colorPalette.iconPrimary,
               border: style.border,
               borderRadius: style.borderRadius,
@@ -620,27 +635,30 @@ class _CometChatConversationsState extends State<CometChatConversations>
                   style.searchIconColor ?? colorPalette.iconSecondary,
               searchBoxBackground:
                   style.searchBackgroundColor ?? colorPalette.background3,
-              borderSide: style.searchBorder ??
+              borderSide:
+                  style.searchBorder ??
                   BorderSide(
                     color: colorPalette.borderLight ?? Colors.transparent,
                     width: 1,
                   ),
-              searchTextFieldRadius: style.searchBorderRadius ??
-                  BorderRadius.circular(
-                    spacing.radiusMax ?? 0,
-                  ),
-              searchPlaceholderStyle: TextStyle(
-                color: style.searchPlaceHolderTextColor ??
-                    colorPalette.textTertiary,
-                fontSize: typography.heading4?.regular?.fontSize,
-                fontWeight: typography.heading4?.regular?.fontWeight,
-                fontFamily: typography.heading4?.regular?.fontFamily,
-              ).merge(style.searchPlaceHolderTextStyle).copyWith(
-                    color: style.searchPlaceHolderTextColor,
-                  ),
+              searchTextFieldRadius:
+                  style.searchBorderRadius ??
+                  BorderRadius.circular(spacing.radiusMax ?? 0),
+              searchPlaceholderStyle:
+                  TextStyle(
+                        color:
+                            style.searchPlaceHolderTextColor ??
+                            colorPalette.textTertiary,
+                        fontSize: typography.heading4?.regular?.fontSize,
+                        fontWeight: typography.heading4?.regular?.fontWeight,
+                        fontFamily: typography.heading4?.regular?.fontFamily,
+                      )
+                      .merge(style.searchPlaceHolderTextStyle)
+                      .copyWith(color: style.searchPlaceHolderTextColor),
               appBarShape: Border(
                 bottom: BorderSide(
-                  color: style.separatorColor ??
+                  color:
+                      style.separatorColor ??
                       colorPalette.borderLight ??
                       Colors.transparent,
                   width: style.separatorHeight ?? 1,
@@ -702,8 +720,8 @@ class _CometChatConversationsState extends State<CometChatConversations>
               dateTimeFormatterCallback: widget.dateTimeFormatterCallback,
               itemWrapperBuilder:
                   widget.deleteConversationOptionVisibility == true
-                      ? _wrapItemWithDeleteOverlay
-                      : null,
+                  ? _wrapItemWithDeleteOverlay
+                  : null,
               onLoad: widget.onLoad,
               onEmpty: widget.onEmpty,
               onError: widget.onError,
@@ -735,7 +753,8 @@ class _CometChatConversationsState extends State<CometChatConversations>
                 widget.onSelection!(selectedConversations);
               }
             },
-            icon: widget.submitIcon ??
+            icon:
+                widget.submitIcon ??
                 Icon(
                   Icons.check,
                   color: style.submitIconColor ?? colorPalette.iconPrimary,
@@ -788,7 +807,10 @@ class _CometChatConversationsState extends State<CometChatConversations>
 
   /// Wraps a conversation list item with a delete overlay when long-pressed.
   Widget _wrapItemWithDeleteOverlay(
-      BuildContext context, Conversation conversation, Widget child) {
+    BuildContext context,
+    Conversation conversation,
+    Widget child,
+  ) {
     final isShowingDelete =
         _conversationShowingDeleteOverlay == conversation.conversationId;
 
@@ -797,7 +819,7 @@ class _CometChatConversationsState extends State<CometChatConversations>
     return Stack(
       children: [
         ColoredBox(
-          color: (colorPalette.error ?? Colors.red).withOpacity(0.08),
+          color: (colorPalette.error ?? Colors.red).withValues(alpha: 0.08),
           child: child,
         ),
         Positioned(
@@ -872,8 +894,9 @@ class _CometChatConversationsState extends State<CometChatConversations>
   void _showDeleteConfirmationDialog(Conversation conversation) {
     final confirmDialogStyle =
         CometChatThemeHelper.getTheme<CometChatConfirmDialogStyle>(
-                context: context, defaultTheme: CometChatConfirmDialogStyle.of)
-            .merge(style.deleteConversationDialogStyle);
+          context: context,
+          defaultTheme: CometChatConfirmDialogStyle.of,
+        ).merge(style.deleteConversationDialogStyle);
 
     CometChatConfirmDialog(
       context: context,
@@ -907,7 +930,8 @@ class _CometChatConversationsState extends State<CometChatConversations>
         iconBackgroundColor: confirmDialogStyle.iconBackgroundColor,
         borderRadius: confirmDialogStyle.borderRadius,
         border: confirmDialogStyle.border,
-        cancelButtonBackground: confirmDialogStyle.cancelButtonBackground ??
+        cancelButtonBackground:
+            confirmDialogStyle.cancelButtonBackground ??
             colorPalette.transparent,
         confirmButtonBackground:
             confirmDialogStyle.confirmButtonBackground ?? colorPalette.error,
@@ -915,57 +939,50 @@ class _CometChatConversationsState extends State<CometChatConversations>
         confirmButtonTextColor: confirmDialogStyle.confirmButtonTextColor,
         messageTextColor: confirmDialogStyle.messageTextColor,
         titleTextColor: confirmDialogStyle.titleTextColor,
-        titleTextStyle: TextStyle(
-          color: confirmDialogStyle.titleTextColor ?? colorPalette.textPrimary,
-          fontSize: typography.heading2?.medium?.fontSize,
-          fontWeight: typography.heading2?.medium?.fontWeight,
-          fontFamily: typography.heading2?.medium?.fontFamily,
-        )
-            .merge(
-              confirmDialogStyle.titleTextStyle,
-            )
-            .copyWith(
-              color: confirmDialogStyle.titleTextColor,
-            ),
-        messageTextStyle: TextStyle(
-          color:
-              confirmDialogStyle.messageTextColor ?? colorPalette.textSecondary,
-          fontSize: typography.body?.regular?.fontSize,
-          fontWeight: typography.body?.regular?.fontWeight,
-          fontFamily: typography.body?.regular?.fontFamily,
-        )
-            .merge(
-              confirmDialogStyle.messageTextStyle,
-            )
-            .copyWith(
-              color: confirmDialogStyle.messageTextColor,
-            ),
-        confirmButtonTextStyle: TextStyle(
-          color:
-              confirmDialogStyle.confirmButtonTextColor ?? colorPalette.white,
-          fontSize: typography.button?.medium?.fontSize,
-          fontWeight: typography.button?.medium?.fontWeight,
-          fontFamily: typography.button?.medium?.fontFamily,
-        )
-            .merge(
-              confirmDialogStyle.confirmButtonTextStyle,
-            )
-            .copyWith(
-              color: confirmDialogStyle.confirmButtonTextColor,
-            ),
-        cancelButtonTextStyle: TextStyle(
-          color: confirmDialogStyle.cancelButtonTextColor ??
-              colorPalette.textPrimary,
-          fontSize: typography.button?.medium?.fontSize,
-          fontWeight: typography.button?.medium?.fontWeight,
-          fontFamily: typography.button?.medium?.fontFamily,
-        )
-            .merge(
-              confirmDialogStyle.cancelButtonTextStyle,
-            )
-            .copyWith(
-              color: confirmDialogStyle.cancelButtonTextColor,
-            ),
+        titleTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.titleTextColor ??
+                      colorPalette.textPrimary,
+                  fontSize: typography.heading2?.medium?.fontSize,
+                  fontWeight: typography.heading2?.medium?.fontWeight,
+                  fontFamily: typography.heading2?.medium?.fontFamily,
+                )
+                .merge(confirmDialogStyle.titleTextStyle)
+                .copyWith(color: confirmDialogStyle.titleTextColor),
+        messageTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.messageTextColor ??
+                      colorPalette.textSecondary,
+                  fontSize: typography.body?.regular?.fontSize,
+                  fontWeight: typography.body?.regular?.fontWeight,
+                  fontFamily: typography.body?.regular?.fontFamily,
+                )
+                .merge(confirmDialogStyle.messageTextStyle)
+                .copyWith(color: confirmDialogStyle.messageTextColor),
+        confirmButtonTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.confirmButtonTextColor ??
+                      colorPalette.white,
+                  fontSize: typography.button?.medium?.fontSize,
+                  fontWeight: typography.button?.medium?.fontWeight,
+                  fontFamily: typography.button?.medium?.fontFamily,
+                )
+                .merge(confirmDialogStyle.confirmButtonTextStyle)
+                .copyWith(color: confirmDialogStyle.confirmButtonTextColor),
+        cancelButtonTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.cancelButtonTextColor ??
+                      colorPalette.textPrimary,
+                  fontSize: typography.button?.medium?.fontSize,
+                  fontWeight: typography.button?.medium?.fontWeight,
+                  fontFamily: typography.button?.medium?.fontFamily,
+                )
+                .merge(confirmDialogStyle.cancelButtonTextStyle)
+                .copyWith(color: confirmDialogStyle.cancelButtonTextColor),
       ),
       onConfirm: (dialogContext) {
         Navigator.of(dialogContext).pop();

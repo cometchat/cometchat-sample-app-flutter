@@ -14,7 +14,8 @@ import 'package:cometchat_chat_uikit/shared_ui/src/clean_architecture/core/resul
 class MockRemoteDataSource extends Mock
     implements ConversationsRemoteDataSource {}
 
-class MockLocalDataSource extends Mock implements ConversationsLocalDataSource {}
+class MockLocalDataSource extends Mock
+    implements ConversationsLocalDataSource {}
 
 class FakeConversation extends Fake implements Conversation {
   final String _id;
@@ -58,9 +59,13 @@ void main() {
 
   group('getConversations', () {
     test('returns success with conversations from remote', () async {
-      final conversations = [FakeConversation('conv_1'), FakeConversation('conv_2')];
-      when(() => remote.getConversations(limit: any(named: 'limit')))
-          .thenAnswer((_) async => conversations);
+      final conversations = [
+        FakeConversation('conv_1'),
+        FakeConversation('conv_2'),
+      ];
+      when(
+        () => remote.getConversations(limit: any(named: 'limit')),
+      ).thenAnswer((_) async => conversations);
       when(() => local.cacheConversations(any())).thenAnswer((_) async {});
 
       final result = await repo.getConversations();
@@ -71,8 +76,9 @@ void main() {
 
     test('caches conversations after successful remote fetch', () async {
       final conversations = [FakeConversation('conv_1')];
-      when(() => remote.getConversations(limit: any(named: 'limit')))
-          .thenAnswer((_) async => conversations);
+      when(
+        () => remote.getConversations(limit: any(named: 'limit')),
+      ).thenAnswer((_) async => conversations);
       when(() => local.cacheConversations(any())).thenAnswer((_) async {});
 
       await repo.getConversations();
@@ -82,9 +88,12 @@ void main() {
 
     test('falls back to cache when remote fails', () async {
       final cached = [FakeConversation('cached_conv')];
-      when(() => remote.getConversations(limit: any(named: 'limit')))
-          .thenThrow(RemoteDataSourceException(message: 'Network error'));
-      when(() => local.getCachedConversations()).thenAnswer((_) async => cached);
+      when(
+        () => remote.getConversations(limit: any(named: 'limit')),
+      ).thenThrow(const RemoteDataSourceException(message: 'Network error'));
+      when(
+        () => local.getCachedConversations(),
+      ).thenAnswer((_) async => cached);
 
       final result = await repo.getConversations();
 
@@ -93,10 +102,12 @@ void main() {
     });
 
     test('returns failure when both remote and cache fail', () async {
-      when(() => remote.getConversations(limit: any(named: 'limit')))
-          .thenThrow(RemoteDataSourceException(message: 'Network error'));
-      when(() => local.getCachedConversations())
-          .thenThrow(LocalDataSourceException(message: 'Cache miss'));
+      when(
+        () => remote.getConversations(limit: any(named: 'limit')),
+      ).thenThrow(const RemoteDataSourceException(message: 'Network error'));
+      when(
+        () => local.getCachedConversations(),
+      ).thenThrow(const LocalDataSourceException(message: 'Cache miss'));
 
       final result = await repo.getConversations();
 
@@ -117,10 +128,12 @@ void main() {
     });
 
     test('parses user conversation ID and calls remote', () async {
-      when(() => remote.deleteConversation(any(), any()))
-          .thenAnswer((_) async {});
-      when(() => local.removeCachedConversation(any()))
-          .thenAnswer((_) async {});
+      when(
+        () => remote.deleteConversation(any(), any()),
+      ).thenAnswer((_) async {});
+      when(
+        () => local.removeCachedConversation(any()),
+      ).thenAnswer((_) async {});
 
       final result = await repo.deleteConversation('user_uid123');
 
@@ -129,10 +142,12 @@ void main() {
     });
 
     test('parses group conversation ID and calls remote', () async {
-      when(() => remote.deleteConversation(any(), any()))
-          .thenAnswer((_) async {});
-      when(() => local.removeCachedConversation(any()))
-          .thenAnswer((_) async {});
+      when(
+        () => remote.deleteConversation(any(), any()),
+      ).thenAnswer((_) async {});
+      when(
+        () => local.removeCachedConversation(any()),
+      ).thenAnswer((_) async {});
 
       final result = await repo.deleteConversation('group_guid456');
 
@@ -141,36 +156,49 @@ void main() {
     });
 
     test('parses SDK-format conversation ID with numeric prefix', () async {
-      when(() => remote.deleteConversation(any(), any()))
-          .thenAnswer((_) async {});
-      when(() => local.removeCachedConversation(any()))
-          .thenAnswer((_) async {});
+      when(
+        () => remote.deleteConversation(any(), any()),
+      ).thenAnswer((_) async {});
+      when(
+        () => local.removeCachedConversation(any()),
+      ).thenAnswer((_) async {});
 
       // SDK returns IDs like "1_user_cometchat-uid-1"
       final result = await repo.deleteConversation('1_user_cometchat-uid-1');
 
       expect(result.isSuccess, isTrue);
-      verify(() => remote.deleteConversation('cometchat-uid-1', 'user')).called(1);
+      verify(
+        () => remote.deleteConversation('cometchat-uid-1', 'user'),
+      ).called(1);
     });
 
-    test('parses SDK-format group conversation ID with numeric prefix', () async {
-      when(() => remote.deleteConversation(any(), any()))
-          .thenAnswer((_) async {});
-      when(() => local.removeCachedConversation(any()))
-          .thenAnswer((_) async {});
+    test(
+      'parses SDK-format group conversation ID with numeric prefix',
+      () async {
+        when(
+          () => remote.deleteConversation(any(), any()),
+        ).thenAnswer((_) async {});
+        when(
+          () => local.removeCachedConversation(any()),
+        ).thenAnswer((_) async {});
 
-      // SDK returns IDs like "2_group_my-group-guid"
-      final result = await repo.deleteConversation('2_group_my-group-guid');
+        // SDK returns IDs like "2_group_my-group-guid"
+        final result = await repo.deleteConversation('2_group_my-group-guid');
 
-      expect(result.isSuccess, isTrue);
-      verify(() => remote.deleteConversation('my-group-guid', 'group')).called(1);
-    });
+        expect(result.isSuccess, isTrue);
+        verify(
+          () => remote.deleteConversation('my-group-guid', 'group'),
+        ).called(1);
+      },
+    );
 
     test('removes from cache after successful delete', () async {
-      when(() => remote.deleteConversation(any(), any()))
-          .thenAnswer((_) async {});
-      when(() => local.removeCachedConversation(any()))
-          .thenAnswer((_) async {});
+      when(
+        () => remote.deleteConversation(any(), any()),
+      ).thenAnswer((_) async {});
+      when(
+        () => local.removeCachedConversation(any()),
+      ).thenAnswer((_) async {});
 
       await repo.deleteConversation('user_uid123');
 
@@ -178,8 +206,12 @@ void main() {
     });
 
     test('returns failure when remote delete throws', () async {
-      when(() => remote.deleteConversation(any(), any()))
-          .thenThrow(RemoteDataSourceException(message: 'Delete failed', code: 'DEL_ERR'));
+      when(() => remote.deleteConversation(any(), any())).thenThrow(
+        const RemoteDataSourceException(
+          message: 'Delete failed',
+          code: 'DEL_ERR',
+        ),
+      );
 
       final result = await repo.deleteConversation('user_uid123');
 
@@ -210,8 +242,9 @@ void main() {
   group('getConversationById', () {
     test('returns cached conversation when present', () async {
       final cached = FakeConversation('conv_1');
-      when(() => local.getCachedConversation('conv_1'))
-          .thenAnswer((_) async => cached);
+      when(
+        () => local.getCachedConversation('conv_1'),
+      ).thenAnswer((_) async => cached);
 
       final result = await repo.getConversationById('conv_1');
 
@@ -221,10 +254,12 @@ void main() {
 
     test('falls back to remote when cache miss', () async {
       final remoteConv = FakeConversation('conv_1');
-      when(() => local.getCachedConversation('conv_1'))
-          .thenAnswer((_) async => null);
-      when(() => remote.getConversation('conv_1'))
-          .thenAnswer((_) async => remoteConv);
+      when(
+        () => local.getCachedConversation('conv_1'),
+      ).thenAnswer((_) async => null);
+      when(
+        () => remote.getConversation('conv_1'),
+      ).thenAnswer((_) async => remoteConv);
       when(() => local.cacheConversation(any())).thenAnswer((_) async {});
 
       final result = await repo.getConversationById('conv_1');
@@ -235,10 +270,12 @@ void main() {
     });
 
     test('returns failure when remote throws', () async {
-      when(() => local.getCachedConversation(any()))
-          .thenAnswer((_) async => null);
+      when(
+        () => local.getCachedConversation(any()),
+      ).thenAnswer((_) async => null);
       when(() => remote.getConversation(any())).thenThrow(
-          const RemoteDataSourceException(message: 'Not found', code: 'NF'));
+        const RemoteDataSourceException(message: 'Not found', code: 'NF'),
+      );
 
       final result = await repo.getConversationById('conv_1');
 

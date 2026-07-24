@@ -818,6 +818,39 @@ class TranslationsZh extends Translations {
   String get failedToLoadImage => '无法加载映像';
 
   @override
+  String get uploadFailed => '上传失败';
+
+  @override
+  String get tapToRetry => '点按重试';
+
+  @override
+  String get dropFilesHere => '将文件拖放到此处';
+
+  @override
+  String get attachmentCountLimit => '每条消息最多可附加 {limit} 个文件。';
+
+  @override
+  String get attachmentFileSizeLimit => '每个文件必须小于 {limit}。';
+
+  @override
+  String get fileListShowMore => '+{count} 项';
+
+  @override
+  String get fileListShowLess => '收起';
+
+  @override
+  String get searchImagesCount => '{count} 张图片';
+
+  @override
+  String get searchVideosCount => '{count} 个视频';
+
+  @override
+  String get searchAudiosCount => '{count} 个音频';
+
+  @override
+  String get searchFilesCount => '{count} 个文件';
+
+  @override
   String get transferOwnership => '转让所有权';
 
   @override
@@ -1221,8 +1254,7 @@ class TranslationsZh extends Translations {
   @override
   String get type => '输入';
   @override
-  String get createGroupEmptyString =>
-      '请在创建群组前填写所有必填字段。';
+  String get createGroupEmptyString => '请在创建群组前填写所有必填字段。';
   @override
   String get messageBlockedByModeration => '您的消息因审核政策而被屏蔽。';
 
@@ -1288,7 +1320,8 @@ class TranslationsZh extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";
@@ -2100,6 +2133,39 @@ class TranslationsZhTw extends TranslationsZh {
   String get failedToLoadImage => '無法載入影像';
 
   @override
+  String get uploadFailed => '上傳失敗';
+
+  @override
+  String get tapToRetry => '點按重試';
+
+  @override
+  String get dropFilesHere => '將檔案拖放到此處';
+
+  @override
+  String get attachmentCountLimit => '每則訊息最多可附加 {limit} 個檔案。';
+
+  @override
+  String get attachmentFileSizeLimit => '每個檔案必須小於 {limit}。';
+
+  @override
+  String get fileListShowMore => '+{count} 項';
+
+  @override
+  String get fileListShowLess => '收合';
+
+  @override
+  String get searchImagesCount => '{count} 張圖片';
+
+  @override
+  String get searchVideosCount => '{count} 個影片';
+
+  @override
+  String get searchAudiosCount => '{count} 個音訊';
+
+  @override
+  String get searchFilesCount => '{count} 個檔案';
+
+  @override
   String get transferOwnership => '移轉所有權';
 
   @override
@@ -2503,8 +2569,7 @@ class TranslationsZhTw extends TranslationsZh {
   @override
   String get type => '輸入';
   @override
-  String get createGroupEmptyString =>
-      '請在創建群組前填寫所有必填欄位。';
+  String get createGroupEmptyString => '請在創建群組前填寫所有必填欄位。';
   @override
   String get messageBlockedByModeration => '您的訊息因為管理政策被封鎖。';
 
@@ -2568,7 +2633,8 @@ class TranslationsZhTw extends TranslationsZh {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

@@ -7,10 +7,7 @@ class InitializeTextEvent extends TextBubbleEvent {
   final String? text;
   final List<dynamic>? formatters;
 
-  InitializeTextEvent({
-    this.text,
-    this.formatters,
-  });
+  InitializeTextEvent({this.text, this.formatters});
 }
 
 class UpdateTextEvent extends TextBubbleEvent {
@@ -40,11 +37,7 @@ abstract class TextBubbleBlocState {
 
 class TextBubbleInitial extends TextBubbleBlocState {
   const TextBubbleInitial()
-      : super(
-          text: '',
-          formatters: null,
-          isFormatted: false,
-        );
+    : super(text: '', formatters: null, isFormatted: false);
 }
 
 class TextBubbleLoaded extends TextBubbleBlocState {
@@ -79,10 +72,9 @@ class TextBubbleBloc extends Bloc<TextBubbleEvent, TextBubbleBlocState> {
     InitializeTextEvent event,
     Emitter<TextBubbleBlocState> emit,
   ) {
-    emit(TextBubbleLoaded(
-      text: event.text ?? '',
-      formatters: event.formatters,
-    ));
+    emit(
+      TextBubbleLoaded(text: event.text ?? '', formatters: event.formatters),
+    );
 
     // Apply formatters if available
     if (event.formatters != null && event.formatters!.isNotEmpty) {
@@ -90,19 +82,14 @@ class TextBubbleBloc extends Bloc<TextBubbleEvent, TextBubbleBlocState> {
     }
   }
 
-  void _onUpdateText(
-    UpdateTextEvent event,
-    Emitter<TextBubbleBlocState> emit,
-  ) {
+  void _onUpdateText(UpdateTextEvent event, Emitter<TextBubbleBlocState> emit) {
     if (state is TextBubbleLoaded) {
       final currentState = state as TextBubbleLoaded;
-      emit(currentState.copyWith(
-        text: event.text,
-        isFormatted: false,
-      ));
+      emit(currentState.copyWith(text: event.text, isFormatted: false));
 
       // Reapply formatters if available
-      if (currentState.formatters != null && currentState.formatters!.isNotEmpty) {
+      if (currentState.formatters != null &&
+          currentState.formatters!.isNotEmpty) {
         add(ApplyFormattersEvent());
       }
     }
@@ -115,7 +102,7 @@ class TextBubbleBloc extends Bloc<TextBubbleEvent, TextBubbleBlocState> {
     if (state is TextBubbleLoaded) {
       final currentState = state as TextBubbleLoaded;
       emit(currentState.copyWith(isFormatted: true));
-      
+
       // Actual formatting is done in the view layer using FormatterUtils
       // This event marks that formatters have been applied
     }

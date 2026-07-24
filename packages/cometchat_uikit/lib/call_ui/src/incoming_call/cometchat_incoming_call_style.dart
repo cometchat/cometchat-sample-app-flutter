@@ -3,7 +3,7 @@ import '../../../cometchat_chat_uikit.dart';
 import 'package:flutter/material.dart';
 
 /// [CometChatIncomingCallStyle] is a data class that has styling-related properties
-/// to customize the appearance of [CometChatIncomingCallScreen]
+/// to customize the appearance of [CometChatIncomingCall]
 ///
 /// ```dart
 /// CometChatIncomingCallStyle(
@@ -30,7 +30,7 @@ class CometChatIncomingCallStyle
     this.acceptTextStyle,
     this.declineTextColor,
     this.declineTextStyle,
-    this.callIconColor
+    this.callIconColor,
   });
 
   ///[titleTextStyle] is used to set the text style for the title.
@@ -97,7 +97,7 @@ class CometChatIncomingCallStyle
     TextStyle? acceptTextStyle,
     Color? acceptTextColor,
     Color? declineTextColor,
-    Color? callIconColor
+    Color? callIconColor,
   }) {
     return CometChatIncomingCallStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -114,7 +114,7 @@ class CometChatIncomingCallStyle
       declineTextColor: declineTextColor ?? this.declineTextColor,
       acceptTextStyle: acceptTextStyle ?? this.acceptTextStyle,
       declineTextStyle: declineTextStyle ?? this.declineTextStyle,
-      callIconColor: callIconColor ?? this.callIconColor
+      callIconColor: callIconColor ?? this.callIconColor,
     );
   }
 
@@ -135,38 +135,58 @@ class CometChatIncomingCallStyle
       declineTextColor: style.declineTextColor,
       acceptTextStyle: style.acceptTextStyle,
       declineTextStyle: style.declineTextStyle,
-      callIconColor: style.callIconColor
+      callIconColor: style.callIconColor,
     );
   }
 
   @override
   CometChatIncomingCallStyle lerp(
-      ThemeExtension<CometChatIncomingCallStyle>? other, double t) {
+    ThemeExtension<CometChatIncomingCallStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatIncomingCallStyle) {
       return this;
     }
     return CometChatIncomingCallStyle(
       titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
       titleColor: Color.lerp(titleColor, other.titleColor, t),
-      subtitleTextStyle:
-          TextStyle.lerp(subtitleTextStyle, other.subtitleTextStyle, t),
+      subtitleTextStyle: TextStyle.lerp(
+        subtitleTextStyle,
+        other.subtitleTextStyle,
+        t,
+      ),
       subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t),
       avatarStyle: avatarStyle?.lerp(other.avatarStyle, t),
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
-      declineButtonColor:
-          Color.lerp(declineButtonColor, other.declineButtonColor, t),
-      acceptButtonColor:
-          Color.lerp(acceptButtonColor, other.acceptButtonColor, t),
+      declineButtonColor: Color.lerp(
+        declineButtonColor,
+        other.declineButtonColor,
+        t,
+      ),
+      acceptButtonColor: Color.lerp(
+        acceptButtonColor,
+        other.acceptButtonColor,
+        t,
+      ),
       border: Border.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       acceptTextColor: Color.lerp(acceptTextColor, other.acceptTextColor, t),
       declineTextColor: Color.lerp(declineTextColor, other.declineTextColor, t),
-      acceptTextStyle:
-          TextStyle.lerp(acceptTextStyle, other.acceptTextStyle, t),
-      declineTextStyle:
-          TextStyle.lerp(declineTextStyle, other.declineTextStyle, t),
-      callIconColor: Color.lerp(callIconColor, other.callIconColor, t)
+      acceptTextStyle: TextStyle.lerp(
+        acceptTextStyle,
+        other.acceptTextStyle,
+        t,
+      ),
+      declineTextStyle: TextStyle.lerp(
+        declineTextStyle,
+        other.declineTextStyle,
+        t,
+      ),
+      callIconColor: Color.lerp(callIconColor, other.callIconColor, t),
     );
   }
 }

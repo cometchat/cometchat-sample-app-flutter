@@ -4,7 +4,7 @@ import '../../../../../resources/sound_manager.dart';
 
 /// Remote Data Source - Wraps the existing SoundManager
 /// This bridges the new clean architecture with existing code
-/// 
+///
 /// NOTE: SoundManager has limited capabilities - only play() and stop()
 /// are available on the actual implementation. Advanced features
 /// (pause, resume, seek, duration, position) are NOT supported by SoundManager
@@ -18,9 +18,7 @@ abstract class SoundRemoteDataSource {
   });
 
   /// Stop sound
-  Future<Result<void>> stopSound({
-    required String soundId,
-  });
+  Future<Result<void>> stopSound({required String soundId});
 }
 
 /// Implementation using existing SoundManager
@@ -39,14 +37,11 @@ class SoundRemoteDataSourceImpl implements SoundRemoteDataSource {
     try {
       // Convert filePath to Sound enum if it's a preset sound
       Sound? sound = _filePathToSound(filePath);
-      
+
       // Call existing SoundManager.play() method
       // Signature: play({required Sound sound, String? customSound, String? packageName, bool? isLooping})
       if (sound != null) {
-        _soundManager.play(
-          sound: sound,
-          isLooping: loop,
-        );
+        _soundManager.play(sound: sound, isLooping: loop);
       } else {
         // If not a preset sound, use as custom sound
         _soundManager.play(
@@ -94,7 +89,7 @@ class SoundRemoteDataSourceImpl implements SoundRemoteDataSource {
   /// Convert filePath to Sound enum if it matches a preset
   Sound? _filePathToSound(String filePath) {
     final lower = filePath.toLowerCase();
-    
+
     if (lower.contains('incoming') && lower.contains('message')) {
       return Sound.incomingMessage;
     } else if (lower.contains('outgoing') && lower.contains('message')) {
@@ -106,8 +101,7 @@ class SoundRemoteDataSourceImpl implements SoundRemoteDataSource {
     } else if (lower.contains('incoming') && lower.contains('other')) {
       return Sound.incomingMessageFromOther;
     }
-    
+
     return null;
   }
 }
-

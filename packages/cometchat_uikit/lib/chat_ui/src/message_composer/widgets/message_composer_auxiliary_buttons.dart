@@ -74,19 +74,19 @@ class _MessageComposerAuxiliaryButtonsState
       value: _isVisible ? 1.0 : 0.0,
     );
 
-    _sizeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _sizeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _opacityAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     // Slide from right (toward send button) when hiding
     _slideAnimation = Tween<Offset>(
       begin: const Offset(1.5, 0.0),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override
@@ -148,8 +148,9 @@ class _MessageComposerAuxiliaryButtonsState
                   child: FadeTransition(
                     opacity: _opacityAnimation,
                     child: Padding(
-                      padding:
-                          EdgeInsets.only(right: hasAuxOptions ? 12.0 : 0.0),
+                      padding: EdgeInsets.only(
+                        right: hasAuxOptions ? 12.0 : 0.0,
+                      ),
                       child: _buildVoiceRecordingButton(
                         effectiveColorPalette,
                         needsLeftMargin: false,
@@ -199,13 +200,12 @@ class _MessageComposerAuxiliaryButtonsState
       child: Container(
         height: 24,
         width: 24,
-        margin: needsLeftMargin
-            ? const EdgeInsets.only(left: 12)
-            : null,
+        margin: needsLeftMargin ? const EdgeInsets.only(left: 12) : null,
         child: IconButton(
           padding: const EdgeInsets.all(0),
           constraints: const BoxConstraints(),
-          icon: widget.voiceRecordingIcon ??
+          icon:
+              widget.voiceRecordingIcon ??
               Image.asset(
                 AssetConstants.microphone,
                 package: UIConstants.packageName,

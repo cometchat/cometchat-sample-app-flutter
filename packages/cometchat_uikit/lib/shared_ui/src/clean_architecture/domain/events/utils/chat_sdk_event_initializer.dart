@@ -57,7 +57,8 @@ class ChatSDKEventInitializer with MessageListener {
     if (message.category == MessageCategoryConstants.interactive) {
       interactiveMessage =
           InteractiveMessageUtils.getSpecificMessageFromInteractiveMessage(
-              message as InteractiveMessage);
+            message as InteractiveMessage,
+          );
     }
 
     CometChatMessageEvents.onMessageEdited(interactiveMessage ?? message);
@@ -70,7 +71,8 @@ class ChatSDKEventInitializer with MessageListener {
     if (message.category == MessageCategoryConstants.interactive) {
       interactiveMessage =
           InteractiveMessageUtils.getSpecificMessageFromInteractiveMessage(
-              message as InteractiveMessage);
+            message as InteractiveMessage,
+          );
     }
 
     CometChatMessageEvents.onMessageDeleted(interactiveMessage ?? message);
@@ -85,16 +87,20 @@ class ChatSDKEventInitializer with MessageListener {
   void onInteractiveMessageReceived(InteractiveMessage message) {
     if (message.type == MessageTypeConstants.form) {
       CometChatMessageEvents.onFormMessageReceived(
-          FormMessage.fromInteractiveMessage(message));
+        FormMessage.fromInteractiveMessage(message),
+      );
     } else if (message.type == MessageTypeConstants.card) {
       CometChatMessageEvents.onCardMessageReceived(
-          CardMessage.fromInteractiveMessage(message));
+        CardMessage.fromInteractiveMessage(message),
+      );
     } else if (message.type == MessageTypeConstants.scheduler) {
       CometChatMessageEvents.onSchedulerMessageReceived(
-          SchedulerMessage.fromInteractiveMessage(message));
+        SchedulerMessage.fromInteractiveMessage(message),
+      );
     } else {
       CometChatMessageEvents.onCustomInteractiveMessageReceived(
-          CustomInteractiveMessage.fromInteractiveMessage(message));
+        CustomInteractiveMessage.fromInteractiveMessage(message),
+      );
     }
   }
 

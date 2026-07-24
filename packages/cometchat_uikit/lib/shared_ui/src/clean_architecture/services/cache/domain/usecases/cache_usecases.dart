@@ -22,9 +22,7 @@ class GetCacheUseCase {
 
   GetCacheUseCase({required this.repository});
 
-  Future<Result<T?>> call<T>({
-    required String key,
-  }) {
+  Future<Result<T?>> call<T>({required String key}) {
     return repository.get(key: key);
   }
 }
@@ -35,9 +33,7 @@ class CheckCacheUseCase {
 
   CheckCacheUseCase({required this.repository});
 
-  Future<Result<bool>> call({
-    required String key,
-  }) {
+  Future<Result<bool>> call({required String key}) {
     return repository.exists(key: key);
   }
 }
@@ -48,9 +44,7 @@ class DeleteCacheUseCase {
 
   DeleteCacheUseCase({required this.repository});
 
-  Future<Result<void>> call({
-    required String key,
-  }) {
+  Future<Result<void>> call({required String key}) {
     return repository.delete(key: key);
   }
 }

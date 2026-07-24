@@ -74,7 +74,8 @@ class _GestureWaveformState extends State<GestureWaveform> {
         ? widget.amplitudes
         : WaveformUtils.ensureBarCount(widget.amplitudes, targetBarCount);
     _requestedWidth =
-        widget.width ?? _normalizedAmplitudes.length * (widget.barWidth + widget.barSpacing);
+        widget.width ??
+        _normalizedAmplitudes.length * (widget.barWidth + widget.barSpacing);
   }
 
   bool _listEquals(List<double> a, List<double> b) {

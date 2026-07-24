@@ -13,13 +13,9 @@ class AudioBubbleEvents {
   String toString() {
     return 'AudioBubbleEvents{id: $id, action: $action}';
   }
-
 }
 
-enum AudioBubbleActions {
-  pausePlayer,
-  stopPlayer,
-}
+enum AudioBubbleActions { pausePlayer, stopPlayer }
 
 ///[AudioBubbleStream] a singleton class to handle the audio bubble events stream
 class AudioBubbleStream {

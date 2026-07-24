@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../cometchat_uikit_shared.dart' show User, Group, UIConstants, Translations;
+import '../../../../cometchat_uikit_shared.dart'
+    show User, Group, UIConstants, Translations;
 import '../constants/asset_constants.dart';
 import '../../presentation/theme/theme/cometchat_theme_helper.dart';
 import '../../presentation/theme/colors/cometchat_color_palette.dart';
@@ -7,7 +8,7 @@ import '../../presentation/theme/typography/cometchat_typography.dart';
 import '../../presentation/theme/spacing/cometchat_spacing.dart';
 
 class UIStateUtils {
-  static getDefaultErrorStateView(
+  static Center getDefaultErrorStateView(
     BuildContext context,
     CometChatColorPalette colorPalette,
     CometChatTypography typography,
@@ -24,8 +25,8 @@ class UIStateUtils {
     Color? buttonBackgroundColor,
     BorderSide? buttonBorderSide,
     BorderRadiusGeometry? buttonBorderRadius,
-        User? user,
-        Group? group,
+    User? user,
+    Group? group,
   }) {
     return Center(
       child: SingleChildScrollView(
@@ -34,46 +35,45 @@ class UIStateUtils {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              AssetConstants(CometChatThemeHelper.getBrightness(context))
-                  .messagesError,
+              AssetConstants(
+                CometChatThemeHelper.getBrightness(context),
+              ).messagesError,
               package: UIConstants.packageName,
               height: 120,
               width: 120,
             ),
 
             const SizedBox(height: 20), // Space between the icon and title
-
             // Title Text
             Text(
               errorStateText ?? Translations.of(context).oops,
               style: TextStyle(
-                  fontSize: typography.heading3?.bold?.fontSize,
-                  fontWeight: typography.heading3?.bold?.fontWeight,
-                  color: errorStateTextColor ??
-                      colorPalette.textPrimary)
-                  .merge(errorStateTextStyle)
-              .copyWith(color: errorStateTextColor)
+                fontSize: typography.heading3?.bold?.fontSize,
+                fontWeight: typography.heading3?.bold?.fontWeight,
+                color: errorStateTextColor ?? colorPalette.textPrimary,
+              ).merge(errorStateTextStyle).copyWith(color: errorStateTextColor),
             ),
 
             const SizedBox(height: 4), // Space between the title and subtitle
-
             // Subtitle Text
             Text(
-            errorStateSubtitle ??"${Translations.of(context).looksLikeSomethingWrong}\n${Translations.of(context).pleaseTryAgain}.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: typography.body?.regular?.fontSize,
-                    fontWeight: typography.body?.regular?.fontWeight,
-                    color: errorStateSubtitleColor ??
-                        colorPalette.textSecondary)
-                    .merge(errorStateSubtitleStyle)
-            .copyWith(color: errorStateSubtitleColor)
+              errorStateSubtitle ??
+                  "${Translations.of(context).looksLikeSomethingWrong}\n${Translations.of(context).pleaseTryAgain}.",
+              textAlign: TextAlign.center,
+              style:
+                  TextStyle(
+                        fontSize: typography.body?.regular?.fontSize,
+                        fontWeight: typography.body?.regular?.fontWeight,
+                        color:
+                            errorStateSubtitleColor ??
+                            colorPalette.textSecondary,
+                      )
+                      .merge(errorStateSubtitleStyle)
+                      .copyWith(color: errorStateSubtitleColor),
             ),
 
             Padding(
-              padding: EdgeInsets.only(
-                top: spacing.padding5 ?? 20,
-              ),
+              padding: EdgeInsets.only(top: spacing.padding5 ?? 20),
               child: ElevatedButton(
                 onPressed: retryCallBack,
                 style: ElevatedButton.styleFrom(
@@ -85,7 +85,8 @@ class UIStateUtils {
                     vertical: spacing.padding2 ?? 8,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: buttonBorderRadius ??
+                    borderRadius:
+                        buttonBorderRadius ??
                         BorderRadius.circular(spacing.radius2 ?? 8),
                     side: buttonBorderSide ?? BorderSide.none,
                   ),
@@ -98,13 +99,7 @@ class UIStateUtils {
                       fontWeight: typography.button?.medium?.fontWeight,
                       fontFamily: typography.button?.medium?.fontFamily,
                       color: buttonTextColor ?? colorPalette.white,
-                    )
-                        .merge(
-                          buttonTextStyle,
-                        )
-                        .copyWith(
-                          color: buttonTextColor,
-                        ),
+                    ).merge(buttonTextStyle).copyWith(color: buttonTextColor),
                   ),
                 ),
               ),
@@ -115,21 +110,19 @@ class UIStateUtils {
     );
   }
 
-  static getDefaultEmptyStateView(
-      BuildContext context,
-      CometChatColorPalette colorPalette,
-      CometChatTypography typography,
-      CometChatSpacing spacing,
-      {
-        String? emptyStateText,
-        Color? emptyStateTextColor,
-        TextStyle? emptyStateTextStyle,
-        String? emptyStateSubtitle,
-        Color? emptyStateSubtitleColor,
-        TextStyle? emptyStateSubtitleStyle,
-        Widget? icon,
-      }
-      ){
+  static Center getDefaultEmptyStateView(
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatSpacing spacing, {
+    String? emptyStateText,
+    Color? emptyStateTextColor,
+    TextStyle? emptyStateTextStyle,
+    String? emptyStateSubtitle,
+    Color? emptyStateSubtitleColor,
+    TextStyle? emptyStateSubtitleStyle,
+    Widget? icon,
+  }) {
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: spacing.padding10 ?? 0),
@@ -146,26 +139,22 @@ class UIStateUtils {
                 fontSize: typography.heading3?.bold?.fontSize,
                 fontWeight: typography.heading3?.bold?.fontWeight,
                 fontFamily: typography.heading3?.bold?.fontFamily,
-              )
-                  .merge(emptyStateTextStyle)
-                  .copyWith(color: emptyStateTextColor),
+              ).merge(emptyStateTextStyle).copyWith(color: emptyStateTextColor),
             ),
             Text(
               emptyStateSubtitle ?? "",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: emptyStateSubtitleColor ??
-                    colorPalette.textSecondary,
-                fontSize: typography.body?.regular?.fontSize,
-                fontWeight: typography.body?.regular?.fontWeight,
-                fontFamily: typography.body?.regular?.fontFamily,
-              )
-                  .merge(
-                emptyStateSubtitleStyle,
-              )
-                  .copyWith(
-                color: emptyStateSubtitleColor,
-              ),
+              style:
+                  TextStyle(
+                        color:
+                            emptyStateSubtitleColor ??
+                            colorPalette.textSecondary,
+                        fontSize: typography.body?.regular?.fontSize,
+                        fontWeight: typography.body?.regular?.fontWeight,
+                        fontFamily: typography.body?.regular?.fontFamily,
+                      )
+                      .merge(emptyStateSubtitleStyle)
+                      .copyWith(color: emptyStateSubtitleColor),
             ),
           ],
         ),

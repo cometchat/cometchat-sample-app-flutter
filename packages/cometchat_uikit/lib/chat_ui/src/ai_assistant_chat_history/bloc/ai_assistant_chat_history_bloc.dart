@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 import '../../../../shared_ui/cometchat_uikit_shared.dart';
 import '../../shared/list_base.dart';
-import '../../message_list/utils/message_template_utils.dart';
 import '../di/ai_assistant_chat_history_service_locator.dart';
 import '../domain/usecases/usecases.dart';
 import 'ai_assistant_chat_history_event.dart';
@@ -51,8 +49,9 @@ class AIAssistantChatHistoryBloc
       'ai_chat_history_cc_msg_${DateTime.now().millisecondsSinceEpoch}';
 
   /// Sticky date notifier for scroll-based date header.
-  final ValueNotifier<DateTime?> stickyDateNotifier =
-      ValueNotifier<DateTime?>(null);
+  final ValueNotifier<DateTime?> stickyDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
 
   /// Custom date string for sticky header (from dateSeparatorPattern).
   String? stickyDateString;
@@ -72,17 +71,24 @@ class AIAssistantChatHistoryBloc
     this.user,
     this.group,
     this.messagesRequestBuilder,
-  })  : fetchChatHistoryUseCase = fetchChatHistoryUseCase ??
-            _getServiceLocator().fetchChatHistoryUseCase,
-        deleteChatHistoryMessageUseCase = deleteChatHistoryMessageUseCase ??
-            _getServiceLocator().deleteChatHistoryMessageUseCase,
-        getLoggedInUserUseCase = getLoggedInUserUseCase ??
-            _getServiceLocator().getLoggedInUserUseCase,
-        assert(user != null || group != null,
-            'One of user or group must be provided'),
-        assert(user == null || group == null,
-            'Only one of user or group should be provided'),
-        super(AIAssistantChatHistoryState()) {
+  }) : fetchChatHistoryUseCase =
+           fetchChatHistoryUseCase ??
+           _getServiceLocator().fetchChatHistoryUseCase,
+       deleteChatHistoryMessageUseCase =
+           deleteChatHistoryMessageUseCase ??
+           _getServiceLocator().deleteChatHistoryMessageUseCase,
+       getLoggedInUserUseCase =
+           getLoggedInUserUseCase ??
+           _getServiceLocator().getLoggedInUserUseCase,
+       assert(
+         user != null || group != null,
+         'One of user or group must be provided',
+       ),
+       assert(
+         user == null || group == null,
+         'Only one of user or group should be provided',
+       ),
+       super(AIAssistantChatHistoryState()) {
     // Build the messages request
     _messagesRequest = _buildMessagesRequest();
 
@@ -104,8 +110,7 @@ class AIAssistantChatHistoryBloc
   // ============================================================
 
   MessagesRequest _buildMessagesRequest() {
-    final builder =
-        messagesRequestBuilder ?? MessagesRequestBuilder();
+    final builder = messagesRequestBuilder ?? MessagesRequestBuilder();
 
     // Set default types/categories if not provided
     if (messagesRequestBuilder == null) {
@@ -163,31 +168,37 @@ class AIAssistantChatHistoryBloc
 
     result.fold(
       (failure) {
-        emit(state.copyWith(
-          status: AIAssistantChatHistoryStatus.error,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            status: AIAssistantChatHistoryStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
       },
       (messages) {
         if (messages.isEmpty) {
-          emit(state.copyWith(
-            status: AIAssistantChatHistoryStatus.empty,
-            messages: [],
-            hasMore: false,
-            loggedInUser: _loggedInUser,
-          ));
+          emit(
+            state.copyWith(
+              status: AIAssistantChatHistoryStatus.empty,
+              messages: [],
+              hasMore: false,
+              loggedInUser: _loggedInUser,
+            ),
+          );
         } else {
           // Reverse to show recent messages first
           final reversed = messages.reversed.toList();
           clearItems();
           addAllItems(reversed);
           _mapNeedsRebuild = true;
-          emit(state.copyWith(
-            status: AIAssistantChatHistoryStatus.loaded,
-            messages: items,
-            hasMore: messages.isNotEmpty,
-            loggedInUser: _loggedInUser,
-          ));
+          emit(
+            state.copyWith(
+              status: AIAssistantChatHistoryStatus.loaded,
+              messages: items,
+              hasMore: messages.isNotEmpty,
+              loggedInUser: _loggedInUser,
+            ),
+          );
         }
       },
     );
@@ -205,10 +216,9 @@ class AIAssistantChatHistoryBloc
 
     result.fold(
       (failure) {
-        emit(state.copyWith(
-          isLoadingMore: false,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(isLoadingMore: false, errorMessage: failure.message),
+        );
       },
       (messages) {
         if (messages.isEmpty) {
@@ -216,11 +226,13 @@ class AIAssistantChatHistoryBloc
         } else {
           addAllItems(messages);
           _mapNeedsRebuild = true;
-          emit(state.copyWith(
-            messages: items,
-            isLoadingMore: false,
-            hasMore: true,
-          ));
+          emit(
+            state.copyWith(
+              messages: items,
+              isLoadingMore: false,
+              hasMore: true,
+            ),
+          );
         }
       },
     );
@@ -237,7 +249,8 @@ class AIAssistantChatHistoryBloc
         // Deletion failed — no state change needed, caller can show error
         if (kDebugMode) {
           debugPrint(
-              'AIAssistantChatHistory: delete failed: ${failure.message}');
+            'AIAssistantChatHistory: delete failed: ${failure.message}',
+          );
         }
       },
       (updatedMessage) {
@@ -252,7 +265,9 @@ class AIAssistantChatHistoryBloc
 
         // Notify UI event system
         CometChatMessageEvents.ccMessageDeleted(
-            updatedMessage, EventStatus.success);
+          updatedMessage,
+          EventStatus.success,
+        );
       },
     );
   }
@@ -265,10 +280,12 @@ class AIAssistantChatHistoryBloc
 
     addItem(event.message);
     _mapNeedsRebuild = true;
-    emit(state.copyWith(
-      status: AIAssistantChatHistoryStatus.loaded,
-      messages: items,
-    ));
+    emit(
+      state.copyWith(
+        status: AIAssistantChatHistoryStatus.loaded,
+        messages: items,
+      ),
+    );
   }
 
   void _onMessageEdited(

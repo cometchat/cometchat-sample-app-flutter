@@ -116,7 +116,11 @@ class CometChatConversationListItemStyle {
       checkBoxStrokeColor: colorPalette.borderDefault,
       checkBoxBackgroundColor: Colors.transparent,
       checkBoxCheckedBackgroundColor: colorPalette.primary,
-      checkBoxSelectIcon: Icon(Icons.check, size: 14, color: colorPalette.white),
+      checkBoxSelectIcon: Icon(
+        Icons.check,
+        size: 14,
+        color: colorPalette.white,
+      ),
       checkBoxSelectIconTint: colorPalette.white,
       separatorColor: colorPalette.borderLight,
       separatorHeight: 1,
@@ -137,12 +141,15 @@ class CometChatConversationListItemStyle {
   }
 
   /// Merges this style with another style, with the other style taking precedence.
-  CometChatConversationListItemStyle merge(CometChatConversationListItemStyle? other) {
+  CometChatConversationListItemStyle merge(
+    CometChatConversationListItemStyle? other,
+  ) {
     if (other == null) return this;
 
     return CometChatConversationListItemStyle(
       backgroundColor: other.backgroundColor ?? backgroundColor,
-      selectedBackgroundColor: other.selectedBackgroundColor ?? selectedBackgroundColor,
+      selectedBackgroundColor:
+          other.selectedBackgroundColor ?? selectedBackgroundColor,
       titleTextColor: other.titleTextColor ?? titleTextColor,
       titleTextStyle: other.titleTextStyle ?? titleTextStyle,
       subtitleTextColor: other.subtitleTextColor ?? subtitleTextColor,
@@ -151,10 +158,14 @@ class CometChatConversationListItemStyle {
       checkBoxStrokeWidth: other.checkBoxStrokeWidth ?? checkBoxStrokeWidth,
       checkBoxBorderRadius: other.checkBoxBorderRadius ?? checkBoxBorderRadius,
       checkBoxStrokeColor: other.checkBoxStrokeColor ?? checkBoxStrokeColor,
-      checkBoxBackgroundColor: other.checkBoxBackgroundColor ?? checkBoxBackgroundColor,
-      checkBoxCheckedBackgroundColor: other.checkBoxCheckedBackgroundColor ?? checkBoxCheckedBackgroundColor,
+      checkBoxBackgroundColor:
+          other.checkBoxBackgroundColor ?? checkBoxBackgroundColor,
+      checkBoxCheckedBackgroundColor:
+          other.checkBoxCheckedBackgroundColor ??
+          checkBoxCheckedBackgroundColor,
       checkBoxSelectIcon: other.checkBoxSelectIcon ?? checkBoxSelectIcon,
-      checkBoxSelectIconTint: other.checkBoxSelectIconTint ?? checkBoxSelectIconTint,
+      checkBoxSelectIconTint:
+          other.checkBoxSelectIconTint ?? checkBoxSelectIconTint,
       separatorColor: other.separatorColor ?? separatorColor,
       separatorHeight: other.separatorHeight ?? separatorHeight,
       avatarStyle: other.avatarStyle ?? avatarStyle,
@@ -193,7 +204,8 @@ class CometChatConversationListItemStyle {
   }) {
     return CometChatConversationListItemStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
-      selectedBackgroundColor: selectedBackgroundColor ?? this.selectedBackgroundColor,
+      selectedBackgroundColor:
+          selectedBackgroundColor ?? this.selectedBackgroundColor,
       titleTextColor: titleTextColor ?? this.titleTextColor,
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
       subtitleTextColor: subtitleTextColor ?? this.subtitleTextColor,
@@ -202,10 +214,13 @@ class CometChatConversationListItemStyle {
       checkBoxStrokeWidth: checkBoxStrokeWidth ?? this.checkBoxStrokeWidth,
       checkBoxBorderRadius: checkBoxBorderRadius ?? this.checkBoxBorderRadius,
       checkBoxStrokeColor: checkBoxStrokeColor ?? this.checkBoxStrokeColor,
-      checkBoxBackgroundColor: checkBoxBackgroundColor ?? this.checkBoxBackgroundColor,
-      checkBoxCheckedBackgroundColor: checkBoxCheckedBackgroundColor ?? this.checkBoxCheckedBackgroundColor,
+      checkBoxBackgroundColor:
+          checkBoxBackgroundColor ?? this.checkBoxBackgroundColor,
+      checkBoxCheckedBackgroundColor:
+          checkBoxCheckedBackgroundColor ?? this.checkBoxCheckedBackgroundColor,
       checkBoxSelectIcon: checkBoxSelectIcon ?? this.checkBoxSelectIcon,
-      checkBoxSelectIconTint: checkBoxSelectIconTint ?? this.checkBoxSelectIconTint,
+      checkBoxSelectIconTint:
+          checkBoxSelectIconTint ?? this.checkBoxSelectIconTint,
       separatorColor: separatorColor ?? this.separatorColor,
       separatorHeight: separatorHeight ?? this.separatorHeight,
       avatarStyle: avatarStyle ?? this.avatarStyle,

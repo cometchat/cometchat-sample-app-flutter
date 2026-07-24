@@ -1,4 +1,6 @@
-import '../../../../../cometchat_uikit_shared.dart' show Utils, ModelFieldConstants;
+import '../../../../../cometchat_uikit_shared.dart'
+    show Utils, ModelFieldConstants;
+
 class OptionElement {
   OptionElement({required this.value, required this.label});
 

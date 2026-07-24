@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 // Hide the legacy CometChatMessageListStyle to avoid naming conflict
-import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' hide CometChatMessageListStyle;
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart'
+    hide CometChatMessageListStyle;
 
 import '../cometchat_message_list_style.dart';
-import 'cometchat_new_message_indicator.dart';
 
 // Re-export MessageItemBuilder from animated message list for convenience
 // (it's already defined there, so we don't duplicate it)
@@ -107,10 +107,10 @@ class CometChatMessageList extends StatefulWidget {
   // ============================================================
 
   /// Optional external [MessageListBloc] instance.
-  /// 
+  ///
   /// If provided, this bloc will be used instead of creating a new one internally.
   /// This allows for custom bloc implementations with overridden hooks.
-  /// 
+  ///
   /// When providing an external bloc, you are responsible for:
   /// - Initializing the bloc with proper configuration
   /// - Closing the bloc when no longer needed
@@ -121,20 +121,20 @@ class CometChatMessageList extends StatefulWidget {
   // ============================================================
 
   /// Custom builder for message items.
-  /// 
+  ///
   /// If provided, this builder will be used to create widgets for each message.
   /// If not provided, a default message bubble will be used.
-  /// 
+  ///
   /// **Validates: Requirements 13.1**
   final MessageItemBuilder? messageItemBuilder;
 
   /// Custom header view displayed above the message list.
-  /// 
+  ///
   /// **Validates: Requirements 13.2**
   final HeaderFooterBuilder? headerView;
 
   /// Custom footer view displayed below the message list.
-  /// 
+  ///
   /// **Validates: Requirements 13.2**
   final HeaderFooterBuilder? footerView;
 
@@ -143,23 +143,23 @@ class CometChatMessageList extends StatefulWidget {
   // ============================================================
 
   /// Custom view for empty state (no messages).
-  /// 
+  ///
   /// If not provided, a default empty state view will be shown.
-  /// 
+  ///
   /// **Validates: Requirements 13.3**
   final StateViewBuilder? emptyStateView;
 
   /// Custom view for error state.
-  /// 
+  ///
   /// If not provided, a default error state view will be shown.
-  /// 
+  ///
   /// **Validates: Requirements 13.4**
   final StateViewBuilder? errorStateView;
 
   /// Custom view for loading state.
-  /// 
+  ///
   /// If not provided, a default loading indicator will be shown.
-  /// 
+  ///
   /// **Validates: Requirements 13.5**
   final StateViewBuilder? loadingStateView;
 
@@ -325,11 +325,11 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
   late CometChatColorPalette _colorPalette;
   late CometChatTypography _typography;
   late CometChatSpacing _spacing;
-  
+
   /// Cached width to avoid MediaQuery in build()
   double _cachedMaxBubbleWidth = 300;
   bool _themeInitialized = false;
-  
+
   /// Track brightness to detect theme changes
   Brightness? _cachedBrightness;
 
@@ -349,11 +349,12 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    
+
     // Check if brightness has changed (dark mode toggle)
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
-    
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
+
     // Initialize theme on first run or when brightness changes
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
@@ -371,7 +372,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       context: context,
       defaultTheme: CometChatMessageListStyle.of,
     ).merge(widget.style);
-    
+
     // Cache width to avoid MediaQuery in build()
     _cachedMaxBubbleWidth = MediaQuery.sizeOf(context).width * 0.75;
   }
@@ -414,72 +415,79 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
 
     if (conversationWith != null) {
       if (widget.startFromUnreadMessages && widget.parentMessageId == null) {
-        _messageListBloc.add(LoadFromUnread(
-          conversationWith: conversationWith,
-          conversationType: conversationType,
-        ));
+        _messageListBloc.add(
+          LoadFromUnread(
+            conversationWith: conversationWith,
+            conversationType: conversationType,
+          ),
+        );
       } else {
-        _messageListBloc.add(LoadMessages(
-          conversationWith: conversationWith,
-          conversationType: conversationType,
-          parentMessageId: widget.parentMessageId,
-          types: widget.types,
-          categories: widget.categories,
-        ));
+        _messageListBloc.add(
+          LoadMessages(
+            conversationWith: conversationWith,
+            conversationType: conversationType,
+            parentMessageId: widget.parentMessageId,
+            types: widget.types,
+            categories: widget.categories,
+          ),
+        );
       }
     }
   }
 
   /// Subscribe to MessageListBloc operations stream and forward to AnimatedMessageListBloc
-  /// 
+  ///
   /// This bridges the gap between the Clean Architecture MessageListBloc and the
   /// AnimatedMessageListBloc that handles list animations.
-  /// 
+  ///
   /// **Validates: Requirements 10.6**
   void _subscribeToOperations() {
-    _operationsSubscription = _messageListBloc.operationsStream.listen((operation) {
+    _operationsSubscription = _messageListBloc.operationsStream.listen((
+      operation,
+    ) {
       // Forward operations to AnimatedMessageListBloc based on operation type
       switch (operation.type) {
         case MessageOperationType.insert:
           if (operation.message != null) {
-            _animatedBloc.add(InsertMessage(
-              operation.message!,
-              index: operation.index,
-              animated: operation.animated,
-            ));
+            _animatedBloc.add(
+              InsertMessage(
+                operation.message!,
+                index: operation.index,
+                animated: operation.animated,
+              ),
+            );
           }
           break;
         case MessageOperationType.insertAll:
           if (operation.messages != null && operation.messages!.isNotEmpty) {
-            _animatedBloc.add(InsertAllMessages(
-              operation.messages!,
-              index: operation.index,
-              animated: operation.animated,
-            ));
+            _animatedBloc.add(
+              InsertAllMessages(
+                operation.messages!,
+                index: operation.index,
+                animated: operation.animated,
+              ),
+            );
           }
           break;
         case MessageOperationType.update:
           if (operation.message != null && operation.oldMessage != null) {
-            _animatedBloc.add(UpdateMessage(
-              operation.oldMessage!,
-              operation.message!,
-            ));
+            _animatedBloc.add(
+              UpdateMessage(operation.oldMessage!, operation.message!),
+            );
           }
           break;
         case MessageOperationType.remove:
           if (operation.message != null) {
-            _animatedBloc.add(RemoveMessage(
-              operation.message!,
-              animated: operation.animated,
-            ));
+            _animatedBloc.add(
+              RemoveMessage(operation.message!, animated: operation.animated),
+            );
           }
           break;
         case MessageOperationType.set:
           if (operation.messages != null) {
-            _animatedBloc.add(SetMessages(
-              operation.messages!,
-              animated: operation.animated,
-            ));
+            _animatedBloc.add(
+              SetMessages(operation.messages!, animated: operation.animated),
+            );
           }
           break;
       }
@@ -490,10 +498,10 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
   void dispose() {
     // Cancel operations subscription
     _operationsSubscription?.cancel();
-    
+
     // Clear all audio states and release memory
     AudioStateManager().clearAll();
-    
+
     // Only close the bloc if we created it internally
     if (!_isExternalBloc) {
       _messageListBloc.close();
@@ -543,11 +551,13 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
   void _handleStateChanges(BuildContext context, MessageListState state) {
     // Handle error callback
     if (state.status == MessageListStatus.error && widget.onError != null) {
-      widget.onError!(CometChatException(
-        'MESSAGE_LIST_ERROR',
-        state.errorMessage ?? 'An error occurred',
-        state.errorMessage ?? 'An error occurred',
-      ));
+      widget.onError!(
+        CometChatException(
+          'MESSAGE_LIST_ERROR',
+          state.errorMessage ?? 'An error occurred',
+          state.errorMessage ?? 'An error occurred',
+        ),
+      );
     }
 
     // Handle load callback
@@ -580,7 +590,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
   }
 
   /// Build loading state view
-  /// 
+  ///
   /// **Validates: Requirements 13.5**
   Widget _buildLoadingState(BuildContext context) {
     if (widget.loadingStateView != null) {
@@ -588,14 +598,12 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
     }
 
     return Center(
-      child: CircularProgressIndicator(
-        color: _colorPalette.primary,
-      ),
+      child: CircularProgressIndicator(color: _colorPalette.primary),
     );
   }
 
   /// Build empty state view
-  /// 
+  ///
   /// **Validates: Requirements 13.3**
   Widget _buildEmptyState(BuildContext context) {
     if (widget.emptyStateView != null) {
@@ -615,7 +623,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
   }
 
   /// Build error state view
-  /// 
+  ///
   /// **Validates: Requirements 13.4**
   Widget _buildErrorState(BuildContext context, String? errorMessage) {
     if (widget.errorStateView != null) {
@@ -648,7 +656,9 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
               Text(
                 errorMessage,
                 style: TextStyle(
-                  color: _style.errorStateSubtitleColor ?? _colorPalette.textSecondary,
+                  color:
+                      _style.errorStateSubtitleColor ??
+                      _colorPalette.textSecondary,
                   fontSize: _typography.body?.regular?.fontSize,
                   fontWeight: _typography.body?.regular?.fontWeight,
                 ).merge(_style.errorStateSubtitleStyle),
@@ -691,10 +701,12 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       removeAnimationDuration: widget.removeAnimationDuration,
       scrollToEndAnimationDuration: widget.scrollToEndAnimationDuration,
       scrollToBottomAppearanceDelay: widget.scrollToBottomAppearanceDelay,
-      scrollToBottomAppearanceThreshold: widget.scrollToBottomAppearanceThreshold,
+      scrollToBottomAppearanceThreshold:
+          widget.scrollToBottomAppearanceThreshold,
       olderPaginationThreshold: widget.olderPaginationThreshold,
       newerPaginationThreshold: widget.newerPaginationThreshold,
-      shouldScrollToEndWhenSendingMessage: widget.shouldScrollToEndWhenSendingMessage,
+      shouldScrollToEndWhenSendingMessage:
+          widget.shouldScrollToEndWhenSendingMessage,
       shouldScrollToEndWhenAtBottom: widget.shouldScrollToEndWhenAtBottom,
       initialScrollToEndMode: widget.initialScrollToEndMode,
       topPadding: widget.topPadding,
@@ -704,7 +716,8 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
       physics: widget.physics,
       composerHeightNotifier: widget.composerHeightNotifier,
       loadMoreBuilder: widget.loadMoreBuilder,
-      scrollToBottomBuilder: widget.scrollToBottomBuilder ?? _defaultScrollToBottomBuilder,
+      scrollToBottomBuilder:
+          widget.scrollToBottomBuilder ?? _defaultScrollToBottomBuilder,
       loggedInUserId: state.loggedInUser?.uid,
       onLoadOlder: _handleLoadOlder,
       onLoadNewer: _handleLoadNewer,
@@ -744,18 +757,20 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
     final conversationType = widget.user != null ? 'user' : 'group';
 
     if (conversationWith != null) {
-      _messageListBloc.add(LoadMessages(
-        conversationWith: conversationWith,
-        conversationType: conversationType,
-        parentMessageId: widget.parentMessageId,
-        types: widget.types,
-        categories: widget.categories,
-      ));
+      _messageListBloc.add(
+        LoadMessages(
+          conversationWith: conversationWith,
+          conversationType: conversationType,
+          parentMessageId: widget.parentMessageId,
+          types: widget.types,
+          categories: widget.categories,
+        ),
+      );
     }
   }
 
   /// Build individual message item
-  /// 
+  ///
   /// **Validates: Requirements 13.1**
   Widget _buildMessageItem(
     BuildContext context,
@@ -823,17 +838,16 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
 
   /// Build default message bubble (placeholder)
   Widget _buildDefaultMessageBubble(BuildContext context, BaseMessage message) {
-    final isOutgoing = message.sender?.uid == _messageListBloc.state.loggedInUser?.uid;
+    final isOutgoing =
+        message.sender?.uid == _messageListBloc.state.loggedInUser?.uid;
 
     // Deleted messages always show the deleted bubble
     if (message.deletedAt != null) {
       return Align(
         alignment: isOutgoing ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
-          constraints: BoxConstraints(
-            maxWidth: _cachedMaxBubbleWidth,
-          ),
-          child: CometChatDeletedBubble(),
+          constraints: BoxConstraints(maxWidth: _cachedMaxBubbleWidth),
+          child: const CometChatDeletedBubble(),
         ),
       );
     }
@@ -841,22 +855,16 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
     return Align(
       alignment: isOutgoing ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        constraints: BoxConstraints(
-          maxWidth: _cachedMaxBubbleWidth,
-        ),
+        constraints: BoxConstraints(maxWidth: _cachedMaxBubbleWidth),
         padding: EdgeInsets.all(_spacing.padding3 ?? 12),
         decoration: BoxDecoration(
-          color: isOutgoing 
-              ? _colorPalette.primary 
-              : _colorPalette.background2,
+          color: isOutgoing ? _colorPalette.primary : _colorPalette.background2,
           borderRadius: BorderRadius.circular(_spacing.radius3 ?? 12),
         ),
         child: Text(
           message is TextMessage ? message.text : '[${message.type}]',
           style: TextStyle(
-            color: isOutgoing 
-                ? _colorPalette.white 
-                : _colorPalette.textPrimary,
+            color: isOutgoing ? _colorPalette.white : _colorPalette.textPrimary,
             fontSize: _typography.body?.regular?.fontSize,
           ),
         ),

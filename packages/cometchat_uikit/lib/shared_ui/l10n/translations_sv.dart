@@ -831,6 +831,41 @@ class TranslationsSv extends Translations {
   String get failedToLoadImage => 'Det gick inte att ladda bild';
 
   @override
+  String get uploadFailed => 'Uppladdningen misslyckades';
+
+  @override
+  String get tapToRetry => 'Tryck för att försöka igen';
+
+  @override
+  String get dropFilesHere => 'Släpp filer här';
+
+  @override
+  String get attachmentCountLimit =>
+      'Du kan bifoga upp till {limit} filer per meddelande.';
+
+  @override
+  String get attachmentFileSizeLimit =>
+      'Varje fil måste vara mindre än {limit}.';
+
+  @override
+  String get fileListShowMore => '+{count} till';
+
+  @override
+  String get fileListShowLess => 'Visa mindre';
+
+  @override
+  String get searchImagesCount => '{count} bilder';
+
+  @override
+  String get searchVideosCount => '{count} videor';
+
+  @override
+  String get searchAudiosCount => '{count} ljudfiler';
+
+  @override
+  String get searchFilesCount => '{count} filer';
+
+  @override
   String get transferOwnership => 'Överför äganderätt';
 
   @override
@@ -1240,28 +1275,35 @@ class TranslationsSv extends Translations {
   String get createGroupEmptyString =>
       'Fyll i alla obligatoriska fält innan du skapar en grupp.';
   @override
-  String get messageBlockedByModeration => 'Ditt meddelande blockerades på grund av modereringspolicyer.';
+  String get messageBlockedByModeration =>
+      'Ditt meddelande blockerades på grund av modereringspolicyer.';
 
   @override
-  String get cantSendMessageBlockedUser => "Kan inte skicka meddelande eftersom användaren är blockerad.";
+  String get cantSendMessageBlockedUser =>
+      "Kan inte skicka meddelande eftersom användaren är blockerad.";
 
   @override
-  String get cantSendMessageNotMember => "Du kan inte skicka meddelanden till den här gruppen eftersom du inte längre är medlem.";
+  String get cantSendMessageNotMember =>
+      "Du kan inte skicka meddelanden till den här gruppen eftersom du inte längre är medlem.";
 
   @override
-  String get youAreNoLongerPartOfThisGroup => 'Du är inte längre en del av den här gruppen.';
+  String get youAreNoLongerPartOfThisGroup =>
+      'Du är inte längre en del av den här gruppen.';
 
   @override
   String get busy => "Upptagen";
 
   @override
-  String get noConversationHistoryFound => "Ingen konversationshistorik hittades.";
+  String get noConversationHistoryFound =>
+      "Ingen konversationshistorik hittades.";
 
   @override
-  String get somethingWentWrongTryAgain => "Något gick fel hos oss. Vänligen försök igen.";
+  String get somethingWentWrongTryAgain =>
+      "Något gick fel hos oss. Vänligen försök igen.";
 
   @override
-  String get startChatByTappingNewChat => 'Starta en chatt genom att trycka på knappen "Ny chatt".';
+  String get startChatByTappingNewChat =>
+      'Starta en chatt genom att trycka på knappen "Ny chatt".';
 
   @override
   String get chatHistory => "Chattlogg";
@@ -1305,7 +1347,8 @@ class TranslationsSv extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

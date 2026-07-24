@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bloc_test/bloc_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
 
 import 'package:cometchat_chat_uikit/call_ui/src/incoming_call/bloc/incoming_call_event.dart';
@@ -386,29 +384,21 @@ void main() {
     });
 
     test('configuration accepts onDecline callback', () {
-      bool declineCalled = false;
       final config = CometChatIncomingCallConfiguration(
-        onDecline: (context, call) {
-          declineCalled = true;
-        },
+        onDecline: (context, call) {},
       );
       expect(config.onDecline, isNotNull);
     });
 
     test('configuration accepts onAccept callback', () {
-      bool acceptCalled = false;
       final config = CometChatIncomingCallConfiguration(
-        onAccept: (context, call) {
-          acceptCalled = true;
-        },
+        onAccept: (context, call) {},
       );
       expect(config.onAccept, isNotNull);
     });
 
     test('configuration accepts custom style', () {
-      final style = CometChatIncomingCallStyle(
-        backgroundColor: Colors.black,
-      );
+      final style = CometChatIncomingCallStyle(backgroundColor: Colors.black);
       final config = CometChatIncomingCallConfiguration(
         incomingCallStyle: style,
       );

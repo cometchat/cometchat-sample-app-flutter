@@ -45,9 +45,9 @@ class _CometChatAttachmentOptionSheetState
   Widget build(BuildContext context) {
     final actionSheetStyle =
         CometChatThemeHelper.getTheme<CometChatAttachmentOptionSheetStyle>(
-                context: context,
-                defaultTheme: CometChatAttachmentOptionSheetStyle.of)
-            .merge(widget.style);
+          context: context,
+          defaultTheme: CometChatAttachmentOptionSheetStyle.of,
+        ).merge(widget.style);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
     final typography = CometChatThemeHelper.getTypography(context);
@@ -61,28 +61,25 @@ class _CometChatAttachmentOptionSheetState
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
             border: actionSheetStyle.border,
-            borderRadius: actionSheetStyle.borderRadius ??
+            borderRadius:
+                actionSheetStyle.borderRadius ??
                 BorderRadius.vertical(
-                  top: Radius.circular(
-                    spacing.radius6 ?? 0,
-                  ),
+                  top: Radius.circular(spacing.radius6 ?? 0),
                 ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min, // Min size based on content
             children: [
               Container(
-                padding: EdgeInsets.only(
-                  top: spacing.padding3 ?? 0,
-                ),
+                padding: EdgeInsets.only(top: spacing.padding3 ?? 0),
                 decoration: BoxDecoration(
-                  color: actionSheetStyle.backgroundColor ??
+                  color:
+                      actionSheetStyle.backgroundColor ??
                       colorPalette.background1,
-                  borderRadius: actionSheetStyle.borderRadius ??
+                  borderRadius:
+                      actionSheetStyle.borderRadius ??
                       BorderRadius.vertical(
-                        top: Radius.circular(
-                          spacing.radius6 ?? 0,
-                        ),
+                        top: Radius.circular(spacing.radius6 ?? 0),
                       ),
                 ),
                 child: Center(
@@ -121,36 +118,53 @@ class _CometChatAttachmentOptionSheetState
                       selected: selectedIndex == index,
                       selectedTileColor:
                           widget.actionItems[index].style?.backgroundColor ??
-                              actionSheetStyle.backgroundColor ??
-                              colorPalette.background4,
+                          actionSheetStyle.backgroundColor ??
+                          colorPalette.background4,
                       minLeadingWidth: 0,
                       leading: widget.actionItems[index].icon,
-                      iconColor: widget.actionItems[index].style?.iconColor ??
+                      iconColor:
+                          widget.actionItems[index].style?.iconColor ??
                           actionSheetStyle.iconColor ??
                           colorPalette.iconSecondary,
                       tileColor:
                           widget.actionItems[index].style?.backgroundColor ??
-                              actionSheetStyle.backgroundColor ??
-                              colorPalette.background1,
+                          actionSheetStyle.backgroundColor ??
+                          colorPalette.background1,
                       title: Text(
                         widget.actionItems[index].title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: widget.actionItems[index].style?.titleColor ??
-                              actionSheetStyle.titleColor ??
-                              colorPalette.textPrimary,
-                          fontSize: typography.heading4?.regular?.fontSize,
-                          fontWeight: typography.heading4?.regular?.fontWeight,
-                          fontFamily: typography.heading4?.regular?.fontFamily,
-                        )
-                            .merge(
-                              widget.actionItems[index].style?.titleTextStyle ?? actionSheetStyle.titleTextStyle,
-                            )
-                            .copyWith(
-                              color:
-                                  widget.actionItems[index].style?.titleColor ?? actionSheetStyle.titleColor,
-                            ),
+                        style:
+                            TextStyle(
+                                  color:
+                                      widget
+                                          .actionItems[index]
+                                          .style
+                                          ?.titleColor ??
+                                      actionSheetStyle.titleColor ??
+                                      colorPalette.textPrimary,
+                                  fontSize:
+                                      typography.heading4?.regular?.fontSize,
+                                  fontWeight:
+                                      typography.heading4?.regular?.fontWeight,
+                                  fontFamily:
+                                      typography.heading4?.regular?.fontFamily,
+                                )
+                                .merge(
+                                  widget
+                                          .actionItems[index]
+                                          .style
+                                          ?.titleTextStyle ??
+                                      actionSheetStyle.titleTextStyle,
+                                )
+                                .copyWith(
+                                  color:
+                                      widget
+                                          .actionItems[index]
+                                          .style
+                                          ?.titleColor ??
+                                      actionSheetStyle.titleColor,
+                                ),
                       ),
                     );
                   },
@@ -198,9 +212,7 @@ Future<ActionItem?>? showCometChatAttachmentOptionSheet({
     context: context,
     isScrollControlled: true,
     isDismissible: true,
-    builder: (BuildContext context) => CometChatAttachmentOptionSheet(
-      actionItems: actionItems,
-      style: style,
-    ),
+    builder: (BuildContext context) =>
+        CometChatAttachmentOptionSheet(actionItems: actionItems, style: style),
   );
 }

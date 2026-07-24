@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../cometchat_uikit_shared.dart';
+
 class AIUtils {
-  static Widget getOnError(BuildContext context,
-      {Color? backgroundColor,
-      Color? shadowColor,
-      String? errorIconUrl,
-      String? errorIconPackageName,
-      String? errorStateText,
-      Color? errorIconTint,
-      TextStyle? errorTextStyle}) {
+  static Widget getOnError(
+    BuildContext context, {
+    Color? backgroundColor,
+    Color? shadowColor,
+    String? errorIconUrl,
+    String? errorIconPackageName,
+    String? errorStateText,
+    Color? errorIconTint,
+    TextStyle? errorTextStyle,
+  }) {
     return Chip(
       backgroundColor: backgroundColor,
       shadowColor: shadowColor,
@@ -19,9 +22,7 @@ class AIUtils {
             package: errorIconPackageName ?? UIConstants.packageName,
             color: errorIconTint,
           ),
-          const SizedBox(
-            width: 10,
-          ),
+          const SizedBox(width: 10),
           Text(
             errorStateText ?? Translations.of(context).somethingWentWrongError,
             style: errorTextStyle,
@@ -31,14 +32,16 @@ class AIUtils {
     );
   }
 
-  static Widget getEmptyView(BuildContext context,
-      {Color? backgroundColor,
-      Color? shadowColor,
-      String? emptyIconUrl,
-      String? emptyIconPackageName,
-      String? emptyStateText,
-      Color? emptyIconTint,
-      TextStyle? emptyTextStyle}) {
+  static Widget getEmptyView(
+    BuildContext context, {
+    Color? backgroundColor,
+    Color? shadowColor,
+    String? emptyIconUrl,
+    String? emptyIconPackageName,
+    String? emptyStateText,
+    Color? emptyIconTint,
+    TextStyle? emptyTextStyle,
+  }) {
     return Chip(
       backgroundColor: backgroundColor,
       shadowColor: shadowColor,
@@ -49,9 +52,7 @@ class AIUtils {
             package: emptyIconPackageName ?? UIConstants.packageName,
             color: emptyIconTint,
           ),
-          const SizedBox(
-            width: 10,
-          ),
+          const SizedBox(width: 10),
           Text(
             emptyStateText ?? Translations.of(context).noMessagesFound,
             style: emptyTextStyle,
@@ -61,16 +62,18 @@ class AIUtils {
     );
   }
 
-  static Widget getLoadingIndicator(BuildContext context,
-      {Color? backgroundColor,
-      Color? shadowColor,
-      String? loadingIconUrl,
-      String? loadingIconPackageName,
-      String? loadingStateText,
-      Color? loadingIconTint,
-      TextStyle? loadingTextStyle}) {
+  static Widget getLoadingIndicator(
+    BuildContext context, {
+    Color? backgroundColor,
+    Color? shadowColor,
+    String? loadingIconUrl,
+    String? loadingIconPackageName,
+    String? loadingStateText,
+    Color? loadingIconTint,
+    TextStyle? loadingTextStyle,
+  }) {
     return Chip(
-      backgroundColor: backgroundColor ,
+      backgroundColor: backgroundColor,
       shadowColor: shadowColor,
       label: Row(
         children: [
@@ -79,9 +82,7 @@ class AIUtils {
             package: loadingIconPackageName ?? UIConstants.packageName,
             color: loadingIconTint,
           ),
-          const SizedBox(
-            width: 10,
-          ),
+          const SizedBox(width: 10),
           Text(
             loadingStateText ?? Translations.of(context).generatingIceBreakers,
             style: loadingTextStyle,
@@ -91,21 +92,27 @@ class AIUtils {
     );
   }
 
-  static Widget getErrorText(BuildContext context, CometChatColorPalette colorPalette, CometChatTypography typography, CometChatSpacing spacing,
-      {String? errorStateText,
-      TextStyle? errorTextStyle,}) {
+  static Widget getErrorText(
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatSpacing spacing, {
+    String? errorStateText,
+    TextStyle? errorTextStyle,
+  }) {
     return Container(
       height: 116,
       alignment: Alignment.center,
       child: Text(
-          errorStateText ??"${Translations.of(context).looksLikeSomethingWrong}\n${Translations.of(context).pleaseTryAgain}.",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              fontSize: typography.body?.regular?.fontSize,
-              fontWeight: typography.body?.regular?.fontWeight,
-              fontFamily: typography.body?.regular?.fontFamily,
-              color: colorPalette.textSecondary)
-              .merge(errorTextStyle)
+        errorStateText ??
+            "${Translations.of(context).looksLikeSomethingWrong}\n${Translations.of(context).pleaseTryAgain}.",
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: typography.body?.regular?.fontSize,
+          fontWeight: typography.body?.regular?.fontWeight,
+          fontFamily: typography.body?.regular?.fontFamily,
+          color: colorPalette.textSecondary,
+        ).merge(errorTextStyle),
       ),
     );
   }

@@ -18,7 +18,7 @@ import 'package:url_launcher/url_launcher.dart';
 ///    ```
 class CometChatEmailFormatter extends CometChatTextFormatter {
   CometChatEmailFormatter({
-    String? trackingCharacter,
+    super.trackingCharacter,
     RegExp? pattern,
     super.showLoadingIndicator,
     super.onSearch,
@@ -30,10 +30,7 @@ class CometChatEmailFormatter extends CometChatTextFormatter {
     super.previousTextEventSink,
     super.user,
     super.group,
-  }) : super(
-          trackingCharacter: trackingCharacter,
-          pattern: pattern ?? RegExp(RegexConstants.emailRegexPattern),
-        );
+  }) : super(pattern: pattern ?? RegExp(RegexConstants.emailRegexPattern));
 
   @override
   void init() {
@@ -56,45 +53,65 @@ class CometChatEmailFormatter extends CometChatTextFormatter {
 
   @override
   TextStyle getMessageBubbleTextStyle(
-      BuildContext context, BubbleAlignment? alignment,
-      {bool forConversation = false}) {
+    BuildContext context,
+    BubbleAlignment? alignment, {
+    bool forConversation = false,
+  }) {
     if (messageBubbleTextStyle != null) {
-      return messageBubbleTextStyle!(context, alignment,
-          forConversation: forConversation);
+      return messageBubbleTextStyle!(
+        context,
+        alignment,
+        forConversation: forConversation,
+      );
     } else {
-      CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(context);
-      CometChatTypography typography = CometChatThemeHelper.getTypography(context);
+      CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(
+        context,
+      );
+      CometChatTypography typography = CometChatThemeHelper.getTypography(
+        context,
+      );
       return TextStyle(
-          color: alignment == BubbleAlignment.right
-              ?colorPalette.white
-              : colorPalette.neutral900,
-          fontWeight: typography.body?.regular?.fontWeight,
-          fontSize: typography.body?.regular?.fontSize,
-          fontFamily: typography.body?.regular?.fontFamily,
-          decoration: TextDecoration.underline);
+        color: alignment == BubbleAlignment.right
+            ? colorPalette.white
+            : colorPalette.neutral900,
+        fontWeight: typography.body?.regular?.fontWeight,
+        fontSize: typography.body?.regular?.fontSize,
+        fontFamily: typography.body?.regular?.fontFamily,
+        decoration: TextDecoration.underline,
+      );
     }
   }
 
   @override
   void onChange(
-      TextEditingController textEditingController, String previousText) {
+    TextEditingController textEditingController,
+    String previousText,
+  ) {
     // TODO: implement onChange
   }
 
   @override
   List<AttributedText> getAttributedText(
-      String text, BuildContext context, BubbleAlignment? alignment,
-      {List<AttributedText>? existingAttributes,
-      Function(String)? onTap,
-      bool forConversation = false}) {
-    return super.getAttributedText(text, context, alignment,
-        existingAttributes: existingAttributes,
-        onTap: onTap ??
-            (text) async {
-              if (pattern != null && pattern!.hasMatch(text)) {
-                await launchUrl(Uri.parse(('mailto:$text')));
-              }
-            },
-        forConversation: forConversation);
+    String text,
+    BuildContext context,
+    BubbleAlignment? alignment, {
+    List<AttributedText>? existingAttributes,
+    Function(String)? onTap,
+    bool forConversation = false,
+  }) {
+    return super.getAttributedText(
+      text,
+      context,
+      alignment,
+      existingAttributes: existingAttributes,
+      onTap:
+          onTap ??
+          (text) async {
+            if (pattern != null && pattern!.hasMatch(text)) {
+              await launchUrl(Uri.parse(('mailto:$text')));
+            }
+          },
+      forConversation: forConversation,
+    );
   }
 }

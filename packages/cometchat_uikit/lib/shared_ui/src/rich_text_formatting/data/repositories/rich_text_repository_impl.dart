@@ -85,10 +85,7 @@ class RichTextRepositoryImpl implements RichTextRepository {
             code: 'MISSING_LINK_DATA',
           );
         }
-        metadata = {
-          'url': linkData.url,
-          'displayText': linkData.displayText,
-        };
+        metadata = {'url': linkData.url, 'displayText': linkData.displayText};
       }
 
       // Apply the format using the data source
@@ -191,10 +188,7 @@ class RichTextRepositoryImpl implements RichTextRepository {
             final displayText = match.group(1);
             final url = match.group(2);
             if (displayText != null && url != null) {
-              metadata = {
-                'url': url,
-                'displayText': displayText,
-              };
+              metadata = {'url': url, 'displayText': displayText};
             }
           }
 
@@ -301,9 +295,11 @@ class RichTextRepositoryImpl implements RichTextRepository {
     final codeBlockFormatter = _formatters[FormatType.codeBlock];
     final blockquoteFormatter = _formatters[FormatType.blockquote];
 
-    final codeBlockActive = codeBlockFormatter != null &&
+    final codeBlockActive =
+        codeBlockFormatter != null &&
         _isFormatActiveInRange(codeBlockFormatter, text, selection);
-    final blockquoteActive = blockquoteFormatter != null &&
+    final blockquoteActive =
+        blockquoteFormatter != null &&
         _isFormatActiveInRange(blockquoteFormatter, text, selection);
 
     // Case 1: Applying list (bullet/ordered) over code block → strip code block
@@ -362,7 +358,8 @@ class RichTextRepositoryImpl implements RichTextRepository {
         final contentEnd = match.end - closeMarker.length;
         final innerContent = text.substring(contentStart, contentEnd);
 
-        final newText = text.substring(0, match.start) +
+        final newText =
+            text.substring(0, match.start) +
             innerContent +
             text.substring(match.end);
 
@@ -414,8 +411,14 @@ class RichTextRepositoryImpl implements RichTextRepository {
     }
 
     final newText = lines.join('\n');
-    final newStart = (selection.start - removedBeforeStart).clamp(0, newText.length);
-    final newEnd = (selection.end - removedTotal).clamp(newStart, newText.length);
+    final newStart = (selection.start - removedBeforeStart).clamp(
+      0,
+      newText.length,
+    );
+    final newEnd = (selection.end - removedTotal).clamp(
+      newStart,
+      newText.length,
+    );
 
     return _ResolvedText(
       newText: newText,
@@ -461,10 +464,13 @@ class RichTextRepositoryImpl implements RichTextRepository {
     if (activeFormats.isEmpty) return null;
 
     // Use FormatCompatibility to determine if the requested format is blocked
-    final disabledFormats = FormatCompatibility.getDisabledFormats(activeFormats);
+    final disabledFormats = FormatCompatibility.getDisabledFormats(
+      activeFormats,
+    );
     if (disabledFormats.contains(formatType)) {
       return Failure(
-        message: 'Cannot apply $formatType: incompatible with active formats $activeFormats',
+        message:
+            'Cannot apply $formatType: incompatible with active formats $activeFormats',
         code: 'FORMAT_CONFLICT',
       );
     }
@@ -478,8 +484,5 @@ class _ResolvedText {
   final String newText;
   final TextSelection newSelection;
 
-  const _ResolvedText({
-    required this.newText,
-    required this.newSelection,
-  });
+  const _ResolvedText({required this.newText, required this.newSelection});
 }

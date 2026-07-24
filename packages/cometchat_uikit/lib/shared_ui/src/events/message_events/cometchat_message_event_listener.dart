@@ -1,6 +1,6 @@
 import '../../../cometchat_uikit_shared.dart' hide CardMessage;
 import '../../clean_architecture/data/models/interactive_message/card_message.dart';
-import '../../clean_architecture/core/constants/enums.dart' as CoreEnums;
+import '../../clean_architecture/core/constants/enums.dart' as core_enums;
 
 ///Listener class for [CometChatMessages]
 
@@ -9,7 +9,10 @@ enum LiveReactionType { liveReaction }
 mixin CometChatMessageEventListener implements UIEventHandler {
   //---composer events---
   //event for message sent by logged-in user
-  void ccMessageSent(BaseMessage message, CoreEnums.MessageStatus messageStatus) {}
+  void ccMessageSent(
+    BaseMessage message,
+    core_enums.MessageStatus messageStatus,
+  ) {}
 
   //---message list events---
   //event for message edited by logged-in user
@@ -25,8 +28,12 @@ mixin CometChatMessageEventListener implements UIEventHandler {
   void ccLiveReaction(String reaction) {}
 
   //event for forwarding message by logged-in user
-  void ccMessageForwarded(BaseMessage message, List<User>? usersSent,
-      List<Group>? groupsSent, CoreEnums.MessageStatus status) {}
+  void ccMessageForwarded(
+    BaseMessage message,
+    List<User>? usersSent,
+    List<Group>? groupsSent,
+    core_enums.MessageStatus status,
+  ) {}
 
   //event for forwarding message by logged-in user
   void onTextMessageReceived(TextMessage textMessage) {}
@@ -66,7 +73,8 @@ mixin CometChatMessageEventListener implements UIEventHandler {
 
   //event for forwarding message by logged-in user
   void onCustomInteractiveMessageReceived(
-      CustomInteractiveMessage customInteractiveMessage) {}
+    CustomInteractiveMessage customInteractiveMessage,
+  ) {}
 
   //event for completion of interaction goals
   void onInteractionGoalCompleted(InteractionReceipt receipt) {}

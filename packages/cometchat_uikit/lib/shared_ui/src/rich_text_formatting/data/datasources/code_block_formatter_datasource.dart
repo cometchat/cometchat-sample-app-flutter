@@ -44,7 +44,8 @@ class CodeBlockFormatterDataSource implements FormatterDataSource {
     if (selection.isCollapsed) {
       // No selection - insert placeholder with markers
       final insertText = '$openingMarker$placeholderText$closingMarker';
-      final newText = text.substring(0, selection.start) +
+      final newText =
+          text.substring(0, selection.start) +
           insertText +
           text.substring(selection.end);
 
@@ -67,12 +68,17 @@ class CodeBlockFormatterDataSource implements FormatterDataSource {
         final selectedText = text.substring(selection.start, selection.end);
 
         // Strip mention syntax (@displayName → displayName) within the selection
-        final strippedResult = _stripMentions(selectedText, selection.start, metadata);
+        final strippedResult = _stripMentions(
+          selectedText,
+          selection.start,
+          metadata,
+        );
         final processedText = strippedResult.text;
         final preservedMentions = strippedResult.preservedMentions;
 
         final wrappedText = '$openingMarker$processedText$closingMarker';
-        final newText = text.substring(0, selection.start) +
+        final newText =
+            text.substring(0, selection.start) +
             wrappedText +
             text.substring(selection.end);
 
@@ -119,9 +125,7 @@ class CodeBlockFormatterDataSource implements FormatterDataSource {
         AttributedTextData(
           start: match.start,
           end: match.end,
-          attributes: {
-            'codeBlock': true,
-          },
+          attributes: {'codeBlock': true},
         ),
       );
     }
@@ -155,10 +159,14 @@ class CodeBlockFormatterDataSource implements FormatterDataSource {
 
         // Restore mentions from preserved data if available (Bug 1.18)
         if (metadata != null && metadata.containsKey('preservedMentions')) {
-          innerText = _restoreMentions(innerText, metadata['preservedMentions']);
+          innerText = _restoreMentions(
+            innerText,
+            metadata['preservedMentions'],
+          );
         }
 
-        final newText = text.substring(0, match.start) +
+        final newText =
+            text.substring(0, match.start) +
             innerText +
             text.substring(match.end);
 
@@ -206,9 +214,7 @@ class CodeBlockFormatterDataSource implements FormatterDataSource {
   String _restoreMentions(String text, dynamic preservedMentionsData) {
     if (preservedMentionsData is! List) return text;
 
-    final mentions = preservedMentionsData
-        .cast<Map<String, dynamic>>()
-        .toList()
+    final mentions = preservedMentionsData.cast<Map<String, dynamic>>().toList()
       // Sort in reverse order so offset adjustments don't affect later mentions
       ..sort((a, b) => (b['start'] as int).compareTo(a['start'] as int));
 
@@ -220,7 +226,8 @@ class CodeBlockFormatterDataSource implements FormatterDataSource {
       // Find the display name in the text and restore the @ prefix
       final index = result.indexOf(name);
       if (index != -1) {
-        result = '${result.substring(0, index)}@$name${result.substring(index + name.length)}';
+        result =
+            '${result.substring(0, index)}@$name${result.substring(index + name.length)}';
       }
     }
     return result;
@@ -246,9 +253,7 @@ class CodeBlockFormatterDataSource implements FormatterDataSource {
       var processedText = selectedText;
       var offset = 0;
 
-      final sortedRanges = ranges
-          .cast<Map<String, dynamic>>()
-          .toList()
+      final sortedRanges = ranges.cast<Map<String, dynamic>>().toList()
         ..sort((a, b) => (a['start'] as int).compareTo(b['start'] as int));
 
       for (final range in sortedRanges) {
@@ -258,10 +263,14 @@ class CodeBlockFormatterDataSource implements FormatterDataSource {
         final name = range['name'] as String?;
 
         if (mStart + offset >= 0 && mEnd + offset <= processedText.length) {
-          final mentionText = processedText.substring(mStart + offset, mEnd + offset);
+          final mentionText = processedText.substring(
+            mStart + offset,
+            mEnd + offset,
+          );
           if (mentionText.startsWith('@')) {
             final plainName = mentionText.substring(1);
-            processedText = processedText.substring(0, mStart + offset) +
+            processedText =
+                processedText.substring(0, mStart + offset) +
                 plainName +
                 processedText.substring(mEnd + offset);
 
@@ -277,7 +286,10 @@ class CodeBlockFormatterDataSource implements FormatterDataSource {
         }
       }
 
-      return _StripMentionsResult(text: processedText, preservedMentions: preservedMentions);
+      return _StripMentionsResult(
+        text: processedText,
+        preservedMentions: preservedMentions,
+      );
     }
 
     // Fallback: regex-based detection of @mention patterns
@@ -296,14 +308,18 @@ class CodeBlockFormatterDataSource implements FormatterDataSource {
         'name': displayName,
       });
 
-      processedText = processedText.substring(0, adjustedStart) +
+      processedText =
+          processedText.substring(0, adjustedStart) +
           displayName +
           processedText.substring(adjustedStart + match.group(0)!.length);
 
       offset -= 1; // Removed one '@' character
     }
 
-    return _StripMentionsResult(text: processedText, preservedMentions: preservedMentions);
+    return _StripMentionsResult(
+      text: processedText,
+      preservedMentions: preservedMentions,
+    );
   }
 
   /// Handle Enter key press inside code block.
@@ -330,9 +346,8 @@ class CodeBlockFormatterDataSource implements FormatterDataSource {
       // Check if cursor is inside the code block content
       if (position >= contentStart && position <= contentEnd) {
         // Insert newline at cursor position
-        final newText = text.substring(0, position) +
-            '\n' +
-            text.substring(position);
+        final newText =
+            '${text.substring(0, position)}\n${text.substring(position)}';
 
         final newCursorPos = position + 1;
 

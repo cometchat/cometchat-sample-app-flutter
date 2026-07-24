@@ -18,17 +18,18 @@ import '../../cometchat_uikit_shared.dart';
 /// ```
 
 class CometChatMessageTemplate {
-  CometChatMessageTemplate(
-      {required this.type,
-      required this.category,
-      this.bubbleView,
-      this.options,
-      this.headerView,
-      this.footerView,
-      this.contentView,
-      this.bottomView,
-      this.threadView,
-      this.statusInfoView});
+  CometChatMessageTemplate({
+    required this.type,
+    required this.category,
+    this.bubbleView,
+    this.options,
+    this.headerView,
+    this.footerView,
+    this.contentView,
+    this.bottomView,
+    this.threadView,
+    this.statusInfoView,
+  });
 
   ///[type] of the message
   String type;
@@ -38,39 +39,46 @@ class CometChatMessageTemplate {
 
   ///[bubbleView] widget to be shown in the center of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      bubbleView;
+  bubbleView;
 
   ///[headerView] widget to be shown on the top of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      headerView;
+  headerView;
 
   ///[footerView] widget to be shown under the [bottomView] of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      footerView;
+  footerView;
 
   ///[contentView] widget to be shown in the center of the bubble
-  Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment,
-      {AdditionalConfigurations? additionalConfigurations})? contentView;
+  Widget? Function(
+    BaseMessage,
+    BuildContext,
+    BubbleAlignment alignment, {
+    AdditionalConfigurations? additionalConfigurations,
+  })?
+  contentView;
 
   ///[options] list of options to be shown on the message bubble
   List<CometChatMessageOption>? Function(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
-      AdditionalConfigurations? additionalConfigurations)? options;
+    User loggedInUser,
+    BaseMessage messageObject,
+    BuildContext context,
+    Group? group,
+    AdditionalConfigurations? additionalConfigurations,
+  )?
+  options;
 
   ///[bottomView] widget to be shown under the [statusInfoView] of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      bottomView;
+  bottomView;
 
   ///[statusInfoView] widget to be shown under the [contentView] of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      statusInfoView;
+  statusInfoView;
 
   ///[threadView] widget to be shown at the bottom of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      threadView;
+  threadView;
 
   @override
   String toString() {

@@ -28,14 +28,10 @@ abstract class NotificationRepository {
   });
 
   /// Mark notification as read
-  Future<Result<void>> markAsRead({
-    required String notificationId,
-  });
+  Future<Result<void>> markAsRead({required String notificationId});
 
   /// Delete a notification
-  Future<Result<void>> deleteNotification({
-    required String notificationId,
-  });
+  Future<Result<void>> deleteNotification({required String notificationId});
 
   /// Clear all notifications
   Future<Result<void>> clearAll();

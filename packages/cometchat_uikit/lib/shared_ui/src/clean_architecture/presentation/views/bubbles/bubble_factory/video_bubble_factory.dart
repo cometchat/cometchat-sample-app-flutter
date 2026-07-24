@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../core/constants/enums.dart';
 import '../../../../core/utils/thumbnail_extraction_util.dart';
 import '../../../theme/colors/cometchat_color_palette.dart';
@@ -34,8 +34,9 @@ class VideoBubbleFactory extends BubbleFactory<MediaMessage> {
     CometChatTypography? typography,
     CometChatSpacing? spacing,
   }) {
-    final thumbnailUrl =
-        ThumbnailExtractionUtil.extractFromMetadata(message.metadata);
+    final thumbnailUrl = ThumbnailExtractionUtil.extractFromMetadata(
+      message.metadata,
+    );
 
     return CometChatVideoBubble(
       videoUrl: message.attachment?.fileUrl,

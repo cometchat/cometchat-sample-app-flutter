@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Exception thrown when remote data source operations fail
 class CallLogsRemoteDataSourceException implements Exception {
@@ -102,8 +102,7 @@ class CallLogsRemoteDataSourceImpl implements CallLogsRemoteDataSource {
           if (!completer.isCompleted) {
             completer.completeError(
               CallLogsRemoteDataSourceException(
-                message:
-                    exception.message ?? 'Failed to get logged-in user',
+                message: exception.message ?? 'Failed to get logged-in user',
                 code: exception.code,
                 originalException: exception,
               ),
@@ -154,8 +153,7 @@ class CallLogsRemoteDataSourceImpl implements CallLogsRemoteDataSource {
       rethrow;
     } catch (e) {
       throw CallLogsRemoteDataSourceException(
-        message:
-            'Unexpected error while initiating call: ${e.toString()}',
+        message: 'Unexpected error while initiating call: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -167,8 +165,7 @@ class CallLogsRemoteDataSourceImpl implements CallLogsRemoteDataSource {
       return await CometChat.getUserAuthToken();
     } catch (e) {
       throw CallLogsRemoteDataSourceException(
-        message:
-            'Failed to get user auth token: ${e.toString()}',
+        message: 'Failed to get user auth token: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }

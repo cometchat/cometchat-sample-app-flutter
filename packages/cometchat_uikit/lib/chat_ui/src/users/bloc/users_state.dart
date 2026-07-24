@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Base class for users states
 /// Uses Equatable for proper state comparison in BLoC
@@ -40,12 +40,12 @@ class UsersLoaded extends UsersState {
 
   @override
   List<Object?> get props => [
-        users,
-        hasMore,
-        selectedUsers,
-        isLoadingMore,
-        searchKeyword,
-      ];
+    users,
+    hasMore,
+    selectedUsers,
+    isLoadingMore,
+    searchKeyword,
+  ];
 
   /// Create a copy of this state with updated fields
   UsersLoaded copyWith({
@@ -75,10 +75,7 @@ class UsersError extends UsersState {
   final String message;
   final List<User>? previousUsers;
 
-  const UsersError({
-    required this.message,
-    this.previousUsers,
-  });
+  const UsersError({required this.message, this.previousUsers});
 
   @override
   List<Object?> get props => [message, previousUsers];

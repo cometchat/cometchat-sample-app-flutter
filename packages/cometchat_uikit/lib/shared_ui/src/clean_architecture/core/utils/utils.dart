@@ -22,6 +22,10 @@ export 'action_element_utils.dart';
 export 'emoji_utils.dart';
 export 'moderation_check_util.dart';
 export 'thumbnail_extraction_util.dart';
+export 'attachment_utils.dart';
+export 'file_type_styles.dart';
+export 'attachment_svg_icons.dart';
+export 'media_duration_cache.dart';
 
 // Misc utilities
 export 'audio_bubble_events.dart';

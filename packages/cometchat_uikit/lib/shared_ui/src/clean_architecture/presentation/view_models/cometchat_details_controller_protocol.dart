@@ -1,23 +1,29 @@
 import '../../../../cometchat_uikit_shared.dart';
 
 abstract class CometChatDetailsControllerProtocol {
-  int updateOption(String templateId, String oldOptionID,
-      CometChatDetailsOption updatedOption);
+  int updateOption(
+    String templateId,
+    String oldOptionID,
+    CometChatDetailsOption updatedOption,
+  );
 
   int removeOption(String templateId, String optionId);
 
-  int addOption(String templateId, CometChatDetailsOption newOption,
-      {int? position});
+  int addOption(
+    String templateId,
+    CometChatDetailsOption newOption, {
+    int? position,
+  });
 
-  useOption(CometChatDetailsOption option, String sectionId);
+  void useOption(CometChatDetailsOption option, String sectionId);
 
-  onAddMemberClicked(Group group);
+  void onAddMemberClicked(Group group);
 
-  onTransferOwnershipClicked(Group group);
+  void onTransferOwnershipClicked(Group group);
 
-  onBanMemberClicked(Group group);
+  void onBanMemberClicked(Group group);
 
-  onViewMemberClicked(Group group);
+  void onViewMemberClicked(Group group);
 
   List<CometChatDetailsTemplate> getDetailsTemplateList();
 

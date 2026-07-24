@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Base class for all groups events
 /// Uses Equatable for proper event comparison in BLoC
@@ -223,12 +223,12 @@ class GroupMemberScopeChanged extends GroupsEvent {
 
   @override
   List<Object> get props => [
-        action,
-        updatedUser,
-        scopeChangedTo,
-        scopeChangedFrom,
-        group,
-      ];
+    action,
+    updatedUser,
+    scopeChangedTo,
+    scopeChangedFrom,
+    group,
+  ];
 }
 
 /// Event triggered when group ownership is transferred

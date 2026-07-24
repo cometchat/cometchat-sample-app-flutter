@@ -51,9 +51,9 @@ class FakeBaseMessage extends Fake implements BaseMessage {
   final User? _sender;
 
   FakeBaseMessage({User? receiver, Group? groupReceiver, User? sender})
-      : _receiver = receiver,
-        _groupReceiver = groupReceiver,
-        _sender = sender;
+    : _receiver = receiver,
+      _groupReceiver = groupReceiver,
+      _sender = sender;
 
   @override
   int get id => 42;
@@ -62,12 +62,10 @@ class FakeBaseMessage extends Fake implements BaseMessage {
   AppEntity? get receiver => _groupReceiver ?? _receiver;
 
   @override
-  String get receiverType =>
-      _groupReceiver != null ? 'group' : 'user';
+  String get receiverType => _groupReceiver != null ? 'group' : 'user';
 
   @override
-  String get receiverUid =>
-      _groupReceiver?.guid ?? (_receiver as User?)?.uid ?? '';
+  String get receiverUid => _groupReceiver?.guid ?? (_receiver)?.uid ?? '';
 
   @override
   User? get sender => _sender ?? FakeUser('sender_uid', 'Sender');
@@ -97,12 +95,12 @@ class FakeMessageReceipt extends Fake implements MessageReceipt {
     String receiverId = 'uid_1',
     DateTime? deliveredAt,
     DateTime? readAt,
-  })  : _messageId = messageId,
-        _sender = sender ?? FakeUser('uid_1'),
-        _receiverType = receiverType,
-        _receiverId = receiverId,
-        _deliveredAt = deliveredAt,
-        _readAt = readAt;
+  }) : _messageId = messageId,
+       _sender = sender ?? FakeUser('uid_1'),
+       _receiverType = receiverType,
+       _receiverId = receiverId,
+       _deliveredAt = deliveredAt,
+       _readAt = readAt;
 
   @override
   int get messageId => _messageId;
@@ -178,18 +176,21 @@ void main() {
           FakeMessageReceipt(sender: FakeUser('uid_1')),
           FakeMessageReceipt(sender: FakeUser('uid_2')),
         ];
-        when(() => repo.fetchMessageReceipts(any()))
-            .thenAnswer((_) async => Success(receipts));
+        when(
+          () => repo.fetchMessageReceipts(any()),
+        ).thenAnswer((_) async => Success(receipts));
         return _makeBloc(repo);
       },
-      act: (bloc) => bloc.add(const FetchMessageReceipts(
-        messageId: 42,
-        senderUid: 'sender_uid',
-      )),
+      act: (bloc) => bloc.add(
+        const FetchMessageReceipts(messageId: 42, senderUid: 'sender_uid'),
+      ),
       expect: () => [
         // Loading state
-        isA<MessageInformationState>()
-            .having((s) => s.status, 'status', MessageInformationStatus.loading),
+        isA<MessageInformationState>().having(
+          (s) => s.status,
+          'status',
+          MessageInformationStatus.loading,
+        ),
         // Loaded state with receipts (sender filtered out)
         isA<MessageInformationState>()
             .having((s) => s.status, 'status', MessageInformationStatus.loaded)
@@ -204,14 +205,14 @@ void main() {
           FakeMessageReceipt(sender: FakeUser('sender_uid')),
           FakeMessageReceipt(sender: FakeUser('uid_2')),
         ];
-        when(() => repo.fetchMessageReceipts(any()))
-            .thenAnswer((_) async => Success(receipts));
+        when(
+          () => repo.fetchMessageReceipts(any()),
+        ).thenAnswer((_) async => Success(receipts));
         return _makeBloc(repo);
       },
-      act: (bloc) => bloc.add(const FetchMessageReceipts(
-        messageId: 42,
-        senderUid: 'sender_uid',
-      )),
+      act: (bloc) => bloc.add(
+        const FetchMessageReceipts(messageId: 42, senderUid: 'sender_uid'),
+      ),
       verify: (bloc) {
         expect(bloc.state.receipts.length, 1);
         expect(bloc.state.receipts.first.sender.uid, 'uid_2');
@@ -222,15 +223,22 @@ void main() {
       'FetchMessageReceipts emits error on failure',
       build: () {
         when(() => repo.fetchMessageReceipts(any())).thenAnswer(
-            (_) async => const Failure(message: 'SDK error', code: 'SDK_ERR'));
+          (_) async => const Failure(message: 'SDK error', code: 'SDK_ERR'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const FetchMessageReceipts(messageId: 42)),
       expect: () => [
-        isA<MessageInformationState>()
-            .having((s) => s.status, 'status', MessageInformationStatus.loading),
-        isA<MessageInformationState>()
-            .having((s) => s.status, 'status', MessageInformationStatus.error),
+        isA<MessageInformationState>().having(
+          (s) => s.status,
+          'status',
+          MessageInformationStatus.loading,
+        ),
+        isA<MessageInformationState>().having(
+          (s) => s.status,
+          'status',
+          MessageInformationStatus.error,
+        ),
       ],
     );
 

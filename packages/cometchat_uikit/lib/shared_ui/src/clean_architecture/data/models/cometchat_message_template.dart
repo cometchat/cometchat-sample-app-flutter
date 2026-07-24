@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import "package:cometchat_sdk/cometchat_sdk.dart";
-import '../../../../cometchat_uikit_shared.dart' show BubbleAlignment, AdditionalConfigurations;
+import "package:cometchat_sdk/cometchat_sdk.dart" hide CardMessage;
+import '../../../../cometchat_uikit_shared.dart'
+    show BubbleAlignment, AdditionalConfigurations;
 import 'cometchat_message_option.dart';
 
 ///[CometChatMessageTemplate] class for setting message types and rendering appropriate views in the message list
@@ -20,18 +21,19 @@ import 'cometchat_message_option.dart';
 /// ```
 
 class CometChatMessageTemplate {
-  CometChatMessageTemplate(
-      {required this.type,
-      required this.category,
-      this.bubbleView,
-      this.options,
-      this.headerView,
-      this.footerView,
-      this.contentView,
-      this.bottomView,
-      this.threadView,
-      this.replyView,
-      this.statusInfoView});
+  CometChatMessageTemplate({
+    required this.type,
+    required this.category,
+    this.bubbleView,
+    this.options,
+    this.headerView,
+    this.footerView,
+    this.contentView,
+    this.bottomView,
+    this.threadView,
+    this.replyView,
+    this.statusInfoView,
+  });
 
   ///[type] of the message
   String type;
@@ -41,43 +43,50 @@ class CometChatMessageTemplate {
 
   ///[bubbleView] widget to be shown in the center of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      bubbleView;
+  bubbleView;
 
   ///[headerView] widget to be shown on the top of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      headerView;
+  headerView;
 
   ///[footerView] widget to be shown under the [bottomView] of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      footerView;
+  footerView;
 
   ///[contentView] widget to be shown in the center of the bubble
-  Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment,
-      {AdditionalConfigurations? additionalConfigurations})? contentView;
+  Widget? Function(
+    BaseMessage,
+    BuildContext,
+    BubbleAlignment alignment, {
+    AdditionalConfigurations? additionalConfigurations,
+  })?
+  contentView;
 
   ///[options] list of options to be shown on the message bubble
   List<CometChatMessageOption>? Function(
-      User loggedInUser,
-      BaseMessage messageObject,
-      BuildContext context,
-      Group? group,
-      AdditionalConfigurations? additionalConfigurations)? options;
+    User loggedInUser,
+    BaseMessage messageObject,
+    BuildContext context,
+    Group? group,
+    AdditionalConfigurations? additionalConfigurations,
+  )?
+  options;
 
   ///[bottomView] widget to be shown under the [statusInfoView] of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      bottomView;
+  bottomView;
 
   ///[statusInfoView] widget to be shown under the [contentView] of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      statusInfoView;
+  statusInfoView;
 
   ///[threadView] widget to be shown at the bottom of the bubble
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      threadView;
+  threadView;
 
   ///[replyView] widget to be shown inside the bubble above content (quoted reply)
   Widget? Function(BaseMessage, BuildContext, BubbleAlignment alignment)?
-      replyView;
+  replyView;
 
   @override
   String toString() {

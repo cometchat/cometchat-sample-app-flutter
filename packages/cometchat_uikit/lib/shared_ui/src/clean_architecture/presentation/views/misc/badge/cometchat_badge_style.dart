@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../../../../../../cometchat_uikit_shared.dart';
 
@@ -80,7 +79,9 @@ class CometChatBadgeStyle extends ThemeExtension<CometChatBadgeStyle> {
 
   @override
   CometChatBadgeStyle lerp(
-      ThemeExtension<CometChatBadgeStyle>? other, double t) {
+    ThemeExtension<CometChatBadgeStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatBadgeStyle) {
       return this;
     }
@@ -89,8 +90,11 @@ class CometChatBadgeStyle extends ThemeExtension<CometChatBadgeStyle> {
       border: Border.lerp(border, other.border, t),
       textStyle: TextStyle.lerp(textStyle, other.textStyle, t),
       textColor: Color.lerp(textColor, other.textColor, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       boxShape: t < 0.5 ? boxShape : other.boxShape,
     );
   }

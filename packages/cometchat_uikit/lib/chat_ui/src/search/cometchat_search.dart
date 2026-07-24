@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import '../conversations/utils/conversation_subtitle_utils.dart';
@@ -108,19 +109,19 @@ class _CometChatSearchState extends State<CometChatSearch> {
     //   [messages]       → SearchScope.messages
     //   [conversations]  → SearchScope.conversations
     //   both / null      → SearchScope.both
-    SearchScope _derivedScope;
+    SearchScope derivedScope;
     final scopes = widget.searchIn;
     if (scopes == null || scopes.isEmpty || scopes.length >= 2) {
-      _derivedScope = SearchScope.both;
+      derivedScope = SearchScope.both;
     } else if (scopes.first == SearchScope.messages) {
-      _derivedScope = SearchScope.messages;
+      derivedScope = SearchScope.messages;
     } else {
-      _derivedScope = SearchScope.conversations;
+      derivedScope = SearchScope.conversations;
     }
     _searchBloc = SearchBloc(
       user: widget.user,
       group: widget.group,
-      initialScope: _derivedScope,
+      initialScope: derivedScope,
       conversationsRequestBuilder: widget.conversationsRequestBuilder,
       messagesRequestBuilder: widget.messagesRequestBuilder,
       searchFilters: widget.searchFilters,
@@ -134,15 +135,17 @@ class _CometChatSearchState extends State<CometChatSearch> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
       colorPalette = CometChatThemeHelper.getColorPalette(context);
       spacing = CometChatThemeHelper.getSpacing(context);
       typography = CometChatThemeHelper.getTypography(context);
       style = CometChatThemeHelper.getTheme<CometChatSearchStyle>(
-              context: context, defaultTheme: CometChatSearchStyle.of)
-          .merge(widget.searchStyle);
+        context: context,
+        defaultTheme: CometChatSearchStyle.of,
+      ).merge(widget.searchStyle);
       _themeInitialized = true;
     }
   }
@@ -193,8 +196,8 @@ class _CometChatSearchState extends State<CometChatSearch> {
         focusNode: _focusNode,
         keyboardAppearance:
             CometChatThemeHelper.getBrightness(context) == Brightness.dark
-                ? Brightness.dark
-                : Brightness.light,
+            ? Brightness.dark
+            : Brightness.light,
         onChanged: (val) => _searchBloc.add(SearchTextChanged(val)),
         style: TextStyle(
           color: style.searchTextColor ?? colorPalette.textPrimary,
@@ -212,11 +215,14 @@ class _CometChatSearchState extends State<CometChatSearch> {
               : cc.Translations.of(context).search,
           prefixIcon: GestureDetector(
             onTap: widget.onBack ?? () => Navigator.of(context).pop(),
-            child: widget.searchBackIcon ??
-                Icon(Icons.arrow_back,
-                    color: style.searchBackIconColor ??
-                        colorPalette.iconSecondary,
-                    size: 24),
+            child:
+                widget.searchBackIcon ??
+                Icon(
+                  Icons.arrow_back,
+                  color:
+                      style.searchBackIconColor ?? colorPalette.iconSecondary,
+                  size: 24,
+                ),
           ),
           suffixIcon: BlocBuilder<SearchBloc, SearchState>(
             bloc: _searchBloc,
@@ -230,28 +236,33 @@ class _CometChatSearchState extends State<CometChatSearch> {
                   _textController.clear();
                   _searchBloc.add(const SearchTextChanged(''));
                 },
-                child: widget.searchClearIcon ??
-                    Icon(Icons.close,
-                        color: style.searchClearIconColor ??
-                            colorPalette.iconSecondary,
-                        size: 24),
+                child:
+                    widget.searchClearIcon ??
+                    Icon(
+                      Icons.close,
+                      color:
+                          style.searchClearIconColor ??
+                          colorPalette.iconSecondary,
+                      size: 24,
+                    ),
               );
             },
           ),
-          hintStyle: TextStyle(
-            color: style.searchPlaceHolderTextColor ??
-                colorPalette.textTertiary,
-            fontSize: typography.heading4?.regular?.fontSize,
-            fontWeight: typography.heading4?.regular?.fontWeight,
-            fontFamily: typography.heading4?.regular?.fontFamily,
-          )
-              .merge(style.searchPlaceHolderTextStyle)
-              .copyWith(color: style.searchPlaceHolderTextColor),
+          hintStyle:
+              TextStyle(
+                    color:
+                        style.searchPlaceHolderTextColor ??
+                        colorPalette.textTertiary,
+                    fontSize: typography.heading4?.regular?.fontSize,
+                    fontWeight: typography.heading4?.regular?.fontWeight,
+                    fontFamily: typography.heading4?.regular?.fontFamily,
+                  )
+                  .merge(style.searchPlaceHolderTextStyle)
+                  .copyWith(color: style.searchPlaceHolderTextColor),
           focusedBorder: _searchBorder(),
           enabledBorder: _searchBorder(),
           border: _searchBorder(),
-          fillColor:
-              style.searchBackgroundColor ?? colorPalette.background3,
+          fillColor: style.searchBackgroundColor ?? colorPalette.background3,
           filled: true,
         ),
       ),
@@ -260,10 +271,14 @@ class _CometChatSearchState extends State<CometChatSearch> {
 
   OutlineInputBorder _searchBorder() {
     return OutlineInputBorder(
-      borderSide: style.searchBorder ??
+      borderSide:
+          style.searchBorder ??
           BorderSide(
-              color: colorPalette.borderDark ?? Colors.transparent, width: 1),
-      borderRadius: style.searchBorderRadius ??
+            color: colorPalette.borderDark ?? Colors.transparent,
+            width: 1,
+          ),
+      borderRadius:
+          style.searchBorderRadius ??
           BorderRadius.circular(spacing.radiusMax ?? 0),
     );
   }
@@ -286,14 +301,12 @@ class _CometChatSearchState extends State<CometChatSearch> {
             spacing: spacing.padding2 ?? 0,
             runSpacing: spacing.padding2 ?? 0,
             children: state.visibleFilters.map((filter) {
-              final isSelected =
-                  state.selectedFilters.contains(filter.label);
+              final isSelected = state.selectedFilters.contains(filter.label);
               return SearchFilterChip(
                 label: filter.label,
                 icon: filter.icon,
                 isSelected: isSelected,
-                onTap: () =>
-                    _searchBloc.add(SearchFilterToggled(filter.label)),
+                onTap: () => _searchBloc.add(SearchFilterToggled(filter.label)),
                 colorPalette: colorPalette,
                 spacing: spacing,
                 typography: typography,
@@ -330,32 +343,26 @@ class _CometChatSearchState extends State<CometChatSearch> {
         }
 
         if (state.bothActive && state.allLoading) {
-          return widget.loadingStateView?.call(context) ??
-              _buildLoadingView();
+          return widget.loadingStateView?.call(context) ?? _buildLoadingView();
         }
 
         if (state.bothActive && state.allEmpty) {
-          return widget.emptyStateView?.call(context) ??
-              _buildEmptyView(state);
+          return widget.emptyStateView?.call(context) ?? _buildEmptyView(state);
         }
 
         if (state.bothActive && state.allError) {
-          return widget.errorStateView?.call(context) ??
-              _buildErrorView();
+          return widget.errorStateView?.call(context) ?? _buildErrorView();
         }
 
         if (state.shouldShowNoResults()) {
-          return widget.emptyStateView?.call(context) ??
-              _buildEmptyView(state);
+          return widget.emptyStateView?.call(context) ?? _buildEmptyView(state);
         }
 
         return CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            if (state.showConversations)
-              ..._buildConversationsSlivers(state),
-            if (state.showMessages)
-              ..._buildMessagesSlivers(state),
+            if (state.showConversations) ..._buildConversationsSlivers(state),
+            if (state.showMessages) ..._buildMessagesSlivers(state),
           ],
         );
       },
@@ -367,7 +374,8 @@ class _CometChatSearchState extends State<CometChatSearch> {
   // ===========================================================================
 
   List<Widget> _buildConversationsSlivers(SearchState state) {
-    if (!state.bothActive && state.conversationsStatus == SearchStatus.loading) {
+    if (!state.bothActive &&
+        state.conversationsStatus == SearchStatus.loading) {
       return [
         SliverFillRemaining(
           child: widget.loadingStateView?.call(context) ?? _buildLoadingView(),
@@ -397,8 +405,8 @@ class _CometChatSearchState extends State<CometChatSearch> {
 
     final itemCount = state.selectedFilters.isNotEmpty
         ? (state.hasMoreConversations
-            ? state.conversations.length + 1
-            : state.conversations.length)
+              ? state.conversations.length + 1
+              : state.conversations.length)
         : state.conversations.length;
 
     return [
@@ -406,17 +414,14 @@ class _CometChatSearchState extends State<CometChatSearch> {
         child: _sectionHeader(cc.Translations.of(context).chats),
       ),
       SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            if (state.selectedFilters.isNotEmpty &&
-                index >= state.conversations.length) {
-              _searchBloc.add(const LoadMoreConversationResults());
-              return _buildSectionLoading();
-            }
-            return _buildConversationItem(state.conversations[index]);
-          },
-          childCount: itemCount,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          if (state.selectedFilters.isNotEmpty &&
+              index >= state.conversations.length) {
+            _searchBloc.add(const LoadMoreConversationResults());
+            return _buildSectionLoading();
+          }
+          return _buildConversationItem(state.conversations[index]);
+        }, childCount: itemCount),
       ),
       if (state.selectedFilters.isEmpty &&
           state.conversations.isNotEmpty &&
@@ -424,8 +429,7 @@ class _CometChatSearchState extends State<CometChatSearch> {
           state.hasMoreConversations)
         SliverToBoxAdapter(
           child: _seeMoreButton(
-            onTap: () =>
-                _searchBloc.add(const LoadMoreConversationResults()),
+            onTap: () => _searchBloc.add(const LoadMoreConversationResults()),
           ),
         ),
     ];
@@ -447,18 +451,18 @@ class _CometChatSearchState extends State<CometChatSearch> {
 
     final statusIndicatorUtils =
         StatusIndicatorUtils.getStatusIndicatorFromParams(
-      context: context,
-      isSelected: false,
-      user: conversationWithUser,
-      group: conversationWithGroup,
-      onlineStatusIndicatorColor: colorPalette.success,
-      privateGroupIcon: null,
-      protectedGroupIcon: null,
-      privateGroupIconBackground: null,
-      protectedGroupIconBackground: null,
-      usersStatusVisibility: widget.usersStatusVisibility ?? true,
-      groupTypeVisibility: widget.groupTypeVisibility ?? true,
-    );
+          context: context,
+          isSelected: false,
+          user: conversationWithUser,
+          group: conversationWithGroup,
+          onlineStatusIndicatorColor: colorPalette.success,
+          privateGroupIcon: null,
+          protectedGroupIcon: null,
+          privateGroupIconBackground: null,
+          protectedGroupIconBackground: null,
+          usersStatusVisibility: widget.usersStatusVisibility ?? true,
+          groupTypeVisibility: widget.groupTypeVisibility ?? true,
+        );
 
     // Subtitle
     Widget? subtitle;
@@ -484,19 +488,16 @@ class _CometChatSearchState extends State<CometChatSearch> {
         // Wait for the next frame to ensure navigation has completed.
         await WidgetsBinding.instance.endOfFrame;
         if (mounted && !_searchBloc.isClosed) {
-          _searchBloc.add(RefreshCurrentSearch());
+          _searchBloc.add(const RefreshCurrentSearch());
         }
       },
       child: CometChatListItem(
         avatarHeight: 48,
         avatarWidth: 48,
         id: conversation.conversationId,
-        avatarName:
-            conversationWithUser?.name ?? conversationWithGroup?.name,
-        avatarURL:
-            conversationWithUser?.avatar ?? conversationWithGroup?.icon,
-        title:
-            conversationWithUser?.name ?? conversationWithGroup?.name,
+        avatarName: conversationWithUser?.name ?? conversationWithGroup?.name,
+        avatarURL: conversationWithUser?.avatar ?? conversationWithGroup?.icon,
+        title: conversationWithUser?.name ?? conversationWithGroup?.name,
         key: UniqueKey(),
         avatarStyle: style.avatarStyle ?? const CometChatAvatarStyle(),
         statusIndicatorColor: statusIndicatorUtils.statusIndicatorColor,
@@ -511,18 +512,21 @@ class _CometChatSearchState extends State<CometChatSearch> {
         hideSeparator: true,
         contentPadding: EdgeInsets.zero,
         style: ListItemStyle(
-          background: style.searchConversationItemBackgroundColor ??
+          background:
+              style.searchConversationItemBackgroundColor ??
               colorPalette.transparent,
-          titleStyle: TextStyle(
-            overflow: TextOverflow.ellipsis,
-            fontSize: typography.heading4?.medium?.fontSize,
-            fontWeight: typography.heading4?.medium?.fontWeight,
-            fontFamily: typography.heading4?.medium?.fontFamily,
-            color: style.searchConversationTitleTextColor ??
-                colorPalette.textPrimary,
-          )
-              .merge(style.searchConversationTitleTextStyle)
-              .copyWith(color: style.searchConversationTitleTextColor),
+          titleStyle:
+              TextStyle(
+                    overflow: TextOverflow.ellipsis,
+                    fontSize: typography.heading4?.medium?.fontSize,
+                    fontWeight: typography.heading4?.medium?.fontWeight,
+                    fontFamily: typography.heading4?.medium?.fontFamily,
+                    color:
+                        style.searchConversationTitleTextColor ??
+                        colorPalette.textPrimary,
+                  )
+                  .merge(style.searchConversationTitleTextStyle)
+                  .copyWith(color: style.searchConversationTitleTextColor),
           padding: EdgeInsets.symmetric(vertical: spacing.padding3 ?? 0),
         ),
         subtitleView: subtitle,
@@ -541,16 +545,18 @@ class _CometChatSearchState extends State<CometChatSearch> {
     final lastMessage = conversation.lastMessage;
     if (lastMessage == null) return const SizedBox.shrink();
 
-    final subtitleStyle = TextStyle(
-      overflow: TextOverflow.ellipsis,
-      color: style.searchConversationSubtitleTextColor ??
-          colorPalette.textSecondary,
-      fontSize: typography.body?.regular?.fontSize,
-      fontWeight: typography.body?.regular?.fontWeight,
-      fontFamily: typography.body?.regular?.fontFamily,
-    )
-        .merge(style.searchConversationSubtitleTextStyle)
-        .copyWith(color: style.searchConversationSubtitleTextColor);
+    final subtitleStyle =
+        TextStyle(
+              overflow: TextOverflow.ellipsis,
+              color:
+                  style.searchConversationSubtitleTextColor ??
+                  colorPalette.textSecondary,
+              fontSize: typography.body?.regular?.fontSize,
+              fontWeight: typography.body?.regular?.fontWeight,
+              fontFamily: typography.body?.regular?.fontFamily,
+            )
+            .merge(style.searchConversationSubtitleTextStyle)
+            .copyWith(color: style.searchConversationSubtitleTextColor);
 
     return ConversationSubtitleUtils.getConversationSubtitle(
       conversation,
@@ -581,7 +587,8 @@ class _CometChatSearchState extends State<CometChatSearch> {
                 style: CometChatDateStyle(
                   backgroundColor: colorPalette.transparent,
                   textStyle: TextStyle(
-                    color: style.searchMessageDateTextColor ??
+                    color:
+                        style.searchMessageDateTextColor ??
                         colorPalette.textSecondary,
                     fontSize: typography.caption1?.regular?.fontSize,
                     fontWeight: typography.caption1?.regular?.fontWeight,
@@ -595,10 +602,10 @@ class _CometChatSearchState extends State<CometChatSearch> {
               ),
             ),
           const SizedBox(height: 6.5),
-          if ((unreadCount ?? 0) > 0)
+          if (unreadCount > 0)
             Flexible(
               child: CometChatBadge(
-                count: unreadCount ?? 0,
+                count: unreadCount,
                 height: 20,
                 style: style.badgeStyle ?? const CometChatBadgeStyle(),
               ),
@@ -643,8 +650,8 @@ class _CometChatSearchState extends State<CometChatSearch> {
 
     final itemCount = state.selectedFilters.isNotEmpty
         ? (state.hasMoreMessages
-            ? state.messages.length + 1
-            : state.messages.length)
+              ? state.messages.length + 1
+              : state.messages.length)
         : state.messages.length;
 
     return [
@@ -652,24 +659,21 @@ class _CometChatSearchState extends State<CometChatSearch> {
         child: _sectionHeader(cc.Translations.of(context).message),
       ),
       SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            if (state.selectedFilters.isNotEmpty &&
-                index >= state.messages.length) {
-              _searchBloc.add(const LoadMoreMessageResults());
-              return _buildSectionLoading();
-            }
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _getDateSeparator(index, state.messages),
-                _buildMessageItem(state.messages[index], index, state),
-              ],
-            );
-          },
-          childCount: itemCount,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          if (state.selectedFilters.isNotEmpty &&
+              index >= state.messages.length) {
+            _searchBloc.add(const LoadMoreMessageResults());
+            return _buildSectionLoading();
+          }
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _getDateSeparator(index, state.messages),
+              _buildMessageItem(state.messages[index], index, state),
+            ],
+          );
+        }, childCount: itemCount),
       ),
       if (state.selectedFilters.isEmpty &&
           state.messages.isNotEmpty &&
@@ -731,69 +735,38 @@ class _CometChatSearchState extends State<CometChatSearch> {
         String textSubtitle = textMessage.text;
         if (textMessage.mentionedUsers.isNotEmpty) {
           textSubtitle = CometChatMentionsFormatter.getTextWithMentions(
-              textSubtitle, textMessage.mentionedUsers);
+            textSubtitle,
+            textMessage.mentionedUsers,
+          );
         }
         return _buildSearchItem(
           message: message,
           title: conversationTitle,
           subtitle: textSubtitle,
+          richTextMessage: textMessage,
           trailing: _buildMessageDate(message),
         );
 
       case MessageTypeConstants.image:
         final mediaMsg = message as MediaMessage;
-        final imageUrl = mediaMsg.attachment?.fileUrl;
-        final imageThumbnailUrl =
-            ThumbnailExtractionUtil.extractFromMetadata(mediaMsg.metadata);
         return _buildSearchItem(
           message: message,
           title: conversationTitle,
-          subtitle: mediaMsg.attachment?.fileName ?? cc.Translations.of(context).messageImage,
-          trailing: imageUrl != null
-              ? CometChatImageBubble(
-                  imageUrl: imageUrl,
-                  thumbnailUrl: imageThumbnailUrl,
-                  width: 80,
-                  height: 80,
-                  style: const CometChatImageBubbleStyle(
-                    borderRadius: BorderRadius.zero,
-                  ),
-                  colorPalette: colorPalette,
-                  spacing: spacing,
-                )
-              : _buildMessageDate(message),
+          subtitlePrefix: _senderPrefix(message),
+          subtitleIcon: Icons.image_outlined,
+          subtitle: AttachmentUtils.previewSubtitleFor(mediaMsg, context),
+          trailing: _mediaThumb(mediaMsg, isVideo: false),
         );
 
       case MessageTypeConstants.video:
         final mediaMsg = message as MediaMessage;
-        final videoUrl = mediaMsg.attachment?.fileUrl;
-        final thumbnailUrl =
-            ThumbnailExtractionUtil.extractFromMetadata(mediaMsg.metadata);
         return _buildSearchItem(
           message: message,
           title: conversationTitle,
-          subtitle: mediaMsg.attachment?.fileName ?? cc.Translations.of(context).messageVideo,
-          trailing: videoUrl != null
-              ? CometChatVideoBubble(
-                  videoUrl: videoUrl,
-                  thumbnailUrl: thumbnailUrl,
-                  width: 80,
-                  height: 80,
-                  colorPalette: colorPalette,
-                  spacing: spacing,
-                  placeHolder: thumbnailUrl == null
-                      ? Container(
-                          color: colorPalette.background3,
-                          alignment: Alignment.center,
-                          child: Icon(
-                            Icons.videocam,
-                            color: colorPalette.iconSecondary,
-                            size: 32,
-                          ),
-                        )
-                      : null,
-                )
-              : _buildMessageDate(message),
+          subtitlePrefix: _senderPrefix(message),
+          subtitleIcon: Icons.videocam_outlined,
+          subtitle: AttachmentUtils.previewSubtitleFor(mediaMsg, context),
+          trailing: _mediaThumb(mediaMsg, isVideo: true),
         );
 
       case MessageTypeConstants.file:
@@ -801,12 +774,17 @@ class _CometChatSearchState extends State<CometChatSearch> {
         return _buildSearchItem(
           message: message,
           title: conversationTitle,
-          subtitle: mediaMsg.attachment?.fileName ?? cc.Translations.of(context).messageFile,
-          leading: Image.asset(
-            _getFileIconForAttachment(mediaMsg.attachment),
-            height: 32,
+          subtitlePrefix: _senderPrefix(message),
+          subtitleIcon: Icons.description_outlined,
+          subtitle: AttachmentUtils.previewSubtitleFor(mediaMsg, context),
+          // The dedicated "document in search" icon (flattened so flutter_svg
+          // renders it — the original nested-<svg>/<text> version came out
+          // blank).
+          leading: SvgPicture.asset(
+            kAttachmentDocumentSearchIconAsset,
             width: 32,
-            package: UIConstants.packageName,
+            height: 32,
+            package: kAttachmentIconPackage,
           ),
           trailing: _buildMessageDate(message),
         );
@@ -816,7 +794,9 @@ class _CometChatSearchState extends State<CometChatSearch> {
         return _buildSearchItem(
           message: message,
           title: conversationTitle,
-          subtitle: mediaMsg.attachment?.fileName ?? cc.Translations.of(context).messageAudio,
+          subtitlePrefix: _senderPrefix(message),
+          subtitleIcon: Icons.audiotrack_outlined,
+          subtitle: AttachmentUtils.previewSubtitleFor(mediaMsg, context),
           leading: Container(
             height: 32,
             width: 32,
@@ -889,106 +869,118 @@ class _CometChatSearchState extends State<CometChatSearch> {
     return message.sender?.name ?? message.sender?.uid ?? '';
   }
 
-  /// Resolves the correct file type icon asset based on attachment metadata.
-  /// Prefers `fileExtension` / `fileMimeType` from the attachment since
-  /// parsing the URL is unreliable (query strings, signed URLs, etc.).
-  /// Falls back to extracting the extension from `fileName` or `fileUrl`.
-  String _getFileIconForAttachment(Attachment? attachment) {
-    if (attachment == null) return AssetConstants.fileUnknown;
-
-    String ext = (attachment.fileExtension).toLowerCase().trim();
-    if (ext.startsWith('.')) ext = ext.substring(1);
-
-    // If fileExtension is missing, try to derive it from fileName, then fileUrl.
-    if (ext.isEmpty) {
-      final name = attachment.fileName;
-      if (name.isNotEmpty && name.contains('.')) {
-        ext = name.split('.').last.toLowerCase().trim();
-      }
+  /// "You:" for own messages, otherwise the sender's first name — the prefix
+  /// before a media row's subtitle (reference design).
+  String _senderPrefix(BaseMessage message) {
+    final sender = message.sender;
+    if (sender == null) return '';
+    final loggedInUid = CometChatUIKit.loggedInUser?.uid;
+    if (loggedInUid != null && sender.uid == loggedInUid) {
+      return '${cc.Translations.of(context).you}:';
     }
-    if (ext.isEmpty) {
-      final url = attachment.fileUrl;
-      if (url.isNotEmpty) {
-        // Strip query string/fragment before extracting extension.
-        final clean = url.split('?').first.split('#').first;
-        final decoded = Uri.decodeFull(clean);
-        final last = decoded.split('/').last;
-        if (last.contains('.')) {
-          ext = last.split('.').last.toLowerCase().trim();
-        }
-      }
-    }
-
-    final byExt = _iconAssetForExtension(ext);
-    if (byExt != null) return byExt;
-
-    // Final fallback: use MIME type for broad category mapping.
-    final mime = (attachment.fileMimeType).toLowerCase();
-    if (mime == 'application/pdf') return AssetConstants.filePdf;
-    if (mime.contains('word') ||
-        mime.contains('msword') ||
-        mime.contains('officedocument.wordprocessing')) {
-      return AssetConstants.fileDoc;
-    }
-    if (mime.contains('excel') ||
-        mime.contains('spreadsheet') ||
-        mime == 'text/csv') {
-      return AssetConstants.fileSpreadsheet;
-    }
-    if (mime.contains('powerpoint') || mime.contains('presentation')) {
-      return AssetConstants.filePresentation;
-    }
-    if (mime.contains('zip') ||
-        mime.contains('compressed') ||
-        mime.contains('x-tar') ||
-        mime.contains('gzip')) {
-      return AssetConstants.fileZip;
-    }
-    if (mime.startsWith('audio/')) return AssetConstants.fileAudio;
-    if (mime.startsWith('video/')) return AssetConstants.fileVideo;
-    if (mime.startsWith('image/')) return AssetConstants.fileImage;
-    if (mime.startsWith('text/')) return AssetConstants.fileText;
-
-    return AssetConstants.fileUnknown;
+    final name = sender.name.trim();
+    if (name.isEmpty) return '';
+    return '${name.split(' ').first}:';
   }
 
-  /// Maps a lowercase extension (no leading dot) to its icon asset.
-  /// Returns null when the extension is unknown so callers can fall back
-  /// to MIME-type-based resolution.
-  String? _iconAssetForExtension(String ext) {
-    if (ext.isEmpty) return null;
+  /// Trailing thumbnail for an image/video search row — the message's first
+  /// attachment as a landscape rounded thumb, with a "+N" scrim overlay when
+  /// the message carries more attachments (reference design). Falls back to
+  /// the date widget when there is nothing to preview.
+  Widget _mediaThumb(MediaMessage msg, {required bool isVideo}) {
+    final attachments = AttachmentUtils.attachmentsOf(msg);
+    final first = attachments.isNotEmpty ? attachments.first : null;
+    final url = first?.fileUrl;
+    if (url == null || url.isEmpty) return _buildMessageDate(msg);
 
-    const docExts = {'doc', 'docx', 'md', 'odt', 'abw', 'dot', 'dotx'};
-    const sheetExts = {
-      'csv', 'xls', 'xlsx', 'ods', 'tsv', 'xlt', 'xltx', 'numbers'
-    };
-    const pdfExts = {'pdf', 'ps', 'eps', 'ai'};
-    const audioExts = {
-      'mp3', 'wav', 'ogg', 'flac', 'aac', 'wma', 'aiff', 'm4a', 'mid', 'midi'
-    };
-    const videoExts = {
-      'mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpg', 'mpeg', '3gp'
-    };
-    const imageExts = {
-      'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'tiff', 'psd',
-      'heif', 'heic'
-    };
-    const zipExts = {'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz'};
-    const pptExts = {'ppt', 'pptx', 'odp', 'key', 'pps', 'ppsx'};
-    const txtExts = {
-      'txt', 'wps', 'rtf', 'tex', 'log', 'json', 'xml', 'yaml', 'yml'
-    };
+    final thumbnailUrl =
+        ThumbnailExtractionUtil.thumbnailForIndex(msg.metadata, 0) ??
+        ThumbnailExtractionUtil.extractFromMetadata(msg.metadata);
+    final overflow = attachments.length - 1;
 
-    if (docExts.contains(ext)) return AssetConstants.fileDoc;
-    if (sheetExts.contains(ext)) return AssetConstants.fileSpreadsheet;
-    if (pdfExts.contains(ext)) return AssetConstants.filePdf;
-    if (audioExts.contains(ext)) return AssetConstants.fileAudio;
-    if (videoExts.contains(ext)) return AssetConstants.fileVideo;
-    if (imageExts.contains(ext)) return AssetConstants.fileImage;
-    if (zipExts.contains(ext)) return AssetConstants.fileZip;
-    if (pptExts.contains(ext)) return AssetConstants.filePresentation;
-    if (txtExts.contains(ext)) return AssetConstants.fileText;
-    return null;
+    final Widget preview = isVideo
+        ? CometChatVideoBubble(
+            videoUrl: url,
+            thumbnailUrl: thumbnailUrl,
+            width: 96,
+            height: 64,
+            colorPalette: colorPalette,
+            spacing: spacing,
+            // Server thumbnail generation fails for some video formats
+            // (returns null / ERR_FILETYPE_NOT_SUPPORTED — e.g. iPhone .mov),
+            // so extract the first frame client-side like the other UIKit
+            // platforms do, with the standard media placeholder while it
+            // loads / on failure. A small play chip sits on top (the bubble's
+            // own 64px play icon is oversized for this 96×64 row).
+            placeHolder: thumbnailUrl == null
+                ? SizedBox.expand(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CometChatVideoFirstFrame(
+                          key: ValueKey('cc_search_video_frame_$url'),
+                          source: url,
+                          fallback: const CometChatMediaPlaceholder(
+                            glyphWidth: 28,
+                          ),
+                        ),
+                        const Center(
+                          child: CircleAvatar(
+                            radius: 13,
+                            backgroundColor: Colors.black45,
+                            child: Icon(
+                              Icons.play_arrow_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : null,
+          )
+        : CometChatImageBubble(
+            imageUrl: url,
+            thumbnailUrl: thumbnailUrl,
+            width: 96,
+            height: 64,
+            style: const CometChatImageBubbleStyle(
+              borderRadius: BorderRadius.zero,
+            ),
+            colorPalette: colorPalette,
+            spacing: spacing,
+          );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: SizedBox(
+        width: 96,
+        height: 64,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            preview,
+            // Same "+N" scrim idiom as the media grid's overflow cell.
+            if (overflow > 0)
+              IgnorePointer(
+                child: Container(
+                  alignment: Alignment.center,
+                  color: Colors.black45,
+                  child: Text(
+                    '+$overflow',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// Builds a CometChatDate widget for message trailing.
@@ -1014,28 +1006,71 @@ class _CometChatSearchState extends State<CometChatSearch> {
 
   /// Builds a search result item row using the interstellar layout pattern.
   /// leading (optional icon) | title + subtitle | trailing (date or thumbnail)
+  /// Builds the search preview with the SAME rich-text formatting the message
+  /// list and conversation subtitles use — markdown, mentions, links — so a
+  /// text result reads identically across surfaces (and cross-platform). Falls
+  /// back to plain [subtitleStyle] text for non-text rows.
+  Widget _richSubtitle(TextMessage message, TextStyle subtitleStyle) {
+    final formatters = <CometChatTextFormatter>[
+      MarkdownTextFormatter(),
+      ...MessageTemplateUtils.getDefaultTextFormatters(),
+    ];
+    // The mentions formatter needs the message to resolve <@uid:..> tags to
+    // display names (mirrors the conversation-subtitle path).
+    for (final f in formatters) {
+      if (f is CometChatMentionsFormatter) f.message = message;
+    }
+    return RichText(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        children: FormatterUtils.buildTextSpan(
+          message.text,
+          formatters,
+          context,
+          BubbleAlignment.left,
+          forConversation: true,
+          textStyle: subtitleStyle,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSearchItem({
     required BaseMessage message,
     required String title,
     required String subtitle,
+    String? subtitlePrefix,
+    IconData? subtitleIcon,
     Widget? leading,
     Widget? trailing,
+    // When set, the subtitle renders with rich-text formatting (markdown /
+    // mentions / links) instead of the plain [subtitle] string.
+    TextMessage? richTextMessage,
   }) {
-    final titleStyle = TextStyle(
-      color: style.searchMessageSenderTextColor ?? colorPalette.textPrimary,
-      fontSize: typography.heading4?.medium?.fontSize,
-      fontWeight: typography.heading4?.medium?.fontWeight,
-      fontFamily: typography.heading4?.medium?.fontFamily,
-    ).merge(style.searchMessageSenderTextStyle)
-        .copyWith(color: style.searchMessageSenderTextColor);
+    final titleStyle =
+        TextStyle(
+              color:
+                  style.searchMessageSenderTextColor ??
+                  colorPalette.textPrimary,
+              fontSize: typography.heading4?.medium?.fontSize,
+              fontWeight: typography.heading4?.medium?.fontWeight,
+              fontFamily: typography.heading4?.medium?.fontFamily,
+            )
+            .merge(style.searchMessageSenderTextStyle)
+            .copyWith(color: style.searchMessageSenderTextColor);
 
-    final subtitleStyle = TextStyle(
-      color: style.searchMessagePreviewTextColor ?? colorPalette.textSecondary,
-      fontSize: typography.body?.regular?.fontSize,
-      fontWeight: typography.body?.regular?.fontWeight,
-      fontFamily: typography.body?.regular?.fontFamily,
-    ).merge(style.searchMessagePreviewTextStyle)
-        .copyWith(color: style.searchMessagePreviewTextColor);
+    final subtitleStyle =
+        TextStyle(
+              color:
+                  style.searchMessagePreviewTextColor ??
+                  colorPalette.textSecondary,
+              fontSize: typography.body?.regular?.fontSize,
+              fontWeight: typography.body?.regular?.fontWeight,
+              fontFamily: typography.body?.regular?.fontFamily,
+            )
+            .merge(style.searchMessagePreviewTextStyle)
+            .copyWith(color: style.searchMessagePreviewTextColor);
 
     return Semantics(
       button: true,
@@ -1070,20 +1105,41 @@ class _CometChatSearchState extends State<CometChatSearch> {
                         if (message.parentMessageId > 0)
                           Padding(
                             padding: EdgeInsets.only(
-                                right: spacing.padding1 ?? 2),
+                              right: spacing.padding1 ?? 2,
+                            ),
                             child: Icon(
                               Icons.subdirectory_arrow_right,
                               size: 16,
                               color: colorPalette.iconSecondary,
                             ),
                           ),
-                        Expanded(
-                          child: Text(
-                            subtitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: subtitleStyle,
+                        if (subtitlePrefix != null && subtitlePrefix.isNotEmpty)
+                          Padding(
+                            padding: EdgeInsets.only(
+                              right: spacing.padding1 ?? 2,
+                            ),
+                            child: Text(subtitlePrefix, style: subtitleStyle),
                           ),
+                        if (subtitleIcon != null)
+                          Padding(
+                            padding: EdgeInsets.only(
+                              right: spacing.padding1 ?? 2,
+                            ),
+                            child: Icon(
+                              subtitleIcon,
+                              size: 16,
+                              color: colorPalette.iconSecondary,
+                            ),
+                          ),
+                        Expanded(
+                          child: richTextMessage != null
+                              ? _richSubtitle(richTextMessage, subtitleStyle)
+                              : Text(
+                                  subtitle,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: subtitleStyle,
+                                ),
                         ),
                       ],
                     ),
@@ -1117,8 +1173,7 @@ class _CometChatSearchState extends State<CometChatSearch> {
         padding: EdgeInsets.fromLTRB(0, spacing.padding2 ?? 0, 0, 0),
         child: CometChatDate(
           date: date,
-          customDateString:
-              '${_monthName(date.month)}, ${date.year}',
+          customDateString: '${_monthName(date.month)}, ${date.year}',
           padding: EdgeInsets.zero,
           dateTimeFormatterCallback: widget.dateSeparatorFormatterCallback,
           style: CometChatDateStyle(
@@ -1146,8 +1201,19 @@ class _CometChatSearchState extends State<CometChatSearch> {
 
   String _monthName(int month) {
     const months = [
-      '', 'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      '',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return months[month];
   }
@@ -1161,14 +1227,17 @@ class _CometChatSearchState extends State<CometChatSearch> {
       padding: EdgeInsets.only(bottom: spacing.padding2 ?? 0),
       child: Text(
         title,
-        style: TextStyle(
-          color: style.sectionHeaderTextColor ?? colorPalette.textSecondary,
-          fontSize: typography.caption1?.medium?.fontSize,
-          fontWeight: typography.caption1?.medium?.fontWeight,
-          fontFamily: typography.caption1?.medium?.fontFamily,
-        )
-            .merge(style.sectionHeaderTextStyle)
-            .copyWith(color: style.sectionHeaderTextColor),
+        style:
+            TextStyle(
+                  color:
+                      style.sectionHeaderTextColor ??
+                      colorPalette.textSecondary,
+                  fontSize: typography.caption1?.medium?.fontSize,
+                  fontWeight: typography.caption1?.medium?.fontWeight,
+                  fontFamily: typography.caption1?.medium?.fontFamily,
+                )
+                .merge(style.sectionHeaderTextStyle)
+                .copyWith(color: style.sectionHeaderTextColor),
       ),
     );
   }
@@ -1180,12 +1249,15 @@ class _CometChatSearchState extends State<CometChatSearch> {
         onTap: onTap,
         child: Text(
           cc.Translations.of(context).more,
-          style: TextStyle(
-            color: style.seeMoreTextColor ?? colorPalette.primary,
-            fontSize: typography.body?.medium?.fontSize,
-            fontWeight: typography.body?.medium?.fontWeight,
-            fontFamily: typography.body?.medium?.fontFamily,
-          ).merge(style.seeMoreTextStyle).copyWith(color: style.seeMoreTextColor),
+          style:
+              TextStyle(
+                    color: style.seeMoreTextColor ?? colorPalette.primary,
+                    fontSize: typography.body?.medium?.fontSize,
+                    fontWeight: typography.body?.medium?.fontWeight,
+                    fontFamily: typography.body?.medium?.fontFamily,
+                  )
+                  .merge(style.seeMoreTextStyle)
+                  .copyWith(color: style.seeMoreTextColor),
         ),
       ),
     );
@@ -1223,7 +1295,8 @@ class _CometChatSearchState extends State<CometChatSearch> {
                           decoration: BoxDecoration(
                             color: Colors.grey,
                             borderRadius: BorderRadius.circular(
-                                spacing.radius2 ?? 0),
+                              spacing.radius2 ?? 0,
+                            ),
                           ),
                         ),
                         Container(
@@ -1232,7 +1305,8 @@ class _CometChatSearchState extends State<CometChatSearch> {
                           decoration: BoxDecoration(
                             color: Colors.grey,
                             borderRadius: BorderRadius.circular(
-                                spacing.radius2 ?? 0),
+                              spacing.radius2 ?? 0,
+                            ),
                           ),
                         ),
                       ],
@@ -1243,8 +1317,9 @@ class _CometChatSearchState extends State<CometChatSearch> {
                       height: 16,
                       decoration: BoxDecoration(
                         color: Colors.grey,
-                        borderRadius:
-                            BorderRadius.circular(spacing.radius2 ?? 0),
+                        borderRadius: BorderRadius.circular(
+                          spacing.radius2 ?? 0,
+                        ),
                       ),
                     ),
                   ],
@@ -1288,7 +1363,8 @@ class _CometChatSearchState extends State<CometChatSearch> {
             Text(
               '${cc.Translations.of(context).search} "${state.searchText}"',
               style: TextStyle(
-                color: style.emptyStateSubTitleTextColor ??
+                color:
+                    style.emptyStateSubTitleTextColor ??
                     colorPalette.textSecondary,
                 fontSize: typography.body?.regular?.fontSize,
                 fontWeight: typography.body?.regular?.fontWeight,

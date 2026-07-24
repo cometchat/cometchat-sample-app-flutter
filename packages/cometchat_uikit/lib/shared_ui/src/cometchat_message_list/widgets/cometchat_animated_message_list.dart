@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:diffutil_dart/diffutil.dart' as diffutil;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import 'package:scrollview_observer/scrollview_observer.dart';
 
 import '../../../../chat_ui/src/message_list/bloc/message_list_bloc.dart';
@@ -29,13 +29,13 @@ enum InitialScrollToEndMode {
 }
 
 /// Builder function for creating individual message widgets
-typedef MessageItemBuilder = Widget Function(
-  BuildContext context,
-  BaseMessage message,
-  int index,
-  Animation<double> animation,
-);
-
+typedef MessageItemBuilder =
+    Widget Function(
+      BuildContext context,
+      BaseMessage message,
+      int index,
+      Animation<double> animation,
+    );
 
 /// An animated list widget for displaying chat messages
 ///
@@ -194,9 +194,9 @@ class CometChatAnimatedMessageList extends StatefulWidget {
       _CometChatAnimatedMessageListState();
 }
 
-
 class _CometChatAnimatedMessageListState
-    extends State<CometChatAnimatedMessageList> with TickerProviderStateMixin {
+    extends State<CometChatAnimatedMessageList>
+    with TickerProviderStateMixin {
   // Keys and controllers
   GlobalKey<SliverAnimatedListState> _listKey = GlobalKey();
   late final ScrollController _scrollController;
@@ -308,19 +308,18 @@ class _CometChatAnimatedMessageListState
     );
   }
 
-
   /// Process queued operations sequentially
   Future<void> _processOperationsQueue() async {
     if (_isProcessingOperations || _operationsQueue.isEmpty) return;
 
     // Wait for widget to be mounted and built
     if (!mounted || _isDisposed) return;
-    
+
     // Wait for the list state to be available
     await Future.delayed(Duration.zero);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted || _isDisposed || _isProcessingOperations) return;
-      
+
       _isProcessingOperations = true;
 
       while (_operationsQueue.isNotEmpty && mounted && !_isDisposed) {
@@ -352,7 +351,6 @@ class _CometChatAnimatedMessageListState
         break;
     }
   }
-
 
   /// Handle single message insertion
   Future<void> _onInserted(MessageOperation operation) async {
@@ -398,7 +396,6 @@ class _CometChatAnimatedMessageListState
     }
   }
 
-
   /// Handle batch message insertion
   Future<void> _onInsertedAll(MessageOperation operation) async {
     final messages = operation.messages;
@@ -428,7 +425,7 @@ class _CometChatAnimatedMessageListState
 
     // Animate insertions - ensure widget is mounted
     if (!mounted || _isDisposed) return;
-    
+
     final listState = _listKey.currentState;
     if (listState != null) {
       if (widget.reversed) {
@@ -453,7 +450,7 @@ class _CometChatAnimatedMessageListState
         } else {
           // Older pagination or non-newer inserts: animate normally
           final visualIndex = oldLength - index;
-          
+
           for (int i = 0; i < messages.length; i++) {
             if (!mounted || _isDisposed) return;
             try {
@@ -497,7 +494,6 @@ class _CometChatAnimatedMessageListState
     }
   }
 
-
   /// Restore scroll position after a newer-insert rebuild.
   ///
   /// The new [SliverAnimatedList] (created with a fresh GlobalKey) needs at
@@ -505,7 +501,10 @@ class _CometChatAnimatedMessageListState
   /// This method retries the scroll each frame up to [maxAttempts] times,
   /// then unconditionally reveals the list so the user never stares at a
   /// blank screen.
-  void _restoreScrollAfterNewerInsert(int anchorMessageId, {int maxAttempts = 8}) {
+  void _restoreScrollAfterNewerInsert(
+    int anchorMessageId, {
+    int maxAttempts = 8,
+  }) {
     int attempt = 0;
 
     void tryScroll() {
@@ -529,7 +528,9 @@ class _CometChatAnimatedMessageListState
         return;
       }
 
-      _scrollToIndex(anchorIndex, duration: Duration.zero, alignment: 0).then((success) {
+      _scrollToIndex(anchorIndex, duration: Duration.zero, alignment: 0).then((
+        success,
+      ) {
         if (success || attempt >= maxAttempts) {
           _revealAfterNewerInsert();
         } else {
@@ -549,7 +550,6 @@ class _CometChatAnimatedMessageListState
     _isProcessingNewerInsert = false;
     _triggerDateObservation();
   }
-
 
   /// Handle message removal
   Future<void> _onRemoved(MessageOperation operation) async {
@@ -612,14 +612,13 @@ class _CometChatAnimatedMessageListState
     _messageUpdateNotifier.value++;
   }
 
-
   /// Handle set messages (replace entire list with diff-based updates)
   Future<void> _onSet(MessageOperation operation) async {
     final newMessages = operation.messages;
     if (newMessages == null) return;
 
     final listState = _listKey.currentState;
-    
+
     // If no list state yet, just update the local list
     if (listState == null) {
       _messages = List.from(newMessages);
@@ -658,7 +657,9 @@ class _CometChatAnimatedMessageListState
         // of the new shorter list.
         if (widget.reversed) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted && _scrollController.hasClients && _scrollController.offset != 0) {
+            if (mounted &&
+                _scrollController.hasClients &&
+                _scrollController.offset != 0) {
               _scrollController.jumpTo(0);
             }
           });
@@ -670,7 +671,7 @@ class _CometChatAnimatedMessageListState
 
     // For animated updates, use diff algorithm
     final oldMessages = operation.oldMessages ?? List.from(_messages);
-    
+
     // Update local list first
     _messages = List.from(newMessages);
     _isEmptyNotifier.value = _messages.isEmpty;
@@ -691,7 +692,7 @@ class _CometChatAnimatedMessageListState
       update.when<void>(
         insert: (pos, data) {
           // For reversed list, visual index is inverted
-          final visualIndex = widget.reversed 
+          final visualIndex = widget.reversed
               ? max(currentLength - pos, 0)
               : min(pos, currentLength);
           listState.insertItem(
@@ -701,7 +702,7 @@ class _CometChatAnimatedMessageListState
           currentLength++;
         },
         remove: (pos, data) {
-          final visualIndex = widget.reversed 
+          final visualIndex = widget.reversed
               ? max(currentLength - 1 - pos, 0)
               : pos;
           if (visualIndex >= 0 && visualIndex < currentLength) {
@@ -759,7 +760,7 @@ class _CometChatAnimatedMessageListState
   bool get _shouldShowScrollToBottomButton {
     // Always show if the list doesn't have the latest messages
     if (widget.hasMoreNewer) return true;
-    
+
     final scrollOffsetFromBottom = widget.reversed
         ? _scrollController.offset
         : _chatEndScrollPosition - _scrollController.offset;
@@ -805,7 +806,8 @@ class _CometChatAnimatedMessageListState
           );
         }
       } else {
-        _scrollAnimationController.value = _scrollController.offset /
+        _scrollAnimationController.value =
+            _scrollController.offset /
             _scrollController.position.maxScrollExtent;
         _scrollAnimationController.fling();
       }
@@ -861,14 +863,16 @@ class _CometChatAnimatedMessageListState
   /// Initial scroll to end for non-reversed lists
   Future<void> _initialScrollToEnd() async {
     await Future.delayed(widget.insertAnimationDuration);
-    if (!_scrollController.hasClients || !mounted || _isAtChatEndScrollPosition) {
+    if (!_scrollController.hasClients ||
+        !mounted ||
+        _isAtChatEndScrollPosition) {
       return;
     }
     _scrollController.jumpTo(_chatEndScrollPosition);
   }
 
   /// Subsequent scroll to end based on configuration
-  /// 
+  ///
   /// For reversed lists (chat default):
   /// - Always scroll when user sends a message (if shouldScrollToEndWhenSendingMessage)
   /// - Only scroll for incoming messages if user is at bottom (if shouldScrollToEndWhenAtBottom)
@@ -883,7 +887,8 @@ class _CometChatAnimatedMessageListState
     }
 
     // Check if this message was sent by the logged-in user
-    final isOwnMessage = widget.loggedInUserId != null && 
+    final isOwnMessage =
+        widget.loggedInUserId != null &&
         message.sender?.uid == widget.loggedInUserId;
 
     if (widget.reversed) {
@@ -891,7 +896,9 @@ class _CometChatAnimatedMessageListState
       if (isOwnMessage && widget.shouldScrollToEndWhenSendingMessage) {
         // Always scroll to bottom when user sends a message
         _scrollController.jumpTo(_chatEndScrollPosition);
-      } else if (!isOwnMessage && widget.shouldScrollToEndWhenAtBottom && !_userHasScrolled) {
+      } else if (!isOwnMessage &&
+          widget.shouldScrollToEndWhenAtBottom &&
+          !_userHasScrolled) {
         // For incoming messages, only scroll if user hasn't scrolled up
         _scrollController.jumpTo(_chatEndScrollPosition);
       }
@@ -906,7 +913,8 @@ class _CometChatAnimatedMessageListState
       // Auto-scroll when user sends a message
       if (isOwnMessage && widget.shouldScrollToEndWhenSendingMessage) {
         if (_userHasScrolled) {
-          _scrollAnimationController.value = _scrollController.offset /
+          _scrollAnimationController.value =
+              _scrollController.offset /
               _scrollController.position.maxScrollExtent;
           _scrollAnimationController.fling();
         } else {
@@ -1005,7 +1013,8 @@ class _CometChatAnimatedMessageListState
         sliverContext: _listKey.currentContext!,
         isForce: true,
       );
-      final displayingList = result.observeResult?.innerDisplayingChildModelList;
+      final displayingList =
+          result.observeResult?.innerDisplayingChildModelList;
       if (displayingList != null && displayingList.isNotEmpty) {
         // In a reversed list, the last item in displayingList is the visually
         // topmost message (trailing edge). In a normal list, the first item is
@@ -1036,7 +1045,11 @@ class _CometChatAnimatedMessageListState
       );
       if (newIndex != -1) {
         final anchorAlignment = widget.reversed ? 1.0 : 0.0;
-        await _scrollToIndex(newIndex, duration: Duration.zero, alignment: anchorAlignment);
+        await _scrollToIndex(
+          newIndex,
+          duration: Duration.zero,
+          alignment: anchorAlignment,
+        );
       }
     }
 
@@ -1075,7 +1088,11 @@ class _CometChatAnimatedMessageListState
   }) async {
     final index = _messages.indexWhere((m) => m.id == messageId);
     if (index != -1) {
-      return await _scrollToIndex(index, alignment: alignment, duration: duration);
+      return await _scrollToIndex(
+        index,
+        alignment: alignment,
+        duration: duration,
+      );
     }
     return false;
   }
@@ -1116,8 +1133,11 @@ class _CometChatAnimatedMessageListState
           alignment: 0,
         );
         final viewportHeight = _scrollController.position.viewportDimension;
-        final targetOffset = (_scrollController.offset + alignment * viewportHeight)
-            .clamp(0.0, _scrollController.position.maxScrollExtent);
+        final targetOffset =
+            (_scrollController.offset + alignment * viewportHeight).clamp(
+              0.0,
+              _scrollController.position.maxScrollExtent,
+            );
         await _scrollController.animateTo(
           targetOffset,
           duration: duration,
@@ -1143,8 +1163,11 @@ class _CometChatAnimatedMessageListState
       // For reversed lists with alignment > 0, push item toward top
       if (widget.reversed && alignment > 0 && _scrollController.hasClients) {
         final viewportHeight = _scrollController.position.viewportDimension;
-        final targetOffset = (_scrollController.offset + alignment * viewportHeight)
-            .clamp(0.0, _scrollController.position.maxScrollExtent);
+        final targetOffset =
+            (_scrollController.offset + alignment * viewportHeight).clamp(
+              0.0,
+              _scrollController.position.maxScrollExtent,
+            );
         _scrollController.jumpTo(targetOffset);
       }
     }
@@ -1247,7 +1270,7 @@ class _CometChatAnimatedMessageListState
     // For a reversed list, the "top" of the screen is at the far end
     // of the scroll extent. We need to find the child whose paint offset
     // places it at the top of the viewport.
-    // 
+    //
     // Walk the children of the SliverMultiBoxAdaptor to find the one
     // closest to the top of the viewport.
     if (renderObject is RenderSliverMultiBoxAdaptor) {
@@ -1262,7 +1285,8 @@ class _CometChatAnimatedMessageListState
           final childOffset = parentData.layoutOffset ?? 0;
           // Distance from the top of the viewport
           final distFromTop = widget.reversed
-              ? (scrollOffset + viewportHeight) - (childOffset + child.size.height)
+              ? (scrollOffset + viewportHeight) -
+                    (childOffset + child.size.height)
               : childOffset - scrollOffset;
 
           // The child closest to the top edge of the viewport
@@ -1325,7 +1349,9 @@ class _CometChatAnimatedMessageListState
 
     // In a reversed list, the last item in displayingList is visually at the top
     // In a normal list, the first item is at the top
-    final topItem = widget.reversed ? displayingList.last : displayingList.first;
+    final topItem = widget.reversed
+        ? displayingList.last
+        : displayingList.first;
     final visualIndex = topItem.index;
     final contentIndex = widget.reversed
         ? _messages.length - 1 - visualIndex
@@ -1406,17 +1432,14 @@ class _CometChatAnimatedMessageListState
           ValueListenableBuilder<double>(
             valueListenable: _newerInsertOpacity,
             builder: (context, opacity, child) {
-              return Opacity(
-                opacity: opacity,
-                child: child!,
-              );
+              return Opacity(opacity: opacity, child: child!);
             },
             child: RepaintBoundary(
               child: SliverViewObserver(
                 controller: _observerController,
                 sliverContexts: () {
                   final context = _listKey.currentContext;
-                  return [if (context != null) context];
+                  return [?context];
                 },
                 onObserve: (result) {
                   _updateTopVisibleDate(result);
@@ -1428,7 +1451,8 @@ class _CometChatAnimatedMessageListState
                     controller: _scrollController,
                     reverse: widget.reversed,
                     physics: widget.physics,
-                    cacheExtent: 500, // Pre-render 500px above/below viewport for smoother scrolling
+                    cacheExtent:
+                        500, // Pre-render 500px above/below viewport for smoother scrolling
                     keyboardDismissBehavior: widget.keyboardDismissBehavior,
                     slivers: _buildSlivers(),
                   ),
@@ -1452,7 +1476,8 @@ class _CometChatAnimatedMessageListState
             builder: (context, isEmpty, child) {
               if (isEmpty) {
                 return Positioned.fill(
-                  child: widget.emptyBuilder?.call(context) ??
+                  child:
+                      widget.emptyBuilder?.call(context) ??
                       const EmptyMessageList(),
                 );
               }
@@ -1496,7 +1521,7 @@ class _CometChatAnimatedMessageListState
   Widget _buildAnimatedList() {
     return ValueListenableBuilder<int>(
       valueListenable: _messageUpdateNotifier,
-      builder: (context, _, __) {
+      builder: (context, _, _) {
         return _buildAnimatedListContent();
       },
     );
@@ -1519,10 +1544,11 @@ class _CometChatAnimatedMessageListState
             messageId = int.tryParse(parts[0]);
           }
         }
-        
+
         if (messageId != null) {
           // Use O(1) lookup if available, otherwise fall back to O(n) indexWhere
-          final index = widget.findMessageIndex?.call(messageId) ??
+          final index =
+              widget.findMessageIndex?.call(messageId) ??
               _messages.indexWhere((m) => m.id == messageId);
           if (index != -1) {
             return visualPosition(index);
@@ -1557,9 +1583,12 @@ class _CometChatAnimatedMessageListState
       handleSafeArea: false, // SafeArea is handled by parent
       composerHeightNotifier: widget.composerHeightNotifier,
       composerHeight: 0, // Composer is outside the list in Column layout
-      includeKeyboardHeight: false, // Scaffold handles keyboard with resizeToAvoidBottomInset
+      includeKeyboardHeight:
+          false, // Scaffold handles keyboard with resizeToAvoidBottomInset
       scrollController: _scrollController,
-      onKeyboardHeightChanged: widget.reversed ? null : _onKeyboardHeightChanged,
+      onKeyboardHeightChanged: widget.reversed
+          ? null
+          : _onKeyboardHeightChanged,
     );
   }
 

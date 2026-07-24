@@ -53,5 +53,7 @@ class ThreadedHeaderServiceLocator {
     }
   }
 
-  Future<void> reset() async { _isInitialized = false; }
+  Future<void> reset() async {
+    _isInitialized = false;
+  }
 }

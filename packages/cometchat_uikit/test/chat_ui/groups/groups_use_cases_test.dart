@@ -59,11 +59,13 @@ void main() {
     });
 
     test('delegates to repository with default limit', () async {
-      when(() => repo.getGroups(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            joinedOnly: any(named: 'joinedOnly'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getGroups(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          joinedOnly: any(named: 'joinedOnly'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase();
       expect(result.isSuccess, isTrue);
@@ -71,34 +73,41 @@ void main() {
     });
 
     test('passes searchKeyword to repository', () async {
-      when(() => repo.getGroups(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            joinedOnly: any(named: 'joinedOnly'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getGroups(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          joinedOnly: any(named: 'joinedOnly'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       await useCase(searchKeyword: 'dev');
       verify(() => repo.getGroups(limit: 30, searchKeyword: 'dev')).called(1);
     });
 
     test('accepts limit of exactly 100', () async {
-      when(() => repo.getGroups(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            joinedOnly: any(named: 'joinedOnly'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getGroups(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          joinedOnly: any(named: 'joinedOnly'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase(limit: 100);
       expect(result.isSuccess, isTrue);
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.getGroups(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            joinedOnly: any(named: 'joinedOnly'),
-          )).thenAnswer(
-              (_) async => const Failure(message: 'Network error', code: 'NET_ERR'));
+      when(
+        () => repo.getGroups(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          joinedOnly: any(named: 'joinedOnly'),
+        ),
+      ).thenAnswer(
+        (_) async => const Failure(message: 'Network error', code: 'NET_ERR'),
+      );
 
       final result = await useCase();
       expect(result.isFailure, isTrue);
@@ -143,22 +152,26 @@ void main() {
     });
 
     test('delegates to repository for valid public group', () async {
-      when(() => repo.joinGroup(
-            guid: any(named: 'guid'),
-            groupType: any(named: 'groupType'),
-            password: any(named: 'password'),
-          )).thenAnswer((_) async => Success(FakeGroup()));
+      when(
+        () => repo.joinGroup(
+          guid: any(named: 'guid'),
+          groupType: any(named: 'groupType'),
+          password: any(named: 'password'),
+        ),
+      ).thenAnswer((_) async => Success(FakeGroup()));
 
       final result = await useCase(guid: 'guid_1', groupType: 'public');
       expect(result.isSuccess, isTrue);
     });
 
     test('delegates to repository for valid password group', () async {
-      when(() => repo.joinGroup(
-            guid: any(named: 'guid'),
-            groupType: any(named: 'groupType'),
-            password: any(named: 'password'),
-          )).thenAnswer((_) async => Success(FakeGroup()));
+      when(
+        () => repo.joinGroup(
+          guid: any(named: 'guid'),
+          groupType: any(named: 'groupType'),
+          password: any(named: 'password'),
+        ),
+      ).thenAnswer((_) async => Success(FakeGroup()));
 
       final result = await useCase(
         guid: 'guid_1',
@@ -166,20 +179,25 @@ void main() {
         password: 'secret',
       );
       expect(result.isSuccess, isTrue);
-      verify(() => repo.joinGroup(
-            guid: 'guid_1',
-            groupType: 'password',
-            password: 'secret',
-          )).called(1);
+      verify(
+        () => repo.joinGroup(
+          guid: 'guid_1',
+          groupType: 'password',
+          password: 'secret',
+        ),
+      ).called(1);
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.joinGroup(
-            guid: any(named: 'guid'),
-            groupType: any(named: 'groupType'),
-            password: any(named: 'password'),
-          )).thenAnswer(
-              (_) async => const Failure(message: 'Join failed', code: 'JOIN_ERR'));
+      when(
+        () => repo.joinGroup(
+          guid: any(named: 'guid'),
+          groupType: any(named: 'groupType'),
+          password: any(named: 'password'),
+        ),
+      ).thenAnswer(
+        (_) async => const Failure(message: 'Join failed', code: 'JOIN_ERR'),
+      );
 
       final result = await useCase(guid: 'guid_1', groupType: 'public');
       expect(result.isFailure, isTrue);
@@ -206,8 +224,9 @@ void main() {
     });
 
     test('delegates to repository with valid guid', () async {
-      when(() => repo.leaveGroup(any()))
-          .thenAnswer((_) async => const Success(null));
+      when(
+        () => repo.leaveGroup(any()),
+      ).thenAnswer((_) async => const Success(null));
 
       final result = await useCase(guid: 'guid_1');
       expect(result.isSuccess, isTrue);
@@ -220,9 +239,9 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.leaveGroup(any()))
-          .thenAnswer((_) async =>
-              const Failure(message: 'Leave failed', code: 'LEAVE_ERR'));
+      when(() => repo.leaveGroup(any())).thenAnswer(
+        (_) async => const Failure(message: 'Leave failed', code: 'LEAVE_ERR'),
+      );
 
       final result = await useCase(guid: 'guid_1');
       expect(result.isFailure, isTrue);

@@ -14,10 +14,8 @@ class GetCallLogsUseCase {
   ///
   /// [limit] - Maximum number of call logs to fetch (default: 30)
   ///
-  /// Returns Result<List<CallLog>> containing call logs or failure.
-  Future<Result<List<CallLog>>> call({
-    int limit = 30,
-  }) async {
+  /// Returns `Result<List<CallLog>>` containing call logs or failure.
+  Future<Result<List<CallLog>>> call({int limit = 30}) async {
     // Validate input parameters
     if (limit <= 0) {
       return const Failure(
@@ -34,8 +32,6 @@ class GetCallLogsUseCase {
     }
 
     // Delegate to repository
-    return await repository.getCallLogs(
-      limit: limit,
-    );
+    return await repository.getCallLogs(limit: limit);
   }
 }

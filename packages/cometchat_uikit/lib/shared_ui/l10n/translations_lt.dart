@@ -835,6 +835,41 @@ class TranslationsLt extends Translations {
   String get failedToLoadImage => 'Nepavyko įkelti vaizdo';
 
   @override
+  String get uploadFailed => 'Įkelti nepavyko';
+
+  @override
+  String get tapToRetry => 'Palieskite, kad bandytumėte dar kartą';
+
+  @override
+  String get dropFilesHere => 'Vilkite failus čia';
+
+  @override
+  String get attachmentCountLimit =>
+      'Prie vienos žinutės galite pridėti iki {limit} failų.';
+
+  @override
+  String get attachmentFileSizeLimit =>
+      'Kiekvienas failas turi būti mažesnis nei {limit}.';
+
+  @override
+  String get fileListShowMore => '+{count} daugiau';
+
+  @override
+  String get fileListShowLess => 'Rodyti mažiau';
+
+  @override
+  String get searchImagesCount => '{count} vaizdai';
+
+  @override
+  String get searchVideosCount => '{count} vaizdo įrašai';
+
+  @override
+  String get searchAudiosCount => '{count} garso įrašai';
+
+  @override
+  String get searchFilesCount => '{count} failai';
+
+  @override
   String get transferOwnership => 'Trasferisci la proprietà';
 
   @override
@@ -1247,13 +1282,16 @@ class TranslationsLt extends Translations {
   String get createGroupEmptyString =>
       'Prašome užpildyti visus privalomus laukus prieš kuriant grupę.';
   @override
-  String get messageBlockedByModeration => 'Jūsų pranešimas buvo užblokuotas dėl moderavimo politikos.';
+  String get messageBlockedByModeration =>
+      'Jūsų pranešimas buvo užblokuotas dėl moderavimo politikos.';
 
   @override
-  String get cantSendMessageBlockedUser => "Negalima išsiųsti žinutės, nes naudotojas užblokuotas.";
+  String get cantSendMessageBlockedUser =>
+      "Negalima išsiųsti žinutės, nes naudotojas užblokuotas.";
 
   @override
-  String get cantSendMessageNotMember => "Negalite siųsti žinučių šiai grupei, nes nebėra jos narys.";
+  String get cantSendMessageNotMember =>
+      "Negalite siųsti žinučių šiai grupei, nes nebėra jos narys.";
 
   @override
   String get youAreNoLongerPartOfThisGroup => 'Jūs nebėra šios grupės narys.';
@@ -1265,10 +1303,12 @@ class TranslationsLt extends Translations {
   String get noConversationHistoryFound => "Pokalbių istorija nerasta.";
 
   @override
-  String get somethingWentWrongTryAgain => "Įvyko klaida mūsų pusėje. Bandykite dar kartą.";
+  String get somethingWentWrongTryAgain =>
+      "Įvyko klaida mūsų pusėje. Bandykite dar kartą.";
 
   @override
-  String get startChatByTappingNewChat => 'Pradėkite pokalbį bakstelėdami mygtuką „Naujas pokalbis“.';
+  String get startChatByTappingNewChat =>
+      'Pradėkite pokalbį bakstelėdami mygtuką „Naujas pokalbis“.';
 
   @override
   String get chatHistory => "Pokalbių istorija";
@@ -1289,7 +1329,8 @@ class TranslationsLt extends Translations {
   @override
   String get noInternetConnection => "Nėra interneto ryšio";
   @override
-  String get logoutFailedTryAgain => "Atsijungti nepavyko. Bandykite dar kartą.";
+  String get logoutFailedTryAgain =>
+      "Atsijungti nepavyko. Bandykite dar kartą.";
   @override
   String get thinking => "Mąstoma...";
   @override
@@ -1311,7 +1352,8 @@ class TranslationsLt extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

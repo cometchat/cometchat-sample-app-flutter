@@ -39,68 +39,66 @@ class InlineAudioRecorderBloc
   }
 
   void _onStartRecording(
-      StartRecording event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
-    emit(state.copyWith(
-      status: InlineAudioRecorderStatus.recording,
-      duration: Duration.zero,
-      amplitudes: [],
-      filePath: null,
-      errorMessage: null,
-    ));
+    StartRecording event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        status: InlineAudioRecorderStatus.recording,
+        duration: Duration.zero,
+        amplitudes: [],
+        filePath: null,
+        errorMessage: null,
+      ),
+    );
 
     _startDurationTimer();
   }
 
   void _onPauseRecording(
-      PauseRecording event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    PauseRecording event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     _stopDurationTimer();
 
-    emit(state.copyWith(
-      status: InlineAudioRecorderStatus.paused,
-    ));
+    emit(state.copyWith(status: InlineAudioRecorderStatus.paused));
   }
 
   void _onResumeRecording(
-      ResumeRecording event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    ResumeRecording event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     if (event.isFreshRestart) {
       // Fresh restart - reset duration and amplitudes
-      emit(state.copyWith(
-        status: InlineAudioRecorderStatus.recording,
-        duration: Duration.zero,
-        amplitudes: [],
-        currentPosition: Duration.zero,
-      ));
+      emit(
+        state.copyWith(
+          status: InlineAudioRecorderStatus.recording,
+          duration: Duration.zero,
+          amplitudes: [],
+          currentPosition: Duration.zero,
+        ),
+      );
     } else {
       // True resume - keep existing duration and amplitudes
-      emit(state.copyWith(
-        status: InlineAudioRecorderStatus.recording,
-      ));
+      emit(state.copyWith(status: InlineAudioRecorderStatus.recording));
     }
 
     _startDurationTimer();
   }
 
   void _onStopRecording(
-      StopRecording event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    StopRecording event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     _stopDurationTimer();
 
-    emit(state.copyWith(
-      status: InlineAudioRecorderStatus.completed,
-    ));
+    emit(state.copyWith(status: InlineAudioRecorderStatus.completed));
   }
 
   void _onCancelRecording(
-      CancelRecording event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    CancelRecording event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     _stopDurationTimer();
     _stopPlaybackTimer();
 
@@ -108,107 +106,114 @@ class InlineAudioRecorderBloc
   }
 
   void _onPlayRecording(
-      PlayRecording event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
-    emit(state.copyWith(
-      status: InlineAudioRecorderStatus.playing,
-      currentPosition: Duration.zero,
-    ));
+    PlayRecording event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        status: InlineAudioRecorderStatus.playing,
+        currentPosition: Duration.zero,
+      ),
+    );
 
     _startPlaybackTimer();
   }
 
   void _onPausePlayback(
-      PausePlayback event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    PausePlayback event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     _stopPlaybackTimer();
 
-    emit(state.copyWith(
-      status: InlineAudioRecorderStatus.paused,
-    ));
+    emit(state.copyWith(status: InlineAudioRecorderStatus.paused));
   }
 
   void _onResumePlayback(
-      ResumePlayback event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    ResumePlayback event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     // Resume playing from current position
-    emit(state.copyWith(
-      status: InlineAudioRecorderStatus.playing,
-    ));
+    emit(state.copyWith(status: InlineAudioRecorderStatus.playing));
 
     _startPlaybackTimer();
   }
 
   void _onUpdateDuration(
-      UpdateDuration event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    UpdateDuration event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     emit(state.copyWith(duration: event.duration));
   }
 
   void _onUpdatePlaybackPosition(
-      UpdatePlaybackPosition event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    UpdatePlaybackPosition event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     emit(state.copyWith(currentPosition: event.position));
   }
 
   void _onUpdateAmplitude(
-      UpdateAmplitude event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    UpdateAmplitude event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     // Store all amplitudes for playback visualization
-    final newAmplitudes = [...state.amplitudes, event.amplitude.clamp(0.0, 1.0)];
+    final newAmplitudes = [
+      ...state.amplitudes,
+      event.amplitude.clamp(0.0, 1.0),
+    ];
     emit(state.copyWith(amplitudes: newAmplitudes));
   }
 
   void _onRecordingCompleted(
-      RecordingCompleted event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    RecordingCompleted event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     _stopDurationTimer();
 
-    emit(state.copyWith(
-      status: InlineAudioRecorderStatus.completed,
-      filePath: event.filePath,
-      duration: event.duration,
-    ));
+    emit(
+      state.copyWith(
+        status: InlineAudioRecorderStatus.completed,
+        filePath: event.filePath,
+        duration: event.duration,
+      ),
+    );
   }
 
   void _onPlaybackCompleted(
-      PlaybackCompleted event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    PlaybackCompleted event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     _stopPlaybackTimer();
 
     // Reset to completed state (not paused) so user can play again
     // Set currentPosition to duration to show full progress
-    emit(state.copyWith(
-      status: InlineAudioRecorderStatus.completed,
-      currentPosition: Duration.zero,
-    ));
+    emit(
+      state.copyWith(
+        status: InlineAudioRecorderStatus.completed,
+        currentPosition: Duration.zero,
+      ),
+    );
   }
 
   void _onRecordingError(
-      RecordingError event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    RecordingError event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     _stopDurationTimer();
     _stopPlaybackTimer();
 
-    emit(state.copyWith(
-      status: InlineAudioRecorderStatus.error,
-      errorMessage: event.message,
-    ));
+    emit(
+      state.copyWith(
+        status: InlineAudioRecorderStatus.error,
+        errorMessage: event.message,
+      ),
+    );
   }
 
   void _onResetRecorder(
-      ResetRecorder event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    ResetRecorder event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     _stopDurationTimer();
     _stopPlaybackTimer();
 
@@ -216,9 +221,9 @@ class InlineAudioRecorderBloc
   }
 
   void _onSeekToPosition(
-      SeekToPosition event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
+    SeekToPosition event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     // Calculate the new position based on progress (0.0 to 1.0)
     final newPosition = Duration(
       milliseconds: (state.duration.inMilliseconds * event.progress).round(),
@@ -228,24 +233,21 @@ class InlineAudioRecorderBloc
     _stopPlaybackTimer();
 
     // Update the current position and set to playing
-    emit(state.copyWith(
-      status: InlineAudioRecorderStatus.playing,
-      currentPosition: newPosition,
-    ));
+    emit(
+      state.copyWith(
+        status: InlineAudioRecorderStatus.playing,
+        currentPosition: newPosition,
+      ),
+    );
 
     // Start the playback timer from the new position
     _startPlaybackTimerFromPosition(newPosition);
   }
 
   void _onSetExtractedWaveform(
-      SetExtractedWaveform event,
-      Emitter<InlineAudioRecorderState> emit,
-      ) {
-    // Debug: print the waveform being set
-    if (event.waveform.isNotEmpty) {
-      print('[InlineAudioRecorderBloc] Setting extracted waveform with ${event.waveform.length} samples');
-      print('[InlineAudioRecorderBloc] First few values: ${event.waveform.take(5).toList()}');
-    }
+    SetExtractedWaveform event,
+    Emitter<InlineAudioRecorderState> emit,
+  ) {
     emit(state.copyWith(extractedWaveform: event.waveform));
   }
 
@@ -269,7 +271,9 @@ class InlineAudioRecorderBloc
     _playbackTimer?.cancel();
 
     // Poll native player status every 100ms for accurate position tracking
-    _playbackTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) async {
+    _playbackTimer = Timer.periodic(const Duration(milliseconds: 100), (
+      timer,
+    ) async {
       try {
         final status = await _channel.invokeMethod('getPlaybackStatus', {});
 
@@ -282,7 +286,9 @@ class InlineAudioRecorderBloc
             add(const PlaybackCompleted());
           } else {
             // Update position from native player
-            add(UpdatePlaybackPosition(Duration(milliseconds: currentPosition)));
+            add(
+              UpdatePlaybackPosition(Duration(milliseconds: currentPosition)),
+            );
           }
         }
       } catch (e) {

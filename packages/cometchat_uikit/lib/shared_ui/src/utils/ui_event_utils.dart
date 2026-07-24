@@ -1,6 +1,9 @@
 class UIEventUtils {
   static Map<String, dynamic> createMap(
-      String? uid, String? guid, int? parentMessageId) {
+    String? uid,
+    String? guid,
+    int? parentMessageId,
+  ) {
     Map<String, dynamic> mapId = {};
 
     if (uid != null) {

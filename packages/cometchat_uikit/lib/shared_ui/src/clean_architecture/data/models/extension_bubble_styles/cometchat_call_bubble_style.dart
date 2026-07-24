@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../../cometchat_uikit_shared.dart' show CometChatAvatarStyle, CometChatDateStyle, CometChatMessageReceiptStyle;
+import '../../../../../cometchat_uikit_shared.dart'
+    show CometChatAvatarStyle, CometChatDateStyle, CometChatMessageReceiptStyle;
 
 ///[CometChatCallBubbleStyle] is a data class that has styling-related properties
 ///to customize the appearance of [CometChatCallBubble]
@@ -23,8 +24,9 @@ import '../../../../../cometchat_uikit_shared.dart' show CometChatAvatarStyle, C
 ///  ),
 ///  );
 ///
-class CometChatCallBubbleStyle extends ThemeExtension<CometChatCallBubbleStyle> {
-  ///[CometChatCallBubbleStyle] constructor requires [titleStyle], [subtitleStyle], [buttonTextStyle], [iconColor] and [background] while initializing.
+class CometChatCallBubbleStyle
+    extends ThemeExtension<CometChatCallBubbleStyle> {
+  ///[CometChatCallBubbleStyle] constructor requires [titleStyle], [subtitleStyle], [buttonTextStyle], [iconColor] and [backgroundColor] while initializing.
   const CometChatCallBubbleStyle({
     this.titleStyle,
     this.subtitleStyle,
@@ -42,7 +44,7 @@ class CometChatCallBubbleStyle extends ThemeExtension<CometChatCallBubbleStyle> 
     this.threadedMessageIndicatorTextStyle,
     this.senderNameTextStyle,
     this.threadedMessageIndicatorIconColor,
-    this.dividerColor
+    this.dividerColor,
   });
 
   ///[titleStyle] title text style
@@ -68,7 +70,7 @@ class CometChatCallBubbleStyle extends ThemeExtension<CometChatCallBubbleStyle> 
 
   ///[borderRadius] sets the Call bubble border radius
   final BorderRadiusGeometry? borderRadius;
-  
+
   ///[iconBackgroundColor] sets the Call bubble icon background color
   final Color? iconBackgroundColor;
 
@@ -115,26 +117,34 @@ class CometChatCallBubbleStyle extends ThemeExtension<CometChatCallBubbleStyle> 
     Color? threadedMessageIndicatorIconColor,
     TextStyle? senderNameTextStyle,
     CometChatMessageReceiptStyle? messageReceiptStyle,
-    Color? dividerColor
+    Color? dividerColor,
   }) {
     return CometChatCallBubbleStyle(
       titleStyle: titleStyle ?? this.titleStyle,
       subtitleStyle: subtitleStyle ?? this.subtitleStyle,
       buttonTextStyle: buttonTextStyle ?? this.buttonTextStyle,
-      buttonBackgroundColor: buttonBackgroundColor ?? this.buttonBackgroundColor,
+      buttonBackgroundColor:
+          buttonBackgroundColor ?? this.buttonBackgroundColor,
       iconColor: iconColor ?? this.iconColor,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
       iconBackgroundColor: iconBackgroundColor ?? this.iconBackgroundColor,
-      messageBubbleAvatarStyle: messageBubbleAvatarStyle ?? this.messageBubbleAvatarStyle,
-      messageBubbleDateStyle: messageBubbleDateStyle ?? this.messageBubbleDateStyle,
-      messageBubbleBackgroundImage: messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
-      threadedMessageIndicatorTextStyle: threadedMessageIndicatorTextStyle ?? this.threadedMessageIndicatorTextStyle,
-      threadedMessageIndicatorIconColor: threadedMessageIndicatorIconColor ?? this.threadedMessageIndicatorIconColor,
+      messageBubbleAvatarStyle:
+          messageBubbleAvatarStyle ?? this.messageBubbleAvatarStyle,
+      messageBubbleDateStyle:
+          messageBubbleDateStyle ?? this.messageBubbleDateStyle,
+      messageBubbleBackgroundImage:
+          messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
+      threadedMessageIndicatorTextStyle:
+          threadedMessageIndicatorTextStyle ??
+          this.threadedMessageIndicatorTextStyle,
+      threadedMessageIndicatorIconColor:
+          threadedMessageIndicatorIconColor ??
+          this.threadedMessageIndicatorIconColor,
       messageReceiptStyle: messageReceiptStyle ?? this.messageReceiptStyle,
       senderNameTextStyle: senderNameTextStyle ?? this.senderNameTextStyle,
-      dividerColor: dividerColor ?? this.dividerColor
+      dividerColor: dividerColor ?? this.dividerColor,
     );
   }
 
@@ -156,35 +166,81 @@ class CometChatCallBubbleStyle extends ThemeExtension<CometChatCallBubbleStyle> 
       messageBubbleAvatarStyle: other.messageBubbleAvatarStyle,
       messageBubbleBackgroundImage: other.messageBubbleBackgroundImage,
       messageBubbleDateStyle: other.messageBubbleDateStyle,
-      threadedMessageIndicatorIconColor: other.threadedMessageIndicatorIconColor,
-      threadedMessageIndicatorTextStyle: other.threadedMessageIndicatorTextStyle,
-      dividerColor: other.dividerColor
+      threadedMessageIndicatorIconColor:
+          other.threadedMessageIndicatorIconColor,
+      threadedMessageIndicatorTextStyle:
+          other.threadedMessageIndicatorTextStyle,
+      dividerColor: other.dividerColor,
     );
   }
 
   @override
-  CometChatCallBubbleStyle lerp(covariant ThemeExtension<CometChatCallBubbleStyle>? other, double t) {
+  CometChatCallBubbleStyle lerp(
+    covariant ThemeExtension<CometChatCallBubbleStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatCallBubbleStyle) {
       return this;
     }
     return CometChatCallBubbleStyle(
       titleStyle: TextStyle.lerp(titleStyle, other.titleStyle, t),
       subtitleStyle: TextStyle.lerp(subtitleStyle, other.subtitleStyle, t),
-      buttonTextStyle: TextStyle.lerp(buttonTextStyle, other.buttonTextStyle, t),
-      buttonBackgroundColor: Color.lerp(buttonBackgroundColor, other.buttonBackgroundColor, t),
+      buttonTextStyle: TextStyle.lerp(
+        buttonTextStyle,
+        other.buttonTextStyle,
+        t,
+      ),
+      buttonBackgroundColor: Color.lerp(
+        buttonBackgroundColor,
+        other.buttonBackgroundColor,
+        t,
+      ),
       iconColor: Color.lerp(iconColor, other.iconColor, t),
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
-      iconBackgroundColor: Color.lerp(iconBackgroundColor, other.iconBackgroundColor, t),
-      threadedMessageIndicatorTextStyle: TextStyle.lerp(threadedMessageIndicatorTextStyle, other.threadedMessageIndicatorTextStyle, t),
-      threadedMessageIndicatorIconColor: Color.lerp(threadedMessageIndicatorIconColor, other.threadedMessageIndicatorIconColor, t),
-      senderNameTextStyle: TextStyle.lerp(senderNameTextStyle, other.senderNameTextStyle, t),
-      messageReceiptStyle: messageReceiptStyle?.lerp(other.messageReceiptStyle, t),
-      messageBubbleAvatarStyle: messageBubbleAvatarStyle?.lerp(other.messageBubbleAvatarStyle, t),
-      messageBubbleBackgroundImage: DecorationImage.lerp(messageBubbleBackgroundImage, other.messageBubbleBackgroundImage, t),
-      messageBubbleDateStyle: messageBubbleDateStyle?.lerp(other.messageBubbleDateStyle, t),
-      dividerColor: Color.lerp(dividerColor, other.dividerColor, t)
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
+      iconBackgroundColor: Color.lerp(
+        iconBackgroundColor,
+        other.iconBackgroundColor,
+        t,
+      ),
+      threadedMessageIndicatorTextStyle: TextStyle.lerp(
+        threadedMessageIndicatorTextStyle,
+        other.threadedMessageIndicatorTextStyle,
+        t,
+      ),
+      threadedMessageIndicatorIconColor: Color.lerp(
+        threadedMessageIndicatorIconColor,
+        other.threadedMessageIndicatorIconColor,
+        t,
+      ),
+      senderNameTextStyle: TextStyle.lerp(
+        senderNameTextStyle,
+        other.senderNameTextStyle,
+        t,
+      ),
+      messageReceiptStyle: messageReceiptStyle?.lerp(
+        other.messageReceiptStyle,
+        t,
+      ),
+      messageBubbleAvatarStyle: messageBubbleAvatarStyle?.lerp(
+        other.messageBubbleAvatarStyle,
+        t,
+      ),
+      messageBubbleBackgroundImage: DecorationImage.lerp(
+        messageBubbleBackgroundImage,
+        other.messageBubbleBackgroundImage,
+        t,
+      ),
+      messageBubbleDateStyle: messageBubbleDateStyle?.lerp(
+        other.messageBubbleDateStyle,
+        t,
+      ),
+      dividerColor: Color.lerp(dividerColor, other.dividerColor, t),
     );
   }
 

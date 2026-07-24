@@ -23,9 +23,9 @@ class FakeTextMessage extends Fake implements TextMessage {
     String? muid,
     String text = 'hello',
     int parentMessageId = 0,
-  })  : _muid = muid ?? 'muid_$_id',
-        _text = text,
-        _parentMessageId = parentMessageId;
+  }) : _muid = muid ?? 'muid_$_id',
+       _text = text,
+       _parentMessageId = parentMessageId;
 
   @override
   int get id => _id;
@@ -116,12 +116,9 @@ class FakeBaseMessage extends Fake implements BaseMessage {
   final String _muid;
   final int _parentMessageId;
 
-  FakeBaseMessage(
-    this._id, {
-    String? muid,
-    int parentMessageId = 0,
-  })  : _muid = muid ?? 'muid_$_id',
-        _parentMessageId = parentMessageId;
+  FakeBaseMessage(this._id, {String? muid, int parentMessageId = 0})
+    : _muid = muid ?? 'muid_$_id',
+      _parentMessageId = parentMessageId;
 
   @override
   int get id => _id;
@@ -252,24 +249,25 @@ Generator<IndexedMessageList> indexedMessageListGen({int maxLength = 20}) {
   return any
       .listWithLengthInRange(1, maxLength, messageGen())
       .bind((list) {
-    return any.intInRange(0, list.length).map((i) {
-      return IndexedMessageList(list, i);
-    });
-  }).map((il) {
-    // Ensure the selected message has a unique id so removal by id is unambiguous.
-    final targetId = il.list[il.index].id;
-    final dedup = <BaseMessage>[];
-    for (var i = 0; i < il.list.length; i++) {
-      final m = il.list[i];
-      if (i == il.index) {
-        dedup.add(m);
-      } else if (m.id == targetId) {
-        // Replace duplicate with a fresh unique id
-        dedup.add(FakeBaseMessage(targetId + 100000 + i));
-      } else {
-        dedup.add(m);
-      }
-    }
-    return IndexedMessageList(dedup, il.index);
-  });
+        return any.intInRange(0, list.length).map((i) {
+          return IndexedMessageList(list, i);
+        });
+      })
+      .map((il) {
+        // Ensure the selected message has a unique id so removal by id is unambiguous.
+        final targetId = il.list[il.index].id;
+        final dedup = <BaseMessage>[];
+        for (var i = 0; i < il.list.length; i++) {
+          final m = il.list[i];
+          if (i == il.index) {
+            dedup.add(m);
+          } else if (m.id == targetId) {
+            // Replace duplicate with a fresh unique id
+            dedup.add(FakeBaseMessage(targetId + 100000 + i));
+          } else {
+            dedup.add(m);
+          }
+        }
+        return IndexedMessageList(dedup, il.index);
+      });
 }

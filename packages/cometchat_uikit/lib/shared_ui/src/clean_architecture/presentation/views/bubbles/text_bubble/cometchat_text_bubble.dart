@@ -81,14 +81,20 @@ class _CometChatTextBubbleState extends State<CometChatTextBubble> {
     super.didChangeDependencies();
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
-      _textBubbleStyle = CometChatThemeHelper.getTheme<CometChatTextBubbleStyle>(
-          context: context, defaultTheme: CometChatTextBubbleStyle.of).merge(widget.style);
+      _textBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatTextBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatTextBubbleStyle.of,
+          ).merge(widget.style);
       // Use passed values OR fallback to lookup (for standalone usage)
-      _typography = widget.typography ?? CometChatThemeHelper.getTypography(context);
-      _colorPalette = widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+      _typography =
+          widget.typography ?? CometChatThemeHelper.getTypography(context);
+      _colorPalette =
+          widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
       _spacing = widget.spacing ?? CometChatThemeHelper.getSpacing(context);
       // Cache screen width ONCE to avoid MediaQuery rebuilds during keyboard animation
       _cachedMaxWidth = MediaQuery.sizeOf(context).width * (75 / 100);
@@ -103,17 +109,22 @@ class _CometChatTextBubbleState extends State<CometChatTextBubble> {
     super.didUpdateWidget(oldWidget);
     // Update style if it changed
     if (widget.style != oldWidget.style) {
-      _textBubbleStyle = CometChatThemeHelper.getTheme<CometChatTextBubbleStyle>(
-          context: context, defaultTheme: CometChatTextBubbleStyle.of).merge(widget.style);
+      _textBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatTextBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatTextBubbleStyle.of,
+          ).merge(widget.style);
     }
     // Update cached theme values if they changed
-    if (widget.colorPalette != oldWidget.colorPalette && widget.colorPalette != null) {
+    if (widget.colorPalette != oldWidget.colorPalette &&
+        widget.colorPalette != null) {
       _colorPalette = widget.colorPalette;
     }
     if (widget.spacing != oldWidget.spacing && widget.spacing != null) {
       _spacing = widget.spacing;
     }
-    if (widget.typography != oldWidget.typography && widget.typography != null) {
+    if (widget.typography != oldWidget.typography &&
+        widget.typography != null) {
       _typography = widget.typography;
     }
   }
@@ -138,10 +149,14 @@ class _CometChatTextBubbleState extends State<CometChatTextBubble> {
     if (widget.emojiCount > 0) {
       final emojiFontSize = EmojiUtils.emojiFontSize(widget.emojiCount);
       return Padding(
-        padding: widget.padding ?? EdgeInsets.fromLTRB(
-          spacing.padding2 ?? 0, spacing.padding1 ?? 0,
-          spacing.padding2 ?? 0, 0,
-        ),
+        padding:
+            widget.padding ??
+            EdgeInsets.fromLTRB(
+              spacing.padding2 ?? 0,
+              spacing.padding1 ?? 0,
+              spacing.padding2 ?? 0,
+              0,
+            ),
         child: Text(
           message,
           style: TextStyle(
@@ -153,37 +168,52 @@ class _CometChatTextBubbleState extends State<CometChatTextBubble> {
       );
     }
 
-    final textStyle = TextStyle(
-        color: (widget.alignment == BubbleAlignment.right
-            ? colorPalette.white
-            : colorPalette.neutral900),
-        fontWeight: typography.body?.regular?.fontWeight,
-        fontSize: typography.body?.regular?.fontSize,
-        fontFamily: typography.body?.regular?.fontFamily)
-        .merge(textBubbleStyle.textStyle)
-        .copyWith(color: textBubbleStyle.textColor);
+    final textStyle =
+        TextStyle(
+              color: (widget.alignment == BubbleAlignment.right
+                  ? colorPalette.white
+                  : colorPalette.neutral900),
+              fontWeight: typography.body?.regular?.fontWeight,
+              fontSize: typography.body?.regular?.fontSize,
+              fontFamily: typography.body?.regular?.fontFamily,
+            )
+            .merge(textBubbleStyle.textStyle)
+            .copyWith(color: textBubbleStyle.textColor);
 
     return Container(
-        height: widget.height,
-        constraints: BoxConstraints(
-            maxWidth: widget.width ?? _cachedMaxWidth),
-        decoration: BoxDecoration(
-          border: textBubbleStyle.border,
-          borderRadius: textBubbleStyle.borderRadius ??
-              BorderRadius.circular(spacing.radius3 ?? 0),
-          color: textBubbleStyle.backgroundColor ?? colorPalette.transparent,
-        ),
-        child: Padding(
-          padding: widget.padding ?? EdgeInsets.fromLTRB(spacing.padding2 ?? 0, spacing.padding2 ?? 0, spacing.padding2 ?? 0, 0),
-          child: RichText(
-            textScaler: _cachedTextScaler,
-            // Text should always be left-aligned within the bubble
-            textAlign: TextAlign.left,
-            text: TextSpan(
-                style: textStyle,
-                children: FormatterUtils.buildTextSpan(
-                    message, widget.formatters, context, widget.alignment)),
+      height: widget.height,
+      constraints: BoxConstraints(maxWidth: widget.width ?? _cachedMaxWidth),
+      decoration: BoxDecoration(
+        border: textBubbleStyle.border,
+        borderRadius:
+            textBubbleStyle.borderRadius ??
+            BorderRadius.circular(spacing.radius3 ?? 0),
+        color: textBubbleStyle.backgroundColor ?? colorPalette.transparent,
+      ),
+      child: Padding(
+        padding:
+            widget.padding ??
+            EdgeInsets.fromLTRB(
+              spacing.padding2 ?? 0,
+              spacing.padding2 ?? 0,
+              spacing.padding2 ?? 0,
+              0,
+            ),
+        child: RichText(
+          textScaler: _cachedTextScaler,
+          // Text should always be left-aligned within the bubble
+          textAlign: TextAlign.left,
+          text: TextSpan(
+            style: textStyle,
+            children: FormatterUtils.buildTextSpan(
+              message,
+              widget.formatters,
+              context,
+              widget.alignment,
+            ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

@@ -1,24 +1,26 @@
 import 'package:flutter/foundation.dart';
-import '../../../../../cometchat_uikit_shared.dart' show UIElementTypeConstants, ModelFieldConstants, DateTimeVisibilityMode;
+import '../../../../../cometchat_uikit_shared.dart'
+    show UIElementTypeConstants, ModelFieldConstants, DateTimeVisibilityMode;
 import 'base_input_element.dart';
 import 'text_input_placeholder.dart';
+
 /// Represents a dropdown model class , used to draw dropdown .
 class DateTimeElement extends BaseInputElement<String> {
-  DateTimeElement(
-      {super.elementType = UIElementTypeConstants.dropdown,
-      required super.elementId,
-      required this.label,
-      this.mode = DateTimeVisibilityMode.dateTime,
-      this.from,
-      this.to,
-      this.placeholder,
-      this.dateTimeFormat,
-      this.defaultDateTime,
-      String? response,
-      super.defaultValue,
-      bool? optional,
-      this.formattedResponse})
-      : super(optional: optional ?? true);
+  DateTimeElement({
+    super.elementType = UIElementTypeConstants.dropdown,
+    required super.elementId,
+    required this.label,
+    this.mode = DateTimeVisibilityMode.dateTime,
+    this.from,
+    this.to,
+    this.placeholder,
+    this.dateTimeFormat,
+    this.defaultDateTime,
+    String? response,
+    super.defaultValue,
+    bool? optional,
+    this.formattedResponse,
+  }) : super(optional: optional ?? true);
 
   String label;
   DateTimeVisibilityMode mode;
@@ -61,9 +63,11 @@ class DateTimeElement extends BaseInputElement<String> {
     try {
       if (mode == DateTimeVisibilityMode.time) {
         from = DateTime.parse(
-            (cometchatConstantString + map[ModelFieldConstants.from]));
+          (cometchatConstantString + map[ModelFieldConstants.from]),
+        );
         defaultDateTime = DateTime.parse(
-            (cometchatConstantString + map[ModelFieldConstants.defaultValue]));
+          (cometchatConstantString + map[ModelFieldConstants.defaultValue]),
+        );
       } else {
         from = DateTime.parse(map[ModelFieldConstants.from]);
         defaultDateTime = DateTime.parse(map[ModelFieldConstants.defaultValue]);
@@ -73,7 +77,8 @@ class DateTimeElement extends BaseInputElement<String> {
     try {
       if (mode == DateTimeVisibilityMode.time) {
         to = DateTime.parse(
-            (cometchatConstantString + map[ModelFieldConstants.to]));
+          (cometchatConstantString + map[ModelFieldConstants.to]),
+        );
       } else {
         to = DateTime.parse(map[ModelFieldConstants.to]);
       }

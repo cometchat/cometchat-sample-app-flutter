@@ -1,5 +1,5 @@
 import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import 'package:flutter/widgets.dart';
 
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
@@ -19,7 +19,11 @@ class CallOperationsRepositoryImpl implements CallOperationsRepository {
       final result = await dataSource.initiateCall(call);
       return Success(result);
     } on CallOperationsException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(message: 'Unexpected error initiating call: $e');
     }
@@ -31,7 +35,11 @@ class CallOperationsRepositoryImpl implements CallOperationsRepository {
       final result = await dataSource.acceptCall(sessionId);
       return Success(result);
     } on CallOperationsException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(message: 'Unexpected error accepting call: $e');
     }
@@ -43,7 +51,11 @@ class CallOperationsRepositoryImpl implements CallOperationsRepository {
       final result = await dataSource.rejectCall(sessionId, status);
       return Success(result);
     } on CallOperationsException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(message: 'Unexpected error rejecting call: $e');
     }
@@ -55,7 +67,11 @@ class CallOperationsRepositoryImpl implements CallOperationsRepository {
       final result = await dataSource.endCall(sessionId);
       return Success(result);
     } on CallOperationsException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(message: 'Unexpected error ending call: $e');
     }
@@ -67,7 +83,11 @@ class CallOperationsRepositoryImpl implements CallOperationsRepository {
       final token = await dataSource.generateCallToken(sessionId);
       return Success(token);
     } on CallOperationsException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(message: 'Unexpected error generating call token: $e');
     }
@@ -75,12 +95,18 @@ class CallOperationsRepositoryImpl implements CallOperationsRepository {
 
   @override
   Future<Result<Widget>> startSession(
-      String sessionId, SessionSettings settings) async {
+    String sessionId,
+    SessionSettings settings,
+  ) async {
     try {
       final widget = await dataSource.startSession(sessionId, settings);
       return Success(widget);
     } on CallOperationsException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(message: 'Unexpected error starting session: $e');
     }
@@ -92,7 +118,11 @@ class CallOperationsRepositoryImpl implements CallOperationsRepository {
       await dataSource.endSession();
       return const Success(null);
     } on CallOperationsException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(message: 'Unexpected error ending session: $e');
     }
@@ -104,7 +134,11 @@ class CallOperationsRepositoryImpl implements CallOperationsRepository {
       final result = await dataSource.sendCustomMessage(message);
       return Success(result);
     } on CallOperationsException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(message: 'Unexpected error sending custom message: $e');
     }

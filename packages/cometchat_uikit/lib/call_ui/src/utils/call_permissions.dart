@@ -48,10 +48,7 @@ class CallPermissions {
     developer.log(
       'CallPermissions.requestMicrophoneAndCamera: before mic=$micBefore cam=$camBefore',
     );
-    final statuses = await [
-      Permission.microphone,
-      Permission.camera,
-    ].request();
+    final statuses = await [Permission.microphone, Permission.camera].request();
 
     final micGranted = statuses[Permission.microphone]?.isGranted ?? false;
     final camGranted = statuses[Permission.camera]?.isGranted ?? false;
@@ -60,9 +57,7 @@ class CallPermissions {
     );
 
     if (!micGranted || !camGranted) {
-      developer.log(
-        'CallPermissions: mic=$micGranted, camera=$camGranted',
-      );
+      developer.log('CallPermissions: mic=$micGranted, camera=$camGranted');
     }
     return micGranted && camGranted;
   }

@@ -39,12 +39,20 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   static const Set<int> _messageFilterGroups = {2, 3, 4};
 
   static const List<SearchFilter> defaultFilters = [
-    SearchFilter(label: 'Unread', group: 1, icon: Icons.mark_email_unread_outlined),
+    SearchFilter(
+      label: 'Unread',
+      group: 1,
+      icon: Icons.mark_email_unread_outlined,
+    ),
     SearchFilter(label: 'Groups', group: 1, icon: Icons.people_outline),
     SearchFilter(label: 'Photos', group: 2, icon: Icons.photo_outlined),
     SearchFilter(label: 'Videos', group: 2, icon: Icons.videocam_outlined),
     SearchFilter(label: 'Audio', group: 3, icon: Icons.audiotrack_outlined),
-    SearchFilter(label: 'Documents', group: 3, icon: Icons.insert_drive_file_outlined),
+    SearchFilter(
+      label: 'Documents',
+      group: 3,
+      icon: Icons.insert_drive_file_outlined,
+    ),
     SearchFilter(label: 'Links', group: 4, icon: Icons.link),
   ];
 
@@ -56,21 +64,23 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     this.messagesRequestBuilder,
     List<SearchFilter>? searchFilters,
     List<SearchScope>? searchScopes,
-  })  : allFilters = _resolveAllowedFilters(
-          searchFilters,
-          searchScopes,
-          initialScope,
-        ),
-        super(SearchState(
-          scope: initialScope,
-          showConversations: initialScope != SearchScope.messages,
-          showMessages: initialScope != SearchScope.conversations,
-          visibleFilters: _resolveAllowedFilters(
-            searchFilters,
-            searchScopes,
-            initialScope,
-          ),
-        )) {
+  }) : allFilters = _resolveAllowedFilters(
+         searchFilters,
+         searchScopes,
+         initialScope,
+       ),
+       super(
+         SearchState(
+           scope: initialScope,
+           showConversations: initialScope != SearchScope.messages,
+           showMessages: initialScope != SearchScope.conversations,
+           visibleFilters: _resolveAllowedFilters(
+             searchFilters,
+             searchScopes,
+             initialScope,
+           ),
+         ),
+       ) {
     on<SearchTextChanged>(_onSearchTextChanged);
     on<SearchFilterToggled>(_onFilterToggled);
     on<LoadMoreConversationResults>(_onLoadMoreConversations);
@@ -137,16 +147,18 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     if (text.isEmpty && state.selectedFilters.isEmpty) {
       _conversationRequestVersion++;
       _messageRequestVersion++;
-      emit(state.copyWith(
-        searchText: '',
-        conversationsStatus: SearchStatus.initial,
-        conversations: const [],
-        hasMoreConversations: false,
-        messagesStatus: SearchStatus.initial,
-        messages: const [],
-        hasMoreMessages: false,
-        clearError: true,
-      ));
+      emit(
+        state.copyWith(
+          searchText: '',
+          conversationsStatus: SearchStatus.initial,
+          conversations: const [],
+          hasMoreConversations: false,
+          messagesStatus: SearchStatus.initial,
+          messages: const [],
+          hasMoreMessages: false,
+          clearError: true,
+        ),
+      );
       return;
     }
 
@@ -157,10 +169,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     });
   }
 
-  void _onFilterToggled(
-    SearchFilterToggled event,
-    Emitter<SearchState> emit,
-  ) {
+  void _onFilterToggled(SearchFilterToggled event, Emitter<SearchState> emit) {
     final label = event.label;
     final currentSelected = Set<String>.from(state.selectedFilters);
     final tappedFilter = allFilters.firstWhere((f) => f.label == label);
@@ -182,7 +191,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       visible = allFilters;
     } else {
       // Show only same-group filters, with tapped filter moved to front
-      final sameGroup = allFilters.where((f) => f.group == tappedGroup).toList();
+      final sameGroup = allFilters
+          .where((f) => f.group == tappedGroup)
+          .toList();
       final tappedIndex = sameGroup.indexWhere((f) => f.label == label);
       if (tappedIndex > 0) {
         final tapped = sameGroup.removeAt(tappedIndex);
@@ -213,12 +224,14 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       showMsg = state.scope != SearchScope.conversations;
     }
 
-    emit(state.copyWith(
-      selectedFilters: currentSelected,
-      visibleFilters: visible,
-      showConversations: showConv,
-      showMessages: showMsg,
-    ));
+    emit(
+      state.copyWith(
+        selectedFilters: currentSelected,
+        visibleFilters: visible,
+        showConversations: showConv,
+        showMessages: showMsg,
+      ),
+    );
 
     _debounceTimer?.cancel();
 
@@ -226,15 +239,17 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     if (currentSelected.isEmpty && state.searchText.isEmpty) {
       _conversationRequestVersion++;
       _messageRequestVersion++;
-      emit(state.copyWith(
-        conversationsStatus: SearchStatus.initial,
-        conversations: const [],
-        hasMoreConversations: false,
-        messagesStatus: SearchStatus.initial,
-        messages: const [],
-        hasMoreMessages: false,
-        clearError: true,
-      ));
+      emit(
+        state.copyWith(
+          conversationsStatus: SearchStatus.initial,
+          conversations: const [],
+          hasMoreConversations: false,
+          messagesStatus: SearchStatus.initial,
+          messages: const [],
+          hasMoreMessages: false,
+          clearError: true,
+        ),
+      );
       return;
     }
 
@@ -251,18 +266,22 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     _isFetchingMessages = false;
 
     if (state.showConversations) {
-      emit(state.copyWith(
-        conversationsStatus: SearchStatus.loading,
-        conversations: const [],
-        hasMoreConversations: false,
-      ));
+      emit(
+        state.copyWith(
+          conversationsStatus: SearchStatus.loading,
+          conversations: const [],
+          hasMoreConversations: false,
+        ),
+      );
     }
     if (state.showMessages) {
-      emit(state.copyWith(
-        messagesStatus: SearchStatus.loading,
-        messages: const [],
-        hasMoreMessages: false,
-      ));
+      emit(
+        state.copyWith(
+          messagesStatus: SearchStatus.loading,
+          messages: const [],
+          hasMoreMessages: false,
+        ),
+      );
     }
   }
 
@@ -286,12 +305,14 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     _debounceTimer?.cancel();
     _conversationRequestVersion++;
     _messageRequestVersion++;
-    emit(SearchState(
-      scope: initialScope,
-      showConversations: initialScope != SearchScope.messages,
-      showMessages: initialScope != SearchScope.conversations,
-      visibleFilters: allFilters,
-    ));
+    emit(
+      SearchState(
+        scope: initialScope,
+        showConversations: initialScope != SearchScope.messages,
+        showMessages: initialScope != SearchScope.conversations,
+        visibleFilters: allFilters,
+      ),
+    );
   }
 
   /// Re-trigger the current search with existing text and filters.
@@ -317,44 +338,61 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   // ============================================================
 
   void _onConversationsResult(
-      ConversationsResultReceived event, Emitter<SearchState> emit) {
+    ConversationsResultReceived event,
+    Emitter<SearchState> emit,
+  ) {
     final list = event.append
         ? [...state.conversations, ...event.conversations]
         : event.conversations;
-    emit(state.copyWith(
-      conversationsStatus:
-          list.isEmpty ? SearchStatus.empty : SearchStatus.loaded,
-      conversations: list,
-      hasMoreConversations: event.hasMore,
-    ));
+    emit(
+      state.copyWith(
+        conversationsStatus: list.isEmpty
+            ? SearchStatus.empty
+            : SearchStatus.loaded,
+        conversations: list,
+        hasMoreConversations: event.hasMore,
+      ),
+    );
   }
 
   void _onConversationsError(
-      ConversationsErrorReceived event, Emitter<SearchState> emit) {
-    emit(state.copyWith(
-      conversationsStatus: SearchStatus.error,
-      errorMessage: event.message,
-    ));
+    ConversationsErrorReceived event,
+    Emitter<SearchState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        conversationsStatus: SearchStatus.error,
+        errorMessage: event.message,
+      ),
+    );
   }
 
   void _onMessagesResult(
-      MessagesResultReceived event, Emitter<SearchState> emit) {
+    MessagesResultReceived event,
+    Emitter<SearchState> emit,
+  ) {
     final list = event.append
         ? [...state.messages, ...event.messages]
         : event.messages;
-    emit(state.copyWith(
-      messagesStatus: list.isEmpty ? SearchStatus.empty : SearchStatus.loaded,
-      messages: list,
-      hasMoreMessages: event.hasMore,
-    ));
+    emit(
+      state.copyWith(
+        messagesStatus: list.isEmpty ? SearchStatus.empty : SearchStatus.loaded,
+        messages: list,
+        hasMoreMessages: event.hasMore,
+      ),
+    );
   }
 
   void _onMessagesError(
-      MessagesErrorReceived event, Emitter<SearchState> emit) {
-    emit(state.copyWith(
-      messagesStatus: SearchStatus.error,
-      errorMessage: event.message,
-    ));
+    MessagesErrorReceived event,
+    Emitter<SearchState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        messagesStatus: SearchStatus.error,
+        errorMessage: event.message,
+      ),
+    );
   }
 
   // ============================================================
@@ -424,8 +462,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     _fetchConversations(version, append: false);
   }
 
-  Future<void> _fetchConversations(int version,
-      {required bool append}) async {
+  Future<void> _fetchConversations(int version, {required bool append}) async {
     if (_isFetchingConversations) return;
     _isFetchingConversations = true;
 
@@ -443,13 +480,16 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final results = await completer.future;
       if (version != _conversationRequestVersion || isClosed) return;
 
-      final limit =
-          state.selectedFilters.isNotEmpty ? _filteredLimit : _defaultLimit;
-      add(ConversationsResultReceived(
-        conversations: results,
-        hasMore: results.length >= limit,
-        append: append,
-      ));
+      final limit = state.selectedFilters.isNotEmpty
+          ? _filteredLimit
+          : _defaultLimit;
+      add(
+        ConversationsResultReceived(
+          conversations: results,
+          hasMore: results.length >= limit,
+          append: append,
+        ),
+      );
     } catch (e) {
       if (version != _conversationRequestVersion || isClosed) return;
       add(ConversationsErrorReceived(e.toString()));
@@ -477,7 +517,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     // When multiple attachment filters are selected, fire separate requests
     // and merge results client-side.
     if (attachmentFilterLabels.length > 1) {
-      _searchMessagesMultiFilter(text, filters, attachmentFilterLabels, version);
+      _searchMessagesMultiFilter(
+        text,
+        filters,
+        attachmentFilterLabels,
+        version,
+      );
       return;
     }
 
@@ -490,7 +535,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   /// Builds a MessagesRequestBuilder with common settings.
-  MessagesRequestBuilder _buildMessagesRequest(String text, Set<String> filters) {
+  MessagesRequestBuilder _buildMessagesRequest(
+    String text,
+    Set<String> filters,
+  ) {
     final builder = MessagesRequestBuilder();
 
     if (messagesRequestBuilder != null) {
@@ -588,11 +636,13 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         return bTime.compareTo(aTime);
       });
 
-      add(MessagesResultReceived(
-        messages: allResults,
-        hasMore: false, // Pagination not supported for merged results
-        append: false,
-      ));
+      add(
+        MessagesResultReceived(
+          messages: allResults,
+          hasMore: false, // Pagination not supported for merged results
+          append: false,
+        ),
+      );
     } catch (e) {
       if (version != _messageRequestVersion || isClosed) return;
       add(MessagesErrorReceived(e.toString()));
@@ -604,7 +654,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   /// Applies SDK-native filter properties based on selected filter chips.
   /// Uses `attachmentTypes` for media filters and `hasLinks` for link filter.
   void _applyMessageFilters(
-      MessagesRequestBuilder builder, Set<String> filters) {
+    MessagesRequestBuilder builder,
+    Set<String> filters,
+  ) {
     if (filters.isEmpty) return;
 
     final attachmentTypes = <String>[];
@@ -648,13 +700,16 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       if (version != _messageRequestVersion || isClosed) return;
 
       final reversed = results.reversed.toList();
-      final limit =
-          state.selectedFilters.isNotEmpty ? _filteredLimit : _defaultLimit;
-      add(MessagesResultReceived(
-        messages: reversed,
-        hasMore: results.length >= limit,
-        append: append,
-      ));
+      final limit = state.selectedFilters.isNotEmpty
+          ? _filteredLimit
+          : _defaultLimit;
+      add(
+        MessagesResultReceived(
+          messages: reversed,
+          hasMore: results.length >= limit,
+          append: append,
+        ),
+      );
     } catch (e) {
       if (version != _messageRequestVersion || isClosed) return;
       add(MessagesErrorReceived(e.toString()));

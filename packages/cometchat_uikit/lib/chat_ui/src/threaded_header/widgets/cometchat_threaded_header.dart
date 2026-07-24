@@ -50,7 +50,6 @@ class CometChatThreadedHeader extends StatefulWidget {
   /// [template] to get the message template
   final CometChatMessageTemplate? template;
 
-
   /// [height] provides height to the widget
   final double? height;
 
@@ -113,10 +112,12 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
 
     // Create BLoC and dispatch initialization event
     _bloc = ThreadedHeaderBloc();
-    _bloc.add(InitializeThreadedHeader(
-      parentMessage: widget.parentMessage,
-      loggedInUser: widget.loggedInUser,
-    ));
+    _bloc.add(
+      InitializeThreadedHeader(
+        parentMessage: widget.parentMessage,
+        loggedInUser: widget.loggedInUser,
+      ),
+    );
   }
 
   /// Resolve the message template from data source or use custom template
@@ -126,7 +127,7 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
       _messageTemplate = widget.template!;
       return;
     }
-    
+
     // Get all templates from data source
     final templates = MessageTemplateUtils.getAllMessageTemplates();
 
@@ -150,22 +151,23 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
 
     // Only initialize theme once to avoid expensive lookups during rebuilds
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
       // Use passed values or fallback to lookups (for standalone usage)
-      _colorPalette = widget.colorPalette ??
-          CometChatThemeHelper.getColorPalette(context);
-      _typography = widget.typography ??
-          CometChatThemeHelper.getTypography(context);
+      _colorPalette =
+          widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+      _typography =
+          widget.typography ?? CometChatThemeHelper.getTypography(context);
       _spacing = widget.spacing ?? CometChatThemeHelper.getSpacing(context);
 
       // Merge style with theme
       _threadedHeaderStyle =
           CometChatThemeHelper.getTheme<CometChatThreadedHeaderStyle>(
-                  context: context,
-                  defaultTheme: CometChatThreadedHeaderStyle.of)
-              .merge(widget.style);
+            context: context,
+            defaultTheme: CometChatThreadedHeaderStyle.of,
+          ).merge(widget.style);
 
       // Cache screen height so build() doesn't subscribe to MediaQuery
       _cachedScreenHeight = MediaQuery.sizeOf(context).height;
@@ -195,9 +197,9 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
     if (widget.style != oldWidget.style) {
       _threadedHeaderStyle =
           CometChatThemeHelper.getTheme<CometChatThreadedHeaderStyle>(
-                  context: context,
-                  defaultTheme: CometChatThreadedHeaderStyle.of)
-              .merge(widget.style);
+            context: context,
+            defaultTheme: CometChatThreadedHeaderStyle.of,
+          ).merge(widget.style);
     }
 
     // Re-resolve template if parent message or custom template changed
@@ -213,7 +215,6 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
     super.dispose();
   }
 
-
   /// Build the action view showing reply count
   Widget _buildActionView(int replyCount, BuildContext context) {
     if (widget.messageActionView != null) {
@@ -223,9 +224,11 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: _threadedHeaderStyle.countContainerBackGroundColor ??
+        color:
+            _threadedHeaderStyle.countContainerBackGroundColor ??
             _colorPalette.extendedPrimary100,
-        border: _threadedHeaderStyle.countContainerBorder ??
+        border:
+            _threadedHeaderStyle.countContainerBorder ??
             Border(
               bottom: BorderSide(
                 width: 1.0,
@@ -240,15 +243,17 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
       ),
       child: Text(
         "$replyCount ${replyCount > 1 ? cc.Translations.of(context).replies : cc.Translations.of(context).reply}",
-        style: TextStyle(
-          color: _threadedHeaderStyle.countTextColor ??
-              _colorPalette.textSecondary,
-          fontSize: _typography.body?.regular?.fontSize,
-          fontFamily: _typography.body?.regular?.fontFamily,
-          fontWeight: _typography.body?.regular?.fontWeight,
-        )
-            .merge(_threadedHeaderStyle.countTextStyle)
-            .copyWith(color: _threadedHeaderStyle.countTextColor),
+        style:
+            TextStyle(
+                  color:
+                      _threadedHeaderStyle.countTextColor ??
+                      _colorPalette.textSecondary,
+                  fontSize: _typography.body?.regular?.fontSize,
+                  fontFamily: _typography.body?.regular?.fontFamily,
+                  fontWeight: _typography.body?.regular?.fontWeight,
+                )
+                .merge(_threadedHeaderStyle.countTextStyle)
+                .copyWith(color: _threadedHeaderStyle.countTextColor),
       ),
     );
   }
@@ -273,15 +278,16 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
             typography: _typography,
             bubbleAlignment:
                 parentMessage.sender?.uid == widget.loggedInUser.uid
-                    ? BubbleAlignment.right
-                    : BubbleAlignment.left,
+                ? BubbleAlignment.right
+                : BubbleAlignment.left,
             message: parentMessage,
             template: _messageTemplate,
             outgoingMessageBubbleStyle:
                 _threadedHeaderStyle.outgoingMessageBubbleStyle,
             incomingMessageBubbleStyle:
                 _threadedHeaderStyle.incomingMessageBubbleStyle,
-            textFormatters: widget.textFormatters ??
+            textFormatters:
+                widget.textFormatters ??
                 MessageTemplateUtils.getDefaultTextFormatters(),
             key: _bubbleKey,
             receiptsVisibility: widget.receiptsVisibility,
@@ -294,16 +300,16 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
 
         return Container(
           width: widget.width ?? double.infinity,
-          constraints: _threadedHeaderStyle.constraints ??
-              BoxConstraints(
-                maxHeight: widget.height ?? maxHeight,
-              ),
+          constraints:
+              _threadedHeaderStyle.constraints ??
+              BoxConstraints(maxHeight: widget.height ?? maxHeight),
           child: Column(
             children: [
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: _threadedHeaderStyle.bubbleContainerBackGroundColor ??
+                    color:
+                        _threadedHeaderStyle.bubbleContainerBackGroundColor ??
                         _colorPalette.background3,
                     borderRadius:
                         _threadedHeaderStyle.bubbleContainerBorderRadius,
@@ -311,12 +317,8 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
                   ),
                   child: SingleChildScrollView(
                     child: Padding(
-                      padding: EdgeInsets.only(
-                        top: _spacing.padding4 ?? 0,
-                      ),
-                      child: IgnorePointer(
-                        child: _cachedBubble,
-                      ),
+                      padding: EdgeInsets.only(top: _spacing.padding4 ?? 0),
+                      child: IgnorePointer(child: _cachedBubble),
                     ),
                   ),
                 ),

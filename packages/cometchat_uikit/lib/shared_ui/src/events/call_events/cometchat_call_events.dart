@@ -7,7 +7,9 @@ class CometChatCallEvents {
 
   /// Adds a call event listener with the specified tag.
   static void addCallEventsListener(
-      String listenerId, CometChatCallEventListener listenerClass) {
+    String listenerId,
+    CometChatCallEventListener listenerClass,
+  ) {
     callEventsListener[listenerId] = listenerClass;
   }
 

@@ -9,7 +9,7 @@ class URLNavigationAction extends ActionEntity {
   String url;
 
   URLNavigationAction({required this.url, String? type})
-      : super(actionType: type ?? ActionTypeConstants.urlNavigation);
+    : super(actionType: type ?? ActionTypeConstants.urlNavigation);
 
   @override
   Map<String, dynamic> toMap() {

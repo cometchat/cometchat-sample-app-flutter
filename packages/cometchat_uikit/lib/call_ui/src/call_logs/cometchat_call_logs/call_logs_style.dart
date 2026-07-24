@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../cometchat_chat_uikit.dart';
 
-
 /// [CometChatCallLogsStyle] is a data class that has styling-related properties for [CometChatCallLogs]
 /// This class is used to style CometChatCallLogs
 /// ```dart
@@ -64,7 +63,7 @@ class CometChatCallLogsStyle extends ThemeExtension<CometChatCallLogsStyle> {
   ///[backIconColor] provides color for the back icon
   final Color? backIconColor;
 
-  ///[title] provides title for the widget
+  ///[titleTextStyle] provides title for the widget
   final TextStyle? titleTextStyle;
 
   ///[titleTextColor] provides text color for the title
@@ -258,62 +257,127 @@ class CometChatCallLogsStyle extends ThemeExtension<CometChatCallLogsStyle> {
 
   @override
   CometChatCallLogsStyle lerp(
-      ThemeExtension<CometChatCallLogsStyle>? other, double t) {
+    ThemeExtension<CometChatCallLogsStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatCallLogsStyle) {
       return this;
     }
     return CometChatCallLogsStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: Border.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       backIconColor: Color.lerp(backIconColor, other.backIconColor, t),
       titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
       titleTextColor: Color.lerp(titleTextColor, other.titleTextColor, t),
-      emptyStateTextStyle:
-          TextStyle.lerp(emptyStateTextStyle, other.emptyStateTextStyle, t),
-      emptyStateTextColor:
-          Color.lerp(emptyStateTextColor, other.emptyStateTextColor, t),
-      errorStateTextStyle:
-          TextStyle.lerp(errorStateTextStyle, other.errorStateTextStyle, t),
-      errorStateTextColor:
-          Color.lerp(errorStateTextColor, other.errorStateTextColor, t),
+      emptyStateTextStyle: TextStyle.lerp(
+        emptyStateTextStyle,
+        other.emptyStateTextStyle,
+        t,
+      ),
+      emptyStateTextColor: Color.lerp(
+        emptyStateTextColor,
+        other.emptyStateTextColor,
+        t,
+      ),
+      errorStateTextStyle: TextStyle.lerp(
+        errorStateTextStyle,
+        other.errorStateTextStyle,
+        t,
+      ),
+      errorStateTextColor: Color.lerp(
+        errorStateTextColor,
+        other.errorStateTextColor,
+        t,
+      ),
       emptyStateSubTitleTextStyle: TextStyle.lerp(
-          emptyStateSubTitleTextStyle, other.emptyStateSubTitleTextStyle, t),
+        emptyStateSubTitleTextStyle,
+        other.emptyStateSubTitleTextStyle,
+        t,
+      ),
       emptyStateSubTitleTextColor: Color.lerp(
-          emptyStateSubTitleTextColor, other.emptyStateSubTitleTextColor, t),
+        emptyStateSubTitleTextColor,
+        other.emptyStateSubTitleTextColor,
+        t,
+      ),
       errorStateSubTitleTextStyle: TextStyle.lerp(
-          errorStateSubTitleTextStyle, other.errorStateSubTitleTextStyle, t),
+        errorStateSubTitleTextStyle,
+        other.errorStateSubTitleTextStyle,
+        t,
+      ),
       errorStateSubTitleTextColor: Color.lerp(
-          errorStateSubTitleTextColor, other.errorStateSubTitleTextColor, t),
-      itemTitleTextStyle:
-          TextStyle.lerp(itemTitleTextStyle, other.itemTitleTextStyle, t),
-      itemTitleTextColor:
-          Color.lerp(itemTitleTextColor, other.itemTitleTextColor, t),
+        errorStateSubTitleTextColor,
+        other.errorStateSubTitleTextColor,
+        t,
+      ),
+      itemTitleTextStyle: TextStyle.lerp(
+        itemTitleTextStyle,
+        other.itemTitleTextStyle,
+        t,
+      ),
+      itemTitleTextColor: Color.lerp(
+        itemTitleTextColor,
+        other.itemTitleTextColor,
+        t,
+      ),
       separatorHeight: lerpDouble(separatorHeight, other.separatorHeight, t),
       separatorColor: Color.lerp(separatorColor, other.separatorColor, t),
       avatarStyle: avatarStyle?.lerp(other.avatarStyle, t),
       dateStyle: dateStyle?.lerp(other.dateStyle, t),
       retryButtonBackgroundColor: Color.lerp(
-          retryButtonBackgroundColor, other.retryButtonBackgroundColor, t),
-      retryButtonTextColor:
-          Color.lerp(retryButtonTextColor, other.retryButtonTextColor, t),
-      retryButtonTextStyle:
-          TextStyle.lerp(retryButtonTextStyle, other.retryButtonTextStyle, t),
-      retryButtonBorder: BorderSide.lerp(retryButtonBorder ?? BorderSide.none,
-          other.retryButtonBorder ?? BorderSide.none, t),
+        retryButtonBackgroundColor,
+        other.retryButtonBackgroundColor,
+        t,
+      ),
+      retryButtonTextColor: Color.lerp(
+        retryButtonTextColor,
+        other.retryButtonTextColor,
+        t,
+      ),
+      retryButtonTextStyle: TextStyle.lerp(
+        retryButtonTextStyle,
+        other.retryButtonTextStyle,
+        t,
+      ),
+      retryButtonBorder: BorderSide.lerp(
+        retryButtonBorder ?? BorderSide.none,
+        other.retryButtonBorder ?? BorderSide.none,
+        t,
+      ),
       retryButtonBorderRadius: BorderRadiusGeometry.lerp(
-          retryButtonBorderRadius, other.retryButtonBorderRadius, t),
-      incomingCallIconColor:
-          Color.lerp(incomingCallIconColor, other.incomingCallIconColor, t),
-      outgoingCallIconColor:
-          Color.lerp(outgoingCallIconColor, other.outgoingCallIconColor, t),
-      missedCallIconColor:
-          Color.lerp(missedCallIconColor, other.missedCallIconColor, t),
-      audioCallIconColor:
-          Color.lerp(audioCallIconColor, other.audioCallIconColor, t),
-      videoCallIconColor:
-          Color.lerp(videoCallIconColor, other.videoCallIconColor, t),
+        retryButtonBorderRadius,
+        other.retryButtonBorderRadius,
+        t,
+      ),
+      incomingCallIconColor: Color.lerp(
+        incomingCallIconColor,
+        other.incomingCallIconColor,
+        t,
+      ),
+      outgoingCallIconColor: Color.lerp(
+        outgoingCallIconColor,
+        other.outgoingCallIconColor,
+        t,
+      ),
+      missedCallIconColor: Color.lerp(
+        missedCallIconColor,
+        other.missedCallIconColor,
+        t,
+      ),
+      audioCallIconColor: Color.lerp(
+        audioCallIconColor,
+        other.audioCallIconColor,
+        t,
+      ),
+      videoCallIconColor: Color.lerp(
+        videoCallIconColor,
+        other.videoCallIconColor,
+        t,
+      ),
     );
   }
 }

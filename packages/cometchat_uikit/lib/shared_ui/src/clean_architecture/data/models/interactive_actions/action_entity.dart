@@ -1,4 +1,5 @@
-import '../../../../../cometchat_uikit_shared.dart' show ModelFieldConstants, ActionTypeConstants;
+import '../../../../../cometchat_uikit_shared.dart'
+    show ModelFieldConstants, ActionTypeConstants;
 import 'api_action.dart';
 import 'url_navigation_action.dart';
 

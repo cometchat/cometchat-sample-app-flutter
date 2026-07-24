@@ -7,7 +7,7 @@
 /// Most of this code were taken from the go standard library
 /// [http://golang.org/src/pkg/time/zoneinfo.go](time/zoneinfo.go)
 /// and ported to Dart.
-library timezone.src.location;
+library;
 
 /// Maximum value for time instants.
 const int maxTime = 8640000000000000;
@@ -237,8 +237,11 @@ class TimeZone {
   /// Abbreviated name, "CET".
   final String abbreviation;
 
-  const TimeZone(this.offset,
-      {required this.isDst, required this.abbreviation});
+  const TimeZone(
+    this.offset, {
+    required this.isDst,
+    required this.abbreviation,
+  });
 
   @override
   bool operator ==(Object other) {

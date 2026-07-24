@@ -42,9 +42,9 @@ class CometChatStatusIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusIndicatorStyle =
         CometChatThemeHelper.getTheme<CometChatStatusIndicatorStyle>(
-                context: context,
-                defaultTheme: CometChatStatusIndicatorStyle.of)
-            .merge(style);
+          context: context,
+          defaultTheme: CometChatStatusIndicatorStyle.of,
+        ).merge(style);
 
     final spacing = CometChatThemeHelper.getSpacing(context);
 
@@ -52,7 +52,9 @@ class CometChatStatusIndicator extends StatelessWidget {
       width: width ?? 12,
       height: height ?? 12,
       decoration: BoxDecoration(
-        borderRadius: statusIndicatorStyle.borderRadius ?? BorderRadius.circular(spacing.radiusMax ?? 0),
+        borderRadius:
+            statusIndicatorStyle.borderRadius ??
+            BorderRadius.circular(spacing.radiusMax ?? 0),
         border: statusIndicatorStyle.border,
         color: statusIndicatorStyle.backgroundColor,
       ),

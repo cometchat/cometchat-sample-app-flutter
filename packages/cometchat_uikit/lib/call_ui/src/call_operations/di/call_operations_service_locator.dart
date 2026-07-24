@@ -61,18 +61,60 @@ class CallOperationsServiceLocator {
   }
 
   // Use case getters
-  InitiateDirectCallUseCase get initiateCallUseCase { _ensureInitialized(); return _initiateCallUseCase; }
-  AcceptCallUseCase get acceptCallUseCase { _ensureInitialized(); return _acceptCallUseCase; }
-  RejectCallUseCase get rejectCallUseCase { _ensureInitialized(); return _rejectCallUseCase; }
-  EndCallUseCase get endCallUseCase { _ensureInitialized(); return _endCallUseCase; }
-  GenerateCallTokenUseCase get generateCallTokenUseCase { _ensureInitialized(); return _generateCallTokenUseCase; }
-  StartSessionUseCase get startSessionUseCase { _ensureInitialized(); return _startSessionUseCase; }
-  EndSessionUseCase get endSessionUseCase { _ensureInitialized(); return _endSessionUseCase; }
-  SendMeetingMessageUseCase get sendMeetingMessageUseCase { _ensureInitialized(); return _sendMeetingMessageUseCase; }
-  GetCallLoggedInUserUseCase get getLoggedInUserUseCase { _ensureInitialized(); return _getLoggedInUserUseCase; }
-  GetUserAuthTokenUseCase get getUserAuthTokenUseCase { _ensureInitialized(); return _getUserAuthTokenUseCase; }
+  InitiateDirectCallUseCase get initiateCallUseCase {
+    _ensureInitialized();
+    return _initiateCallUseCase;
+  }
 
-  CallOperationsRepository get repository { _ensureInitialized(); return _repository; }
+  AcceptCallUseCase get acceptCallUseCase {
+    _ensureInitialized();
+    return _acceptCallUseCase;
+  }
+
+  RejectCallUseCase get rejectCallUseCase {
+    _ensureInitialized();
+    return _rejectCallUseCase;
+  }
+
+  EndCallUseCase get endCallUseCase {
+    _ensureInitialized();
+    return _endCallUseCase;
+  }
+
+  GenerateCallTokenUseCase get generateCallTokenUseCase {
+    _ensureInitialized();
+    return _generateCallTokenUseCase;
+  }
+
+  StartSessionUseCase get startSessionUseCase {
+    _ensureInitialized();
+    return _startSessionUseCase;
+  }
+
+  EndSessionUseCase get endSessionUseCase {
+    _ensureInitialized();
+    return _endSessionUseCase;
+  }
+
+  SendMeetingMessageUseCase get sendMeetingMessageUseCase {
+    _ensureInitialized();
+    return _sendMeetingMessageUseCase;
+  }
+
+  GetCallLoggedInUserUseCase get getLoggedInUserUseCase {
+    _ensureInitialized();
+    return _getLoggedInUserUseCase;
+  }
+
+  GetUserAuthTokenUseCase get getUserAuthTokenUseCase {
+    _ensureInitialized();
+    return _getUserAuthTokenUseCase;
+  }
+
+  CallOperationsRepository get repository {
+    _ensureInitialized();
+    return _repository;
+  }
 
   /// Ensures the service locator is initialized.
   /// Auto-initializes with default datasource on first access.
@@ -82,5 +124,7 @@ class CallOperationsServiceLocator {
     }
   }
 
-  Future<void> reset() async { _isInitialized = false; }
+  Future<void> reset() async {
+    _isInitialized = false;
+  }
 }

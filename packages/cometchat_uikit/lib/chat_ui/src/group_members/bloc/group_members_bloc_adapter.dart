@@ -26,7 +26,8 @@ import 'group_members_state.dart';
 ///   },
 /// );
 /// ```
-class GroupMembersBlocAdapter implements CometChatGroupMembersControllerProtocol {
+class GroupMembersBlocAdapter
+    implements CometChatGroupMembersControllerProtocol {
   /// The underlying BLoC instance
   final GroupMembersBloc bloc;
 
@@ -34,10 +35,7 @@ class GroupMembersBlocAdapter implements CometChatGroupMembersControllerProtocol
   ///
   /// [bloc] - The GroupMembersBloc to wrap
   /// [context] - Current build context
-  GroupMembersBlocAdapter({
-    required this.bloc,
-    required BuildContext context,
-  });
+  GroupMembersBlocAdapter({required this.bloc, required BuildContext context});
 
   /// Update the context (call this in didChangeDependencies)
   void updateContext(BuildContext context) {
@@ -66,18 +64,22 @@ class GroupMembersBlocAdapter implements CometChatGroupMembersControllerProtocol
       spacing,
     );
 
-    return options.map((option) => CometChatOption(
-      id: option.id,
-      title: option.title,
-      icon: option.icon,
-      packageName: option.packageName,
-      backgroundColor: option.backgroundColor,
-      iconTint: option.iconTint,
-      titleStyle: option.titleStyle,
-      onClick: option.onClick != null
-          ? () => option.onClick!(group, member, this)
-          : null,
-    )).toList();
+    return options
+        .map(
+          (option) => CometChatOption(
+            id: option.id,
+            title: option.title,
+            icon: option.icon,
+            packageName: option.packageName,
+            backgroundColor: option.backgroundColor,
+            iconTint: option.iconTint,
+            titleStyle: option.titleStyle,
+            onClick: option.onClick != null
+                ? () => option.onClick!(group, member, this)
+                : null,
+          ),
+        )
+        .toList();
   }
 
   // ============================================================
@@ -131,7 +133,9 @@ class GroupMembersBlocAdapter implements CometChatGroupMembersControllerProtocol
   @override
   removeElementAt(int index) {
     final state = bloc.state;
-    if (state is GroupMembersLoaded && index >= 0 && index < state.members.length) {
+    if (state is GroupMembersLoaded &&
+        index >= 0 &&
+        index < state.members.length) {
       bloc.removeItem(state.members[index]);
     }
   }

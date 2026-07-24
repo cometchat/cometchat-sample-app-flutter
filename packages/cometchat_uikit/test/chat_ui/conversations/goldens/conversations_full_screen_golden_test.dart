@@ -7,7 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 /// Whether we're running in CI.
-final bool _isCI = Platform.environment['CI'] == 'true' ||
+final bool _isCI =
+    Platform.environment['CI'] == 'true' ||
     Platform.environment['ALCHEMIST_CI'] == 'true';
 
 // ---------------------------------------------------------------------------
@@ -47,8 +48,8 @@ class _FakeConversation extends Fake implements Conversation {
     required AppEntity conversationWith,
     this.conversationId = 'c1',
     int unreadMessageCount = 0,
-  })  : _with = conversationWith,
-        _unread = unreadMessageCount;
+  }) : _with = conversationWith,
+       _unread = unreadMessageCount;
 
   final AppEntity _with;
   final int _unread;
@@ -68,58 +69,67 @@ class _FakeConversation extends Fake implements Conversation {
 // ---------------------------------------------------------------------------
 
 List<Conversation> _buildConversationList() => [
-      _FakeConversation(
-        conversationWith:
-            _FakeUser(name: 'Alice Johnson', uid: 'alice', status: 'online'),
-        conversationId: 'c1',
-        unreadMessageCount: 3,
-      ),
-      _FakeConversation(
-        conversationWith: _FakeUser(name: 'Bob Smith', uid: 'bob'),
-        conversationId: 'c2',
-      ),
-      _FakeConversation(
-        conversationWith: _FakeGroup(
-          name: 'Flutter Devs',
-          type: CometChatGroupType.public,
-          guid: 'flutter_devs',
-        ),
-        conversationId: 'c3',
-        unreadMessageCount: 12,
-      ),
-      _FakeConversation(
-        conversationWith:
-            _FakeUser(name: 'Carol Williams', uid: 'carol', status: 'online'),
-        conversationId: 'c4',
-      ),
-      _FakeConversation(
-        conversationWith: _FakeGroup(
-          name: 'Private Team',
-          type: CometChatGroupType.private,
-          guid: 'private_team',
-        ),
-        conversationId: 'c5',
-        unreadMessageCount: 1,
-      ),
-      _FakeConversation(
-        conversationWith: _FakeUser(name: 'David Brown', uid: 'david'),
-        conversationId: 'c6',
-      ),
-      _FakeConversation(
-        conversationWith: _FakeGroup(
-          name: 'Secret Channel',
-          type: CometChatGroupType.password,
-          guid: 'secret',
-        ),
-        conversationId: 'c7',
-      ),
-      _FakeConversation(
-        conversationWith:
-            _FakeUser(name: 'Eve Davis', uid: 'eve', status: 'online'),
-        conversationId: 'c8',
-        unreadMessageCount: 42,
-      ),
-    ];
+  _FakeConversation(
+    conversationWith: _FakeUser(
+      name: 'Alice Johnson',
+      uid: 'alice',
+      status: 'online',
+    ),
+    conversationId: 'c1',
+    unreadMessageCount: 3,
+  ),
+  _FakeConversation(
+    conversationWith: _FakeUser(name: 'Bob Smith', uid: 'bob'),
+    conversationId: 'c2',
+  ),
+  _FakeConversation(
+    conversationWith: _FakeGroup(
+      name: 'Flutter Devs',
+      type: CometChatGroupType.public,
+      guid: 'flutter_devs',
+    ),
+    conversationId: 'c3',
+    unreadMessageCount: 12,
+  ),
+  _FakeConversation(
+    conversationWith: _FakeUser(
+      name: 'Carol Williams',
+      uid: 'carol',
+      status: 'online',
+    ),
+    conversationId: 'c4',
+  ),
+  _FakeConversation(
+    conversationWith: _FakeGroup(
+      name: 'Private Team',
+      type: CometChatGroupType.private,
+      guid: 'private_team',
+    ),
+    conversationId: 'c5',
+    unreadMessageCount: 1,
+  ),
+  _FakeConversation(
+    conversationWith: _FakeUser(name: 'David Brown', uid: 'david'),
+    conversationId: 'c6',
+  ),
+  _FakeConversation(
+    conversationWith: _FakeGroup(
+      name: 'Secret Channel',
+      type: CometChatGroupType.password,
+      guid: 'secret',
+    ),
+    conversationId: 'c7',
+  ),
+  _FakeConversation(
+    conversationWith: _FakeUser(
+      name: 'Eve Davis',
+      uid: 'eve',
+      status: 'online',
+    ),
+    conversationId: 'c8',
+    unreadMessageCount: 42,
+  ),
+];
 
 // ---------------------------------------------------------------------------
 // Full-screen widget builder
@@ -132,7 +142,9 @@ Widget _fullScreenConversations({required Brightness brightness}) {
     data: const MediaQueryData(size: Size(412, 915)),
     child: MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: brightness == Brightness.dark ? ThemeData.dark() : ThemeData.light(),
+      theme: brightness == Brightness.dark
+          ? ThemeData.dark()
+          : ThemeData.light(),
       localizationsDelegates: Translations.localizationsDelegates,
       supportedLocales: const [Locale('en')],
       home: Scaffold(
@@ -172,8 +184,10 @@ void main() {
         'full screen conversations - light mode',
         fileName: 'full_screen_conversations_light',
         builder: () => GoldenTestGroup(
-          scenarioConstraints:
-              const BoxConstraints.tightFor(width: 412, height: 915),
+          scenarioConstraints: const BoxConstraints.tightFor(
+            width: 412,
+            height: 915,
+          ),
           children: [
             GoldenTestScenario(
               name: 'light',
@@ -187,8 +201,10 @@ void main() {
         'full screen conversations - dark mode',
         fileName: 'full_screen_conversations_dark',
         builder: () => GoldenTestGroup(
-          scenarioConstraints:
-              const BoxConstraints.tightFor(width: 412, height: 915),
+          scenarioConstraints: const BoxConstraints.tightFor(
+            width: 412,
+            height: 915,
+          ),
           children: [
             GoldenTestScenario(
               name: 'dark',

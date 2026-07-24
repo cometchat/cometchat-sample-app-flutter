@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../../shared_ui/src/clean_architecture/core/result.dart';
 
 /// Remote data source for AI Assistant Chat History.
@@ -19,17 +19,20 @@ class AIAssistantChatHistoryRemoteDataSourceImpl
     implements AIAssistantChatHistoryRemoteDataSource {
   @override
   Future<Result<List<BaseMessage>>> fetchMessages(
-      MessagesRequest request) async {
+    MessagesRequest request,
+  ) async {
     final completer = Completer<Result<List<BaseMessage>>>();
     request.fetchPrevious(
       onSuccess: (List<BaseMessage> list) {
         completer.complete(Success(list));
       },
       onError: (CometChatException e) {
-        completer.complete(Failure(
-          message: e.message ?? 'Failed to fetch messages',
-          code: e.code,
-        ));
+        completer.complete(
+          Failure(
+            message: e.message ?? 'Failed to fetch messages',
+            code: e.code,
+          ),
+        );
       },
     );
     return completer.future;
@@ -44,10 +47,12 @@ class AIAssistantChatHistoryRemoteDataSourceImpl
         completer.complete(Success(updatedMessage));
       },
       onError: (CometChatException e) {
-        completer.complete(Failure(
-          message: e.message ?? 'Failed to delete message',
-          code: e.code,
-        ));
+        completer.complete(
+          Failure(
+            message: e.message ?? 'Failed to delete message',
+            code: e.code,
+          ),
+        );
       },
     );
     return completer.future;
@@ -81,10 +86,12 @@ class AIAssistantChatHistoryRemoteDataSourceImpl
         completer.complete(Success(conversation));
       },
       onError: (CometChatException e) {
-        completer.complete(Failure(
-          message: e.message ?? 'Failed to get conversation',
-          code: e.code,
-        ));
+        completer.complete(
+          Failure(
+            message: e.message ?? 'Failed to get conversation',
+            code: e.code,
+          ),
+        );
       },
     );
     return completer.future;

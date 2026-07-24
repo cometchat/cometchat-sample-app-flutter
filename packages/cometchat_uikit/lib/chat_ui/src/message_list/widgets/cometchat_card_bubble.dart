@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:cometchat_cards/cometchat_cards.dart';
 
 import '../../../../shared_ui/cometchat_uikit_shared.dart';
 import '../../../../shared_ui/src/views/no_intrinsic_card_wrapper.dart';
@@ -31,7 +30,7 @@ class CometChatCardBubble extends StatelessWidget {
   /// Callback when the user taps an action within the card.
   /// Fires alongside the [CometChatUIEvents.ccCardActionClicked] event.
   final void Function(CardMessage message, CometChatCardActionEvent action)?
-      onCardAction;
+  onCardAction;
 
   /// Theme mode for the card renderer.
   /// If null, auto-detected from the current [Brightness].
@@ -79,7 +78,8 @@ class CometChatCardBubble extends StatelessWidget {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
 
-    final fallbackText = message.getFallbackText() ??
+    final fallbackText =
+        message.getFallbackText() ??
         message.getText() ??
         Translations.of(context).cardMessage;
 

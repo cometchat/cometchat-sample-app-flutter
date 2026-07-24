@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 class RequestBuilderConstants {
   static UsersRequestBuilder getDefaultUsersRequestBuilder() {
@@ -20,9 +20,10 @@ class RequestBuilderConstants {
   }
 
   static ConversationsRequestBuilder getDefaultConversationsRequestBuilder() {
-    ConversationsRequestBuilder conversationsRequestBuilder = ConversationsRequestBuilder()
-      ..limit = 30;
+    ConversationsRequestBuilder conversationsRequestBuilder =
+        ConversationsRequestBuilder()..limit = 30;
     return conversationsRequestBuilder;
   }
+
   //TODO add all default Request Builders here and use it in code
 }

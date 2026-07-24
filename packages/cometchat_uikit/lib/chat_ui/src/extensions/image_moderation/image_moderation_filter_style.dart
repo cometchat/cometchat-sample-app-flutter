@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 ///[ImageModerationFilterStyle] is a data class that has styling-related properties
 ///to customize the appearance of [ImageModerationFilter]
 class ImageModerationFilterStyle {
-  ImageModerationFilterStyle(
-      {this.warningTextStyle,
-      this.warningImageUrl,
-      this.warningImagePackageName,
-      this.warningImageColor,
-      this.filterColor});
+  ImageModerationFilterStyle({
+    this.warningTextStyle,
+    this.warningImageUrl,
+    this.warningImagePackageName,
+    this.warningImageColor,
+    this.filterColor,
+  });
 
   ///[warningTextStyle] styling for text shown if image has sensitive/graphic content
   final TextStyle? warningTextStyle;

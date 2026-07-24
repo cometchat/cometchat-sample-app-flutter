@@ -6,57 +6,63 @@ import '../../../data/models/interactive_message/scheduler_message.dart';
 import '../../../data/models/interactive_message/custom_interactive_message.dart';
 import 'cometchat_message_event_listener.dart';
 
-///Event emitting class for [CometChatMessages]
+///Event emitting class for [CometChatMessageList]
 class CometChatMessageEvents {
   static Map<String, CometChatMessageEventListener> messagesListener = {};
 
-  static addMessagesListener(
-      String listenerId, CometChatMessageEventListener listenerClass) {
+  static void addMessagesListener(
+    String listenerId,
+    CometChatMessageEventListener listenerClass,
+  ) {
     messagesListener[listenerId] = listenerClass;
   }
 
-  static removeMessagesListener(String listenerId) {
+  static void removeMessagesListener(String listenerId) {
     messagesListener.remove(listenerId);
   }
 
-  static ccMessageSent(BaseMessage message, MessageStatus messageStatus) {
+  static void ccMessageSent(BaseMessage message, MessageStatus messageStatus) {
     messagesListener.forEach((key, value) {
       value.ccMessageSent(message, messageStatus);
     });
   }
 
-  static ccMessageEdited(BaseMessage message, MessageEditStatus status) {
+  static void ccMessageEdited(BaseMessage message, MessageEditStatus status) {
     messagesListener.forEach((key, value) {
       value.ccMessageEdited(message, status);
     });
   }
 
-  static ccMessageDeleted(BaseMessage message, EventStatus messageStatus) {
+  static void ccMessageDeleted(BaseMessage message, EventStatus messageStatus) {
     messagesListener.forEach((key, value) {
       value.ccMessageDeleted(message, messageStatus);
     });
   }
 
-  static ccMessageRead(BaseMessage message) {
+  static void ccMessageRead(BaseMessage message) {
     messagesListener.forEach((key, value) {
       value.ccMessageRead(message);
     });
   }
 
-  static ccLiveReaction(String reaction, String receiverId) {
+  static void ccLiveReaction(String reaction, String receiverId) {
     messagesListener.forEach((key, value) {
       value.ccLiveReaction(reaction);
     });
   }
 
-  static ccMessageForwarded(BaseMessage message, List<User>? usersSent,
-      List<Group>? groupsSent, MessageStatus status) {
+  static void ccMessageForwarded(
+    BaseMessage message,
+    List<User>? usersSent,
+    List<Group>? groupsSent,
+    MessageStatus status,
+  ) {
     messagesListener.forEach((key, value) {
       value.ccMessageForwarded(message, usersSent, groupsSent, status);
     });
   }
 
-  static ccReplyToMessage(BaseMessage message) {
+  static void ccReplyToMessage(BaseMessage message) {
     messagesListener.forEach((key, value) {
       value.ccReplyToMessage(message);
     });
@@ -148,7 +154,8 @@ class CometChatMessageEvents {
 
   /// Called when a custom interactive message is received.
   static void onCustomInteractiveMessageReceived(
-      CustomInteractiveMessage message) {
+    CustomInteractiveMessage message,
+  ) {
     messagesListener.forEach((key, value) {
       value.onCustomInteractiveMessageReceived(message);
     });

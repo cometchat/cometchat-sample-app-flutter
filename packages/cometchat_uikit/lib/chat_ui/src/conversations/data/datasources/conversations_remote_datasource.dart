@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Exception thrown when remote data source operations fail
 class RemoteDataSourceException implements Exception {
@@ -40,7 +40,10 @@ abstract class ConversationsRemoteDataSource {
 
   /// Delete a conversation
   /// Requires conversationWith (uid/guid) and conversationType
-  Future<void> deleteConversation(String conversationWith, String conversationType);
+  Future<void> deleteConversation(
+    String conversationWith,
+    String conversationType,
+  );
 
   /// Mark a message as read (which updates conversation unread count)
   Future<void> markMessageAsRead(BaseMessage message);
@@ -117,7 +120,8 @@ class ConversationsRemoteDataSourceImpl
       );
     } catch (e) {
       throw RemoteDataSourceException(
-        message: 'Unexpected error while fetching conversations: ${e.toString()}',
+        message:
+            'Unexpected error while fetching conversations: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }
@@ -150,7 +154,10 @@ class ConversationsRemoteDataSourceImpl
   }
 
   @override
-  Future<void> deleteConversation(String conversationWith, String conversationType) async {
+  Future<void> deleteConversation(
+    String conversationWith,
+    String conversationType,
+  ) async {
     try {
       final completer = Completer<void>();
 
@@ -180,7 +187,8 @@ class ConversationsRemoteDataSourceImpl
       );
     } catch (e) {
       throw RemoteDataSourceException(
-        message: 'Unexpected error while deleting conversation: ${e.toString()}',
+        message:
+            'Unexpected error while deleting conversation: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }

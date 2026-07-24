@@ -122,7 +122,12 @@ class ReactionListLoaded extends ReactionListState {
   bool get isEmpty => messageReactions.isEmpty;
 
   @override
-  List<Object?> get props => [messageReactions, selectedReaction, totalReactions, canFetchMore];
+  List<Object?> get props => [
+    messageReactions,
+    selectedReaction,
+    totalReactions,
+    canFetchMore,
+  ];
 
   ReactionListLoaded copyWith({
     Map<String, List<Reaction>>? messageReactions,
@@ -172,7 +177,8 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
     this.messageObject,
     this.initialSelectedReaction = ReactionConstants.allReactions,
   }) : super(const ReactionListInitial()) {
-    _eventListenerKey = "${DateTime.now().microsecondsSinceEpoch}_ReactionListBloc";
+    _eventListenerKey =
+        "${DateTime.now().microsecondsSinceEpoch}_ReactionListBloc";
     CometChatMessageEvents.addMessagesListener(_eventListenerKey, this);
 
     on<InitializeReactionList>(_onInitialize);
@@ -187,10 +193,12 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
     InitializeReactionList event,
     Emitter<ReactionListState> emit,
   ) async {
-    emit(ReactionListLoading(
-      messageReactions: const {},
-      selectedReaction: initialSelectedReaction,
-    ));
+    emit(
+      ReactionListLoading(
+        messageReactions: const {},
+        selectedReaction: initialSelectedReaction,
+      ),
+    );
 
     _createReactionsRequest();
     await _fetchReactionsInternal(ReactionConstants.allReactions, emit);
@@ -214,7 +222,7 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
   ) async {
     if (state is ReactionListLoaded) {
       final currentState = state as ReactionListLoaded;
-      
+
       if (!_reactionsRequests.containsKey(event.reaction)) {
         _createReactionsRequest(event.reaction);
       }
@@ -230,11 +238,14 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
     if (state is! ReactionListLoaded) return;
 
     final currentState = state as ReactionListLoaded;
-    final updatedReactions = Map<String, List<Reaction>>.from(currentState.messageReactions);
-    
+    final updatedReactions = Map<String, List<Reaction>>.from(
+      currentState.messageReactions,
+    );
+
     // Optimistically remove from UI
     updatedReactions[event.reaction.reaction!]?.removeWhere(
-      (element) => event.reaction.uid == element.uid && event.reaction.id == element.id,
+      (element) =>
+          event.reaction.uid == element.uid && event.reaction.id == element.id,
     );
 
     int newTotal = currentState.totalReactions - 1;
@@ -245,11 +256,13 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
       newSelectedReaction = ReactionConstants.allReactions;
     }
 
-    emit(currentState.copyWith(
-      messageReactions: updatedReactions,
-      totalReactions: newTotal,
-      selectedReaction: newSelectedReaction,
-    ));
+    emit(
+      currentState.copyWith(
+        messageReactions: updatedReactions,
+        totalReactions: newTotal,
+        selectedReaction: newSelectedReaction,
+      ),
+    );
 
     // Make API call
     CometChat.removeReaction(
@@ -277,15 +290,18 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
     if (state is! ReactionListLoaded) return;
 
     final currentState = state as ReactionListLoaded;
-    final updatedReactions = Map<String, List<Reaction>>.from(currentState.messageReactions);
+    final updatedReactions = Map<String, List<Reaction>>.from(
+      currentState.messageReactions,
+    );
     int newTotal = currentState.totalReactions;
 
     if (updatedReactions.containsKey(event.reaction.reaction)) {
-      final existingIndex = updatedReactions[event.reaction.reaction!]?.indexWhere(
-        (element) =>
-            element.reaction == event.reaction.reaction &&
-            element.reactedBy?.uid == event.reaction.reactedBy?.uid,
-      );
+      final existingIndex = updatedReactions[event.reaction.reaction!]
+          ?.indexWhere(
+            (element) =>
+                element.reaction == event.reaction.reaction &&
+                element.reactedBy?.uid == event.reaction.reactedBy?.uid,
+          );
       if (existingIndex == -1) {
         updatedReactions[event.reaction.reaction!]?.add(event.reaction);
         newTotal++;
@@ -295,10 +311,12 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
       newTotal++;
     }
 
-    emit(currentState.copyWith(
-      messageReactions: updatedReactions,
-      totalReactions: newTotal,
-    ));
+    emit(
+      currentState.copyWith(
+        messageReactions: updatedReactions,
+        totalReactions: newTotal,
+      ),
+    );
   }
 
   Future<void> _onReactionRemoved(
@@ -308,10 +326,13 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
     if (state is! ReactionListLoaded) return;
 
     final currentState = state as ReactionListLoaded;
-    final updatedReactions = Map<String, List<Reaction>>.from(currentState.messageReactions);
-    
+    final updatedReactions = Map<String, List<Reaction>>.from(
+      currentState.messageReactions,
+    );
+
     updatedReactions[event.reaction.reaction!]?.removeWhere(
-      (element) => event.reaction.uid == element.uid && event.reaction.id == element.id,
+      (element) =>
+          event.reaction.uid == element.uid && event.reaction.id == element.id,
     );
 
     int newTotal = currentState.totalReactions - 1;
@@ -322,14 +343,18 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
       newSelectedReaction = ReactionConstants.allReactions;
     }
 
-    emit(currentState.copyWith(
-      messageReactions: updatedReactions,
-      totalReactions: newTotal,
-      selectedReaction: newSelectedReaction,
-    ));
+    emit(
+      currentState.copyWith(
+        messageReactions: updatedReactions,
+        totalReactions: newTotal,
+        selectedReaction: newSelectedReaction,
+      ),
+    );
   }
 
-  void _createReactionsRequest([String reaction = ReactionConstants.allReactions]) {
+  void _createReactionsRequest([
+    String reaction = ReactionConstants.allReactions,
+  ]) {
     ReactionsRequestBuilder? requestBuilder =
         reactionsRequestBuilder ?? ReactionsRequestBuilder();
 
@@ -351,13 +376,13 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
     final currentReactions = currentState is ReactionListLoaded
         ? currentState.messageReactions
         : currentState is ReactionListLoading
-            ? currentState.messageReactions
-            : <String, List<Reaction>>{};
+        ? currentState.messageReactions
+        : <String, List<Reaction>>{};
     final currentSelectedReaction = currentState is ReactionListLoaded
         ? currentState.selectedReaction
         : currentState is ReactionListLoading
-            ? currentState.selectedReaction
-            : initialSelectedReaction;
+        ? currentState.selectedReaction
+        : initialSelectedReaction;
 
     final request = _reactionsRequests[reaction];
     if (request == null) return;
@@ -370,28 +395,40 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
           _hasMoreReactions[reaction] = false;
           // Emit loaded state so UI transitions out of loading
           if (!emit.isDone) {
-            emit(ReactionListLoaded(
-              messageReactions: currentReactions,
-              selectedReaction: currentSelectedReaction,
-              totalReactions: currentState is ReactionListLoaded ? currentState.totalReactions : 0,
-              canFetchMore: false,
-            ));
+            emit(
+              ReactionListLoaded(
+                messageReactions: currentReactions,
+                selectedReaction: currentSelectedReaction,
+                totalReactions: currentState is ReactionListLoaded
+                    ? currentState.totalReactions
+                    : 0,
+                canFetchMore: false,
+              ),
+            );
           }
         } else {
           _hasMoreReactions[reaction] = true;
-          
-          final updatedReactions = Map<String, List<Reaction>>.from(currentReactions);
-          int totalCount = currentState is ReactionListLoaded ? currentState.totalReactions : 0;
+
+          final updatedReactions = Map<String, List<Reaction>>.from(
+            currentReactions,
+          );
+          int totalCount = currentState is ReactionListLoaded
+              ? currentState.totalReactions
+              : 0;
 
           for (Reaction messageReaction in messageReactionsList) {
             if (updatedReactions.containsKey(messageReaction.reaction)) {
-              final existingIndex = updatedReactions[messageReaction.reaction!]?.indexWhere(
-                (element) =>
-                    element.reaction == messageReaction.reaction &&
-                    element.reactedBy?.uid == messageReaction.reactedBy?.uid,
-              );
+              final existingIndex = updatedReactions[messageReaction.reaction!]
+                  ?.indexWhere(
+                    (element) =>
+                        element.reaction == messageReaction.reaction &&
+                        element.reactedBy?.uid ==
+                            messageReaction.reactedBy?.uid,
+                  );
               if (existingIndex == -1) {
-                updatedReactions[messageReaction.reaction!]?.add(messageReaction);
+                updatedReactions[messageReaction.reaction!]?.add(
+                  messageReaction,
+                );
                 totalCount++;
               }
             } else {
@@ -401,23 +438,28 @@ class ReactionListBloc extends Bloc<ReactionListEvent, ReactionListState>
           }
 
           if (!emit.isDone) {
-            emit(ReactionListLoaded(
-              messageReactions: updatedReactions,
-              selectedReaction: currentSelectedReaction,
-              totalReactions: totalCount,
-              canFetchMore: _hasMoreReactions[currentSelectedReaction] ?? false,
-            ));
+            emit(
+              ReactionListLoaded(
+                messageReactions: updatedReactions,
+                selectedReaction: currentSelectedReaction,
+                totalReactions: totalCount,
+                canFetchMore:
+                    _hasMoreReactions[currentSelectedReaction] ?? false,
+              ),
+            );
           }
         }
         completer.complete();
       },
       onError: (exception) {
         if (!emit.isDone) {
-          emit(ReactionListError(
-            error: exception,
-            messageReactions: currentReactions,
-            selectedReaction: currentSelectedReaction,
-          ));
+          emit(
+            ReactionListError(
+              error: exception,
+              messageReactions: currentReactions,
+              selectedReaction: currentSelectedReaction,
+            ),
+          );
         }
         completer.complete();
       },

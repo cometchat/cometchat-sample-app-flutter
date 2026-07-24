@@ -19,10 +19,12 @@ class CometChatAiAssistantCodeBlock extends StatefulWidget {
   final CometChatSpacing? spacing;
 
   @override
-  State<CometChatAiAssistantCodeBlock> createState() => _CometChatAiAssistantCodeBlockState();
+  State<CometChatAiAssistantCodeBlock> createState() =>
+      _CometChatAiAssistantCodeBlockState();
 }
 
-class _CometChatAiAssistantCodeBlockState extends State<CometChatAiAssistantCodeBlock> {
+class _CometChatAiAssistantCodeBlockState
+    extends State<CometChatAiAssistantCodeBlock> {
   final ScrollController _verticalController = ScrollController();
 
   @override
@@ -89,7 +91,8 @@ class _CometChatAiAssistantCodeBlockState extends State<CometChatAiAssistantCode
                       content: Text(
                         'Code copied to clipboard',
                         style: TextStyle(
-                          color: widget.colorPalette?.textPrimary ?? Colors.white,
+                          color:
+                              widget.colorPalette?.textPrimary ?? Colors.white,
                         ),
                       ),
                     ),
@@ -147,7 +150,8 @@ class _CometChatAiAssistantCodeBlockState extends State<CometChatAiAssistantCode
                       style: TextStyle(
                         color: widget.colorPalette?.textTertiary ?? Colors.grey,
                         fontSize: widget.typography?.body?.regular?.fontSize,
-                        fontFamily: widget.typography?.body?.regular?.fontFamily,
+                        fontFamily:
+                            widget.typography?.body?.regular?.fontFamily,
                         height: 1.5,
                       ),
                     ),
@@ -172,13 +176,20 @@ class _CometChatAiAssistantCodeBlockState extends State<CometChatAiAssistantCode
                           lineCount,
                           (index) => Text(
                             lines[index],
-                            style: _getSyntaxHighlightStyle(
-                              lines[index],
-                            ).copyWith(
-                              fontSize: widget.typography?.body?.regular?.fontSize,
-                              fontFamily: widget.typography?.body?.regular?.fontFamily,
-                              height: 1.5,
-                            ),
+                            style: _getSyntaxHighlightStyle(lines[index])
+                                .copyWith(
+                                  fontSize: widget
+                                      .typography
+                                      ?.body
+                                      ?.regular
+                                      ?.fontSize,
+                                  fontFamily: widget
+                                      .typography
+                                      ?.body
+                                      ?.regular
+                                      ?.fontFamily,
+                                  height: 1.5,
+                                ),
                           ),
                         ),
                       ),
@@ -197,7 +208,8 @@ class _CometChatAiAssistantCodeBlockState extends State<CometChatAiAssistantCode
     if (line.trim().startsWith('//')) {
       return TextStyle(color: widget.colorPalette?.success);
     } else if (line.contains(
-        RegExp(r'\b(class|final|const|var|void|int|String|bool)\b'))) {
+      RegExp(r'\b(class|final|const|var|void|int|String|bool)\b'),
+    )) {
       return TextStyle(color: widget.colorPalette?.warning);
     } else if (line.contains(RegExp("\".*?\"|'.*?'"))) {
       return TextStyle(color: widget.colorPalette?.info);

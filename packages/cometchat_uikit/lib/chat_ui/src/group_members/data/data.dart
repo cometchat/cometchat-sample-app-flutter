@@ -1,5 +1,6 @@
 /// Data layer exports for group members module
 /// This barrel file provides a single import point for all data layer components
+library;
 
 // Data sources
 export 'datasources/group_members_remote_datasource.dart';

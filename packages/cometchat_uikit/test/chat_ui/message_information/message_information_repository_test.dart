@@ -60,8 +60,9 @@ void main() {
         FakeMessageReceipt(42, 'uid_1'),
         FakeMessageReceipt(42, 'uid_2'),
       ];
-      when(() => dataSource.fetchMessageReceipts(any()))
-          .thenAnswer((_) async => receipts);
+      when(
+        () => dataSource.fetchMessageReceipts(any()),
+      ).thenAnswer((_) async => receipts);
 
       final result = await repo.fetchMessageReceipts(42);
 
@@ -83,8 +84,9 @@ void main() {
     });
 
     test('returns failure with message on unexpected error', () async {
-      when(() => dataSource.fetchMessageReceipts(any()))
-          .thenThrow(Exception('Unexpected'));
+      when(
+        () => dataSource.fetchMessageReceipts(any()),
+      ).thenThrow(Exception('Unexpected'));
 
       final result = await repo.fetchMessageReceipts(42);
 
@@ -92,8 +94,9 @@ void main() {
     });
 
     test('returns empty list when no receipts exist', () async {
-      when(() => dataSource.fetchMessageReceipts(any()))
-          .thenAnswer((_) async => []);
+      when(
+        () => dataSource.fetchMessageReceipts(any()),
+      ).thenAnswer((_) async => []);
 
       final result = await repo.fetchMessageReceipts(42);
 

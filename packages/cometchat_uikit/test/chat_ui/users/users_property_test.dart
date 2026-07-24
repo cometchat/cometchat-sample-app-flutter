@@ -89,13 +89,16 @@ void main() {
 
   setUp(() {
     repo = MockUsersRepository();
-    when(() => repo.getLoggedInUser())
-        .thenAnswer((_) async => Success(FakeUser('me', 'Me')));
-    when(() => repo.getUsers(
-          limit: any(named: 'limit'),
-          searchKeyword: any(named: 'searchKeyword'),
-          usersRequestBuilder: any(named: 'usersRequestBuilder'),
-        )).thenAnswer((_) async => const Success([]));
+    when(
+      () => repo.getLoggedInUser(),
+    ).thenAnswer((_) async => Success(FakeUser('me', 'Me')));
+    when(
+      () => repo.getUsers(
+        limit: any(named: 'limit'),
+        searchKeyword: any(named: 'searchKeyword'),
+        usersRequestBuilder: any(named: 'usersRequestBuilder'),
+      ),
+    ).thenAnswer((_) async => const Success([]));
   });
 
   // =========================================================================
@@ -106,11 +109,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'hideSearch=true does not affect BLoC state (widget-level concern)',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(_generateUsers(3)));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(_generateUsers(3)));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),
@@ -122,11 +127,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'showBackButton default does not affect BLoC state',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(_generateUsers(2)));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(_generateUsers(2)));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),
@@ -137,11 +144,15 @@ void main() {
     );
 
     test('usersStatusVisibility=true creates status notifiers', () async {
-      when(() => repo.getUsers(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            usersRequestBuilder: any(named: 'usersRequestBuilder'),
-          )).thenAnswer((_) async => Success([FakeUser('uid_1', 'Alice', 'online')]));
+      when(
+        () => repo.getUsers(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          usersRequestBuilder: any(named: 'usersRequestBuilder'),
+        ),
+      ).thenAnswer(
+        (_) async => Success([FakeUser('uid_1', 'Alice', 'online')]),
+      );
 
       final bloc = UsersBloc(
         getUsersUseCase: GetUsersUseCase(repo),
@@ -180,11 +191,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'title defaults to "Users" (widget-level, BLoC unaffected)',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(_generateUsers(1)));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(_generateUsers(1)));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),
@@ -196,20 +209,24 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'searchKeyword passed to LoadUsers is forwarded to use case',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: 'alice',
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success([FakeUser('uid_1', 'Alice')]));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: 'alice',
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success([FakeUser('uid_1', 'Alice')]));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers(searchKeyword: 'alice')),
       verify: (bloc) {
-        verify(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: 'alice',
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).called(1);
+        verify(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: 'alice',
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).called(1);
       },
     );
   });
@@ -222,11 +239,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'onItemTap callback receives correct user (via state access)',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success([FakeUser('uid_1', 'Alice')]));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success([FakeUser('uid_1', 'Alice')]));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),
@@ -240,11 +259,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'LoadUsers with silent=true does not emit Loading state',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(_generateUsers(3)));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(_generateUsers(3)));
         return _makeBloc(repo);
       },
       seed: () => UsersLoaded(users: _generateUsers(2)),
@@ -276,11 +297,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'hasMore defaults to true in loaded state',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(_generateUsers(5)));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(_generateUsers(5)));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),
@@ -293,11 +316,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'selectedUsers defaults to empty set',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(_generateUsers(2)));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(_generateUsers(2)));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),
@@ -310,11 +335,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'isLoadingMore defaults to false',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(_generateUsers(2)));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(_generateUsers(2)));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),
@@ -334,18 +361,25 @@ void main() {
       'LoadMoreUsers appends new users to existing list',
       build: () {
         var callCount = 0;
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async {
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async {
           callCount++;
           if (callCount == 1) {
-            return Success(List.generate(
-                30, (i) => FakeUser('uid_$i', 'User $i')));
+            return Success(
+              List.generate(30, (i) => FakeUser('uid_$i', 'User $i')),
+            );
           }
-          return Success(List.generate(
-              10, (i) => FakeUser('uid_${30 + i}', 'User ${30 + i}')));
+          return Success(
+            List.generate(
+              10,
+              (i) => FakeUser('uid_${30 + i}', 'User ${30 + i}'),
+            ),
+          );
         });
         return _makeBloc(repo);
       },
@@ -365,18 +399,25 @@ void main() {
       'LoadMoreUsers sets hasMore=false when fewer than 30 returned',
       build: () {
         var callCount = 0;
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async {
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async {
           callCount++;
           if (callCount == 1) {
-            return Success(List.generate(
-                30, (i) => FakeUser('uid_$i', 'User $i')));
+            return Success(
+              List.generate(30, (i) => FakeUser('uid_$i', 'User $i')),
+            );
           }
-          return Success(List.generate(
-              5, (i) => FakeUser('uid_${30 + i}', 'User ${30 + i}')));
+          return Success(
+            List.generate(
+              5,
+              (i) => FakeUser('uid_${30 + i}', 'User ${30 + i}'),
+            ),
+          );
         });
         return _makeBloc(repo);
       },
@@ -395,11 +436,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'LoadMoreUsers is no-op when hasMore is false',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(_generateUsers(5)));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(_generateUsers(5)));
         return _makeBloc(repo);
       },
       seed: () => UsersLoaded(users: _generateUsers(5), hasMore: false),
@@ -418,11 +461,13 @@ void main() {
       'LoadMoreUsers emits error on failure with previousUsers',
       build: () {
         var callCount = 0;
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async {
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async {
           callCount++;
           if (callCount == 1) {
             return Success(_generateUsers(30));
@@ -454,16 +499,20 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'SearchUsers with keyword triggers debounced search',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(_generateUsers(3)));
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: 'bob',
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success([FakeUser('uid_bob', 'Bob')]));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(_generateUsers(3)));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: 'bob',
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success([FakeUser('uid_bob', 'Bob')]));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -483,11 +532,13 @@ void main() {
       'SearchUsers with empty keyword restores original list',
       build: () {
         final originalUsers = _generateUsers(5);
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(originalUsers));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(originalUsers));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -513,11 +564,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'UpdateUser updates existing user in-place',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success([FakeUser('uid_1', 'Alice')]));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success([FakeUser('uid_1', 'Alice')]));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -535,11 +588,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'UpdateUser adds new user when uid not found',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success([FakeUser('uid_1', 'Alice')]));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success([FakeUser('uid_1', 'Alice')]));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -571,11 +626,13 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'RefreshUsers triggers silent reload',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(_generateUsers(3)));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(_generateUsers(3)));
         return _makeBloc(repo);
       },
       seed: () => UsersLoaded(users: _generateUsers(2)),
@@ -596,12 +653,15 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'error state contains message',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async =>
-                const Failure(message: 'Server error', code: 'SRV_500'));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer(
+          (_) async => const Failure(message: 'Server error', code: 'SRV_500'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),
@@ -614,12 +674,15 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'error state has null previousUsers on initial load',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async =>
-                const Failure(message: 'Timeout', code: 'TIMEOUT'));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer(
+          (_) async => const Failure(message: 'Timeout', code: 'TIMEOUT'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),

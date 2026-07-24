@@ -114,7 +114,6 @@ class OutgoingCallBloc extends Bloc<OutgoingCallEvent, OutgoingCallState>
     }
   }
 
-
   // ============================================================
   // SDK LISTENER CALLBACKS - CallListener & CometChatCallEventListener
   // ============================================================
@@ -160,19 +159,23 @@ class OutgoingCallBloc extends Bloc<OutgoingCallEvent, OutgoingCallState>
     }
 
     // Update state to cancelling
-    emit(state.copyWith(
-      status: OutgoingCallStatus.cancelling,
-      isCallRejected: true,
-    ));
+    emit(
+      state.copyWith(
+        status: OutgoingCallStatus.cancelling,
+        isCallRejected: true,
+      ),
+    );
 
     // Get session ID
     final String? sessionId = call.sessionId;
     if (sessionId == null) {
-      emit(state.copyWith(
-        status: OutgoingCallStatus.error,
-        isCallRejected: false,
-        errorMessage: 'Session ID is null',
-      ));
+      emit(
+        state.copyWith(
+          status: OutgoingCallStatus.error,
+          isCallRejected: false,
+          errorMessage: 'Session ID is null',
+        ),
+      );
       return;
     }
 
@@ -186,27 +189,35 @@ class OutgoingCallBloc extends Bloc<OutgoingCallEvent, OutgoingCallState>
     // Historical note: 'rejected' was used as a workaround for a V4 race
     // condition where cancelCall() checked getActiveCall() which could be
     // null. The V5 SDK's rejectCall with 'cancelled' status works correctly.
-    final rejectCallUseCase = CallOperationsServiceLocator.instance.rejectCallUseCase;
-    final result = await rejectCallUseCase.call(sessionId, CallStatusConstants.cancelled);
+    final rejectCallUseCase =
+        CallOperationsServiceLocator.instance.rejectCallUseCase;
+    final result = await rejectCallUseCase.call(
+      sessionId,
+      CallStatusConstants.cancelled,
+    );
 
     result.fold(
       (failure) {
         developer.log('Error cancelling call: ${failure.message}');
         _handleError(CometChatException('ERR', failure.message, ''));
-        emit(state.copyWith(
-          status: OutgoingCallStatus.error,
-          isCallRejected: false,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            status: OutgoingCallStatus.error,
+            isCallRejected: false,
+            errorMessage: failure.message,
+          ),
+        );
       },
       (cancelledCall) {
         cancelledCall.category = MessageCategoryConstants.call;
         CometChatCallEvents.ccCallRejected(cancelledCall);
         developer.log('Outgoing call was cancelled');
-        emit(state.copyWith(
-          status: OutgoingCallStatus.rejected,
-          isCallRejected: false,
-        ));
+        emit(
+          state.copyWith(
+            status: OutgoingCallStatus.rejected,
+            isCallRejected: false,
+          ),
+        );
       },
     );
 
@@ -235,24 +246,26 @@ class OutgoingCallBloc extends Bloc<OutgoingCallEvent, OutgoingCallState>
     }
 
     // Determine if video call — default to audio if type is not explicitly video
-    final bool isVideoForSession = event.call.type == CallTypeConstants.videoCall;
+    final bool isVideoForSession =
+        event.call.type == CallTypeConstants.videoCall;
 
     // Build call settings
     final SessionSettingsBuilder defaultSessionSettingsBuilder;
     if (callSettingsBuilder != null) {
       defaultSessionSettingsBuilder = callSettingsBuilder!;
     } else {
-      defaultSessionSettingsBuilder = SessionSettingsBuilder()
-        .setLayout(LayoutType.tile);
+      defaultSessionSettingsBuilder = SessionSettingsBuilder().setLayout(
+        LayoutType.tile,
+      );
       if (!isVideoForSession) {
         // Workaround: SessionType.audio sends "AUDIO" to the native
         // Android SDK which logs "Invalid session type: AUDIO" and
         // ignores it (beta SDK bug). Instead, start with video paused
         // and hide the video toggle so it behaves as audio-only.
         defaultSessionSettingsBuilder
-          .startVideoPaused(true)
-          .hideSwitchCameraButton(true)
-          .hideToggleVideoButton(true);
+            .startVideoPaused(true)
+            .hideSwitchCameraButton(true)
+            .hideToggleVideoButton(true);
       }
     }
 

@@ -37,7 +37,8 @@ class SoundEntity {
   }
 
   @override
-  String toString() => 'SoundEntity(id: $id, name: $name, isPlaying: $isPlaying)';
+  String toString() =>
+      'SoundEntity(id: $id, name: $name, isPlaying: $isPlaying)';
 }
 
 /// Sound playback status

@@ -1,6 +1,4 @@
 import '../../../../../cometchat_chat_uikit.dart';
-import '../../domain/repositories/threaded_header_repository.dart';
-import '../datasources/threaded_header_datasource.dart';
 
 /// Implementation of [ThreadedHeaderRepository].
 class ThreadedHeaderRepositoryImpl implements ThreadedHeaderRepository {

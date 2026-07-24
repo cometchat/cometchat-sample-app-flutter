@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-import 'package:cometchat_chat_uikit/chat_ui/src/conversations/widgets/conversations_empty_view.dart';
 
 /// Minimal app wrapper for widget tests.
 /// Provides Material, the CometChat localizations delegate (required by
@@ -68,33 +67,32 @@ void main() {
       },
     );
 
-    testWidgets(
-      'applies style.emptyStateTextColor when provided',
-      (tester) async {
-        const customColor = Color(0xFFFF00FF);
+    testWidgets('applies style.emptyStateTextColor when provided', (
+      tester,
+    ) async {
+      const customColor = Color(0xFFFF00FF);
 
-        await tester.pumpWidget(
-          _wrap(
-            Builder(
-              builder: (context) {
-                return ConversationsEmptyView(
-                  style: const CometChatConversationsStyle(
-                    emptyStateTextColor: customColor,
-                  ),
-                  colorPalette: CometChatThemeHelper.getColorPalette(context),
-                  spacing: CometChatThemeHelper.getSpacing(context),
-                  typography: CometChatThemeHelper.getTypography(context),
-                );
-              },
-            ),
+      await tester.pumpWidget(
+        _wrap(
+          Builder(
+            builder: (context) {
+              return ConversationsEmptyView(
+                style: const CometChatConversationsStyle(
+                  emptyStateTextColor: customColor,
+                ),
+                colorPalette: CometChatThemeHelper.getColorPalette(context),
+                spacing: CometChatThemeHelper.getSpacing(context),
+                typography: CometChatThemeHelper.getTypography(context),
+              );
+            },
           ),
-        );
-        await tester.pump();
+        ),
+      );
+      await tester.pump();
 
-        // Title is the first Text in the default empty view.
-        final titleText = tester.widgetList<Text>(find.byType(Text)).first;
-        expect(titleText.style?.color, customColor);
-      },
-    );
+      // Title is the first Text in the default empty view.
+      final titleText = tester.widgetList<Text>(find.byType(Text)).first;
+      expect(titleText.style?.color, customColor);
+    });
   });
 }

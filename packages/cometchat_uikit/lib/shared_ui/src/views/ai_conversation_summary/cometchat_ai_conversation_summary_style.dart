@@ -58,7 +58,8 @@ class CometChatAIConversationSummaryStyle
   }
 
   CometChatAIConversationSummaryStyle merge(
-      CometChatAIConversationSummaryStyle? other) {
+    CometChatAIConversationSummaryStyle? other,
+  ) {
     if (other == null) return this;
     return copyWith(
       backgroundColor: other.backgroundColor,
@@ -76,8 +77,9 @@ class CometChatAIConversationSummaryStyle
 
   @override
   CometChatAIConversationSummaryStyle lerp(
-      covariant ThemeExtension<CometChatAIConversationSummaryStyle>? other,
-      double t) {
+    covariant ThemeExtension<CometChatAIConversationSummaryStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatAIConversationSummaryStyle) return this;
     return CometChatAIConversationSummaryStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
@@ -86,10 +88,16 @@ class CometChatAIConversationSummaryStyle
       emptyIconTint: Color.lerp(emptyIconTint, other.emptyIconTint, t),
       shadowColor: Color.lerp(shadowColor, other.shadowColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
-      summaryTextStyle:
-          TextStyle.lerp(summaryTextStyle, other.summaryTextStyle, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
+      summaryTextStyle: TextStyle.lerp(
+        summaryTextStyle,
+        other.summaryTextStyle,
+        t,
+      ),
       closeIconColor: Color.lerp(closeIconColor, other.closeIconColor, t),
       titleStyle: TextStyle.lerp(titleStyle, other.titleStyle, t),
     );

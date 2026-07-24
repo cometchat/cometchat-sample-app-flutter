@@ -1,5 +1,5 @@
 import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../domain/repositories/call_logs_repository.dart';
@@ -34,9 +34,7 @@ class CallLogsRepositoryImpl implements CallLogsRepository {
   }
 
   @override
-  Future<Result<List<CallLog>>> getCallLogs({
-    int limit = 30,
-  }) async {
+  Future<Result<List<CallLog>>> getCallLogs({int limit = 30}) async {
     try {
       // Build a new request if none is set
       if (_currentRequest == null) {
@@ -92,7 +90,8 @@ class CallLogsRepositoryImpl implements CallLogsRepository {
       );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while getting logged-in user: ${e.toString()}',
+        message:
+            'Unexpected error while getting logged-in user: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -130,7 +129,8 @@ class CallLogsRepositoryImpl implements CallLogsRepository {
       );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while getting user auth token: ${e.toString()}',
+        message:
+            'Unexpected error while getting user auth token: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }

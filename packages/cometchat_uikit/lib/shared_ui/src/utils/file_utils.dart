@@ -1,4 +1,5 @@
-import '../clean_architecture/core/utils/platform_utils/platform_file_utils.dart' as platform;
+import '../clean_architecture/core/utils/platform_utils/platform_file_utils.dart'
+    as platform;
 
 class FileUtils {
   static bool isLocalFileAvailable(String path) {

@@ -5,15 +5,15 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 void main() {
   group('MessageList Loading State View', () {
-    testWidgets('default loading state renders shimmer/indicator', (tester) async {
+    testWidgets('default loading state renders shimmer/indicator', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: Translations.localizationsDelegates,
           supportedLocales: Translations.supportedLocales,
           home: const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           ),
         ),
       );

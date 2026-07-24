@@ -117,15 +117,19 @@ void main() {
     setUp(() {
       repo = MockGroupMembersRepository();
       // Default stubs
-      when(() => repo.getLoggedInUser())
-          .thenAnswer((_) async => Success(FakeUser()));
-      when(() => repo.getConversation(any()))
-          .thenAnswer((_) async => Success(FakeConversation()));
-      when(() => repo.getGroupMembers(
-            guid: any(named: 'guid'),
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getLoggedInUser(),
+      ).thenAnswer((_) async => Success(FakeUser()));
+      when(
+        () => repo.getConversation(any()),
+      ).thenAnswer((_) async => Success(FakeConversation()));
+      when(
+        () => repo.getGroupMembers(
+          guid: any(named: 'guid'),
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
       when(() => repo.resetPagination()).thenReturn(null);
     });
 
@@ -146,18 +150,17 @@ void main() {
     blocTest<GroupMembersBloc, GroupMembersState>(
       'emits [Loading, Empty] when no members returned',
       build: () {
-        when(() => repo.getGroupMembers(
-              guid: any(named: 'guid'),
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-            )).thenAnswer((_) async => const Success([]));
+        when(
+          () => repo.getGroupMembers(
+            guid: any(named: 'guid'),
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+          ),
+        ).thenAnswer((_) async => const Success([]));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadGroupMembers()),
-      expect: () => [
-        isA<GroupMembersLoading>(),
-        isA<GroupMembersEmpty>(),
-      ],
+      expect: () => [isA<GroupMembersLoading>(), isA<GroupMembersEmpty>()],
     );
 
     blocTest<GroupMembersBloc, GroupMembersState>(
@@ -167,18 +170,17 @@ void main() {
           FakeGroupMember('uid_1', 'Alice', 'admin'),
           FakeGroupMember('uid_2', 'Bob', 'participant'),
         ];
-        when(() => repo.getGroupMembers(
-              guid: any(named: 'guid'),
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-            )).thenAnswer((_) async => Success(members));
+        when(
+          () => repo.getGroupMembers(
+            guid: any(named: 'guid'),
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+          ),
+        ).thenAnswer((_) async => Success(members));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadGroupMembers()),
-      expect: () => [
-        isA<GroupMembersLoading>(),
-        isA<GroupMembersLoaded>(),
-      ],
+      expect: () => [isA<GroupMembersLoading>(), isA<GroupMembersLoaded>()],
       verify: (bloc) {
         final state = bloc.state as GroupMembersLoaded;
         expect(state.members.length, 2);
@@ -188,19 +190,19 @@ void main() {
     blocTest<GroupMembersBloc, GroupMembersState>(
       'emits [Loading, Error] when repository fails',
       build: () {
-        when(() => repo.getGroupMembers(
-              guid: any(named: 'guid'),
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-            )).thenAnswer((_) async =>
-                const Failure(message: 'Network error', code: 'NET_ERR'));
+        when(
+          () => repo.getGroupMembers(
+            guid: any(named: 'guid'),
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+          ),
+        ).thenAnswer(
+          (_) async => const Failure(message: 'Network error', code: 'NET_ERR'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadGroupMembers()),
-      expect: () => [
-        isA<GroupMembersLoading>(),
-        isA<GroupMembersError>(),
-      ],
+      expect: () => [isA<GroupMembersLoading>(), isA<GroupMembersError>()],
     );
 
     // -----------------------------------------------------------------------
@@ -211,11 +213,13 @@ void main() {
       'toggles member selection in loaded state',
       build: () {
         final members = [FakeGroupMember('uid_1', 'Alice', 'participant')];
-        when(() => repo.getGroupMembers(
-              guid: any(named: 'guid'),
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-            )).thenAnswer((_) async => Success(members));
+        when(
+          () => repo.getGroupMembers(
+            guid: any(named: 'guid'),
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+          ),
+        ).thenAnswer((_) async => Success(members));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -233,11 +237,13 @@ void main() {
       'does not select owner members',
       build: () {
         final members = [FakeGroupMember('uid_1', 'Owner', 'owner')];
-        when(() => repo.getGroupMembers(
-              guid: any(named: 'guid'),
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-            )).thenAnswer((_) async => Success(members));
+        when(
+          () => repo.getGroupMembers(
+            guid: any(named: 'guid'),
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+          ),
+        ).thenAnswer((_) async => Success(members));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -262,11 +268,13 @@ void main() {
           FakeGroupMember('uid_1', 'Alice', 'participant'),
           FakeGroupMember('uid_2', 'Bob', 'participant'),
         ];
-        when(() => repo.getGroupMembers(
-              guid: any(named: 'guid'),
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-            )).thenAnswer((_) async => Success(members));
+        when(
+          () => repo.getGroupMembers(
+            guid: any(named: 'guid'),
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+          ),
+        ).thenAnswer((_) async => Success(members));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -292,11 +300,13 @@ void main() {
       'updates existing member in loaded state',
       build: () {
         final members = [FakeGroupMember('uid_1', 'Alice', 'participant')];
-        when(() => repo.getGroupMembers(
-              guid: any(named: 'guid'),
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-            )).thenAnswer((_) async => Success(members));
+        when(
+          () => repo.getGroupMembers(
+            guid: any(named: 'guid'),
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+          ),
+        ).thenAnswer((_) async => Success(members));
         return _makeBloc(repo);
       },
       act: (bloc) async {

@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../domain/repositories/message_composer_repository.dart';
 import '../datasources/message_composer_datasource.dart';
@@ -88,7 +88,7 @@ class MessageComposerRepositoryImpl implements MessageComposerRepository {
   }
 
   @override
-  Future<Result<BaseMessage>> editMessage(TextMessage message) async {
+  Future<Result<BaseMessage>> editMessage(BaseMessage message) async {
     try {
       final result = await _dataSource.editMessage(message);
       return Success(result);

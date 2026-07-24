@@ -53,13 +53,13 @@ class OngoingCallState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        callingWidget,
-        usersList,
-        participantsList,
-        isCallEndedByMe,
-        errorMessage,
-      ];
+    status,
+    callingWidget,
+    usersList,
+    participantsList,
+    isCallEndedByMe,
+    errorMessage,
+  ];
 
   /// Create a copy of this state with updated fields
   OngoingCallState copyWith({

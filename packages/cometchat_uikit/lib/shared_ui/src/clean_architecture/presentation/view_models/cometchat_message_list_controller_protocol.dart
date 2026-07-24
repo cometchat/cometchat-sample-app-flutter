@@ -10,12 +10,12 @@ abstract class CometChatMessageListControllerProtocol
   User? getUser();
   BuildContext getCurrentContext();
   String getConversationId();
-  initializeHeaderAndFooterView();
-  addMessage(BaseMessage message);
+  void initializeHeaderAndFooterView();
+  void addMessage(BaseMessage message);
 
-  updateMessageWithMuid(BaseMessage message);
+  void updateMessageWithMuid(BaseMessage message);
 
-  deleteMessage(BaseMessage message);
+  void deleteMessage(BaseMessage message);
 
-  updateMessageThreadCount(int parentMessageId);
+  void updateMessageThreadCount(int parentMessageId);
 }

@@ -8,7 +8,6 @@ import 'location.dart';
 import 'location_database.dart';
 import 'tzdata/zicfile.dart' as tzfile;
 
-
 const commonLocations = [
   'Africa/Abidjan',
   'Africa/Accra',
@@ -440,7 +439,7 @@ const commonLocations = [
   'US/Hawaii',
   'US/Mountain',
   'US/Pacific',
-  'UTC'
+  'UTC',
 ];
 
 const int _maxMillisecondsSinceEpoch = 8640000000000000;
@@ -460,10 +459,12 @@ class FilteredLocationDatabase {
   FilteredLocationDatabase(this.db, this.report);
 }
 
-FilteredLocationDatabase filterTimeZoneData(LocationDatabase db,
-    {int dateFrom = TZDateTime.minMillisecondsSinceEpoch,
-    int dateTo = TZDateTime.maxMillisecondsSinceEpoch,
-    List<String> locations = const []}) {
+FilteredLocationDatabase filterTimeZoneData(
+  LocationDatabase db, {
+  int dateFrom = TZDateTime.minMillisecondsSinceEpoch,
+  int dateTo = TZDateTime.maxMillisecondsSinceEpoch,
+  List<String> locations = const [],
+}) {
   final report = FilterReport();
   final result = LocationDatabase();
 
@@ -521,15 +522,23 @@ FilteredLocationDatabase filterTimeZoneData(LocationDatabase db,
 Location tzfileLocationToNativeLocation(tzfile.Location loc) {
   // convert to milliseconds
   final transitionAt = loc.transitionAt
-      .map((i) =>
-          (i < -_maxSecondsSinceEpoch) ? -_maxMillisecondsSinceEpoch : i * 1000)
+      .map(
+        (i) => (i < -_maxSecondsSinceEpoch)
+            ? -_maxMillisecondsSinceEpoch
+            : i * 1000,
+      )
       .toList();
 
   final zones = <TimeZone>[];
 
   for (final z in loc.zones) {
-    zones.add(TimeZone(z.offset * 1000,
-        isDst: z.isDst, abbreviation: loc.abbreviations[z.abbreviationIndex]));
+    zones.add(
+      TimeZone(
+        z.offset * 1000,
+        isDst: z.isDst,
+        abbreviation: loc.abbreviations[z.abbreviationIndex],
+      ),
+    );
   }
 
   return Location(loc.name, transitionAt, loc.transitionZone, zones);

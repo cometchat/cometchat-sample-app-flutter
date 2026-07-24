@@ -9,18 +9,15 @@
 /// - For each prop, render the widget with that prop set and verify the effect
 ///
 /// Run: flutter test test/chat_ui/conversations/widget/conversations_props_test.dart
+library;
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-import 'package:cometchat_chat_uikit/chat_ui/src/conversations/bloc/conversations_bloc.dart';
-import 'package:cometchat_chat_uikit/chat_ui/src/conversations/bloc/conversations_event.dart';
-import 'package:cometchat_chat_uikit/chat_ui/src/conversations/bloc/conversations_state.dart';
 
 // ─── Mocks & Fakes ───────────────────────────────────────────────────────────
 
@@ -66,11 +63,7 @@ class FakeUser extends Fake implements User {
 }
 
 class FakeGroup extends Fake implements Group {
-  FakeGroup({
-    this.name = 'Test Group',
-    this.guid = 'g1',
-    this.type = 'public',
-  });
+  FakeGroup({this.name = 'Test Group', this.guid = 'g1', this.type = 'public'});
 
   @override
   final String name;
@@ -128,7 +121,6 @@ class FakeBaseMessage extends Mock implements TextMessage {
   @override
   List<ReactionCount> get reactions => [];
 
-  @override
   bool get unreadByMe => false;
 
   @override
@@ -161,8 +153,7 @@ class FakeConversation extends Fake implements Conversation {
   BaseMessage? get lastMessage => _lastMessage;
 
   @override
-  String get conversationType =>
-      conversationWith is User ? 'user' : 'group';
+  String get conversationType => conversationWith is User ? 'user' : 'group';
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -176,22 +167,22 @@ Widget _wrap(Widget child) {
 }
 
 List<Conversation> _sampleConversations() => [
-      FakeConversation(
-        conversationWith: FakeUser(name: 'Alice', uid: 'u1'),
-        conversationId: 'user_u1',
-        unreadMessageCount: 3,
-        lastMessage: FakeBaseMessage(),
-      ),
-      FakeConversation(
-        conversationWith: FakeUser(name: 'Bob', uid: 'u2'),
-        conversationId: 'user_u2',
-      ),
-      FakeConversation(
-        conversationWith: FakeGroup(name: 'Dev Team', guid: 'g1', type: 'private'),
-        conversationId: 'group_g1',
-        unreadMessageCount: 1,
-      ),
-    ];
+  FakeConversation(
+    conversationWith: FakeUser(name: 'Alice', uid: 'u1'),
+    conversationId: 'user_u1',
+    unreadMessageCount: 3,
+    lastMessage: FakeBaseMessage(),
+  ),
+  FakeConversation(
+    conversationWith: FakeUser(name: 'Bob', uid: 'u2'),
+    conversationId: 'user_u2',
+  ),
+  FakeConversation(
+    conversationWith: FakeGroup(name: 'Dev Team', guid: 'g1', type: 'private'),
+    conversationId: 'group_g1',
+    unreadMessageCount: 1,
+  ),
+];
 
 MockConversationsBloc _loadedBloc() {
   final bloc = MockConversationsBloc();
@@ -201,7 +192,11 @@ MockConversationsBloc _loadedBloc() {
     hasMore: false,
   );
   when(() => bloc.state).thenReturn(loadedState);
-  whenListen(bloc, Stream.fromIterable([loadedState]), initialState: loadedState);
+  whenListen(
+    bloc,
+    Stream.fromIterable([loadedState]),
+    initialState: loadedState,
+  );
   return bloc;
 }
 
@@ -221,7 +216,6 @@ MockConversationsBloc _errorBloc() {
   return bloc;
 }
 
-
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 void main() {
@@ -235,12 +229,14 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            onItemTap: (c) => tapped = c,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              onItemTap: (c) => tapped = c,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 
@@ -256,18 +252,21 @@ void main() {
       expect(tapped!.conversationId, 'user_u1');
     });
 
-    testWidgets('onItemLongPress fires with correct conversation',
-        (tester) async {
+    testWidgets('onItemLongPress fires with correct conversation', (
+      tester,
+    ) async {
       Conversation? longPressed;
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            onItemLongPress: (c) => longPressed = c,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              onItemLongPress: (c) => longPressed = c,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 
@@ -287,13 +286,15 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            showBackButton: true,
-            onBack: () => backFired = true,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              showBackButton: true,
+              onBack: () => backFired = true,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 
@@ -319,12 +320,14 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            onLoad: (conversations) => loadedList = conversations,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              onLoad: (conversations) => loadedList = conversations,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -333,18 +336,21 @@ void main() {
       expect(loadedList!.length, 3);
     });
 
-    testWidgets('onEmpty fires when conversation list is empty',
-        (tester) async {
+    testWidgets('onEmpty fires when conversation list is empty', (
+      tester,
+    ) async {
       bool emptyFired = false;
       final bloc = _emptyBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            onEmpty: () => emptyFired = true,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              onEmpty: () => emptyFired = true,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -357,12 +363,14 @@ void main() {
       final bloc = _errorBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            onError: (e) => errorMsg = e.toString(),
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              onError: (e) => errorMsg = e.toString(),
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -380,12 +388,11 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            hideAppbar: true,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(conversationsBloc: bloc, hideAppbar: true),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -398,12 +405,14 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            showBackButton: true,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              showBackButton: true,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -418,17 +427,20 @@ void main() {
       );
     });
 
-    testWidgets('showBackButton=false (default) hides back button',
-        (tester) async {
+    testWidgets('showBackButton=false (default) hides back button', (
+      tester,
+    ) async {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            showBackButton: false,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              showBackButton: false,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -440,12 +452,11 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            hideSearch: true,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(conversationsBloc: bloc, hideSearch: true),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -457,12 +468,11 @@ void main() {
       final bloc = _errorBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            hideError: true,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(conversationsBloc: bloc, hideError: true),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -477,20 +487,23 @@ void main() {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   group('Custom views', () {
-    testWidgets('listItemView overrides default list item rendering',
-        (tester) async {
+    testWidgets('listItemView overrides default list item rendering', (
+      tester,
+    ) async {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            listItemView: (conv) => Container(
-              key: Key('custom-item-${conv.conversationId}'),
-              child: Text('CUSTOM: ${conv.conversationId}'),
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              listItemView: (conv) => Container(
+                key: Key('custom-item-${conv.conversationId}'),
+                child: Text('CUSTOM: ${conv.conversationId}'),
+              ),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -504,13 +517,17 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            subtitleView: (ctx, conv) =>
-                Text('Sub: ${conv.conversationId}', key: const Key('custom-sub')),
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              subtitleView: (ctx, conv) => Text(
+                'Sub: ${conv.conversationId}',
+                key: const Key('custom-sub'),
+              ),
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -518,20 +535,21 @@ void main() {
       expect(find.textContaining('Sub: user_u1'), findsOneWidget);
     });
 
-    testWidgets('emptyStateView overrides default empty state',
-        (tester) async {
+    testWidgets('emptyStateView overrides default empty state', (tester) async {
       final bloc = _emptyBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            emptyStateView: (ctx) => const Center(
-              key: Key('custom-empty'),
-              child: Text('Nothing here!'),
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              emptyStateView: (ctx) => const Center(
+                key: Key('custom-empty'),
+                child: Text('Nothing here!'),
+              ),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -540,20 +558,21 @@ void main() {
       expect(find.text('Nothing here!'), findsOneWidget);
     });
 
-    testWidgets('errorStateView overrides default error state',
-        (tester) async {
+    testWidgets('errorStateView overrides default error state', (tester) async {
       final bloc = _errorBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            errorStateView: (ctx) => const Center(
-              key: Key('custom-error'),
-              child: Text('Custom error!'),
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              errorStateView: (ctx) => const Center(
+                key: Key('custom-error'),
+                child: Text('Custom error!'),
+              ),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -562,43 +581,51 @@ void main() {
       expect(find.text('Custom error!'), findsOneWidget);
     });
 
-    testWidgets('loadingStateView overrides default loading shimmer',
-        (tester) async {
+    testWidgets('loadingStateView overrides default loading shimmer', (
+      tester,
+    ) async {
       final bloc = MockConversationsBloc();
       const loadingState = ConversationsLoading();
       when(() => bloc.state).thenReturn(loadingState);
-      whenListen(bloc, Stream.fromIterable([loadingState]), initialState: loadingState);
+      whenListen(
+        bloc,
+        Stream.fromIterable([loadingState]),
+        initialState: loadingState,
+      );
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            loadingStateView: (ctx) => const Center(
-              key: Key('custom-loading'),
-              child: CircularProgressIndicator(),
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              loadingStateView: (ctx) => const Center(
+                key: Key('custom-loading'),
+                child: CircularProgressIndicator(),
+              ),
             ),
           ),
-        ));
+        );
         await tester.pump();
       });
 
       expect(find.byKey(const Key('custom-loading')), findsOneWidget);
     });
 
-    testWidgets('trailingView overrides default trailing widget',
-        (tester) async {
+    testWidgets('trailingView overrides default trailing widget', (
+      tester,
+    ) async {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            trailingView: (conv) => const Icon(
-              Icons.star,
-              key: Key('custom-trailing'),
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              trailingView: (conv) =>
+                  const Icon(Icons.star, key: Key('custom-trailing')),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -606,18 +633,21 @@ void main() {
       expect(find.byKey(const Key('custom-trailing')), findsWidgets);
     });
 
-    testWidgets('backButton overrides default back button widget',
-        (tester) async {
+    testWidgets('backButton overrides default back button widget', (
+      tester,
+    ) async {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            showBackButton: true,
-            backButton: const Icon(Icons.close, key: Key('custom-back')),
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              showBackButton: true,
+              backButton: const Icon(Icons.close, key: Key('custom-back')),
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -629,18 +659,20 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            appBarOptions: [
-              IconButton(
-                key: const Key('appbar-option'),
-                icon: const Icon(Icons.settings),
-                onPressed: () {},
-              ),
-            ],
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              appBarOptions: [
+                IconButton(
+                  key: const Key('appbar-option'),
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {},
+                ),
+              ],
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -658,12 +690,14 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            title: 'My Conversations',
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              title: 'My Conversations',
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -675,11 +709,9 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-          ),
-        ));
+        await tester.pumpWidget(
+          _wrap(CometChatConversations(conversationsBloc: bloc)),
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -697,13 +729,15 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            selectionMode: SelectionMode.multiple,
-            activateSelection: ActivateSelection.onClick,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              selectionMode: SelectionMode.multiple,
+              activateSelection: ActivateSelection.onClick,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 
@@ -718,20 +752,23 @@ void main() {
       expect(find.byType(Checkbox), findsWidgets);
     });
 
-    testWidgets('onSelection fires with selected conversations',
-        (tester) async {
+    testWidgets('onSelection fires with selected conversations', (
+      tester,
+    ) async {
       List<Conversation>? selected;
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            selectionMode: SelectionMode.multiple,
-            activateSelection: ActivateSelection.onClick,
-            onSelection: (list) => selected = list,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              selectionMode: SelectionMode.multiple,
+              activateSelection: ActivateSelection.onClick,
+              onSelection: (list) => selected = list,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -747,13 +784,17 @@ void main() {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   group('Custom icons', () {
-    testWidgets('protectedGroupIcon renders for password-protected groups',
-        (tester) async {
+    testWidgets('protectedGroupIcon renders for password-protected groups', (
+      tester,
+    ) async {
       final bloc = MockConversationsBloc();
       final conversations = [
         FakeConversation(
-          conversationWith:
-              FakeGroup(name: 'Secret', guid: 'g2', type: 'password'),
+          conversationWith: FakeGroup(
+            name: 'Secret',
+            guid: 'g2',
+            type: 'password',
+          ),
           conversationId: 'group_g2',
         ),
       ];
@@ -762,16 +803,24 @@ void main() {
         hasMore: false,
       );
       when(() => bloc.state).thenReturn(loadedState);
-      whenListen(bloc, Stream.fromIterable([loadedState]), initialState: loadedState);
+      whenListen(
+        bloc,
+        Stream.fromIterable([loadedState]),
+        initialState: loadedState,
+      );
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            protectedGroupIcon:
-                const Icon(Icons.lock, key: Key('custom-lock')),
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              protectedGroupIcon: const Icon(
+                Icons.lock,
+                key: Key('custom-lock'),
+              ),
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -779,13 +828,15 @@ void main() {
       expect(find.byKey(const Key('custom-lock')), findsOneWidget);
     });
 
-    testWidgets('privateGroupIcon renders for private groups',
-        (tester) async {
+    testWidgets('privateGroupIcon renders for private groups', (tester) async {
       final bloc = MockConversationsBloc();
       final conversations = [
         FakeConversation(
-          conversationWith:
-              FakeGroup(name: 'Private', guid: 'g3', type: 'private'),
+          conversationWith: FakeGroup(
+            name: 'Private',
+            guid: 'g3',
+            type: 'private',
+          ),
           conversationId: 'group_g3',
         ),
       ];
@@ -794,16 +845,24 @@ void main() {
         hasMore: false,
       );
       when(() => bloc.state).thenReturn(loadedState);
-      whenListen(bloc, Stream.fromIterable([loadedState]), initialState: loadedState);
+      whenListen(
+        bloc,
+        Stream.fromIterable([loadedState]),
+        initialState: loadedState,
+      );
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            privateGroupIcon:
-                const Icon(Icons.shield, key: Key('custom-shield')),
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              privateGroupIcon: const Icon(
+                Icons.shield,
+                key: Key('custom-shield'),
+              ),
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -821,11 +880,9 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-          ),
-        ));
+        await tester.pumpWidget(
+          _wrap(CometChatConversations(conversationsBloc: bloc)),
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -842,17 +899,20 @@ void main() {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   group('Sound & behavior props', () {
-    testWidgets('disableSoundForMessages=true accepted without error',
-        (tester) async {
+    testWidgets('disableSoundForMessages=true accepted without error', (
+      tester,
+    ) async {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            disableSoundForMessages: true,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              disableSoundForMessages: true,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -861,17 +921,20 @@ void main() {
       expect(find.text('Alice'), findsOneWidget);
     });
 
-    testWidgets('searchReadOnly=true makes search non-editable',
-        (tester) async {
+    testWidgets('searchReadOnly=true makes search non-editable', (
+      tester,
+    ) async {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            searchReadOnly: true,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              searchReadOnly: true,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -894,13 +957,15 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            avatarWidth: 60,
-            avatarHeight: 60,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              avatarWidth: 60,
+              avatarHeight: 60,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });
@@ -913,13 +978,15 @@ void main() {
       final bloc = _loadedBloc();
 
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(_wrap(
-          CometChatConversations(
-            conversationsBloc: bloc,
-            badgeWidth: 24,
-            badgeHeight: 24,
+        await tester.pumpWidget(
+          _wrap(
+            CometChatConversations(
+              conversationsBloc: bloc,
+              badgeWidth: 24,
+              badgeHeight: 24,
+            ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       });

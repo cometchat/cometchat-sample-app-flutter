@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 import '../cometchat_notification_feed_style.dart';
 
@@ -46,28 +46,28 @@ class NotificationFeedFilterChips extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-          // "All" chip — always first
-          _buildChip(
-            label: 'All',
-            isActive: activeCategory == null,
-            unreadCount: totalUnreadCount,
-            onTap: () => onCategorySelected(null),
-          ),
-          const SizedBox(width: 8),
-          // Server categories
-          ...categories.map((category) {
-            final unread = categoryUnreadCounts[category.id] ?? 0;
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: _buildChip(
-                label: category.label,
-                isActive: activeCategory == category.id,
-                unreadCount: unread,
-                onTap: () => onCategorySelected(category.id),
-              ),
-            );
-          }),
-        ],
+            // "All" chip — always first
+            _buildChip(
+              label: 'All',
+              isActive: activeCategory == null,
+              unreadCount: totalUnreadCount,
+              onTap: () => onCategorySelected(null),
+            ),
+            const SizedBox(width: 8),
+            // Server categories
+            ...categories.map((category) {
+              final unread = categoryUnreadCounts[category.id] ?? 0;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: _buildChip(
+                  label: category.label,
+                  isActive: activeCategory == category.id,
+                  unreadCount: unread,
+                  onTap: () => onCategorySelected(category.id),
+                ),
+              );
+            }),
+          ],
         ),
       ),
     );
@@ -98,17 +98,20 @@ class NotificationFeedFilterChips extends StatelessWidget {
           decoration: BoxDecoration(
             color: chipBg,
             borderRadius: BorderRadius.circular(20),
-            border: isActive
-                ? null
-                : Border.all(color: borderColor, width: 1),
+            border: isActive ? null : Border.all(color: borderColor, width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 label,
-                style: (style.chipTextStyle ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))
-                    .copyWith(color: chipTextColor),
+                style:
+                    (style.chipTextStyle ??
+                            const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ))
+                        .copyWith(color: chipTextColor),
               ),
               if (unreadCount > 0) ...[
                 const SizedBox(width: 8),
@@ -133,15 +136,13 @@ class NotificationFeedFilterChips extends StatelessWidget {
       width: 22,
       height: 22,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: bgColor,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
       child: Text(
         count > 99 ? '99+' : count.toString(),
-        style: (style.badgeTextStyle ??
-                const TextStyle(fontSize: 11, fontWeight: FontWeight.w600))
-            .copyWith(color: textColor),
+        style:
+            (style.badgeTextStyle ??
+                    const TextStyle(fontSize: 11, fontWeight: FontWeight.w600))
+                .copyWith(color: textColor),
       ),
     );
   }

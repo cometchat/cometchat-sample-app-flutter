@@ -30,7 +30,7 @@ class CometChatIncomingCall extends StatefulWidget {
   /// [incomingCallStyle] is used to set a custom incoming call style
   final CometChatIncomingCallStyle? incomingCallStyle;
 
-  /// [sessionSettingsBuilder] is used to set the session settings (V5)
+  /// [callSettingsBuilder] is used to set the session settings (V5)
   final SessionSettingsBuilder? callSettingsBuilder;
 
   /// [height] is used to set the height of the widget.
@@ -114,7 +114,6 @@ class CometChatIncomingCall extends StatefulWidget {
   State<CometChatIncomingCall> createState() => _CometChatIncomingCallState();
 }
 
-
 class _CometChatIncomingCallState extends State<CometChatIncomingCall> {
   /// BLoC to manage incoming call state
   late IncomingCallBloc _incomingCallBloc;
@@ -163,7 +162,8 @@ class _CometChatIncomingCallState extends State<CometChatIncomingCall> {
     // Only initialize theme once to avoid expensive lookups during rebuilds
     // But re-initialize when brightness changes (dark mode toggle)
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
     _cachedBrightness = currentBrightness;
     _themeInitialized = true;
@@ -227,15 +227,14 @@ class _CometChatIncomingCallState extends State<CometChatIncomingCall> {
       padding: EdgeInsets.all(_spacing.padding5 ?? 0),
       decoration: BoxDecoration(
         color: _style.backgroundColor ?? _colorPalette.background3,
-        border: _style.border ??
+        border:
+            _style.border ??
             Border.all(
               width: 1,
               color: _colorPalette.borderLight ?? Colors.transparent,
             ),
-        borderRadius: _style.borderRadius ??
-            BorderRadius.circular(
-              _spacing.radius3 ?? 0,
-            ),
+        borderRadius:
+            _style.borderRadius ?? BorderRadius.circular(_spacing.radius3 ?? 0),
         boxShadow: const [
           BoxShadow(
             color: Color(0x10182808),
@@ -261,9 +260,7 @@ class _CometChatIncomingCallState extends State<CometChatIncomingCall> {
           return Column(
             children: [
               Padding(
-                padding: EdgeInsets.only(
-                  bottom: _spacing.padding4 ?? 0,
-                ),
+                padding: EdgeInsets.only(bottom: _spacing.padding4 ?? 0),
                 child: ListTile(
                   horizontalTitleGap: 0,
                   contentPadding: EdgeInsets.zero,
@@ -312,7 +309,6 @@ class _CometChatIncomingCallState extends State<CometChatIncomingCall> {
     );
   }
 
-
   /// Build action buttons (Decline and Accept)
   Widget _buildActionButtons(BuildContext context, IncomingCallState state) {
     return Row(
@@ -321,9 +317,7 @@ class _CometChatIncomingCallState extends State<CometChatIncomingCall> {
         // Decline button
         Expanded(
           child: Padding(
-            padding: EdgeInsets.only(
-              right: _spacing.padding2 ?? 0,
-            ),
+            padding: EdgeInsets.only(right: _spacing.padding2 ?? 0),
             child: TextButton(
               onPressed: () {
                 _incomingCallBloc.add(const RejectCall());
@@ -345,24 +339,24 @@ class _CometChatIncomingCallState extends State<CometChatIncomingCall> {
                       width: 1,
                     ),
                     borderRadius: BorderRadius.all(
-                      Radius.circular(
-                        _spacing.radius2 ?? 0,
-                      ),
+                      Radius.circular(_spacing.radius2 ?? 0),
                     ),
                   ),
                 ),
               ),
               child: Text(
                 widget.declineButtonText ?? Translations.of(context).decline,
-                style: TextStyle(
-                  fontSize: _typography.button?.medium?.fontSize,
-                  fontWeight: _typography.button?.medium?.fontWeight,
-                  fontFamily: _typography.button?.medium?.fontFamily,
-                  color:
-                      _style.declineTextColor ?? _colorPalette.buttonIconColor,
-                )
-                    .merge(_style.declineTextStyle)
-                    .copyWith(color: _style.declineTextColor),
+                style:
+                    TextStyle(
+                          fontSize: _typography.button?.medium?.fontSize,
+                          fontWeight: _typography.button?.medium?.fontWeight,
+                          fontFamily: _typography.button?.medium?.fontFamily,
+                          color:
+                              _style.declineTextColor ??
+                              _colorPalette.buttonIconColor,
+                        )
+                        .merge(_style.declineTextStyle)
+                        .copyWith(color: _style.declineTextColor),
               ),
             ),
           ),
@@ -392,23 +386,24 @@ class _CometChatIncomingCallState extends State<CometChatIncomingCall> {
                     width: 1,
                   ),
                   borderRadius: BorderRadius.all(
-                    Radius.circular(
-                      _spacing.radius2 ?? 0,
-                    ),
+                    Radius.circular(_spacing.radius2 ?? 0),
                   ),
                 ),
               ),
             ),
             child: Text(
               widget.acceptButtonText ?? Translations.of(context).accept,
-              style: TextStyle(
-                fontSize: _typography.button?.medium?.fontSize,
-                fontWeight: _typography.button?.medium?.fontWeight,
-                fontFamily: _typography.button?.medium?.fontFamily,
-                color: _style.acceptTextColor ?? _colorPalette.buttonIconColor,
-              )
-                  .merge(_style.acceptTextStyle)
-                  .copyWith(color: _style.acceptTextColor),
+              style:
+                  TextStyle(
+                        fontSize: _typography.button?.medium?.fontSize,
+                        fontWeight: _typography.button?.medium?.fontWeight,
+                        fontFamily: _typography.button?.medium?.fontFamily,
+                        color:
+                            _style.acceptTextColor ??
+                            _colorPalette.buttonIconColor,
+                      )
+                      .merge(_style.acceptTextStyle)
+                      .copyWith(color: _style.acceptTextColor),
             ),
           ),
         ),
@@ -436,9 +431,7 @@ class _CometChatIncomingCallState extends State<CometChatIncomingCall> {
         fontWeight: _typography.heading1?.bold?.fontWeight,
         fontFamily: _typography.heading1?.bold?.fontFamily,
         color: _style.titleColor ?? _colorPalette.textPrimary,
-      )
-          .merge(_style.titleTextStyle)
-          .copyWith(color: _style.titleColor),
+      ).merge(_style.titleTextStyle).copyWith(color: _style.titleColor),
     );
   }
 
@@ -450,10 +443,9 @@ class _CometChatIncomingCallState extends State<CometChatIncomingCall> {
     return Row(
       children: [
         Padding(
-          padding: EdgeInsets.only(
-            right: _spacing.padding ?? 0,
-          ),
-          child: widget.callIcon ??
+          padding: EdgeInsets.only(right: _spacing.padding ?? 0),
+          child:
+              widget.callIcon ??
               Icon(
                 Icons.call,
                 color: _style.callIconColor ?? _colorPalette.iconSecondary,
@@ -462,14 +454,15 @@ class _CometChatIncomingCallState extends State<CometChatIncomingCall> {
         ),
         Text(
           _incomingCallBloc.getSubtitle(context),
-          style: TextStyle(
-            fontSize: _typography.body?.regular?.fontSize,
-            fontWeight: _typography.body?.regular?.fontWeight,
-            fontFamily: _typography.body?.regular?.fontFamily,
-            color: _style.subtitleColor ?? _colorPalette.textSecondary,
-          )
-              .merge(_style.subtitleTextStyle)
-              .copyWith(color: _style.subtitleColor),
+          style:
+              TextStyle(
+                    fontSize: _typography.body?.regular?.fontSize,
+                    fontWeight: _typography.body?.regular?.fontWeight,
+                    fontFamily: _typography.body?.regular?.fontFamily,
+                    color: _style.subtitleColor ?? _colorPalette.textSecondary,
+                  )
+                  .merge(_style.subtitleTextStyle)
+                  .copyWith(color: _style.subtitleColor),
         ),
       ],
     );

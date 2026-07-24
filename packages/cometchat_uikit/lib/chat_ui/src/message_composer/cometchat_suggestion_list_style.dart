@@ -1,7 +1,8 @@
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/material.dart';
 
-class CometChatSuggestionListStyle extends ThemeExtension<CometChatSuggestionListStyle>{
+class CometChatSuggestionListStyle
+    extends ThemeExtension<CometChatSuggestionListStyle> {
   const CometChatSuggestionListStyle({
     this.backgroundColor,
     this.border,
@@ -29,7 +30,6 @@ class CometChatSuggestionListStyle extends ThemeExtension<CometChatSuggestionLis
   ///[avatarStyle] sets the avatar style of the suggestion list
   final CometChatAvatarStyle? avatarStyle;
 
-
   CometChatSuggestionListStyle merge(CometChatSuggestionListStyle? style) {
     return CometChatSuggestionListStyle(
       backgroundColor: style?.backgroundColor ?? backgroundColor,
@@ -48,7 +48,7 @@ class CometChatSuggestionListStyle extends ThemeExtension<CometChatSuggestionLis
     BorderRadius? borderRadius,
     TextStyle? textStyle,
     Color? textColor,
-    CometChatAvatarStyle? messageBubbleAvatarStyle
+    CometChatAvatarStyle? messageBubbleAvatarStyle,
   }) {
     return CometChatSuggestionListStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -61,16 +61,20 @@ class CometChatSuggestionListStyle extends ThemeExtension<CometChatSuggestionLis
   }
 
   @override
-  CometChatSuggestionListStyle lerp(CometChatSuggestionListStyle? other, double t) {
+  CometChatSuggestionListStyle lerp(
+    CometChatSuggestionListStyle? other,
+    double t,
+  ) {
     return CometChatSuggestionListStyle(
       backgroundColor: Color.lerp(backgroundColor, other?.backgroundColor, t),
       border: BoxBorder.lerp(border, other?.border, t),
       borderRadius: BorderRadius.lerp(borderRadius, other?.borderRadius, t),
       textStyle: TextStyle.lerp(textStyle, other?.textStyle, t),
       textColor: Color.lerp(textColor, other?.textColor, t),
-      avatarStyle:other?.avatarStyle ?? avatarStyle,
+      avatarStyle: other?.avatarStyle ?? avatarStyle,
     );
   }
 
-  static CometChatSuggestionListStyle of(BuildContext context)=> const CometChatSuggestionListStyle();
+  static CometChatSuggestionListStyle of(BuildContext context) =>
+      const CometChatSuggestionListStyle();
 }

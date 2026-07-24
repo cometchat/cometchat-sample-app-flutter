@@ -1,10 +1,9 @@
-
 import 'package:flutter/material.dart';
 
 import '../../../../cometchat_chat_uikit.dart';
 
 ///[PollsOptionStyle] is a data class that has styling-related properties
-///to customize the appearance of the option in the attachment options menu for the [PollsExtension]
+///to customize the appearance of the option in the attachment options menu for the `PollsExtension`
 class PollsOptionStyle {
   PollsOptionStyle({
     this.iconTint,

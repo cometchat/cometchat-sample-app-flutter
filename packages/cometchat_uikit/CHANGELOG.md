@@ -1,3 +1,31 @@
+# 6.1.0
+
+## New
+- Added support for sending multiple attachments in a single message. Files that are picked, pasted or dropped are staged in an attachment tray, where each tile reports its own upload progress and can be removed or retried, and the whole batch can be captioned before sending.
+- Added per-type gallery bubbles for multi-attachment messages — `CometChatImagesBubble`, `CometChatVideosBubble`, `CometChatAudiosBubble` and `CometChatFilesBubble` — together with `CometChatMediaViewer` for paging through a message's media full screen.
+- Added `enableMultipleAttachments` to `CometChatMessageComposer` and `CometChatMessageList`, defaulting to `true`. Set it to `false` to keep the previous single-attachment bubbles.
+- Added `CometChatAttachmentTrayStyle`, applied through `CometChatMessageComposerStyle.attachmentTrayStyle`, and `CometChatAttachmentErrorAlertStyle` for styling the tray and its error alerts.
+- Added drag-and-drop and clipboard paste of files into the composer on the platforms that support them.
+
+## Enhancements
+- Added caption editing for media messages, and media messages edited this way now show the "Edited" tag that text messages already displayed.
+- Changed the image attachment option on Android to open the system photo picker instead of the document browser.
+
+## Fixes
+- None
+
+## Deprecations
+- Renamed `CometChatAudioBubble` to `CometChatVoiceNoteBubble`, keeping the previous name as a deprecated alias. The new name matches what the class renders: voice notes always use it, on both values of `enableMultipleAttachments`, while audio files use `CometChatAudiosBubble` when the flag is `true`. The previous deprecation recommended `CometChatAudiosBubble`, which voice notes never route to.
+- Renamed `CometChatAudioBubbleStyle` to `CometChatVoiceNoteBubbleStyle`, keeping the previous name as a deprecated alias. Both names share one runtime type, so a `ThemeExtension` registered under either resolves the same instance and existing themes need no change.
+- Renamed `CometChatAudioBubbleV2` to `CometChatAudioPlayer`, keeping the previous name as a deprecated alias.
+- Deprecated the `audioBubbleStyle` property on `AdditionalConfigurations`, `CometChatIncomingMessageBubbleStyle` and `CometChatOutgoingMessageBubbleStyle` in favour of `voiceNoteBubbleStyle`. Both are honoured and `voiceNoteBubbleStyle` takes precedence, so existing styling continues to apply. `audioBubbleStyle` will be removed in the next major release.
+- Deprecated `CometChatImageBubble`, `CometChatVideoBubble` and `CometChatFileBubble` in favour of the gallery bubbles. They continue to render the `enableMultipleAttachments: false` path.
+
+## Breaking Changes
+- Updated `flutter_bloc` to 9.x, `permission_handler` to 12.x and `diffutil_dart` to 5.x, and constrained `intl` to `^0.20.2`. **Applications that depend on any of these packages directly must upgrade them alongside the UI Kit.**
+- Declared a minimum supported toolchain of Flutter 3.38.9 and Dart 3.10.8. Earlier releases declared `flutter: ">=2.5.0"` but could not resolve below 3.38.9 in practice, so upgrading from 6.0.5 requires no toolchain change.
+- Changed the value `runtimeType` reports for `CometChatAudioBubble` and `CometChatAudioBubbleStyle` to their new names. Type checks, casts, subclassing and constructor calls are unaffected; only code comparing `runtimeType.toString()` to a literal old name needs updating.
+
 # 6.0.5
 
 ## New
@@ -30,7 +58,7 @@
 # 6.0.3
 
 ## New
-- Added the `loadLastAgentConversation` prop to `CometChatMessageList`, enabling automatic loading of the most recent agent conversation.
+- None
 
 ## Enhancements
 - Improved the sample app for web by adding responsive navigation optimized for desktop layouts.

@@ -16,7 +16,7 @@ class LeaveGroupUseCase {
   ///
   /// [guid] - The unique identifier of the group to leave
   ///
-  /// Returns Result<void> indicating success or failure
+  /// Returns `Result<void>` indicating success or failure
   Future<Result<void>> call({required String guid}) async {
     // Validate input parameters (Requirement 3.6)
     if (guid.isEmpty) {

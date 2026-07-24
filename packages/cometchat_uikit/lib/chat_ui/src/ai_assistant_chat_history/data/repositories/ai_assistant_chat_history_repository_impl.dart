@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../domain/repositories/ai_assistant_chat_history_repository.dart';
 import '../datasources/ai_assistant_chat_history_remote_datasource.dart';
@@ -12,8 +12,7 @@ class AIAssistantChatHistoryRepositoryImpl
   AIAssistantChatHistoryRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Result<List<BaseMessage>>> fetchMessages(
-      MessagesRequest request) {
+  Future<Result<List<BaseMessage>>> fetchMessages(MessagesRequest request) {
     return remoteDataSource.fetchMessages(request);
   }
 

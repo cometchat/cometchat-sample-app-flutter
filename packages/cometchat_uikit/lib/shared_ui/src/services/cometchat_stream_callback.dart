@@ -8,7 +8,7 @@ mixin CometChatStreamCallbackListener implements UIEventHandler {
 
 class CometChatStreamCallBackEvents {
   static final Map<String, CometChatStreamCallbackListener>
-      _streamCallBackListeners = {};
+  _streamCallBackListeners = {};
 
   static void addStreamCallBackListener(
     String listenerId,

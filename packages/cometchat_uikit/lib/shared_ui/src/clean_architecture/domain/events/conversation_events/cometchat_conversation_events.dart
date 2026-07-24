@@ -1,27 +1,29 @@
-import "package:cometchat_sdk/cometchat_sdk.dart";
+import "package:cometchat_sdk/cometchat_sdk.dart" hide CardMessage;
 import 'cometchat_conversation_event_listener.dart';
 
-///Event emitting class for [CometchatConversation]
+///Event emitting class for `CometchatConversation`
 class CometChatConversationEvents {
   static Map<String, CometChatConversationEventListener>
-      conversationListListener = {};
+  conversationListListener = {};
 
-  static addConversationListListener(
-      String listenerId, CometChatConversationEventListener listenerClass) {
+  static void addConversationListListener(
+    String listenerId,
+    CometChatConversationEventListener listenerClass,
+  ) {
     conversationListListener[listenerId] = listenerClass;
   }
 
-  static removeConversationListListener(String listenerId) {
+  static void removeConversationListListener(String listenerId) {
     conversationListListener.remove(listenerId);
   }
 
-  static ccConversationDeleted(Conversation conversation) {
+  static void ccConversationDeleted(Conversation conversation) {
     conversationListListener.forEach((key, value) {
       value.ccConversationDeleted(conversation);
     });
   }
 
-  static ccUpdateConversation(Conversation conversation) {
+  static void ccUpdateConversation(Conversation conversation) {
     conversationListListener.forEach((key, value) {
       value.ccUpdateConversation(conversation);
     });

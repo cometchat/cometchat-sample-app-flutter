@@ -1,4 +1,5 @@
-import '../../../../../cometchat_uikit_shared.dart' show ActionTypeConstants, ActionElementFields, Utils;
+import '../../../../../cometchat_uikit_shared.dart'
+    show ActionTypeConstants, ActionElementFields, Utils;
 import 'action_entity.dart';
 
 /// Represents an action that makes an API request in a chat application.
@@ -13,14 +14,14 @@ class APIAction extends ActionEntity {
   Map<String, String>? headers;
   String? dataKey; // default key: CometChatData
 
-  APIAction(
-      {required this.url,
-      required this.method,
-      this.payload,
-      this.headers,
-      this.dataKey,
-      String? type})
-      : super(actionType: type ?? ActionTypeConstants.apiAction);
+  APIAction({
+    required this.url,
+    required this.method,
+    this.payload,
+    this.headers,
+    this.dataKey,
+    String? type,
+  }) : super(actionType: type ?? ActionTypeConstants.apiAction);
 
   @override
   Map<String, dynamic> toMap() {

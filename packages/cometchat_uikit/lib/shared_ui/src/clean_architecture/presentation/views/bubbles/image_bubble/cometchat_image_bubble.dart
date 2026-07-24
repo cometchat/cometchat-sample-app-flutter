@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import "../../../../clean_architecture.dart";
-import '../../../../core/utils/platform_utils/platform_image_utils.dart' as platform_image;
+import '../../../../core/utils/platform_utils/platform_image_utils.dart'
+    as platform_image;
 import 'image_viewer.dart';
 
 ///[CometChatImageBubble] creates a widget that gives image bubble
@@ -19,6 +20,9 @@ import 'image_viewer.dart';
 ///                  ),
 ///                );
 /// ```
+@Deprecated(
+  'Use CometChatImagesBubble instead — the multi-attachment bubble family (enableMultipleAttachments) replaces the single-attachment media bubbles.',
+)
 class CometChatImageBubble extends StatefulWidget {
   const CometChatImageBubble({
     super.key,
@@ -83,7 +87,6 @@ class CometChatImageBubble extends StatefulWidget {
   State<CometChatImageBubble> createState() => _CometChatImageBubbleState();
 }
 
-
 class _CometChatImageBubbleState extends State<CometChatImageBubble> {
   late CometChatImageBubbleStyle imageBubbleStyle;
   late CometChatColorPalette colorPalette;
@@ -96,14 +99,18 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
     super.didChangeDependencies();
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
-      imageBubbleStyle = CometChatThemeHelper.getTheme<CometChatImageBubbleStyle>(
-              context: context, defaultTheme: CometChatImageBubbleStyle.of)
-          .merge(widget.style);
+      imageBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatImageBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatImageBubbleStyle.of,
+          ).merge(widget.style);
       // Use passed values OR fallback to lookup (for standalone usage)
-      colorPalette = widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+      colorPalette =
+          widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
       spacing = widget.spacing ?? CometChatThemeHelper.getSpacing(context);
       _themeInitialized = true;
     }
@@ -114,12 +121,15 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
     super.didUpdateWidget(oldWidget);
     // Update style if it changed
     if (widget.style != oldWidget.style) {
-      imageBubbleStyle = CometChatThemeHelper.getTheme<CometChatImageBubbleStyle>(
-              context: context, defaultTheme: CometChatImageBubbleStyle.of)
-          .merge(widget.style);
+      imageBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatImageBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatImageBubbleStyle.of,
+          ).merge(widget.style);
     }
     // Update cached theme values if they changed
-    if (widget.colorPalette != oldWidget.colorPalette && widget.colorPalette != null) {
+    if (widget.colorPalette != oldWidget.colorPalette &&
+        widget.colorPalette != null) {
       colorPalette = widget.colorPalette!;
     }
     if (widget.spacing != oldWidget.spacing && widget.spacing != null) {
@@ -176,9 +186,7 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
     if (hasThumb) {
       // Don't use thumbnail for GIFs (thumbnail is usually a still frame).
       final fullIsGif = hasFull && _isGif(full);
-      if (!fullIsGif &&
-          !_isHeicOrHeif(thumb) &&
-          !_isSvg(thumb)) {
+      if (!fullIsGif && !_isHeicOrHeif(thumb) && !_isSvg(thumb)) {
         return thumb;
       }
     }
@@ -244,6 +252,10 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
         imageUrl,
         fit: BoxFit.cover,
         filterQuality: FilterQuality.medium,
+        // CanvasKit fetches pixels via XHR, which IS subject to CORS — fall
+        // back to an <img> element when the CDN response lacks the headers
+        // (keeps gifs/images rendering instead of hitting the error builder).
+        webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) return child;
           return _buildLoadingIndicator();
@@ -291,7 +303,8 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
         color: colorPalette.iconTertiary,
         image: AssetImage(
           widget.placeholderImage ?? AssetConstants.imagePlaceholder,
-          package: widget.placeHolderImagePackageName ?? UIConstants.packageName,
+          package:
+              widget.placeHolderImagePackageName ?? UIConstants.packageName,
         ),
       ),
     );
@@ -308,8 +321,8 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
   @override
   Widget build(BuildContext context) {
     final displayUrl = _resolveDisplayUrl();
-    final bool showPlaceholder = _isUnsupportedFormat() ||
-        (displayUrl == null || displayUrl.isEmpty);
+    final bool showPlaceholder =
+        _isUnsupportedFormat() || (displayUrl == null || displayUrl.isEmpty);
 
     final imageContent = Container(
       height: widget.height ?? 232,
@@ -319,7 +332,8 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
       padding: widget.padding,
       decoration: BoxDecoration(
         border: imageBubbleStyle.border,
-        borderRadius: imageBubbleStyle.borderRadius ??
+        borderRadius:
+            imageBubbleStyle.borderRadius ??
             BorderRadius.circular(spacing.radius3 ?? 0),
         color: imageBubbleStyle.backgroundColor ?? colorPalette.background3,
       ),
@@ -339,26 +353,25 @@ class _CometChatImageBubbleState extends State<CometChatImageBubble> {
       onTap: showPlaceholder
           ? null
           : widget.onClick ??
-              () {
-                if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ImageViewer(
-                        imageUrl: widget.imageUrl!,
-                        placeholderImage: widget.placeholderImage,
-                        placeHolderImagePackageName:
-                            widget.placeHolderImagePackageName,
+                () {
+                  if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ImageViewer(
+                          imageUrl: widget.imageUrl!,
+                          placeholderImage: widget.placeholderImage,
+                          placeHolderImagePackageName:
+                              widget.placeHolderImagePackageName,
+                        ),
                       ),
-                    ),
-                  );
-                }
-              },
+                    );
+                  }
+                },
       child: child,
     );
   }
 }
-
 
 /// Wraps a GIF image widget and only renders it when visible in the viewport.
 /// When the GIF scrolls out of view, a static sized box with the same
@@ -454,10 +467,7 @@ class _ViewportAwareGifState extends State<_ViewportAwareGif> {
     // When not visible, swap the child for an empty box of the same size.
     // This unmounts the Image widget, stopping GIF frame decoding.
     if (!_isVisible) {
-      return SizedBox(
-        height: widget.childHeight,
-        width: widget.childWidth,
-      );
+      return SizedBox(height: widget.childHeight, width: widget.childWidth);
     }
     return widget.child;
   }

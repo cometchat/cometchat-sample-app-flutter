@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../core/constants/enums.dart';
 import '../../../../core/utils/emoji_utils.dart';
 import '../../../theme/colors/cometchat_color_palette.dart';
@@ -36,19 +36,23 @@ class TextBubbleFactory extends BubbleFactory<TextMessage> {
     CometChatTypography? typography,
     CometChatSpacing? spacing,
   }) {
-    final style = alignment == BubbleAlignment.right 
-        ? outgoingStyle 
+    final style = alignment == BubbleAlignment.right
+        ? outgoingStyle
         : incomingStyle;
 
     // Detect emoji-only messages for WhatsApp-style scaled rendering
     final count = EmojiUtils.emojiOnlyCount(message.text);
-    final emojiCount = (count > 0 && count <= EmojiUtils.maxScaledCount) ? count : 0;
+    final emojiCount = (count > 0 && count <= EmojiUtils.maxScaledCount)
+        ? count
+        : 0;
 
     return CometChatTextBubble(
       text: message.text,
       alignment: alignment,
       style: style,
-      formatters: emojiCount > 0 ? null : FormatterUtils.ensureMarkdownFormatter(textFormatters),
+      formatters: emojiCount > 0
+          ? null
+          : FormatterUtils.ensureMarkdownFormatter(textFormatters),
       emojiCount: emojiCount,
     );
   }

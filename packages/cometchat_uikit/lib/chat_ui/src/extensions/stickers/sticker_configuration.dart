@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 ///[StickerConfiguration] is a data class that has configuration properties
-///to customize the functionality and appearance of [StickersExtension]
+///to customize the functionality and appearance of `StickersExtension`
 ///
 /// ```dart
 ///

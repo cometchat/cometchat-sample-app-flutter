@@ -8,7 +8,6 @@ import 'package:cometchat_chat_uikit/call_ui/src/call_logs/bloc/call_logs_state.
 import 'package:cometchat_chat_uikit/call_ui/src/call_logs/domain/usecases/get_call_logs_usecase.dart';
 import 'package:cometchat_chat_uikit/call_ui/src/call_logs/domain/usecases/load_more_call_logs_usecase.dart';
 import 'package:cometchat_chat_uikit/call_ui/src/call_logs/domain/usecases/initiate_call_usecase.dart';
-import 'package:cometchat_chat_uikit/call_ui/src/call_logs/domain/usecases/get_logged_in_user_usecase.dart';
 import 'package:cometchat_chat_uikit/call_ui/src/call_logs/domain/repositories/call_logs_repository.dart';
 import 'package:cometchat_chat_uikit/shared_ui/src/clean_architecture/core/result.dart';
 
@@ -68,8 +67,9 @@ void main() {
   group('GetCallLogsUseCase interaction', () {
     test('returns call logs on successful fetch', () async {
       final callLogs = [FakeCallLog(), FakeCallLog(sessionId: 'session_2')];
-      when(() => repo.getCallLogs(limit: any(named: 'limit')))
-          .thenAnswer((_) async => Success(callLogs));
+      when(
+        () => repo.getCallLogs(limit: any(named: 'limit')),
+      ).thenAnswer((_) async => Success(callLogs));
 
       final useCase = GetCallLogsUseCase(repo);
       final result = await useCase(limit: 30);
@@ -79,8 +79,9 @@ void main() {
     });
 
     test('returns empty list when no call logs exist', () async {
-      when(() => repo.getCallLogs(limit: any(named: 'limit')))
-          .thenAnswer((_) async => const Success(<CallLog>[]));
+      when(
+        () => repo.getCallLogs(limit: any(named: 'limit')),
+      ).thenAnswer((_) async => const Success(<CallLog>[]));
 
       final useCase = GetCallLogsUseCase(repo);
       final result = await useCase(limit: 30);
@@ -90,9 +91,9 @@ void main() {
     });
 
     test('returns failure on network error', () async {
-      when(() => repo.getCallLogs(limit: any(named: 'limit')))
-          .thenAnswer((_) async =>
-              const Failure(message: 'Network error', code: 'NETWORK'));
+      when(() => repo.getCallLogs(limit: any(named: 'limit'))).thenAnswer(
+        (_) async => const Failure(message: 'Network error', code: 'NETWORK'),
+      );
 
       final useCase = GetCallLogsUseCase(repo);
       final result = await useCase(limit: 30);
@@ -119,15 +120,13 @@ void main() {
         FakeCallLog(sessionId: 'session_3'),
         FakeCallLog(sessionId: 'session_1'), // duplicate
       ];
-      when(() => repo.getCallLogs(limit: any(named: 'limit')))
-          .thenAnswer((_) async => Success(moreLogs));
+      when(
+        () => repo.getCallLogs(limit: any(named: 'limit')),
+      ).thenAnswer((_) async => Success(moreLogs));
 
       final useCase = LoadMoreCallLogsUseCase(repo);
       final currentLogs = [FakeCallLog(sessionId: 'session_1')];
-      final result = await useCase(
-        limit: 30,
-        currentCallLogs: currentLogs,
-      );
+      final result = await useCase(limit: 30, currentCallLogs: currentLogs);
 
       expect(result.isSuccess, isTrue);
       result.onSuccess((data) {
@@ -139,8 +138,9 @@ void main() {
 
     test('returns all items when no current logs exist', () async {
       final logs = [FakeCallLog(), FakeCallLog(sessionId: 'session_2')];
-      when(() => repo.getCallLogs(limit: any(named: 'limit')))
-          .thenAnswer((_) async => Success(logs));
+      when(
+        () => repo.getCallLogs(limit: any(named: 'limit')),
+      ).thenAnswer((_) async => Success(logs));
 
       final useCase = LoadMoreCallLogsUseCase(repo);
       final result = await useCase(limit: 30, currentCallLogs: []);
@@ -172,8 +172,9 @@ void main() {
 
   group('InitiateCallUseCase interaction', () {
     test('initiates call successfully', () async {
-      when(() => repo.initiateCall(any()))
-          .thenAnswer((_) async => Success(FakeCall()));
+      when(
+        () => repo.initiateCall(any()),
+      ).thenAnswer((_) async => Success(FakeCall()));
 
       final useCase = InitiateCallUseCase(repo);
       final result = await useCase(FakeCall());
@@ -183,9 +184,9 @@ void main() {
     });
 
     test('returns failure when repository fails', () async {
-      when(() => repo.initiateCall(any()))
-          .thenAnswer((_) async =>
-              const Failure(message: 'User busy', code: 'BUSY'));
+      when(() => repo.initiateCall(any())).thenAnswer(
+        (_) async => const Failure(message: 'User busy', code: 'BUSY'),
+      );
 
       final useCase = InitiateCallUseCase(repo);
       final result = await useCase(FakeCall());
@@ -325,7 +326,9 @@ void main() {
   group('hasMore flag logic', () {
     test('hasMore true when result count equals limit (30)', () {
       final logs = List.generate(
-          30, (i) => FakeCallLog(sessionId: 'session_$i'));
+        30,
+        (i) => FakeCallLog(sessionId: 'session_$i'),
+      );
       final state = CallLogsState(
         status: CallLogsStatus.loaded,
         callLogs: logs,
@@ -346,10 +349,7 @@ void main() {
     });
 
     test('hasMore false on empty result', () {
-      const state = CallLogsState(
-        status: CallLogsStatus.empty,
-        hasMore: false,
-      );
+      const state = CallLogsState(status: CallLogsStatus.empty, hasMore: false);
       expect(state.hasMore, isFalse);
     });
   });

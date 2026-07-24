@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../../cometchat_uikit_shared.dart';
 
 ///[CometChatMessageBubble] is a widget that provides the skeleton structure for any message bubble
-///constructed from a [CometChatMessageTemplate] which doesnt have a [bubbleView]
+///constructed from a [CometChatMessageTemplate] which doesnt have a `bubbleView`
 ///it binds together the [leadingView], [headerView], [contentView], [footerView], [bottomView],
 ///[threadView] declared in the [CometChatMessageTemplate] to collectively form a message bubble
 ///
@@ -39,6 +39,7 @@ class CometChatMessageBubble extends StatefulWidget {
     this.colorPalette,
     this.spacing,
     this.contentPadding,
+    this.outerPadding,
   });
 
   ///[leadingView] widget to be shown on the left side of the bubble
@@ -90,6 +91,11 @@ class CometChatMessageBubble extends StatefulWidget {
   /// Use EdgeInsets.zero for media messages (images, videos) to remove padding
   final EdgeInsetsGeometry? contentPadding;
 
+  /// [outerPadding] overrides the default outer row padding (vertical padding2,
+  /// horizontal padding4). Used to tighten the gap between messages that belong
+  /// to one visual group (e.g. a multi-attachment batch).
+  final EdgeInsetsGeometry? outerPadding;
+
   @override
   State<CometChatMessageBubble> createState() => _CometChatMessageBubbleState();
 }
@@ -107,15 +113,19 @@ class _CometChatMessageBubbleState extends State<CometChatMessageBubble> {
     super.didChangeDependencies();
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
-      _messageBubbleStyle = CometChatThemeHelper.getTheme<CometChatMessageBubbleStyle>(
-              context: context, defaultTheme: CometChatMessageBubbleStyle.of)
-          .merge(widget.style);
+      _messageBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatMessageBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatMessageBubbleStyle.of,
+          ).merge(widget.style);
       // Use passed values OR fallback to lookup (for standalone usage)
       _spacing = widget.spacing ?? CometChatThemeHelper.getSpacing(context);
-      _colorPalette = widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+      _colorPalette =
+          widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
       _themeInitialized = true;
     }
   }
@@ -125,12 +135,15 @@ class _CometChatMessageBubbleState extends State<CometChatMessageBubble> {
     super.didUpdateWidget(oldWidget);
     // Update style if it changed
     if (widget.style != oldWidget.style) {
-      _messageBubbleStyle = CometChatThemeHelper.getTheme<CometChatMessageBubbleStyle>(
-              context: context, defaultTheme: CometChatMessageBubbleStyle.of)
-          .merge(widget.style);
+      _messageBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatMessageBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatMessageBubbleStyle.of,
+          ).merge(widget.style);
     }
     // Update cached theme values if they changed
-    if (widget.colorPalette != oldWidget.colorPalette && widget.colorPalette != null) {
+    if (widget.colorPalette != oldWidget.colorPalette &&
+        widget.colorPalette != null) {
       _colorPalette = widget.colorPalette;
     }
     if (widget.spacing != oldWidget.spacing && widget.spacing != null) {
@@ -171,16 +184,24 @@ class _CometChatMessageBubbleState extends State<CometChatMessageBubble> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    padding: widget.contentPadding ?? EdgeInsets.fromLTRB(
-                      spacing.padding1 ?? 0,
-                      spacing.padding1 ?? 0,
-                      spacing.padding1 ?? 0,
-                      0,
-                    ),
+                    padding:
+                        widget.contentPadding ??
+                        EdgeInsets.fromLTRB(
+                          spacing.padding1 ?? 0,
+                          spacing.padding1 ?? 0,
+                          spacing.padding1 ?? 0,
+                          0,
+                        ),
                     decoration: BoxDecoration(
-                      color: _getBubbleBackgroundColor(messageBubbleStyle, colorPalette),
-                      borderRadius: messageBubbleStyle.borderRadius ??
-                          BorderRadius.all(Radius.circular(spacing.radius3 ?? 0)),
+                      color: _getBubbleBackgroundColor(
+                        messageBubbleStyle,
+                        colorPalette,
+                      ),
+                      borderRadius:
+                          messageBubbleStyle.borderRadius ??
+                          BorderRadius.all(
+                            Radius.circular(spacing.radius3 ?? 0),
+                          ),
                       border: messageBubbleStyle.border,
                       image: messageBubbleStyle.backgroundImage,
                     ),
@@ -188,14 +209,31 @@ class _CometChatMessageBubbleState extends State<CometChatMessageBubble> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (widget.replyView != null) 
-                          ClipRRect(
-                            borderRadius: messageBubbleStyle.borderRadius ??
-                                BorderRadius.all(Radius.circular(spacing.radius3 ?? 0)),
-                            child: widget.replyView!,
+                        if (widget.replyView != null)
+                          // Media bubbles set contentPadding to zero so the grid
+                          // fills the bubble edge-to-edge — but the quoted reply
+                          // should still be inset like it is in a text bubble.
+                          // Restore that inset around just the reply here.
+                          Padding(
+                            padding: widget.contentPadding == EdgeInsets.zero
+                                ? EdgeInsets.fromLTRB(
+                                    spacing.padding1 ?? 4,
+                                    spacing.padding1 ?? 4,
+                                    spacing.padding1 ?? 4,
+                                    0,
+                                  )
+                                : EdgeInsets.zero,
+                            child: ClipRRect(
+                              borderRadius:
+                                  messageBubbleStyle.borderRadius ??
+                                  BorderRadius.all(
+                                    Radius.circular(spacing.radius3 ?? 0),
+                                  ),
+                              child: widget.replyView!,
+                            ),
                           ),
                         if (widget.contentView != null) widget.contentView!,
-                        if (widget.statusInfoView != null) 
+                        if (widget.statusInfoView != null)
                           Padding(
                             padding: EdgeInsets.all(spacing.padding1 ?? 4),
                             child: Align(
@@ -209,13 +247,12 @@ class _CometChatMessageBubbleState extends State<CometChatMessageBubble> {
                   if (widget.bottomView != null) widget.bottomView!,
                   if (widget.footerView != null)
                     Row(
-                      mainAxisAlignment: widget.alignment == BubbleAlignment.right
+                      mainAxisAlignment:
+                          widget.alignment == BubbleAlignment.right
                           ? MainAxisAlignment.end
                           : MainAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
-                      children: [
-                        widget.footerView!,
-                      ],
+                      children: [widget.footerView!],
                     ),
                 ],
               ),
@@ -230,10 +267,12 @@ class _CometChatMessageBubbleState extends State<CometChatMessageBubble> {
     return Container(
       margin: widget.margin,
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: spacing.padding2 ?? 0,
-          horizontal: spacing.padding4 ?? 0,
-        ),
+        padding:
+            widget.outerPadding ??
+            EdgeInsets.symmetric(
+              vertical: spacing.padding2 ?? 0,
+              horizontal: spacing.padding4 ?? 0,
+            ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -247,8 +286,12 @@ class _CometChatMessageBubbleState extends State<CometChatMessageBubble> {
   }
 
   Color? _getBubbleBackgroundColor(
-      CometChatMessageBubbleStyle style, CometChatColorPalette colorPalette) {
+    CometChatMessageBubbleStyle style,
+    CometChatColorPalette colorPalette,
+  ) {
     return style.backgroundColor ??
-        (widget.alignment == BubbleAlignment.right ? colorPalette.primary : colorPalette.neutral300);
+        (widget.alignment == BubbleAlignment.right
+            ? colorPalette.primary
+            : colorPalette.neutral300);
   }
 }

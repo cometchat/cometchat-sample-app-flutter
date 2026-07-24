@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/conversations_repository.dart';
 
@@ -10,7 +10,7 @@ class GetConversationsUseCase {
   const GetConversationsUseCase(this.repository);
 
   /// Execute the use case to get conversations
-  /// 
+  ///
   /// [limit] - Maximum number of conversations to fetch (default: 30)
   /// [fromId] - ID to start pagination from (optional)
   /// [requestBuilder] - Optional caller-provided builder whose filter fields
@@ -18,7 +18,7 @@ class GetConversationsUseCase {
   ///   includeBlockedUsers, withBlockedInfo, conversationType, unread)
   ///   are forwarded to the repository.
   ///
-  /// Returns Result<List<Conversation>> containing conversations or failure
+  /// Returns `Result<List<Conversation>>` containing conversations or failure
   Future<Result<List<Conversation>>> call({
     int limit = 30,
     String? fromId,

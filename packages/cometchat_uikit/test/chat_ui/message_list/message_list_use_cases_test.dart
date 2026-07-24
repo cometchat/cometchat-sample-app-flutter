@@ -31,8 +31,8 @@ class FakeBaseMessage extends Fake implements BaseMessage {
   final User? _sender;
 
   FakeBaseMessage(this._id, {int parentMessageId = 0, User? sender})
-      : _parentMessageId = parentMessageId,
-        _sender = sender;
+    : _parentMessageId = parentMessageId,
+      _sender = sender;
 
   @override
   int get id => _id;
@@ -116,16 +116,18 @@ void main() {
     });
 
     test('accepts limit of exactly 100', () async {
-      when(() => repo.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase(
         conversationWith: 'uid1',
@@ -136,16 +138,18 @@ void main() {
     });
 
     test('accepts limit of exactly 1', () async {
-      when(() => repo.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase(
         conversationWith: 'uid1',
@@ -156,42 +160,48 @@ void main() {
     });
 
     test('delegates to repository with default limit of 30', () async {
-      when(() => repo.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       await useCase(conversationWith: 'uid1', conversationType: 'user');
 
-      verify(() => repo.getMessages(
-            conversationWith: 'uid1',
-            conversationType: 'user',
-            limit: 30,
-            parentMessageId: null,
-            types: null,
-            categories: null,
-            hideReplies: true,
-            withParent: true,
-          )).called(1);
+      verify(
+        () => repo.getMessages(
+          conversationWith: 'uid1',
+          conversationType: 'user',
+          limit: 30,
+          parentMessageId: null,
+          types: null,
+          categories: null,
+          hideReplies: true,
+          withParent: true,
+        ),
+      ).called(1);
     });
 
     test('passes parentMessageId to repository', () async {
-      when(() => repo.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       await useCase(
         conversationWith: 'uid1',
@@ -199,29 +209,33 @@ void main() {
         parentMessageId: 42,
       );
 
-      verify(() => repo.getMessages(
-            conversationWith: 'uid1',
-            conversationType: 'user',
-            limit: 30,
-            parentMessageId: 42,
-            types: null,
-            categories: null,
-            hideReplies: true,
-            withParent: true,
-          )).called(1);
+      verify(
+        () => repo.getMessages(
+          conversationWith: 'uid1',
+          conversationType: 'user',
+          limit: 30,
+          parentMessageId: 42,
+          types: null,
+          categories: null,
+          hideReplies: true,
+          withParent: true,
+        ),
+      ).called(1);
     });
 
     test('accepts user conversation type', () async {
-      when(() => repo.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase(
         conversationWith: 'uid1',
@@ -231,16 +245,18 @@ void main() {
     });
 
     test('accepts group conversation type', () async {
-      when(() => repo.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase(
         conversationWith: 'guid1',
@@ -250,17 +266,20 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          )).thenAnswer(
-          (_) async => const Failure(message: 'Network error', code: 'NET_ERR'));
+      when(
+        () => repo.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      ).thenAnswer(
+        (_) async => const Failure(message: 'Network error', code: 'NET_ERR'),
+      );
 
       final result = await useCase(
         conversationWith: 'uid1',
@@ -272,16 +291,18 @@ void main() {
 
     test('does not call repository for invalid inputs', () async {
       await useCase(conversationWith: '', conversationType: 'user');
-      verifyNever(() => repo.getMessages(
-            conversationWith: any(named: 'conversationWith'),
-            conversationType: any(named: 'conversationType'),
-            limit: any(named: 'limit'),
-            parentMessageId: any(named: 'parentMessageId'),
-            types: any(named: 'types'),
-            categories: any(named: 'categories'),
-            hideReplies: any(named: 'hideReplies'),
-            withParent: any(named: 'withParent'),
-          ));
+      verifyNever(
+        () => repo.getMessages(
+          conversationWith: any(named: 'conversationWith'),
+          conversationType: any(named: 'conversationType'),
+          limit: any(named: 'limit'),
+          parentMessageId: any(named: 'parentMessageId'),
+          types: any(named: 'types'),
+          categories: any(named: 'categories'),
+          hideReplies: any(named: 'hideReplies'),
+          withParent: any(named: 'withParent'),
+        ),
+      );
     });
   });
 
@@ -300,8 +321,9 @@ void main() {
 
     test('delegates to repository fetchPreviousMessages', () async {
       final request = FakeMessagesRequest();
-      when(() => repo.fetchPreviousMessages(request: any(named: 'request')))
-          .thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.fetchPreviousMessages(request: any(named: 'request')),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase(request: request);
       expect(result.isSuccess, isTrue);
@@ -309,9 +331,11 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.fetchPreviousMessages(request: any(named: 'request')))
-          .thenAnswer(
-              (_) async => const Failure(message: 'Fetch failed', code: 'ERR'));
+      when(
+        () => repo.fetchPreviousMessages(request: any(named: 'request')),
+      ).thenAnswer(
+        (_) async => const Failure(message: 'Fetch failed', code: 'ERR'),
+      );
 
       final result = await useCase(request: FakeMessagesRequest());
       expect(result.isFailure, isTrue);
@@ -333,8 +357,9 @@ void main() {
 
     test('delegates to repository fetchNextMessages', () async {
       final request = FakeMessagesRequest();
-      when(() => repo.fetchNextMessages(request: any(named: 'request')))
-          .thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.fetchNextMessages(request: any(named: 'request')),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase(request: request);
       expect(result.isSuccess, isTrue);
@@ -342,9 +367,11 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.fetchNextMessages(request: any(named: 'request')))
-          .thenAnswer(
-              (_) async => const Failure(message: 'Fetch failed', code: 'ERR'));
+      when(
+        () => repo.fetchNextMessages(request: any(named: 'request')),
+      ).thenAnswer(
+        (_) async => const Failure(message: 'Fetch failed', code: 'ERR'),
+      );
 
       final result = await useCase(request: FakeMessagesRequest());
       expect(result.isFailure, isTrue);
@@ -383,8 +410,9 @@ void main() {
     });
 
     test('delegates to repository for valid message', () async {
-      when(() => repo.markAsRead(any()))
-          .thenAnswer((_) async => const Success(null));
+      when(
+        () => repo.markAsRead(any()),
+      ).thenAnswer((_) async => const Success(null));
 
       final result = await useCase(
         message: FakeBaseMessage(42, sender: FakeUser()),
@@ -399,8 +427,9 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.markAsRead(any())).thenAnswer(
-          (_) async => const Failure(message: 'Mark failed'));
+      when(
+        () => repo.markAsRead(any()),
+      ).thenAnswer((_) async => const Failure(message: 'Mark failed'));
 
       final result = await useCase(
         message: FakeBaseMessage(42, sender: FakeUser()),
@@ -434,8 +463,9 @@ void main() {
     });
 
     test('delegates to repository for valid message', () async {
-      when(() => repo.markAsDelivered(any()))
-          .thenAnswer((_) async => const Success(null));
+      when(
+        () => repo.markAsDelivered(any()),
+      ).thenAnswer((_) async => const Success(null));
 
       final result = await useCase(message: FakeBaseMessage(42));
       expect(result.isSuccess, isTrue);
@@ -448,8 +478,9 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.markAsDelivered(any())).thenAnswer(
-          (_) async => const Failure(message: 'Delivery failed'));
+      when(
+        () => repo.markAsDelivered(any()),
+      ).thenAnswer((_) async => const Failure(message: 'Delivery failed'));
 
       final result = await useCase(message: FakeBaseMessage(42));
       expect(result.isFailure, isTrue);
@@ -484,8 +515,9 @@ void main() {
     });
 
     test('delegates to repository for valid non-thread message', () async {
-      when(() => repo.markMessageAsUnread(any()))
-          .thenAnswer((_) async => Success(_FakeConversation()));
+      when(
+        () => repo.markMessageAsUnread(any()),
+      ).thenAnswer((_) async => Success(_FakeConversation()));
 
       final result = await useCase(message: FakeBaseMessage(42));
       expect(result.isSuccess, isTrue);
@@ -503,8 +535,9 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.markMessageAsUnread(any())).thenAnswer(
-          (_) async => const Failure(message: 'Unread failed'));
+      when(
+        () => repo.markMessageAsUnread(any()),
+      ).thenAnswer((_) async => const Failure(message: 'Unread failed'));
 
       final result = await useCase(message: FakeBaseMessage(42));
       expect(result.isFailure, isTrue);
@@ -526,8 +559,7 @@ void main() {
 
     test('returns user from repository', () async {
       final user = FakeUser();
-      when(() => repo.getLoggedInUser())
-          .thenAnswer((_) async => Success(user));
+      when(() => repo.getLoggedInUser()).thenAnswer((_) async => Success(user));
 
       final result = await useCase();
       expect(result.isSuccess, isTrue);
@@ -535,8 +567,9 @@ void main() {
     });
 
     test('returns success with null when no user logged in', () async {
-      when(() => repo.getLoggedInUser())
-          .thenAnswer((_) async => const Success<User?>(null));
+      when(
+        () => repo.getLoggedInUser(),
+      ).thenAnswer((_) async => const Success<User?>(null));
 
       final result = await useCase();
       expect(result.isSuccess, isTrue);
@@ -544,8 +577,9 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.getLoggedInUser()).thenAnswer(
-          (_) async => const Failure(message: 'Not authenticated'));
+      when(
+        () => repo.getLoggedInUser(),
+      ).thenAnswer((_) async => const Failure(message: 'Not authenticated'));
 
       final result = await useCase();
       expect(result.isFailure, isTrue);

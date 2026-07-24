@@ -812,6 +812,39 @@ class TranslationsKo extends Translations {
   String get failedToLoadImage => '이미지 로드 실패';
 
   @override
+  String get uploadFailed => '업로드 실패';
+
+  @override
+  String get tapToRetry => '다시 시도하려면 탭하세요';
+
+  @override
+  String get dropFilesHere => '여기에 파일을 놓으세요';
+
+  @override
+  String get attachmentCountLimit => '메시지당 최대 {limit}개의 파일을 첨부할 수 있습니다.';
+
+  @override
+  String get attachmentFileSizeLimit => '각 파일은 {limit} 미만이어야 합니다.';
+
+  @override
+  String get fileListShowMore => '+{count}개 더';
+
+  @override
+  String get fileListShowLess => '간략히 보기';
+
+  @override
+  String get searchImagesCount => '이미지 {count}개';
+
+  @override
+  String get searchVideosCount => '동영상 {count}개';
+
+  @override
+  String get searchAudiosCount => '오디오 {count}개';
+
+  @override
+  String get searchFilesCount => '파일 {count}개';
+
+  @override
   String get transferOwnership => '소유권 이전';
 
   @override
@@ -1209,8 +1242,7 @@ class TranslationsKo extends Translations {
   @override
   String get type => '입력';
   @override
-  String get createGroupEmptyString =>
-      '그룹을 생성하기 전에 모든 필수 항목을 작성하세요.';
+  String get createGroupEmptyString => '그룹을 생성하기 전에 모든 필수 항목을 작성하세요.';
   @override
   String get messageBlockedByModeration => '귀하의 메시지는 관리 정책으로 인해 차단되었습니다.';
 
@@ -1276,7 +1308,8 @@ class TranslationsKo extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

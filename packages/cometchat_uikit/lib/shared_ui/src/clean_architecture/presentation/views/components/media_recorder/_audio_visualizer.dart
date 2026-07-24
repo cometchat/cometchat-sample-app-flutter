@@ -19,16 +19,18 @@ class AudioVisualizerState extends State<AudioVisualizer> {
   final ScrollController _controller = ScrollController();
   late List<Widget> audioUnits = [];
 
-  final EventChannel _eventChannel =
-      const EventChannel("cometchat_uikit_shared_audio_intensity");
+  final EventChannel _eventChannel = const EventChannel(
+    "cometchat_uikit_shared_audio_intensity",
+  );
 
   StreamSubscription<dynamic>? _streamSubscription;
 
   @override
   void initState() {
     super.initState();
-    _streamSubscription =
-        _eventChannel.receiveBroadcastStream().listen(onAudioStreamed);
+    _streamSubscription = _eventChannel.receiveBroadcastStream().listen(
+      onAudioStreamed,
+    );
     _streamSubscription?.onDone(handleDone);
   }
 
@@ -42,7 +44,7 @@ class AudioVisualizerState extends State<AudioVisualizer> {
     }
   }
 
-  addAudioUnit(double decibel) {
+  void addAudioUnit(double decibel) {
     setState(() {
       audioUnits = [
         ...audioUnits,
@@ -79,15 +81,16 @@ class AudioVisualizerState extends State<AudioVisualizer> {
 
   Widget _buildAudioBar(double height) {
     return Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          width: 4.0,
-          height: height,
-          margin: const EdgeInsets.symmetric(horizontal: 1.0),
-          decoration: BoxDecoration(
-            color: widget.color,
-            borderRadius: BorderRadius.circular(2.0),
-          ),
-        ));
+      alignment: Alignment.centerLeft,
+      child: Container(
+        width: 4.0,
+        height: height,
+        margin: const EdgeInsets.symmetric(horizontal: 1.0),
+        decoration: BoxDecoration(
+          color: widget.color,
+          borderRadius: BorderRadius.circular(2.0),
+        ),
+      ),
+    );
   }
 }

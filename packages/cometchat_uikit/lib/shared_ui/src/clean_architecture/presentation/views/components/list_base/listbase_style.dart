@@ -56,5 +56,4 @@ class ListBaseStyle extends BaseStyles {
 
   ///[appBarBackground] provides background color to the appbar
   final Color? appBarBackground;
-
 }

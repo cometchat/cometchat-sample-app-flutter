@@ -2,20 +2,21 @@ import '../../../../../../cometchat_uikit_shared.dart';
 import 'package:flutter/material.dart';
 
 class CometChatTimeSlotSelector extends StatefulWidget {
-  const CometChatTimeSlotSelector(
-      {super.key,
-      this.from,
-      this.to,
-      required this.duration,
-      this.onSelection,
-      this.buffer,
-      this.style,
-      this.blockedTime,
-      this.timeFormat = TimeFormat.twelveHour,
-      this.availableSlots,
-      required this.selectedDay,
-      this.nextDayBlockedTime,
-      this.nextDayAvailableSlots});
+  const CometChatTimeSlotSelector({
+    super.key,
+    this.from,
+    this.to,
+    required this.duration,
+    this.onSelection,
+    this.buffer,
+    this.style,
+    this.blockedTime,
+    this.timeFormat = TimeFormat.twelveHour,
+    this.availableSlots,
+    required this.selectedDay,
+    this.nextDayBlockedTime,
+    this.nextDayAvailableSlots,
+  });
 
   ///[from] is a string which sets the start time for the time slot selector
   final DateTime? from;
@@ -63,20 +64,20 @@ class _CometChatTimeSlotSelectorState extends State<CometChatTimeSlotSelector> {
 
   late DateTime selectedTime;
 
-
   @override
   void initState() {
     selectedTime = widget.selectedDay;
     if (widget.availableSlots != null && widget.availableSlots!.isNotEmpty) {
       timeList = SchedulerUtils.generateTimeStamps(
-          widget.selectedDay,
-          widget.availableSlots!,
-          widget.blockedTime ?? [],
-          widget.duration.inMinutes,
-          widget.buffer ?? Duration.zero,
-          widget.timeFormat,
-          widget.nextDayAvailableSlots ?? [],
-          widget.nextDayBlockedTime ?? []);
+        widget.selectedDay,
+        widget.availableSlots!,
+        widget.blockedTime ?? [],
+        widget.duration.inMinutes,
+        widget.buffer ?? Duration.zero,
+        widget.timeFormat,
+        widget.nextDayAvailableSlots ?? [],
+        widget.nextDayBlockedTime ?? [],
+      );
     }
 
     super.initState();
@@ -118,13 +119,15 @@ class _CometChatTimeSlotSelectorState extends State<CometChatTimeSlotSelector> {
                 : widget.style?.slotBackgroundColor,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(SchedulerUtils.getFormattedTime(time, widget.timeFormat),
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-              ).merge(selectedTime == time
-                  ? widget.style?.selectedSlotTextStyle
-                  : widget.style?.slotTextStyle)),
+          child: Text(
+            SchedulerUtils.getFormattedTime(time, widget.timeFormat),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400)
+                .merge(
+                  selectedTime == time
+                      ? widget.style?.selectedSlotTextStyle
+                      : widget.style?.slotTextStyle,
+                ),
+          ),
         ),
       );
     }).toList();

@@ -25,9 +25,8 @@ class NoIntrinsicCardWrapper extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(
-      BuildContext context, _RenderNoIntrinsicSize renderObject) {
-    renderObject.fixedWidth = width;
+  void updateRenderObject(BuildContext context, RenderObject renderObject) {
+    (renderObject as _RenderNoIntrinsicSize).fixedWidth = width;
   }
 }
 

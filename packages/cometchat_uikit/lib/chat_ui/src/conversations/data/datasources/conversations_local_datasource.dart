@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Exception thrown when local data source operations fail
 class LocalDataSourceException implements Exception {
@@ -41,14 +41,12 @@ abstract class ConversationsLocalDataSource {
 
 /// Implementation of ConversationsLocalDataSource using in-memory cache
 /// In a production app, this could use SharedPreferences, Hive, or SQLite
-class ConversationsLocalDataSourceImpl
-    implements ConversationsLocalDataSource {
+class ConversationsLocalDataSourceImpl implements ConversationsLocalDataSource {
   // In-memory cache for conversations
   final Map<String, Conversation> _cache = {};
 
   @override
-  Future<void> cacheConversations(
-      List<Conversation> conversations) async {
+  Future<void> cacheConversations(List<Conversation> conversations) async {
     try {
       // Clear existing cache and add new conversations
       _cache.clear();
@@ -110,8 +108,7 @@ class ConversationsLocalDataSourceImpl
   }
 
   @override
-  Future<Conversation?> getCachedConversation(
-      String conversationId) async {
+  Future<Conversation?> getCachedConversation(String conversationId) async {
     try {
       return _cache[conversationId];
     } catch (e) {

@@ -8,6 +8,7 @@
 /// - Play/pause recorded audio before sending
 /// - Delete and re-record functionality
 /// - Modern UI similar to WhatsApp/iMessage
+library;
 
 export 'cometchat_inline_audio_recorder.dart';
 export 'inline_audio_recorder_bloc.dart';

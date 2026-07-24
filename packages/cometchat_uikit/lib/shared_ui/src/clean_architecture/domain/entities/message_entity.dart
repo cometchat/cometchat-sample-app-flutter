@@ -105,7 +105,8 @@ class MessageEntity extends Equatable {
   bool get hasReactions => reactionCount != null && reactionCount! > 0;
 
   /// Check if message has attachments
-  bool get hasAttachments => attachmentUrls != null && attachmentUrls!.isNotEmpty;
+  bool get hasAttachments =>
+      attachmentUrls != null && attachmentUrls!.isNotEmpty;
 
   @override
   List<Object?> get props => [
@@ -130,24 +131,10 @@ class MessageEntity extends Equatable {
 }
 
 /// Enum for message types
-enum MessageType {
-  text,
-  image,
-  video,
-  audio,
-  file,
-  location,
-  custom,
-}
+enum MessageType { text, image, video, audio, file, location, custom }
 
 /// Enum for message status
-enum MessageStatus {
-  sending,
-  sent,
-  delivered,
-  read,
-  error,
-}
+enum MessageStatus { sending, sent, delivered, read, error }
 
 /// Extension methods for MessageType
 extension MessageTypeExt on MessageType {

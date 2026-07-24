@@ -38,14 +38,14 @@ class FakeUser extends Fake implements User {
     bool hasBlockedMe = false,
     String? role,
     DateTime? lastActiveAt,
-  })  : _uid = uid,
-        _name = name,
-        _status = status,
-        _avatar = avatar,
-        _blockedByMe = blockedByMe,
-        _hasBlockedMe = hasBlockedMe,
-        _role = role,
-        _lastActiveAt = lastActiveAt;
+  }) : _uid = uid,
+       _name = name,
+       _status = status,
+       _avatar = avatar,
+       _blockedByMe = blockedByMe,
+       _hasBlockedMe = hasBlockedMe,
+       _role = role,
+       _lastActiveAt = lastActiveAt;
 
   @override
   String get uid => _uid;
@@ -86,11 +86,11 @@ class FakeGroup extends Fake implements Group {
     int membersCount = 5,
     String type = 'public',
     String? icon,
-  })  : _guid = guid,
-        _name = name,
-        _membersCount = membersCount,
-        _type = type,
-        _icon = icon;
+  }) : _guid = guid,
+       _name = name,
+       _membersCount = membersCount,
+       _type = type,
+       _icon = icon;
 
   @override
   String get guid => _guid;
@@ -131,9 +131,9 @@ class FakeTypingIndicator extends Fake implements TypingIndicator {
     required User sender,
     required String receiverType,
     String receiverId = '',
-  })  : _sender = sender,
-        _receiverType = receiverType,
-        _receiverId = receiverId;
+  }) : _sender = sender,
+       _receiverType = receiverType,
+       _receiverId = receiverId;
 
   @override
   User get sender => _sender;
@@ -172,8 +172,9 @@ void main() {
 
   setUp(() {
     repo = MockMessageHeaderRepository();
-    when(() => repo.getLoggedInUser())
-        .thenAnswer((_) async => Success(FakeUser()));
+    when(
+      () => repo.getLoggedInUser(),
+    ).thenAnswer((_) async => Success(FakeUser()));
   });
 
   // =========================================================================
@@ -196,8 +197,9 @@ void main() {
     blocTest<MessageHeaderBloc, MessageHeaderState>(
       '#1442 opening group sets group and updates state to loaded',
       build: () => _makeBloc(repo),
-      act: (bloc) => bloc.add(SetGroup(
-          FakeGroup(guid: 'team', name: 'Team Chat', membersCount: 12))),
+      act: (bloc) => bloc.add(
+        SetGroup(FakeGroup(guid: 'team', name: 'Team Chat', membersCount: 12)),
+      ),
       verify: (bloc) {
         expect(bloc.state.status, MessageHeaderStatus.loaded);
         expect(bloc.state.group?.guid, 'team');
@@ -227,7 +229,9 @@ void main() {
       '#1444 switching group to user sets user and resets member count',
       build: () => _makeBloc(repo),
       act: (bloc) {
-        bloc.add(SetGroup(FakeGroup(guid: 'team', name: 'Team', membersCount: 10)));
+        bloc.add(
+          SetGroup(FakeGroup(guid: 'team', name: 'Team', membersCount: 10)),
+        );
         bloc.add(SetUser(FakeUser(uid: 'bob', name: 'Bob')));
       },
       verify: (bloc) {
@@ -241,12 +245,11 @@ void main() {
     blocTest<MessageHeaderBloc, MessageHeaderState>(
       '#1445 refresh user updates on success',
       build: () {
-        when(() => repo.getUser('alice'))
-            .thenAnswer((_) async => Success(FakeUser(
-                  uid: 'alice',
-                  name: 'Alice Updated',
-                  status: 'offline',
-                )));
+        when(() => repo.getUser('alice')).thenAnswer(
+          (_) async => Success(
+            FakeUser(uid: 'alice', name: 'Alice Updated', status: 'offline'),
+          ),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -264,16 +267,17 @@ void main() {
     blocTest<MessageHeaderBloc, MessageHeaderState>(
       '#1446 refresh group updates member count on success',
       build: () {
-        when(() => repo.getGroup('team'))
-            .thenAnswer((_) async => Success(FakeGroup(
-                  guid: 'team',
-                  name: 'Team Chat',
-                  membersCount: 20,
-                )));
+        when(() => repo.getGroup('team')).thenAnswer(
+          (_) async => Success(
+            FakeGroup(guid: 'team', name: 'Team Chat', membersCount: 20),
+          ),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {
-        bloc.add(SetGroup(FakeGroup(guid: 'team', name: 'Team Chat', membersCount: 5)));
+        bloc.add(
+          SetGroup(FakeGroup(guid: 'team', name: 'Team Chat', membersCount: 5)),
+        );
         await Future.delayed(const Duration(milliseconds: 20));
         bloc.add(const RefreshGroup());
       },
@@ -287,8 +291,9 @@ void main() {
     blocTest<MessageHeaderBloc, MessageHeaderState>(
       'refresh failure emits error without changing user/group state',
       build: () {
-        when(() => repo.getUser('alice'))
-            .thenAnswer((_) async => const Failure(message: 'Network error'));
+        when(
+          () => repo.getUser('alice'),
+        ).thenAnswer((_) async => const Failure(message: 'Network error'));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -311,7 +316,9 @@ void main() {
   group('Rendering — user/group content', () {
     test('#1447 user online produces correct content', () {
       final bloc = _makeBloc(repo);
-      bloc.add(SetUser(FakeUser(uid: 'alice', name: 'Alice', status: 'online')));
+      bloc.add(
+        SetUser(FakeUser(uid: 'alice', name: 'Alice', status: 'online')),
+      );
       // Allow event to process
       Future.delayed(const Duration(milliseconds: 20), () {
         expect(bloc.state.isUserOnline, isTrue);
@@ -333,11 +340,11 @@ void main() {
     blocTest<MessageHeaderBloc, MessageHeaderState>(
       '#1449 blocked user still produces content',
       build: () => _makeBloc(repo),
-      act: (bloc) => bloc.add(SetUser(FakeUser(
-        uid: 'blocked',
-        name: 'Blocked User',
-        blockedByMe: true,
-      ))),
+      act: (bloc) => bloc.add(
+        SetUser(
+          FakeUser(uid: 'blocked', name: 'Blocked User', blockedByMe: true),
+        ),
+      ),
       verify: (bloc) {
         expect(bloc.state.displayName, 'Blocked User');
         expect(bloc.state.isBlockedByMe, isTrue);
@@ -348,8 +355,9 @@ void main() {
     blocTest<MessageHeaderBloc, MessageHeaderState>(
       '#1450 group produces content with member count',
       build: () => _makeBloc(repo),
-      act: (bloc) => bloc.add(SetGroup(
-          FakeGroup(guid: 'team', name: 'Team', membersCount: 8))),
+      act: (bloc) => bloc.add(
+        SetGroup(FakeGroup(guid: 'team', name: 'Team', membersCount: 8)),
+      ),
       verify: (bloc) {
         expect(bloc.state.displayName, 'Team');
         expect(bloc.state.memberCount, 8);
@@ -359,8 +367,11 @@ void main() {
     blocTest<MessageHeaderBloc, MessageHeaderState>(
       '#1451 group type preserved',
       build: () => _makeBloc(repo),
-      act: (bloc) => bloc.add(SetGroup(
-          FakeGroup(guid: 'private_grp', name: 'Private', type: 'private'))),
+      act: (bloc) => bloc.add(
+        SetGroup(
+          FakeGroup(guid: 'private_grp', name: 'Private', type: 'private'),
+        ),
+      ),
       verify: (bloc) {
         expect(bloc.state.group?.type, 'private');
       },
@@ -395,10 +406,14 @@ void main() {
       act: (bloc) async {
         bloc.add(SetUser(FakeUser(uid: 'alice', name: 'Alice')));
         await Future.delayed(const Duration(milliseconds: 20));
-        bloc.add(TypingStarted(FakeTypingIndicator(
-          sender: FakeUser(uid: 'alice', name: 'Alice'),
-          receiverType: 'user',
-        )));
+        bloc.add(
+          TypingStarted(
+            FakeTypingIndicator(
+              sender: FakeUser(uid: 'alice', name: 'Alice'),
+              receiverType: 'user',
+            ),
+          ),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.isTyping, isTrue);
@@ -412,15 +427,23 @@ void main() {
       act: (bloc) async {
         bloc.add(SetUser(FakeUser(uid: 'alice', name: 'Alice')));
         await Future.delayed(const Duration(milliseconds: 20));
-        bloc.add(TypingStarted(FakeTypingIndicator(
-          sender: FakeUser(uid: 'alice', name: 'Alice'),
-          receiverType: 'user',
-        )));
+        bloc.add(
+          TypingStarted(
+            FakeTypingIndicator(
+              sender: FakeUser(uid: 'alice', name: 'Alice'),
+              receiverType: 'user',
+            ),
+          ),
+        );
         await Future.delayed(const Duration(milliseconds: 20));
-        bloc.add(TypingEnded(FakeTypingIndicator(
-          sender: FakeUser(uid: 'alice', name: 'Alice'),
-          receiverType: 'user',
-        )));
+        bloc.add(
+          TypingEnded(
+            FakeTypingIndicator(
+              sender: FakeUser(uid: 'alice', name: 'Alice'),
+              receiverType: 'user',
+            ),
+          ),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.isTyping, isFalse);
@@ -435,10 +458,14 @@ void main() {
         bloc.add(SetUser(FakeUser(uid: 'alice', name: 'Alice')));
         await Future.delayed(const Duration(milliseconds: 20));
         // Typing from a different user
-        bloc.add(TypingStarted(FakeTypingIndicator(
-          sender: FakeUser(uid: 'bob', name: 'Bob'),
-          receiverType: 'user',
-        )));
+        bloc.add(
+          TypingStarted(
+            FakeTypingIndicator(
+              sender: FakeUser(uid: 'bob', name: 'Bob'),
+              receiverType: 'user',
+            ),
+          ),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.isTyping, isFalse);
@@ -451,11 +478,15 @@ void main() {
       act: (bloc) async {
         bloc.add(SetGroup(FakeGroup(guid: 'team', name: 'Team')));
         await Future.delayed(const Duration(milliseconds: 20));
-        bloc.add(TypingStarted(FakeTypingIndicator(
-          sender: FakeUser(uid: 'alice', name: 'Alice'),
-          receiverType: 'group',
-          receiverId: 'team',
-        )));
+        bloc.add(
+          TypingStarted(
+            FakeTypingIndicator(
+              sender: FakeUser(uid: 'alice', name: 'Alice'),
+              receiverType: 'group',
+              receiverId: 'team',
+            ),
+          ),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.isTyping, isTrue);
@@ -473,7 +504,9 @@ void main() {
       '#1456 UpdateUserStatus changes user online/offline',
       build: () => _makeBloc(repo),
       act: (bloc) async {
-        bloc.add(SetUser(FakeUser(uid: 'alice', name: 'Alice', status: 'online')));
+        bloc.add(
+          SetUser(FakeUser(uid: 'alice', name: 'Alice', status: 'online')),
+        );
         await Future.delayed(const Duration(milliseconds: 20));
         bloc.add(const UpdateUserStatus(userId: 'alice', status: 'offline'));
       },
@@ -487,7 +520,9 @@ void main() {
       '#1457 UpdateUserStatus for different user is ignored',
       build: () => _makeBloc(repo),
       act: (bloc) async {
-        bloc.add(SetUser(FakeUser(uid: 'alice', name: 'Alice', status: 'online')));
+        bloc.add(
+          SetUser(FakeUser(uid: 'alice', name: 'Alice', status: 'online')),
+        );
         await Future.delayed(const Duration(milliseconds: 20));
         bloc.add(const UpdateUserStatus(userId: 'bob', status: 'offline'));
       },
@@ -506,9 +541,13 @@ void main() {
       '#1459 UpdateGroupMemberCount updates count',
       build: () => _makeBloc(repo),
       act: (bloc) async {
-        bloc.add(SetGroup(FakeGroup(guid: 'team', name: 'Team', membersCount: 5)));
+        bloc.add(
+          SetGroup(FakeGroup(guid: 'team', name: 'Team', membersCount: 5)),
+        );
         await Future.delayed(const Duration(milliseconds: 20));
-        bloc.add(const UpdateGroupMemberCount(groupId: 'team', memberCount: 10));
+        bloc.add(
+          const UpdateGroupMemberCount(groupId: 'team', memberCount: 10),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.memberCount, 10);
@@ -519,9 +558,13 @@ void main() {
       '#1460 UpdateGroupMemberCount for different group is ignored',
       build: () => _makeBloc(repo),
       act: (bloc) async {
-        bloc.add(SetGroup(FakeGroup(guid: 'team', name: 'Team', membersCount: 5)));
+        bloc.add(
+          SetGroup(FakeGroup(guid: 'team', name: 'Team', membersCount: 5)),
+        );
         await Future.delayed(const Duration(milliseconds: 20));
-        bloc.add(const UpdateGroupMemberCount(groupId: 'other', memberCount: 99));
+        bloc.add(
+          const UpdateGroupMemberCount(groupId: 'other', memberCount: 99),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.memberCount, 5);
@@ -552,7 +595,9 @@ void main() {
       '#1462 UserUnblocked sets blockedByMe to false',
       build: () => _makeBloc(repo),
       act: (bloc) async {
-        bloc.add(SetUser(FakeUser(uid: 'alice', name: 'Alice', blockedByMe: true)));
+        bloc.add(
+          SetUser(FakeUser(uid: 'alice', name: 'Alice', blockedByMe: true)),
+        );
         await Future.delayed(const Duration(milliseconds: 20));
         bloc.add(UserUnblocked(FakeUser(uid: 'alice', name: 'Alice')));
       },
@@ -624,14 +669,22 @@ void main() {
 
     test('avatarUrl returns user avatar for user conversation', () {
       final state = MessageHeaderState(
-        user: FakeUser(uid: 'alice', name: 'Alice', avatar: 'https://img.com/alice.png'),
+        user: FakeUser(
+          uid: 'alice',
+          name: 'Alice',
+          avatar: 'https://img.com/alice.png',
+        ),
       );
       expect(state.avatarUrl, 'https://img.com/alice.png');
     });
 
     test('avatarUrl returns group icon for group conversation', () {
       final state = MessageHeaderState(
-        group: FakeGroup(guid: 'team', name: 'Team', icon: 'https://img.com/team.png'),
+        group: FakeGroup(
+          guid: 'team',
+          name: 'Team',
+          icon: 'https://img.com/team.png',
+        ),
       );
       expect(state.avatarUrl, 'https://img.com/team.png');
     });
@@ -685,10 +738,12 @@ void main() {
       act: (bloc) async {
         bloc.add(SetGroup(FakeGroup(guid: 'team', name: 'Team')));
         await Future.delayed(const Duration(milliseconds: 20));
-        bloc.add(GroupOwnershipChanged(
-          group: FakeGroup(guid: 'team', name: 'Team'),
-          newOwner: FakeGroupMember(),
-        ));
+        bloc.add(
+          GroupOwnershipChanged(
+            group: FakeGroup(guid: 'team', name: 'Team'),
+            newOwner: FakeGroupMember(),
+          ),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.group?.guid, 'team');
@@ -701,10 +756,12 @@ void main() {
       act: (bloc) async {
         bloc.add(SetGroup(FakeGroup(guid: 'team', name: 'Team')));
         await Future.delayed(const Duration(milliseconds: 20));
-        bloc.add(GroupOwnershipChanged(
-          group: FakeGroup(guid: 'other', name: 'Other'),
-          newOwner: FakeGroupMember(),
-        ));
+        bloc.add(
+          GroupOwnershipChanged(
+            group: FakeGroup(guid: 'other', name: 'Other'),
+            newOwner: FakeGroupMember(),
+          ),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.group?.guid, 'team');

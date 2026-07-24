@@ -26,7 +26,7 @@ class SuggestionListItem {
     this.onTap,
     this.avatarHeight,
     this.avatarWidth,
-    this.data
+    this.data,
   });
 
   final String id;

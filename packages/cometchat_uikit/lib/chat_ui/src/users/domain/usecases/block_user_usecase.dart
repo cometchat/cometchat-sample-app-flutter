@@ -11,7 +11,7 @@ class BlockUserUseCase {
   ///
   /// [uid] - The UID of the user to block
   ///
-  /// Returns Result<void> indicating success or failure
+  /// Returns `Result<void>` indicating success or failure
   Future<Result<void>> call(String uid) async {
     if (uid.isEmpty) {
       return const Failure(

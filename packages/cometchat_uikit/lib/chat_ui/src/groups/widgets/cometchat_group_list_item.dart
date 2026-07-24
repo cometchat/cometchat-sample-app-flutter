@@ -170,7 +170,7 @@ class CometChatGroupListItem extends StatelessWidget {
 
     final backgroundColor = isSelected
         ? (effectiveStyle.selectedBackgroundColor ??
-            effectiveColorPalette.background4)
+              effectiveColorPalette.background4)
         : (effectiveStyle.backgroundColor ?? effectiveColorPalette.background1);
 
     return Semantics(
@@ -179,8 +179,9 @@ class CometChatGroupListItem extends StatelessWidget {
       selected: isSelected,
       child: InkWell(
         onTap: () => onItemClick(group),
-        onLongPress:
-            onItemLongClick != null ? () => onItemLongClick!(group) : null,
+        onLongPress: onItemLongClick != null
+            ? () => onItemLongClick!(group)
+            : null,
         child: Container(
           color: backgroundColor,
           padding: EdgeInsets.symmetric(
@@ -191,24 +192,45 @@ class CometChatGroupListItem extends StatelessWidget {
             children: [
               if (selectionMode != SelectionMode.none)
                 _buildSelectionCheckbox(
-                    effectiveStyle, effectiveColorPalette, effectiveSpacing),
-              _buildLeadingView(context, effectiveStyle, effectiveColorPalette,
-                  effectiveSpacing, effectiveTypography),
+                  effectiveStyle,
+                  effectiveColorPalette,
+                  effectiveSpacing,
+                ),
+              _buildLeadingView(
+                context,
+                effectiveStyle,
+                effectiveColorPalette,
+                effectiveSpacing,
+                effectiveTypography,
+              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildTitleView(context, effectiveStyle,
-                        effectiveColorPalette, effectiveTypography),
+                    _buildTitleView(
+                      context,
+                      effectiveStyle,
+                      effectiveColorPalette,
+                      effectiveTypography,
+                    ),
                     const SizedBox(height: 2),
-                    _buildSubtitleView(context, effectiveStyle,
-                        effectiveColorPalette, effectiveTypography),
+                    _buildSubtitleView(
+                      context,
+                      effectiveStyle,
+                      effectiveColorPalette,
+                      effectiveTypography,
+                    ),
                   ],
                 ),
               ),
-              _buildTrailingView(context, effectiveStyle, effectiveColorPalette,
-                  effectiveTypography, effectiveSpacing),
+              _buildTrailingView(
+                context,
+                effectiveStyle,
+                effectiveColorPalette,
+                effectiveTypography,
+                effectiveSpacing,
+              ),
             ],
           ),
         ),
@@ -263,11 +285,13 @@ class CometChatGroupListItem extends StatelessWidget {
             return effectiveStyle.checkBoxBackgroundColor ?? Colors.transparent;
           }),
           shape: RoundedRectangleBorder(
-            borderRadius: effectiveStyle.checkBoxBorderRadius ??
+            borderRadius:
+                effectiveStyle.checkBoxBorderRadius ??
                 BorderRadius.circular(effectiveSpacing.radius1 ?? 4),
           ),
           side: BorderSide(
-            color: effectiveStyle.checkBoxStrokeColor ??
+            color:
+                effectiveStyle.checkBoxStrokeColor ??
                 effectiveColorPalette.borderDefault ??
                 Colors.grey,
             width: effectiveStyle.checkBoxStrokeWidth ?? 1.5,
@@ -296,19 +320,19 @@ class CometChatGroupListItem extends StatelessWidget {
 
     // Create avatar style with explicit text size to match other list items
     final effectiveAvatarStyle =
-        (avatarStyle ?? effectiveStyle.avatarStyle ?? const CometChatAvatarStyle())
+        (avatarStyle ??
+                effectiveStyle.avatarStyle ??
+                const CometChatAvatarStyle())
             .copyWith(
-      placeHolderTextStyle: TextStyle(
-        fontSize: effectiveTypography.heading2?.bold?.fontSize,
-        fontWeight: effectiveTypography.heading2?.bold?.fontWeight,
-        fontFamily: effectiveTypography.heading2?.bold?.fontFamily,
-      ),
-    );
+              placeHolderTextStyle: TextStyle(
+                fontSize: effectiveTypography.heading2?.bold?.fontSize,
+                fontWeight: effectiveTypography.heading2?.bold?.fontWeight,
+                fontFamily: effectiveTypography.heading2?.bold?.fontFamily,
+              ),
+            );
 
     return Padding(
-      padding: EdgeInsets.only(
-        right: effectiveSpacing.padding3 ?? 12,
-      ),
+      padding: EdgeInsets.only(right: effectiveSpacing.padding3 ?? 12),
       child: Stack(
         children: [
           CometChatAvatar(
@@ -327,18 +351,20 @@ class CometChatGroupListItem extends StatelessWidget {
               child: CometChatStatusIndicator(
                 height: statusIndicatorHeight ?? 14,
                 width: statusIndicatorWidth ?? 14,
-                backgroundImage:
-                    _getStatusIndicatorIcon(effectiveColorPalette),
+                backgroundImage: _getStatusIndicatorIcon(effectiveColorPalette),
                 style: CometChatStatusIndicatorStyle(
-                  border: statusIndicatorStyle?.border ??
+                  border:
+                      statusIndicatorStyle?.border ??
                       effectiveStyle.statusIndicatorStyle?.border ??
                       Border.all(
                         width: effectiveSpacing.spacing ?? 0,
                         color:
-                            effectiveColorPalette.background1 ?? Colors.transparent,
+                            effectiveColorPalette.background1 ??
+                            Colors.transparent,
                       ),
-                  backgroundColor:
-                      _getStatusIndicatorBackgroundColor(effectiveColorPalette),
+                  backgroundColor: _getStatusIndicatorBackgroundColor(
+                    effectiveColorPalette,
+                  ),
                 ),
               ),
             ),
@@ -362,11 +388,14 @@ class CometChatGroupListItem extends StatelessWidget {
 
     return Text(
       group.name,
-      style: (effectiveStyle.titleTextStyle ??
-              effectiveTypography.heading4?.medium)
-          ?.copyWith(
-        color: effectiveStyle.titleTextColor ?? effectiveColorPalette.textPrimary,
-      ),
+      style:
+          (effectiveStyle.titleTextStyle ??
+                  effectiveTypography.heading4?.medium)
+              ?.copyWith(
+                color:
+                    effectiveStyle.titleTextColor ??
+                    effectiveColorPalette.textPrimary,
+              ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );
@@ -393,11 +422,13 @@ class CometChatGroupListItem extends StatelessWidget {
     return Text(
       memberText,
       style:
-          (effectiveStyle.subtitleTextStyle ?? effectiveTypography.body?.regular)
+          (effectiveStyle.subtitleTextStyle ??
+                  effectiveTypography.body?.regular)
               ?.copyWith(
-        color:
-            effectiveStyle.subtitleTextColor ?? effectiveColorPalette.textSecondary,
-      ),
+                color:
+                    effectiveStyle.subtitleTextColor ??
+                    effectiveColorPalette.textSecondary,
+              ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );
@@ -433,7 +464,8 @@ class CometChatGroupListItem extends StatelessWidget {
   }
 
   Color? _getStatusIndicatorBackgroundColor(
-      CometChatColorPalette effectiveColorPalette) {
+    CometChatColorPalette effectiveColorPalette,
+  ) {
     if (group.type == CometChatGroupType.password) {
       // Protected groups use success color (green)
       return effectiveColorPalette.success ?? Colors.green;

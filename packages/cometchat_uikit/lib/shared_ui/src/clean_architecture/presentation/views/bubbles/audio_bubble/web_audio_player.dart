@@ -1,12 +1,12 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:async';
-import 'dart:html' as html;
-import 'dart:typed_data';
+import 'dart:js_interop';
+
+import 'package:web/web.dart' as web;
 
 /// Web-specific audio player using HTML <audio> element.
 /// Handles webm/opus playback correctly (unlike video_player which uses <video>).
 class WebAudioPlayer {
-  html.AudioElement? _audio;
+  web.HTMLAudioElement? _audio;
   Timer? _positionTimer;
   final StreamController<Duration> _positionController =
       StreamController<Duration>.broadcast();
@@ -20,47 +20,63 @@ class WebAudioPlayer {
   bool get isInitialized => _isInitialized;
   Duration get duration => _duration;
   Duration get position {
-    if (_audio == null) return Duration.zero;
-    return Duration(milliseconds: (_audio!.currentTime * 1000).round());
+    final audio = _audio;
+    if (audio == null) return Duration.zero;
+    return Duration(milliseconds: (audio.currentTime * 1000).round());
   }
 
   /// Initialize with an audio URL
   Future<bool> initialize(String url) async {
     try {
-      _audio = html.AudioElement(url);
-      _audio!.preload = 'auto';
+      final audio = web.document.createElement('audio') as web.HTMLAudioElement;
+      audio
+        ..preload = 'auto'
+        ..src = url;
+      _audio = audio;
 
       // Wait for metadata to load (gives us duration)
       final completer = Completer<bool>();
 
-      _audio!.onLoadedMetadata.first.then((_) {
-        final dur = _audio!.duration;
-        // webm files often report Infinity duration initially
-        if (dur.isFinite && dur > 0) {
-          _duration = Duration(milliseconds: (dur * 1000).round());
-        }
-        _isInitialized = true;
-        if (!completer.isCompleted) completer.complete(true);
-      });
+      audio.addEventListener(
+        'loadedmetadata',
+        (web.Event _) {
+          final dur = audio.duration;
+          // webm files often report Infinity duration initially
+          if (dur.isFinite && dur > 0) {
+            _duration = Duration(milliseconds: (dur * 1000).round());
+          }
+          _isInitialized = true;
+          if (!completer.isCompleted) completer.complete(true);
+        }.toJS,
+      );
 
-      _audio!.onError.first.then((_) {
-        if (!completer.isCompleted) completer.complete(false);
-      });
+      audio.addEventListener(
+        'error',
+        (web.Event _) {
+          if (!completer.isCompleted) completer.complete(false);
+        }.toJS,
+      );
 
       // Handle duration change (webm files update duration during playback)
-      _audio!.onDurationChange.listen((_) {
-        final dur = _audio!.duration;
-        if (dur.isFinite && dur > 0) {
-          _duration = Duration(milliseconds: (dur * 1000).round());
-        }
-      });
+      audio.addEventListener(
+        'durationchange',
+        (web.Event _) {
+          final dur = audio.duration;
+          if (dur.isFinite && dur > 0) {
+            _duration = Duration(milliseconds: (dur * 1000).round());
+          }
+        }.toJS,
+      );
 
-      _audio!.onEnded.listen((_) {
-        _stopPositionTimer();
-        if (!_completionController.isClosed) {
-          _completionController.add(null);
-        }
-      });
+      audio.addEventListener(
+        'ended',
+        (web.Event _) {
+          _stopPositionTimer();
+          if (!_completionController.isClosed) {
+            _completionController.add(null);
+          }
+        }.toJS,
+      );
 
       // Timeout after 5 seconds if metadata doesn't load
       final result = await completer.future.timeout(
@@ -79,8 +95,9 @@ class WebAudioPlayer {
   }
 
   Future<void> play() async {
-    if (_audio == null) return;
-    await _audio!.play();
+    final audio = _audio;
+    if (audio == null) return;
+    await audio.play().toDart;
     _startPositionTimer();
   }
 
@@ -90,15 +107,17 @@ class WebAudioPlayer {
   }
 
   void seekTo(Duration position) {
-    if (_audio == null) return;
-    _audio!.currentTime = position.inMilliseconds / 1000.0;
+    final audio = _audio;
+    if (audio == null) return;
+    audio.currentTime = position.inMilliseconds / 1000.0;
   }
 
   void dispose() {
     _stopPositionTimer();
-    if (_audio != null) {
-      _audio!.pause();
-      _audio!.src = '';
+    final audio = _audio;
+    if (audio != null) {
+      audio.pause();
+      audio.src = '';
       _audio = null;
     }
     _positionController.close();
@@ -109,13 +128,14 @@ class WebAudioPlayer {
   void _startPositionTimer() {
     _positionTimer?.cancel();
     _positionTimer = Timer.periodic(const Duration(milliseconds: 100), (_) {
-      if (_audio == null) return;
-      final pos = Duration(milliseconds: (_audio!.currentTime * 1000).round());
+      final audio = _audio;
+      if (audio == null) return;
+      final pos = Duration(milliseconds: (audio.currentTime * 1000).round());
       if (!_positionController.isClosed) {
         _positionController.add(pos);
       }
       // Update duration if it changed (webm progressive duration)
-      final dur = _audio!.duration;
+      final dur = audio.duration;
       if (dur.isFinite && dur > 0) {
         _duration = Duration(milliseconds: (dur * 1000).round());
       }

@@ -1,5 +1,6 @@
 /// Domain layer exports for notification feed module
 /// This barrel file provides a single import point for all domain layer components
+library;
 
 // Repository interfaces
 export 'repositories/notification_feed_repository.dart';

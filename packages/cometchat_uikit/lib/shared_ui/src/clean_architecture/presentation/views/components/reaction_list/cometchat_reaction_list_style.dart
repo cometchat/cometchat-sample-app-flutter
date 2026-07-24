@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 ///[CometChatReactionListStyle] is a class which is used to set the style for the reaction list
-///It takes [loadingStateColor], [emptyTextStyle], [errorTextStyle], [subtitleTextStyle], [width], [height], [background], [gradient], [border], [borderRadius] as a parameter
+///It takes `loadingStateColor`, [emptyTextStyle], [errorTextStyle], [subtitleTextStyle], `width`, `height`, `background`, `gradient`, [border], [borderRadius] as a parameter
 ///
 /// ```dart
 /// ReactionListStyle(
@@ -11,7 +11,8 @@ import 'package:flutter/material.dart';
 /// subtitleTextStyle: TextStyle(color: Colors.white),
 /// background: Colors.blue,
 /// );
-class CometChatReactionListStyle extends ThemeExtension<CometChatReactionListStyle> {
+class CometChatReactionListStyle
+    extends ThemeExtension<CometChatReactionListStyle> {
   CometChatReactionListStyle({
     this.subtitleTextStyle,
     this.backgroundColor,
@@ -30,7 +31,7 @@ class CometChatReactionListStyle extends ThemeExtension<CometChatReactionListSty
     this.activeTabBackgroundColor,
     this.tailViewTextStyle,
     this.subtitleTextColor,
-    this.emptyTextStyle
+    this.emptyTextStyle,
   });
 
   ///[backgroundColor] provides background color to the modal sheet
@@ -106,7 +107,7 @@ class CometChatReactionListStyle extends ThemeExtension<CometChatReactionListSty
     Color? activeTabBackgroundColor,
     TextStyle? tailViewTextStyle,
     Color? subtitleTextColor,
-    TextStyle? emptyTextStyle
+    TextStyle? emptyTextStyle,
   }) {
     return CometChatReactionListStyle(
       subtitleTextStyle: subtitleTextStyle ?? this.subtitleTextStyle,
@@ -128,44 +129,73 @@ class CometChatReactionListStyle extends ThemeExtension<CometChatReactionListSty
           activeTabBackgroundColor ?? this.activeTabBackgroundColor,
       tailViewTextStyle: tailViewTextStyle ?? this.tailViewTextStyle,
       subtitleTextColor: subtitleTextColor ?? this.subtitleTextColor,
-      emptyTextStyle: emptyTextStyle ?? this.emptyTextStyle
+      emptyTextStyle: emptyTextStyle ?? this.emptyTextStyle,
     );
   }
 
   @override
   CometChatReactionListStyle lerp(
-      covariant ThemeExtension<CometChatReactionListStyle>? other, double t) {
+    covariant ThemeExtension<CometChatReactionListStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatReactionListStyle) {
       return this;
     }
     return copyWith(
-      subtitleTextStyle:
-          TextStyle.lerp(subtitleTextStyle, other.subtitleTextStyle, t),
+      subtitleTextStyle: TextStyle.lerp(
+        subtitleTextStyle,
+        other.subtitleTextStyle,
+        t,
+      ),
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       errorTextStyle: TextStyle.lerp(errorTextStyle, other.errorTextStyle, t),
       errorTextColor: Color.lerp(errorTextColor, other.errorTextColor, t),
-      errorSubtitleStyle:
-          TextStyle.lerp(errorSubtitleStyle, other.errorSubtitleStyle, t),
-      errorSubtitleColor:
-          Color.lerp(errorSubtitleColor, other.errorSubtitleColor, t),
+      errorSubtitleStyle: TextStyle.lerp(
+        errorSubtitleStyle,
+        other.errorSubtitleStyle,
+        t,
+      ),
+      errorSubtitleColor: Color.lerp(
+        errorSubtitleColor,
+        other.errorSubtitleColor,
+        t,
+      ),
       titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
       titleTextColor: Color.lerp(titleTextColor, other.titleTextColor, t),
       tabTextStyle: TextStyle.lerp(tabTextStyle, other.tabTextStyle, t),
       tabTextColor: Color.lerp(tabTextColor, other.tabTextColor, t),
-      activeTabTextColor:
-          Color.lerp(activeTabTextColor, other.activeTabTextColor, t),
-      activeTabIndicatorColor:
-          Color.lerp(activeTabIndicatorColor, other.activeTabIndicatorColor, t),
+      activeTabTextColor: Color.lerp(
+        activeTabTextColor,
+        other.activeTabTextColor,
+        t,
+      ),
+      activeTabIndicatorColor: Color.lerp(
+        activeTabIndicatorColor,
+        other.activeTabIndicatorColor,
+        t,
+      ),
       activeTabBackgroundColor: Color.lerp(
-          activeTabBackgroundColor, other.activeTabBackgroundColor, t),
-      tailViewTextStyle:
-          TextStyle.lerp(tailViewTextStyle, other.tailViewTextStyle, t),
-      subtitleTextColor:
-          Color.lerp(subtitleTextColor, other.subtitleTextColor, t),
-      emptyTextStyle: TextStyle.lerp(emptyTextStyle, other.emptyTextStyle, t)
+        activeTabBackgroundColor,
+        other.activeTabBackgroundColor,
+        t,
+      ),
+      tailViewTextStyle: TextStyle.lerp(
+        tailViewTextStyle,
+        other.tailViewTextStyle,
+        t,
+      ),
+      subtitleTextColor: Color.lerp(
+        subtitleTextColor,
+        other.subtitleTextColor,
+        t,
+      ),
+      emptyTextStyle: TextStyle.lerp(emptyTextStyle, other.emptyTextStyle, t),
     );
   }
 
@@ -189,7 +219,7 @@ class CometChatReactionListStyle extends ThemeExtension<CometChatReactionListSty
       activeTabBackgroundColor: style.activeTabBackgroundColor,
       tailViewTextStyle: style.tailViewTextStyle,
       subtitleTextColor: style.subtitleTextColor,
-      emptyTextStyle: style.emptyTextStyle
+      emptyTextStyle: style.emptyTextStyle,
     );
   }
 

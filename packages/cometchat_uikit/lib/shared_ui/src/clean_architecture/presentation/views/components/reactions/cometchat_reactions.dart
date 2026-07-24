@@ -19,21 +19,21 @@ import 'reactions_bloc.dart';
 ///  },
 ///  );
 class CometChatReactions extends StatefulWidget {
-  const CometChatReactions(
-      {super.key,
-      required this.reactionList,
-      this.alignment,
-      this.onReactionTap,
-      this.onReactionLongPress,
-      this.style,
-      this.padding,
-      this.margin,
-      this.width,
-      this.height,
-      this.colorPalette,
-      this.spacing,
-      this.typography,
-      });
+  const CometChatReactions({
+    super.key,
+    required this.reactionList,
+    this.alignment,
+    this.onReactionTap,
+    this.onReactionLongPress,
+    this.style,
+    this.padding,
+    this.margin,
+    this.width,
+    this.height,
+    this.colorPalette,
+    this.spacing,
+    this.typography,
+  });
 
   ///[reactionList] is a list of ReactionCount which is used to set the reactions
   final List<ReactionCount> reactionList;
@@ -94,17 +94,20 @@ class _CometChatReactionsState extends State<CometChatReactions> {
     // Update style if it changed
     if (widget.style != oldWidget.style) {
       style = CometChatThemeHelper.getTheme<CometChatReactionsStyle>(
-              context: context, defaultTheme: CometChatReactionsStyle.of)
-          .merge(widget.style);
+        context: context,
+        defaultTheme: CometChatReactionsStyle.of,
+      ).merge(widget.style);
     }
     // Update cached theme values if they changed
-    if (widget.colorPalette != oldWidget.colorPalette && widget.colorPalette != null) {
+    if (widget.colorPalette != oldWidget.colorPalette &&
+        widget.colorPalette != null) {
       colorPalette = widget.colorPalette!;
     }
     if (widget.spacing != oldWidget.spacing && widget.spacing != null) {
       spacing = widget.spacing!;
     }
-    if (widget.typography != oldWidget.typography && widget.typography != null) {
+    if (widget.typography != oldWidget.typography &&
+        widget.typography != null) {
       typography = widget.typography!;
     }
   }
@@ -127,21 +130,23 @@ class _CometChatReactionsState extends State<CometChatReactions> {
     super.didChangeDependencies();
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
       style = CometChatThemeHelper.getTheme<CometChatReactionsStyle>(
-              context: context, defaultTheme: CometChatReactionsStyle.of)
-          .merge(widget.style);
+        context: context,
+        defaultTheme: CometChatReactionsStyle.of,
+      ).merge(widget.style);
       // Use passed values OR fallback to lookup (for standalone usage)
-      colorPalette = widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+      colorPalette =
+          widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
       spacing = widget.spacing ?? CometChatThemeHelper.getSpacing(context);
-      typography = widget.typography ?? CometChatThemeHelper.getTypography(context);
+      typography =
+          widget.typography ?? CometChatThemeHelper.getTypography(context);
       _themeInitialized = true;
     }
   }
-
-
 
   Widget? getExtraReactions(
     ReactionsState state,
@@ -152,46 +157,58 @@ class _CometChatReactionsState extends State<CometChatReactions> {
   ) {
     if (state.hasMore && state.extraCount > 1) {
       return GestureDetector(
-          onTap: () {
-            if (widget.onReactionLongPress != null) {
-              widget.onReactionLongPress!(ReactionConstants.allReactions);
-            }
-          },
-          onLongPress: () {
-            if (widget.onReactionLongPress != null) {
-              widget.onReactionLongPress!(ReactionConstants.allReactions);
-            }
-          },
-          child: Container(
-            margin: widget.margin ?? getMargin(spacing),
-            padding: widget.padding ?? EdgeInsets.symmetric(horizontal: spacing.padding2 ?? 0, vertical: spacing.padding ?? 0),
-            constraints: const BoxConstraints(
-              minHeight: 24,
-            ),
-            decoration: BoxDecoration(
-              color: (state.extraReactedByMe
-                      ? style.activeReactionBackgroundColor ??
+        onTap: () {
+          if (widget.onReactionLongPress != null) {
+            widget.onReactionLongPress!(ReactionConstants.allReactions);
+          }
+        },
+        onLongPress: () {
+          if (widget.onReactionLongPress != null) {
+            widget.onReactionLongPress!(ReactionConstants.allReactions);
+          }
+        },
+        child: Container(
+          margin: widget.margin ?? getMargin(spacing),
+          padding:
+              widget.padding ??
+              EdgeInsets.symmetric(
+                horizontal: spacing.padding2 ?? 0,
+                vertical: spacing.padding ?? 0,
+              ),
+          constraints: const BoxConstraints(minHeight: 24),
+          decoration: BoxDecoration(
+            color:
+                (state.extraReactedByMe
+                    ? style.activeReactionBackgroundColor ??
                           colorPalette.extendedPrimary100
-                      : style.backgroundColor ?? colorPalette.background1) ??
-                  Colors.transparent,
-              border: state.extraReactedByMe == true
-                  ? style.activeReactionBorder ??
+                    : style.backgroundColor ?? colorPalette.background1) ??
+                Colors.transparent,
+            border: state.extraReactedByMe == true
+                ? style.activeReactionBorder ??
                       Border.all(
-                          color: colorPalette.extendedPrimary300 ?? Colors.transparent,
-                          width: 1)
-                  : (style.border ??
+                        color:
+                            colorPalette.extendedPrimary300 ??
+                            Colors.transparent,
+                        width: 1,
+                      )
+                : (style.border ??
                       Border.all(
-                          color: colorPalette.borderLight ?? Colors.transparent,
-                          width: 1)),
-              borderRadius: style.borderRadius ?? BorderRadius.all(Radius.circular(spacing.radius5 ?? 0)),
-            ),
-            child: Text("+${state.extraCount}",
-                style: TextStyle(
-                        fontSize: typography.body?.regular?.fontSize,
-                        color: colorPalette.textPrimary)
-                    .merge(style.countTextStyle)),
+                        color: colorPalette.borderLight ?? Colors.transparent,
+                        width: 1,
+                      )),
+            borderRadius:
+                style.borderRadius ??
+                BorderRadius.all(Radius.circular(spacing.radius5 ?? 0)),
           ),
-        );
+          child: Text(
+            "+${state.extraCount}",
+            style: TextStyle(
+              fontSize: typography.body?.regular?.fontSize,
+              color: colorPalette.textPrimary,
+            ).merge(style.countTextStyle),
+          ),
+        ),
+      );
     }
     return null;
   }
@@ -204,76 +221,99 @@ class _CometChatReactionsState extends State<CometChatReactions> {
           previous.reactionList != current.reactionList ||
           previous.animatingReaction != current.animatingReaction,
       builder: (context, state) {
-        final extraReactions = getExtraReactions(state, style, colorPalette, spacing, typography);
+        final extraReactions = getExtraReactions(
+          state,
+          style,
+          colorPalette,
+          spacing,
+          typography,
+        );
 
-        return Row(children: [
-          ...state.visibleReactions.map((reactionCount) => GestureDetector(
-            onTap: () {
-              if (widget.onReactionTap != null) {
-                widget.onReactionTap!(reactionCount.reaction);
-              }
-            },
-            onLongPress: () {
-              if (widget.onReactionLongPress != null) {
-                widget.onReactionLongPress!(reactionCount.reaction);
-              }
-            },
-            child: Container(
-                          height: widget.height,
-                          width: widget.width,
-                          alignment: Alignment.center,
-                          margin: widget.margin ?? getMargin(spacing),
-                          padding: widget.padding ??
-               EdgeInsets.symmetric(horizontal: spacing.padding2 ?? 0, vertical: spacing.padding ?? 0),
-                          decoration: BoxDecoration(
-              color:
-                  (reactionCount.reactedByMe == true
-                      ? style.activeReactionBackgroundColor ??
-                      colorPalette.extendedPrimary100
-                      : style.backgroundColor ?? colorPalette.background1) ?? Colors.transparent,
-              border: reactionCount.reactedByMe == true
-                  ? style.activeReactionBorder ??
-                      Border.all(
-                          color:
-                             colorPalette.extendedPrimary300 ?? Colors.transparent,
-                          width: 1)
-                  : (style.border ??
-                      Border.all(
-                          color: colorPalette.borderLight ?? Colors.transparent,
-                          width: 1)),
-              borderRadius: style.borderRadius ?? BorderRadius.all(Radius.circular(
-                  spacing.radius5 ?? 0)),),
-                          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                  reactionCount.reaction ?? "",
-                  style: TextStyle(fontSize: typography.body?.regular?.fontSize,
-                    fontWeight: typography.body?.regular?.fontWeight,
-                  )
-                      .merge(style.emojiTextStyle)
-              ),
-              Padding(
-                padding: EdgeInsets.only(right: spacing.padding1 ?? 0),
-                child: Text(
-                    " ${reactionCount.count}",
-                    style: TextStyle(
-                        fontSize: typography.body?.regular?.fontSize,
-                        fontWeight: typography.body?.regular?.fontWeight,
-                        color: style.countTextColor ?? colorPalette.textPrimary)
-                        .merge(
-                        style.countTextStyle)
-                ),
-              )
-            ],
-                          ),
+        return Row(
+          children: [
+            ...state.visibleReactions.map(
+              (reactionCount) => GestureDetector(
+                onTap: () {
+                  if (widget.onReactionTap != null) {
+                    widget.onReactionTap!(reactionCount.reaction);
+                  }
+                },
+                onLongPress: () {
+                  if (widget.onReactionLongPress != null) {
+                    widget.onReactionLongPress!(reactionCount.reaction);
+                  }
+                },
+                child: Container(
+                  height: widget.height,
+                  width: widget.width,
+                  alignment: Alignment.center,
+                  margin: widget.margin ?? getMargin(spacing),
+                  padding:
+                      widget.padding ??
+                      EdgeInsets.symmetric(
+                        horizontal: spacing.padding2 ?? 0,
+                        vertical: spacing.padding ?? 0,
+                      ),
+                  decoration: BoxDecoration(
+                    color:
+                        (reactionCount.reactedByMe == true
+                            ? style.activeReactionBackgroundColor ??
+                                  colorPalette.extendedPrimary100
+                            : style.backgroundColor ??
+                                  colorPalette.background1) ??
+                        Colors.transparent,
+                    border: reactionCount.reactedByMe == true
+                        ? style.activeReactionBorder ??
+                              Border.all(
+                                color:
+                                    colorPalette.extendedPrimary300 ??
+                                    Colors.transparent,
+                                width: 1,
+                              )
+                        : (style.border ??
+                              Border.all(
+                                color:
+                                    colorPalette.borderLight ??
+                                    Colors.transparent,
+                                width: 1,
+                              )),
+                    borderRadius:
+                        style.borderRadius ??
+                        BorderRadius.all(Radius.circular(spacing.radius5 ?? 0)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        reactionCount.reaction ?? "",
+                        style: TextStyle(
+                          fontSize: typography.body?.regular?.fontSize,
+                          fontWeight: typography.body?.regular?.fontWeight,
+                        ).merge(style.emojiTextStyle),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(right: spacing.padding1 ?? 0),
+                        child: Text(
+                          " ${reactionCount.count}",
+                          style: TextStyle(
+                            fontSize: typography.body?.regular?.fontSize,
+                            fontWeight: typography.body?.regular?.fontWeight,
+                            color:
+                                style.countTextColor ??
+                                colorPalette.textPrimary,
+                          ).merge(style.countTextStyle),
                         ),
-          )
-      ),
-      if (extraReactions != null) extraReactions
-    ]);
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            ?extraReactions,
+          ],
+        );
       },
     );
   }

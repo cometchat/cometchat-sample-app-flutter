@@ -1,11 +1,7 @@
-import 'dart:convert';
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
-import 'package:cometchat_cards/cometchat_cards.dart';
 
 import 'package:cometchat_chat_uikit/chat_ui/src/ai_assistant_chat_history/bloc/ai_assistant_chat_history_bloc.dart';
 import 'package:cometchat_chat_uikit/chat_ui/src/ai_assistant_chat_history/bloc/ai_assistant_chat_history_event.dart';
@@ -66,11 +62,11 @@ class FakeCardMessage extends Fake implements CardMessage {
     String? fallbackText,
     DateTime? sentAt,
     DateTime? deletedAt,
-  })  : _card = card,
-        _text = text,
-        _fallbackText = fallbackText,
-        _sentAt = sentAt ?? DateTime(2026, 6, 19, 10, 0),
-        _deletedAt = deletedAt;
+  }) : _card = card,
+       _text = text,
+       _fallbackText = fallbackText,
+       _sentAt = sentAt ?? DateTime(2026, 6, 19, 10, 0),
+       _deletedAt = deletedAt;
 
   @override
   int get id => _id;
@@ -139,8 +135,8 @@ class FakeTextMessage extends Fake implements TextMessage {
   final DateTime? _sentAt;
 
   FakeTextMessage(this._id, {String text = 'Hello', DateTime? sentAt})
-      : _text = text,
-        _sentAt = sentAt ?? DateTime(2026, 6, 19, 9, 0);
+    : _text = text,
+      _sentAt = sentAt ?? DateTime(2026, 6, 19, 9, 0);
 
   @override
   int get id => _id;
@@ -217,13 +213,22 @@ const _cardWithActions = {
       'id': 'btn_yes',
       'type': 'button',
       'label': 'Yes',
-      'action': {'type': 'apiCall', 'url': 'https://api.example.com/confirm', 'method': 'POST'}
+      'action': {
+        'type': 'apiCall',
+        'url': 'https://api.example.com/confirm',
+        'method': 'POST',
+      },
     },
     {
       'id': 'btn_no',
       'type': 'button',
       'label': 'No',
-      'action': {'type': 'sendMessage', 'text': 'Cancel', 'receiverUid': 'ai_bot', 'receiverGuid': null}
+      'action': {
+        'type': 'sendMessage',
+        'text': 'Cancel',
+        'receiverUid': 'ai_bot',
+        'receiverGuid': null,
+      },
     },
   ],
   'fallbackText': 'Confirmation card',
@@ -232,16 +237,32 @@ const _cardWithActions = {
 const _productCard = {
   'version': '1.0',
   'body': [
-    {'id': 'img1', 'type': 'image', 'url': 'https://example.com/product.png', 'height': 150},
-    {'id': 't1', 'type': 'text', 'content': 'Premium Widget', 'variant': 'heading2'},
-    {'id': 't2', 'type': 'text', 'content': '\$99.99', 'variant': 'body', 'fontWeight': 'bold'},
+    {
+      'id': 'img1',
+      'type': 'image',
+      'url': 'https://example.com/product.png',
+      'height': 150,
+    },
+    {
+      'id': 't1',
+      'type': 'text',
+      'content': 'Premium Widget',
+      'variant': 'heading2',
+    },
+    {
+      'id': 't2',
+      'type': 'text',
+      'content': '\$99.99',
+      'variant': 'body',
+      'fontWeight': 'bold',
+    },
     {'id': 'divider1', 'type': 'divider'},
     {
       'id': 'btn_buy',
       'type': 'button',
       'label': 'Buy Now',
       'variant': 'filled',
-      'action': {'type': 'openUrl', 'url': 'https://shop.example.com/buy'}
+      'action': {'type': 'openUrl', 'url': 'https://shop.example.com/buy'},
     },
   ],
   'style': {
@@ -273,7 +294,7 @@ void main() {
       mockGetLoggedInUserUseCase = MockGetLoggedInUserUseCase();
     });
 
-    AIAssistantChatHistoryBloc _createBloc() {
+    AIAssistantChatHistoryBloc createBloc() {
       return AIAssistantChatHistoryBloc(
         user: FakeUser(),
         fetchChatHistoryUseCase: mockFetchUseCase,
@@ -286,23 +307,31 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'emits loaded state with card messages when fetch succeeds',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any())).thenAnswer((_) async =>
-              Success(<BaseMessage>[
-                FakeCardMessage(1, card: _simpleCard),
-                FakeTextMessage(2, text: 'Regular message'),
-                FakeCardMessage(3, card: _productCard),
-              ]));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(() => mockFetchUseCase(any())).thenAnswer(
+            (_) async => Success(<BaseMessage>[
+              FakeCardMessage(1, card: _simpleCard),
+              FakeTextMessage(2, text: 'Regular message'),
+              FakeCardMessage(3, card: _productCard),
+            ]),
+          );
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) => bloc.add(const LoadChatHistory()),
         expect: () => [
           isA<AIAssistantChatHistoryState>().having(
-              (s) => s.status, 'loading', AIAssistantChatHistoryStatus.loading),
+            (s) => s.status,
+            'loading',
+            AIAssistantChatHistoryStatus.loading,
+          ),
           isA<AIAssistantChatHistoryState>()
               .having(
-                  (s) => s.status, 'loaded', AIAssistantChatHistoryStatus.loaded)
+                (s) => s.status,
+                'loaded',
+                AIAssistantChatHistoryStatus.loaded,
+              )
               .having((s) => s.messages.length, 'message count', 3),
         ],
       );
@@ -310,16 +339,18 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'card messages maintain correct order interleaved with text',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any())).thenAnswer((_) async =>
-              Success(<BaseMessage>[
-                FakeTextMessage(1, text: 'Before card'),
-                FakeCardMessage(2, card: _simpleCard),
-                FakeTextMessage(3, text: 'After card'),
-              ]));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(() => mockFetchUseCase(any())).thenAnswer(
+            (_) async => Success(<BaseMessage>[
+              FakeTextMessage(1, text: 'Before card'),
+              FakeCardMessage(2, card: _simpleCard),
+              FakeTextMessage(3, text: 'After card'),
+            ]),
+          );
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) => bloc.add(const LoadChatHistory()),
         verify: (bloc) {
           final messages = bloc.state.messages;
@@ -333,19 +364,27 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'handles empty chat history gracefully',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any()))
-              .thenAnswer((_) async => Success(<BaseMessage>[]));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(
+            () => mockFetchUseCase(any()),
+          ).thenAnswer((_) async => Success(<BaseMessage>[]));
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) => bloc.add(const LoadChatHistory()),
         expect: () => [
           isA<AIAssistantChatHistoryState>().having(
-              (s) => s.status, 'loading', AIAssistantChatHistoryStatus.loading),
+            (s) => s.status,
+            'loading',
+            AIAssistantChatHistoryStatus.loading,
+          ),
           isA<AIAssistantChatHistoryState>()
               .having(
-                  (s) => s.status, 'empty', AIAssistantChatHistoryStatus.empty)
+                (s) => s.status,
+                'empty',
+                AIAssistantChatHistoryStatus.empty,
+              )
               .having((s) => s.messages.length, 'empty list', 0),
         ],
       );
@@ -355,19 +394,24 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'adds incoming card message to loaded state',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any())).thenAnswer((_) async =>
-              Success(<BaseMessage>[
-                FakeTextMessage(1, text: 'Initial message'),
-              ]));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(() => mockFetchUseCase(any())).thenAnswer(
+            (_) async => Success(<BaseMessage>[
+              FakeTextMessage(1, text: 'Initial message'),
+            ]),
+          );
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) async {
           bloc.add(const LoadChatHistory());
           await Future.delayed(const Duration(milliseconds: 100));
-          bloc.add(ChatHistoryMessageReceived(
-              FakeCardMessage(2, card: _cardWithActions)));
+          bloc.add(
+            ChatHistoryMessageReceived(
+              FakeCardMessage(2, card: _cardWithActions),
+            ),
+          );
         },
         wait: const Duration(milliseconds: 200),
         verify: (bloc) {
@@ -379,20 +423,22 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'updates edited card message in state',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any())).thenAnswer((_) async =>
-              Success(<BaseMessage>[
-                FakeCardMessage(1, card: _simpleCard),
-              ]));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(() => mockFetchUseCase(any())).thenAnswer(
+            (_) async =>
+                Success(<BaseMessage>[FakeCardMessage(1, card: _simpleCard)]),
+          );
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) async {
           bloc.add(const LoadChatHistory());
           await Future.delayed(const Duration(milliseconds: 100));
           // Simulate an edited card message (card content updated)
-          bloc.add(ChatHistoryMessageEdited(
-              FakeCardMessage(1, card: _productCard)));
+          bloc.add(
+            ChatHistoryMessageEdited(FakeCardMessage(1, card: _productCard)),
+          );
         },
         wait: const Duration(milliseconds: 200),
         verify: (bloc) {
@@ -405,19 +451,23 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'marks deleted card message in state',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any())).thenAnswer((_) async =>
-              Success(<BaseMessage>[
-                FakeCardMessage(1, card: _simpleCard),
-              ]));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(() => mockFetchUseCase(any())).thenAnswer(
+            (_) async =>
+                Success(<BaseMessage>[FakeCardMessage(1, card: _simpleCard)]),
+          );
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) async {
           bloc.add(const LoadChatHistory());
           await Future.delayed(const Duration(milliseconds: 100));
-          bloc.add(ChatHistoryMessageDeleted(
-              FakeCardMessage(1, card: _simpleCard, deletedAt: DateTime.now())));
+          bloc.add(
+            ChatHistoryMessageDeleted(
+              FakeCardMessage(1, card: _simpleCard, deletedAt: DateTime.now()),
+            ),
+          );
         },
         wait: const Duration(milliseconds: 200),
         verify: (bloc) {
@@ -431,29 +481,34 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'delete card message succeeds and updates state',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any())).thenAnswer((_) async =>
-              Success(<BaseMessage>[
-                FakeCardMessage(1, card: _simpleCard),
-                FakeTextMessage(2, text: 'Keep me'),
-              ]));
-          when(() => mockDeleteUseCase(1)).thenAnswer((_) async =>
-              Success(
-                  FakeCardMessage(1, card: _simpleCard, deletedAt: DateTime.now())));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(() => mockFetchUseCase(any())).thenAnswer(
+            (_) async => Success(<BaseMessage>[
+              FakeCardMessage(1, card: _simpleCard),
+              FakeTextMessage(2, text: 'Keep me'),
+            ]),
+          );
+          when(() => mockDeleteUseCase(1)).thenAnswer(
+            (_) async => Success(
+              FakeCardMessage(1, card: _simpleCard, deletedAt: DateTime.now()),
+            ),
+          );
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) async {
           bloc.add(const LoadChatHistory());
           await Future.delayed(const Duration(milliseconds: 100));
-          bloc.add(DeleteChatHistoryMessage(FakeCardMessage(1, card: _simpleCard)));
+          bloc.add(
+            DeleteChatHistoryMessage(FakeCardMessage(1, card: _simpleCard)),
+          );
         },
         wait: const Duration(milliseconds: 200),
         verify: (bloc) {
           // Message should still be in list but with deletedAt set
           expect(bloc.state.messages.length, 2);
-          final deletedMsg = bloc.state.messages
-              .firstWhere((m) => m.id == 1);
+          final deletedMsg = bloc.state.messages.firstWhere((m) => m.id == 1);
           expect(deletedMsg.deletedAt, isNotNull);
         },
       );
@@ -461,20 +516,24 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'delete card message failure does not change state',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any())).thenAnswer((_) async =>
-              Success(<BaseMessage>[
-                FakeCardMessage(1, card: _simpleCard),
-              ]));
-          when(() => mockDeleteUseCase(1)).thenAnswer((_) async =>
-              const Failure(message: 'Delete failed'));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(() => mockFetchUseCase(any())).thenAnswer(
+            (_) async =>
+                Success(<BaseMessage>[FakeCardMessage(1, card: _simpleCard)]),
+          );
+          when(
+            () => mockDeleteUseCase(1),
+          ).thenAnswer((_) async => const Failure(message: 'Delete failed'));
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) async {
           bloc.add(const LoadChatHistory());
           await Future.delayed(const Duration(milliseconds: 100));
-          bloc.add(DeleteChatHistoryMessage(FakeCardMessage(1, card: _simpleCard)));
+          bloc.add(
+            DeleteChatHistoryMessage(FakeCardMessage(1, card: _simpleCard)),
+          );
         },
         wait: const Duration(milliseconds: 200),
         verify: (bloc) {
@@ -490,14 +549,13 @@ void main() {
         'loading more messages appends card messages correctly',
         setUp: () {
           var callCount = 0;
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
           when(() => mockFetchUseCase(any())).thenAnswer((_) async {
             callCount++;
             if (callCount == 1) {
-              return Success(<BaseMessage>[
-                FakeTextMessage(1, text: 'Page 1'),
-              ]);
+              return Success(<BaseMessage>[FakeTextMessage(1, text: 'Page 1')]);
             } else {
               return Success(<BaseMessage>[
                 FakeCardMessage(2, card: _productCard),
@@ -506,7 +564,7 @@ void main() {
             }
           });
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) async {
           bloc.add(const LoadChatHistory());
           await Future.delayed(const Duration(milliseconds: 100));
@@ -516,8 +574,9 @@ void main() {
         verify: (bloc) {
           expect(bloc.state.messages.length, 3);
           // Verify card is present in the combined list
-          final cardMessages =
-              bloc.state.messages.whereType<CardMessage>().toList();
+          final cardMessages = bloc.state.messages
+              .whereType<CardMessage>()
+              .toList();
           expect(cardMessages.length, 1);
           expect(cardMessages.first.getCard(), _productCard);
         },
@@ -528,16 +587,18 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'findMessageIndex returns correct index for card messages',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any())).thenAnswer((_) async =>
-              Success(<BaseMessage>[
-                FakeTextMessage(1),
-                FakeCardMessage(2, card: _simpleCard),
-                FakeTextMessage(3),
-              ]));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(() => mockFetchUseCase(any())).thenAnswer(
+            (_) async => Success(<BaseMessage>[
+              FakeTextMessage(1),
+              FakeCardMessage(2, card: _simpleCard),
+              FakeTextMessage(3),
+            ]),
+          );
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) => bloc.add(const LoadChatHistory()),
         verify: (bloc) {
           // Messages are reversed, so order is [3, 2, 1]
@@ -549,14 +610,14 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'findMessageIndex returns -1 for non-existent card message',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any())).thenAnswer((_) async =>
-              Success(<BaseMessage>[
-                FakeTextMessage(1),
-              ]));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(
+            () => mockFetchUseCase(any()),
+          ).thenAnswer((_) async => Success(<BaseMessage>[FakeTextMessage(1)]));
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) => bloc.add(const LoadChatHistory()),
         verify: (bloc) {
           expect(bloc.findMessageIndex(999), -1);
@@ -568,14 +629,14 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'ignores card message from different conversation',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any())).thenAnswer((_) async =>
-              Success(<BaseMessage>[
-                FakeTextMessage(1),
-              ]));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(
+            () => mockFetchUseCase(any()),
+          ).thenAnswer((_) async => Success(<BaseMessage>[FakeTextMessage(1)]));
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) async {
           bloc.add(const LoadChatHistory());
           await Future.delayed(const Duration(milliseconds: 100));
@@ -597,19 +658,27 @@ void main() {
       blocTest<AIAssistantChatHistoryBloc, AIAssistantChatHistoryState>(
         'emits error state when fetch fails',
         setUp: () {
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
-          when(() => mockFetchUseCase(any())).thenAnswer((_) async =>
-              const Failure(message: 'Network error'));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(
+            () => mockFetchUseCase(any()),
+          ).thenAnswer((_) async => const Failure(message: 'Network error'));
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) => bloc.add(const LoadChatHistory()),
         expect: () => [
           isA<AIAssistantChatHistoryState>().having(
-              (s) => s.status, 'loading', AIAssistantChatHistoryStatus.loading),
+            (s) => s.status,
+            'loading',
+            AIAssistantChatHistoryStatus.loading,
+          ),
           isA<AIAssistantChatHistoryState>()
               .having(
-                  (s) => s.status, 'error', AIAssistantChatHistoryStatus.error)
+                (s) => s.status,
+                'error',
+                AIAssistantChatHistoryStatus.error,
+              )
               .having((s) => s.errorMessage, 'error message', 'Network error'),
         ],
       );
@@ -620,14 +689,13 @@ void main() {
         'reconnect event triggers fresh load including card messages',
         setUp: () {
           var callCount = 0;
-          when(() => mockGetLoggedInUserUseCase())
-              .thenAnswer((_) async => Success(FakeLoggedInUser()));
+          when(
+            () => mockGetLoggedInUserUseCase(),
+          ).thenAnswer((_) async => Success(FakeLoggedInUser()));
           when(() => mockFetchUseCase(any())).thenAnswer((_) async {
             callCount++;
             if (callCount == 1) {
-              return Success(<BaseMessage>[
-                FakeTextMessage(1),
-              ]);
+              return Success(<BaseMessage>[FakeTextMessage(1)]);
             } else {
               return Success(<BaseMessage>[
                 FakeTextMessage(1),
@@ -636,7 +704,7 @@ void main() {
             }
           });
         },
-        build: _createBloc,
+        build: createBloc,
         act: (bloc) async {
           bloc.add(const LoadChatHistory());
           await Future.delayed(const Duration(milliseconds: 100));
@@ -646,8 +714,7 @@ void main() {
         verify: (bloc) {
           // After reconnect, should have refreshed data including the card
           expect(bloc.state.messages.length, 2);
-          expect(
-              bloc.state.messages.whereType<CardMessage>().length, 1);
+          expect(bloc.state.messages.whereType<CardMessage>().length, 1);
         },
       );
     });

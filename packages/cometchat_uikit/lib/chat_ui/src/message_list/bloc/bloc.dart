@@ -1,6 +1,7 @@
 /// BLoC for message list module
 ///
 /// All logic (BLoC, Events, State) lives here in chat_ui.
+library;
 
 // BLoC implementation
 export 'message_list_bloc.dart';

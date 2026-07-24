@@ -830,6 +830,41 @@ class TranslationsNl extends Translations {
   String get failedToLoadImage => 'Laden van afbeelding mislukt';
 
   @override
+  String get uploadFailed => 'Uploaden mislukt';
+
+  @override
+  String get tapToRetry => 'Tik om opnieuw te proberen';
+
+  @override
+  String get dropFilesHere => 'Sleep bestanden hierheen';
+
+  @override
+  String get attachmentCountLimit =>
+      'Je kunt maximaal {limit} bestanden per bericht bijvoegen.';
+
+  @override
+  String get attachmentFileSizeLimit =>
+      'Elk bestand moet kleiner zijn dan {limit}.';
+
+  @override
+  String get fileListShowMore => '+{count} meer';
+
+  @override
+  String get fileListShowLess => 'Minder weergeven';
+
+  @override
+  String get searchImagesCount => '{count} afbeeldingen';
+
+  @override
+  String get searchVideosCount => '{count} video\'s';
+
+  @override
+  String get searchAudiosCount => '{count} audio\'s';
+
+  @override
+  String get searchFilesCount => '{count} bestanden';
+
+  @override
   String get transferOwnership => 'Overdracht eigendom';
 
   @override
@@ -1248,28 +1283,35 @@ class TranslationsNl extends Translations {
       'Vul alle verplichte velden in voordat je een groep maakt.';
 
   @override
-  String get messageBlockedByModeration => 'Je bericht werd geblokkeerd vanwege het moderatiebeleid.';
+  String get messageBlockedByModeration =>
+      'Je bericht werd geblokkeerd vanwege het moderatiebeleid.';
 
   @override
-  String get cantSendMessageBlockedUser => "Kan geen bericht verzenden omdat de gebruiker is geblokkeerd.";
+  String get cantSendMessageBlockedUser =>
+      "Kan geen bericht verzenden omdat de gebruiker is geblokkeerd.";
 
   @override
-  String get cantSendMessageNotMember => "Je kunt geen berichten naar deze groep sturen omdat je geen lid meer bent.";
+  String get cantSendMessageNotMember =>
+      "Je kunt geen berichten naar deze groep sturen omdat je geen lid meer bent.";
 
   @override
-  String get youAreNoLongerPartOfThisGroup => 'Je maakt geen deel meer uit van deze groep.';
+  String get youAreNoLongerPartOfThisGroup =>
+      'Je maakt geen deel meer uit van deze groep.';
 
   @override
   String get busy => "Bezet";
 
   @override
-  String get noConversationHistoryFound => "Geen gespreksgeschiedenis gevonden.";
+  String get noConversationHistoryFound =>
+      "Geen gespreksgeschiedenis gevonden.";
 
   @override
-  String get somethingWentWrongTryAgain => "Er is iets misgegaan aan onze kant. Probeer het opnieuw.";
+  String get somethingWentWrongTryAgain =>
+      "Er is iets misgegaan aan onze kant. Probeer het opnieuw.";
 
   @override
-  String get startChatByTappingNewChat => 'Begin een chat door op de knop "Nieuwe chat" te tikken.';
+  String get startChatByTappingNewChat =>
+      'Begin een chat door op de knop "Nieuwe chat" te tikken.';
 
   @override
   String get chatHistory => "Chatgeschiedenis";
@@ -1297,7 +1339,8 @@ class TranslationsNl extends Translations {
   String get aiAssistants => "AI-assistenten";
 
   @override
-  String get notifyEveryoneInThisGroup => "Iedereen in deze groep op de hoogte stellen";
+  String get notifyEveryoneInThisGroup =>
+      "Iedereen in deze groep op de hoogte stellen";
 
   @override
   String get notifyAll => "iedereen";
@@ -1312,7 +1355,8 @@ class TranslationsNl extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

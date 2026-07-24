@@ -1,5 +1,7 @@
-import '../../../cometchat_uikit_shared.dart' hide BaseInputElement, ElementEntity;
+import '../../../cometchat_uikit_shared.dart'
+    hide BaseInputElement, ElementEntity;
 import 'element_entity.dart';
+
 abstract class BaseInputElement<T> extends ElementEntity {
   T? response;
   T? defaultValue;

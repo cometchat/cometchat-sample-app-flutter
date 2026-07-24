@@ -68,18 +68,22 @@ class CometChatRichTextToolbar extends StatelessWidget {
     final toolbarStyle = CometChatRichTextToolbarStyle.of(context).merge(style);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
-    
+
     // Calculate disabled formats based on active formats
-    final disabledFormats = FormatCompatibility.getDisabledFormats(activeFormats);
+    final disabledFormats = FormatCompatibility.getDisabledFormats(
+      activeFormats,
+    );
 
     return Container(
       decoration: BoxDecoration(
         color: toolbarStyle.backgroundColor ?? colorPalette.background2,
         border: toolbarStyle.border,
-        borderRadius: toolbarStyle.borderRadius ??
+        borderRadius:
+            toolbarStyle.borderRadius ??
             BorderRadius.circular(spacing.radius2 ?? 8),
       ),
-      padding: toolbarStyle.padding ??
+      padding:
+          toolbarStyle.padding ??
           EdgeInsets.only(
             left: spacing.padding3 ?? 12,
             right: spacing.padding3 ?? 12,
@@ -91,7 +95,12 @@ class CometChatRichTextToolbar extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: _buildToolbarButtons(
-              context, toolbarStyle, colorPalette, spacing, disabledFormats),
+            context,
+            toolbarStyle,
+            colorPalette,
+            spacing,
+            disabledFormats,
+          ),
         ),
       ),
     );
@@ -114,7 +123,7 @@ class CometChatRichTextToolbar extends StatelessWidget {
         FormatType.bold,
         FormatType.italic,
         FormatType.underline,
-        FormatType.strikethrough
+        FormatType.strikethrough,
       ],
       toolbarStyle,
       colorPalette,
@@ -169,21 +178,24 @@ class CometChatRichTextToolbar extends StatelessWidget {
     CometChatSpacing spacing,
     Set<FormatType> disabledFormats,
   ) {
-    final visibleFormats =
-        formats.where((format) => !hiddenFormats.contains(format)).toList();
+    final visibleFormats = formats
+        .where((format) => !hiddenFormats.contains(format))
+        .toList();
 
     return visibleFormats
         .asMap()
         .entries
-        .map((entry) => _buildFormatButton(
-              context,
-              entry.value,
-              toolbarStyle,
-              colorPalette,
-              spacing,
-              disabledFormats,
-              isLast: entry.key == visibleFormats.length - 1,
-            ))
+        .map(
+          (entry) => _buildFormatButton(
+            context,
+            entry.value,
+            toolbarStyle,
+            colorPalette,
+            spacing,
+            disabledFormats,
+            isLast: entry.key == visibleFormats.length - 1,
+          ),
+        )
         .toList();
   }
 
@@ -203,29 +215,45 @@ class CometChatRichTextToolbar extends StatelessWidget {
     // Determine colors based on state
     Color iconColor;
     Color backgroundColor;
-    
+
     if (isDisabled) {
-      iconColor = toolbarStyle.disabledButtonIconColor ?? 
-          (colorPalette.iconSecondary?.withOpacity(0.3) ?? Colors.grey.withOpacity(0.3));
+      iconColor =
+          toolbarStyle.disabledButtonIconColor ??
+          (colorPalette.iconSecondary?.withValues(alpha: 0.3) ??
+              Colors.grey.withValues(alpha: 0.3));
       backgroundColor = toolbarStyle.disabledButtonColor ?? Colors.transparent;
     } else if (isActive) {
-      iconColor = toolbarStyle.activeButtonIconColor ?? colorPalette.neutral900 ?? Colors.black;
-      backgroundColor = toolbarStyle.activeButtonColor ?? colorPalette.neutral300?.withOpacity(0.2) ?? Colors.black.withOpacity(0.08);
+      iconColor =
+          toolbarStyle.activeButtonIconColor ??
+          colorPalette.neutral900 ??
+          Colors.black;
+      backgroundColor =
+          toolbarStyle.activeButtonColor ??
+          colorPalette.neutral300?.withValues(alpha: 0.2) ??
+          Colors.black.withValues(alpha: 0.08);
     } else {
-      iconColor = toolbarStyle.buttonIconColor ?? colorPalette.iconSecondary ?? Colors.grey;
+      iconColor =
+          toolbarStyle.buttonIconColor ??
+          colorPalette.iconSecondary ??
+          Colors.grey;
       backgroundColor = toolbarStyle.buttonColor ?? Colors.transparent;
     }
 
     return Padding(
-      padding: EdgeInsets.only(right: isLast ? 0 : (toolbarStyle.buttonSpacing ?? 16)),
+      padding: EdgeInsets.only(
+        right: isLast ? 0 : (toolbarStyle.buttonSpacing ?? 16),
+      ),
       child: Semantics(
         label: formatType.label,
         button: true,
         enabled: !isDisabled,
         child: Tooltip(
-          message: isDisabled 
+          message: isDisabled
               ? '${formatType.label} (incompatible with current format)'
               : formatType.label,
+          // Toolbar is at the bottom of the composer — show the bubble above the
+          // button so it isn't pinned to the screen edge on web.
+          preferBelow: false,
           child: GestureDetector(
             onTap: isDisabled ? null : () => onFormatTap(formatType),
             behavior: HitTestBehavior.opaque,
@@ -261,7 +289,8 @@ class CometChatRichTextToolbar extends StatelessWidget {
       height: 24,
       width: 1,
       margin: EdgeInsets.symmetric(horizontal: spacing.padding2 ?? 8),
-      color: toolbarStyle.dividerColor ??
+      color:
+          toolbarStyle.dividerColor ??
           colorPalette.borderDefault ??
           colorPalette.iconSecondary,
     );

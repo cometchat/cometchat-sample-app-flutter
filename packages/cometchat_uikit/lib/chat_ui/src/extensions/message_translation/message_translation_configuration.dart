@@ -2,7 +2,7 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/material.dart';
 
 ///[MessageTranslationConfiguration] is a data class that has configuration properties
-///to customize the functionality and appearance of [MessageTranslationExtension]
+///to customize the functionality and appearance of `MessageTranslationExtension`
 ///
 /// ```dart
 /// MessageTranslationConfiguration translationConfig = MessageTranslationConfiguration(

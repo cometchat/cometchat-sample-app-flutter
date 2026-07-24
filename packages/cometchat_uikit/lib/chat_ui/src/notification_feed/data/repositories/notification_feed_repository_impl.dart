@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../domain/repositories/notification_feed_repository.dart';
 import '../datasources/notification_feed_remote_datasource.dart';
@@ -8,9 +8,7 @@ import '../datasources/notification_feed_remote_datasource.dart';
 class NotificationFeedRepositoryImpl implements NotificationFeedRepository {
   final NotificationFeedRemoteDataSource remoteDataSource;
 
-  const NotificationFeedRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  const NotificationFeedRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<Result<List<NotificationFeedItem>>> fetchFeedItems(
@@ -67,8 +65,7 @@ class NotificationFeedRepositoryImpl implements NotificationFeedRepository {
       );
     } catch (e) {
       return Failure(
-        message:
-            'Unexpected error while marking as delivered: ${e.toString()}',
+        message: 'Unexpected error while marking as delivered: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -109,8 +106,7 @@ class NotificationFeedRepositoryImpl implements NotificationFeedRepository {
       );
     } catch (e) {
       return Failure(
-        message:
-            'Unexpected error while reporting engagement: ${e.toString()}',
+        message: 'Unexpected error while reporting engagement: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -129,8 +125,7 @@ class NotificationFeedRepositoryImpl implements NotificationFeedRepository {
       );
     } catch (e) {
       return Failure(
-        message:
-            'Unexpected error while getting unread count: ${e.toString()}',
+        message: 'Unexpected error while getting unread count: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }

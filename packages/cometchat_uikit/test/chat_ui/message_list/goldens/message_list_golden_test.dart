@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
@@ -16,8 +15,8 @@ class _FakeUser extends Fake implements User {
   final String _name;
 
   _FakeUser({String uid = 'user1', String name = 'Alice'})
-      : _uid = uid,
-        _name = name;
+    : _uid = uid,
+      _name = name;
 
   @override
   String get uid => _uid;
@@ -47,12 +46,12 @@ class _FakeTextMessage extends Fake implements TextMessage {
     DateTime? sentAt,
     DateTime? readAt,
     DateTime? deliveredAt,
-  })  : _id = id,
-        _text = text,
-        _sender = sender,
-        _sentAt = sentAt ?? DateTime(2024, 6, 15, 14, 30),
-        _readAt = readAt,
-        _deliveredAt = deliveredAt;
+  }) : _id = id,
+       _text = text,
+       _sender = sender,
+       _sentAt = sentAt ?? DateTime(2024, 6, 15, 14, 30),
+       _readAt = readAt,
+       _deliveredAt = deliveredAt;
 
   @override
   int get id => _id;
@@ -91,7 +90,7 @@ class _FakeTextMessage extends Fake implements TextMessage {
   set replyCount(int value) {}
 
   @override
-  List<ReactionCount>? get reactions => null;
+  List<ReactionCount> get reactions => const [];
 }
 
 // ---------------------------------------------------------------------------
@@ -100,50 +99,51 @@ class _FakeTextMessage extends Fake implements TextMessage {
 
 /// Sent text message (read receipt)
 _FakeTextMessage _sentReadMessage() => _FakeTextMessage(
-      id: 1,
-      text: 'Hey, how are you?',
-      sender: _FakeUser(uid: 'me', name: 'Me'),
-      readAt: DateTime(2024, 6, 15, 14, 31),
-      deliveredAt: DateTime(2024, 6, 15, 14, 30, 30),
-    );
+  id: 1,
+  text: 'Hey, how are you?',
+  sender: _FakeUser(uid: 'me', name: 'Me'),
+  readAt: DateTime(2024, 6, 15, 14, 31),
+  deliveredAt: DateTime(2024, 6, 15, 14, 30, 30),
+);
 
 /// Sent text message (delivered receipt)
 _FakeTextMessage _sentDeliveredMessage() => _FakeTextMessage(
-      id: 2,
-      text: 'Check this out!',
-      sender: _FakeUser(uid: 'me', name: 'Me'),
-      deliveredAt: DateTime(2024, 6, 15, 14, 32),
-    );
+  id: 2,
+  text: 'Check this out!',
+  sender: _FakeUser(uid: 'me', name: 'Me'),
+  deliveredAt: DateTime(2024, 6, 15, 14, 32),
+);
 
 /// Sent text message (sent only, no delivery/read)
 _FakeTextMessage _sentOnlyMessage() => _FakeTextMessage(
-      id: 3,
-      text: 'Just sent this',
-      sender: _FakeUser(uid: 'me', name: 'Me'),
-    );
+  id: 3,
+  text: 'Just sent this',
+  sender: _FakeUser(uid: 'me', name: 'Me'),
+);
 
 /// Received text message
 _FakeTextMessage _receivedMessage() => _FakeTextMessage(
-      id: 4,
-      text: 'I am doing great, thanks!',
-      sender: _FakeUser(uid: 'alice', name: 'Alice'),
-    );
+  id: 4,
+  text: 'I am doing great, thanks!',
+  sender: _FakeUser(uid: 'alice', name: 'Alice'),
+);
 
 /// Long text message (tests wrapping)
 _FakeTextMessage _longTextMessage() => _FakeTextMessage(
-      id: 5,
-      text: 'This is a much longer message that should wrap across multiple '
-          'lines to test how the message bubble handles text overflow and '
-          'proper line breaking behavior in the UI.',
-      sender: _FakeUser(uid: 'alice', name: 'Alice'),
-    );
+  id: 5,
+  text:
+      'This is a much longer message that should wrap across multiple '
+      'lines to test how the message bubble handles text overflow and '
+      'proper line breaking behavior in the UI.',
+  sender: _FakeUser(uid: 'alice', name: 'Alice'),
+);
 
 /// Emoji-only message (tests scaled bubbles)
 _FakeTextMessage _emojiOnlyMessage() => _FakeTextMessage(
-      id: 6,
-      text: '👍🎉',
-      sender: _FakeUser(uid: 'alice', name: 'Alice'),
-    );
+  id: 6,
+  text: '👍🎉',
+  sender: _FakeUser(uid: 'alice', name: 'Alice'),
+);
 
 // ---------------------------------------------------------------------------
 // Helper: themed row
@@ -156,11 +156,7 @@ Widget _themedRow(Brightness brightness, Widget child) {
     localizationsDelegates: Translations.localizationsDelegates,
     supportedLocales: Translations.supportedLocales,
     home: Scaffold(
-      body: SizedBox(
-        width: 375,
-        height: 80,
-        child: Center(child: child),
-      ),
+      body: SizedBox(width: 375, height: 80, child: Center(child: child)),
     ),
   );
 }
@@ -180,17 +176,11 @@ void main() {
       children: [
         GoldenTestScenario(
           name: 'sent_read_light',
-          child: _themedRow(
-            Brightness.light,
-            Text(_sentReadMessage().text),
-          ),
+          child: _themedRow(Brightness.light, Text(_sentReadMessage().text)),
         ),
         GoldenTestScenario(
           name: 'sent_read_dark',
-          child: _themedRow(
-            Brightness.dark,
-            Text(_sentReadMessage().text),
-          ),
+          child: _themedRow(Brightness.dark, Text(_sentReadMessage().text)),
         ),
         GoldenTestScenario(
           name: 'sent_delivered_light',
@@ -208,31 +198,19 @@ void main() {
         ),
         GoldenTestScenario(
           name: 'sent_only_light',
-          child: _themedRow(
-            Brightness.light,
-            Text(_sentOnlyMessage().text),
-          ),
+          child: _themedRow(Brightness.light, Text(_sentOnlyMessage().text)),
         ),
         GoldenTestScenario(
           name: 'sent_only_dark',
-          child: _themedRow(
-            Brightness.dark,
-            Text(_sentOnlyMessage().text),
-          ),
+          child: _themedRow(Brightness.dark, Text(_sentOnlyMessage().text)),
         ),
         GoldenTestScenario(
           name: 'received_light',
-          child: _themedRow(
-            Brightness.light,
-            Text(_receivedMessage().text),
-          ),
+          child: _themedRow(Brightness.light, Text(_receivedMessage().text)),
         ),
         GoldenTestScenario(
           name: 'received_dark',
-          child: _themedRow(
-            Brightness.dark,
-            Text(_receivedMessage().text),
-          ),
+          child: _themedRow(Brightness.dark, Text(_receivedMessage().text)),
         ),
         GoldenTestScenario(
           name: 'long_text_light',

@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import "../../../../clean_architecture.dart";
-import '../../../../core/utils/platform_utils/platform_image_utils.dart' as platform_image;
+import '../../../../core/utils/platform_utils/platform_image_utils.dart'
+    as platform_image;
 import 'package:cached_network_image/cached_network_image.dart';
 
 ///Gives Full Screen image view for passed image url
@@ -76,7 +77,7 @@ class _ImageViewerState extends State<ImageViewer> {
         backgroundColor: colorPalette.background1,
         iconTheme: IconThemeData(color: colorPalette.iconPrimary),
       ),
-      body: Container(
+      body: SizedBox(
         width: double.infinity,
         height: double.infinity,
         child: Stack(
@@ -102,28 +103,31 @@ class _ImageViewerState extends State<ImageViewer> {
                 height: double.infinity,
                 child: _isLocalFile
                     ? platform_image.buildFileImage(
-                  widget.imageUrl,
-                  fit: BoxFit.contain,
-                  filterQuality: FilterQuality.medium,
-                  cacheWidth: 512,
-                  cacheHeight: 512,
-                  errorBuilder: (context, error, stackTrace) {
-                    return _buildPlaceholderImage();
-                  },
-                  frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                    if (wasSynchronouslyLoaded || frame != null) {
-                      // Image loaded successfully
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted && _isLoading) {
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        }
-                      });
-                    }
-                    return child;
-                  },
-                )
+                        widget.imageUrl,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.medium,
+                        cacheWidth: 512,
+                        cacheHeight: 512,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _buildPlaceholderImage();
+                        },
+                        frameBuilder:
+                            (context, child, frame, wasSynchronouslyLoaded) {
+                              if (wasSynchronouslyLoaded || frame != null) {
+                                // Image loaded successfully
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  if (mounted && _isLoading) {
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                  }
+                                });
+                              }
+                              return child;
+                            },
+                      )
                     : kIsWeb
                     // On web, use Image.network (HTML <img> tag) to bypass CORS.
                     ? Image.network(
@@ -146,7 +150,8 @@ class _ImageViewerState extends State<ImageViewer> {
                             image: AssetImage(
                               widget.placeholderImage ??
                                   AssetConstants.imagePlaceholder,
-                              package: widget.placeHolderImagePackageName ??
+                              package:
+                                  widget.placeHolderImagePackageName ??
                                   UIConstants.packageName,
                             ),
                           );
@@ -169,16 +174,21 @@ class _ImageViewerState extends State<ImageViewer> {
                                   onPressed: () {
                                     setState(() {
                                       _isLoading = true;
-                                      imageKey = ValueKey(widget.imageUrl +
-                                          DateTime.now().toString());
+                                      imageKey = ValueKey(
+                                        widget.imageUrl +
+                                            DateTime.now().toString(),
+                                      );
                                     });
-                                    Future.delayed(const Duration(seconds: 3), () {
-                                      if (mounted) {
-                                        setState(() {
-                                          _isLoading = false;
-                                        });
-                                      }
-                                    });
+                                    Future.delayed(
+                                      const Duration(seconds: 3),
+                                      () {
+                                        if (mounted) {
+                                          setState(() {
+                                            _isLoading = false;
+                                          });
+                                        }
+                                      },
+                                    );
                                   },
                                   icon: Image.asset(
                                     AssetConstants.refreshIcon,
@@ -194,76 +204,84 @@ class _ImageViewerState extends State<ImageViewer> {
                         },
                       )
                     : CachedNetworkImage(
-                  key: imageKey,
-                  imageUrl: widget.imageUrl,
-                  fit: BoxFit.contain,
-                  placeholder: (context, url) => Image(
-                    fit: BoxFit.contain,
-                    image: AssetImage(
-                      widget.placeholderImage ??
-                          AssetConstants.imagePlaceholder,
-                      package: widget.placeHolderImagePackageName ??
-                          UIConstants.packageName,
-                    ),
-                  ),
-                  errorWidget: (context, url, error) {
-                    // Set loading to false on error
-                    if (_isLoading) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted) {
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        }
-                      });
-                    }
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _isLoading = true;
-                                CachedNetworkImage.evictFromCache(widget.imageUrl);
-                                imageKey = ValueKey(widget.imageUrl +
-                                    DateTime.now().toString());
-                              });
-                              Future.delayed(const Duration(seconds: 3), () {
-                                if (mounted) {
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                }
-                              });
-                            },
-                            icon: Image.asset(
-                              AssetConstants.refreshIcon,
-                              height: 24,
-                              width: 24,
-                              package: UIConstants.packageName,
-                              color: colorPalette.iconPrimary,
-                            ),
+                        key: imageKey,
+                        imageUrl: widget.imageUrl,
+                        fit: BoxFit.contain,
+                        placeholder: (context, url) => Image(
+                          fit: BoxFit.contain,
+                          image: AssetImage(
+                            widget.placeholderImage ??
+                                AssetConstants.imagePlaceholder,
+                            package:
+                                widget.placeHolderImagePackageName ??
+                                UIConstants.packageName,
                           ),
-                        ],
+                        ),
+                        errorWidget: (context, url, error) {
+                          // Set loading to false on error
+                          if (_isLoading) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (mounted) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                            });
+                          }
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _isLoading = true;
+                                      CachedNetworkImage.evictFromCache(
+                                        widget.imageUrl,
+                                      );
+                                      imageKey = ValueKey(
+                                        widget.imageUrl +
+                                            DateTime.now().toString(),
+                                      );
+                                    });
+                                    Future.delayed(
+                                      const Duration(seconds: 3),
+                                      () {
+                                        if (mounted) {
+                                          setState(() {
+                                            _isLoading = false;
+                                          });
+                                        }
+                                      },
+                                    );
+                                  },
+                                  icon: Image.asset(
+                                    AssetConstants.refreshIcon,
+                                    height: 24,
+                                    width: 24,
+                                    package: UIConstants.packageName,
+                                    color: colorPalette.iconPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        fadeInDuration: const Duration(milliseconds: 300),
+                        imageBuilder: (context, imageProvider) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted && _isLoading) {
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            }
+                          });
+                          return Image(
+                            image: imageProvider,
+                            fit: BoxFit.contain,
+                          );
+                        },
                       ),
-                    );
-                  },
-                  fadeInDuration: const Duration(milliseconds: 300),
-                  imageBuilder: (context, imageProvider) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted && _isLoading) {
-                        setState(() {
-                          _isLoading = false;
-                        });
-                      }
-                    });
-                    return Image(
-                      image: imageProvider,
-                      fit: BoxFit.contain,
-                    );
-                  },
-                ),
               ),
             ),
             // Circular progress indicator overlay
@@ -273,7 +291,9 @@ class _ImageViewerState extends State<ImageViewer> {
                 child: Center(
                   child: CircularProgressIndicator(
                     color: colorPalette.iconSecondary ?? Colors.grey,
-                    backgroundColor: colorPalette.neutral300?.withValues(alpha: 0.3),
+                    backgroundColor: colorPalette.neutral300?.withValues(
+                      alpha: 0.3,
+                    ),
                     strokeWidth: 3.0,
                   ),
                 ),
@@ -289,13 +309,14 @@ class _ImageViewerState extends State<ImageViewer> {
       color: colorPalette.background3,
       alignment: Alignment.center,
       child: Image(
-          fit: BoxFit.contain,
-          color: colorPalette.iconTertiary,
-          image: AssetImage(
-            widget.placeholderImage ?? AssetConstants.imagePlaceholder,
-            package:
-            widget.placeHolderImagePackageName ?? UIConstants.packageName,
-          )),
+        fit: BoxFit.contain,
+        color: colorPalette.iconTertiary,
+        image: AssetImage(
+          widget.placeholderImage ?? AssetConstants.imagePlaceholder,
+          package:
+              widget.placeHolderImagePackageName ?? UIConstants.packageName,
+        ),
+      ),
     );
   }
 }

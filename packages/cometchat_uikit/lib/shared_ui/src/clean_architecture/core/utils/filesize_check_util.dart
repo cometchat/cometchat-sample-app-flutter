@@ -1,5 +1,3 @@
-
-
 class FileSizeCheckUtil {
   // Private constructor
   FileSizeCheckUtil._();
@@ -26,6 +24,6 @@ class FileSizeCheckUtil {
       String size = match.group(0)!; // "100 MB"
       return size;
     }
-      return '100 MB';
+    return '100 MB';
   }
 }

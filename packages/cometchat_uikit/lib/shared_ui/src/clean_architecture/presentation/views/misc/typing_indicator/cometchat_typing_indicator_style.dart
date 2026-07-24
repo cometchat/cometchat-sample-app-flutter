@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 ///[CometChatTypingIndicatorStyle] is a style class that has styling-related properties for typing indicator
-///to customize the appearance of [CometChatTypingIndicator]
+///to customize the appearance of `CometChatTypingIndicator`
 ///``` dart
 ///CometChatTypingIndicatorStyle(
 /// textStyle: TextStyle(
@@ -22,9 +22,7 @@ class CometChatTypingIndicatorStyle
       const CometChatTypingIndicatorStyle();
 
   @override
-  CometChatTypingIndicatorStyle copyWith({
-    TextStyle? textStyle,
-  }) {
+  CometChatTypingIndicatorStyle copyWith({TextStyle? textStyle}) {
     return CometChatTypingIndicatorStyle(
       textStyle: textStyle ?? this.textStyle,
     );
@@ -32,14 +30,14 @@ class CometChatTypingIndicatorStyle
 
   CometChatTypingIndicatorStyle merge(CometChatTypingIndicatorStyle? style) {
     if (style == null) return this;
-    return copyWith(
-      textStyle: style.textStyle,
-    );
+    return copyWith(textStyle: style.textStyle);
   }
 
   @override
   CometChatTypingIndicatorStyle lerp(
-      ThemeExtension<CometChatTypingIndicatorStyle>? other, double t) {
+    ThemeExtension<CometChatTypingIndicatorStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatTypingIndicatorStyle) {
       return this;
     }

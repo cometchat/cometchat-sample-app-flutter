@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 import '../../../../shared_ui/cometchat_uikit_shared.dart';
 import '../../../../cometchat_chat_uikit.dart' as cc;
 import '../bloc/bloc.dart';
@@ -47,10 +46,14 @@ class CometChatAIAssistantChatHistory extends StatefulWidget {
     this.width,
     this.hideStickyDate,
     this.hideDateSeparator,
-  })  : assert(user != null || group != null,
-            'One of user or group should be passed'),
-        assert(user == null || group == null,
-            'Only one of user or group should be passed');
+  }) : assert(
+         user != null || group != null,
+         'One of user or group should be passed',
+       ),
+       assert(
+         user == null || group == null,
+         'Only one of user or group should be passed',
+       );
 
   final User? user;
   final Group? group;
@@ -114,9 +117,9 @@ class _CometChatAIAssistantChatHistoryState
       _typography = CometChatThemeHelper.getTypography(context);
       _style =
           CometChatThemeHelper.getTheme<CometChatAIAssistantChatHistoryStyle>(
-        context: context,
-        defaultTheme: CometChatAIAssistantChatHistoryStyle.of,
-      ).merge(widget.style);
+            context: context,
+            defaultTheme: CometChatAIAssistantChatHistoryStyle.of,
+          ).merge(widget.style);
       _dateStyle = CometChatThemeHelper.getTheme<CometChatDateStyle>(
         context: context,
         defaultTheme: CometChatDateStyle.of,
@@ -171,7 +174,8 @@ class _CometChatAIAssistantChatHistoryState
         title: cc.Translations.of(context).chatHistory,
         showBackButton: true,
         titleSpacing: _spacing.padding1,
-        backIcon: widget.backButton ??
+        backIcon:
+            widget.backButton ??
             GestureDetector(
               onTap: widget.onClose,
               child: Icon(
@@ -186,17 +190,19 @@ class _CometChatAIAssistantChatHistoryState
           height: widget.height,
           width: widget.width,
           background: _style.backgroundColor ?? _colorPalette.background3,
-          appBarBackground: _style.headerBackgroundColor ??
+          appBarBackground:
+              _style.headerBackgroundColor ??
               _style.backgroundColor ??
               _colorPalette.background3,
-          titleStyle: TextStyle(
-            color: _colorPalette.textPrimary,
-            fontSize: _typography.heading4?.medium?.fontSize,
-            fontWeight: _typography.heading4?.medium?.fontWeight,
-            fontFamily: _typography.heading4?.medium?.fontFamily,
-          )
-              .merge(_style.headerTitleTextStyle)
-              .copyWith(color: _style.headerTitleTextColor),
+          titleStyle:
+              TextStyle(
+                    color: _colorPalette.textPrimary,
+                    fontSize: _typography.heading4?.medium?.fontSize,
+                    fontWeight: _typography.heading4?.medium?.fontWeight,
+                    fontFamily: _typography.heading4?.medium?.fontFamily,
+                  )
+                  .merge(_style.headerTitleTextStyle)
+                  .copyWith(color: _style.headerTitleTextColor),
           border: _style.border,
           borderRadius: _style.borderRadius ?? BorderRadius.circular(0),
           padding: EdgeInsets.only(top: _spacing.padding2 ?? 10),
@@ -208,26 +214,29 @@ class _CometChatAIAssistantChatHistoryState
               height: _style.separatorHeight ?? 1,
             ),
             Expanded(
-              child: BlocBuilder<AIAssistantChatHistoryBloc,
-                  AIAssistantChatHistoryState>(
-                buildWhen: (previous, current) =>
-                    previous.status != current.status ||
-                    previous.messages != current.messages ||
-                    previous.isLoadingMore != current.isLoadingMore,
-                builder: (context, state) {
-                  switch (state.status) {
-                    case AIAssistantChatHistoryStatus.initial:
-                    case AIAssistantChatHistoryStatus.loading:
-                      return _buildLoading(context);
-                    case AIAssistantChatHistoryStatus.error:
-                      return _buildError(context, state);
-                    case AIAssistantChatHistoryStatus.empty:
-                      return _buildEmpty(context);
-                    case AIAssistantChatHistoryStatus.loaded:
-                      return _buildList(context, state);
-                  }
-                },
-              ),
+              child:
+                  BlocBuilder<
+                    AIAssistantChatHistoryBloc,
+                    AIAssistantChatHistoryState
+                  >(
+                    buildWhen: (previous, current) =>
+                        previous.status != current.status ||
+                        previous.messages != current.messages ||
+                        previous.isLoadingMore != current.isLoadingMore,
+                    builder: (context, state) {
+                      switch (state.status) {
+                        case AIAssistantChatHistoryStatus.initial:
+                        case AIAssistantChatHistoryStatus.loading:
+                          return _buildLoading(context);
+                        case AIAssistantChatHistoryStatus.error:
+                          return _buildError(context, state);
+                        case AIAssistantChatHistoryStatus.empty:
+                          return _buildEmpty(context);
+                        case AIAssistantChatHistoryStatus.loaded:
+                          return _buildList(context, state);
+                      }
+                    },
+                  ),
             ),
           ],
         ),
@@ -302,8 +311,9 @@ class _CometChatAIAssistantChatHistoryState
                 Padding(
                   padding: EdgeInsets.only(bottom: _spacing.padding3 ?? 12),
                   child: Image.asset(
-                    AssetConstants(CometChatThemeHelper.getBrightness(context))
-                        .messagesError,
+                    AssetConstants(
+                      CometChatThemeHelper.getBrightness(context),
+                    ).messagesError,
                     package: UIConstants.packageName,
                     width: 150,
                     height: 150,
@@ -313,29 +323,33 @@ class _CometChatAIAssistantChatHistoryState
                   widget.emptyStateText ??
                       cc.Translations.of(context).noConversationHistoryFound,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color:
-                        _style.emptyStateTextColor ?? _colorPalette.textPrimary,
-                    fontSize: _typography.body?.regular?.fontSize,
-                    fontWeight: _typography.body?.regular?.fontWeight,
-                    fontFamily: _typography.body?.regular?.fontFamily,
-                  ).merge(_style.emptyStateTextStyle).copyWith(
-                        color: _style.emptyStateTextColor,
-                      ),
+                  style:
+                      TextStyle(
+                            color:
+                                _style.emptyStateTextColor ??
+                                _colorPalette.textPrimary,
+                            fontSize: _typography.body?.regular?.fontSize,
+                            fontWeight: _typography.body?.regular?.fontWeight,
+                            fontFamily: _typography.body?.regular?.fontFamily,
+                          )
+                          .merge(_style.emptyStateTextStyle)
+                          .copyWith(color: _style.emptyStateTextColor),
                 ),
                 Text(
                   widget.emptyStateSubtitleText ??
                       cc.Translations.of(context).startChatByTappingNewChat,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: _style.emptyStateSubtitleColor ??
-                        _colorPalette.textPrimary,
-                    fontSize: _typography.body?.regular?.fontSize,
-                    fontWeight: _typography.body?.regular?.fontWeight,
-                    fontFamily: _typography.body?.regular?.fontFamily,
-                  ).merge(_style.emptyStateSubtitleStyle).copyWith(
-                        color: _style.emptyStateSubtitleColor,
-                      ),
+                  style:
+                      TextStyle(
+                            color:
+                                _style.emptyStateSubtitleColor ??
+                                _colorPalette.textPrimary,
+                            fontSize: _typography.body?.regular?.fontSize,
+                            fontWeight: _typography.body?.regular?.fontWeight,
+                            fontFamily: _typography.body?.regular?.fontFamily,
+                          )
+                          .merge(_style.emptyStateSubtitleStyle)
+                          .copyWith(color: _style.emptyStateSubtitleColor),
                 ),
               ],
             ),
@@ -403,7 +417,11 @@ class _CometChatAIAssistantChatHistoryState
                         }
                         return Padding(
                           padding: EdgeInsets.fromLTRB(
-                              0, _spacing.padding2 ?? 0, 0, 0),
+                            0,
+                            _spacing.padding2 ?? 0,
+                            0,
+                            0,
+                          ),
                           child: CometChatDate(
                             date: stickyDate,
                             pattern: DateTimePattern.dayDateFormat,
@@ -502,9 +520,7 @@ class _CometChatAIAssistantChatHistoryState
               fontWeight: _typography.body?.regular?.fontWeight,
               fontFamily: _typography.body?.regular?.fontFamily,
               color: _colorPalette.textPrimary,
-            ).merge(_style.itemTextStyle).copyWith(
-                  color: _style.itemTextColor,
-                ),
+            ).merge(_style.itemTextStyle).copyWith(color: _style.itemTextColor),
           ),
         ),
       ),
@@ -534,14 +550,15 @@ class _CometChatAIAssistantChatHistoryState
               ),
               Text(
                 cc.Translations.of(context).newChat,
-                style: TextStyle(
-                  color: _colorPalette.textPrimary,
-                  fontSize: _typography.button?.regular?.fontSize,
-                  fontWeight: _typography.button?.regular?.fontWeight,
-                  fontFamily: _typography.button?.regular?.fontFamily,
-                ).merge(_style.newChatTitleStyle).copyWith(
-                      color: _style.newChatTextColor,
-                    ),
+                style:
+                    TextStyle(
+                          color: _colorPalette.textPrimary,
+                          fontSize: _typography.button?.regular?.fontSize,
+                          fontWeight: _typography.button?.regular?.fontWeight,
+                          fontFamily: _typography.button?.regular?.fontFamily,
+                        )
+                        .merge(_style.newChatTitleStyle)
+                        .copyWith(color: _style.newChatTextColor),
               ),
             ],
           ),
@@ -557,9 +574,9 @@ class _CometChatAIAssistantChatHistoryState
   void _showDeleteDialog(BaseMessage message) {
     final confirmDialogStyle =
         CometChatThemeHelper.getTheme<CometChatConfirmDialogStyle>(
-      context: context,
-      defaultTheme: CometChatConfirmDialogStyle.of,
-    ).merge(_style.deleteChatHistoryDialogStyle);
+          context: context,
+          defaultTheme: CometChatConfirmDialogStyle.of,
+        ).merge(_style.deleteChatHistoryDialogStyle);
 
     CometChatConfirmDialog(
       context: context,
@@ -591,7 +608,8 @@ class _CometChatAIAssistantChatHistoryState
         iconBackgroundColor: confirmDialogStyle.iconBackgroundColor,
         borderRadius: confirmDialogStyle.borderRadius,
         border: confirmDialogStyle.border,
-        cancelButtonBackground: confirmDialogStyle.cancelButtonBackground ??
+        cancelButtonBackground:
+            confirmDialogStyle.cancelButtonBackground ??
             _colorPalette.transparent,
         confirmButtonBackground:
             confirmDialogStyle.confirmButtonBackground ?? _colorPalette.error,
@@ -599,41 +617,50 @@ class _CometChatAIAssistantChatHistoryState
         confirmButtonTextColor: confirmDialogStyle.confirmButtonTextColor,
         messageTextColor: confirmDialogStyle.messageTextColor,
         titleTextColor: confirmDialogStyle.titleTextColor,
-        titleTextStyle: TextStyle(
-          color: confirmDialogStyle.titleTextColor ?? _colorPalette.textPrimary,
-          fontSize: _typography.heading2?.medium?.fontSize,
-          fontWeight: _typography.heading2?.medium?.fontWeight,
-          fontFamily: _typography.heading2?.medium?.fontFamily,
-        ).merge(confirmDialogStyle.titleTextStyle).copyWith(
-              color: confirmDialogStyle.titleTextColor,
-            ),
-        messageTextStyle: TextStyle(
-          color: confirmDialogStyle.messageTextColor ??
-              _colorPalette.textSecondary,
-          fontSize: _typography.body?.regular?.fontSize,
-          fontWeight: _typography.body?.regular?.fontWeight,
-          fontFamily: _typography.body?.regular?.fontFamily,
-        ).merge(confirmDialogStyle.messageTextStyle).copyWith(
-              color: confirmDialogStyle.messageTextColor,
-            ),
-        confirmButtonTextStyle: TextStyle(
-          color:
-              confirmDialogStyle.confirmButtonTextColor ?? _colorPalette.white,
-          fontSize: _typography.button?.medium?.fontSize,
-          fontWeight: _typography.button?.medium?.fontWeight,
-          fontFamily: _typography.button?.medium?.fontFamily,
-        ).merge(confirmDialogStyle.confirmButtonTextStyle).copyWith(
-              color: confirmDialogStyle.confirmButtonTextColor,
-            ),
-        cancelButtonTextStyle: TextStyle(
-          color: confirmDialogStyle.cancelButtonTextColor ??
-              _colorPalette.textPrimary,
-          fontSize: _typography.button?.medium?.fontSize,
-          fontWeight: _typography.button?.medium?.fontWeight,
-          fontFamily: _typography.button?.medium?.fontFamily,
-        ).merge(confirmDialogStyle.cancelButtonTextStyle).copyWith(
-              color: confirmDialogStyle.cancelButtonTextColor,
-            ),
+        titleTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.titleTextColor ??
+                      _colorPalette.textPrimary,
+                  fontSize: _typography.heading2?.medium?.fontSize,
+                  fontWeight: _typography.heading2?.medium?.fontWeight,
+                  fontFamily: _typography.heading2?.medium?.fontFamily,
+                )
+                .merge(confirmDialogStyle.titleTextStyle)
+                .copyWith(color: confirmDialogStyle.titleTextColor),
+        messageTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.messageTextColor ??
+                      _colorPalette.textSecondary,
+                  fontSize: _typography.body?.regular?.fontSize,
+                  fontWeight: _typography.body?.regular?.fontWeight,
+                  fontFamily: _typography.body?.regular?.fontFamily,
+                )
+                .merge(confirmDialogStyle.messageTextStyle)
+                .copyWith(color: confirmDialogStyle.messageTextColor),
+        confirmButtonTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.confirmButtonTextColor ??
+                      _colorPalette.white,
+                  fontSize: _typography.button?.medium?.fontSize,
+                  fontWeight: _typography.button?.medium?.fontWeight,
+                  fontFamily: _typography.button?.medium?.fontFamily,
+                )
+                .merge(confirmDialogStyle.confirmButtonTextStyle)
+                .copyWith(color: confirmDialogStyle.confirmButtonTextColor),
+        cancelButtonTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.cancelButtonTextColor ??
+                      _colorPalette.textPrimary,
+                  fontSize: _typography.button?.medium?.fontSize,
+                  fontWeight: _typography.button?.medium?.fontWeight,
+                  fontFamily: _typography.button?.medium?.fontFamily,
+                )
+                .merge(confirmDialogStyle.cancelButtonTextStyle)
+                .copyWith(color: confirmDialogStyle.cancelButtonTextColor),
       ),
       onConfirm: (dialogContext) {
         _bloc.add(DeleteChatHistoryMessage(message));

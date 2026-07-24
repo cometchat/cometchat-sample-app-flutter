@@ -25,10 +25,7 @@ class CometchatLinkBuilder extends StatelessWidget {
     return InkWell(
       onTap: () async {
         final Uri uri = Uri.parse(url);
-        if (!await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        )) {
+        if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
           throw Exception('Could not launch $url');
         }
       },

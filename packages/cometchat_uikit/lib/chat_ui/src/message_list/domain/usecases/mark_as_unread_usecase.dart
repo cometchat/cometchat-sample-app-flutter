@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/message_list_repository.dart';
 
@@ -11,9 +11,7 @@ class MarkAsUnreadUseCase {
   const MarkAsUnreadUseCase(this.repository);
 
   /// Execute the use case to mark a message as unread.
-  Future<Result<Conversation>> call({
-    required BaseMessage message,
-  }) async {
+  Future<Result<Conversation>> call({required BaseMessage message}) async {
     if (message.id <= 0) {
       return const Failure(
         message: 'Message must have a valid ID',

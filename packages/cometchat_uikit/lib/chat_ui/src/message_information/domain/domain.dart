@@ -2,6 +2,7 @@
 ///
 /// Exports the repository interface and use cases for the message information
 /// following Clean Architecture patterns.
+library;
 
 // Repository interface
 export 'repositories/message_information_repository.dart';

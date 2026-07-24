@@ -833,6 +833,41 @@ class TranslationsRu extends Translations {
   String get failedToLoadImage => 'Не удалось загрузить изображение';
 
   @override
+  String get uploadFailed => 'Ошибка загрузки';
+
+  @override
+  String get tapToRetry => 'Нажмите, чтобы повторить';
+
+  @override
+  String get dropFilesHere => 'Перетащите файлы сюда';
+
+  @override
+  String get attachmentCountLimit =>
+      'Можно прикрепить не более {limit} файлов к сообщению.';
+
+  @override
+  String get attachmentFileSizeLimit =>
+      'Каждый файл должен быть меньше {limit}.';
+
+  @override
+  String get fileListShowMore => '+{count} ещё';
+
+  @override
+  String get fileListShowLess => 'Показать меньше';
+
+  @override
+  String get searchImagesCount => '{count} изображений';
+
+  @override
+  String get searchVideosCount => '{count} видео';
+
+  @override
+  String get searchAudiosCount => '{count} аудио';
+
+  @override
+  String get searchFilesCount => '{count} файлов';
+
+  @override
   String get transferOwnership => 'Передача права собственности';
 
   @override
@@ -1243,16 +1278,20 @@ class TranslationsRu extends Translations {
   String get createGroupEmptyString =>
       'Пожалуйста, заполните все обязательные поля перед созданием группы.';
   @override
-  String get messageBlockedByModeration => 'Ваше сообщение было заблокировано из-за политик модерации.';
+  String get messageBlockedByModeration =>
+      'Ваше сообщение было заблокировано из-за политик модерации.';
 
   @override
-  String get cantSendMessageBlockedUser => "Невозможно отправить сообщение, так как пользователь заблокирован.";
+  String get cantSendMessageBlockedUser =>
+      "Невозможно отправить сообщение, так как пользователь заблокирован.";
 
   @override
-  String get cantSendMessageNotMember => "Вы не можете отправлять сообщения в эту группу, так как больше не являетесь её участником.";
+  String get cantSendMessageNotMember =>
+      "Вы не можете отправлять сообщения в эту группу, так как больше не являетесь её участником.";
 
   @override
-  String get youAreNoLongerPartOfThisGroup => 'Вы больше не являетесь частью этой группы.';
+  String get youAreNoLongerPartOfThisGroup =>
+      'Вы больше не являетесь частью этой группы.';
 
   @override
   String get busy => "Занят";
@@ -1261,10 +1300,12 @@ class TranslationsRu extends Translations {
   String get noConversationHistoryFound => "История чатов не найдена.";
 
   @override
-  String get somethingWentWrongTryAgain => "Произошла ошибка на нашей стороне. Пожалуйста, попробуйте снова.";
+  String get somethingWentWrongTryAgain =>
+      "Произошла ошибка на нашей стороне. Пожалуйста, попробуйте снова.";
 
   @override
-  String get startChatByTappingNewChat => 'Начните чат, нажав кнопку "Новый чат".';
+  String get startChatByTappingNewChat =>
+      'Начните чат, нажав кнопку "Новый чат".';
 
   @override
   String get chatHistory => "История чатов";
@@ -1307,7 +1348,8 @@ class TranslationsRu extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

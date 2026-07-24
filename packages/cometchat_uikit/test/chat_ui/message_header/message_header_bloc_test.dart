@@ -138,8 +138,9 @@ void main() {
     setUp(() {
       repo = MockMessageHeaderRepository();
       // Default stubs
-      when(() => repo.getLoggedInUser())
-          .thenAnswer((_) async => Success(FakeUser('me', 'Me')));
+      when(
+        () => repo.getLoggedInUser(),
+      ).thenAnswer((_) async => Success(FakeUser('me', 'Me')));
     });
 
     // -----------------------------------------------------------------------
@@ -196,8 +197,9 @@ void main() {
     blocTest<MessageHeaderBloc, MessageHeaderState>(
       'RefreshUser fetches updated user from repository',
       build: () {
-        when(() => repo.getUser(any()))
-            .thenAnswer((_) async => Success(FakeUser('uid_1', 'Alice Updated')));
+        when(
+          () => repo.getUser(any()),
+        ).thenAnswer((_) async => Success(FakeUser('uid_1', 'Alice Updated')));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -214,8 +216,9 @@ void main() {
     blocTest<MessageHeaderBloc, MessageHeaderState>(
       'RefreshUser emits error when repository fails',
       build: () {
-        when(() => repo.getUser(any())).thenAnswer((_) async =>
-            const Failure(message: 'Not found', code: 'NOT_FOUND'));
+        when(() => repo.getUser(any())).thenAnswer(
+          (_) async => const Failure(message: 'Not found', code: 'NOT_FOUND'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -250,7 +253,8 @@ void main() {
       'RefreshGroup fetches updated group from repository',
       build: () {
         when(() => repo.getGroup(any())).thenAnswer(
-            (_) async => Success(FakeGroup('guid_1', 'Dev Updated', 12)));
+          (_) async => Success(FakeGroup('guid_1', 'Dev Updated', 12)),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -319,7 +323,9 @@ void main() {
       act: (bloc) async {
         bloc.add(SetGroup(FakeGroup('guid_1', 'Dev', 5)));
         await Future.delayed(const Duration(milliseconds: 50));
-        bloc.add(const UpdateGroupMemberCount(groupId: 'guid_1', memberCount: 10));
+        bloc.add(
+          const UpdateGroupMemberCount(groupId: 'guid_1', memberCount: 10),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.memberCount, 10);
@@ -332,7 +338,9 @@ void main() {
       act: (bloc) async {
         bloc.add(SetGroup(FakeGroup('guid_1', 'Dev', 5)));
         await Future.delayed(const Duration(milliseconds: 50));
-        bloc.add(const UpdateGroupMemberCount(groupId: 'guid_other', memberCount: 10));
+        bloc.add(
+          const UpdateGroupMemberCount(groupId: 'guid_other', memberCount: 10),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.memberCount, 5);
@@ -393,10 +401,12 @@ void main() {
       act: (bloc) async {
         bloc.add(SetGroup(FakeGroup('guid_1', 'Dev', 5)));
         await Future.delayed(const Duration(milliseconds: 50));
-        bloc.add(GroupOwnershipChanged(
-          group: FakeGroup('guid_1', 'Dev Renamed', 5),
-          newOwner: FakeGroupMember(),
-        ));
+        bloc.add(
+          GroupOwnershipChanged(
+            group: FakeGroup('guid_1', 'Dev Renamed', 5),
+            newOwner: FakeGroupMember(),
+          ),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.group?.name, 'Dev Renamed');
@@ -409,10 +419,12 @@ void main() {
       act: (bloc) async {
         bloc.add(SetGroup(FakeGroup('guid_1', 'Dev', 5)));
         await Future.delayed(const Duration(milliseconds: 50));
-        bloc.add(GroupOwnershipChanged(
-          group: FakeGroup('guid_other', 'Other', 3),
-          newOwner: FakeGroupMember(),
-        ));
+        bloc.add(
+          GroupOwnershipChanged(
+            group: FakeGroup('guid_other', 'Other', 3),
+            newOwner: FakeGroupMember(),
+          ),
+        );
       },
       verify: (bloc) {
         // Group should remain unchanged

@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Exception thrown when message composer data source operations fail
 class MessageComposerDataSourceException implements Exception {
@@ -29,20 +29,14 @@ abstract class MessageComposerDataSource {
   /// Send a custom message
   Future<CustomMessage> sendCustomMessage(CustomMessage message);
 
-  /// Edit an existing text message
-  Future<BaseMessage> editMessage(TextMessage message);
+  /// Edit an existing message (text, or a caption-bearing media message)
+  Future<BaseMessage> editMessage(BaseMessage message);
 
   /// Start typing indicator
-  void startTyping({
-    required String receiverUid,
-    required String receiverType,
-  });
+  void startTyping({required String receiverUid, required String receiverType});
 
   /// End typing indicator
-  void endTyping({
-    required String receiverUid,
-    required String receiverType,
-  });
+  void endTyping({required String receiverUid, required String receiverType});
 
   /// Get the currently logged-in user
   Future<User?> getLoggedInUser();

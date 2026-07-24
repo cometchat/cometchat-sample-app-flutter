@@ -6,17 +6,25 @@ enum CustomUIPosition {
   composerBottom,
   messageListTop,
   messageListBottom,
-  composerPreview
+  composerPreview,
 }
 
 ///Listener class for [CometChatConversations]
 mixin CometChatUIEventListener implements UIEventHandler {
-  void showPanel(Map<String, dynamic>? id, CustomUIPosition uiPosition,
-      WidgetBuilder child) {}
+  void showPanel(
+    Map<String, dynamic>? id,
+    CustomUIPosition uiPosition,
+    WidgetBuilder child,
+  ) {}
   void hidePanel(Map<String, dynamic>? id, CustomUIPosition uiPosition) {}
 
-  void ccActiveChatChanged(Map<String, dynamic>? id, BaseMessage? lastMessage,
-      User? user, Group? group, int unreadMessageCount) {}
+  void ccActiveChatChanged(
+    Map<String, dynamic>? id,
+    BaseMessage? lastMessage,
+    User? user,
+    Group? group,
+    int unreadMessageCount,
+  ) {}
 
   void openChat(User? user, Group? group) {}
 
@@ -36,14 +44,15 @@ mixin CometChatUIEventListener implements UIEventHandler {
   ///
   /// [receiverId] is the agent UID whose thread was resolved.
   /// [parentMessageId] is the resolved thread parent message ID.
-  void ccAgentChatThreadResolved(
-      {required String receiverId, required int parentMessageId}) {}
+  void ccAgentChatThreadResolved({
+    required String receiverId,
+    required int parentMessageId,
+  }) {}
 
   /// Called when a card action is triggered within a CometChatCardView renderer.
   ///
   /// [message] is the owning message (CardMessage for developer cards,
   /// AIAssistantMessage for agent cards).
   /// [action] is the raw renderer action event.
-  void ccCardActionClicked(
-      BaseMessage message, dynamic action) {}
+  void ccCardActionClicked(BaseMessage message, dynamic action) {}
 }

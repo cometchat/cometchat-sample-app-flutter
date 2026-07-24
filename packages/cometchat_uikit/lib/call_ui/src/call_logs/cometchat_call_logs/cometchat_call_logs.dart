@@ -4,10 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../cometchat_calls_uikit.dart';
 import '../../../../cometchat_chat_uikit.dart' as cc;
 import '../../../../cometchat_chat_uikit.dart';
-import '../bloc/call_logs_bloc.dart';
-import '../bloc/call_logs_event.dart';
-import '../bloc/call_logs_state.dart';
-import '../di/call_logs_service_locator.dart';
 
 ///[CometChatCallLogs] is a component that displays a list of callLogs with the help of [CometChatListBase] and [CometChatListItem]
 ///fetched callLogs are listed down in order of recent activity
@@ -26,7 +22,7 @@ import '../di/call_logs_service_locator.dart';
 
 class CometChatCallLogs extends StatefulWidget {
   const CometChatCallLogs({
-    Key? key,
+    super.key,
     this.listItemView,
     this.subTitleView,
     this.backButton,
@@ -60,7 +56,7 @@ class CometChatCallLogs extends StatefulWidget {
     this.titleView,
     this.showBackButton,
     this.callLogsBloc,
-  }) : super(key: key);
+  });
 
   ///[listItemView] set custom view for each callLog
   final Widget? Function(CallLog callLog, BuildContext context)? listItemView;
@@ -95,7 +91,7 @@ class CometChatCallLogs extends StatefulWidget {
   ///[callLogsBuilderProtocol] set custom call Log request builder protocol
   final CallLogsBuilderProtocol? callLogsBuilderProtocol;
 
-  ///[callLogRequestBuilder] set custom conversations request builder
+  ///[callLogsRequestBuilder] set custom conversations request builder
   final CallLogRequestBuilder? callLogsRequestBuilder;
 
   ///[datePattern] custom date pattern visible in callLogs
@@ -122,7 +118,7 @@ class CometChatCallLogs extends StatefulWidget {
   ///[videoCallIcon] custom video call icon
   final Widget? videoCallIcon;
 
-  ///[outgoingCallConfiguration] is a object of [OutgoingCallConfiguration] which sets the configuration for outgoing call
+  ///[outgoingCallConfiguration] is a object of [CometChatOutgoingCallConfiguration] which sets the configuration for outgoing call
   final CometChatOutgoingCallConfiguration? outgoingCallConfiguration;
 
   ///[hideAppbar] toggle visibility for app bar
@@ -145,11 +141,19 @@ class CometChatCallLogs extends StatefulWidget {
 
   ///[setOptions] sets List of actions available on the long press of list item
   final List<CometChatOption>? Function(
-      CallLog callLog, CallLogsBloc bloc, BuildContext context)? setOptions;
+    CallLog callLog,
+    CallLogsBloc bloc,
+    BuildContext context,
+  )?
+  setOptions;
 
   ///[addOptions] adds into the current List of actions available on the long press of list item
   final List<CometChatOption>? Function(
-      CallLog callLog, CallLogsBloc bloc, BuildContext context)? addOptions;
+    CallLog callLog,
+    CallLogsBloc bloc,
+    BuildContext context,
+  )?
+  addOptions;
 
   ///[leadingStateView] to set leading view for each callLog
   final Widget? Function(BuildContext, CallLog)? leadingStateView;
@@ -214,9 +218,7 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
       }
 
       // Create BLoC with dependencies from service locator
-      _callLogsBloc = CallLogsBloc(
-        callLogsRequestBuilder: requestBuilder,
-      );
+      _callLogsBloc = CallLogsBloc(callLogsRequestBuilder: requestBuilder);
       _isExternalBloc = false;
     }
 
@@ -231,7 +233,8 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     // But re-initialize when brightness changes (dark mode toggle)
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
     _cachedBrightness = currentBrightness;
     _themeInitialized = true;
@@ -241,16 +244,19 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
     colorPalette = CometChatThemeHelper.getColorPalette(context);
     spacing = CometChatThemeHelper.getSpacing(context);
     style = CometChatThemeHelper.getTheme<CometChatCallLogsStyle>(
-            context: context, defaultTheme: CometChatCallLogsStyle.of)
-        .merge(widget.callLogsStyle);
+      context: context,
+      defaultTheme: CometChatCallLogsStyle.of,
+    ).merge(widget.callLogsStyle);
 
     avatarStyle = CometChatThemeHelper.getTheme<CometChatAvatarStyle>(
-            context: context, defaultTheme: CometChatAvatarStyle.of)
-        .merge(style.avatarStyle);
+      context: context,
+      defaultTheme: CometChatAvatarStyle.of,
+    ).merge(style.avatarStyle);
 
     dateStyle = CometChatThemeHelper.getTheme<CometChatDateStyle>(
-            context: context, defaultTheme: CometChatDateStyle.of)
-        .merge(style.dateStyle);
+      context: context,
+      defaultTheme: CometChatDateStyle.of,
+    ).merge(style.dateStyle);
   }
 
   @override
@@ -284,13 +290,7 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
             fontSize: typography.heading1?.bold?.fontSize,
             fontWeight: typography.heading1?.bold?.fontWeight,
             fontFamily: typography.heading1?.bold?.fontFamily,
-          )
-              .merge(
-                style.titleTextStyle,
-              )
-              .copyWith(
-                color: style.titleTextColor,
-              ),
+          ).merge(style.titleTextStyle).copyWith(color: style.titleTextColor),
           backIconTint: style.backIconColor ?? colorPalette.iconPrimary,
           border: style.border,
           borderRadius: style.borderRadius,
@@ -313,11 +313,13 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
                   // Handle error callback
                   if (state.status == CallLogsStatus.error &&
                       widget.onError != null) {
-                    widget.onError!(CometChatException(
-                      'CALL_LOGS_ERROR',
-                      state.errorMessage ?? 'Unknown error',
-                      state.errorMessage ?? 'Unknown error',
-                    ));
+                    widget.onError!(
+                      CometChatException(
+                        'CALL_LOGS_ERROR',
+                        state.errorMessage ?? 'Unknown error',
+                        state.errorMessage ?? 'Unknown error',
+                      ),
+                    );
                   }
 
                   // Handle empty callback
@@ -357,8 +359,10 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
   /// Build the call logs list
   Widget _buildCallLogsList(BuildContext context, CallLogsState state) {
     final callLogs = state.callLogs;
-    final List<GlobalKey> tileKeys =
-        List.generate(callLogs.length, (index) => GlobalKey());
+    final List<GlobalKey> tileKeys = List.generate(
+      callLogs.length,
+      (index) => GlobalKey(),
+    );
 
     return ListView.builder(
       itemCount: state.hasMore ? callLogs.length + 1 : callLogs.length,
@@ -388,18 +392,10 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
               List<CometChatOption>? options;
 
               if (widget.setOptions != null) {
-                options = widget.setOptions!(
-                  log,
-                  _callLogsBloc,
-                  context,
-                );
+                options = widget.setOptions!(log, _callLogsBloc, context);
               } else {
                 if (widget.addOptions != null) {
-                  options = widget.addOptions!(
-                    log,
-                    _callLogsBloc,
-                    context,
-                  );
+                  options = widget.addOptions!(log, _callLogsBloc, context);
                 }
               }
               _showPopupMenu(context, options ?? [], tileKeys[index]);
@@ -407,38 +403,27 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
           },
           child: CometChatListItem(
             hideSeparator: true,
-            avatarURL: CallLogsUtils.receiverAvatar(
-              state.loggedInUser!,
-              log,
-            ),
-            avatarName: CallLogsUtils.receiverName(
-              state.loggedInUser!,
-              log,
-            ),
-            title: CallLogsUtils.receiverName(
-              state.loggedInUser!,
-              log,
-            ),
+            avatarURL: CallLogsUtils.receiverAvatar(state.loggedInUser!, log),
+            avatarName: CallLogsUtils.receiverName(state.loggedInUser!, log),
+            title: CallLogsUtils.receiverName(state.loggedInUser!, log),
             style: ListItemStyle(
               background: colorPalette.transparent,
-              titleStyle: TextStyle(
-                overflow: TextOverflow.ellipsis,
-                fontSize: typography.heading4?.medium?.fontSize,
-                fontWeight: typography.heading4?.medium?.fontWeight,
-                fontFamily: typography.heading4?.medium?.fontFamily,
-                color: style.itemTitleTextColor ??
-                    CallUtils.getCallStatusColor(
-                      log,
-                      state.loggedInUser,
-                      colorPalette,
-                    ),
-              )
-                  .merge(
-                    style.itemTitleTextStyle,
-                  )
-                  .copyWith(
-                    color: style.itemTitleTextColor,
-                  ),
+              titleStyle:
+                  TextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        fontSize: typography.heading4?.medium?.fontSize,
+                        fontWeight: typography.heading4?.medium?.fontWeight,
+                        fontFamily: typography.heading4?.medium?.fontFamily,
+                        color:
+                            style.itemTitleTextColor ??
+                            CallUtils.getCallStatusColor(
+                              log,
+                              state.loggedInUser,
+                              colorPalette,
+                            ),
+                      )
+                      .merge(style.itemTitleTextStyle)
+                      .copyWith(color: style.itemTitleTextColor),
               padding: EdgeInsets.only(
                 left: spacing.padding4 ?? 0,
                 right: spacing.padding4 ?? 0,
@@ -497,10 +482,7 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
                 ),
                 const SizedBox(width: 8),
               ],
-              Text(
-                option.title ?? '',
-                style: option.titleStyle,
-              ),
+              Text(option.title ?? '', style: option.titleStyle),
             ],
           ),
         );
@@ -510,7 +492,10 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
 
   // tail widget
   Widget _getTailView(
-      BuildContext context, CallLogsState state, CallLog callLog) {
+    BuildContext context,
+    CallLogsState state,
+    CallLog callLog,
+  ) {
     if (widget.trailingView != null) {
       return widget.trailingView!(context, callLog);
     } else {
@@ -535,13 +520,13 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
             if (widget.onCallLogIconClicked != null) {
               widget.onCallLogIconClicked!(callLog);
             } else if (CallLogsUtils.isUser(callLog)) {
-              _callLogsBloc.add(InitiateCallFromLog(
-                callLog: callLog,
-                context: context,
-              ));
+              _callLogsBloc.add(
+                InitiateCallFromLog(callLog: callLog, context: context),
+              );
             }
           },
-          icon: icon ??
+          icon:
+              icon ??
               Icon(
                 iconData,
                 size: 24,
@@ -554,16 +539,17 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
 
   // Sub title widget
   Widget _getSubTitleView(
-      CallLogsState state, CallLog callLog, BuildContext context) {
+    CallLogsState state,
+    CallLog callLog,
+    BuildContext context,
+  ) {
     if (widget.subTitleView != null) {
       return widget.subTitleView!(callLog, context)!;
     } else {
       return Row(
         children: [
           Padding(
-            padding: EdgeInsets.only(
-              right: spacing.padding1 ?? 4,
-            ),
+            padding: EdgeInsets.only(right: spacing.padding1 ?? 4),
             child: CallUtils.getCallIcon(
               context,
               callLog,
@@ -596,7 +582,10 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
 
   // leading view widget
   Widget? _getLeadingView(
-      CallLogsState state, CallLog callLog, BuildContext context) {
+    CallLogsState state,
+    CallLog callLog,
+    BuildContext context,
+  ) {
     if (widget.leadingStateView != null) {
       return widget.leadingStateView!(context, callLog);
     }
@@ -605,7 +594,10 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
 
   // title view widget
   Widget? _getTitleView(
-      CallLogsState state, CallLog callLog, BuildContext context) {
+    CallLogsState state,
+    CallLog callLog,
+    BuildContext context,
+  ) {
     if (widget.titleView != null) {
       return widget.titleView!(context, callLog);
     }
@@ -631,9 +623,7 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
               child: Row(
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(
-                      right: spacing.padding3 ?? 0,
-                    ),
+                    padding: EdgeInsets.only(right: spacing.padding3 ?? 0),
                     child: const CircleAvatar(
                       radius: 24,
                       backgroundColor: Colors.grey,
@@ -669,17 +659,16 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
                   ),
                   const Spacer(),
                   Padding(
-                    padding: EdgeInsets.only(
-                      right: spacing.padding3 ?? 0,
-                    ),
+                    padding: EdgeInsets.only(right: spacing.padding3 ?? 0),
                     child: Container(
                       height: 32,
                       width: 32,
                       decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.circular(
-                            spacing.radius2 ?? 8,
-                          )),
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(
+                          spacing.radius2 ?? 8,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -700,11 +689,7 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.call,
-              color: colorPalette.neutral300,
-              size: 100,
-            ),
+            Icon(Icons.call, color: colorPalette.neutral300, size: 100),
             Padding(
               padding: EdgeInsets.only(
                 top: spacing.padding5 ?? 20,
@@ -713,32 +698,33 @@ class _CometChatCallLogsState extends State<CometChatCallLogs> {
               child: Text(
                 cc.Translations.of(context).noCallLogsYet,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: style.emptyStateTextColor ?? colorPalette.textPrimary,
-                  fontSize: typography.heading3?.bold?.fontSize,
-                  fontWeight: typography.heading3?.bold?.fontWeight,
-                  fontFamily: typography.heading3?.bold?.fontFamily,
-                )
-                    .merge(style.emptyStateTextStyle)
-                    .copyWith(color: style.emptyStateTextColor),
+                style:
+                    TextStyle(
+                          color:
+                              style.emptyStateTextColor ??
+                              colorPalette.textPrimary,
+                          fontSize: typography.heading3?.bold?.fontSize,
+                          fontWeight: typography.heading3?.bold?.fontWeight,
+                          fontFamily: typography.heading3?.bold?.fontFamily,
+                        )
+                        .merge(style.emptyStateTextStyle)
+                        .copyWith(color: style.emptyStateTextColor),
               ),
             ),
             Text(
               cc.Translations.of(context).makeOrReceiveCalls,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: style.emptyStateSubTitleTextColor ??
-                    colorPalette.textSecondary,
-                fontSize: typography.heading3?.regular?.fontSize,
-                fontWeight: typography.heading3?.regular?.fontWeight,
-                fontFamily: typography.heading3?.regular?.fontFamily,
-              )
-                  .merge(
-                    style.emptyStateSubTitleTextStyle,
-                  )
-                  .copyWith(
-                    color: style.emptyStateSubTitleTextColor,
-                  ),
+              style:
+                  TextStyle(
+                        color:
+                            style.emptyStateSubTitleTextColor ??
+                            colorPalette.textSecondary,
+                        fontSize: typography.heading3?.regular?.fontSize,
+                        fontWeight: typography.heading3?.regular?.fontWeight,
+                        fontFamily: typography.heading3?.regular?.fontFamily,
+                      )
+                      .merge(style.emptyStateSubTitleTextStyle)
+                      .copyWith(color: style.emptyStateSubTitleTextColor),
             ),
           ],
         ),

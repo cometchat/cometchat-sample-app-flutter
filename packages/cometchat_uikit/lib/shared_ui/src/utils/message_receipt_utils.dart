@@ -1,5 +1,5 @@
-
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+
 ///[MessageReceiptUtils] is a utility class to determine receipt status
 class MessageReceiptUtils {
   static ReceiptStatus getReceiptStatus(BaseMessage message) {

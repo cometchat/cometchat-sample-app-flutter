@@ -1,6 +1,8 @@
-import '../../../../../cometchat_uikit_shared.dart' show UIElementTypeConstants, ModelFieldConstants;
+import '../../../../../cometchat_uikit_shared.dart'
+    show UIElementTypeConstants, ModelFieldConstants;
 import 'base_input_element.dart';
 import 'text_input_placeholder.dart';
+
 /// Represents a text input model class , used to draw text input element .
 class TextInputElement extends BaseInputElement<String> {
   TextInputElement({

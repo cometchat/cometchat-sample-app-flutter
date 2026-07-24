@@ -1,16 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
-import 'package:cometchat_cards/cometchat_cards.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-
-import '../bloc/notification_feed_bloc.dart';
-import '../bloc/notification_feed_event.dart';
-import '../bloc/notification_feed_state.dart';
-import '../cometchat_notification_feed_style.dart';
-import '../utils/feed_visibility_tracker.dart';
-import 'notification_feed_filter_chips.dart';
-import 'feed_item_card.dart';
 
 /// A full-screen notification feed component that displays campaign/promotional
 /// notifications in a scrollable list with category-based filtering, timestamp
@@ -39,15 +29,17 @@ class CometChatNotificationFeed extends StatefulWidget {
 
   /// Custom request builder for categories.
   final NotificationCategoriesRequestBuilder?
-      notificationCategoriesRequestBuilder;
+  notificationCategoriesRequestBuilder;
 
   /// Callback when a feed item card is tapped.
   final void Function(NotificationFeedItem feedItem)? onItemClick;
 
   /// Callback when an action button within a card is tapped.
   final void Function(
-          NotificationFeedItem feedItem, CometChatCardActionEvent action)?
-      onActionClick;
+    NotificationFeedItem feedItem,
+    CometChatCardActionEvent action,
+  )?
+  onActionClick;
 
   /// Callback when an error occurs.
   final void Function(String error)? onError;
@@ -132,8 +124,7 @@ class _CometChatNotificationFeedState extends State<CometChatNotificationFeed> {
     super.didChangeDependencies();
     // Re-resolve style every time dependencies change (theme/brightness switch)
     // so the feed reacts to live dark mode toggles without requiring navigation.
-    _style = CometChatNotificationFeedStyle.of(context)
-        .merge(widget.style);
+    _style = CometChatNotificationFeedStyle.of(context).merge(widget.style);
     // Build a card theme override from the UIKit color palette so card
     // renderer fallback colors match the UIKit's light/dark theme.
     if (widget.cardThemeOverride == null) {
@@ -156,7 +147,8 @@ class _CometChatNotificationFeedState extends State<CometChatNotificationFeed> {
   /// resolved for the current brightness).
   CometChatCardColorValue? _colorValueFromPalette(Color? color) {
     if (color == null) return null;
-    final hex = '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+    final hex =
+        '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
     return CometChatCardColorValue(light: hex, dark: hex);
   }
 
@@ -245,14 +237,17 @@ class _CometChatNotificationFeedState extends State<CometChatNotificationFeed> {
                 color: _style.backIconColor,
                 semanticLabel: 'Back',
               ),
-              onPressed: widget.onBackPress ?? () => Navigator.of(context).pop(),
+              onPressed:
+                  widget.onBackPress ?? () => Navigator.of(context).pop(),
             )
           : null,
       automaticallyImplyLeading: widget.showBackButton,
       title: Text(
         widget.title,
-        style: (_style.headerTitleTextStyle ?? const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
-            .copyWith(color: _style.headerTitleColor),
+        style:
+            (_style.headerTitleTextStyle ??
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
+                .copyWith(color: _style.headerTitleColor),
       ),
     );
   }
@@ -280,31 +275,6 @@ class _CometChatNotificationFeedState extends State<CometChatNotificationFeed> {
           onCategorySelected: (categoryId) {
             _bloc.add(SwitchCategory(categoryId));
           },
-        );
-      },
-    );
-  }
-
-  Widget _buildConnectivityBanner() {
-    return BlocBuilder<NotificationFeedBloc, NotificationFeedState>(
-      buildWhen: (previous, current) =>
-          previous.isOffline != current.isOffline,
-      builder: (context, state) {
-        if (!state.isOffline) return const SizedBox.shrink();
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-          color: _style.connectivityBannerBackgroundColor ??
-              Colors.orange.shade100,
-          child: Text(
-            "You're offline",
-            textAlign: TextAlign.center,
-            style: (_style.connectivityBannerTextStyle ??
-                    const TextStyle(fontSize: 12))
-                .copyWith(
-                    color: _style.connectivityBannerTextColor ??
-                        Colors.orange.shade900),
-          ),
         );
       },
     );
@@ -373,23 +343,29 @@ class _CometChatNotificationFeedState extends State<CometChatNotificationFeed> {
             Icon(
               Icons.move_to_inbox_outlined,
               size: 64,
-              color: _style.emptyStateTextColor?.withValues(alpha: 0.5) ??
+              color:
+                  _style.emptyStateTextColor?.withValues(alpha: 0.5) ??
                   Colors.grey.shade400,
             ),
             const SizedBox(height: 16),
             Text(
               'Nothing here yet',
-              style: (_style.emptyStateTextStyle ??
-                      const TextStyle(fontSize: 18, fontWeight: FontWeight.w500))
-                  .copyWith(color: _style.emptyStateTextColor),
+              style:
+                  (_style.emptyStateTextStyle ??
+                          const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ))
+                      .copyWith(color: _style.emptyStateTextColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               'New activity will appear here when available.',
-              style: (_style.emptyStateSubtitleTextStyle ??
-                      const TextStyle(fontSize: 14))
-                  .copyWith(color: _style.emptyStateSubtitleTextColor),
+              style:
+                  (_style.emptyStateSubtitleTextStyle ??
+                          const TextStyle(fontSize: 14))
+                      .copyWith(color: _style.emptyStateSubtitleTextColor),
               textAlign: TextAlign.center,
             ),
           ],
@@ -411,23 +387,29 @@ class _CometChatNotificationFeedState extends State<CometChatNotificationFeed> {
             Icon(
               Icons.error_outline,
               size: 64,
-              color: _style.errorStateTextColor?.withValues(alpha: 0.5) ??
+              color:
+                  _style.errorStateTextColor?.withValues(alpha: 0.5) ??
                   Colors.red.shade300,
             ),
             const SizedBox(height: 16),
             Text(
               'Something went wrong',
-              style: (_style.errorStateTextStyle ??
-                      const TextStyle(fontSize: 18, fontWeight: FontWeight.w500))
-                  .copyWith(color: _style.errorStateTextColor),
+              style:
+                  (_style.errorStateTextStyle ??
+                          const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ))
+                      .copyWith(color: _style.errorStateTextColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               errorMessage,
-              style: (_style.errorStateSubtitleTextStyle ??
-                      const TextStyle(fontSize: 14))
-                  .copyWith(color: _style.errorStateSubtitleTextColor),
+              style:
+                  (_style.errorStateSubtitleTextStyle ??
+                          const TextStyle(fontSize: 14))
+                      .copyWith(color: _style.errorStateSubtitleTextColor),
               textAlign: TextAlign.center,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
@@ -455,12 +437,9 @@ class _CometChatNotificationFeedState extends State<CometChatNotificationFeed> {
       onRefresh: () async {
         _bloc.add(const RefreshFeed());
         // Wait for refresh to complete
-        await _bloc.stream.firstWhere(
-            (s) => !s.isRefreshing,
-        ).timeout(
-          const Duration(seconds: 10),
-          onTimeout: () => _bloc.state,
-        );
+        await _bloc.stream
+            .firstWhere((s) => !s.isRefreshing)
+            .timeout(const Duration(seconds: 10), onTimeout: () => _bloc.state);
       },
       child: ListView.builder(
         controller: _scrollController,
@@ -511,5 +490,3 @@ class _CometChatNotificationFeedState extends State<CometChatNotificationFeed> {
     );
   }
 }
-
-

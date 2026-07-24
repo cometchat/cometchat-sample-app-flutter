@@ -8,11 +8,7 @@ class InitializeVideoEvent extends VideoBubbleEvent {
   final String? thumbnailUrl;
   final Map<String, dynamic>? metadata;
 
-  InitializeVideoEvent({
-    this.videoUrl,
-    this.thumbnailUrl,
-    this.metadata,
-  });
+  InitializeVideoEvent({this.videoUrl, this.thumbnailUrl, this.metadata});
 }
 
 class LoadThumbnailEvent extends VideoBubbleEvent {}
@@ -60,13 +56,13 @@ abstract class VideoBubbleBlocState {
 
 class VideoBubbleInitial extends VideoBubbleBlocState {
   const VideoBubbleInitial()
-      : super(
-          videoUrl: null,
-          thumbnailUrl: null,
-          isThumbnailLoading: false,
-          isThumbnailLoaded: false,
-          isPlaying: false,
-        );
+    : super(
+        videoUrl: null,
+        thumbnailUrl: null,
+        isThumbnailLoading: false,
+        isThumbnailLoaded: false,
+        isPlaying: false,
+      );
 }
 
 class VideoBubbleLoaded extends VideoBubbleBlocState {
@@ -117,11 +113,13 @@ class VideoBubbleBloc extends Bloc<VideoBubbleEvent, VideoBubbleBlocState> {
     InitializeVideoEvent event,
     Emitter<VideoBubbleBlocState> emit,
   ) {
-    emit(VideoBubbleLoaded(
-      videoUrl: event.videoUrl,
-      thumbnailUrl: event.thumbnailUrl,
-      metadata: event.metadata,
-    ));
+    emit(
+      VideoBubbleLoaded(
+        videoUrl: event.videoUrl,
+        thumbnailUrl: event.thumbnailUrl,
+        metadata: event.metadata,
+      ),
+    );
 
     // Start loading thumbnail if available
     if (event.thumbnailUrl != null && event.thumbnailUrl!.isNotEmpty) {
@@ -135,10 +133,7 @@ class VideoBubbleBloc extends Bloc<VideoBubbleEvent, VideoBubbleBlocState> {
   ) {
     if (state is VideoBubbleLoaded) {
       final currentState = state as VideoBubbleLoaded;
-      emit(currentState.copyWith(
-        isThumbnailLoading: true,
-        error: null,
-      ));
+      emit(currentState.copyWith(isThumbnailLoading: true, error: null));
     }
   }
 
@@ -148,10 +143,12 @@ class VideoBubbleBloc extends Bloc<VideoBubbleEvent, VideoBubbleBlocState> {
   ) {
     if (state is VideoBubbleLoaded) {
       final currentState = state as VideoBubbleLoaded;
-      emit(currentState.copyWith(
-        isThumbnailLoading: false,
-        isThumbnailLoaded: true,
-      ));
+      emit(
+        currentState.copyWith(
+          isThumbnailLoading: false,
+          isThumbnailLoaded: true,
+        ),
+      );
     }
   }
 
@@ -161,11 +158,13 @@ class VideoBubbleBloc extends Bloc<VideoBubbleEvent, VideoBubbleBlocState> {
   ) {
     if (state is VideoBubbleLoaded) {
       final currentState = state as VideoBubbleLoaded;
-      emit(currentState.copyWith(
-        isThumbnailLoading: false,
-        isThumbnailLoaded: false,
-        error: event.error,
-      ));
+      emit(
+        currentState.copyWith(
+          isThumbnailLoading: false,
+          isThumbnailLoaded: false,
+          error: event.error,
+        ),
+      );
     }
   }
 
@@ -178,10 +177,7 @@ class VideoBubbleBloc extends Bloc<VideoBubbleEvent, VideoBubbleBlocState> {
     // The actual player navigation is handled by the view
   }
 
-  void _onPlayVideo(
-    PlayVideoEvent event,
-    Emitter<VideoBubbleBlocState> emit,
-  ) {
+  void _onPlayVideo(PlayVideoEvent event, Emitter<VideoBubbleBlocState> emit) {
     if (state is VideoBubbleLoaded) {
       final currentState = state as VideoBubbleLoaded;
       emit(currentState.copyWith(isPlaying: true));

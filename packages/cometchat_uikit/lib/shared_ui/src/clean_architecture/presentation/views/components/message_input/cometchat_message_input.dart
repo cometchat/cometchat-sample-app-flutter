@@ -39,31 +39,33 @@ import "../../../../clean_architecture.dart";
 ///  );
 /// ```
 class CometChatMessageInput extends StatefulWidget {
-  const CometChatMessageInput(
-      {super.key,
-      this.text,
-      this.placeholderText,
-      this.onChange,
-      this.style,
-      this.maxLine,
-      this.secondaryButtonView,
-      this.auxiliaryButtonView,
-      this.primaryButtonView,
-      this.auxiliaryButtonsAlignment = AuxiliaryButtonsAlignment.right,
-      this.textEditingController,
-      this.focusNode,
-      this.hideBottomView,
-      this.padding,
-      this.margin,
-      this.height,
-      this.width,
-      this.onEnterPressed,
-      this.showCodeBlockIndicator = false,
-      this.codeBlockIndicatorColor,
-      this.codeBlockContent,
-      this.onContentInserted,
-      this.onTap,
-      this.layout = CometChatComposerLayout.singleLine});
+  const CometChatMessageInput({
+    super.key,
+    this.text,
+    this.placeholderText,
+    this.onChange,
+    this.style,
+    this.maxLine,
+    this.secondaryButtonView,
+    this.auxiliaryButtonView,
+    this.primaryButtonView,
+    this.auxiliaryButtonsAlignment = AuxiliaryButtonsAlignment.right,
+    this.textEditingController,
+    this.focusNode,
+    this.hideBottomView,
+    this.padding,
+    this.margin,
+    this.height,
+    this.width,
+    this.onEnterPressed,
+    this.showCodeBlockIndicator = false,
+    this.codeBlockIndicatorColor,
+    this.codeBlockContent,
+    this.onContentInserted,
+    this.onPasteImage,
+    this.onTap,
+    this.layout = CometChatComposerLayout.singleLine,
+  });
 
   ///[text] initial text for the input field
   final String? text;
@@ -131,6 +133,11 @@ class CometChatMessageInput extends StatefulWidget {
   ///[onContentInserted] callback when keyboard inserts media content (e.g. GIF)
   final ValueChanged<KeyboardInsertedContent>? onContentInserted;
 
+  ///[onPasteImage] pastes an image from the system clipboard. Returns true when
+  ///an image was found and handled (so the default text paste is suppressed),
+  ///false when the clipboard held no image (normal text paste proceeds).
+  final Future<bool> Function()? onPasteImage;
+
   ///[onTap] callback invoked when the text field is tapped. Used by the
   ///composer to detect taps on link-formatted spans on iOS, where the
   ///selection-change listener does not reliably fire on the first tap.
@@ -182,30 +189,34 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
   @override
   void didUpdateWidget(covariant CometChatMessageInput oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Handle controller change
     if (widget.textEditingController != oldWidget.textEditingController) {
       if (_isOwnController) {
         _textEditingController?.dispose();
       }
       _initController();
-    } else if (widget.text != oldWidget.text && widget.text != null && _textEditingController != null) {
+    } else if (widget.text != oldWidget.text &&
+        widget.text != null &&
+        _textEditingController != null) {
       // Only update text if controller hasn't changed
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && _textEditingController != null) {
           _textEditingController!.text = widget.text ?? '';
-          _textEditingController!.selection =
-              TextSelection.collapsed(offset: _textEditingController!.text.length);
+          _textEditingController!.selection = TextSelection.collapsed(
+            offset: _textEditingController!.text.length,
+          );
         }
       });
     }
-    
+
     // Update style if changed
     if (widget.style != oldWidget.style && widget.style != null) {
       messageInputStyle =
           CometChatThemeHelper.getTheme<CometChatMessageInputStyle>(
-                  context: context, defaultTheme: CometChatMessageInputStyle.of)
-              .merge(widget.style);
+            context: context,
+            defaultTheme: CometChatMessageInputStyle.of,
+          ).merge(widget.style);
     }
   }
 
@@ -222,15 +233,17 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     // But re-initialize when brightness changes (dark mode toggle)
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
     _cachedBrightness = currentBrightness;
     _themeInitialized = true;
-    
+
     messageInputStyle =
         CometChatThemeHelper.getTheme<CometChatMessageInputStyle>(
-                context: context, defaultTheme: CometChatMessageInputStyle.of)
-            .merge(widget.style);
+          context: context,
+          defaultTheme: CometChatMessageInputStyle.of,
+        ).merge(widget.style);
     colorPalette = CometChatThemeHelper.getColorPalette(context);
     spacing = CometChatThemeHelper.getSpacing(context);
     typography = CometChatThemeHelper.getTypography(context);
@@ -244,19 +257,19 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
       width: widget.width,
       margin: widget.margin,
       // Figma spec (double-line): outer padding = 0; single-line keeps 16h inline padding.
-      padding: widget.padding ??
+      padding:
+          widget.padding ??
           (isDoubleLine
               ? EdgeInsets.zero
               : const EdgeInsets.symmetric(horizontal: 16)),
       decoration: BoxDecoration(
         color: messageInputStyle.backgroundColor,
         border: messageInputStyle.border,
-        borderRadius: messageInputStyle.borderRadius ??
+        borderRadius:
+            messageInputStyle.borderRadius ??
             BorderRadius.circular(spacing.radius2 ?? 0),
       ),
-      child: isDoubleLine
-          ? _buildDoubleLineLayout()
-          : _buildSingleLineLayout(),
+      child: isDoubleLine ? _buildDoubleLineLayout() : _buildSingleLineLayout(),
     );
   }
 
@@ -273,7 +286,8 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
           ),
 
         // Auxiliary buttons (left alignment option)
-        if (widget.auxiliaryButtonsAlignment == AuxiliaryButtonsAlignment.left &&
+        if (widget.auxiliaryButtonsAlignment ==
+                AuxiliaryButtonsAlignment.left &&
             widget.auxiliaryButtonView != null &&
             widget.hideBottomView != true)
           Padding(
@@ -295,7 +309,8 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
         ),
 
         // Auxiliary buttons (right alignment - default)
-        if (widget.auxiliaryButtonsAlignment == AuxiliaryButtonsAlignment.right &&
+        if (widget.auxiliaryButtonsAlignment ==
+                AuxiliaryButtonsAlignment.right &&
             widget.auxiliaryButtonView != null &&
             widget.hideBottomView != true)
           Padding(
@@ -405,6 +420,60 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
     );
   }
 
+  /// Context menu that adds image-paste to the standard toolbar: tapping
+  /// "Paste" first tries to stage a clipboard image; if there's none it falls
+  /// back to the normal text paste, so text paste is unaffected.
+  Widget _buildPasteContextMenu(
+    BuildContext context,
+    EditableTextState editableTextState,
+  ) {
+    final items = editableTextState.contextMenuButtonItems.map((item) {
+      if (item.type == ContextMenuButtonType.paste &&
+          widget.onPasteImage != null) {
+        return ContextMenuButtonItem(
+          label: item.label,
+          type: item.type,
+          onPressed: () async {
+            editableTextState.hideToolbar();
+            final handled = await widget.onPasteImage!();
+            if (!handled) {
+              editableTextState.pasteText(SelectionChangedCause.toolbar);
+            }
+          },
+        );
+      }
+      return item;
+    }).toList();
+
+    // Flutter only offers Paste when the clipboard holds TEXT — the button is
+    // gated on ClipboardStatus, which comes from Clipboard.hasStrings(). With
+    // an image-only clipboard there is no Paste item to wrap, so the hook above
+    // could never fire and the toolbar showed no Paste at all (most visibly on
+    // iOS, which is strict about clipboard access). Add our own when the host
+    // wants image paste; the label is left null so the toolbar localises it.
+    if (widget.onPasteImage != null &&
+        !items.any((i) => i.type == ContextMenuButtonType.paste)) {
+      items.add(
+        ContextMenuButtonItem(
+          type: ContextMenuButtonType.paste,
+          onPressed: () async {
+            editableTextState.hideToolbar();
+            final handled = await widget.onPasteImage!();
+            // Nothing on the clipboard we can stage — fall back to text paste,
+            // which is a no-op when there are no strings either.
+            if (!handled) {
+              editableTextState.pasteText(SelectionChangedCause.toolbar);
+            }
+          },
+        ),
+      );
+    }
+    return AdaptiveTextSelectionToolbar.buttonItems(
+      anchors: editableTextState.contextMenuAnchors,
+      buttonItems: items,
+    );
+  }
+
   /// Builds the regular text input field
   Widget _buildRegularInput() {
     // Check if we're in code block mode (WYSIWYG)
@@ -429,21 +498,28 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
       scrollPhysics: const ClampingScrollPhysics(),
       contentInsertionConfiguration: widget.onContentInserted != null
           ? ContentInsertionConfiguration(
-              allowedMimeTypes: const ['image/gif', 'image/png', 'image/jpeg', 'image/webp'],
+              allowedMimeTypes: const [
+                'image/gif',
+                'image/png',
+                'image/jpeg',
+                'image/webp',
+              ],
               onContentInserted: widget.onContentInserted!,
             )
           : null,
-      style: TextStyle(
-        color: colorPalette.textPrimary,
-        fontSize: typography.body?.regular?.fontSize,
-        fontWeight: typography.body?.regular?.fontWeight,
-        fontFamily: typography.body?.regular?.fontFamily,
-      )
-          .merge(messageInputStyle.textStyle)
-          .copyWith(color: messageInputStyle.textColor),
+      style:
+          TextStyle(
+                color: colorPalette.textPrimary,
+                fontSize: typography.body?.regular?.fontSize,
+                fontWeight: typography.body?.regular?.fontWeight,
+                fontFamily: typography.body?.regular?.fontFamily,
+              )
+              .merge(messageInputStyle.textStyle)
+              .copyWith(color: messageInputStyle.textColor),
       onChanged: widget.onChange,
       onTap: widget.onTap,
       controller: _textEditingController,
+      contextMenuBuilder: _buildPasteContextMenu,
       minLines: 1,
       maxLines: widget.maxLine ?? 4,
       decoration: InputDecoration(
@@ -453,42 +529,42 @@ class _CometChatMessageInputState extends State<CometChatMessageInput> {
         contentPadding: isDoubleLine
             ? null
             : EdgeInsets.symmetric(vertical: spacing.padding1 ?? 4),
-        hintText: widget.placeholderText ?? Translations.of(context).typeYourMessage,
-        hintStyle: TextStyle(
-          color: colorPalette.textTertiary,
-          fontSize: typography.body?.regular?.fontSize,
-          fontWeight: typography.body?.regular?.fontWeight,
-          fontFamily: typography.body?.regular?.fontFamily,
-        )
-            .merge(messageInputStyle.placeholderTextStyle)
-            .copyWith(color: messageInputStyle.placeholderColor),
+        hintText:
+            widget.placeholderText ?? Translations.of(context).typeYourMessage,
+        hintStyle:
+            TextStyle(
+                  color: colorPalette.textTertiary,
+                  fontSize: typography.body?.regular?.fontSize,
+                  fontWeight: typography.body?.regular?.fontWeight,
+                  fontFamily: typography.body?.regular?.fontFamily,
+                )
+                .merge(messageInputStyle.placeholderTextStyle)
+                .copyWith(color: messageInputStyle.placeholderColor),
         focusedBorder: InputBorder.none,
         enabledBorder: InputBorder.none,
       ),
       focusNode: widget.focusNode,
     );
   }
-  
+
   /// Builds the code block styled input field
   /// Shows a dark container with monospace font, scrollable for long content
   Widget _buildCodeBlockInput() {
     // Use theme colors for code block
-    final codeBackgroundColor = colorPalette.background3 ?? const Color(0xFF1E1E1E);
+    final codeBackgroundColor =
+        colorPalette.background3 ?? const Color(0xFF1E1E1E);
     final borderColor = colorPalette.borderDark ?? const Color(0xFF404040);
     final textColor = colorPalette.textPrimary ?? Colors.white;
     final hintColor = colorPalette.textTertiary ?? Colors.grey;
 
     return Container(
-      constraints: BoxConstraints(
+      constraints: const BoxConstraints(
         maxHeight: 200, // Max height before scrolling
       ),
       decoration: BoxDecoration(
         color: codeBackgroundColor,
         borderRadius: BorderRadius.circular(spacing.radius2 ?? 8),
-        border: Border.all(
-          color: borderColor,
-          width: 1,
-        ),
+        border: Border.all(color: borderColor, width: 1),
       ),
       child: SingleChildScrollView(
         padding: EdgeInsets.all(spacing.padding3 ?? 12),

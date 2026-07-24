@@ -1,68 +1,80 @@
-import "package:cometchat_sdk/cometchat_sdk.dart";
-import '../../../../../cometchat_uikit_shared.dart' show MessageTypeConstants, MessageCategoryConstants, InteractionGoalTypeConstants, ModelFieldConstants, Utils, SchedulerUtils, UIElementTypeConstants, SchedulerConstants;
+import "package:cometchat_sdk/cometchat_sdk.dart" hide CardMessage;
+import '../../../../../cometchat_uikit_shared.dart'
+    show
+        MessageTypeConstants,
+        MessageCategoryConstants,
+        InteractionGoalTypeConstants,
+        ModelFieldConstants,
+        Utils,
+        SchedulerUtils,
+        UIElementTypeConstants,
+        SchedulerConstants;
 import '../interactive_elements/button_element.dart';
 
 class SchedulerMessage extends InteractiveMessage {
-  SchedulerMessage(
-      {this.title,
-      this.avatarUrl,
-      this.goalCompletionText,
-      this.timezoneCode,
-      this.bufferTime,
-      this.duration,
-      this.availability,
-      this.dateRangeStart,
-      this.dateRangeEnd,
-      this.icsFileUrl,
-      this.scheduleElement,
-      required super.receiverUid,
-      required super.receiverType,
-      tags,
-      int? id,
-      String? muid,
-      super.sender,
-      super.receiver,
-      super.type = MessageTypeConstants.scheduler,
-      String? category = MessageCategoryConstants.interactive,
-      super.sentAt,
-      super.deliveredAt,
-      super.readAt,
-      super.metadata,
-      super.readByMeAt,
-      super.deliveredToMeAt,
-      super.deletedAt,
-      super.editedAt,
-      super.deletedBy,
-      super.editedBy,
-      super.updatedAt,
-      super.conversationId,
-      int? parentMessageId,
-      int? replyCount,
-      InteractionGoal? interactionGoal,
-      super.interactions,
-      bool? allowSenderInteraction})
-      : super(
-            id: id ?? 0,
-            muid: muid ?? '',
-            parentMessageId: parentMessageId ?? 0,
-            replyCount: replyCount ?? 0,
-            interactionGoal: interactionGoal ??
-                InteractionGoal(type: InteractionGoalTypeConstants.anyAction),
-            allowSenderInteraction: allowSenderInteraction ?? false,
-            interactiveData: {
-              ModelFieldConstants.title: title,
-              ModelFieldConstants.avatarUrl: avatarUrl,
-              ModelFieldConstants.goalCompletionText: goalCompletionText,
-              ModelFieldConstants.timezoneCode: timezoneCode,
-              ModelFieldConstants.bufferTime: bufferTime,
-              ModelFieldConstants.duration: duration,
-              ModelFieldConstants.availability:
-                  SchedulerUtils.getAvailabilityJson(availability),
-              ModelFieldConstants.dateRangeStart: dateRangeStart,
-              ModelFieldConstants.dateRangeEnd: dateRangeEnd,
-              ModelFieldConstants.icsFileUrl: icsFileUrl,
-              ModelFieldConstants.scheduleElement: scheduleElement?.toMap(),
-            });
+  SchedulerMessage({
+    this.title,
+    this.avatarUrl,
+    this.goalCompletionText,
+    this.timezoneCode,
+    this.bufferTime,
+    this.duration,
+    this.availability,
+    this.dateRangeStart,
+    this.dateRangeEnd,
+    this.icsFileUrl,
+    this.scheduleElement,
+    required super.receiverUid,
+    required super.receiverType,
+    tags,
+    int? id,
+    String? muid,
+    super.sender,
+    super.receiver,
+    super.type = MessageTypeConstants.scheduler,
+    String? category = MessageCategoryConstants.interactive,
+    super.sentAt,
+    super.deliveredAt,
+    super.readAt,
+    super.metadata,
+    super.readByMeAt,
+    super.deliveredToMeAt,
+    super.deletedAt,
+    super.editedAt,
+    super.deletedBy,
+    super.editedBy,
+    super.updatedAt,
+    super.conversationId,
+    int? parentMessageId,
+    int? replyCount,
+    InteractionGoal? interactionGoal,
+    super.interactions,
+    bool? allowSenderInteraction,
+  }) : super(
+         id: id ?? 0,
+         muid: muid ?? '',
+         parentMessageId: parentMessageId ?? 0,
+         replyCount: replyCount ?? 0,
+         interactionGoal:
+             interactionGoal ??
+             InteractionGoal(type: InteractionGoalTypeConstants.anyAction),
+         allowSenderInteraction: allowSenderInteraction ?? false,
+         interactiveData: {
+           ModelFieldConstants.title: title,
+           ModelFieldConstants.avatarUrl: avatarUrl,
+           ModelFieldConstants.goalCompletionText: goalCompletionText,
+           ModelFieldConstants.timezoneCode: timezoneCode,
+           ModelFieldConstants.bufferTime: bufferTime,
+           ModelFieldConstants.duration: duration,
+           ModelFieldConstants.availability: SchedulerUtils.getAvailabilityJson(
+             availability,
+           ),
+           ModelFieldConstants.dateRangeStart: dateRangeStart,
+           ModelFieldConstants.dateRangeEnd: dateRangeEnd,
+           ModelFieldConstants.icsFileUrl: icsFileUrl,
+           ModelFieldConstants.scheduleElement: scheduleElement?.toMap(),
+         },
+       );
 
   ///[title] is the title of the event
   String? title;
@@ -99,8 +111,8 @@ class SchedulerMessage extends InteractiveMessage {
 
   /// Converts the [SchedulerMessage] to an [InteractiveMessage].
   InteractiveMessage toInteractiveMessage() {
-    interactiveData[ModelFieldConstants.submitElement] =
-        scheduleElement?.toMap();
+    interactiveData[ModelFieldConstants.submitElement] = scheduleElement
+        ?.toMap();
     if (Utils.isValidString(title)) {
       interactiveData[ModelFieldConstants.title] = title;
     }
@@ -137,8 +149,8 @@ class SchedulerMessage extends InteractiveMessage {
       interactiveData[ModelFieldConstants.dateRangeEnd] = dateRangeEnd;
     }
 
-    interactiveData[ModelFieldConstants.scheduleElement] =
-        scheduleElement?.toMap();
+    interactiveData[ModelFieldConstants.scheduleElement] = scheduleElement
+        ?.toMap();
 
     interactiveData[ModelFieldConstants.availability] =
         SchedulerUtils.getAvailabilityJson(availability);
@@ -151,12 +163,14 @@ class SchedulerMessage extends InteractiveMessage {
 
     if (message.interactiveData[ModelFieldConstants.scheduleElement] != null) {
       scheduleElement = ButtonElement.fromMap(
-          message.interactiveData[ModelFieldConstants.scheduleElement]);
+        message.interactiveData[ModelFieldConstants.scheduleElement],
+      );
     } else {
       scheduleElement = ButtonElement(
-          elementType: UIElementTypeConstants.button,
-          elementId: "xxx1234xxx",
-          buttonText: "Not found");
+        elementType: UIElementTypeConstants.button,
+        elementId: "xxx1234xxx",
+        buttonText: "Not found",
+      );
     }
     dynamic json = message.interactiveData[ModelFieldConstants.availability];
 
@@ -165,9 +179,12 @@ class SchedulerMessage extends InteractiveMessage {
     json.forEach((key, value) {
       List<TimeRange> timeRanges = [];
       for (var timeRange in value) {
-        timeRanges.add(TimeRange(
+        timeRanges.add(
+          TimeRange(
             from: timeRange[SchedulerConstants.from],
-            to: timeRange[SchedulerConstants.to]));
+            to: timeRange[SchedulerConstants.to],
+          ),
+        );
       }
       availability[key] = timeRanges;
     });
@@ -252,7 +269,7 @@ class SchedulerMessage extends InteractiveMessage {
       for (var timeRange in value) {
         timeRanges.add({
           SchedulerConstants.from: timeRange.from,
-          SchedulerConstants.to: timeRange.to
+          SchedulerConstants.to: timeRange.to,
         });
       }
       jsonifiedAvailability[key] = timeRanges;

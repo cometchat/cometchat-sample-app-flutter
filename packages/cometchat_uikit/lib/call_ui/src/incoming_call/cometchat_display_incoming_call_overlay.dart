@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../cometchat_calls_uikit.dart';
 import '../../../cometchat_chat_uikit.dart';
 
-
 class IncomingCallOverlay {
   static OverlayEntry? _overlayEntry;
 
@@ -70,8 +69,9 @@ class IncomingCallOverlay {
     if (CallNavigationContext.navigatorKey.currentState?.overlay != null &&
         _overlayEntry != null) {
       // Insert above all existing entries so it appears on top of any route
-      CallNavigationContext.navigatorKey.currentState!.overlay!
-          .insert(_overlayEntry!);
+      CallNavigationContext.navigatorKey.currentState!.overlay!.insert(
+        _overlayEntry!,
+      );
     } else {
       debugPrint("Overlay is null, cannot insert entry.");
     }

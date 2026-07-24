@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
@@ -46,26 +45,34 @@ void main() {
 
   group('initiateCall', () {
     test('returns success with call', () async {
-      when(() => dataSource.initiateCall(any()))
-          .thenAnswer((_) async => FakeCall());
+      when(
+        () => dataSource.initiateCall(any()),
+      ).thenAnswer((_) async => FakeCall());
 
       final result = await repo.initiateCall(FakeCall());
       expect(result.isSuccess, isTrue);
     });
 
-    test('returns failure when datasource throws CallOperationsException', () async {
-      when(() => dataSource.initiateCall(any()))
-          .thenThrow(const CallOperationsException(
-              message: 'Call failed', code: 'CALL_ERR'));
+    test(
+      'returns failure when datasource throws CallOperationsException',
+      () async {
+        when(() => dataSource.initiateCall(any())).thenThrow(
+          const CallOperationsException(
+            message: 'Call failed',
+            code: 'CALL_ERR',
+          ),
+        );
 
-      final result = await repo.initiateCall(FakeCall());
-      expect(result.isFailure, isTrue);
-      result.onFailure((f) => expect(f.code, 'CALL_ERR'));
-    });
+        final result = await repo.initiateCall(FakeCall());
+        expect(result.isFailure, isTrue);
+        result.onFailure((f) => expect(f.code, 'CALL_ERR'));
+      },
+    );
 
     test('returns failure on unexpected error', () async {
-      when(() => dataSource.initiateCall(any()))
-          .thenThrow(Exception('Unexpected'));
+      when(
+        () => dataSource.initiateCall(any()),
+      ).thenThrow(Exception('Unexpected'));
 
       final result = await repo.initiateCall(FakeCall());
       expect(result.isFailure, isTrue);
@@ -78,16 +85,18 @@ void main() {
 
   group('acceptCall', () {
     test('returns success with call', () async {
-      when(() => dataSource.acceptCall(any()))
-          .thenAnswer((_) async => FakeCall());
+      when(
+        () => dataSource.acceptCall(any()),
+      ).thenAnswer((_) async => FakeCall());
 
       final result = await repo.acceptCall('session_1');
       expect(result.isSuccess, isTrue);
     });
 
     test('returns failure when datasource throws', () async {
-      when(() => dataSource.acceptCall(any()))
-          .thenThrow(const CallOperationsException(message: 'Accept failed'));
+      when(
+        () => dataSource.acceptCall(any()),
+      ).thenThrow(const CallOperationsException(message: 'Accept failed'));
 
       final result = await repo.acceptCall('session_1');
       expect(result.isFailure, isTrue);
@@ -100,16 +109,18 @@ void main() {
 
   group('rejectCall', () {
     test('returns success with call', () async {
-      when(() => dataSource.rejectCall(any(), any()))
-          .thenAnswer((_) async => FakeCall());
+      when(
+        () => dataSource.rejectCall(any(), any()),
+      ).thenAnswer((_) async => FakeCall());
 
       final result = await repo.rejectCall('session_1', 'rejected');
       expect(result.isSuccess, isTrue);
     });
 
     test('returns failure when datasource throws', () async {
-      when(() => dataSource.rejectCall(any(), any()))
-          .thenThrow(const CallOperationsException(message: 'Reject failed'));
+      when(
+        () => dataSource.rejectCall(any(), any()),
+      ).thenThrow(const CallOperationsException(message: 'Reject failed'));
 
       final result = await repo.rejectCall('session_1', 'rejected');
       expect(result.isFailure, isTrue);
@@ -122,16 +133,16 @@ void main() {
 
   group('endCall', () {
     test('returns success with call', () async {
-      when(() => dataSource.endCall(any()))
-          .thenAnswer((_) async => FakeCall());
+      when(() => dataSource.endCall(any())).thenAnswer((_) async => FakeCall());
 
       final result = await repo.endCall('session_1');
       expect(result.isSuccess, isTrue);
     });
 
     test('returns failure when datasource throws', () async {
-      when(() => dataSource.endCall(any()))
-          .thenThrow(const CallOperationsException(message: 'End failed'));
+      when(
+        () => dataSource.endCall(any()),
+      ).thenThrow(const CallOperationsException(message: 'End failed'));
 
       final result = await repo.endCall('session_1');
       expect(result.isFailure, isTrue);
@@ -144,8 +155,9 @@ void main() {
 
   group('generateCallToken', () {
     test('returns success with token', () async {
-      when(() => dataSource.generateCallToken(any()))
-          .thenAnswer((_) async => 'token_abc');
+      when(
+        () => dataSource.generateCallToken(any()),
+      ).thenAnswer((_) async => 'token_abc');
 
       final result = await repo.generateCallToken('session_1');
       expect(result.isSuccess, isTrue);
@@ -153,8 +165,9 @@ void main() {
     });
 
     test('returns failure when datasource throws', () async {
-      when(() => dataSource.generateCallToken(any()))
-          .thenThrow(const CallOperationsException(message: 'Token failed'));
+      when(
+        () => dataSource.generateCallToken(any()),
+      ).thenThrow(const CallOperationsException(message: 'Token failed'));
 
       final result = await repo.generateCallToken('session_1');
       expect(result.isFailure, isTrue);
@@ -174,8 +187,9 @@ void main() {
     });
 
     test('returns failure when datasource throws', () async {
-      when(() => dataSource.endSession())
-          .thenThrow(const CallOperationsException(message: 'End session failed'));
+      when(
+        () => dataSource.endSession(),
+      ).thenThrow(const CallOperationsException(message: 'End session failed'));
 
       final result = await repo.endSession();
       expect(result.isFailure, isTrue);
@@ -188,16 +202,18 @@ void main() {
 
   group('sendCustomMessage', () {
     test('returns success with message', () async {
-      when(() => dataSource.sendCustomMessage(any()))
-          .thenAnswer((_) async => FakeCustomMessage());
+      when(
+        () => dataSource.sendCustomMessage(any()),
+      ).thenAnswer((_) async => FakeCustomMessage());
 
       final result = await repo.sendCustomMessage(FakeCustomMessage());
       expect(result.isSuccess, isTrue);
     });
 
     test('returns failure when datasource throws', () async {
-      when(() => dataSource.sendCustomMessage(any()))
-          .thenThrow(const CallOperationsException(message: 'Send failed'));
+      when(
+        () => dataSource.sendCustomMessage(any()),
+      ).thenThrow(const CallOperationsException(message: 'Send failed'));
 
       final result = await repo.sendCustomMessage(FakeCustomMessage());
       expect(result.isFailure, isTrue);
@@ -219,8 +235,9 @@ void main() {
 
   group('getUserAuthToken', () {
     test('returns success with token', () async {
-      when(() => dataSource.getUserAuthToken())
-          .thenAnswer((_) async => 'auth_token');
+      when(
+        () => dataSource.getUserAuthToken(),
+      ).thenAnswer((_) async => 'auth_token');
 
       final result = await repo.getUserAuthToken();
       expect(result.isSuccess, isTrue);

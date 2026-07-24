@@ -2,16 +2,14 @@ import 'package:flutter/material.dart';
 
 ///[CometChatTextStyleBody] is a class that gives the styling to the text displayed in the body
 class CometChatTextStyleBody extends ThemeExtension<CometChatTextStyleBody> {
-  const CometChatTextStyleBody({
-    this.bold,
-    this.medium,
-    this.regular
-  });
+  const CometChatTextStyleBody({this.bold, this.medium, this.regular});
 
   /// The bold variant of the body style.
   final TextStyle? bold;
+
   /// The medium variant of the body style.
   final TextStyle? medium;
+
   /// The regular variant of the body style.
   final TextStyle? regular;
 
@@ -29,7 +27,10 @@ class CometChatTextStyleBody extends ThemeExtension<CometChatTextStyleBody> {
   }
 
   @override
-  CometChatTextStyleBody lerp(covariant ThemeExtension<CometChatTextStyleBody>? other, double t) {
+  CometChatTextStyleBody lerp(
+    covariant ThemeExtension<CometChatTextStyleBody>? other,
+    double t,
+  ) {
     if (other is! CometChatTextStyleBody) {
       return this;
     }
@@ -40,24 +41,15 @@ class CometChatTextStyleBody extends ThemeExtension<CometChatTextStyleBody> {
     );
   }
 
-  static CometChatTextStyleBody of(BuildContext context) => CometChatTextStyleBody(
-      bold: _ccTextStyle(context).copyWith(
-        fontWeight: FontWeight.w700,
-      ),
-      medium: _ccTextStyle(context).copyWith(
-        fontWeight: FontWeight.w500,
-      ),
-      regular: _ccTextStyle(context).copyWith(
-        fontWeight: FontWeight.w400,
-      )
-  );
+  static CometChatTextStyleBody of(BuildContext context) =>
+      CometChatTextStyleBody(
+        bold: _ccTextStyle(context).copyWith(fontWeight: FontWeight.w700),
+        medium: _ccTextStyle(context).copyWith(fontWeight: FontWeight.w500),
+        regular: _ccTextStyle(context).copyWith(fontWeight: FontWeight.w400),
+      );
 
   static TextStyle _ccTextStyle(BuildContext context) {
-
-    return const TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.w700,
-    );
+    return const TextStyle(fontSize: 14, fontWeight: FontWeight.w700);
   }
 
   CometChatTextStyleBody merge(CometChatTextStyleBody? other) {
@@ -68,5 +60,4 @@ class CometChatTextStyleBody extends ThemeExtension<CometChatTextStyleBody> {
       regular: regular?.merge(other.regular),
     );
   }
-
 }

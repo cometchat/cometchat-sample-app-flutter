@@ -1,5 +1,6 @@
 /// Use cases barrel file for conversations domain layer
 /// Exports all use cases for the conversations module
+library;
 
 export 'get_conversations_usecase.dart';
 export 'delete_conversation_usecase.dart';

@@ -2,7 +2,7 @@
 ///
 /// This module only contains the UI widgets and utilities.
 /// All logic (BLoC, Domain, Data, DI) lives in chat_ui/src/message_list/.
-library cometchat_message_list;
+library;
 
 // =============================================================================
 // UI Utils (stays in shared_ui)

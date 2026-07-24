@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../domain/repositories/groups_repository.dart';
 import '../datasources/groups_remote_datasource.dart';
@@ -13,9 +13,7 @@ import '../datasources/groups_remote_datasource.dart';
 class GroupsRepositoryImpl implements GroupsRepository {
   final GroupsRemoteDataSource remoteDataSource;
 
-  const GroupsRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  const GroupsRepositoryImpl({required this.remoteDataSource});
 
   @override
   void resetRequest() {
@@ -128,7 +126,8 @@ class GroupsRepositoryImpl implements GroupsRepository {
       );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while getting logged-in user: ${e.toString()}',
+        message:
+            'Unexpected error while getting logged-in user: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }

@@ -10,7 +10,7 @@ class AttributedTextData {
   final int end;
 
   /// Formatting attributes for this segment
-  /// 
+  ///
   /// Common attributes:
   /// - 'bold': true/false
   /// - 'italic': true/false

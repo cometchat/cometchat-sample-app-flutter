@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 ///[PollsConfiguration] is a data class that has configuration properties
-///to customize the functionality and appearance of [PollsExtension]
+///to customize the functionality and appearance of `PollsExtension`
 ///
 /// ```dart
 /// PollsConfiguration pollsConfiguration = PollsConfiguration(
@@ -56,7 +56,6 @@ class PollsConfiguration {
     this.optionIcon,
     this.optionStyle,
   });
-
 
   ///[pollsBubbleStyle] styling parameters for polls bubble
   final CometChatPollsBubbleStyle? pollsBubbleStyle;

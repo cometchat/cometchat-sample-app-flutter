@@ -4,14 +4,12 @@
 /// various resources, constants, events, utilities, and views required for
 /// CometChat to function.
 
-library cometchat_uikit_shared;
+library;
 
 // Export the Clean Architecture structure (includes everything)
 // Hide names that conflict with cometchat_message_list module
-export 'src/clean_architecture/clean_architecture.dart' hide 
-    MessageListState,
-    GetMessagesUseCase,
-    GetMessagesParams;
+export 'src/clean_architecture/clean_architecture.dart'
+    hide MessageListState, GetMessagesUseCase, GetMessagesParams;
 
 // Export translations (not duplicated in clean architecture)
 export 'l10n/translations.dart';
@@ -55,7 +53,6 @@ export 'src/models/ai_option_style.dart';
 // AI services
 export 'src/services/cometchat_stream_service.dart';
 export 'src/services/cometchat_stream_callback.dart';
-
 
 // Export helpers (not duplicated in clean architecture)
 export 'src/cometchat_ui_kit/ui_kit_settings.dart';
@@ -112,7 +109,6 @@ export 'src/clean_architecture/presentation/views/misc/time_slot_selector/cometc
 export 'src/clean_architecture/presentation/views/misc/time_slot_selector/time_slot_selector_style.dart';
 export 'src/clean_architecture/presentation/views/misc/typing_indicator/cometchat_typing_indicator_style.dart';
 
-
 // Export clean architecture components that were in legacy views
 export 'src/clean_architecture/presentation/views/components/message_input/custom_text_editing_controller.dart';
 export 'src/clean_architecture/presentation/views/bubbles/image_bubble/image_viewer.dart';
@@ -153,7 +149,6 @@ export 'src/models/extension_bubble_styles/cometchat_exception_style.dart';
 
 // Export unified markdown formatter (replaces legacy rich text formatters for bubble display)
 export 'src/formatter/markdown/markdown_text_formatter.dart';
-
 
 // Export animated message list widgets only (not the full barrel)
 // The CometChatMessageList widget is exported from chat_ui/src/message_list

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 ///[CometChatConfirmDialogStyle] is a data class that has styling-related properties
-///to customize the appearance of [showCometChatConfirmDialog]
+///to customize the appearance of [CometChatConfirmDialog]
 ///``` dart
 ///CometChatConfirmDialogStyle(
 /// backgroundColor: Colors.white,
@@ -160,7 +160,9 @@ class CometChatConfirmDialogStyle
 
   @override
   CometChatConfirmDialogStyle lerp(
-      ThemeExtension<CometChatConfirmDialogStyle>? other, double t) {
+    ThemeExtension<CometChatConfirmDialogStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatConfirmDialogStyle) {
       return this;
     }
@@ -168,29 +170,59 @@ class CometChatConfirmDialogStyle
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       shadow: Color.lerp(shadow, other.shadow, t),
       confirmButtonTextStyle: TextStyle.lerp(
-          confirmButtonTextStyle, other.confirmButtonTextStyle, t),
-      cancelButtonTextStyle:
-          TextStyle.lerp(cancelButtonTextStyle, other.cancelButtonTextStyle, t),
-      confirmButtonBackground:
-          Color.lerp(confirmButtonBackground, other.confirmButtonBackground, t),
-      cancelButtonBackground:
-          Color.lerp(cancelButtonBackground, other.cancelButtonBackground, t),
+        confirmButtonTextStyle,
+        other.confirmButtonTextStyle,
+        t,
+      ),
+      cancelButtonTextStyle: TextStyle.lerp(
+        cancelButtonTextStyle,
+        other.cancelButtonTextStyle,
+        t,
+      ),
+      confirmButtonBackground: Color.lerp(
+        confirmButtonBackground,
+        other.confirmButtonBackground,
+        t,
+      ),
+      cancelButtonBackground: Color.lerp(
+        cancelButtonBackground,
+        other.cancelButtonBackground,
+        t,
+      ),
       border: BorderSide.lerp(
-          border ?? const BorderSide(), other.border ?? const BorderSide(), t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+        border ?? const BorderSide(),
+        other.border ?? const BorderSide(),
+        t,
+      ),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
       titleTextColor: Color.lerp(titleTextColor, other.titleTextColor, t),
       iconColor: Color.lerp(iconColor, other.iconColor, t),
-      iconBackgroundColor:
-          Color.lerp(iconBackgroundColor, other.iconBackgroundColor, t),
-      messageTextStyle:
-          TextStyle.lerp(messageTextStyle, other.messageTextStyle, t),
+      iconBackgroundColor: Color.lerp(
+        iconBackgroundColor,
+        other.iconBackgroundColor,
+        t,
+      ),
+      messageTextStyle: TextStyle.lerp(
+        messageTextStyle,
+        other.messageTextStyle,
+        t,
+      ),
       messageTextColor: Color.lerp(messageTextColor, other.messageTextColor, t),
-      cancelButtonTextColor:
-          Color.lerp(cancelButtonTextColor, other.cancelButtonTextColor, t),
-      confirmButtonTextColor:
-          Color.lerp(confirmButtonTextColor, other.confirmButtonTextColor, t),
+      cancelButtonTextColor: Color.lerp(
+        cancelButtonTextColor,
+        other.cancelButtonTextColor,
+        t,
+      ),
+      confirmButtonTextColor: Color.lerp(
+        confirmButtonTextColor,
+        other.confirmButtonTextColor,
+        t,
+      ),
     );
   }
 }

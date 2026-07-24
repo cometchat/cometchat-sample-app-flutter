@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import 'package:intl/intl.dart';
 
 /// Represents a group of feed items sharing the same calendar day.
@@ -9,10 +9,7 @@ class TimestampGroup {
   /// Feed items within this group, sorted newest-first.
   final List<NotificationFeedItem> items;
 
-  const TimestampGroup({
-    required this.label,
-    required this.items,
-  });
+  const TimestampGroup({required this.label, required this.items});
 }
 
 /// Groups notification feed items by their `sentAt` timestamp into sections.
@@ -43,11 +40,16 @@ List<TimestampGroup> groupByTimestamp(
   final Map<String, DateTime> groupDates = {};
 
   for (final item in items) {
-    final itemDate =
-        DateTime.fromMillisecondsSinceEpoch(item.sentAt * 1000);
+    final itemDate = DateTime.fromMillisecondsSinceEpoch(item.sentAt * 1000);
     final itemDay = DateTime(itemDate.year, itemDate.month, itemDate.day);
 
-    final label = _getLabelForDate(itemDay, today, yesterday, weekStart, locale);
+    final label = _getLabelForDate(
+      itemDay,
+      today,
+      yesterday,
+      weekStart,
+      locale,
+    );
 
     groupMap.putIfAbsent(label, () => []);
     groupMap[label]!.add(item);
@@ -72,10 +74,7 @@ List<TimestampGroup> groupByTimestamp(
     });
 
   return sortedLabels
-      .map((label) => TimestampGroup(
-            label: label,
-            items: groupMap[label]!,
-          ))
+      .map((label) => TimestampGroup(label: label, items: groupMap[label]!))
       .toList();
 }
 

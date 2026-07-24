@@ -63,11 +63,7 @@ class CallLogsEmptyView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.call,
-            color: effectiveColorPalette.neutral300,
-            size: 100,
-          ),
+          Icon(Icons.call, color: effectiveColorPalette.neutral300, size: 100),
           Padding(
             padding: EdgeInsets.only(
               top: effectiveSpacing.padding5 ?? 20,
@@ -76,29 +72,39 @@ class CallLogsEmptyView extends StatelessWidget {
             child: Text(
               cc.Translations.of(context).noCallLogsYet,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: effectiveStyle.emptyStateTextColor ??
-                    effectiveColorPalette.textPrimary,
-                fontSize: effectiveTypography.heading3?.bold?.fontSize,
-                fontWeight: effectiveTypography.heading3?.bold?.fontWeight,
-                fontFamily: effectiveTypography.heading3?.bold?.fontFamily,
-              )
-                  .merge(effectiveStyle.emptyStateTextStyle)
-                  .copyWith(color: effectiveStyle.emptyStateTextColor),
+              style:
+                  TextStyle(
+                        color:
+                            effectiveStyle.emptyStateTextColor ??
+                            effectiveColorPalette.textPrimary,
+                        fontSize: effectiveTypography.heading3?.bold?.fontSize,
+                        fontWeight:
+                            effectiveTypography.heading3?.bold?.fontWeight,
+                        fontFamily:
+                            effectiveTypography.heading3?.bold?.fontFamily,
+                      )
+                      .merge(effectiveStyle.emptyStateTextStyle)
+                      .copyWith(color: effectiveStyle.emptyStateTextColor),
             ),
           ),
           Text(
             cc.Translations.of(context).makeOrReceiveCalls,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: effectiveStyle.emptyStateSubTitleTextColor ??
-                  effectiveColorPalette.textSecondary,
-              fontSize: effectiveTypography.heading3?.regular?.fontSize,
-              fontWeight: effectiveTypography.heading3?.regular?.fontWeight,
-              fontFamily: effectiveTypography.heading3?.regular?.fontFamily,
-            )
-                .merge(effectiveStyle.emptyStateSubTitleTextStyle)
-                .copyWith(color: effectiveStyle.emptyStateSubTitleTextColor),
+            style:
+                TextStyle(
+                      color:
+                          effectiveStyle.emptyStateSubTitleTextColor ??
+                          effectiveColorPalette.textSecondary,
+                      fontSize: effectiveTypography.heading3?.regular?.fontSize,
+                      fontWeight:
+                          effectiveTypography.heading3?.regular?.fontWeight,
+                      fontFamily:
+                          effectiveTypography.heading3?.regular?.fontFamily,
+                    )
+                    .merge(effectiveStyle.emptyStateSubTitleTextStyle)
+                    .copyWith(
+                      color: effectiveStyle.emptyStateSubTitleTextColor,
+                    ),
           ),
         ],
       ),

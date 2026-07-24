@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../domain/repositories/group_members_repository.dart';
 import '../datasources/group_members_remote_datasource.dart';
@@ -8,9 +8,7 @@ import '../datasources/group_members_remote_datasource.dart';
 class GroupMembersRepositoryImpl implements GroupMembersRepository {
   final GroupMembersRemoteDataSource remoteDataSource;
 
-  const GroupMembersRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  const GroupMembersRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<Result<List<GroupMember>>> getGroupMembers({
@@ -33,7 +31,8 @@ class GroupMembersRepositoryImpl implements GroupMembersRepository {
       );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while fetching group members: ${e.toString()}',
+        message:
+            'Unexpected error while fetching group members: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -45,10 +44,7 @@ class GroupMembersRepositoryImpl implements GroupMembersRepository {
     required String uid,
   }) async {
     try {
-      await remoteDataSource.kickGroupMember(
-        guid: guid,
-        uid: uid,
-      );
+      await remoteDataSource.kickGroupMember(guid: guid, uid: uid);
       return const Success(null);
     } on GroupMembersRemoteDataSourceException catch (e) {
       return Failure(
@@ -70,10 +66,7 @@ class GroupMembersRepositoryImpl implements GroupMembersRepository {
     required String uid,
   }) async {
     try {
-      await remoteDataSource.banGroupMember(
-        guid: guid,
-        uid: uid,
-      );
+      await remoteDataSource.banGroupMember(guid: guid, uid: uid);
       return const Success(null);
     } on GroupMembersRemoteDataSourceException catch (e) {
       return Failure(
@@ -110,7 +103,8 @@ class GroupMembersRepositoryImpl implements GroupMembersRepository {
       );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while updating member scope: ${e.toString()}',
+        message:
+            'Unexpected error while updating member scope: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -129,7 +123,8 @@ class GroupMembersRepositoryImpl implements GroupMembersRepository {
       );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while getting logged in user: ${e.toString()}',
+        message:
+            'Unexpected error while getting logged in user: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }

@@ -80,14 +80,16 @@ class ThreadedHeaderBloc
     _registerSDKListeners();
 
     // Emit loaded state with initial data
-    emit(state.copyWith(
-      status: ThreadedHeaderStatus.loaded,
-      parentMessage: parentMessage,
-      replyCount: parentMessage.replyCount,
-      loggedInUser: loggedInUser,
-      user: user,
-      group: group,
-    ));
+    emit(
+      state.copyWith(
+        status: ThreadedHeaderStatus.loaded,
+        parentMessage: parentMessage,
+        replyCount: parentMessage.replyCount,
+        loggedInUser: loggedInUser,
+        user: user,
+        group: group,
+      ),
+    );
   }
 
   /// Increment the reply count by 1
@@ -199,7 +201,9 @@ class ThreadedHeaderBloc
   /// Handle message sent by logged-in user
   /// Increment reply count on successful send
   void _handleCCMessageSent(
-      BaseMessage message, core_enums.MessageStatus status) {
+    BaseMessage message,
+    core_enums.MessageStatus status,
+  ) {
     if (isClosed) return;
     if (status == core_enums.MessageStatus.sent) {
       add(const IncrementReplyCount());
@@ -210,8 +214,7 @@ class ThreadedHeaderBloc
   /// Update parent message if ID matches
   void _handleCCMessageEdited(BaseMessage message, MessageEditStatus status) {
     if (isClosed) return;
-    if (message.id == _parentMessageId &&
-        status == MessageEditStatus.success) {
+    if (message.id == _parentMessageId && status == MessageEditStatus.success) {
       add(UpdateParentMessage(message));
     }
   }
@@ -307,7 +310,7 @@ class _ThreadedHeaderMessageListener with MessageListener {
 /// - onSchedulerMessageReceived (increment reply count)
 class _ThreadedHeaderUIMessageListener with CometChatMessageEventListener {
   final void Function(BaseMessage, core_enums.MessageStatus)
-      onCCMessageSentCallback;
+  onCCMessageSentCallback;
   final void Function(BaseMessage, MessageEditStatus) onCCMessageEditedCallback;
   final void Function(BaseMessage, EventStatus) onCCMessageDeletedCallback;
   final void Function(SchedulerMessage) onSchedulerMessageReceivedCallback;
@@ -321,7 +324,9 @@ class _ThreadedHeaderUIMessageListener with CometChatMessageEventListener {
 
   @override
   void ccMessageSent(
-      BaseMessage message, core_enums.MessageStatus messageStatus) {
+    BaseMessage message,
+    core_enums.MessageStatus messageStatus,
+  ) {
     onCCMessageSentCallback(message, messageStatus);
   }
 

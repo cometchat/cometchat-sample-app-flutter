@@ -2,21 +2,21 @@
 mixin CometChatListProtocol<T1> {
   bool match(T1 elementA, T1 elementB);
 
-  loadMoreElements({bool Function(T1 element)? isIncluded});
+  void loadMoreElements({bool Function(T1 element)? isIncluded});
 
   int getMatchingIndex(T1 element);
 
-  updateElement(T1 element, {int? index});
+  void updateElement(T1 element, {int? index});
 
-  addElement(T1 element, {int index});
+  void addElement(T1 element, {int index});
 
-  removeElement(T1 element);
+  void removeElement(T1 element);
 
   int getMatchingIndexFromKey(String key);
 
   //updateElementAt(T1 element, int index);
 
-  removeElementAt(int index);
+  void removeElementAt(int index);
 
   List<T1> getList();
 }

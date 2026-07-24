@@ -70,37 +70,39 @@ class IndexedList {
   String get selectedId => selected.conversationId!;
 
   @override
-  String toString() => 'IndexedList(len=${list.length}, idx=$index, id=$selectedId)';
+  String toString() =>
+      'IndexedList(len=${list.length}, idx=$index, id=$selectedId)';
 }
 
 Generator<IndexedList> indexedListGen({int maxLength = 20}) {
   return any
       .listWithLengthInRange(1, maxLength, conversationGen())
       .bind((list) {
-    return any.intInRange(0, list.length).map((i) {
-      // intInRange is exclusive of upper bound, so index is in [0, list.length - 1]
-      return IndexedList(list, i);
-    });
-  }).map((il) {
-    // Ensure the selected conversation has a unique id so RemoveConversation
-    // by id semantics are unambiguous.
-    final targetId = il.list[il.index].conversationId!;
-    final dedup = <Conversation>[];
-    var replaced = false;
-    for (var i = 0; i < il.list.length; i++) {
-      final c = il.list[i];
-      if (i == il.index) {
-        dedup.add(c);
-        replaced = true;
-      } else if (c.conversationId == targetId) {
-        // Replace duplicate with a fresh unique id so only the selected
-        // one matches for removal.
-        dedup.add(FakeConversation('${targetId}_${i}x'));
-      } else {
-        dedup.add(c);
-      }
-    }
-    assert(replaced);
-    return IndexedList(dedup, il.index);
-  });
+        return any.intInRange(0, list.length).map((i) {
+          // intInRange is exclusive of upper bound, so index is in [0, list.length - 1]
+          return IndexedList(list, i);
+        });
+      })
+      .map((il) {
+        // Ensure the selected conversation has a unique id so RemoveConversation
+        // by id semantics are unambiguous.
+        final targetId = il.list[il.index].conversationId!;
+        final dedup = <Conversation>[];
+        var replaced = false;
+        for (var i = 0; i < il.list.length; i++) {
+          final c = il.list[i];
+          if (i == il.index) {
+            dedup.add(c);
+            replaced = true;
+          } else if (c.conversationId == targetId) {
+            // Replace duplicate with a fresh unique id so only the selected
+            // one matches for removal.
+            dedup.add(FakeConversation('${targetId}_${i}x'));
+          } else {
+            dedup.add(c);
+          }
+        }
+        assert(replaced);
+        return IndexedList(dedup, il.index);
+      });
 }

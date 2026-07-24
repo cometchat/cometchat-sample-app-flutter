@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../cometchat_calls_uikit.dart';
 import '../../../../cometchat_chat_uikit.dart';
-import '../bloc/call_logs_bloc.dart';
-import '../bloc/call_logs_event.dart';
-import '../bloc/call_logs_state.dart';
-import '../cometchat_call_logs/call_logs_style.dart';
-import 'call_logs_list_item.dart';
-import 'call_logs_loading_view.dart';
 
 /// A widget that displays the list of call logs.
 ///
@@ -101,14 +95,16 @@ class CallLogsList extends StatelessWidget {
     CallLog callLog,
     CallLogsBloc bloc,
     BuildContext context,
-  )? setOptions;
+  )?
+  setOptions;
 
   /// Callback to add additional options to long press menu.
   final List<CometChatOption>? Function(
     CallLog callLog,
     CallLogsBloc bloc,
     BuildContext context,
-  )? addOptions;
+  )?
+  addOptions;
 
   /// Custom loading state view for pagination loading indicator.
   final WidgetBuilder? loadingStateView;
@@ -140,8 +136,10 @@ class CallLogsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final callLogs = state.callLogs;
-    final List<GlobalKey> tileKeys =
-        List.generate(callLogs.length, (index) => GlobalKey());
+    final List<GlobalKey> tileKeys = List.generate(
+      callLogs.length,
+      (index) => GlobalKey(),
+    );
 
     // Use provided values or fallback to context lookup
     final effectiveColorPalette =
@@ -150,17 +148,20 @@ class CallLogsList extends StatelessWidget {
         spacing ?? CometChatThemeHelper.getSpacing(context);
     final effectiveTypography =
         typography ?? CometChatThemeHelper.getTypography(context);
-    final effectiveStyle = style ??
+    final effectiveStyle =
+        style ??
         CometChatThemeHelper.getTheme<CometChatCallLogsStyle>(
           context: context,
           defaultTheme: CometChatCallLogsStyle.of,
         );
-    final effectiveAvatarStyle = avatarStyle ??
+    final effectiveAvatarStyle =
+        avatarStyle ??
         CometChatThemeHelper.getTheme<CometChatAvatarStyle>(
           context: context,
           defaultTheme: CometChatAvatarStyle.of,
         ).merge(effectiveStyle.avatarStyle);
-    final effectiveDateStyle = dateStyle ??
+    final effectiveDateStyle =
+        dateStyle ??
         CometChatThemeHelper.getTheme<CometChatDateStyle>(
           context: context,
           defaultTheme: CometChatDateStyle.of,
@@ -187,19 +188,14 @@ class CallLogsList extends StatelessWidget {
           callLog: log,
           loggedInUser: state.loggedInUser!,
           onTap: onItemTap != null ? () => onItemTap!(log) : null,
-          onLongPress: () => _handleLongPress(
-            context,
-            log,
-            tileKeys[index],
-          ),
+          onLongPress: () => _handleLongPress(context, log, tileKeys[index]),
           onCallIconPressed: onCallIconPressed != null
               ? () => onCallIconPressed!(log)
               : (CallLogsUtils.isUser(log)
-                  ? () => bloc.add(InitiateCallFromLog(
-                        callLog: log,
-                        context: context,
-                      ))
-                  : null),
+                    ? () => bloc.add(
+                        InitiateCallFromLog(callLog: log, context: context),
+                      )
+                    : null),
           listItemView: listItemView,
           subTitleView: subTitleView,
           trailingView: trailingView,
@@ -223,11 +219,7 @@ class CallLogsList extends StatelessWidget {
   }
 
   /// Handles long press on a list item.
-  void _handleLongPress(
-    BuildContext context,
-    CallLog callLog,
-    GlobalKey key,
-  ) {
+  void _handleLongPress(BuildContext context, CallLog callLog, GlobalKey key) {
     if (onItemLongPress != null) {
       onItemLongPress!(callLog);
       return;
@@ -284,10 +276,7 @@ class CallLogsList extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
               ],
-              Text(
-                option.title ?? '',
-                style: option.titleStyle,
-              ),
+              Text(option.title ?? '', style: option.titleStyle),
             ],
           ),
         );

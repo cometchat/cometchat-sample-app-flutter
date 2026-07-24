@@ -1,5 +1,5 @@
 import 'package:diffutil_dart/diffutil.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Diff delegate for comparing BaseMessage lists
 ///

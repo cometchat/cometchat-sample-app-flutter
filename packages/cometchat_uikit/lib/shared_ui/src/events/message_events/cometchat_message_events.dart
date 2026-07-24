@@ -1,52 +1,61 @@
 import '../../../cometchat_uikit_shared.dart' hide CardMessage;
 import '../../clean_architecture/data/models/interactive_message/card_message.dart';
-import '../../clean_architecture/core/constants/enums.dart' as CoreEnums;
+import '../../clean_architecture/core/constants/enums.dart' as core_enums;
 
 ///Event emitting class for [CometChatMessages]
 class CometChatMessageEvents {
   static Map<String, CometChatMessageEventListener> messagesListener = {};
 
-  static addMessagesListener(
-      String listenerId, CometChatMessageEventListener listenerClass) {
+  static void addMessagesListener(
+    String listenerId,
+    CometChatMessageEventListener listenerClass,
+  ) {
     messagesListener[listenerId] = listenerClass;
   }
 
-  static removeMessagesListener(String listenerId) {
+  static void removeMessagesListener(String listenerId) {
     messagesListener.remove(listenerId);
   }
 
-  static ccMessageSent(BaseMessage message, CoreEnums.MessageStatus messageStatus) {
+  static void ccMessageSent(
+    BaseMessage message,
+    core_enums.MessageStatus messageStatus,
+  ) {
     messagesListener.forEach((key, value) {
       value.ccMessageSent(message, messageStatus);
     });
   }
 
-  static ccMessageEdited(BaseMessage message, MessageEditStatus status) {
+  static void ccMessageEdited(BaseMessage message, MessageEditStatus status) {
     messagesListener.forEach((key, value) {
       value.ccMessageEdited(message, status);
     });
   }
 
-  static ccMessageDeleted(BaseMessage message, EventStatus messageStatus) {
+  static void ccMessageDeleted(BaseMessage message, EventStatus messageStatus) {
     messagesListener.forEach((key, value) {
       value.ccMessageDeleted(message, messageStatus);
     });
   }
 
-  static ccMessageRead(BaseMessage message) {
+  static void ccMessageRead(BaseMessage message) {
     messagesListener.forEach((key, value) {
       value.ccMessageRead(message);
     });
   }
 
-  static ccLiveReaction(String reaction, String receiverId) {
+  static void ccLiveReaction(String reaction, String receiverId) {
     messagesListener.forEach((key, value) {
       value.ccLiveReaction(reaction);
     });
   }
 
-  static ccMessageForwarded(BaseMessage message, List<User>? usersSent,
-      List<Group>? groupsSent, CoreEnums.MessageStatus status) {
+  static void ccMessageForwarded(
+    BaseMessage message,
+    List<User>? usersSent,
+    List<Group>? groupsSent,
+    core_enums.MessageStatus status,
+  ) {
     messagesListener.forEach((key, value) {
       value.ccMessageForwarded(message, usersSent, groupsSent, status);
     });
@@ -138,7 +147,8 @@ class CometChatMessageEvents {
 
   /// Called when a custom interactive message is received.
   static void onCustomInteractiveMessageReceived(
-      CustomInteractiveMessage message) {
+    CustomInteractiveMessage message,
+  ) {
     messagesListener.forEach((key, value) {
       value.onCustomInteractiveMessageReceived(message);
     });

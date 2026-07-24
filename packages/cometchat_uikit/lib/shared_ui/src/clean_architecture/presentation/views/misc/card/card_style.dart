@@ -17,10 +17,7 @@ import '../../../../../../cometchat_uikit_shared.dart';
 /// ```
 ///
 class CardStyle {
-  const CardStyle({
-    this.titleStyle,
-    this.avatarStyle,
-  });
+  const CardStyle({this.titleStyle, this.avatarStyle});
 
   ///[titleStyle] sets TextStyle for title
   final TextStyle? titleStyle;

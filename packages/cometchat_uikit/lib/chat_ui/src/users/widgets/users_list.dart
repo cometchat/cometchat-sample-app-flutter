@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../cometchat_chat_uikit.dart';
-import '../bloc/bloc.dart';
 
 /// Internal widget for rendering the users list
 class UsersList extends StatelessWidget {
@@ -134,8 +133,9 @@ class UsersList extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: spacing.padding5 ?? 0),
               child: Image.asset(
-                AssetConstants(CometChatThemeHelper.getBrightness(context))
-                    .emptyUserList,
+                AssetConstants(
+                  CometChatThemeHelper.getBrightness(context),
+                ).emptyUserList,
                 package: UIConstants.packageName,
                 width: 120,
                 height: 120,
@@ -158,7 +158,8 @@ class UsersList extends StatelessWidget {
               Translations.of(context).addContactsToStartConversations,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: style.emptyStateSubTitleTextColor ??
+                color:
+                    style.emptyStateSubTitleTextColor ??
                     colorPalette.textSecondary,
                 fontSize: typography.body?.regular?.fontSize,
                 fontWeight: typography.body?.regular?.fontWeight,
@@ -256,11 +257,12 @@ class UsersList extends StatelessWidget {
       valueListenable: usersBloc.getStatusNotifier(user.uid),
       builder: (context, status, child) {
         // Use the real-time status from ValueNotifier (not stale user.status)
-        final isStatusVisible = usersStatusVisibility != false &&
+        final isStatusVisible =
+            usersStatusVisibility != false &&
             user.blockedByMe != true &&
             user.hasBlockedMe != true;
-        final isOnline = isStatusVisible &&
-            status == UserStatusConstants.online;
+        final isOnline =
+            isStatusVisible && status == UserStatusConstants.online;
 
         final statusColor = isOnline
             ? (statusIndicatorStyle?.backgroundColor ?? colorPalette.success)
@@ -270,7 +272,7 @@ class UsersList extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? (style.listItemSelectedBackgroundColor ??
-                    colorPalette.background4)
+                      colorPalette.background4)
                 : colorPalette.transparent,
           ),
           child: GestureDetector(
@@ -283,20 +285,26 @@ class UsersList extends StatelessWidget {
                     fillColor: isSelected
                         ? WidgetStateProperty.all(
                             style.checkBoxCheckedBackgroundColor ??
-                                colorPalette.iconHighlight)
-                        : WidgetStateProperty.all(style.checkBoxBackgroundColor ??
-                            colorPalette.transparent),
+                                colorPalette.iconHighlight,
+                          )
+                        : WidgetStateProperty.all(
+                            style.checkBoxBackgroundColor ??
+                                colorPalette.transparent,
+                          ),
                     value: isSelected,
                     onChanged: (_) => _handleItemTap(context, user, state),
-                    activeColor: style.checkBoxCheckedBackgroundColor ??
+                    activeColor:
+                        style.checkBoxCheckedBackgroundColor ??
                         colorPalette.iconHighlight,
                     shape: RoundedRectangleBorder(
-                      borderRadius: style.checkBoxBorderRadius ??
+                      borderRadius:
+                          style.checkBoxBorderRadius ??
                           BorderRadius.circular(spacing.radius1 ?? 4),
                     ),
                     checkColor:
                         style.checkboxSelectedIconColor ?? colorPalette.white,
-                    side: style.checkBoxBorder ??
+                    side:
+                        style.checkBoxBorder ??
                         BorderSide(
                           color:
                               colorPalette.borderDefault ?? Colors.transparent,
@@ -315,31 +323,33 @@ class UsersList extends StatelessWidget {
                     tailView: trailingView?.call(context, user),
                     avatarStyle:
                         avatarStyle ?? CometChatAvatarStyle.of(context),
-                    statusIndicatorColor:
-                        statusColor,
+                    statusIndicatorColor: statusColor,
                     statusIndicatorIcon: null,
                     statusIndicatorStyle: CometChatStatusIndicatorStyle(
-                      border: statusIndicatorStyle?.border ??
+                      border:
+                          statusIndicatorStyle?.border ??
                           Border.all(
                             width: spacing.spacing ?? 0,
                             color:
                                 colorPalette.background1 ?? Colors.transparent,
                           ),
-                      backgroundColor: statusIndicatorStyle?.backgroundColor ??
+                      backgroundColor:
+                          statusIndicatorStyle?.backgroundColor ??
                           colorPalette.success,
                     ),
                     hideSeparator: true,
                     style: ListItemStyle(
                       background: isSelected
                           ? (style.listItemSelectedBackgroundColor ??
-                              colorPalette.background4)
+                                colorPalette.background4)
                           : colorPalette.transparent,
                       titleStyle: TextStyle(
                         overflow: TextOverflow.ellipsis,
                         fontSize: typography.heading4?.medium?.fontSize,
                         fontWeight: typography.heading4?.medium?.fontWeight,
                         fontFamily: typography.heading4?.medium?.fontFamily,
-                        color: style.itemTitleTextColor ??
+                        color:
+                            style.itemTitleTextColor ??
                             colorPalette.textPrimary,
                       ).merge(style.itemTitleTextStyle),
                       padding: EdgeInsets.only(
@@ -375,7 +385,10 @@ class UsersList extends StatelessWidget {
   }
 
   void _handleItemLongPress(
-      BuildContext context, User user, UsersLoaded state) {
+    BuildContext context,
+    User user,
+    UsersLoaded state,
+  ) {
     if (activateSelection == ActivateSelection.onLongClick &&
         state.selectedUsers.isEmpty) {
       usersBloc.add(ToggleUserSelection(user.uid));

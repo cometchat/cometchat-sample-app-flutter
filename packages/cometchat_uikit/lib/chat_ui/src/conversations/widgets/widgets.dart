@@ -3,6 +3,7 @@
 /// This file exports all modular widget components extracted from
 /// the CometChatConversations widget for better maintainability
 /// and reusability.
+library;
 
 // State Views
 export 'conversations_loading_view.dart';

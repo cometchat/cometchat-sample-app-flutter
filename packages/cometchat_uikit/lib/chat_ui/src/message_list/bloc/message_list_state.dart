@@ -1,14 +1,8 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Status enum for message list
-enum MessageListStatus {
-  initial,
-  loading,
-  loaded,
-  empty,
-  error,
-}
+enum MessageListStatus { initial, loading, loaded, empty, error }
 
 /// State for the animated message list BLoC (legacy compatibility)
 class AnimatedMessageListState extends Equatable {
@@ -47,7 +41,13 @@ class AnimatedMessageListState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [messages, isLoadingOlder, isLoadingNewer, hasMoreOlder, hasMoreNewer];
+  List<Object?> get props => [
+    messages,
+    isLoadingOlder,
+    isLoadingNewer,
+    hasMoreOlder,
+    hasMoreNewer,
+  ];
 }
 
 /// State for the message list BLoC (Clean Architecture)
@@ -124,10 +124,13 @@ class MessageListState extends Equatable {
       loggedInUser: loggedInUser ?? this.loggedInUser,
       conversation: conversation ?? this.conversation,
       unreadMessageAnchor: unreadMessageAnchor ?? this.unreadMessageAnchor,
-      unreadMessageAnchorId: unreadMessageAnchorId ?? this.unreadMessageAnchorId,
+      unreadMessageAnchorId:
+          unreadMessageAnchorId ?? this.unreadMessageAnchorId,
       unreadCount: unreadCount ?? this.unreadCount,
-      markedAsUnreadInSession: markedAsUnreadInSession ?? this.markedAsUnreadInSession,
-      newUnreadMessageCount: newUnreadMessageCount ?? this.newUnreadMessageCount,
+      markedAsUnreadInSession:
+          markedAsUnreadInSession ?? this.markedAsUnreadInSession,
+      newUnreadMessageCount:
+          newUnreadMessageCount ?? this.newUnreadMessageCount,
       lastReadMessageId: lastReadMessageId ?? this.lastReadMessageId,
     );
   }
@@ -163,26 +166,56 @@ class MessageListState extends Equatable {
       isLoadingNewer: isLoadingNewer ?? this.isLoadingNewer,
       hasMoreOlder: hasMoreOlder ?? this.hasMoreOlder,
       hasMoreNewer: hasMoreNewer ?? this.hasMoreNewer,
-      errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
-      activeConversationId: clearActiveConversationId ? null : (activeConversationId ?? this.activeConversationId),
-      loggedInUser: clearLoggedInUser ? null : (loggedInUser ?? this.loggedInUser),
-      conversation: clearConversation ? null : (conversation ?? this.conversation),
-      unreadMessageAnchor: clearUnreadState ? null : (unreadMessageAnchor ?? this.unreadMessageAnchor),
-      unreadMessageAnchorId: clearUnreadState ? null : (unreadMessageAnchorId ?? this.unreadMessageAnchorId),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
+      activeConversationId: clearActiveConversationId
+          ? null
+          : (activeConversationId ?? this.activeConversationId),
+      loggedInUser: clearLoggedInUser
+          ? null
+          : (loggedInUser ?? this.loggedInUser),
+      conversation: clearConversation
+          ? null
+          : (conversation ?? this.conversation),
+      unreadMessageAnchor: clearUnreadState
+          ? null
+          : (unreadMessageAnchor ?? this.unreadMessageAnchor),
+      unreadMessageAnchorId: clearUnreadState
+          ? null
+          : (unreadMessageAnchorId ?? this.unreadMessageAnchorId),
       unreadCount: clearUnreadState ? 0 : (unreadCount ?? this.unreadCount),
-      markedAsUnreadInSession: clearUnreadState ? false : (markedAsUnreadInSession ?? this.markedAsUnreadInSession),
-      newUnreadMessageCount: clearUnreadState ? 0 : (newUnreadMessageCount ?? this.newUnreadMessageCount),
-      lastReadMessageId: clearUnreadState ? null : (lastReadMessageId ?? this.lastReadMessageId),
+      markedAsUnreadInSession: clearUnreadState
+          ? false
+          : (markedAsUnreadInSession ?? this.markedAsUnreadInSession),
+      newUnreadMessageCount: clearUnreadState
+          ? 0
+          : (newUnreadMessageCount ?? this.newUnreadMessageCount),
+      lastReadMessageId: clearUnreadState
+          ? null
+          : (lastReadMessageId ?? this.lastReadMessageId),
     );
   }
 
   @override
   List<Object?> get props => [
-        status, messages, isLoadingOlder, isLoadingNewer, hasMoreOlder, hasMoreNewer,
-        errorMessage, activeConversationId, loggedInUser, conversation,
-        unreadMessageAnchor, unreadMessageAnchorId, unreadCount,
-        markedAsUnreadInSession, newUnreadMessageCount, lastReadMessageId,
-      ];
+    status,
+    messages,
+    isLoadingOlder,
+    isLoadingNewer,
+    hasMoreOlder,
+    hasMoreNewer,
+    errorMessage,
+    activeConversationId,
+    loggedInUser,
+    conversation,
+    unreadMessageAnchor,
+    unreadMessageAnchorId,
+    unreadCount,
+    markedAsUnreadInSession,
+    newUnreadMessageCount,
+    lastReadMessageId,
+  ];
 
   @override
   String toString() {

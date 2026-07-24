@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
-import '../../../../../cometchat_uikit_shared.dart' show CometChatMessageReceiptStyle, CometChatAvatarStyle, CometChatDateStyle;
+import '../../../../../cometchat_uikit_shared.dart'
+    show CometChatMessageReceiptStyle, CometChatAvatarStyle, CometChatDateStyle;
 
 ///[CometChatStickerBubbleStyle] is a data class that has styling-related properties fo [CometChatStickerBubble]
 class CometChatStickerBubbleStyle
@@ -17,8 +17,6 @@ class CometChatStickerBubbleStyle
     this.messageBubbleDateStyle,
     this.senderNameTextStyle,
   });
-
-
 
   ///[backgroundColor] provides background color to the message bubble of the sent message
   final Color? backgroundColor;
@@ -67,22 +65,25 @@ class CometChatStickerBubbleStyle
     TextStyle? senderNameTextStyle,
   }) {
     return CometChatStickerBubbleStyle(
-      messageBubbleBackgroundImage: messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
+      messageBubbleBackgroundImage:
+          messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
       threadedMessageIndicatorTextStyle:
-      threadedMessageIndicatorTextStyle ?? this.threadedMessageIndicatorTextStyle,
+          threadedMessageIndicatorTextStyle ??
+          this.threadedMessageIndicatorTextStyle,
       threadedMessageIndicatorIconColor:
-      threadedMessageIndicatorIconColor ?? this.threadedMessageIndicatorIconColor,
-      messageBubbleAvatarStyle: messageBubbleAvatarStyle ?? this.messageBubbleAvatarStyle,
+          threadedMessageIndicatorIconColor ??
+          this.threadedMessageIndicatorIconColor,
+      messageBubbleAvatarStyle:
+          messageBubbleAvatarStyle ?? this.messageBubbleAvatarStyle,
       messageReceiptStyle: messageReceiptStyle ?? this.messageReceiptStyle,
       messageBubbleDateStyle:
-      messageBubbleDateStyle ?? this.messageBubbleDateStyle,
+          messageBubbleDateStyle ?? this.messageBubbleDateStyle,
       senderNameTextStyle: senderNameTextStyle ?? this.senderNameTextStyle,
     );
   }
-
 
   CometChatStickerBubbleStyle merge(CometChatStickerBubbleStyle? style) {
     if (style == null) return this;
@@ -94,34 +95,59 @@ class CometChatStickerBubbleStyle
       messageBubbleAvatarStyle: style.messageBubbleAvatarStyle,
       messageBubbleDateStyle: style.messageBubbleDateStyle,
       messageReceiptStyle: style.messageReceiptStyle,
-      threadedMessageIndicatorIconColor: style.threadedMessageIndicatorIconColor,
-      threadedMessageIndicatorTextStyle: style.threadedMessageIndicatorTextStyle,
+      threadedMessageIndicatorIconColor:
+          style.threadedMessageIndicatorIconColor,
+      threadedMessageIndicatorTextStyle:
+          style.threadedMessageIndicatorTextStyle,
       senderNameTextStyle: style.senderNameTextStyle,
     );
   }
 
   @override
   CometChatStickerBubbleStyle lerp(
-      covariant CometChatStickerBubbleStyle? other, double t) {
+    covariant CometChatStickerBubbleStyle? other,
+    double t,
+  ) {
     return CometChatStickerBubbleStyle(
-      messageBubbleBackgroundImage:
-      DecorationImage.lerp(messageBubbleBackgroundImage, other!.messageBubbleBackgroundImage, t),
+      messageBubbleBackgroundImage: DecorationImage.lerp(
+        messageBubbleBackgroundImage,
+        other!.messageBubbleBackgroundImage,
+        t,
+      ),
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: Border.lerp(border as Border?, other.border as Border?, t),
-      borderRadius:
-      BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       threadedMessageIndicatorTextStyle: TextStyle.lerp(
-          threadedMessageIndicatorTextStyle, other.threadedMessageIndicatorTextStyle, t),
+        threadedMessageIndicatorTextStyle,
+        other.threadedMessageIndicatorTextStyle,
+        t,
+      ),
       threadedMessageIndicatorIconColor: Color.lerp(
-          threadedMessageIndicatorIconColor, other.threadedMessageIndicatorIconColor, t),
-      messageBubbleAvatarStyle: messageBubbleAvatarStyle?.lerp(other.messageBubbleAvatarStyle, t),
-      messageReceiptStyle:
-      messageReceiptStyle?.lerp(other.messageReceiptStyle, t),
-      messageBubbleDateStyle:
-      messageBubbleDateStyle?.lerp(other.messageBubbleDateStyle, t),
-      senderNameTextStyle:
-      TextStyle.lerp(senderNameTextStyle, other.senderNameTextStyle, t),
+        threadedMessageIndicatorIconColor,
+        other.threadedMessageIndicatorIconColor,
+        t,
+      ),
+      messageBubbleAvatarStyle: messageBubbleAvatarStyle?.lerp(
+        other.messageBubbleAvatarStyle,
+        t,
+      ),
+      messageReceiptStyle: messageReceiptStyle?.lerp(
+        other.messageReceiptStyle,
+        t,
+      ),
+      messageBubbleDateStyle: messageBubbleDateStyle?.lerp(
+        other.messageBubbleDateStyle,
+        t,
+      ),
+      senderNameTextStyle: TextStyle.lerp(
+        senderNameTextStyle,
+        other.senderNameTextStyle,
+        t,
+      ),
     );
   }
 }
-

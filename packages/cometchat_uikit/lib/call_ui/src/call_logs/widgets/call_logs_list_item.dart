@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../cometchat_calls_uikit.dart';
 import '../../../../cometchat_chat_uikit.dart';
-import '../cometchat_call_logs/call_logs_style.dart';
 
 /// A widget that displays a single call log item in the list.
 ///
@@ -134,17 +133,20 @@ class CallLogsListItem extends StatelessWidget {
         spacing ?? CometChatThemeHelper.getSpacing(context);
     final effectiveTypography =
         typography ?? CometChatThemeHelper.getTypography(context);
-    final effectiveStyle = style ??
+    final effectiveStyle =
+        style ??
         CometChatThemeHelper.getTheme<CometChatCallLogsStyle>(
           context: context,
           defaultTheme: CometChatCallLogsStyle.of,
         );
-    final effectiveAvatarStyle = avatarStyle ??
+    final effectiveAvatarStyle =
+        avatarStyle ??
         CometChatThemeHelper.getTheme<CometChatAvatarStyle>(
           context: context,
           defaultTheme: CometChatAvatarStyle.of,
         ).merge(effectiveStyle.avatarStyle);
-    final effectiveDateStyle = dateStyle ??
+    final effectiveDateStyle =
+        dateStyle ??
         CometChatThemeHelper.getTheme<CometChatDateStyle>(
           context: context,
           defaultTheme: CometChatDateStyle.of,
@@ -160,20 +162,24 @@ class CallLogsListItem extends StatelessWidget {
         title: CallLogsUtils.receiverName(loggedInUser, callLog),
         style: ListItemStyle(
           background: effectiveColorPalette.transparent,
-          titleStyle: TextStyle(
-            overflow: TextOverflow.ellipsis,
-            fontSize: effectiveTypography.heading4?.medium?.fontSize,
-            fontWeight: effectiveTypography.heading4?.medium?.fontWeight,
-            fontFamily: effectiveTypography.heading4?.medium?.fontFamily,
-            color: effectiveStyle.itemTitleTextColor ??
-                CallUtils.getCallStatusColor(
-                  callLog,
-                  loggedInUser,
-                  effectiveColorPalette,
-                ),
-          )
-              .merge(effectiveStyle.itemTitleTextStyle)
-              .copyWith(color: effectiveStyle.itemTitleTextColor),
+          titleStyle:
+              TextStyle(
+                    overflow: TextOverflow.ellipsis,
+                    fontSize: effectiveTypography.heading4?.medium?.fontSize,
+                    fontWeight:
+                        effectiveTypography.heading4?.medium?.fontWeight,
+                    fontFamily:
+                        effectiveTypography.heading4?.medium?.fontFamily,
+                    color:
+                        effectiveStyle.itemTitleTextColor ??
+                        CallUtils.getCallStatusColor(
+                          callLog,
+                          loggedInUser,
+                          effectiveColorPalette,
+                        ),
+                  )
+                  .merge(effectiveStyle.itemTitleTextStyle)
+                  .copyWith(color: effectiveStyle.itemTitleTextColor),
           padding: EdgeInsets.only(
             left: effectiveSpacing.padding4 ?? 0,
             right: effectiveSpacing.padding4 ?? 0,
@@ -281,7 +287,8 @@ class CallLogsListItem extends StatelessWidget {
       child: IconButton(
         padding: EdgeInsets.zero,
         onPressed: onCallIconPressed,
-        icon: icon ??
+        icon:
+            icon ??
             Icon(
               iconData,
               size: 24,

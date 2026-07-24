@@ -152,18 +152,20 @@ class _CometChatAISmartRepliesViewState
       title: Translations.of(context).suggestAReply,
       onCloseIconTap: () {
         final idMap = UIEventUtils.createMap(
-            widget.user?.uid, widget.group?.guid, 0);
+          widget.user?.uid,
+          widget.group?.guid,
+          0,
+        );
         idMap[AIUtils.extensionKey] = AIFeatureConstants.aiSmartReplies;
-        CometChatUIEvents.hidePanel(
-            idMap, CustomUIPosition.messageListBottom);
+        CometChatUIEvents.hidePanel(idMap, CustomUIPosition.messageListBottom);
       },
       colorPalette: _colorPalette,
       spacing: _spacing,
       typography: _typography,
       padding: EdgeInsets.all(_spacing.padding3 ?? 0),
       style: DecoratedContainerStyle(
-        borderRadius: _style.borderRadius ??
-            BorderRadius.circular(_spacing.radius4 ?? 0),
+        borderRadius:
+            _style.borderRadius ?? BorderRadius.circular(_spacing.radius4 ?? 0),
         border: _style.border,
         backgroundColor: _style.backgroundColor,
         titleStyle: _style.titleStyle,
@@ -175,56 +177,56 @@ class _CometChatAISmartRepliesViewState
         child: _isLoading
             ? _buildLoading()
             : _isError
-                ? _buildError()
-                : SingleChildScrollView(
-                    padding: EdgeInsets.zero,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListView.separated(
-                          itemCount: _replies.length,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.zero,
-                          itemBuilder: (_, int index) {
-                            return GestureDetector(
-                              onTap: () => _onReplyTapped(_replies[index]),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: _spacing.padding2 ?? 0,
-                                  horizontal: _spacing.padding3 ?? 0,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: _style.itemBorder ??
-                                      Border.all(
-                                        color: _colorPalette.borderLight ??
-                                            Colors.transparent,
-                                        width: 1,
-                                      ),
-                                  borderRadius: _style.itemBorderRadius ??
-                                      BorderRadius.circular(
-                                          _spacing.radius2 ?? 0),
-                                  color: _style.itemBackgroundColor,
-                                ),
-                                child: Text(
-                                  _replies[index],
-                                  style: TextStyle(
-                                    fontSize:
-                                        _typography.body?.regular?.fontSize,
-                                    fontWeight:
-                                        _typography.body?.regular?.fontWeight,
-                                    color: _colorPalette.textPrimary,
-                                  ).merge(_style.itemTextStyle),
-                                ),
-                              ),
-                            );
-                          },
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 8),
-                        ),
-                      ],
+            ? _buildError()
+            : SingleChildScrollView(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListView.separated(
+                      itemCount: _replies.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: EdgeInsets.zero,
+                      itemBuilder: (_, int index) {
+                        return GestureDetector(
+                          onTap: () => _onReplyTapped(_replies[index]),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              vertical: _spacing.padding2 ?? 0,
+                              horizontal: _spacing.padding3 ?? 0,
+                            ),
+                            decoration: BoxDecoration(
+                              border:
+                                  _style.itemBorder ??
+                                  Border.all(
+                                    color:
+                                        _colorPalette.borderLight ??
+                                        Colors.transparent,
+                                    width: 1,
+                                  ),
+                              borderRadius:
+                                  _style.itemBorderRadius ??
+                                  BorderRadius.circular(_spacing.radius2 ?? 0),
+                              color: _style.itemBackgroundColor,
+                            ),
+                            child: Text(
+                              _replies[index],
+                              style: TextStyle(
+                                fontSize: _typography.body?.regular?.fontSize,
+                                fontWeight:
+                                    _typography.body?.regular?.fontWeight,
+                                color: _colorPalette.textPrimary,
+                              ).merge(_style.itemTextStyle),
+                            ),
+                          ),
+                        );
+                      },
+                      separatorBuilder: (_, _) => const SizedBox(height: 8),
                     ),
-                  ),
+                  ],
+                ),
+              ),
       ),
     );
   }

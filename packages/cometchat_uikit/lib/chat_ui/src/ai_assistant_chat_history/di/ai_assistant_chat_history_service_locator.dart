@@ -42,8 +42,9 @@ class AIAssistantChatHistoryServiceLocator {
     );
 
     _fetchChatHistoryUseCase = FetchChatHistoryUseCase(_repository);
-    _deleteChatHistoryMessageUseCase =
-        DeleteChatHistoryMessageUseCase(_repository);
+    _deleteChatHistoryMessageUseCase = DeleteChatHistoryMessageUseCase(
+      _repository,
+    );
     _getLoggedInUserUseCase = GetLoggedInUserUseCase(_repository);
 
     _isInitialized = true;

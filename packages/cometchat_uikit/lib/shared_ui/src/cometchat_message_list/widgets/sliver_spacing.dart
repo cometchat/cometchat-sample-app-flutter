@@ -6,7 +6,7 @@ import '../utils/composer_height_notifier.dart';
 ///
 /// This sliver handles:
 /// - Bottom padding
-/// - Safe area insets  
+/// - Safe area insets
 /// - Composer height (via [ComposerHeightNotifier] or fixed [composerHeight])
 /// - Keyboard height (only when user is at bottom of list)
 ///
@@ -21,7 +21,7 @@ class SliverSpacing extends StatefulWidget {
 
   /// Notifier for composer height changes (dynamic)
   final ComposerHeightNotifier? composerHeightNotifier;
-  
+
   /// Fixed composer height (used when composerHeightNotifier is null)
   /// Default is 80.0 which includes typical composer height + internal padding
   final double composerHeight;
@@ -35,7 +35,7 @@ class SliverSpacing extends StatefulWidget {
 
   /// Scroll controller - used to check if user is at bottom
   final ScrollController? scrollController;
-  
+
   /// Threshold for considering user "at bottom" (in pixels)
   /// Default is 50 pixels from the bottom
   final double atBottomThreshold;
@@ -64,13 +64,13 @@ class _SliverSpacingState extends State<SliverSpacing>
   double _safeAreaBottom = 0;
   double _initialSafeArea = 0;
   bool _initialized = false;
-  
+
   // Track if user was at bottom when keyboard started opening
   bool _shouldPushList = true;
-  
+
   // Store the height we had before keyboard opened (to restore when not pushing)
   double _heightBeforeKeyboard = 0;
-  
+
   // Track last known scroll offset (updated continuously via listener)
   double _lastKnownScrollOffset = 0;
   bool _scrollListenerAttached = false;
@@ -125,7 +125,9 @@ class _SliverSpacingState extends State<SliverSpacing>
   void didUpdateWidget(SliverSpacing oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.composerHeightNotifier != widget.composerHeightNotifier) {
-      oldWidget.composerHeightNotifier?.removeListener(_onComposerHeightChanged);
+      oldWidget.composerHeightNotifier?.removeListener(
+        _onComposerHeightChanged,
+      );
       widget.composerHeightNotifier?.addListener(_onComposerHeightChanged);
     }
     if (oldWidget.includeKeyboardHeight != widget.includeKeyboardHeight) {
@@ -141,7 +143,7 @@ class _SliverSpacingState extends State<SliverSpacing>
       _attachScrollListener();
     }
   }
-  
+
   void _attachScrollListener() {
     final controller = widget.scrollController;
     if (controller != null && !_scrollListenerAttached) {
@@ -153,7 +155,7 @@ class _SliverSpacingState extends State<SliverSpacing>
       }
     }
   }
-  
+
   void _detachScrollListener() {
     final controller = widget.scrollController;
     if (controller != null && _scrollListenerAttached) {
@@ -161,7 +163,7 @@ class _SliverSpacingState extends State<SliverSpacing>
       _scrollListenerAttached = false;
     }
   }
-  
+
   void _onScrollChanged() {
     final controller = widget.scrollController;
     if (controller != null && controller.hasClients) {
@@ -201,11 +203,14 @@ class _SliverSpacingState extends State<SliverSpacing>
     if (route != null && !route.isCurrent) return;
 
     final rawKeyboardHeight = View.of(context).viewInsets.bottom;
-    
+
     if (rawKeyboardHeight != _previousRawKeyboardHeight) {
       final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-      final adjustedHeight = max(rawKeyboardHeight / pixelRatio - _initialSafeArea, 0.0);
-      
+      final adjustedHeight = max(
+        rawKeyboardHeight / pixelRatio - _initialSafeArea,
+        0.0,
+      );
+
       // Debug: Print bottom inset as keyboard opens/closes
       debugPrint('🔵 [SliverSpacing] Bottom Inset Changed:');
       debugPrint('   Raw viewInsets.bottom: $rawKeyboardHeight');
@@ -213,14 +218,14 @@ class _SliverSpacingState extends State<SliverSpacing>
       debugPrint('   Initial safe area: $_initialSafeArea');
       debugPrint('   Adjusted keyboard height: $adjustedHeight');
       debugPrint('   Previous keyboard height: $_keyboardHeight');
-      
+
       // Detect keyboard state transitions
       final wasKeyboardFullyClosed = _keyboardHeight == 0;
       final isKeyboardOpening = wasKeyboardFullyClosed && adjustedHeight > 0;
       final isKeyboardFullyClosed = adjustedHeight == 0 && _keyboardHeight > 0;
-      
+
       _previousRawKeyboardHeight = rawKeyboardHeight;
-      
+
       // When keyboard is STARTING to open (was fully closed, now opening)
       if (isKeyboardOpening) {
         _shouldPushList = _isAtBottom();
@@ -228,30 +233,30 @@ class _SliverSpacingState extends State<SliverSpacing>
         _heightBeforeKeyboard = _calculateBaseHeight();
         debugPrint('   🟢 Keyboard OPENING - shouldPushList: $_shouldPushList');
       }
-      
+
       // When keyboard is fully closed, reset for next time
       if (isKeyboardFullyClosed) {
         _shouldPushList = true;
         debugPrint('   🔴 Keyboard CLOSED');
       }
-      
+
       if (_keyboardHeight != adjustedHeight) {
         final oldKeyboardHeight = _keyboardHeight;
-        
+
         // Only trigger rebuild if we should push the list OR keyboard is closing
         if (_shouldPushList || adjustedHeight < oldKeyboardHeight) {
           final oldTotalHeight = _computeTotalHeight();
           _keyboardHeight = adjustedHeight;
           final newTotalHeight = _computeTotalHeight();
-          
+
           // Animate the height transition
-          _heightAnimation = Tween<double>(
-            begin: oldTotalHeight,
-            end: newTotalHeight,
-          ).animate(CurvedAnimation(
-            parent: _animationController,
-            curve: Curves.easeOut,
-          ));
+          _heightAnimation =
+              Tween<double>(begin: oldTotalHeight, end: newTotalHeight).animate(
+                CurvedAnimation(
+                  parent: _animationController,
+                  curve: Curves.easeOut,
+                ),
+              );
           _animationController.forward(from: 0);
         } else {
           // Just update the value without rebuilding - list stays still
@@ -264,33 +269,33 @@ class _SliverSpacingState extends State<SliverSpacing>
       }
     }
   }
-  
+
   double _calculateBaseHeight() {
     double height = widget.bottomPadding ?? 0;
-    
-    final composerHeight = widget.composerHeightNotifier != null 
-        ? _dynamicComposerHeight 
+
+    final composerHeight = widget.composerHeightNotifier != null
+        ? _dynamicComposerHeight
         : widget.composerHeight;
     height += composerHeight;
-    
+
     // Add safe area when keyboard is closed
     // When keyboard is open, keyboard height replaces safe area
     if (widget.handleSafeArea == true && _keyboardHeight == 0) {
       height += _safeAreaBottom;
     }
-    
+
     return height;
   }
 
   /// Compute the target total height based on current state (no animation)
   double _computeTotalHeight() {
     double totalHeight;
-    
+
     if (!_shouldPushList && _keyboardHeight > 0) {
       totalHeight = _heightBeforeKeyboard;
     } else {
       totalHeight = _calculateBaseHeight();
-      
+
       if (widget.includeKeyboardHeight && _shouldPushList) {
         totalHeight += _keyboardHeight;
       }
@@ -305,8 +310,6 @@ class _SliverSpacingState extends State<SliverSpacing>
         ? _currentAnimatedHeight
         : _computeTotalHeight();
 
-    return SliverPadding(
-      padding: EdgeInsets.only(bottom: totalHeight),
-    );
+    return SliverPadding(padding: EdgeInsets.only(bottom: totalHeight));
   }
 }

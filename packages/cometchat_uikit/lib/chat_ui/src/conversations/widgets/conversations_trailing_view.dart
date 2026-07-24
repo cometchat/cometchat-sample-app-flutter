@@ -90,23 +90,15 @@ class ConversationsTrailingView extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.only(
-        left: spacing.padding2 ?? 0,
-      ),
+      padding: EdgeInsets.only(left: spacing.padding2 ?? 0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: _getTime(context),
-          ),
-          const SizedBox(
-            height: 6.5,
-          ),
-          Flexible(
-            child: _getUnreadCount(context),
-          ),
+          Flexible(child: _getTime(context)),
+          const SizedBox(height: 6.5),
+          Flexible(child: _getUnreadCount(context)),
         ],
       ),
     );
@@ -137,14 +129,10 @@ class ConversationsTrailingView extends StatelessWidget {
           fontSize: typography.caption1?.regular?.fontSize,
           fontWeight: typography.caption1?.regular?.fontWeight,
           fontFamily: typography.caption1?.regular?.fontFamily,
-        ).merge(datesStyle.textStyle).copyWith(
-              color: datesStyle.textColor,
-            ),
-        border: datesStyle.border ??
-            Border.all(
-              width: 0,
-              color: Colors.transparent,
-            ),
+        ).merge(datesStyle.textStyle).copyWith(color: datesStyle.textColor),
+        border:
+            datesStyle.border ??
+            Border.all(width: 0, color: Colors.transparent),
         borderRadius: datesStyle.borderRadius,
         textColor: datesStyle.textColor,
       ),
@@ -157,7 +145,7 @@ class ConversationsTrailingView extends StatelessWidget {
   /// Returns the unread message count badge widget.
   Widget _getUnreadCount(BuildContext context) {
     return CometChatBadge(
-      count: conversation.unreadMessageCount ?? 0,
+      count: conversation.unreadMessageCount,
       width: badgeWidth,
       height: badgeHeight ?? 20,
       style: style.badgeStyle ?? const CometChatBadgeStyle(),

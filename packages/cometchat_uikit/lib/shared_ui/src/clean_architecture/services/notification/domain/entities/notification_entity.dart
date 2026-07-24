@@ -68,19 +68,7 @@ class NotificationEntity {
 }
 
 /// Enum for notification types
-enum NotificationType {
-  message,
-  call,
-  user,
-  group,
-  system,
-  custom,
-}
+enum NotificationType { message, call, user, group, system, custom }
 
 /// Enum for notification priority
-enum NotificationPriority {
-  low,
-  normal,
-  high,
-  urgent,
-}
+enum NotificationPriority { low, normal, high, urgent }

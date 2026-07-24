@@ -1,16 +1,22 @@
-import '../../../cometchat_uikit_shared.dart' hide BaseInputElement, RadioButtonElement, ElementEntity, BaseInteractiveElement;
+import '../../../cometchat_uikit_shared.dart'
+    hide
+        BaseInputElement,
+        RadioButtonElement,
+        ElementEntity,
+        BaseInteractiveElement;
 import 'base_input_element.dart';
+
 /// Represents a radio button model class , used to draw radio button .
 class RadioButtonElement extends BaseInputElement<String> {
-  RadioButtonElement(
-      {super.elementType = UIElementTypeConstants.radio,
-      required super.elementId,
-      required this.label,
-      required this.options,
-      super.response,
-      super.defaultValue,
-      bool? optional = true})
-      : super(optional: optional ?? true);
+  RadioButtonElement({
+    super.elementType = UIElementTypeConstants.radio,
+    required super.elementId,
+    required this.label,
+    required this.options,
+    super.response,
+    super.defaultValue,
+    bool? optional = true,
+  }) : super(optional: optional ?? true);
 
   String label;
   List<OptionElement> options;
@@ -19,8 +25,9 @@ class RadioButtonElement extends BaseInputElement<String> {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = super.toMap();
     map[ModelFieldConstants.label] = label;
-    map[ModelFieldConstants.options] =
-        options.map((option) => option.toMap()).toList();
+    map[ModelFieldConstants.options] = options
+        .map((option) => option.toMap())
+        .toList();
     return map;
   }
 

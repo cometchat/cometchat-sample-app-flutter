@@ -3,7 +3,7 @@
 // by a BSD-style license that can be found in the LICENSE file.
 
 /// Locations database
-library timezone.src.location_database;
+library;
 
 import 'exceptions.dart';
 import 'location.dart';
@@ -32,13 +32,15 @@ class LocationDatabase {
       // Before you can get a location, you need to manually initialize the
       // timezone location database by calling initializeDatabase or similar.
       throw LocationNotFoundException(
-          'Tried to get location before initializing timezone database');
+        'Tried to get location before initializing timezone database',
+      );
     }
 
     final loc = _locations[name];
     if (loc == null) {
       throw LocationNotFoundException(
-          'Location with the name "$name" doesn\'t exist');
+        'Location with the name "$name" doesn\'t exist',
+      );
     }
     return loc;
   }

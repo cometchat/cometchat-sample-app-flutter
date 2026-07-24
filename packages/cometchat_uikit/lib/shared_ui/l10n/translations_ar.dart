@@ -829,6 +829,40 @@ class TranslationsAr extends Translations {
   String get failedToLoadImage => 'فشل تحميل الصورة';
 
   @override
+  String get uploadFailed => 'فشل الرفع';
+
+  @override
+  String get tapToRetry => 'انقر لإعادة المحاولة';
+
+  @override
+  String get dropFilesHere => 'أفلت الملفات هنا';
+
+  @override
+  String get attachmentCountLimit =>
+      'يمكنك إرفاق ما يصل إلى {limit} ملفات لكل رسالة.';
+
+  @override
+  String get attachmentFileSizeLimit => 'يجب أن يكون كل ملف أقل من {limit}.';
+
+  @override
+  String get fileListShowMore => '+{count} أخرى';
+
+  @override
+  String get fileListShowLess => 'عرض أقل';
+
+  @override
+  String get searchImagesCount => '{count} صور';
+
+  @override
+  String get searchVideosCount => '{count} مقاطع فيديو';
+
+  @override
+  String get searchAudiosCount => '{count} ملفات صوتية';
+
+  @override
+  String get searchFilesCount => '{count} ملفات';
+
+  @override
   String get transferOwnership => 'نقل الملكية';
 
   @override
@@ -1255,13 +1289,16 @@ class TranslationsAr extends Translations {
   String get createGroupEmptyString =>
       'يرجى ملء جميع الحقول المطلوبة قبل إنشاء مجموعة.';
   @override
-  String get messageBlockedByModeration => 'تم حظر رسالتك بسبب سياسات الاعتدال.';
+  String get messageBlockedByModeration =>
+      'تم حظر رسالتك بسبب سياسات الاعتدال.';
 
   @override
-  String get cantSendMessageBlockedUser => 'لا يمكن إرسال الرسالة لأن المستخدم محظور';
+  String get cantSendMessageBlockedUser =>
+      'لا يمكن إرسال الرسالة لأن المستخدم محظور';
 
   @override
-  String get cantSendMessageNotMember => 'لا يمكنك إرسال رسائل إلى هذه المجموعة لأنك لم تعد عضوًا فيها';
+  String get cantSendMessageNotMember =>
+      'لا يمكنك إرسال رسائل إلى هذه المجموعة لأنك لم تعد عضوًا فيها';
 
   @override
   String get youAreNoLongerPartOfThisGroup => 'لم تعد جزءًا من هذه المجموعة';
@@ -1273,10 +1310,12 @@ class TranslationsAr extends Translations {
   String get noConversationHistoryFound => "لم يتم العثور على تاريخ المحادثة";
 
   @override
-  String get somethingWentWrongTryAgain => "حدث خطأ من جانبنا. يرجى المحاولة مرة أخرى";
+  String get somethingWentWrongTryAgain =>
+      "حدث خطأ من جانبنا. يرجى المحاولة مرة أخرى";
 
   @override
-  String get startChatByTappingNewChat => 'ابدأ دردشة بالنقر على زر "دردشة جديدة"';
+  String get startChatByTappingNewChat =>
+      'ابدأ دردشة بالنقر على زر "دردشة جديدة"';
 
   @override
   String get chatHistory => "سجل الدردشة";
@@ -1323,7 +1362,8 @@ class TranslationsAr extends Translations {
   String get reportMessage => "Report a message";
 
   @override
-  String get reportChatInfo => "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+  String get reportChatInfo =>
+      "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 
   @override
   String get reason => "Reason";

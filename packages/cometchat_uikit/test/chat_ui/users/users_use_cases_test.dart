@@ -59,11 +59,13 @@ void main() {
     });
 
     test('delegates to repository with default limit', () async {
-      when(() => repo.getUsers(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            usersRequestBuilder: any(named: 'usersRequestBuilder'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getUsers(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          usersRequestBuilder: any(named: 'usersRequestBuilder'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase();
       expect(result.isSuccess, isTrue);
@@ -71,45 +73,54 @@ void main() {
     });
 
     test('passes custom limit to repository', () async {
-      when(() => repo.getUsers(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            usersRequestBuilder: any(named: 'usersRequestBuilder'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getUsers(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          usersRequestBuilder: any(named: 'usersRequestBuilder'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       await useCase(limit: 50);
       verify(() => repo.getUsers(limit: 50)).called(1);
     });
 
     test('passes searchKeyword to repository', () async {
-      when(() => repo.getUsers(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            usersRequestBuilder: any(named: 'usersRequestBuilder'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getUsers(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          usersRequestBuilder: any(named: 'usersRequestBuilder'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       await useCase(searchKeyword: 'john');
       verify(() => repo.getUsers(limit: 30, searchKeyword: 'john')).called(1);
     });
 
     test('accepts limit of exactly 100', () async {
-      when(() => repo.getUsers(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            usersRequestBuilder: any(named: 'usersRequestBuilder'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getUsers(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          usersRequestBuilder: any(named: 'usersRequestBuilder'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase(limit: 100);
       expect(result.isSuccess, isTrue);
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.getUsers(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            usersRequestBuilder: any(named: 'usersRequestBuilder'),
-          )).thenAnswer(
-              (_) async => const Failure(message: 'Network error', code: 'NET_ERR'));
+      when(
+        () => repo.getUsers(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          usersRequestBuilder: any(named: 'usersRequestBuilder'),
+        ),
+      ).thenAnswer(
+        (_) async => const Failure(message: 'Network error', code: 'NET_ERR'),
+      );
 
       final result = await useCase();
       expect(result.isFailure, isTrue);
@@ -137,8 +148,9 @@ void main() {
     });
 
     test('delegates to repository with valid UID', () async {
-      when(() => repo.blockUser(any()))
-          .thenAnswer((_) async => const Success(null));
+      when(
+        () => repo.blockUser(any()),
+      ).thenAnswer((_) async => const Success(null));
 
       final result = await useCase('uid123');
       expect(result.isSuccess, isTrue);
@@ -151,9 +163,9 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.blockUser(any()))
-          .thenAnswer((_) async =>
-              const Failure(message: 'Block failed', code: 'BLOCK_ERR'));
+      when(() => repo.blockUser(any())).thenAnswer(
+        (_) async => const Failure(message: 'Block failed', code: 'BLOCK_ERR'),
+      );
 
       final result = await useCase('uid123');
       expect(result.isFailure, isTrue);
@@ -180,8 +192,9 @@ void main() {
     });
 
     test('delegates to repository with valid UID', () async {
-      when(() => repo.unblockUser(any()))
-          .thenAnswer((_) async => const Success(null));
+      when(
+        () => repo.unblockUser(any()),
+      ).thenAnswer((_) async => const Success(null));
 
       final result = await useCase('uid123');
       expect(result.isSuccess, isTrue);
@@ -189,9 +202,10 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.unblockUser(any()))
-          .thenAnswer((_) async =>
-              const Failure(message: 'Unblock failed', code: 'UNBLOCK_ERR'));
+      when(() => repo.unblockUser(any())).thenAnswer(
+        (_) async =>
+            const Failure(message: 'Unblock failed', code: 'UNBLOCK_ERR'),
+      );
 
       final result = await useCase('uid123');
       expect(result.isFailure, isTrue);

@@ -3,16 +3,14 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 import '../../cometchat_uikit_shared.dart';
 import '../../../call_ui/src/call_event_service.dart';
-import '../utils/sdk_methods.dart' as LegacySDK;
+import '../utils/sdk_methods.dart' as legacy_sdk;
 import '../utils/timezone_utils/data/latest.dart';
-import '../clean_architecture/core/constants/enums.dart' as CoreEnums;
-import '../constants/ui_kit_constants.dart' as ChatUIKitConstants;
+import '../clean_architecture/core/constants/enums.dart' as core_enums;
+import '../constants/ui_kit_constants.dart' as chat_ui_kit_constants;
 import '../clean_architecture/data/models/interactive_message/card_message.dart'
     as legacy_card;
-
 
 class CometChatUIKit {
   static UIKitSettings? authenticationSettings;
@@ -25,15 +23,23 @@ class CometChatUIKit {
 
   static ConversationUpdateSettings? conversationUpdateSettings;
 
+  /// Whether the UIKit was initialized via [initFromSettings] (the AI-agent /
+  /// skills path). Read by CallEventService to route the Calls SDK through its
+  /// telemetry-aware `CometChatCalls.initFromSettings` so integrationSource =
+  /// "ai-agent" propagates past the Chat SDK (ENG-37368). The plain [init]
+  /// path leaves this false and the Calls SDK uses its plain init ("manual").
+  static bool initializedFromSettings = false;
+
   /// method initializes the settings required for CometChat
   ///
   /// We suggest you call the init() method on app startup
   ///
   /// its necessary to first populate uiKitSettings inorder to call [init].
-  static init(
-      {required UIKitSettings uiKitSettings,
-      Function(String successMessage)? onSuccess,
-      Function(CometChatException e)? onError}) async {
+  static Future<void> init({
+    required UIKitSettings uiKitSettings,
+    Function(String successMessage)? onSuccess,
+    Function(CometChatException e)? onError,
+  }) async {
     //if (!checkAuthSettings(onError)) return;
     authenticationSettings = uiKitSettings;
 
@@ -41,56 +47,70 @@ class CometChatUIKit {
     // (which fires sendIfNeeded immediately) includes the uikit block in the
     // telemetry payload. Previously this was registered in the onSuccess
     // callback which runs AFTER session restoration telemetry.
-    SdkIdentification.registerComponent(const SessionComponentInfo(
-      key: 'uikit',
-      platform: ChatUIKitConstants.SetSourceConstant.platform,
-      version: ChatUIKitConstants.SetSourceConstant.version,
-    ));
+    SdkIdentification.registerComponent(
+      const SessionComponentInfo(
+        key: 'uikit',
+        platform: chat_ui_kit_constants.SetSourceConstant.platform,
+        version: chat_ui_kit_constants.SetSourceConstant.version,
+      ),
+    );
 
-    AppSettings appSettings = (AppSettingsBuilder()
-          ..subscriptionType = authenticationSettings?.subscriptionType ??
-              CometChatSubscriptionType.allUsers
-          ..region = authenticationSettings?.region
-          ..autoEstablishSocketConnection =
-              authenticationSettings?.autoEstablishSocketConnection ?? true
-          ..adminHost = authenticationSettings?.adminHost
-          ..clientHost = authenticationSettings?.clientHost)
-        .build();
+    AppSettings appSettings =
+        (AppSettingsBuilder()
+              ..subscriptionType =
+                  authenticationSettings?.subscriptionType ??
+                  CometChatSubscriptionType.allUsers
+              ..region = authenticationSettings?.region
+              ..autoEstablishSocketConnection =
+                  authenticationSettings?.autoEstablishSocketConnection ?? true
+              ..adminHost = authenticationSettings?.adminHost
+              ..clientHost = authenticationSettings?.clientHost)
+            .build();
 
-    await CometChat.init(authenticationSettings!.appId!, appSettings,
-        onSuccess: (String successMessage) async {
-      User? loggedInUser = await getLoggedInUser();
-      if (loggedInUser != null) {
-        CometChatUIKit.loggedInUser = loggedInUser;
-        _initiateAfterLogin();
-      }
-      //executing custom onSuccess handler when CometChat SDK is initialized successfully
-      getConversationUpdateSettings();
-      if (onSuccess != null) {
-        try {
-          onSuccess(successMessage);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "CometChat SDK is initialized successfully but failed to execute onSuccess callback");
+    await CometChat.init(
+      authenticationSettings!.appId!,
+      appSettings,
+      onSuccess: (String successMessage) async {
+        User? loggedInUser = await getLoggedInUser();
+        if (loggedInUser != null) {
+          CometChatUIKit.loggedInUser = loggedInUser;
+          _initiateAfterLogin();
+        }
+        //executing custom onSuccess handler when CometChat SDK is initialized successfully
+        getConversationUpdateSettings();
+        if (onSuccess != null) {
+          try {
+            onSuccess(successMessage);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "CometChat SDK is initialized successfully but failed to execute onSuccess callback",
+              );
+            }
           }
         }
-      }
 
-      CometChat.setSource(ChatUIKitConstants.SetSourceConstant.uiKitVersion, kIsWeb ? 'web' : _nativePlatformName(), ChatUIKitConstants.SetSourceConstant.platform);
-    }, onError: (CometChatException exception) {
-      //executing custom onError handler when CometChat SDK could not be initialized
-      if (onError != null) {
-        try {
-          onError(exception);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "CometChat SDK could not be initialized and failed to execute onError callback");
+        CometChat.setSource(
+          chat_ui_kit_constants.SetSourceConstant.uiKitVersion,
+          kIsWeb ? 'web' : _nativePlatformName(),
+          chat_ui_kit_constants.SetSourceConstant.platform,
+        );
+      },
+      onError: (CometChatException exception) {
+        //executing custom onError handler when CometChat SDK could not be initialized
+        if (onError != null) {
+          try {
+            onError(exception);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "CometChat SDK could not be initialized and failed to execute onError callback",
+              );
+            }
           }
         }
-      }
-    });
+      },
+    );
   }
 
   /// Initializes the UIKit from `cometchat-settings.json` asset file.
@@ -156,6 +176,11 @@ class CometChatUIKit {
       final uiKitSection = json['uiKit'] as Map<String, dynamic>? ?? {};
       final subscribePresenceForAllUsers =
           uiKitSection['subscribePresenceForAllUsers'] as bool? ?? true;
+      // Calling toggle for the file-based path (ENG-37368) — without this the
+      // settings door could never initialize the Calls SDK at all (UIKitSettings
+      // defaults enableCalls to false and the file is the only input here).
+      // Key name matches the Android UIKit's settings schema (uiKit.enableCalling).
+      final enableCalling = uiKitSection['enableCalling'] as bool? ?? false;
 
       // Parse chatSDK section for host overrides
       final chatSdkSection = json['chatSDK'] as Map<String, dynamic>? ?? {};
@@ -174,11 +199,16 @@ class CometChatUIKit {
             : null
         ..autoEstablishSocketConnection = autoEstablishSocketConnection
         ..adminHost = adminHost
-        ..clientHost = clientHost;
+        ..clientHost = clientHost
+        ..enableCalls = enableCalling;
 
       final uiKitSettings = builder.build();
 
-      // 5. Delegate to regular init with the built settings
+      // 5. Delegate to regular init with the built settings.
+      // Set the door flag BEFORE init: with a restored session, init's
+      // onSuccess runs _initiateAfterLogin -> CallEventService immediately,
+      // and the Calls SDK routing must already know it came from settings.
+      initializedFromSettings = true;
       await init(
         uiKitSettings: uiKitSettings,
         onSuccess: (String successMessage) {
@@ -199,31 +229,39 @@ class CometChatUIKit {
   }
 
   /// Use this function only for testing purpose. For production, use [loginWithAuthToken]
-  static Future<User?> login(String uid,
-      {Function(User user)? onSuccess,
-      Function(CometChatException excep)? onError}) async {
+  static Future<User?> login(
+    String uid, {
+    Function(User user)? onSuccess,
+    Function(CometChatException excep)? onError,
+  }) async {
     if (!checkAuthSettings(onError)) return null;
     User? loggedInUser = await getLoggedInUser();
 
     if (loggedInUser == null || loggedInUser.uid != uid) {
-      User? user = await CometChat.login(uid, authenticationSettings!.authKey!,
-          onSuccess: (User user) {
-        getConversationUpdateSettings();
-        CometChatUIKit.loggedInUser = user;
-        //executing custom onSuccess handler when user is logged in successfully
-        if (onSuccess != null) {
-          try {
-            onSuccess(user);
-          } catch (e) {
-            if (kDebugMode) {
-              debugPrint(
-                  "user login is successful but failed to execute onSuccess callback");
+      // ignore: deprecated_member_use — authKey login is the intended UIKit flow
+      User? user = await CometChat.login(
+        uid,
+        authenticationSettings!.authKey!,
+        onSuccess: (User user) {
+          getConversationUpdateSettings();
+          CometChatUIKit.loggedInUser = user;
+          //executing custom onSuccess handler when user is logged in successfully
+          if (onSuccess != null) {
+            try {
+              onSuccess(user);
+            } catch (e) {
+              if (kDebugMode) {
+                debugPrint(
+                  "user login is successful but failed to execute onSuccess callback",
+                );
+              }
             }
           }
-        }
 
-        _initiateAfterLogin();
-      }, onError: onError);
+          _initiateAfterLogin();
+        },
+        onError: onError,
+      );
       return user;
     } else {
       CometChatUIKit.loggedInUser = loggedInUser;
@@ -234,7 +272,8 @@ class CometChatUIKit {
         } catch (e) {
           if (kDebugMode) {
             debugPrint(
-                "user already logged in but failed to execute onSuccess callback");
+              "user already logged in but failed to execute onSuccess callback",
+            );
           }
         }
       }
@@ -256,30 +295,36 @@ class CometChatUIKit {
   ///
   ///
   ///  method could throw [PlatformException] with error codes specifying the cause
-  static Future<User?> loginWithAuthToken(String authToken,
-      {Function(User user)? onSuccess,
-      Function(CometChatException excep)? onError}) async {
+  static Future<User?> loginWithAuthToken(
+    String authToken, {
+    Function(User user)? onSuccess,
+    Function(CometChatException excep)? onError,
+  }) async {
     if (!checkAuthSettings(onError)) return null;
     User? loggedInUser = await getLoggedInUser();
 
     if (loggedInUser == null) {
-      User? user =
-          await CometChat.loginWithAuthToken(authToken, onSuccess: (User user) {
-        //executing custom onSuccess handler when user is logged in successfully using auth token
-        getConversationUpdateSettings();
-        CometChatUIKit.loggedInUser = user;
-        if (onSuccess != null) {
-          try {
-            onSuccess(user);
-          } catch (e) {
-            if (kDebugMode) {
-              debugPrint(
-                  "user login is successful but failed to execute onSuccess callback");
+      User? user = await CometChat.loginWithAuthToken(
+        authToken,
+        onSuccess: (User user) {
+          //executing custom onSuccess handler when user is logged in successfully using auth token
+          getConversationUpdateSettings();
+          CometChatUIKit.loggedInUser = user;
+          if (onSuccess != null) {
+            try {
+              onSuccess(user);
+            } catch (e) {
+              if (kDebugMode) {
+                debugPrint(
+                  "user login is successful but failed to execute onSuccess callback",
+                );
+              }
             }
           }
-        }
-        _initiateAfterLogin();
-      }, onError: onError);
+          _initiateAfterLogin();
+        },
+        onError: onError,
+      );
       return user;
     } else {
       CometChatUIKit.loggedInUser = loggedInUser;
@@ -289,7 +334,7 @@ class CometChatUIKit {
     }
   }
 
-  static _initiateAfterLogin() {
+  static void _initiateAfterLogin() {
     _initializeSDKEVent();
     _inititalizeTimeZoneDetails();
 
@@ -303,7 +348,7 @@ class CometChatUIKit {
     initializeTimeZones();
   }
 
-  static _initializeSDKEVent() {
+  static void _initializeSDKEVent() {
     ChatSDKEventInitializer();
   }
 
@@ -316,16 +361,21 @@ class CometChatUIKit {
   /// `name` Display name of the user.
   ///
   /// `avatar` URL to profile picture of the user.
-  static Future<User?> createUser(User user,
-      {Function(User user)? onSuccess,
-      Function(CometChatException e)? onError}) async {
+  static Future<User?> createUser(
+    User user, {
+    Function(User user)? onSuccess,
+    Function(CometChatException e)? onError,
+  }) async {
     if (!checkAuthSettings(onError)) return null;
 
     User? resultUser;
 
     resultUser = await CometChat.createUser(
-        user, authenticationSettings!.authKey!,
-        onSuccess: onSuccess, onError: onError);
+      user,
+      authenticationSettings!.authKey!,
+      onSuccess: onSuccess,
+      onError: onError,
+    );
     return resultUser;
   }
 
@@ -334,15 +384,21 @@ class CometChatUIKit {
   /// [user] a user object which user needs to be updated.
   ///
   /// method could throw `PlatformException` with error codes specifying the cause
-  static Future<User?> updateUser(User user,
-      {Function(User retUser)? onSuccess,
-      Function(CometChatException excep)? onError}) async {
+  static Future<User?> updateUser(
+    User user, {
+    Function(User retUser)? onSuccess,
+    Function(CometChatException excep)? onError,
+  }) async {
     if (!checkAuthSettings(onError)) return null;
 
     User? user0;
 
-    user0 = await CometChat.updateUser(user, authenticationSettings!.authKey!,
-        onSuccess: onSuccess, onError: onError);
+    user0 = await CometChat.updateUser(
+      user,
+      authenticationSettings!.authKey!,
+      onSuccess: onSuccess,
+      onError: onError,
+    );
 
     return user0;
   }
@@ -350,9 +406,10 @@ class CometChatUIKit {
   ///used to logout user
   ///
   /// method could throw [PlatformException] with error codes specifying the cause
-  static logout(
-      {dynamic Function(String)? onSuccess,
-      Function(CometChatException excep)? onError}) async {
+  static Future<void> logout({
+    dynamic Function(String)? onSuccess,
+    Function(CometChatException excep)? onError,
+  }) async {
     if (!checkAuthSettings(onError)) return;
 
     // Dispose call event service before logout
@@ -367,7 +424,8 @@ class CometChatUIKit {
           } catch (e) {
             if (kDebugMode) {
               debugPrint(
-                  'user logout was successful: $message, but unable to execute custom onSuccess callback');
+                'user logout was successful: $message, but unable to execute custom onSuccess callback',
+              );
             }
           }
         }
@@ -379,7 +437,8 @@ class CometChatUIKit {
           } catch (e) {
             if (kDebugMode) {
               debugPrint(
-                  'user logout was unsuccessful: ${error.message}, but unable to execute custom onError callback');
+                'user logout was unsuccessful: ${error.message}, but unable to execute custom onError callback',
+              );
             }
           }
         }
@@ -390,16 +449,26 @@ class CometChatUIKit {
   static bool checkAuthSettings(Function(CometChatException e)? onError) {
     if (authenticationSettings == null) {
       if (onError != null) {
-        onError(CometChatException("ERR", "Authentication null",
-            "Populate uiKitSettings before initializing"));
+        onError(
+          CometChatException(
+            "ERR",
+            "Authentication null",
+            "Populate uiKitSettings before initializing",
+          ),
+        );
       }
       return false;
     }
 
     if (authenticationSettings!.appId == null) {
       if (onError != null) {
-        onError(CometChatException("appIdErr", "APP ID null",
-            "Populate appId in uiKitSettings before initializing"));
+        onError(
+          CometChatException(
+            "appIdErr",
+            "APP ID null",
+            "Populate appId in uiKitSettings before initializing",
+          ),
+        );
       }
       return false;
     }
@@ -422,49 +491,63 @@ class CometChatUIKit {
       message.muid = DateTime.now().microsecondsSinceEpoch.toString();
     }
 
-    CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.inProgress);
-    CustomMessage? result = await CometChat.sendCustomMessage(message,
-        onSuccess: (CustomMessage sentMessage) {
-      //executing the custom onSuccess handler
-      if (onSuccess != null) {
-        try {
-          onSuccess(sentMessage);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message sent successfully but failed to execute onSuccess callback");
+    CometChatMessageEvents.ccMessageSent(
+      message,
+      core_enums.MessageStatus.inProgress,
+    );
+    CustomMessage? result = await CometChat.sendCustomMessage(
+      message,
+      onSuccess: (CustomMessage sentMessage) {
+        //executing the custom onSuccess handler
+        if (onSuccess != null) {
+          try {
+            onSuccess(sentMessage);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message sent successfully but failed to execute onSuccess callback",
+              );
+            }
           }
         }
-      }
-      // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
-      if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
-        sentMessage.muid = message.muid;
-      }
-      //the ccMessageSent event is emitted to update the message receipt shown
-      //in the footer of the message bubble from in progress to sent
-      CometChatMessageEvents.ccMessageSent(sentMessage, CoreEnums.MessageStatus.sent);
-    }, onError: (error) {
-      //executing the custom onError handler
-      if (onError != null) {
-        try {
-          onError(error);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message could not be sent and failed to execute onError callback");
+        // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
+        if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
+          sentMessage.muid = message.muid;
+        }
+        //the ccMessageSent event is emitted to update the message receipt shown
+        //in the footer of the message bubble from in progress to sent
+        CometChatMessageEvents.ccMessageSent(
+          sentMessage,
+          core_enums.MessageStatus.sent,
+        );
+      },
+      onError: (error) {
+        //executing the custom onError handler
+        if (onError != null) {
+          try {
+            onError(error);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message could not be sent and failed to execute onError callback",
+              );
+            }
           }
         }
-      }
-      //a error property is added to the metadata of the message
-      //because of which a error message receipt will be shown in the
-      //footer of the message bubble in the message list
-      if (message.metadata != null) {
-        message.metadata!["error"] = error;
-      } else {
-        message.metadata = {"error": error};
-      }
-      CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.error);
-    });
+        //a error property is added to the metadata of the message
+        //because of which a error message receipt will be shown in the
+        //footer of the message bubble in the message list
+        if (message.metadata != null) {
+          message.metadata!["error"] = error;
+        } else {
+          message.metadata = {"error": error};
+        }
+        CometChatMessageEvents.ccMessageSent(
+          message,
+          core_enums.MessageStatus.error,
+        );
+      },
+    );
     return result;
   }
 
@@ -482,57 +565,73 @@ class CometChatUIKit {
       message.muid = DateTime.now().microsecondsSinceEpoch.toString();
     }
 
-    CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.inProgress);
-    TextMessage? result = await CometChat.sendMessage(message,
-        onSuccess: (TextMessage sentMessage) {
-      //executing the custom onSuccess handler
-      if (onSuccess != null) {
-        try {
-          onSuccess(sentMessage);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message sent successfully but failed to execute onSuccess callback");
+    CometChatMessageEvents.ccMessageSent(
+      message,
+      core_enums.MessageStatus.inProgress,
+    );
+    TextMessage? result = await CometChat.sendMessage(
+      message,
+      onSuccess: (TextMessage sentMessage) {
+        //executing the custom onSuccess handler
+        if (onSuccess != null) {
+          try {
+            onSuccess(sentMessage);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message sent successfully but failed to execute onSuccess callback",
+              );
+            }
           }
         }
-      }
-      // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
-      if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
-        sentMessage.muid = message.muid;
-      }
-      //the ccMessageSent event is emitted to update the message receipt shown
-      //in the footer of the message bubble from in progress to sent
-      CometChatMessageEvents.ccMessageSent(sentMessage, CoreEnums.MessageStatus.sent);
-    }, onError: (error) {
-      //executing the custom onError handler
-      if (onError != null) {
-        try {
-          onError(error);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message could not be sent and failed to execute onError callback");
+        // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
+        if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
+          sentMessage.muid = message.muid;
+        }
+        //the ccMessageSent event is emitted to update the message receipt shown
+        //in the footer of the message bubble from in progress to sent
+        CometChatMessageEvents.ccMessageSent(
+          sentMessage,
+          core_enums.MessageStatus.sent,
+        );
+      },
+      onError: (error) {
+        //executing the custom onError handler
+        if (onError != null) {
+          try {
+            onError(error);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message could not be sent and failed to execute onError callback",
+              );
+            }
           }
         }
-      }
-      //a error property is added to the metadata of the message
-      //because of which a error message receipt will be shown in the
-      //footer of the message bubble in the message list
-      if (message.metadata != null) {
-        message.metadata!["error"] = error;
-      } else {
-        message.metadata = {"error": error};
-      }
-      CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.error);
-    });
+        //a error property is added to the metadata of the message
+        //because of which a error message receipt will be shown in the
+        //footer of the message bubble in the message list
+        if (message.metadata != null) {
+          message.metadata!["error"] = error;
+        } else {
+          message.metadata = {"error": error};
+        }
+        CometChatMessageEvents.ccMessageSent(
+          message,
+          core_enums.MessageStatus.error,
+        );
+      },
+    );
     return result;
   }
 
   ///[sendMediaMessage] used to send a media message
-  static Future<MediaMessage?> sendMediaMessage(MediaMessage message,
-      {dynamic Function(MediaMessage)? onSuccess,
-      dynamic Function(CometChatException)? onError,
-      bool replacePathForIOS = true}) async {
+  static Future<MediaMessage?> sendMediaMessage(
+    MediaMessage message, {
+    dynamic Function(MediaMessage)? onSuccess,
+    dynamic Function(CometChatException)? onError,
+    bool replacePathForIOS = true,
+  }) async {
     if (message.parentMessageId == -1) {
       message.parentMessageId = 0;
     }
@@ -542,7 +641,10 @@ class CometChatUIKit {
       message.muid = DateTime.now().microsecondsSinceEpoch.toString();
     }
 
-    CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.inProgress);
+    CometChatMessageEvents.ccMessageSent(
+      message,
+      core_enums.MessageStatus.inProgress,
+    );
 
     MediaMessage? mediaMessage2;
 
@@ -552,7 +654,9 @@ class CometChatUIKit {
         receiverType: message.receiverType,
         type: message.type,
         receiverUid: message.receiverUid,
-        file: (!kIsWeb && _isIOS() &&
+        file:
+            (!kIsWeb &&
+                _isIOS() &&
                 message.file != null &&
                 (!message.file!.startsWith('file://')))
             ? 'file://${message.file}'
@@ -569,58 +673,69 @@ class CometChatUIKit {
     }
 
     MediaMessage? result = await CometChat.sendMediaMessage(
-        mediaMessage2 ?? message, onSuccess: (MediaMessage sentMessage) {
-      //executing the custom onSuccess handler
+      mediaMessage2 ?? message,
+      onSuccess: (MediaMessage sentMessage) {
+        //executing the custom onSuccess handler
 
-      if (replacePathForIOS == true) {
-        if (!kIsWeb && _isIOS()) {
-          if (message.file != null) {
-            sentMessage.file = message.file?.replaceAll("file://", '');
+        if (replacePathForIOS == true) {
+          if (!kIsWeb && _isIOS()) {
+            if (message.file != null) {
+              sentMessage.file = message.file?.replaceAll("file://", '');
+            }
+          } else {
+            sentMessage.file = message.file;
           }
+        }
+
+        if (onSuccess != null) {
+          try {
+            onSuccess(sentMessage);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message sent successfully but failed to execute onSuccess callback",
+              );
+            }
+          }
+        }
+        // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
+        if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
+          sentMessage.muid = message.muid;
+        }
+        //the ccMessageSent event is emitted to update the message receipt shown
+        //in the footer of the message bubble from in progress to sent
+        CometChatMessageEvents.ccMessageSent(
+          sentMessage,
+          core_enums.MessageStatus.sent,
+        );
+      },
+      onError: (error) {
+        //executing the custom onError handler
+        if (onError != null) {
+          try {
+            onError(error);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message could not be sent and failed to execute onError callback",
+              );
+            }
+          }
+        }
+        //a error property is added to the metadata of the message
+        //because of which a error message receipt will be shown in the
+        //footer of the message bubble in the message list
+        if (message.metadata != null) {
+          message.metadata!["error"] = error;
         } else {
-          sentMessage.file = message.file;
+          message.metadata = {"error": error};
         }
-      }
-
-      if (onSuccess != null) {
-        try {
-          onSuccess(sentMessage);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message sent successfully but failed to execute onSuccess callback");
-          }
-        }
-      }
-      // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
-      if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
-        sentMessage.muid = message.muid;
-      }
-      //the ccMessageSent event is emitted to update the message receipt shown
-      //in the footer of the message bubble from in progress to sent
-      CometChatMessageEvents.ccMessageSent(sentMessage, CoreEnums.MessageStatus.sent);
-    }, onError: (error) {
-      //executing the custom onError handler
-      if (onError != null) {
-        try {
-          onError(error);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message could not be sent and failed to execute onError callback");
-          }
-        }
-      }
-      //a error property is added to the metadata of the message
-      //because of which a error message receipt will be shown in the
-      //footer of the message bubble in the message list
-      if (message.metadata != null) {
-        message.metadata!["error"] = error;
-      } else {
-        message.metadata = {"error": error};
-      }
-      CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.error);
-    });
+        CometChatMessageEvents.ccMessageSent(
+          message,
+          core_enums.MessageStatus.error,
+        );
+      },
+    );
     return result;
   }
 
@@ -639,49 +754,63 @@ class CometChatUIKit {
       message.muid = DateTime.now().microsecondsSinceEpoch.toString();
     }
 
-    CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.inProgress);
-    FormMessage? result = await LegacySDK.SDKMethods.sendFormMessage(message,
-        onSuccess: (FormMessage sentMessage) {
-      //executing the custom onSuccess handler
-      if (onSuccess != null) {
-        try {
-          onSuccess(sentMessage);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message sent successfully but failed to execute onSuccess callback");
+    CometChatMessageEvents.ccMessageSent(
+      message,
+      core_enums.MessageStatus.inProgress,
+    );
+    FormMessage? result = await legacy_sdk.SDKMethods.sendFormMessage(
+      message,
+      onSuccess: (FormMessage sentMessage) {
+        //executing the custom onSuccess handler
+        if (onSuccess != null) {
+          try {
+            onSuccess(sentMessage);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message sent successfully but failed to execute onSuccess callback",
+              );
+            }
           }
         }
-      }
-      // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
-      if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
-        sentMessage.muid = message.muid;
-      }
-      //the ccMessageSent event is emitted to update the message receipt shown
-      //in the footer of the message bubble from in progress to sent
-      CometChatMessageEvents.ccMessageSent(sentMessage, CoreEnums.MessageStatus.sent);
-    }, onError: (error) {
-      //executing the custom onError handler
-      if (onError != null) {
-        try {
-          onError(error);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message could not be sent and failed to execute onError callback");
+        // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
+        if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
+          sentMessage.muid = message.muid;
+        }
+        //the ccMessageSent event is emitted to update the message receipt shown
+        //in the footer of the message bubble from in progress to sent
+        CometChatMessageEvents.ccMessageSent(
+          sentMessage,
+          core_enums.MessageStatus.sent,
+        );
+      },
+      onError: (error) {
+        //executing the custom onError handler
+        if (onError != null) {
+          try {
+            onError(error);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message could not be sent and failed to execute onError callback",
+              );
+            }
           }
         }
-      }
-      //a error property is added to the metadata of the message
-      //because of which a error message receipt will be shown in the
-      //footer of the message bubble in the message list
-      if (message.metadata != null) {
-        message.metadata!["error"] = error;
-      } else {
-        message.metadata = {"error": error};
-      }
-      CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.error);
-    });
+        //a error property is added to the metadata of the message
+        //because of which a error message receipt will be shown in the
+        //footer of the message bubble in the message list
+        if (message.metadata != null) {
+          message.metadata!["error"] = error;
+        } else {
+          message.metadata = {"error": error};
+        }
+        CometChatMessageEvents.ccMessageSent(
+          message,
+          core_enums.MessageStatus.error,
+        );
+      },
+    );
     return result;
   }
 
@@ -700,49 +829,64 @@ class CometChatUIKit {
       message.muid = DateTime.now().microsecondsSinceEpoch.toString();
     }
 
-    CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.inProgress);
-    legacy_card.CardMessage? result = await LegacySDK.SDKMethods.sendCardMessage(message,
-        onSuccess: (legacy_card.CardMessage sentMessage) {
-      //executing the custom onSuccess handler
-      if (onSuccess != null) {
-        try {
-          onSuccess(sentMessage);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message sent successfully but failed to execute onSuccess callback");
+    CometChatMessageEvents.ccMessageSent(
+      message,
+      core_enums.MessageStatus.inProgress,
+    );
+    legacy_card.CardMessage?
+    result = await legacy_sdk.SDKMethods.sendCardMessage(
+      message,
+      onSuccess: (legacy_card.CardMessage sentMessage) {
+        //executing the custom onSuccess handler
+        if (onSuccess != null) {
+          try {
+            onSuccess(sentMessage);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message sent successfully but failed to execute onSuccess callback",
+              );
+            }
           }
         }
-      }
-      // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
-      if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
-        sentMessage.muid = message.muid;
-      }
-      //the ccMessageSent event is emitted to update the message receipt shown
-      //in the footer of the message bubble from in progress to sent
-      CometChatMessageEvents.ccMessageSent(sentMessage, CoreEnums.MessageStatus.sent);
-    }, onError: (error) {
-      //executing the custom onError handler
-      if (onError != null) {
-        try {
-          onError(error);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message could not be sent and failed to execute onError callback");
+        // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
+        if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
+          sentMessage.muid = message.muid;
+        }
+        //the ccMessageSent event is emitted to update the message receipt shown
+        //in the footer of the message bubble from in progress to sent
+        CometChatMessageEvents.ccMessageSent(
+          sentMessage,
+          core_enums.MessageStatus.sent,
+        );
+      },
+      onError: (error) {
+        //executing the custom onError handler
+        if (onError != null) {
+          try {
+            onError(error);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message could not be sent and failed to execute onError callback",
+              );
+            }
           }
         }
-      }
-      //a error property is added to the metadata of the message
-      //because of which a error message receipt will be shown in the
-      //footer of the message bubble in the message list
-      if (message.metadata != null) {
-        message.metadata!["error"] = error;
-      } else {
-        message.metadata = {"error": error};
-      }
-      CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.error);
-    });
+        //a error property is added to the metadata of the message
+        //because of which a error message receipt will be shown in the
+        //footer of the message bubble in the message list
+        if (message.metadata != null) {
+          message.metadata!["error"] = error;
+        } else {
+          message.metadata = {"error": error};
+        }
+        CometChatMessageEvents.ccMessageSent(
+          message,
+          core_enums.MessageStatus.error,
+        );
+      },
+    );
     return result;
   }
 
@@ -761,88 +905,106 @@ class CometChatUIKit {
       message.muid = DateTime.now().microsecondsSinceEpoch.toString();
     }
 
-    CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.inProgress);
-    SchedulerMessage? result = await LegacySDK.SDKMethods.sendSchedulerMessage(message,
-        onSuccess: (SchedulerMessage sentMessage) {
-      //executing the custom onSuccess handler
-      if (onSuccess != null) {
-        try {
-          onSuccess(sentMessage);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message sent successfully but failed to execute onSuccess callback");
+    CometChatMessageEvents.ccMessageSent(
+      message,
+      core_enums.MessageStatus.inProgress,
+    );
+    SchedulerMessage? result = await legacy_sdk.SDKMethods.sendSchedulerMessage(
+      message,
+      onSuccess: (SchedulerMessage sentMessage) {
+        //executing the custom onSuccess handler
+        if (onSuccess != null) {
+          try {
+            onSuccess(sentMessage);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message sent successfully but failed to execute onSuccess callback",
+              );
+            }
           }
         }
-      }
-      // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
-      if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
-        sentMessage.muid = message.muid;
-      }
-      //the ccMessageSent event is emitted to update the message receipt shown
-      //in the footer of the message bubble from in progress to sent
-      CometChatMessageEvents.ccMessageSent(sentMessage, CoreEnums.MessageStatus.sent);
-    }, onError: (error) {
-      //executing the custom onError handler
-      if (onError != null) {
-        try {
-          onError(error);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint(
-                "message could not be sent and failed to execute onError callback");
+        // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
+        if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
+          sentMessage.muid = message.muid;
+        }
+        //the ccMessageSent event is emitted to update the message receipt shown
+        //in the footer of the message bubble from in progress to sent
+        CometChatMessageEvents.ccMessageSent(
+          sentMessage,
+          core_enums.MessageStatus.sent,
+        );
+      },
+      onError: (error) {
+        //executing the custom onError handler
+        if (onError != null) {
+          try {
+            onError(error);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message could not be sent and failed to execute onError callback",
+              );
+            }
           }
         }
-      }
-      //a error property is added to the metadata of the message
-      //because of which a error message receipt will be shown in the
-      //footer of the message bubble in the message list
-      if (message.metadata != null) {
-        message.metadata!["error"] = error;
-      } else {
-        message.metadata = {"error": error};
-      }
-      CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.error);
-    });
+        //a error property is added to the metadata of the message
+        //because of which a error message receipt will be shown in the
+        //footer of the message bubble in the message list
+        if (message.metadata != null) {
+          message.metadata!["error"] = error;
+        } else {
+          message.metadata = {"error": error};
+        }
+        CometChatMessageEvents.ccMessageSent(
+          message,
+          core_enums.MessageStatus.error,
+        );
+      },
+    );
     return result;
   }
 
   ///[getLoggedInUser] checks if any session is active and retrieves the [User] data of the logged in user
-  static Future<User?> getLoggedInUser(
-      {dynamic Function(User)? onSuccess,
-      dynamic Function(CometChatException)? onError}) async {
-    User? user = await CometChat.getLoggedInUser(onSuccess: (user) {
-      CometChatUIKit.loggedInUser = user;
+  static Future<User?> getLoggedInUser({
+    dynamic Function(User)? onSuccess,
+    dynamic Function(CometChatException)? onError,
+  }) async {
+    User? user = await CometChat.getLoggedInUser(
+      onSuccess: (user) {
+        CometChatUIKit.loggedInUser = user;
 
-      //executing the custom onSuccess handler
-      if (onSuccess != null) {
-        try {
-          onSuccess(user);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint("failed to execute onSuccess callback");
+        //executing the custom onSuccess handler
+        if (onSuccess != null) {
+          try {
+            onSuccess(user);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint("failed to execute onSuccess callback");
+            }
           }
         }
-      }
-    }, onError: (error) {
-      //executing the custom onError handler
-      if (onError != null) {
-        try {
-          onError(error);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint("failed to execute onError callback");
+      },
+      onError: (error) {
+        //executing the custom onError handler
+        if (onError != null) {
+          try {
+            onError(error);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint("failed to execute onError callback");
+            }
           }
         }
-      }
-    });
+      },
+    );
     return user;
   }
 
   ///[soundManager] used to play sound
   static final SoundManager soundManager = SoundManager();
 
-  static _inititalizeTimeZoneDetails() {
+  static void _inititalizeTimeZoneDetails() {
     try {
       String currentTimeZone = DateTime.now().timeZoneName;
       Map<String, Map> timeZones = SchedulerUtils.timeZones;
@@ -871,33 +1033,39 @@ class CometChatUIKit {
     dynamic Function(BaseMessage)? onSuccess,
     dynamic Function(CometChatException)? onError,
   }) async {
-    final message = await CometChat.addReaction(messageId, reaction,
-        onSuccess: (reactedMessage) {
-      //executing the custom onSuccess handler
-      if (onSuccess != null) {
-        try {
-          onSuccess(reactedMessage);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint("failed to execute onSuccess callback");
+    final message = await CometChat.addReaction(
+      messageId,
+      reaction,
+      onSuccess: (reactedMessage) {
+        //executing the custom onSuccess handler
+        if (onSuccess != null) {
+          try {
+            onSuccess(reactedMessage);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint("failed to execute onSuccess callback");
+            }
           }
         }
-      }
 
-      CometChatMessageEvents.ccMessageEdited(
-          reactedMessage, MessageEditStatus.success);
-    }, onError: (error) {
-      //executing the custom onError handler
-      if (onError != null) {
-        try {
-          onError(error);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint("failed to execute onError callback");
+        CometChatMessageEvents.ccMessageEdited(
+          reactedMessage,
+          MessageEditStatus.success,
+        );
+      },
+      onError: (error) {
+        //executing the custom onError handler
+        if (onError != null) {
+          try {
+            onError(error);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint("failed to execute onError callback");
+            }
           }
         }
-      }
-    });
+      },
+    );
 
     return message;
   }
@@ -909,33 +1077,39 @@ class CometChatUIKit {
     dynamic Function(BaseMessage)? onSuccess,
     dynamic Function(CometChatException)? onError,
   }) async {
-    final message = await CometChat.removeReaction(messageId, reaction,
-        onSuccess: (reactedMessage) {
-      //executing the custom onSuccess handler
-      if (onSuccess != null) {
-        try {
-          onSuccess(reactedMessage);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint("failed to execute onSuccess callback");
+    final message = await CometChat.removeReaction(
+      messageId,
+      reaction,
+      onSuccess: (reactedMessage) {
+        //executing the custom onSuccess handler
+        if (onSuccess != null) {
+          try {
+            onSuccess(reactedMessage);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint("failed to execute onSuccess callback");
+            }
           }
         }
-      }
 
-      CometChatMessageEvents.ccMessageEdited(
-          reactedMessage, MessageEditStatus.success);
-    }, onError: (error) {
-      //executing the custom onError handler
-      if (onError != null) {
-        try {
-          onError(error);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint("failed to execute onError callback");
+        CometChatMessageEvents.ccMessageEdited(
+          reactedMessage,
+          MessageEditStatus.success,
+        );
+      },
+      onError: (error) {
+        //executing the custom onError handler
+        if (onError != null) {
+          try {
+            onError(error);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint("failed to execute onError callback");
+            }
           }
         }
-      }
-    });
+      },
+    );
 
     return message;
   }
@@ -948,7 +1122,8 @@ class CometChatUIKit {
       onError: (exception) {
         if (kDebugMode) {
           debugPrint(
-              "Cannot get conversation update settings ${exception.message}");
+            "Cannot get conversation update settings ${exception.message}",
+          );
         }
       },
     );
@@ -956,10 +1131,10 @@ class CometChatUIKit {
 
   ///[sendCustomInteractiveMessage] can be used to send a custom interactive message
   static Future<InteractiveMessage?> sendCustomInteractiveMessage(
-      InteractiveMessage message, {
-        dynamic Function(InteractiveMessage)? onSuccess,
-        dynamic Function(CometChatException)? onError,
-      }) async {
+    InteractiveMessage message, {
+    dynamic Function(InteractiveMessage)? onSuccess,
+    dynamic Function(CometChatException)? onError,
+  }) async {
     if (message.parentMessageId == -1) {
       message.parentMessageId = 0;
     }
@@ -969,50 +1144,64 @@ class CometChatUIKit {
       message.muid = DateTime.now().microsecondsSinceEpoch.toString();
     }
 
-    CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.inProgress);
+    CometChatMessageEvents.ccMessageSent(
+      message,
+      core_enums.MessageStatus.inProgress,
+    );
 
-    InteractiveMessage? result = await CometChat.sendInteractiveMessage(message,
-        onSuccess: (InteractiveMessage sentMessage) {
-          //executing the custom onSuccess handler
-          if (onSuccess != null) {
-            try {
-              onSuccess(sentMessage);
-            } catch (e) {
-              if (kDebugMode) {
-                debugPrint(
-                    "message sent successfully but failed to execute onSuccess callback");
-              }
+    InteractiveMessage? result = await CometChat.sendInteractiveMessage(
+      message,
+      onSuccess: (InteractiveMessage sentMessage) {
+        //executing the custom onSuccess handler
+        if (onSuccess != null) {
+          try {
+            onSuccess(sentMessage);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message sent successfully but failed to execute onSuccess callback",
+              );
             }
           }
-          // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
-          if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
-            sentMessage.muid = message.muid;
-          }
-          //the ccMessageSent event is emitted to update the message receipt shown
-          //in the footer of the message bubble from in progress to sent
-          CometChatMessageEvents.ccMessageSent(sentMessage, CoreEnums.MessageStatus.sent);
-        }, onError: (error) {
-          //executing the custom onError handler
-          if (onError != null) {
-            try {
-              onError(error);
-            } catch (e) {
-              if (kDebugMode) {
-                debugPrint(
-                    "message could not be sent and failed to execute onError callback");
-              }
+        }
+        // Preserve muid if SDK response has empty muid (needed for pending→sent dedup)
+        if (sentMessage.muid.isEmpty && message.muid.isNotEmpty) {
+          sentMessage.muid = message.muid;
+        }
+        //the ccMessageSent event is emitted to update the message receipt shown
+        //in the footer of the message bubble from in progress to sent
+        CometChatMessageEvents.ccMessageSent(
+          sentMessage,
+          core_enums.MessageStatus.sent,
+        );
+      },
+      onError: (error) {
+        //executing the custom onError handler
+        if (onError != null) {
+          try {
+            onError(error);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                "message could not be sent and failed to execute onError callback",
+              );
             }
           }
-          //a error property is added to the metadata of the message
-          //because of which a error message receipt will be shown in the
-          //footer of the message bubble in the message list
-          if (message.metadata != null) {
-            message.metadata!["error"] = error;
-          } else {
-            message.metadata = {"error": error};
-          }
-          CometChatMessageEvents.ccMessageSent(message, CoreEnums.MessageStatus.error);
-        });
+        }
+        //a error property is added to the metadata of the message
+        //because of which a error message receipt will be shown in the
+        //footer of the message bubble in the message list
+        if (message.metadata != null) {
+          message.metadata!["error"] = error;
+        } else {
+          message.metadata = {"error": error};
+        }
+        CometChatMessageEvents.ccMessageSent(
+          message,
+          core_enums.MessageStatus.error,
+        );
+      },
+    );
     return result;
   }
 

@@ -136,21 +136,42 @@ class CometChatLinkPreviewStyle
     return CometChatLinkPreviewStyle(
       backgroundColor: Color.lerp(backgroundColor, other?.backgroundColor, t),
       textFieldBackgroundColor: Color.lerp(
-          textFieldBackgroundColor, other?.textFieldBackgroundColor, t),
-      textFieldBorderColor:
-          Color.lerp(textFieldBorderColor, other?.textFieldBorderColor, t),
-      textFieldTextColor:
-          Color.lerp(textFieldTextColor, other?.textFieldTextColor, t),
-      textFieldHintColor:
-          Color.lerp(textFieldHintColor, other?.textFieldHintColor, t),
-      buttonBackgroundColor:
-          Color.lerp(buttonBackgroundColor, other?.buttonBackgroundColor, t),
+        textFieldBackgroundColor,
+        other?.textFieldBackgroundColor,
+        t,
+      ),
+      textFieldBorderColor: Color.lerp(
+        textFieldBorderColor,
+        other?.textFieldBorderColor,
+        t,
+      ),
+      textFieldTextColor: Color.lerp(
+        textFieldTextColor,
+        other?.textFieldTextColor,
+        t,
+      ),
+      textFieldHintColor: Color.lerp(
+        textFieldHintColor,
+        other?.textFieldHintColor,
+        t,
+      ),
+      buttonBackgroundColor: Color.lerp(
+        buttonBackgroundColor,
+        other?.buttonBackgroundColor,
+        t,
+      ),
       buttonTextColor: Color.lerp(buttonTextColor, other?.buttonTextColor, t),
-      cancelButtonTextColor:
-          Color.lerp(cancelButtonTextColor, other?.cancelButtonTextColor, t),
+      cancelButtonTextColor: Color.lerp(
+        cancelButtonTextColor,
+        other?.cancelButtonTextColor,
+        t,
+      ),
       errorTextColor: Color.lerp(errorTextColor, other?.errorTextColor, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other?.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other?.borderRadius,
+        t,
+      ),
       labelTextStyle: TextStyle.lerp(labelTextStyle, other?.labelTextStyle, t),
       titleTextStyle: TextStyle.lerp(titleTextStyle, other?.titleTextStyle, t),
     );

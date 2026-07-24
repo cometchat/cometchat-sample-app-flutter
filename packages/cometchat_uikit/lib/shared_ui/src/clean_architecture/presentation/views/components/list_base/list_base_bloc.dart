@@ -47,10 +47,7 @@ abstract class ListBaseState extends Equatable {
 
 class ListBaseInitial extends ListBaseState {
   ListBaseInitial()
-      : super(
-          showScrollToBottom: false,
-          scrollController: ScrollController(),
-        );
+    : super(showScrollToBottom: false, scrollController: ScrollController());
 }
 
 class ListBaseReady extends ListBaseState {
@@ -97,20 +94,24 @@ class ListBaseBloc extends Bloc<ListBaseEvent, ListBaseState> {
     InitializeList event,
     Emitter<ListBaseState> emit,
   ) async {
-    emit(ListBaseReady(
-      showScrollToBottom: false,
-      scrollController: _scrollController,
-    ));
+    emit(
+      ListBaseReady(
+        showScrollToBottom: false,
+        scrollController: _scrollController,
+      ),
+    );
   }
 
   Future<void> _onUpdateScrollVisibility(
     UpdateScrollVisibility event,
     Emitter<ListBaseState> emit,
   ) async {
-    emit(ListBaseReady(
-      showScrollToBottom: event.showScrollToBottom,
-      scrollController: _scrollController,
-    ));
+    emit(
+      ListBaseReady(
+        showScrollToBottom: event.showScrollToBottom,
+        scrollController: _scrollController,
+      ),
+    );
   }
 
   Future<void> _onScrollToTop(
@@ -118,10 +119,12 @@ class ListBaseBloc extends Bloc<ListBaseEvent, ListBaseState> {
     Emitter<ListBaseState> emit,
   ) async {
     if (_scrollController.hasClients) {
-      emit(ListBaseScrolling(
-        showScrollToBottom: state.showScrollToBottom,
-        scrollController: _scrollController,
-      ));
+      emit(
+        ListBaseScrolling(
+          showScrollToBottom: state.showScrollToBottom,
+          scrollController: _scrollController,
+        ),
+      );
 
       await _scrollController.animateTo(
         0,
@@ -129,10 +132,12 @@ class ListBaseBloc extends Bloc<ListBaseEvent, ListBaseState> {
         curve: Curves.easeOut,
       );
 
-      emit(ListBaseReady(
-        showScrollToBottom: false,
-        scrollController: _scrollController,
-      ));
+      emit(
+        ListBaseReady(
+          showScrollToBottom: false,
+          scrollController: _scrollController,
+        ),
+      );
     }
   }
 
@@ -141,10 +146,12 @@ class ListBaseBloc extends Bloc<ListBaseEvent, ListBaseState> {
     Emitter<ListBaseState> emit,
   ) async {
     if (_scrollController.hasClients) {
-      emit(ListBaseScrolling(
-        showScrollToBottom: state.showScrollToBottom,
-        scrollController: _scrollController,
-      ));
+      emit(
+        ListBaseScrolling(
+          showScrollToBottom: state.showScrollToBottom,
+          scrollController: _scrollController,
+        ),
+      );
 
       await _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
@@ -152,10 +159,12 @@ class ListBaseBloc extends Bloc<ListBaseEvent, ListBaseState> {
         curve: Curves.easeOut,
       );
 
-      emit(ListBaseReady(
-        showScrollToBottom: state.showScrollToBottom,
-        scrollController: _scrollController,
-      ));
+      emit(
+        ListBaseReady(
+          showScrollToBottom: state.showScrollToBottom,
+          scrollController: _scrollController,
+        ),
+      );
     }
   }
 

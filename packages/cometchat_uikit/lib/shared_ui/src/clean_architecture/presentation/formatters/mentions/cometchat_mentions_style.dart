@@ -15,8 +15,7 @@ import 'package:flutter/material.dart';
 /// mentionSelfTextBackgroundColor: Colors.blue,
 /// )
 /// ```
-class CometChatMentionsStyle extends ThemeExtension<CometChatMentionsStyle>{
-
+class CometChatMentionsStyle extends ThemeExtension<CometChatMentionsStyle> {
   CometChatMentionsStyle({
     this.mentionTextStyle,
     this.mentionTextColor,
@@ -25,7 +24,8 @@ class CometChatMentionsStyle extends ThemeExtension<CometChatMentionsStyle>{
     this.mentionSelfTextColor,
     this.mentionSelfTextBackgroundColor,
     this.borderRadius,
-});
+  });
+
   ///[mentionTextStyle] is a [TextStyle] which is used to style the mention text
   final TextStyle? mentionTextStyle;
 
@@ -60,14 +60,15 @@ class CometChatMentionsStyle extends ThemeExtension<CometChatMentionsStyle>{
     return CometChatMentionsStyle(
       mentionTextStyle: mentionTextStyle ?? this.mentionTextStyle,
       mentionTextColor: mentionTextColor ?? this.mentionTextColor,
-      mentionTextBackgroundColor: mentionTextBackgroundColor ?? this.mentionTextBackgroundColor,
+      mentionTextBackgroundColor:
+          mentionTextBackgroundColor ?? this.mentionTextBackgroundColor,
       mentionSelfTextStyle: mentionSelfTextStyle ?? this.mentionSelfTextStyle,
       mentionSelfTextColor: mentionSelfTextColor ?? this.mentionSelfTextColor,
-      mentionSelfTextBackgroundColor: mentionSelfTextBackgroundColor ?? this.mentionSelfTextBackgroundColor,
+      mentionSelfTextBackgroundColor:
+          mentionSelfTextBackgroundColor ?? this.mentionSelfTextBackgroundColor,
       borderRadius: borderRadius ?? this.borderRadius,
     );
   }
-
 
   CometChatMentionsStyle merge(CometChatMentionsStyle? style) {
     if (style == null) return this;
@@ -86,16 +87,36 @@ class CometChatMentionsStyle extends ThemeExtension<CometChatMentionsStyle>{
   CometChatMentionsStyle lerp(CometChatMentionsStyle? other, double t) {
     if (other == null) return this;
     return copyWith(
-      mentionTextStyle: TextStyle.lerp(mentionTextStyle, other.mentionTextStyle, t),
+      mentionTextStyle: TextStyle.lerp(
+        mentionTextStyle,
+        other.mentionTextStyle,
+        t,
+      ),
       mentionTextColor: Color.lerp(mentionTextColor, other.mentionTextColor, t),
-      mentionTextBackgroundColor: Color.lerp(mentionTextBackgroundColor, other.mentionTextBackgroundColor, t),
-      mentionSelfTextStyle: TextStyle.lerp(mentionSelfTextStyle, other.mentionSelfTextStyle, t),
-      mentionSelfTextColor: Color.lerp(mentionSelfTextColor, other.mentionSelfTextColor, t),
-      mentionSelfTextBackgroundColor: Color.lerp(mentionSelfTextBackgroundColor, other.mentionSelfTextBackgroundColor, t),
+      mentionTextBackgroundColor: Color.lerp(
+        mentionTextBackgroundColor,
+        other.mentionTextBackgroundColor,
+        t,
+      ),
+      mentionSelfTextStyle: TextStyle.lerp(
+        mentionSelfTextStyle,
+        other.mentionSelfTextStyle,
+        t,
+      ),
+      mentionSelfTextColor: Color.lerp(
+        mentionSelfTextColor,
+        other.mentionSelfTextColor,
+        t,
+      ),
+      mentionSelfTextBackgroundColor: Color.lerp(
+        mentionSelfTextBackgroundColor,
+        other.mentionSelfTextBackgroundColor,
+        t,
+      ),
       borderRadius: lerpDouble(borderRadius, other.borderRadius, t),
     );
   }
 
-  static CometChatMentionsStyle of(BuildContext context)=>CometChatMentionsStyle();
-
+  static CometChatMentionsStyle of(BuildContext context) =>
+      CometChatMentionsStyle();
 }

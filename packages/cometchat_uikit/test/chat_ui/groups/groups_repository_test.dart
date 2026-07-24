@@ -44,11 +44,13 @@ void main() {
   group('getGroups', () {
     test('returns success with groups from remote', () async {
       final groups = [FakeGroup('g1'), FakeGroup('g2')];
-      when(() => remote.getGroups(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            joinedOnly: any(named: 'joinedOnly'),
-          )).thenAnswer((_) async => groups);
+      when(
+        () => remote.getGroups(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          joinedOnly: any(named: 'joinedOnly'),
+        ),
+      ).thenAnswer((_) async => groups);
 
       final result = await repo.getGroups();
 
@@ -57,14 +59,18 @@ void main() {
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.getGroups(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            joinedOnly: any(named: 'joinedOnly'),
-          )).thenThrow(const GroupsRemoteDataSourceException(
-        message: 'Network error',
-        code: 'NET_ERR',
-      ));
+      when(
+        () => remote.getGroups(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          joinedOnly: any(named: 'joinedOnly'),
+        ),
+      ).thenThrow(
+        const GroupsRemoteDataSourceException(
+          message: 'Network error',
+          code: 'NET_ERR',
+        ),
+      );
 
       final result = await repo.getGroups();
 
@@ -72,19 +78,20 @@ void main() {
     });
 
     test('passes all params to remote data source', () async {
-      when(() => remote.getGroups(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            joinedOnly: any(named: 'joinedOnly'),
-          )).thenAnswer((_) async => []);
+      when(
+        () => remote.getGroups(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          joinedOnly: any(named: 'joinedOnly'),
+        ),
+      ).thenAnswer((_) async => []);
 
       await repo.getGroups(limit: 20, searchKeyword: 'dev', joinedOnly: true);
 
-      verify(() => remote.getGroups(
-            limit: 20,
-            searchKeyword: 'dev',
-            joinedOnly: true,
-          )).called(1);
+      verify(
+        () =>
+            remote.getGroups(limit: 20, searchKeyword: 'dev', joinedOnly: true),
+      ).called(1);
     });
   });
 
@@ -95,11 +102,13 @@ void main() {
   group('joinGroup', () {
     test('returns success with joined group', () async {
       final group = FakeGroup('g1');
-      when(() => remote.joinGroup(
-            guid: any(named: 'guid'),
-            groupType: any(named: 'groupType'),
-            password: any(named: 'password'),
-          )).thenAnswer((_) async => group);
+      when(
+        () => remote.joinGroup(
+          guid: any(named: 'guid'),
+          groupType: any(named: 'groupType'),
+          password: any(named: 'password'),
+        ),
+      ).thenAnswer((_) async => group);
 
       final result = await repo.joinGroup(guid: 'g1', groupType: 'public');
 
@@ -107,14 +116,18 @@ void main() {
     });
 
     test('returns failure when remote throws', () async {
-      when(() => remote.joinGroup(
-            guid: any(named: 'guid'),
-            groupType: any(named: 'groupType'),
-            password: any(named: 'password'),
-          )).thenThrow(const GroupsRemoteDataSourceException(
-        message: 'Join failed',
-        code: 'JOIN_ERR',
-      ));
+      when(
+        () => remote.joinGroup(
+          guid: any(named: 'guid'),
+          groupType: any(named: 'groupType'),
+          password: any(named: 'password'),
+        ),
+      ).thenThrow(
+        const GroupsRemoteDataSourceException(
+          message: 'Join failed',
+          code: 'JOIN_ERR',
+        ),
+      );
 
       final result = await repo.joinGroup(guid: 'g1', groupType: 'public');
 
@@ -136,7 +149,8 @@ void main() {
 
     test('returns failure when remote throws', () async {
       when(() => remote.leaveGroup(any())).thenThrow(
-          const GroupsRemoteDataSourceException(message: 'Leave failed'));
+        const GroupsRemoteDataSourceException(message: 'Leave failed'),
+      );
 
       final result = await repo.leaveGroup('g1');
       expect(result.isFailure, isTrue);
@@ -157,7 +171,8 @@ void main() {
 
     test('returns failure when remote throws', () async {
       when(() => remote.getLoggedInUser()).thenThrow(
-          const GroupsRemoteDataSourceException(message: 'Not logged in'));
+        const GroupsRemoteDataSourceException(message: 'Not logged in'),
+      );
 
       final result = await repo.getLoggedInUser();
       expect(result.isFailure, isTrue);

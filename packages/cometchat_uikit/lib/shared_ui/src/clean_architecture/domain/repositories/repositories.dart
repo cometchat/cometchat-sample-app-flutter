@@ -59,9 +59,7 @@ abstract class MessageRepository {
   Future<Result<int>> getUnreadCount();
 
   /// Mark messages as read
-  Future<Result<void>> markAsRead({
-    required List<String> messageIds,
-  });
+  Future<Result<void>> markAsRead({required List<String> messageIds});
 }
 
 /// Abstract repository for user operations
@@ -100,10 +98,7 @@ abstract class GroupRepository {
   Future<Result<GroupEntity>> getGroup(String groupId);
 
   /// Get all groups
-  Future<Result<List<GroupEntity>>> getGroups({
-    int limit = 50,
-    int offset = 0,
-  });
+  Future<Result<List<GroupEntity>>> getGroups({int limit = 50, int offset = 0});
 
   /// Search groups
   Future<Result<List<GroupEntity>>> searchGroups(String query);

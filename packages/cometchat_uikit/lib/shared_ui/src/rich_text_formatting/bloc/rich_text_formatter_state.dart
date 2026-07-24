@@ -48,12 +48,12 @@ class RichTextFormatterReady extends RichTextFormatterState {
 
   @override
   List<Object?> get props => [
-        activeFormats,
-        disabledFormats,
-        selection,
-        isFormattingInProgress,
-        errorMessage,
-      ];
+    activeFormats,
+    disabledFormats,
+    selection,
+    isFormattingInProgress,
+    errorMessage,
+  ];
 
   /// Create a copy of this state with updated fields
   RichTextFormatterReady copyWith({
@@ -65,9 +65,10 @@ class RichTextFormatterReady extends RichTextFormatterState {
   }) {
     final newActiveFormats = activeFormats ?? this.activeFormats;
     // Auto-calculate disabled formats when active formats change
-    final newDisabledFormats = disabledFormats ?? 
+    final newDisabledFormats =
+        disabledFormats ??
         FormatCompatibility.getDisabledFormats(newActiveFormats);
-    
+
     return RichTextFormatterReady(
       activeFormats: newActiveFormats,
       disabledFormats: newDisabledFormats,

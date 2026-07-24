@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' hide Action;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../domain/usecases/get_group_members_usecase.dart';
 import '../domain/usecases/load_more_group_members_usecase.dart';
 import '../domain/usecases/kick_group_member_usecase.dart';
@@ -189,26 +188,31 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
     this.hideBanMemberOption = false,
     this.hideScopeChangeOption = false,
     this.disableSDKListeners = false,
-  })  : getGroupMembersUseCase =
-            getGroupMembersUseCase ?? _getServiceLocator().getGroupMembersUseCase,
-        loadMoreGroupMembersUseCase = loadMoreGroupMembersUseCase ??
-            _getServiceLocator().loadMoreGroupMembersUseCase,
-        kickGroupMemberUseCase =
-            kickGroupMemberUseCase ?? _getServiceLocator().kickGroupMemberUseCase,
-        banGroupMemberUseCase =
-            banGroupMemberUseCase ?? _getServiceLocator().banGroupMemberUseCase,
-        updateMemberScopeUseCase = updateMemberScopeUseCase ??
-            _getServiceLocator().updateMemberScopeUseCase,
-        getLoggedInUserUseCase =
-            getLoggedInUserUseCase ?? _getServiceLocator().getLoggedInUserUseCase,
-        _repository = repository ?? _getServiceLocator().repository,
-        _groupListenerKey =
-            'group_members_bloc_group_${DateTime.now().millisecondsSinceEpoch}',
-        _userListenerKey =
-            'group_members_bloc_user_${DateTime.now().millisecondsSinceEpoch}',
-        _connectionListenerKey =
-            'group_members_bloc_connection_${DateTime.now().millisecondsSinceEpoch}',
-        super(const GroupMembersInitial()) {
+  }) : getGroupMembersUseCase =
+           getGroupMembersUseCase ??
+           _getServiceLocator().getGroupMembersUseCase,
+       loadMoreGroupMembersUseCase =
+           loadMoreGroupMembersUseCase ??
+           _getServiceLocator().loadMoreGroupMembersUseCase,
+       kickGroupMemberUseCase =
+           kickGroupMemberUseCase ??
+           _getServiceLocator().kickGroupMemberUseCase,
+       banGroupMemberUseCase =
+           banGroupMemberUseCase ?? _getServiceLocator().banGroupMemberUseCase,
+       updateMemberScopeUseCase =
+           updateMemberScopeUseCase ??
+           _getServiceLocator().updateMemberScopeUseCase,
+       getLoggedInUserUseCase =
+           getLoggedInUserUseCase ??
+           _getServiceLocator().getLoggedInUserUseCase,
+       _repository = repository ?? _getServiceLocator().repository,
+       _groupListenerKey =
+           'group_members_bloc_group_${DateTime.now().millisecondsSinceEpoch}',
+       _userListenerKey =
+           'group_members_bloc_user_${DateTime.now().millisecondsSinceEpoch}',
+       _connectionListenerKey =
+           'group_members_bloc_connection_${DateTime.now().millisecondsSinceEpoch}',
+       super(const GroupMembersInitial()) {
     // Register public event handlers
     on<LoadGroupMembers>(_onLoadGroupMembers);
     on<LoadMoreGroupMembers>(_onLoadMoreGroupMembers);
@@ -309,13 +313,18 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
   void onItemRemoved(GroupMember item, List<GroupMember> updatedList) {
     _mapNeedsRebuild = true;
     if (!isClosed) {
-      add(_ListStateChanged(members: updatedList, isEmpty: updatedList.isEmpty));
+      add(
+        _ListStateChanged(members: updatedList, isEmpty: updatedList.isEmpty),
+      );
     }
   }
 
   @override
   void onItemUpdated(
-      GroupMember oldItem, GroupMember newItem, List<GroupMember> updatedList) {
+    GroupMember oldItem,
+    GroupMember newItem,
+    List<GroupMember> updatedList,
+  ) {
     if (!isClosed) {
       add(_ListStateChanged(members: updatedList, isEmpty: false));
     }
@@ -323,14 +332,18 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
 
   @override
   void onListReplaced(
-      List<GroupMember> previousList, List<GroupMember> newList) {
+    List<GroupMember> previousList,
+    List<GroupMember> newList,
+  ) {
     _mapNeedsRebuild = true;
     if (!isClosed) {
-      add(_ListStateChanged(
-        members: newList,
-        isEmpty: newList.isEmpty,
-        hasMore: newList.length >= 30,
-      ));
+      add(
+        _ListStateChanged(
+          members: newList,
+          isEmpty: newList.isEmpty,
+          hasMore: newList.length >= 30,
+        ),
+      );
     }
   }
 
@@ -375,7 +388,8 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
         onGroupMemberKickedCallback: _handleMemberKicked,
         onGroupMemberBannedCallback: _handleMemberBanned,
         onGroupMemberScopeChangedCallback: _handleMemberScopeChanged,
-        onMemberAddedToGroupCallback: _handleMemberJoined, // Same behavior as joined
+        onMemberAddedToGroupCallback:
+            _handleMemberJoined, // Same behavior as joined
       ),
     );
 
@@ -442,7 +456,11 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
   }
 
   void _handleMemberKicked(
-      Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     if (isClosed) return;
     if (kickedFrom.guid != group.guid) return;
 
@@ -454,7 +472,11 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
   }
 
   void _handleMemberBanned(
-      Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     if (isClosed) return;
     if (bannedFrom.guid != group.guid) return;
 
@@ -466,8 +488,13 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
   }
 
   void _handleMemberScopeChanged(
-      Action action, User updatedBy, User updatedUser, String scopeChangedTo,
-      String scopeChangedFrom, Group scopeGroup) {
+    Action action,
+    User updatedBy,
+    User updatedUser,
+    String scopeChangedTo,
+    String scopeChangedFrom,
+    Group scopeGroup,
+  ) {
     if (isClosed) return;
     if (scopeGroup.guid != group.guid) return;
 
@@ -516,7 +543,10 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
 
     // Call use case to fetch group members
     const int pageLimit = 30;
-    final result = await getGroupMembersUseCase(guid: group.guid, limit: pageLimit);
+    final result = await getGroupMembersUseCase(
+      guid: group.guid,
+      limit: pageLimit,
+    );
 
     if (result.isSuccess) {
       final members = result.getOrNull() ?? [];
@@ -825,7 +855,8 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
       // Create action message for the event
       final actionMessage = Action(
         conversationId: _conversationId ?? 'group_${group.guid}',
-        message: '${_loggedInUser?.name ?? 'Someone'} kicked ${event.member.name}',
+        message:
+            '${_loggedInUser?.name ?? 'Someone'} kicked ${event.member.name}',
         oldScope: event.member.scope ?? GroupMemberScope.participant,
         newScope: '',
         muid: DateTime.now().microsecondsSinceEpoch.toString(),
@@ -855,10 +886,12 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
       }
 
       // Emit error state with failure message
-      emit(GroupMembersError(
-        message: result.message,
-        previousMembers: previousMembers,
-      ));
+      emit(
+        GroupMembersError(
+          message: result.message,
+          previousMembers: previousMembers,
+        ),
+      );
     }
   }
 
@@ -879,7 +912,8 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
       // Create action message for the event
       final actionMessage = Action(
         conversationId: _conversationId ?? 'group_${group.guid}',
-        message: '${_loggedInUser?.name ?? 'Someone'} banned ${event.member.name}',
+        message:
+            '${_loggedInUser?.name ?? 'Someone'} banned ${event.member.name}',
         oldScope: event.member.scope ?? GroupMemberScope.participant,
         newScope: '',
         muid: DateTime.now().microsecondsSinceEpoch.toString(),
@@ -909,10 +943,12 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
       }
 
       // Emit error state with failure message
-      emit(GroupMembersError(
-        message: result.message,
-        previousMembers: previousMembers,
-      ));
+      emit(
+        GroupMembersError(
+          message: result.message,
+          previousMembers: previousMembers,
+        ),
+      );
     }
   }
 
@@ -957,7 +993,8 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
       // Create action message for the event
       final actionMessage = Action(
         conversationId: _conversationId ?? 'group_${group.guid}',
-        message: '${_loggedInUser?.name ?? 'Someone'} made ${event.member.name} ${event.newScope}',
+        message:
+            '${_loggedInUser?.name ?? 'Someone'} made ${event.member.name} ${event.newScope}',
         oldScope: oldScope,
         newScope: event.newScope,
         muid: DateTime.now().microsecondsSinceEpoch.toString(),
@@ -985,17 +1022,16 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
       }
 
       // Emit error state with failure message
-      emit(GroupMembersError(
-        message: result.message,
-        previousMembers: previousMembers,
-      ));
+      emit(
+        GroupMembersError(
+          message: result.message,
+          previousMembers: previousMembers,
+        ),
+      );
     }
   }
 
-  void _onUpdateMember(
-    UpdateMember event,
-    Emitter<GroupMembersState> emit,
-  ) {
+  void _onUpdateMember(UpdateMember event, Emitter<GroupMembersState> emit) {
     if (state is! GroupMembersLoaded) return;
 
     final memberIndex = findMemberIndex(event.member.uid);
@@ -1012,10 +1048,7 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
   // INTERNAL EVENT HANDLERS (stubs for task 12)
   // ============================================================
 
-  void _onMemberJoined(
-    _MemberJoined event,
-    Emitter<GroupMembersState> emit,
-  ) {
+  void _onMemberJoined(_MemberJoined event, Emitter<GroupMembersState> emit) {
     // Check if state is GroupMembersLoaded - if not, return early
     if (state is! GroupMembersLoaded) return;
 
@@ -1029,10 +1062,7 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
     getStatusNotifier(event.member.uid);
   }
 
-  void _onMemberLeft(
-    _MemberLeft event,
-    Emitter<GroupMembersState> emit,
-  ) {
+  void _onMemberLeft(_MemberLeft event, Emitter<GroupMembersState> emit) {
     // Check if state is GroupMembersLoaded - if not, return early
     if (state is! GroupMembersLoaded) return;
 
@@ -1049,10 +1079,7 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
     }
   }
 
-  void _onMemberKicked(
-    _MemberKicked event,
-    Emitter<GroupMembersState> emit,
-  ) {
+  void _onMemberKicked(_MemberKicked event, Emitter<GroupMembersState> emit) {
     // Check if state is GroupMembersLoaded - if not, return early
     if (state is! GroupMembersLoaded) return;
 
@@ -1069,10 +1096,7 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
     }
   }
 
-  void _onMemberBanned(
-    _MemberBanned event,
-    Emitter<GroupMembersState> emit,
-  ) {
+  void _onMemberBanned(_MemberBanned event, Emitter<GroupMembersState> emit) {
     // Check if state is GroupMembersLoaded - if not, return early
     if (state is! GroupMembersLoaded) return;
 
@@ -1166,17 +1190,21 @@ class GroupMembersBloc extends Bloc<GroupMembersEvent, GroupMembersState>
     } else {
       final currentState = state;
       if (currentState is GroupMembersLoaded) {
-        emit(currentState.copyWith(
-          members: event.members,
-          hasMore: event.hasMore ?? currentState.hasMore,
-          // Always reset isLoadingMore when list state changes from a hook
-          isLoadingMore: false,
-        ));
+        emit(
+          currentState.copyWith(
+            members: event.members,
+            hasMore: event.hasMore ?? currentState.hasMore,
+            // Always reset isLoadingMore when list state changes from a hook
+            isLoadingMore: false,
+          ),
+        );
       } else {
-        emit(GroupMembersLoaded(
-          members: event.members,
-          hasMore: event.hasMore ?? true,
-        ));
+        emit(
+          GroupMembersLoaded(
+            members: event.members,
+            hasMore: event.hasMore ?? true,
+          ),
+        );
       }
     }
   }
@@ -1317,7 +1345,6 @@ class _RestoreOriginalMembers extends GroupMembersEvent {
   List<Object> get props => [members];
 }
 
-
 // ============================================================
 // SDK LISTENER CLASSES
 // ============================================================
@@ -1329,7 +1356,7 @@ class _GroupMembersGroupListener with GroupListener {
   final void Function(Action, User, User, Group) onGroupMemberKickedCallback;
   final void Function(Action, User, User, Group) onGroupMemberBannedCallback;
   final void Function(Action, User, User, String, String, Group)
-      onGroupMemberScopeChangedCallback;
+  onGroupMemberScopeChangedCallback;
   final void Function(Action, User, Group) onMemberAddedToGroupCallback;
 
   _GroupMembersGroupListener({
@@ -1353,31 +1380,50 @@ class _GroupMembersGroupListener with GroupListener {
 
   @override
   void onGroupMemberKicked(
-      Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     onGroupMemberKickedCallback(action, kickedUser, kickedBy, kickedFrom);
   }
 
   @override
   void onGroupMemberBanned(
-      Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     onGroupMemberBannedCallback(action, bannedUser, bannedBy, bannedFrom);
   }
 
   @override
   void onGroupMemberScopeChanged(
-      Action action,
-      User updatedBy,
-      User updatedUser,
-      String scopeChangedTo,
-      String scopeChangedFrom,
-      Group group) {
+    Action action,
+    User updatedBy,
+    User updatedUser,
+    String scopeChangedTo,
+    String scopeChangedFrom,
+    Group group,
+  ) {
     onGroupMemberScopeChangedCallback(
-        action, updatedBy, updatedUser, scopeChangedTo, scopeChangedFrom, group);
+      action,
+      updatedBy,
+      updatedUser,
+      scopeChangedTo,
+      scopeChangedFrom,
+      group,
+    );
   }
 
   @override
   void onMemberAddedToGroup(
-      Action action, User addedBy, User userAdded, Group addedTo) {
+    Action action,
+    User addedBy,
+    User userAdded,
+    Group addedTo,
+  ) {
     // Treat member added same as member joined
     onMemberAddedToGroupCallback(action, userAdded, addedTo);
   }

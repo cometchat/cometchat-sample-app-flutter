@@ -86,7 +86,8 @@ class CometChatOutgoingCallStyle
       backgroundColor: backgroundColor ?? this.backgroundColor,
       avatarStyle: avatarStyle ?? this.avatarStyle,
       declineButtonColor: declineButtonColor ?? this.declineButtonColor,
-      declineButtonBorderRadius: declineButtonBorderRadius ?? this.declineButtonBorderRadius,
+      declineButtonBorderRadius:
+          declineButtonBorderRadius ?? this.declineButtonBorderRadius,
       iconColor: iconColor ?? this.iconColor,
       subtitleColor: subtitleColor ?? this.subtitleColor,
       subtitleTextStyle: subtitleTextStyle ?? this.subtitleTextStyle,
@@ -116,24 +117,39 @@ class CometChatOutgoingCallStyle
 
   @override
   CometChatOutgoingCallStyle lerp(
-      ThemeExtension<CometChatOutgoingCallStyle>? other, double t) {
+    ThemeExtension<CometChatOutgoingCallStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatOutgoingCallStyle) {
       return this;
     }
     return CometChatOutgoingCallStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       avatarStyle: avatarStyle?.lerp(other.avatarStyle, t),
-      declineButtonColor:
-      Color.lerp(declineButtonColor, other.declineButtonColor, t),
+      declineButtonColor: Color.lerp(
+        declineButtonColor,
+        other.declineButtonColor,
+        t,
+      ),
       declineButtonBorderRadius: BorderRadiusGeometry.lerp(
-          declineButtonBorderRadius, other.declineButtonBorderRadius, t),
+        declineButtonBorderRadius,
+        other.declineButtonBorderRadius,
+        t,
+      ),
       iconColor: Color.lerp(iconColor, other.iconColor, t),
       subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t),
-      subtitleTextStyle:
-      TextStyle.lerp(subtitleTextStyle, other.subtitleTextStyle, t),
+      subtitleTextStyle: TextStyle.lerp(
+        subtitleTextStyle,
+        other.subtitleTextStyle,
+        t,
+      ),
       titleColor: Color.lerp(titleColor, other.titleColor, t),
       titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
-      borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       border: Border.lerp(border, other.border, t),
     );
   }

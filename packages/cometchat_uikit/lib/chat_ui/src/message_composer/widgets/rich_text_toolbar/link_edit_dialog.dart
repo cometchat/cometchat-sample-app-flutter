@@ -91,8 +91,9 @@ class _LinkEditDialogState extends State<LinkEditDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveStyle =
-        CometChatLinkPreviewStyle.of(context).merge(widget.style);
+    final effectiveStyle = CometChatLinkPreviewStyle.of(
+      context,
+    ).merge(widget.style);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
@@ -100,8 +101,7 @@ class _LinkEditDialogState extends State<LinkEditDialog> {
     return Dialog(
       backgroundColor: effectiveStyle.backgroundColor,
       shape: RoundedRectangleBorder(
-        borderRadius:
-            effectiveStyle.borderRadius ?? BorderRadius.circular(12),
+        borderRadius: effectiveStyle.borderRadius ?? BorderRadius.circular(12),
       ),
       child: Padding(
         padding: EdgeInsets.all(spacing.padding4 ?? 16),
@@ -112,7 +112,8 @@ class _LinkEditDialogState extends State<LinkEditDialog> {
             // Title
             Text(
               'Insert Link',
-              style: effectiveStyle.titleTextStyle ??
+              style:
+                  effectiveStyle.titleTextStyle ??
                   typography.heading4?.bold?.copyWith(
                     color: colorPalette.textPrimary,
                   ),
@@ -122,7 +123,8 @@ class _LinkEditDialogState extends State<LinkEditDialog> {
             // Display text field
             Text(
               'Display Text',
-              style: effectiveStyle.labelTextStyle?.copyWith(
+              style:
+                  effectiveStyle.labelTextStyle?.copyWith(
                     color: colorPalette.textSecondary,
                   ) ??
                   typography.body?.medium?.copyWith(
@@ -134,21 +136,18 @@ class _LinkEditDialogState extends State<LinkEditDialog> {
               controller: _displayTextController,
               decoration: InputDecoration(
                 hintText: 'Enter display text',
-                hintStyle:
-                    TextStyle(color: effectiveStyle.textFieldHintColor),
+                hintStyle: TextStyle(color: effectiveStyle.textFieldHintColor),
                 filled: true,
                 fillColor: effectiveStyle.textFieldBackgroundColor,
                 border: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color:
-                        effectiveStyle.textFieldBorderColor ?? Colors.grey,
+                    color: effectiveStyle.textFieldBorderColor ?? Colors.grey,
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color:
-                        effectiveStyle.textFieldBorderColor ?? Colors.grey,
+                    color: effectiveStyle.textFieldBorderColor ?? Colors.grey,
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -170,7 +169,8 @@ class _LinkEditDialogState extends State<LinkEditDialog> {
             // URL field
             Text(
               'URL',
-              style: effectiveStyle.labelTextStyle?.copyWith(
+              style:
+                  effectiveStyle.labelTextStyle?.copyWith(
                     color: colorPalette.textSecondary,
                   ) ??
                   typography.body?.medium?.copyWith(
@@ -182,21 +182,18 @@ class _LinkEditDialogState extends State<LinkEditDialog> {
               controller: _urlController,
               decoration: InputDecoration(
                 hintText: 'https://example.com',
-                hintStyle:
-                    TextStyle(color: effectiveStyle.textFieldHintColor),
+                hintStyle: TextStyle(color: effectiveStyle.textFieldHintColor),
                 filled: true,
                 fillColor: effectiveStyle.textFieldBackgroundColor,
                 border: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color:
-                        effectiveStyle.textFieldBorderColor ?? Colors.grey,
+                    color: effectiveStyle.textFieldBorderColor ?? Colors.grey,
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color:
-                        effectiveStyle.textFieldBorderColor ?? Colors.grey,
+                    color: effectiveStyle.textFieldBorderColor ?? Colors.grey,
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -238,7 +235,8 @@ class _LinkEditDialogState extends State<LinkEditDialog> {
                   child: Text(
                     'Cancel',
                     style: TextStyle(
-                      color: effectiveStyle.cancelButtonTextColor ??
+                      color:
+                          effectiveStyle.cancelButtonTextColor ??
                           colorPalette.textSecondary,
                     ),
                   ),

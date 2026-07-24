@@ -1,4 +1,5 @@
 import '../../../cometchat_uikit_shared.dart';
+
 class OptionElement {
   OptionElement({required this.value, required this.label});
 

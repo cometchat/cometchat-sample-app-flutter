@@ -1,5 +1,5 @@
 import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import 'package:equatable/equatable.dart';
 
 /// Status enum for CallLogs BLoC state
@@ -62,14 +62,14 @@ class CallLogsState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        callLogs,
-        hasMore,
-        isLoadingMore,
-        errorMessage,
-        loggedInUser,
-        groupedEntries,
-      ];
+    status,
+    callLogs,
+    hasMore,
+    isLoadingMore,
+    errorMessage,
+    loggedInUser,
+    groupedEntries,
+  ];
 
   /// Create a copy of this state with updated fields
   CallLogsState copyWith({

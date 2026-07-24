@@ -1,4 +1,3 @@
-
 ///[BuilderProtocol] is the Marker class to define protocols
 ///Used to generate different request builders
 ///T1 is the type of Request builder to be passed and T2 should be the respective request type

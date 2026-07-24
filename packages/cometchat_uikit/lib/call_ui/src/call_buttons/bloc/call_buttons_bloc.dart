@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,10 +8,6 @@ import '../../../../cometchat_calls_uikit.dart';
 import '../../../../cometchat_chat_uikit.dart';
 import '../../../../shared_ui/src/clean_architecture/core/constants/enums.dart'
     as core_enums;
-import '../../call_settings/call_navigation_context.dart';
-import '../../outgoing_call/cometchat_outgoing_call.dart';
-import 'call_buttons_event.dart';
-import 'call_buttons_state.dart';
 
 /// BLoC for managing call buttons state and call initiation workflow
 ///
@@ -38,7 +33,11 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
 
   /// Custom call settings builder
   final SessionSettingsBuilder Function(
-      User? user, Group? group, bool? isAudioOnly)? callSettingsBuilder;
+    User? user,
+    Group? group,
+    bool? isAudioOnly,
+  )?
+  callSettingsBuilder;
 
   /// Error callback
   final OnError? errorCallback;
@@ -103,7 +102,10 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
 
   /// Initialize logged in user
   Future<void> _initializeLoggedInUser() async {
-    final result = await CallOperationsServiceLocator.instance.getLoggedInUserUseCase.call();
+    final result = await CallOperationsServiceLocator
+        .instance
+        .getLoggedInUserUseCase
+        .call();
     result.onSuccess((user) => _loggedInUser = user);
   }
 
@@ -176,11 +178,13 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
     CallRejected event,
     Emitter<CallButtonsState> emit,
   ) async {
-    emit(state.copyWith(
-      isDisabled: false,
-      isCallInProgress: false,
-      clearError: true,
-    ));
+    emit(
+      state.copyWith(
+        isDisabled: false,
+        isCallInProgress: false,
+        clearError: true,
+      ),
+    );
   }
 
   /// Handle call ended event - re-enable buttons
@@ -188,11 +192,13 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
     CallEnded event,
     Emitter<CallButtonsState> emit,
   ) async {
-    emit(state.copyWith(
-      isDisabled: false,
-      isCallInProgress: false,
-      clearError: true,
-    ));
+    emit(
+      state.copyWith(
+        isDisabled: false,
+        isCallInProgress: false,
+        clearError: true,
+      ),
+    );
   }
 
   // ============================================================
@@ -227,34 +233,40 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
     );
     if (isClosed) return;
     if (!permissionGranted) {
-      emit(state.copyWith(
-        isDisabled: false,
-        isCallInProgress: false,
-        errorMessage:
-            'Microphone${isAudioOnly ? '' : ' and camera'} permission is required to start the meeting.',
-      ));
+      emit(
+        state.copyWith(
+          isDisabled: false,
+          isCallInProgress: false,
+          errorMessage:
+              'Microphone${isAudioOnly ? '' : ' and camera'} permission is required to start the meeting.',
+        ),
+      );
       return;
     }
 
     // Build call settings
     final SessionSettingsBuilder defaultSessionSettingsBuilder;
     if (callSettingsBuilder != null) {
-      defaultSessionSettingsBuilder = callSettingsBuilder!(user, group, isAudioOnly);
+      defaultSessionSettingsBuilder = callSettingsBuilder!(
+        user,
+        group,
+        isAudioOnly,
+      );
     } else if (outgoingCallConfiguration?.sessionSettingsBuilder != null) {
       defaultSessionSettingsBuilder =
           outgoingCallConfiguration!.sessionSettingsBuilder!;
     } else {
       defaultSessionSettingsBuilder = SessionSettingsBuilder()
-        .setLayout(LayoutType.tile)
-        .startVideoPaused(false)
-        .startAudioMuted(false);
+          .setLayout(LayoutType.tile)
+          .startVideoPaused(false)
+          .startAudioMuted(false);
       if (isAudioOnly) {
         // Workaround: SessionType.audio is not recognized by the native
         // Android SDK (beta bug). Use startVideoPaused + hide video buttons.
         defaultSessionSettingsBuilder
-          .startVideoPaused(true)
-          .hideSwitchCameraButton(true)
-          .hideToggleVideoButton(true);
+            .startVideoPaused(true)
+            .hideSwitchCameraButton(true)
+            .hideToggleVideoButton(true);
       }
     }
 
@@ -304,7 +316,8 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
     customMessage.metadata = metadata;
 
     // Send meeting message via use case
-    final sendMeetingUseCase = CallOperationsServiceLocator.instance.sendMeetingMessageUseCase;
+    final sendMeetingUseCase =
+        CallOperationsServiceLocator.instance.sendMeetingMessageUseCase;
     final result = await sendMeetingUseCase.call(customMessage);
 
     if (isClosed) return;
@@ -319,21 +332,20 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
           customMessage,
           core_enums.MessageStatus.error,
         );
-        emit(state.copyWith(
-          isDisabled: false,
-          isCallInProgress: false,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            isDisabled: false,
+            isCallInProgress: false,
+            errorMessage: failure.message,
+          ),
+        );
       },
       (directCallMessage) {
         CometChatMessageEvents.ccMessageSent(
           directCallMessage,
           core_enums.MessageStatus.sent,
         );
-        emit(state.copyWith(
-          isDisabled: false,
-          isCallInProgress: true,
-        ));
+        emit(state.copyWith(isDisabled: false, isCallInProgress: true));
       },
     );
   }
@@ -354,33 +366,39 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
     );
     if (isClosed) return;
     if (!permissionGranted) {
-      emit(state.copyWith(
-        isDisabled: false,
-        isCallInProgress: false,
-        errorMessage:
-            'Microphone${isAudioOnly ? '' : ' and camera'} permission is required to start the call.',
-      ));
+      emit(
+        state.copyWith(
+          isDisabled: false,
+          isCallInProgress: false,
+          errorMessage:
+              'Microphone${isAudioOnly ? '' : ' and camera'} permission is required to start the call.',
+        ),
+      );
       return;
     }
 
     // Build call settings
     final SessionSettingsBuilder defaultSessionSettingsBuilder;
     if (callSettingsBuilder != null) {
-      defaultSessionSettingsBuilder = callSettingsBuilder!(user, group, isAudioOnly);
+      defaultSessionSettingsBuilder = callSettingsBuilder!(
+        user,
+        group,
+        isAudioOnly,
+      );
     } else if (outgoingCallConfiguration?.sessionSettingsBuilder != null) {
       defaultSessionSettingsBuilder =
           outgoingCallConfiguration!.sessionSettingsBuilder!;
     } else {
       defaultSessionSettingsBuilder = SessionSettingsBuilder()
-        .setLayout(LayoutType.tile)
-        .startAudioMuted(false);
+          .setLayout(LayoutType.tile)
+          .startAudioMuted(false);
       if (isAudioOnly) {
         // Workaround: SessionType.audio is not recognized by the native
         // Android SDK (beta bug). Use startVideoPaused + hide video buttons.
         defaultSessionSettingsBuilder
-          .startVideoPaused(true)
-          .hideSwitchCameraButton(true)
-          .hideToggleVideoButton(true);
+            .startVideoPaused(true)
+            .hideSwitchCameraButton(true)
+            .hideToggleVideoButton(true);
       }
     }
 
@@ -392,18 +410,21 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
     );
 
     // Initiate call via use case
-    final initiateCallUseCase = CallOperationsServiceLocator.instance.initiateCallUseCase;
+    final initiateCallUseCase =
+        CallOperationsServiceLocator.instance.initiateCallUseCase;
     final result = await initiateCallUseCase.call(call);
 
     if (isClosed) return;
 
     result.fold(
       (failure) {
-        emit(state.copyWith(
-          isDisabled: false,
-          isCallInProgress: false,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            isDisabled: false,
+            isCallInProgress: false,
+            errorMessage: failure.message,
+          ),
+        );
 
         if (errorCallback != null) {
           errorCallback!(CometChatException('ERR', failure.message, ''));
@@ -414,10 +435,7 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
         }
       },
       (returnedCall) {
-        emit(state.copyWith(
-          isDisabled: false,
-          isCallInProgress: true,
-        ));
+        emit(state.copyWith(isDisabled: false, isCallInProgress: true));
 
         returnedCall.category = MessageCategoryConstants.call;
         CometChatCallEvents.ccOutgoingCall(returnedCall);
@@ -463,7 +481,8 @@ class CallButtonsBloc extends Bloc<CallButtonsEvent, CallButtonsState>
             subtitleView: outgoingCallConfiguration?.subtitleView,
             declineButtonIcon: outgoingCallConfiguration?.declineButtonIcon,
             onCancelled: outgoingCallConfiguration?.onCancelled,
-            disableSoundForCalls: outgoingCallConfiguration?.disableSoundForCalls,
+            disableSoundForCalls:
+                outgoingCallConfiguration?.disableSoundForCalls,
             customSoundForCalls: outgoingCallConfiguration?.customSoundForCalls,
             customSoundForCallsPackage:
                 outgoingCallConfiguration?.customSoundForCallsPackage,

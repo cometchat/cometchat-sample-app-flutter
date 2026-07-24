@@ -19,7 +19,7 @@ class ComposerSegment {
   String language;
 
   /// Tracks the previous text for this segment so formatters (mentions, etc.)
-  /// receive the correct previous text when [onChange] is called — not the
+  /// receive the correct previous text when `onChange` is called — not the
   /// previous text from a different segment.
   String previousText;
 
@@ -29,11 +29,11 @@ class ComposerSegment {
     String text = '',
     this.language = '',
     List<CometChatTextFormatter>? formatters,
-  })  : controller = (type == SegmentType.normal)
-            ? RichTextEditingController(text: text, formatters: formatters)
-            : TextEditingController(text: text),
-        focusNode = FocusNode(),
-        previousText = text;
+  }) : controller = (type == SegmentType.normal)
+           ? RichTextEditingController(text: text, formatters: formatters)
+           : TextEditingController(text: text),
+       focusNode = FocusNode(),
+       previousText = text;
 
   bool get isEmpty => controller.text.trim().isEmpty;
   String get text => controller.text;
@@ -49,10 +49,10 @@ class ComposerSegment {
 // ════════════════════════════════════════════════════════════════════════════════
 
 /// Controller for segment-based rich text composition.
-/// 
+///
 /// Manages multiple segments (normal text and code blocks) with independent
 /// TextEditingControllers and FocusNodes for each segment.
-/// 
+///
 /// Key features:
 /// - Insert code blocks at cursor position, splitting normal text
 /// - Double-Enter exits code block and moves to next normal segment
@@ -92,7 +92,8 @@ class SegmentComposerController extends ChangeNotifier {
     _onLinkTap = value;
     // Propagate to all existing normal segments
     for (final seg in _segments) {
-      if (seg.type == SegmentType.normal && seg.controller is RichTextEditingController) {
+      if (seg.type == SegmentType.normal &&
+          seg.controller is RichTextEditingController) {
         (seg.controller as RichTextEditingController).onLinkTap = value;
       }
     }
@@ -104,8 +105,10 @@ class SegmentComposerController extends ChangeNotifier {
   set onFormatterTextChanged(void Function(String previousText)? value) {
     _onFormatterTextChanged = value;
     for (final seg in _segments) {
-      if (seg.type == SegmentType.normal && seg.controller is RichTextEditingController) {
-        (seg.controller as RichTextEditingController).onFormatterTextChanged = value;
+      if (seg.type == SegmentType.normal &&
+          seg.controller is RichTextEditingController) {
+        (seg.controller as RichTextEditingController).onFormatterTextChanged =
+            value;
       }
     }
   }
@@ -157,32 +160,35 @@ class SegmentComposerController extends ChangeNotifier {
       language: language,
       formatters: type == SegmentType.normal ? _formatters : null,
     );
-    
+
     segment.controller.addListener(notifyListeners);
     segment.focusNode.addListener(() {
       if (segment.focusNode.hasFocus) notifyListeners();
     });
-    
+
     // Wire up code block delegation for normal segments
-    if (type == SegmentType.normal && segment.controller is RichTextEditingController) {
-      (segment.controller as RichTextEditingController).onInsertCodeBlock = toggleCodeBlock;
+    if (type == SegmentType.normal &&
+        segment.controller is RichTextEditingController) {
+      (segment.controller as RichTextEditingController).onInsertCodeBlock =
+          toggleCodeBlock;
       (segment.controller as RichTextEditingController).onLinkTap = _onLinkTap;
-      (segment.controller as RichTextEditingController).onFormatterTextChanged = _onFormatterTextChanged;
+      (segment.controller as RichTextEditingController).onFormatterTextChanged =
+          _onFormatterTextChanged;
     }
-    
+
     // For code segments, add exit detection listener
     if (type == SegmentType.code) {
       segment.controller.addListener(() {
         _watchCodeExit(segment);
       });
     }
-    
+
     if (at != null) {
       _segments.insert(at, segment);
     } else {
       _segments.add(segment);
     }
-    
+
     return segment;
   }
 
@@ -190,7 +196,7 @@ class SegmentComposerController extends ChangeNotifier {
 
   /// Toggle code block - if in a code block, remove it; otherwise insert one.
   /// This is called when the code block button is clicked.
-  /// 
+  ///
   /// Always creates a new code block when in a normal segment.
   /// The current line text (if any) is extracted into the new code block
   /// by [insertCodeBlock].
@@ -219,16 +225,16 @@ class SegmentComposerController extends ChangeNotifier {
   }
 
   /// Insert a code block at the current cursor position.
-  /// 
+  ///
   /// If there's selected text in a normal segment, moves that text into the code block.
   /// If the cursor is on a line with text (no selection), extracts that entire line
   /// into the code block.
   /// If the segment is empty, inserts an empty code block.
-  /// 
+  ///
   /// When the focused normal segment becomes empty after extraction (single-line),
   /// it is replaced in-place to avoid a visual glitch where both segments are
   /// briefly visible.
-  /// 
+  ///
   /// All inline formatting (bold, italic, etc.) and line-based prefixes are
   /// stripped from the extracted text — code blocks contain plain text only.
   void insertCodeBlock() {
@@ -243,16 +249,16 @@ class SegmentComposerController extends ChangeNotifier {
       final controller = focused.controller;
       final selection = controller.selection;
       final text = controller.text;
-      
+
       if (selection.isValid && !selection.isCollapsed) {
         // There's selected text - move it to the code block
         final start = selection.start.clamp(0, text.length);
         final end = selection.end.clamp(0, text.length);
-        
+
         codeContent = text.substring(start, end);
         final before = text.substring(0, start);
         final after = text.substring(end);
-        
+
         // Strip formatting from extracted content
         if (controller is RichTextEditingController) {
           codeContent = _stripFormattingFromText(codeContent, controller);
@@ -260,11 +266,11 @@ class SegmentComposerController extends ChangeNotifier {
           controller.spanManager.onTextDeleted(start, end);
           controller.clearPendingFormats();
         }
-        
+
         focused.controller.text = before;
-        
+
         final idx = _indexOf(focused);
-        
+
         // Insert trailing normal segment for text after selection
         if (after.isNotEmpty) {
           _addSegment(SegmentType.normal, text: after, at: idx + 1);
@@ -277,26 +283,26 @@ class SegmentComposerController extends ChangeNotifier {
         // No selection — extract the current line and move it into the code block.
         // Find the line boundaries around the cursor.
         final cursor = selection.baseOffset.clamp(0, text.length);
-        
+
         int lineStart = text.lastIndexOf('\n', cursor > 0 ? cursor - 1 : 0);
         lineStart = lineStart == -1 ? 0 : lineStart + 1;
-        
+
         int lineEnd = text.indexOf('\n', cursor);
         if (lineEnd == -1) lineEnd = text.length;
-        
+
         codeContent = text.substring(lineStart, lineEnd);
-        
+
         // Strip formatting from extracted content
         if (controller is RichTextEditingController) {
           codeContent = _stripFormattingFromText(codeContent, controller);
           // Clear spans/pending formats since content is moving to code block
           controller.clearPendingFormats();
         }
-        
+
         final before = text.substring(0, lineStart);
         // Skip the newline after the extracted line if present
         final after = lineEnd < text.length ? text.substring(lineEnd + 1) : '';
-        
+
         // Remove trailing newline from before text
         final trimmedBefore = before.endsWith('\n')
             ? before.substring(0, before.length - 1)
@@ -312,7 +318,11 @@ class SegmentComposerController extends ChangeNotifier {
           focused.dispose();
           _segments.removeAt(idx);
 
-          final codeSegment = _addSegment(SegmentType.code, text: codeContent, at: idx);
+          final codeSegment = _addSegment(
+            SegmentType.code,
+            text: codeContent,
+            at: idx,
+          );
           _activeCodeId = codeSegment.id;
 
           // Ensure a normal segment follows
@@ -343,7 +353,11 @@ class SegmentComposerController extends ChangeNotifier {
       }
     }
 
-    final codeSegment = _addSegment(SegmentType.code, text: codeContent, at: insertAt);
+    final codeSegment = _addSegment(
+      SegmentType.code,
+      text: codeContent,
+      at: insertAt,
+    );
     _activeCodeId = codeSegment.id;
 
     // Ensure normal segment follows
@@ -355,17 +369,17 @@ class SegmentComposerController extends ChangeNotifier {
     notifyListeners();
     Future.microtask(() => codeSegment.focusNode.requestFocus());
   }
-  
+
   /// Called when backspace is pressed on an empty code block
   /// Returns true if the code block was removed
   bool handleBackspaceOnEmptyCodeBlock() {
     // Find the focused code segment
     final focused = focusedSegment;
     if (focused == null || focused.type != SegmentType.code) return false;
-    
+
     // Check if it's empty
     if (focused.controller.text.isNotEmpty) return false;
-    
+
     // Remove the code block
     removeCodeSegment(focused);
     return true;
@@ -399,7 +413,9 @@ class SegmentComposerController extends ChangeNotifier {
     if (prevCode == null) return false;
 
     // Don't remove if this is the only normal segment
-    final normalCount = _segments.where((s) => s.type == SegmentType.normal).length;
+    final normalCount = _segments
+        .where((s) => s.type == SegmentType.normal)
+        .length;
     if (normalCount <= 1) return false;
 
     // Remove the empty normal segment
@@ -441,24 +457,24 @@ class SegmentComposerController extends ChangeNotifier {
   void _watchCodeExit(ComposerSegment codeSegment) {
     // Skip when suppressed (programmatic text change) or already handling
     if (_suppressCodeExitWatch || _handlingCodeExit) return;
-    
+
     final text = codeSegment.controller.text;
-    
+
     // Exit code block when user presses Enter on two consecutive empty lines.
     // This means the text ends with \n\n\n (content + blank line + blank line + newline).
     // Three newlines = user pressed Enter 3 times after their last line of code.
     if (text.endsWith('\n\n\n')) {
       _handlingCodeExit = true;
-      
+
       // Suppress watcher while we trim the exit newlines
       _suppressCodeExitWatch = true;
       codeSegment.controller.text = text.substring(0, text.length - 3);
       _suppressCodeExitWatch = false;
-      
+
       _activeCodeId = null;
 
       final idx = _indexOf(codeSegment);
-      
+
       // Find or create the next normal segment
       ComposerSegment? next;
       for (int i = idx + 1; i < _segments.length; i++) {
@@ -468,13 +484,13 @@ class SegmentComposerController extends ChangeNotifier {
         }
       }
       next ??= _addSegment(SegmentType.normal, at: idx + 1);
-      
+
       // Store pending focus — widget will request focus after rebuild
       // so the target segment is in the tree (not hidden by SizedBox.shrink)
       _pendingFocusSegment = next;
 
       notifyListeners();
-      
+
       // Reset after the frame so rebuild completes first
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _handlingCodeExit = false;
@@ -491,7 +507,8 @@ class SegmentComposerController extends ChangeNotifier {
 
     // Capture surrounding normal text
     final hasPrev = idx > 0 && _segments[idx - 1].type == SegmentType.normal;
-    final hasNext = idx + 1 < _segments.length &&
+    final hasNext =
+        idx + 1 < _segments.length &&
         _segments[idx + 1].type == SegmentType.normal;
     final prevText = hasPrev ? _segments[idx - 1].controller.text : null;
     final nextText = hasNext ? _segments[idx + 1].controller.text : null;
@@ -509,10 +526,10 @@ class SegmentComposerController extends ChangeNotifier {
     if (hasPrev) {
       // Merge everything into the previous normal segment
       final prevSeg = _segments[idx - 1];
-      final sep1 =
-          (prevText!.isNotEmpty && codeText.isNotEmpty) ? '\n' : '';
-      final sep2 =
-          (codeText.isNotEmpty && (nextText?.isNotEmpty ?? false)) ? '\n' : '';
+      final sep1 = (prevText!.isNotEmpty && codeText.isNotEmpty) ? '\n' : '';
+      final sep2 = (codeText.isNotEmpty && (nextText?.isNotEmpty ?? false))
+          ? '\n'
+          : '';
       prevSeg.controller.text = '$prevText$sep1$codeText$sep2${nextText ?? ''}';
 
       // Cursor lands right after the pasted code text
@@ -521,12 +538,14 @@ class SegmentComposerController extends ChangeNotifier {
       Future.microtask(() => prevSeg.focusNode.requestFocus());
     } else {
       // No preceding normal segment — create one at front carrying all the text
-      final sep =
-          (codeText.isNotEmpty && (nextText?.isNotEmpty ?? false)) ? '\n' : '';
+      final sep = (codeText.isNotEmpty && (nextText?.isNotEmpty ?? false))
+          ? '\n'
+          : '';
       final merged = '$codeText$sep${nextText ?? ''}';
       final newSeg = _addSegment(SegmentType.normal, text: merged, at: 0);
-      newSeg.controller.selection =
-          TextSelection.collapsed(offset: codeText.length);
+      newSeg.controller.selection = TextSelection.collapsed(
+        offset: codeText.length,
+      );
       Future.microtask(() => newSeg.focusNode.requestFocus());
     }
 
@@ -540,7 +559,10 @@ class SegmentComposerController extends ChangeNotifier {
   /// Strip all inline formatting (markdown markers, line-based prefixes) from
   /// [text] using the controller's stripping logic. Falls back to a simple
   /// regex-based strip if the controller doesn't support it.
-  String _stripFormattingFromText(String text, RichTextEditingController controller) {
+  String _stripFormattingFromText(
+    String text,
+    RichTextEditingController controller,
+  ) {
     if (text.isEmpty) return text;
     // Use the controller's comprehensive stripping method
     // which handles nested markdown, span-based formats, and line prefixes.
@@ -557,13 +579,13 @@ class SegmentComposerController extends ChangeNotifier {
 
     // Strip inline markdown iteratively (handles nesting)
     final inlineRegex = RegExp(
-      r'(\*\*(.+?)\*\*)'       // **bold**
-      r'|(__(.+?)__)'           // __bold__
-      r'|(~~(.+?)~~)'           // ~~strikethrough~~
-      r'|(\*(.+?)\*)'           // *italic*
-      r'|(_(.+?)_)'             // _italic_
-      r'|(`([^`]+)`)'           // `code`
-      r'|(\[([^\]]+)\]\([^)]+\))',  // [text](url)
+      r'(\*\*(.+?)\*\*)' // **bold**
+      r'|(__(.+?)__)' // __bold__
+      r'|(~~(.+?)~~)' // ~~strikethrough~~
+      r'|(\*(.+?)\*)' // *italic*
+      r'|(_(.+?)_)' // _italic_
+      r'|(`([^`]+)`)' // `code`
+      r'|(\[([^\]]+)\]\([^)]+\))', // [text](url)
     );
 
     for (int i = 0; i < 5; i++) {
@@ -591,7 +613,8 @@ class SegmentComposerController extends ChangeNotifier {
         } else {
           continue;
         }
-        result = result.substring(0, m.start) + content + result.substring(m.end);
+        result =
+            result.substring(0, m.start) + content + result.substring(m.end);
       }
     }
 
@@ -690,7 +713,8 @@ class SegmentComposerController extends ChangeNotifier {
 
       // After removal, the focused segment should now be a normal segment
       // containing the merged text. Find it.
-      final normalSeg = focusedSegment ??
+      final normalSeg =
+          focusedSegment ??
           _segments.cast<ComposerSegment?>().firstWhere(
             (s) => s!.type == SegmentType.normal,
             orElse: () => null,
@@ -751,7 +775,7 @@ class SegmentComposerController extends ChangeNotifier {
     for (final s in _segments) {
       final t = s.controller.text.trim();
       if (t.isEmpty) continue;
-      
+
       if (s.type == SegmentType.code) {
         final lang = s.language.trim();
         parts.add('```$lang\n$t\n```');

@@ -1,5 +1,5 @@
 /// Rich Text Toolbar exports
-library rich_text_toolbar;
+library;
 
 // Styles
 export 'cometchat_rich_text_toolbar_style.dart';

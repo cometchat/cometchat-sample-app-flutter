@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/users_repository.dart';
 
@@ -20,7 +20,7 @@ class GetUsersUseCase {
   /// [searchKeyword] - Optional search keyword to filter users
   /// [usersRequestBuilder] - Optional custom request builder for filtering
   ///
-  /// Returns Result<List<User>> containing users or failure
+  /// Returns `Result<List<User>>` containing users or failure
   Future<Result<List<User>>> call({
     int limit = 30,
     String? searchKeyword,

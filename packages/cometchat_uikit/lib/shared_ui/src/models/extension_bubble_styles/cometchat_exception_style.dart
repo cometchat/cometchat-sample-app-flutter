@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 ///[CometChatExceptionStyle] is a data class that has styling-related properties for exception view
-class CometChatExceptionStyle
-    extends ThemeExtension<CometChatExceptionStyle> {
+class CometChatExceptionStyle extends ThemeExtension<CometChatExceptionStyle> {
   const CometChatExceptionStyle({
     this.exceptionBackgroundColor,
     this.exceptionTextStyle,
@@ -46,14 +45,25 @@ class CometChatExceptionStyle
 
   @override
   CometChatExceptionStyle lerp(
-      covariant CometChatExceptionStyle? other, double t) {
+    covariant CometChatExceptionStyle? other,
+    double t,
+  ) {
     return CometChatExceptionStyle(
       exceptionBackgroundColor: Color.lerp(
-          exceptionBackgroundColor, other?.exceptionBackgroundColor, t),
-      exceptionTextStyle:
-          TextStyle.lerp(exceptionTextStyle, other?.exceptionTextStyle, t),
-      exceptionIconTint:
-          Color.lerp(exceptionIconTint, other?.exceptionIconTint, t),
+        exceptionBackgroundColor,
+        other?.exceptionBackgroundColor,
+        t,
+      ),
+      exceptionTextStyle: TextStyle.lerp(
+        exceptionTextStyle,
+        other?.exceptionTextStyle,
+        t,
+      ),
+      exceptionIconTint: Color.lerp(
+        exceptionIconTint,
+        other?.exceptionIconTint,
+        t,
+      ),
     );
   }
 }

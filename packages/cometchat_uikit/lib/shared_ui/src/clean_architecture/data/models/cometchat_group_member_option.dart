@@ -1,4 +1,4 @@
-import "package:cometchat_sdk/cometchat_sdk.dart";
+import "package:cometchat_sdk/cometchat_sdk.dart" hide CardMessage;
 import 'cometchat_base_options.dart';
 import '../../presentation/view_models/cometchat_group_members_controller_protocol.dart';
 
@@ -21,8 +21,12 @@ import '../../presentation/view_models/cometchat_group_members_controller_protoc
 /// ```
 class CometChatGroupMemberOption extends CometChatBaseOptions {
   ///[onClick] call function which takes 2 parameters
-  Function(Group group, GroupMember member,
-      CometChatGroupMembersControllerProtocol state)? onClick;
+  Function(
+    Group group,
+    GroupMember member,
+    CometChatGroupMembersControllerProtocol state,
+  )?
+  onClick;
 
   CometChatGroupMemberOption({
     this.onClick,

@@ -1,8 +1,12 @@
-import '../../cometchat_uikit_shared.dart';import 'package:flutter/material.dart';
+import '../../cometchat_uikit_shared.dart';
+import 'package:flutter/material.dart';
 
 class SnackBarUtils {
-  static show(String text, BuildContext context,
-      {SnackBarConfiguration? snackBarConfiguration}) {
+  static void show(
+    String text,
+    BuildContext context, {
+    SnackBarConfiguration? snackBarConfiguration,
+  }) {
     SnackBar snackBar = SnackBar(
       backgroundColor: snackBarConfiguration?.backgroundColor,
       elevation: snackBarConfiguration?.elevation,
@@ -10,10 +14,7 @@ class SnackBarUtils {
       padding: snackBarConfiguration?.padding,
       duration: snackBarConfiguration?.duration ?? const Duration(seconds: 2),
       content: Center(
-        child: Text(
-          text,
-          style: snackBarConfiguration?.contentTextStyle,
-        ),
+        child: Text(text, style: snackBarConfiguration?.contentTextStyle),
       ),
     );
 

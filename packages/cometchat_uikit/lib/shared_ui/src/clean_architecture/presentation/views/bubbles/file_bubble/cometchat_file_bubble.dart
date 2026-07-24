@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import "../../../../clean_architecture.dart";
-import '../../../../core/utils/platform_utils/web_download.dart' as web_download;
+import '../../../../core/utils/platform_utils/web_download.dart'
+    as web_download;
 import 'package:intl/intl.dart';
 
 ///[CometChatFileBubble] creates a widget that gives file bubble
@@ -19,6 +20,9 @@ import 'package:intl/intl.dart';
 ///              style: const FileBubbleStyle(borderRadius: 6),
 ///            );
 /// ```
+@Deprecated(
+  'Use CometChatFilesBubble instead — the multi-attachment bubble family (enableMultipleAttachments) replaces the single-attachment media bubbles.',
+)
 class CometChatFileBubble extends StatefulWidget {
   const CometChatFileBubble({
     super.key,
@@ -111,15 +115,83 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
   Timer? _progressTimer;
 
   // File extension categories
-  static const _documentExtensions = ["doc", "docx", "md", "odt", "abw", "dot", "dotx"];
-  static const _spreadsheetExtensions = ["csv", "xls", "xlsx", "ods", "tsv", "xlt", "xltx", "numbers"];
-  static const _imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "svg", "webp", "tiff", "psd", "heif", "heic"];
-  static const _audioExtensions = ["mp3", "wav", "ogg", "flac", "aac", "wma", "aiff", "m4a", "mid", "midi"];
-  static const _videoExtensions = ["mp4", "avi", "mov", "mkv", "flv", "wmv", "webm", "mpg", "mpeg", "3gp"];
+  static const _documentExtensions = [
+    "doc",
+    "docx",
+    "md",
+    "odt",
+    "abw",
+    "dot",
+    "dotx",
+  ];
+  static const _spreadsheetExtensions = [
+    "csv",
+    "xls",
+    "xlsx",
+    "ods",
+    "tsv",
+    "xlt",
+    "xltx",
+    "numbers",
+  ];
+  static const _imageExtensions = [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "bmp",
+    "svg",
+    "webp",
+    "tiff",
+    "psd",
+    "heif",
+    "heic",
+  ];
+  static const _audioExtensions = [
+    "mp3",
+    "wav",
+    "ogg",
+    "flac",
+    "aac",
+    "wma",
+    "aiff",
+    "m4a",
+    "mid",
+    "midi",
+  ];
+  static const _videoExtensions = [
+    "mp4",
+    "avi",
+    "mov",
+    "mkv",
+    "flv",
+    "wmv",
+    "webm",
+    "mpg",
+    "mpeg",
+    "3gp",
+  ];
   static const _pdfExtensions = ["pdf", "ps", "eps", "ai"];
   static const _zipExtensions = ["zip", "rar", "7z", "tar", "gz", "bz2", "xz"];
-  static const _presentationExtensions = ["ppt", "pptx", "odp", "key", "pps", "ppsx"];
-  static const _textExtensions = ["txt", "wps", "rtf", "tex", "log", "json", "xml", "yaml", "yml"];
+  static const _presentationExtensions = [
+    "ppt",
+    "pptx",
+    "odp",
+    "key",
+    "pps",
+    "ppsx",
+  ];
+  static const _textExtensions = [
+    "txt",
+    "wps",
+    "rtf",
+    "tex",
+    "log",
+    "json",
+    "xml",
+    "yaml",
+    "yml",
+  ];
 
   late CometChatFileBubbleStyle _fileBubbleStyle;
   late CometChatColorPalette _colorPalette;
@@ -145,17 +217,21 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
     super.didChangeDependencies();
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
-      _fileBubbleStyle = CometChatThemeHelper.getTheme<CometChatFileBubbleStyle>(
-        context: context,
-        defaultTheme: CometChatFileBubbleStyle.of,
-      ).merge(widget.style);
+      _fileBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatFileBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatFileBubbleStyle.of,
+          ).merge(widget.style);
       // Use passed values OR fallback to lookup (for standalone usage)
-      _colorPalette = widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+      _colorPalette =
+          widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
       _spacing = widget.spacing ?? CometChatThemeHelper.getSpacing(context);
-      _typography = widget.typography ?? CometChatThemeHelper.getTypography(context);
+      _typography =
+          widget.typography ?? CometChatThemeHelper.getTypography(context);
       _themeInitialized = true;
     }
   }
@@ -165,19 +241,22 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
     super.didUpdateWidget(oldWidget);
     // Update style if it changed
     if (widget.style != oldWidget.style) {
-      _fileBubbleStyle = CometChatThemeHelper.getTheme<CometChatFileBubbleStyle>(
-        context: context,
-        defaultTheme: CometChatFileBubbleStyle.of,
-      ).merge(widget.style);
+      _fileBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatFileBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatFileBubbleStyle.of,
+          ).merge(widget.style);
     }
     // Update cached theme values if they changed
-    if (widget.colorPalette != oldWidget.colorPalette && widget.colorPalette != null) {
+    if (widget.colorPalette != oldWidget.colorPalette &&
+        widget.colorPalette != null) {
       _colorPalette = widget.colorPalette!;
     }
     if (widget.spacing != oldWidget.spacing && widget.spacing != null) {
       _spacing = widget.spacing!;
     }
-    if (widget.typography != oldWidget.typography && widget.typography != null) {
+    if (widget.typography != oldWidget.typography &&
+        widget.typography != null) {
       _typography = widget.typography!;
     }
   }
@@ -198,7 +277,8 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
   }
 
   String _getFileName() {
-    return widget.title ?? 'file_${widget.id ?? DateTime.now().millisecondsSinceEpoch}';
+    return widget.title ??
+        'file_${widget.id ?? DateTime.now().millisecondsSinceEpoch}';
   }
 
   bool get _fileExists => _localPath != null && _localPath!.isNotEmpty;
@@ -239,7 +319,10 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
     });
 
     try {
-      final path = await BubbleUtils.downloadFile(widget.fileUrl!, _getFileName());
+      final path = await BubbleUtils.downloadFile(
+        widget.fileUrl!,
+        _getFileName(),
+      );
 
       _progressTimer?.cancel();
 
@@ -285,7 +368,9 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
 
     if (_localPath == null) return;
 
-    debugPrint('[FileBubble] _openFile called - localPath: $_localPath, fileMimeType: ${widget.fileMimeType}, fileExtension: ${widget.fileExtension}, title: ${widget.title}');
+    debugPrint(
+      '[FileBubble] _openFile called - localPath: $_localPath, fileMimeType: ${widget.fileMimeType}, fileExtension: ${widget.fileExtension}, title: ${widget.title}',
+    );
 
     const channel = MethodChannel('cometchat_chat_uikit');
     try {
@@ -316,13 +401,17 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
     if (ext == null) return AssetConstants.fileUnknown;
 
     if (_documentExtensions.contains(ext)) return AssetConstants.fileDoc;
-    if (_spreadsheetExtensions.contains(ext)) return AssetConstants.fileSpreadsheet;
+    if (_spreadsheetExtensions.contains(ext)) {
+      return AssetConstants.fileSpreadsheet;
+    }
     if (_imageExtensions.contains(ext)) return AssetConstants.fileImage;
     if (_audioExtensions.contains(ext)) return AssetConstants.fileAudio;
     if (_videoExtensions.contains(ext)) return AssetConstants.fileVideo;
     if (_pdfExtensions.contains(ext)) return AssetConstants.filePdf;
     if (_zipExtensions.contains(ext)) return AssetConstants.fileZip;
-    if (_presentationExtensions.contains(ext)) return AssetConstants.filePresentation;
+    if (_presentationExtensions.contains(ext)) {
+      return AssetConstants.filePresentation;
+    }
     if (_textExtensions.contains(ext)) return AssetConstants.fileText;
 
     return AssetConstants.fileUnknown;
@@ -330,7 +419,13 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
 
   String _formatFileSize(int size, {String unit = 'B'}) {
     if (size > 1024) {
-      final nextUnit = unit == 'B' ? 'KB' : unit == 'KB' ? 'MB' : unit == 'MB' ? 'GB' : 'TB';
+      final nextUnit = unit == 'B'
+          ? 'KB'
+          : unit == 'KB'
+          ? 'MB'
+          : unit == 'MB'
+          ? 'GB'
+          : 'TB';
       if (nextUnit == 'TB' && unit == 'GB') return "$size $unit";
       return _formatFileSize(size ~/ 1024, unit: nextUnit);
     }
@@ -342,25 +437,32 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
   }
 
   String _getDefaultSubtitle() {
-    final ext = (widget.fileExtension ?? _getFileExtension() ?? "").toUpperCase();
+    final ext = (widget.fileExtension ?? _getFileExtension() ?? "")
+        .toUpperCase();
     return "${_formatDate(widget.dateTime)} • ${_formatFileSize(widget.fileSize ?? 0)} • $ext";
   }
 
   Color? _getTitleColor() {
     return _fileBubbleStyle.titleColor ??
         _fileBubbleStyle.titleTextStyle?.color ??
-        (widget.alignment == BubbleAlignment.right ? _colorPalette.white : _colorPalette.neutral900);
+        (widget.alignment == BubbleAlignment.right
+            ? _colorPalette.white
+            : _colorPalette.neutral900);
   }
 
   Color? _getSubtitleColor() {
     return _fileBubbleStyle.subtitleColor ??
         _fileBubbleStyle.subtitleTextStyle?.color ??
-        (widget.alignment == BubbleAlignment.right ? _colorPalette.white : _colorPalette.neutral600);
+        (widget.alignment == BubbleAlignment.right
+            ? _colorPalette.white
+            : _colorPalette.neutral600);
   }
 
   Color? _getDownloadIconColor() {
     return _fileBubbleStyle.downloadIconTint ??
-        (widget.alignment == BubbleAlignment.right ? _colorPalette.white : _colorPalette.primary);
+        (widget.alignment == BubbleAlignment.right
+            ? _colorPalette.white
+            : _colorPalette.primary);
   }
 
   Widget _buildTrailingAction() {
@@ -408,16 +510,27 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
     return GestureDetector(
       onTap: _fileExists
           ? _openFile
-          : (widget.fileUrl != null ? () => _handleDownload(openAfterDownload: true) : null),
+          : (widget.fileUrl != null
+                ? () => _handleDownload(openAfterDownload: true)
+                : null),
       child: Container(
         height: widget.height,
         width: widget.width ?? 265,
         margin: widget.margin,
-        padding: widget.padding ?? EdgeInsets.fromLTRB(_spacing.padding1 ?? 0, _spacing.padding2 ?? 0, 0, _spacing.padding2 ?? 0),
+        padding:
+            widget.padding ??
+            EdgeInsets.fromLTRB(
+              _spacing.padding1 ?? 0,
+              _spacing.padding2 ?? 0,
+              0,
+              _spacing.padding2 ?? 0,
+            ),
         decoration: BoxDecoration(
           color: _fileBubbleStyle.backgroundColor ?? _colorPalette.transparent,
           border: _fileBubbleStyle.border,
-          borderRadius: _fileBubbleStyle.borderRadius ?? BorderRadius.circular(_spacing.radius3 ?? 0),
+          borderRadius:
+              _fileBubbleStyle.borderRadius ??
+              BorderRadius.circular(_spacing.radius3 ?? 0),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -438,19 +551,28 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> {
                     Text(
                       widget.title ?? Translations.of(context).file,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: _typography.body?.medium?.fontSize,
-                        fontWeight: _typography.body?.medium?.fontWeight,
-                        color: _getTitleColor(),
-                      ).merge(_fileBubbleStyle.titleTextStyle).copyWith(color: _getTitleColor()),
+                      style:
+                          TextStyle(
+                                fontSize: _typography.body?.medium?.fontSize,
+                                fontWeight:
+                                    _typography.body?.medium?.fontWeight,
+                                color: _getTitleColor(),
+                              )
+                              .merge(_fileBubbleStyle.titleTextStyle)
+                              .copyWith(color: _getTitleColor()),
                     ),
                     Text(
                       widget.subtitle ?? _getDefaultSubtitle(),
-                      style: TextStyle(
-                        fontSize: _typography.caption2?.regular?.fontSize,
-                        fontWeight: _typography.caption2?.regular?.fontWeight,
-                        color: _getSubtitleColor(),
-                      ).merge(_fileBubbleStyle.subtitleTextStyle).copyWith(color: _getSubtitleColor()),
+                      style:
+                          TextStyle(
+                                fontSize:
+                                    _typography.caption2?.regular?.fontSize,
+                                fontWeight:
+                                    _typography.caption2?.regular?.fontWeight,
+                                color: _getSubtitleColor(),
+                              )
+                              .merge(_fileBubbleStyle.subtitleTextStyle)
+                              .copyWith(color: _getSubtitleColor()),
                     ),
                   ],
                 ),

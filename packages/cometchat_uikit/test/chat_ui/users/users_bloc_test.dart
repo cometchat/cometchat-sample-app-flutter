@@ -23,7 +23,7 @@ class FakeUser extends Fake implements User {
   final String? _status;
 
   FakeUser([this._uid = 'uid_1', this._name = 'User 1', this._status])
-      : super();
+    : super();
 
   @override
   String get uid => _uid;
@@ -89,13 +89,16 @@ void main() {
     setUp(() {
       repo = MockUsersRepository();
       // Default stubs
-      when(() => repo.getLoggedInUser())
-          .thenAnswer((_) async => Success(FakeUser('me', 'Me')));
-      when(() => repo.getUsers(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            usersRequestBuilder: any(named: 'usersRequestBuilder'),
-          )).thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.getLoggedInUser(),
+      ).thenAnswer((_) async => Success(FakeUser('me', 'Me')));
+      when(
+        () => repo.getUsers(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          usersRequestBuilder: any(named: 'usersRequestBuilder'),
+        ),
+      ).thenAnswer((_) async => const Success([]));
     });
 
     // -----------------------------------------------------------------------
@@ -115,36 +118,34 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'emits [Loading, Empty] when no users returned',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => const Success([]));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => const Success([]));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),
-      expect: () => [
-        isA<UsersLoading>(),
-        isA<UsersEmpty>(),
-      ],
+      expect: () => [isA<UsersLoading>(), isA<UsersEmpty>()],
     );
 
     blocTest<UsersBloc, UsersState>(
       'emits [Loading, Loaded] when users returned',
       build: () {
         final users = [FakeUser('uid_1', 'Alice'), FakeUser('uid_2', 'Bob')];
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(users));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(users));
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),
-      expect: () => [
-        isA<UsersLoading>(),
-        isA<UsersLoaded>(),
-      ],
+      expect: () => [isA<UsersLoading>(), isA<UsersLoaded>()],
       verify: (bloc) {
         final state = bloc.state as UsersLoaded;
         expect(state.users.length, 2);
@@ -154,19 +155,19 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'emits [Loading, Error] when repository fails',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async =>
-                const Failure(message: 'Network error', code: 'NET_ERR'));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer(
+          (_) async => const Failure(message: 'Network error', code: 'NET_ERR'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) => bloc.add(const LoadUsers()),
-      expect: () => [
-        isA<UsersLoading>(),
-        isA<UsersError>(),
-      ],
+      expect: () => [isA<UsersLoading>(), isA<UsersError>()],
     );
 
     // -----------------------------------------------------------------------
@@ -177,11 +178,13 @@ void main() {
       'toggles user selection in loaded state',
       build: () {
         final users = [FakeUser('uid_1', 'Alice')];
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(users));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(users));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -199,11 +202,13 @@ void main() {
       'deselects user when toggled again',
       build: () {
         final users = [FakeUser('uid_1', 'Alice')];
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(users));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(users));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -227,11 +232,13 @@ void main() {
       'clears all selections',
       build: () {
         final users = [FakeUser('uid_1'), FakeUser('uid_2')];
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(users));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(users));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -257,11 +264,13 @@ void main() {
       'updates existing user in loaded state',
       build: () {
         final users = [FakeUser('uid_1', 'Alice')];
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(users));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async => Success(users));
         return _makeBloc(repo);
       },
       act: (bloc) async {

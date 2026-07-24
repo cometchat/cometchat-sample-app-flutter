@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../domain/repositories/message_list_repository.dart';
 import '../datasources/message_list_remote_datasource.dart';
@@ -42,7 +42,10 @@ class MessageListRepositoryImpl implements MessageListRepository {
       final messages = result.messages;
 
       if (localDataSource != null && messages.isNotEmpty) {
-        final conversationId = _buildConversationId(conversationWith, conversationType);
+        final conversationId = _buildConversationId(
+          conversationWith,
+          conversationType,
+        );
         try {
           await localDataSource!.cacheMessages(conversationId, messages);
         } catch (_) {}
@@ -52,12 +55,21 @@ class MessageListRepositoryImpl implements MessageListRepository {
     } on MessageListRemoteDataSourceException catch (e) {
       if (localDataSource != null) {
         try {
-          final conversationId = _buildConversationId(conversationWith, conversationType);
-          final cachedMessages = await localDataSource!.getCachedMessages(conversationId);
+          final conversationId = _buildConversationId(
+            conversationWith,
+            conversationType,
+          );
+          final cachedMessages = await localDataSource!.getCachedMessages(
+            conversationId,
+          );
           if (cachedMessages.isNotEmpty) return Success(cachedMessages);
         } catch (_) {}
       }
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(
         message: 'Unexpected error while fetching messages: ${e.toString()}',
@@ -71,13 +83,20 @@ class MessageListRepositoryImpl implements MessageListRepository {
     required MessagesRequest request,
   }) async {
     try {
-      final messages = await remoteDataSource.fetchPreviousMessages(request: request);
+      final messages = await remoteDataSource.fetchPreviousMessages(
+        request: request,
+      );
       return Success(messages);
     } on MessageListRemoteDataSourceException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while fetching previous messages: ${e.toString()}',
+        message:
+            'Unexpected error while fetching previous messages: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -88,13 +107,20 @@ class MessageListRepositoryImpl implements MessageListRepository {
     required MessagesRequest request,
   }) async {
     try {
-      final messages = await remoteDataSource.fetchNextMessages(request: request);
+      final messages = await remoteDataSource.fetchNextMessages(
+        request: request,
+      );
       return Success(messages);
     } on MessageListRemoteDataSourceException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while fetching next messages: ${e.toString()}',
+        message:
+            'Unexpected error while fetching next messages: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -106,10 +132,15 @@ class MessageListRepositoryImpl implements MessageListRepository {
       await remoteDataSource.markAsRead(message);
       return const Success(null);
     } on MessageListRemoteDataSourceException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while marking message as read: ${e.toString()}',
+        message:
+            'Unexpected error while marking message as read: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -121,10 +152,15 @@ class MessageListRepositoryImpl implements MessageListRepository {
       await remoteDataSource.markAsDelivered(message);
       return const Success(null);
     } on MessageListRemoteDataSourceException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while marking message as delivered: ${e.toString()}',
+        message:
+            'Unexpected error while marking message as delivered: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -136,10 +172,15 @@ class MessageListRepositoryImpl implements MessageListRepository {
       final user = await remoteDataSource.getLoggedInUser();
       return Success(user);
     } on MessageListRemoteDataSourceException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while getting logged in user: ${e.toString()}',
+        message:
+            'Unexpected error while getting logged in user: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
@@ -157,7 +198,11 @@ class MessageListRepositoryImpl implements MessageListRepository {
       );
       return Success(conversation);
     } on MessageListRemoteDataSourceException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(
         message: 'Unexpected error while getting conversation: ${e.toString()}',
@@ -172,16 +217,24 @@ class MessageListRepositoryImpl implements MessageListRepository {
       final conversation = await remoteDataSource.markMessageAsUnread(message);
       return Success(conversation);
     } on MessageListRemoteDataSourceException catch (e) {
-      return Failure(message: e.message, code: e.code, exception: e.originalException);
+      return Failure(
+        message: e.message,
+        code: e.code,
+        exception: e.originalException,
+      );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while marking message as unread: ${e.toString()}',
+        message:
+            'Unexpected error while marking message as unread: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
   }
 
-  String _buildConversationId(String conversationWith, String conversationType) {
+  String _buildConversationId(
+    String conversationWith,
+    String conversationType,
+  ) {
     return '${conversationType}_$conversationWith';
   }
 }

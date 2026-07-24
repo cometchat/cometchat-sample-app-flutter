@@ -106,11 +106,7 @@ class ScrollToBottomButton extends StatelessWidget {
                   child: InkWell(
                     onTap: onPressed,
                     child: Center(
-                      child: Icon(
-                        icon,
-                        color: fgColor,
-                        size: size * 0.6,
-                      ),
+                      child: Icon(icon, color: fgColor, size: size * 0.6),
                     ),
                   ),
                 ),
@@ -124,8 +120,9 @@ class ScrollToBottomButton extends StatelessWidget {
 }
 
 /// Builder type for custom scroll-to-bottom button
-typedef ScrollToBottomBuilder = Widget Function(
-  BuildContext context,
-  Animation<double> animation,
-  VoidCallback onPressed,
-);
+typedef ScrollToBottomBuilder =
+    Widget Function(
+      BuildContext context,
+      Animation<double> animation,
+      VoidCallback onPressed,
+    );

@@ -40,18 +40,45 @@ class UsersServiceLocator {
   }
 
   bool get isInitialized => _isInitialized;
-  GetUsersUseCase get getUsersUseCase { _ensureInitialized(); return _getUsersUseCase; }
-  GetLoggedInUserUseCase get getLoggedInUserUseCase { _ensureInitialized(); return _getLoggedInUserUseCase; }
-  GetUserUseCase get getUserUseCase { _ensureInitialized(); return _getUserUseCase; }
-  BlockUserUseCase get blockUserUseCase { _ensureInitialized(); return _blockUserUseCase; }
-  UnblockUserUseCase get unblockUserUseCase { _ensureInitialized(); return _unblockUserUseCase; }
-  UsersRepository get repository { _ensureInitialized(); return _repository; }
+  GetUsersUseCase get getUsersUseCase {
+    _ensureInitialized();
+    return _getUsersUseCase;
+  }
+
+  GetLoggedInUserUseCase get getLoggedInUserUseCase {
+    _ensureInitialized();
+    return _getLoggedInUserUseCase;
+  }
+
+  GetUserUseCase get getUserUseCase {
+    _ensureInitialized();
+    return _getUserUseCase;
+  }
+
+  BlockUserUseCase get blockUserUseCase {
+    _ensureInitialized();
+    return _blockUserUseCase;
+  }
+
+  UnblockUserUseCase get unblockUserUseCase {
+    _ensureInitialized();
+    return _unblockUserUseCase;
+  }
+
+  UsersRepository get repository {
+    _ensureInitialized();
+    return _repository;
+  }
 
   void _ensureInitialized() {
     if (!_isInitialized) {
-      throw StateError('UsersServiceLocator is not initialized. Call setup() first.');
+      throw StateError(
+        'UsersServiceLocator is not initialized. Call setup() first.',
+      );
     }
   }
 
-  Future<void> reset() async { _isInitialized = false; }
+  Future<void> reset() async {
+    _isInitialized = false;
+  }
 }

@@ -7,7 +7,7 @@ class CachedPreview {
   final String? metadata;
   final DateTime cachedAt;
   final Duration ttl;
-  
+
   CachedPreview({
     required this.formattedText,
     this.icon,
@@ -15,7 +15,7 @@ class CachedPreview {
     DateTime? cachedAt,
     this.ttl = const Duration(minutes: 5),
   }) : cachedAt = cachedAt ?? DateTime.now();
-  
+
   /// Checks if the cached preview has expired
   bool get isExpired => DateTime.now().difference(cachedAt) > ttl;
 }
@@ -24,9 +24,9 @@ class CachedPreview {
 class PreviewCache {
   final Map<String, CachedPreview> _cache = {};
   final int maxCacheSize;
-  
+
   PreviewCache({this.maxCacheSize = 100});
-  
+
   /// Gets a cached preview by message ID
   CachedPreview? get(String messageId) {
     try {
@@ -43,7 +43,7 @@ class PreviewCache {
     }
     return null;
   }
-  
+
   /// Puts a preview in the cache
   void put(String messageId, CachedPreview preview) {
     try {
@@ -57,15 +57,15 @@ class PreviewCache {
       debugPrint('Cache put failed: $e');
     }
   }
-  
+
   /// Clears all cached previews
   void clear() {
     _cache.clear();
   }
-  
+
   /// Gets the current cache size
   int get size => _cache.length;
-  
+
   /// Removes a specific entry from the cache
   void remove(String messageId) {
     _cache.remove(messageId);

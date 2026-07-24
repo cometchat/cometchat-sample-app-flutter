@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import "../../../../clean_architecture.dart";
-import '../../../../../../cometchat_uikit_shared.dart' show CometChatAvatarStyle, CometChatDateStyle, CometChatMessageReceiptStyle;
+import '../../../../../../cometchat_uikit_shared.dart'
+    show CometChatAvatarStyle, CometChatDateStyle, CometChatMessageReceiptStyle;
 
 ///[CometChatImageBubbleStyle] is a data class that has styling-related properties
 ///to customize the appearance of [CometChatImageBubble]
@@ -12,7 +12,8 @@ import '../../../../../../cometchat_uikit_shared.dart' show CometChatAvatarStyle
 /// border: Border.all(color: Colors.red),
 /// borderRadius: BorderRadius.circular(10),
 /// );
-class CometChatImageBubbleStyle extends ThemeExtension<CometChatImageBubbleStyle> {
+class CometChatImageBubbleStyle
+    extends ThemeExtension<CometChatImageBubbleStyle> {
   const CometChatImageBubbleStyle({
     this.backgroundColor,
     this.border,
@@ -73,11 +74,18 @@ class CometChatImageBubbleStyle extends ThemeExtension<CometChatImageBubbleStyle
       backgroundColor: backgroundColor ?? this.backgroundColor,
       border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
-      messageBubbleAvatarStyle: messageBubbleAvatarStyle ?? this.messageBubbleAvatarStyle,
-      messageBubbleDateStyle: messageBubbleDateStyle ?? this.messageBubbleDateStyle,
-      messageBubbleBackgroundImage: messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
-      threadedMessageIndicatorTextStyle: threadedMessageIndicatorTextStyle ?? this.threadedMessageIndicatorTextStyle,
-      threadedMessageIndicatorIconColor: threadedMessageIndicatorIconColor ?? this.threadedMessageIndicatorIconColor,
+      messageBubbleAvatarStyle:
+          messageBubbleAvatarStyle ?? this.messageBubbleAvatarStyle,
+      messageBubbleDateStyle:
+          messageBubbleDateStyle ?? this.messageBubbleDateStyle,
+      messageBubbleBackgroundImage:
+          messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
+      threadedMessageIndicatorTextStyle:
+          threadedMessageIndicatorTextStyle ??
+          this.threadedMessageIndicatorTextStyle,
+      threadedMessageIndicatorIconColor:
+          threadedMessageIndicatorIconColor ??
+          this.threadedMessageIndicatorIconColor,
       senderNameTextStyle: senderNameTextStyle ?? this.senderNameTextStyle,
       messageReceiptStyle: messageReceiptStyle ?? this.messageReceiptStyle,
     );
@@ -89,18 +97,48 @@ class CometChatImageBubbleStyle extends ThemeExtension<CometChatImageBubbleStyle
     return CometChatImageBubbleStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
-      messageBubbleAvatarStyle: messageBubbleAvatarStyle?.lerp(other.messageBubbleAvatarStyle, t),
-      messageBubbleDateStyle: messageBubbleDateStyle?.lerp(other.messageBubbleDateStyle, t),
-      messageBubbleBackgroundImage: DecorationImage.lerp(messageBubbleBackgroundImage, other.messageBubbleBackgroundImage, t),
-      threadedMessageIndicatorTextStyle: TextStyle.lerp(threadedMessageIndicatorTextStyle, other.threadedMessageIndicatorTextStyle, t),
-      threadedMessageIndicatorIconColor: Color.lerp(threadedMessageIndicatorIconColor, other.threadedMessageIndicatorIconColor, t),
-      senderNameTextStyle: TextStyle.lerp(senderNameTextStyle, other.senderNameTextStyle, t),
-      messageReceiptStyle: messageReceiptStyle?.lerp(other.messageReceiptStyle, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
+      messageBubbleAvatarStyle: messageBubbleAvatarStyle?.lerp(
+        other.messageBubbleAvatarStyle,
+        t,
+      ),
+      messageBubbleDateStyle: messageBubbleDateStyle?.lerp(
+        other.messageBubbleDateStyle,
+        t,
+      ),
+      messageBubbleBackgroundImage: DecorationImage.lerp(
+        messageBubbleBackgroundImage,
+        other.messageBubbleBackgroundImage,
+        t,
+      ),
+      threadedMessageIndicatorTextStyle: TextStyle.lerp(
+        threadedMessageIndicatorTextStyle,
+        other.threadedMessageIndicatorTextStyle,
+        t,
+      ),
+      threadedMessageIndicatorIconColor: Color.lerp(
+        threadedMessageIndicatorIconColor,
+        other.threadedMessageIndicatorIconColor,
+        t,
+      ),
+      senderNameTextStyle: TextStyle.lerp(
+        senderNameTextStyle,
+        other.senderNameTextStyle,
+        t,
+      ),
+      messageReceiptStyle: messageReceiptStyle?.lerp(
+        other.messageReceiptStyle,
+        t,
+      ),
     );
   }
 
-  static CometChatImageBubbleStyle of(BuildContext context) => const CometChatImageBubbleStyle();
+  static CometChatImageBubbleStyle of(BuildContext context) =>
+      const CometChatImageBubbleStyle();
 
   CometChatImageBubbleStyle merge(CometChatImageBubbleStyle? style) {
     if (style == null) return this;
@@ -111,8 +149,10 @@ class CometChatImageBubbleStyle extends ThemeExtension<CometChatImageBubbleStyle
       messageBubbleAvatarStyle: style.messageBubbleAvatarStyle,
       messageBubbleDateStyle: style.messageBubbleDateStyle,
       messageBubbleBackgroundImage: style.messageBubbleBackgroundImage,
-      threadedMessageIndicatorTextStyle: style.threadedMessageIndicatorTextStyle,
-      threadedMessageIndicatorIconColor: style.threadedMessageIndicatorIconColor,
+      threadedMessageIndicatorTextStyle:
+          style.threadedMessageIndicatorTextStyle,
+      threadedMessageIndicatorIconColor:
+          style.threadedMessageIndicatorIconColor,
       senderNameTextStyle: style.senderNameTextStyle,
       messageReceiptStyle: style.messageReceiptStyle,
     );

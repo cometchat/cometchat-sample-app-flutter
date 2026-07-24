@@ -14,12 +14,12 @@ class SoundManager {
 
   SoundManager._internal();
 
-  void play(
-      {required Sound sound,
-        String? customSound,
-        String? packageName, // Use it only when using other plugin
-        bool? isLooping = false,
-      }) async {
+  void play({
+    required Sound sound,
+    String? customSound,
+    String? packageName, // Use it only when using other plugin
+    bool? isLooping = false,
+  }) async {
     // Sound playback uses native MethodChannel — not available on web
     if (kIsWeb) return;
 
@@ -28,7 +28,9 @@ class SoundManager {
     if (customSound != null && customSound.isNotEmpty) {
       soundPath = customSound;
 
-      if (platform.platformIsAndroid() && packageName != null && packageName.isNotEmpty) {
+      if (platform.platformIsAndroid() &&
+          packageName != null &&
+          packageName.isNotEmpty) {
         soundPath = soundPath;
       }
     } else {
@@ -39,8 +41,11 @@ class SoundManager {
       }
     }
     try {
-    await UIConstants.channel.invokeMethod("playCustomSound",
-        {'assetAudioPath': soundPath, 'package': packageName, 'isLooping': isLooping});
+      await UIConstants.channel.invokeMethod("playCustomSound", {
+        'assetAudioPath': soundPath,
+        'package': packageName,
+        'isLooping': isLooping,
+      });
     } catch (e) {
       if (e.toString().contains('AUDIO_FOCUS_FAILED')) {
         debugPrint('Audio focus not available. Notification sound skipped.');
@@ -73,9 +78,6 @@ class SoundManager {
       case Sound.incomingCall:
         soundType = "assets/sound/incoming_call.wav";
         break;
-      default:
-        soundType = "assets/beep.mp3";
-        break;
     }
 
     return soundType;
@@ -87,5 +89,5 @@ enum Sound {
   outgoingMessage,
   incomingMessageFromOther,
   outgoingCall,
-  incomingCall
+  incomingCall,
 }

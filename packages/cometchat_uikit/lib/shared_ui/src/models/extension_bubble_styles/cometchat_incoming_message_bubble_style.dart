@@ -1,4 +1,3 @@
-
 import '../../../cometchat_uikit_shared.dart';
 import 'package:flutter/material.dart';
 
@@ -16,12 +15,12 @@ import 'package:flutter/material.dart';
 ///  textBubbleStyle: CometChatTextBubbleStyle(),
 ///  imageBubbleStyle: CometChatImageBubbleStyle(),
 ///  videoBubbleStyle: CometChatVideoBubbleStyle(),
-///  audioBubbleStyle: CometChatAudioBubbleStyle(),
+///  audioBubbleStyle: CometChatVoiceNoteBubbleStyle(),
 ///  fileBubbleStyle: CometChatFileBubbleStyle(),
 /// );
 /// ```
-class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomingMessageBubbleStyle>{
-
+class CometChatIncomingMessageBubbleStyle
+    extends ThemeExtension<CometChatIncomingMessageBubbleStyle> {
   const CometChatIncomingMessageBubbleStyle({
     this.messageBubbleBackgroundImage,
     this.backgroundColor,
@@ -86,7 +85,7 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
   final CometChatVideoBubbleStyle? videoBubbleStyle;
 
   ///[audioBubbleStyle] provides style to the audio bubble of the received message
-  final CometChatAudioBubbleStyle? audioBubbleStyle;
+  final CometChatVoiceNoteBubbleStyle? audioBubbleStyle;
 
   ///[fileBubbleStyle] provides style to the file bubble of the received message
   final CometChatFileBubbleStyle? fileBubbleStyle;
@@ -121,8 +120,8 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
   ///[videoCallBubbleStyle] is a [CometChatCallBubbleStyle] that can be used to style video call bubble
   final CometChatCallBubbleStyle? videoCallBubbleStyle;
 
-
-  static CometChatIncomingMessageBubbleStyle of(BuildContext context)=> const CometChatIncomingMessageBubbleStyle();
+  static CometChatIncomingMessageBubbleStyle of(BuildContext context) =>
+      const CometChatIncomingMessageBubbleStyle();
 
   @override
   CometChatIncomingMessageBubbleStyle copyWith({
@@ -139,11 +138,11 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
     CometChatTextBubbleStyle? textBubbleStyle,
     CometChatImageBubbleStyle? imageBubbleStyle,
     CometChatVideoBubbleStyle? videoBubbleStyle,
-    CometChatAudioBubbleStyle? audioBubbleStyle,
+    CometChatVoiceNoteBubbleStyle? audioBubbleStyle,
     CometChatFileBubbleStyle? fileBubbleStyle,
     CometChatCollaborativeBubbleStyle? collaborativeDocumentBubbleStyle,
     CometChatCollaborativeBubbleStyle? collaborativeWhiteboardBubbleStyle,
-   CometChatPollsBubbleStyle? pollsBubbleStyle,
+    CometChatPollsBubbleStyle? pollsBubbleStyle,
     CometChatDeletedBubbleStyle? deletedBubbleStyle,
     CometChatLinkPreviewBubbleStyle? linkPreviewBubbleStyle,
     CometChatMessageTranslationBubbleStyle? messageTranslationBubbleStyle,
@@ -153,26 +152,40 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
     CometChatCallBubbleStyle? videoCallBubbleStyle,
   }) {
     return CometChatIncomingMessageBubbleStyle(
-      messageBubbleBackgroundImage: messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
+      messageBubbleBackgroundImage:
+          messageBubbleBackgroundImage ?? this.messageBubbleBackgroundImage,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
-      threadedMessageIndicatorTextStyle: threadedMessageIndicatorTextStyle ?? this.threadedMessageIndicatorTextStyle,
-      threadedMessageIndicatorIconColor: threadedMessageIndicatorIconColor ?? this.threadedMessageIndicatorIconColor,
-      messageBubbleAvatarStyle: messageBubbleAvatarStyle ?? this.messageBubbleAvatarStyle,
-      messageBubbleReactionStyle: messageBubbleReactionStyle ?? this.messageBubbleReactionStyle,
-      messageBubbleDateStyle: messageBubbleDateStyle ?? this.messageBubbleDateStyle,
+      threadedMessageIndicatorTextStyle:
+          threadedMessageIndicatorTextStyle ??
+          this.threadedMessageIndicatorTextStyle,
+      threadedMessageIndicatorIconColor:
+          threadedMessageIndicatorIconColor ??
+          this.threadedMessageIndicatorIconColor,
+      messageBubbleAvatarStyle:
+          messageBubbleAvatarStyle ?? this.messageBubbleAvatarStyle,
+      messageBubbleReactionStyle:
+          messageBubbleReactionStyle ?? this.messageBubbleReactionStyle,
+      messageBubbleDateStyle:
+          messageBubbleDateStyle ?? this.messageBubbleDateStyle,
       textBubbleStyle: textBubbleStyle ?? this.textBubbleStyle,
       imageBubbleStyle: imageBubbleStyle ?? this.imageBubbleStyle,
       videoBubbleStyle: videoBubbleStyle ?? this.videoBubbleStyle,
       audioBubbleStyle: audioBubbleStyle ?? this.audioBubbleStyle,
       fileBubbleStyle: fileBubbleStyle ?? this.fileBubbleStyle,
-      collaborativeDocumentBubbleStyle: collaborativeDocumentBubbleStyle ?? this.collaborativeDocumentBubbleStyle,
-      collaborativeWhiteboardBubbleStyle: collaborativeWhiteboardBubbleStyle ?? this.collaborativeWhiteboardBubbleStyle,
+      collaborativeDocumentBubbleStyle:
+          collaborativeDocumentBubbleStyle ??
+          this.collaborativeDocumentBubbleStyle,
+      collaborativeWhiteboardBubbleStyle:
+          collaborativeWhiteboardBubbleStyle ??
+          this.collaborativeWhiteboardBubbleStyle,
       pollsBubbleStyle: pollsBubbleStyle ?? this.pollsBubbleStyle,
       deletedBubbleStyle: deletedBubbleStyle ?? this.deletedBubbleStyle,
-      linkPreviewBubbleStyle: linkPreviewBubbleStyle ?? this.linkPreviewBubbleStyle,
-      messageTranslationBubbleStyle: messageTranslationBubbleStyle ?? this.messageTranslationBubbleStyle,
+      linkPreviewBubbleStyle:
+          linkPreviewBubbleStyle ?? this.linkPreviewBubbleStyle,
+      messageTranslationBubbleStyle:
+          messageTranslationBubbleStyle ?? this.messageTranslationBubbleStyle,
       stickerBubbleStyle: stickerBubbleStyle ?? this.stickerBubbleStyle,
       senderNameTextStyle: senderNameTextStyle ?? this.senderNameTextStyle,
       voiceCallBubbleStyle: voiceCallBubbleStyle ?? this.voiceCallBubbleStyle,
@@ -180,8 +193,9 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
     );
   }
 
-
-  CometChatIncomingMessageBubbleStyle merge(CometChatIncomingMessageBubbleStyle? style) {
+  CometChatIncomingMessageBubbleStyle merge(
+    CometChatIncomingMessageBubbleStyle? style,
+  ) {
     if (style == null) return this;
     return copyWith(
       messageBubbleBackgroundImage: style.messageBubbleBackgroundImage,
@@ -195,11 +209,14 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
       messageBubbleDateStyle: style.messageBubbleDateStyle,
       messageBubbleReactionStyle: style.messageBubbleReactionStyle,
       textBubbleStyle: style.textBubbleStyle,
-      threadedMessageIndicatorIconColor: style.threadedMessageIndicatorIconColor,
-      threadedMessageIndicatorTextStyle: style.threadedMessageIndicatorTextStyle,
+      threadedMessageIndicatorIconColor:
+          style.threadedMessageIndicatorIconColor,
+      threadedMessageIndicatorTextStyle:
+          style.threadedMessageIndicatorTextStyle,
       videoBubbleStyle: style.videoBubbleStyle,
       collaborativeDocumentBubbleStyle: style.collaborativeDocumentBubbleStyle,
-      collaborativeWhiteboardBubbleStyle: style.collaborativeWhiteboardBubbleStyle,
+      collaborativeWhiteboardBubbleStyle:
+          style.collaborativeWhiteboardBubbleStyle,
       pollsBubbleStyle: style.pollsBubbleStyle,
       deletedBubbleStyle: style.deletedBubbleStyle,
       messageTranslationBubbleStyle: style.messageTranslationBubbleStyle,
@@ -208,38 +225,87 @@ class CometChatIncomingMessageBubbleStyle extends ThemeExtension<CometChatIncomi
       senderNameTextStyle: style.senderNameTextStyle,
       voiceCallBubbleStyle: style.voiceCallBubbleStyle,
       videoCallBubbleStyle: style.videoCallBubbleStyle,
-    );}
+    );
+  }
 
   @override
-  CometChatIncomingMessageBubbleStyle lerp(covariant CometChatIncomingMessageBubbleStyle? other, double t) {
+  CometChatIncomingMessageBubbleStyle lerp(
+    covariant CometChatIncomingMessageBubbleStyle? other,
+    double t,
+  ) {
     if (other is! CometChatIncomingMessageBubbleStyle) {
       return this;
     }
     return CometChatIncomingMessageBubbleStyle(
-      messageBubbleBackgroundImage: DecorationImage.lerp(messageBubbleBackgroundImage, other.messageBubbleBackgroundImage, t),
+      messageBubbleBackgroundImage: DecorationImage.lerp(
+        messageBubbleBackgroundImage,
+        other.messageBubbleBackgroundImage,
+        t,
+      ),
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: Border.lerp(border as Border?, other.border as Border?, t),
-      borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
-      threadedMessageIndicatorTextStyle: TextStyle.lerp(threadedMessageIndicatorTextStyle, other.threadedMessageIndicatorTextStyle, t),
-      threadedMessageIndicatorIconColor: Color.lerp(threadedMessageIndicatorIconColor, other.threadedMessageIndicatorIconColor, t),
-      messageBubbleAvatarStyle: messageBubbleAvatarStyle?.lerp(other.messageBubbleAvatarStyle, t),
-      messageBubbleDateStyle: messageBubbleDateStyle?.lerp(other.messageBubbleDateStyle, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
+      threadedMessageIndicatorTextStyle: TextStyle.lerp(
+        threadedMessageIndicatorTextStyle,
+        other.threadedMessageIndicatorTextStyle,
+        t,
+      ),
+      threadedMessageIndicatorIconColor: Color.lerp(
+        threadedMessageIndicatorIconColor,
+        other.threadedMessageIndicatorIconColor,
+        t,
+      ),
+      messageBubbleAvatarStyle: messageBubbleAvatarStyle?.lerp(
+        other.messageBubbleAvatarStyle,
+        t,
+      ),
+      messageBubbleDateStyle: messageBubbleDateStyle?.lerp(
+        other.messageBubbleDateStyle,
+        t,
+      ),
       textBubbleStyle: textBubbleStyle?.lerp(other.textBubbleStyle, t),
       imageBubbleStyle: imageBubbleStyle?.lerp(other.imageBubbleStyle, t),
       videoBubbleStyle: videoBubbleStyle?.lerp(other.videoBubbleStyle, t),
       audioBubbleStyle: audioBubbleStyle?.lerp(other.audioBubbleStyle, t),
       fileBubbleStyle: fileBubbleStyle?.lerp(other.fileBubbleStyle, t),
-      collaborativeDocumentBubbleStyle: collaborativeDocumentBubbleStyle?.lerp(other.collaborativeDocumentBubbleStyle, t),
-      collaborativeWhiteboardBubbleStyle: collaborativeWhiteboardBubbleStyle?.lerp(other.collaborativeWhiteboardBubbleStyle, t),
+      collaborativeDocumentBubbleStyle: collaborativeDocumentBubbleStyle?.lerp(
+        other.collaborativeDocumentBubbleStyle,
+        t,
+      ),
+      collaborativeWhiteboardBubbleStyle: collaborativeWhiteboardBubbleStyle
+          ?.lerp(other.collaborativeWhiteboardBubbleStyle, t),
       pollsBubbleStyle: pollsBubbleStyle?.lerp(other.pollsBubbleStyle, t),
       deletedBubbleStyle: deletedBubbleStyle?.lerp(other.deletedBubbleStyle, t),
-      messageBubbleReactionStyle: messageBubbleReactionStyle?.lerp(other.messageBubbleReactionStyle, t),
-      messageTranslationBubbleStyle: messageTranslationBubbleStyle?.lerp(other.messageTranslationBubbleStyle, t),
-      linkPreviewBubbleStyle: linkPreviewBubbleStyle?.lerp(other.linkPreviewBubbleStyle, t),
+      messageBubbleReactionStyle: messageBubbleReactionStyle?.lerp(
+        other.messageBubbleReactionStyle,
+        t,
+      ),
+      messageTranslationBubbleStyle: messageTranslationBubbleStyle?.lerp(
+        other.messageTranslationBubbleStyle,
+        t,
+      ),
+      linkPreviewBubbleStyle: linkPreviewBubbleStyle?.lerp(
+        other.linkPreviewBubbleStyle,
+        t,
+      ),
       stickerBubbleStyle: stickerBubbleStyle?.lerp(other.stickerBubbleStyle, t),
-      senderNameTextStyle: TextStyle.lerp(senderNameTextStyle, other.senderNameTextStyle, t),
-      voiceCallBubbleStyle: voiceCallBubbleStyle?.lerp(other.voiceCallBubbleStyle, t),
-      videoCallBubbleStyle: videoCallBubbleStyle?.lerp(other.videoCallBubbleStyle, t),
+      senderNameTextStyle: TextStyle.lerp(
+        senderNameTextStyle,
+        other.senderNameTextStyle,
+        t,
+      ),
+      voiceCallBubbleStyle: voiceCallBubbleStyle?.lerp(
+        other.voiceCallBubbleStyle,
+        t,
+      ),
+      videoCallBubbleStyle: videoCallBubbleStyle?.lerp(
+        other.videoCallBubbleStyle,
+        t,
+      ),
     );
   }
 }

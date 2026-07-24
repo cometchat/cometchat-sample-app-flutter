@@ -10,7 +10,7 @@ import 'segment_composer_controller.dart';
 // ════════════════════════════════════════════════════════════════════════════════
 
 /// A widget that renders segment-based rich text composition.
-/// 
+///
 /// Displays a list of segments (normal text and code blocks) with independent
 /// text fields for each segment. Code blocks have a distinct visual style
 /// with dark background and monospace font.
@@ -26,6 +26,10 @@ class SegmentComposerWidget extends StatefulWidget {
   final ValueChanged<String>? onChange;
   final ValueChanged<KeyboardInsertedContent>? onContentInserted;
 
+  /// Pastes a clipboard image (returns true when handled). See
+  /// [CometChatMessageInput.onPasteImage].
+  final Future<bool> Function()? onPasteImage;
+
   const SegmentComposerWidget({
     super.key,
     required this.controller,
@@ -38,6 +42,7 @@ class SegmentComposerWidget extends StatefulWidget {
     this.maxHeight = 320,
     this.onChange,
     this.onContentInserted,
+    this.onPasteImage,
   });
 
   @override
@@ -80,12 +85,16 @@ class _SegmentComposerWidgetState extends State<SegmentComposerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final palette = widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+    final palette =
+        widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
     final space = widget.spacing ?? CometChatThemeHelper.getSpacing(context);
-    final typo = widget.typography ?? CometChatThemeHelper.getTypography(context);
+    final typo =
+        widget.typography ?? CometChatThemeHelper.getTypography(context);
 
     // Check if there are any code blocks
-    final hasCodeBlocks = widget.controller.segments.any((s) => s.type == SegmentType.code);
+    final hasCodeBlocks = widget.controller.segments.any(
+      (s) => s.type == SegmentType.code,
+    );
     final segmentCount = widget.controller.segments.length;
 
     // Check if any segment has pending focus (needs to be visible even if empty)
@@ -100,20 +109,25 @@ class _SegmentComposerWidgetState extends State<SegmentComposerWidget> {
           children: widget.controller.segments.asMap().entries.map((entry) {
             final index = entry.key;
             final segment = entry.value;
-            
+
             if (segment.type == SegmentType.normal) {
               final isEmpty = segment.controller.text.isEmpty;
               final isOnlySegment = segmentCount == 1;
               final hasFocus = segment.focusNode.hasFocus;
               final isPendingFocus = segment.id == pendingFocusId;
-              
+
               // Don't hide if this segment is about to receive focus
-              if (isEmpty && hasCodeBlocks && !isOnlySegment && !hasFocus && !isPendingFocus) {
+              if (isEmpty &&
+                  hasCodeBlocks &&
+                  !isOnlySegment &&
+                  !hasFocus &&
+                  !isPendingFocus) {
                 return SizedBox.shrink(key: ValueKey('${segment.id}_hidden'));
               }
-              
-              final showPlaceholder = (index == 0 && !hasCodeBlocks) || isOnlySegment;
-              
+
+              final showPlaceholder =
+                  (index == 0 && !hasCodeBlocks) || isOnlySegment;
+
               return _NormalSegmentWidget(
                 key: ValueKey(segment.id),
                 segment: segment,
@@ -126,6 +140,7 @@ class _SegmentComposerWidgetState extends State<SegmentComposerWidget> {
                 placeholderStyle: widget.placeholderStyle,
                 onChange: widget.onChange,
                 onContentInserted: widget.onContentInserted,
+                onPasteImage: widget.onPasteImage,
               );
             } else {
               return _CodeSegmentWidget(
@@ -160,6 +175,7 @@ class _NormalSegmentWidget extends StatefulWidget {
   final TextStyle? placeholderStyle;
   final ValueChanged<String>? onChange;
   final ValueChanged<KeyboardInsertedContent>? onContentInserted;
+  final Future<bool> Function()? onPasteImage;
 
   const _NormalSegmentWidget({
     super.key,
@@ -173,6 +189,7 @@ class _NormalSegmentWidget extends StatefulWidget {
     this.placeholderStyle,
     this.onChange,
     this.onContentInserted,
+    this.onPasteImage,
   });
 
   @override
@@ -210,12 +227,37 @@ class _NormalSegmentWidgetState extends State<_NormalSegmentWidget> {
       }
     }
 
-    // Intercept Cmd+V / Ctrl+V for paste-URL-on-selection
+    // Intercept Cmd+V / Ctrl+V for image paste, then paste-URL-on-selection.
     if (event.logicalKey == LogicalKeyboardKey.keyV) {
-      final isModifierPressed = HardwareKeyboard.instance.isMetaPressed ||
+      final isModifierPressed =
+          HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
       if (isModifierPressed) {
         final controller = widget.segment.controller;
+
+        // Image paste first — stage a clipboard image if one is present. Since
+        // the key handler must return synchronously, we claim the event and do
+        // the async work, falling back to the existing text-paste behaviour.
+        if (widget.onPasteImage != null) {
+          final selection = controller.selection;
+          widget.onPasteImage!().then((handledImage) {
+            if (handledImage) return;
+            if (controller is RichTextEditingController &&
+                selection.isValid &&
+                !selection.isCollapsed) {
+              _tryPasteAsLink(controller, selection).then((handled) {
+                if (!handled) _performDefaultPaste(controller, selection);
+              });
+            } else {
+              final safe = selection.isValid
+                  ? selection
+                  : TextSelection.collapsed(offset: controller.text.length);
+              _performDefaultPaste(controller, safe);
+            }
+          });
+          return KeyEventResult.handled;
+        }
+
         if (controller is RichTextEditingController) {
           final selection = controller.selection;
           if (selection.isValid && !selection.isCollapsed) {
@@ -246,7 +288,9 @@ class _NormalSegmentWidgetState extends State<_NormalSegmentWidget> {
     if (!selection.isValid || selection.isCollapsed) return false;
 
     // Skip link formatting if selection is inside inline code
-    final formatsAtSelection = controller.spanManager.getFormatsAt(selection.start);
+    final formatsAtSelection = controller.spanManager.getFormatsAt(
+      selection.start,
+    );
     if (formatsAtSelection.contains(FormatType.inlineCode)) return false;
 
     final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
@@ -274,7 +318,8 @@ class _NormalSegmentWidgetState extends State<_NormalSegmentWidget> {
     final clipboardText = clipboardData?.text ?? '';
     if (clipboardText.isEmpty) return;
 
-    final newText = controller.text.substring(0, selection.start) +
+    final newText =
+        controller.text.substring(0, selection.start) +
         clipboardText +
         controller.text.substring(selection.end);
     final newCursor = selection.start + clipboardText.length;
@@ -309,7 +354,12 @@ class _NormalSegmentWidgetState extends State<_NormalSegmentWidget> {
       scrollPhysics: const ClampingScrollPhysics(),
       contentInsertionConfiguration: widget.onContentInserted != null
           ? ContentInsertionConfiguration(
-              allowedMimeTypes: const ['image/gif', 'image/png', 'image/jpeg', 'image/webp'],
+              allowedMimeTypes: const [
+                'image/gif',
+                'image/png',
+                'image/jpeg',
+                'image/webp',
+              ],
               onContentInserted: widget.onContentInserted!,
             )
           : null,
@@ -318,17 +368,21 @@ class _NormalSegmentWidgetState extends State<_NormalSegmentWidget> {
       onChanged: widget.onChange,
       onTap: _handleTap,
       contextMenuBuilder: _buildContextMenu,
-      style: widget.textStyle ?? TextStyle(
-        fontSize: widget.typography.body?.regular?.fontSize ?? 15,
-        color: widget.colorPalette.textPrimary,
-        height: 1.4,
-      ),
+      style:
+          widget.textStyle ??
+          TextStyle(
+            fontSize: widget.typography.body?.regular?.fontSize ?? 15,
+            color: widget.colorPalette.textPrimary,
+            height: 1.4,
+          ),
       decoration: InputDecoration(
         hintText: widget.placeholder,
-        hintStyle: widget.placeholderStyle ?? TextStyle(
-          color: widget.colorPalette.textTertiary,
-          fontSize: widget.typography.body?.regular?.fontSize ?? 15,
-        ),
+        hintStyle:
+            widget.placeholderStyle ??
+            TextStyle(
+              color: widget.colorPalette.textTertiary,
+              fontSize: widget.typography.body?.regular?.fontSize ?? 15,
+            ),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
@@ -349,39 +403,53 @@ class _NormalSegmentWidgetState extends State<_NormalSegmentWidget> {
     final buttonItems = editableTextState.contextMenuButtonItems;
     final controller = widget.segment.controller;
 
-    // Only intercept paste if using RichTextEditingController
-    if (controller is! RichTextEditingController) {
-      return AdaptiveTextSelectionToolbar.buttonItems(
-        anchors: editableTextState.contextMenuAnchors,
-        buttonItems: buttonItems,
-      );
-    }
-
-    // Find and wrap the paste button
+    // Wrap the paste button: try a clipboard image first (staged into the
+    // tray), then the link-on-selection behaviour (rich controller only), then
+    // the normal text paste. Image paste applies to every controller type, so
+    // we no longer early-return for plain controllers.
     final updatedItems = buttonItems.map((item) {
       if (item.type == ContextMenuButtonType.paste) {
         return ContextMenuButtonItem(
           label: item.label,
           type: item.type,
-          onPressed: () {
-            // Close the context menu first
+          onPressed: () async {
             editableTextState.hideToolbar();
-            final selection = controller.selection;
-            // Only intercept when text is selected
-            if (selection.isValid && !selection.isCollapsed) {
-              _tryPasteAsLink(controller, selection).then((handled) {
-                if (!handled) {
-                  editableTextState.pasteText(SelectionChangedCause.toolbar);
-                }
-              });
-            } else {
-              editableTextState.pasteText(SelectionChangedCause.toolbar);
+
+            if (widget.onPasteImage != null && await widget.onPasteImage!()) {
+              return;
             }
+
+            final selection = controller.selection;
+            if (controller is RichTextEditingController &&
+                selection.isValid &&
+                !selection.isCollapsed) {
+              final handled = await _tryPasteAsLink(controller, selection);
+              if (handled) return;
+            }
+            editableTextState.pasteText(SelectionChangedCause.toolbar);
           },
         );
       }
       return item;
     }).toList();
+
+    // Flutter gates the Paste button on ClipboardStatus (Clipboard.hasStrings),
+    // so an image-only clipboard yields no Paste item to wrap — the image hook
+    // above would never fire and no Paste showed at all (notably on iOS). Add
+    // one when the host wants image paste; label stays null so it localises.
+    if (widget.onPasteImage != null &&
+        !updatedItems.any((i) => i.type == ContextMenuButtonType.paste)) {
+      updatedItems.add(
+        ContextMenuButtonItem(
+          type: ContextMenuButtonType.paste,
+          onPressed: () async {
+            editableTextState.hideToolbar();
+            if (await widget.onPasteImage!()) return;
+            editableTextState.pasteText(SelectionChangedCause.toolbar);
+          },
+        ),
+      );
+    }
 
     return AdaptiveTextSelectionToolbar.buttonItems(
       anchors: editableTextState.contextMenuAnchors,
@@ -395,7 +463,7 @@ class _NormalSegmentWidgetState extends State<_NormalSegmentWidget> {
 // ════════════════════════════════════════════════════════════════════════════════
 
 /// Widget for rendering a code block segment.
-/// 
+///
 /// Features:
 /// - Dark background with monospace font
 /// - Grows with content (starts as 1 line)
@@ -448,7 +516,8 @@ class _CodeSegmentWidgetState extends State<_CodeSegmentWidget> {
 
     // Intercept Cmd+V / Ctrl+V for paste-URL-on-selection in code block
     if (event.logicalKey == LogicalKeyboardKey.keyV) {
-      final isModifierPressed = HardwareKeyboard.instance.isMetaPressed ||
+      final isModifierPressed =
+          HardwareKeyboard.instance.isMetaPressed ||
           HardwareKeyboard.instance.isControlPressed;
       if (isModifierPressed) {
         final controller = widget.segment.controller;
@@ -480,9 +549,13 @@ class _CodeSegmentWidgetState extends State<_CodeSegmentWidget> {
     final clipboardText = clipboardData?.text?.trim() ?? '';
 
     if (clipboardText.isNotEmpty && _urlPattern.hasMatch(clipboardText)) {
-      final selectedText = controller.text.substring(selection.start, selection.end);
+      final selectedText = controller.text.substring(
+        selection.start,
+        selection.end,
+      );
       final linkMarkdown = '[$selectedText]($clipboardText)';
-      final newText = controller.text.substring(0, selection.start) +
+      final newText =
+          controller.text.substring(0, selection.start) +
           linkMarkdown +
           controller.text.substring(selection.end);
       final newCursor = selection.start + linkMarkdown.length;
@@ -504,7 +577,8 @@ class _CodeSegmentWidgetState extends State<_CodeSegmentWidget> {
     final clipboardText = clipboardData?.text ?? '';
     if (clipboardText.isEmpty) return;
 
-    final newText = controller.text.substring(0, selection.start) +
+    final newText =
+        controller.text.substring(0, selection.start) +
         clipboardText +
         controller.text.substring(selection.end);
     final newCursor = selection.start + clipboardText.length;
@@ -553,17 +627,18 @@ class _CodeSegmentWidgetState extends State<_CodeSegmentWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final codeBackgroundColor = widget.colorPalette.background3 ?? const Color(0xFF2A2D31);
-    final borderColor = widget.colorPalette.borderDark ?? const Color(0xFF565856);
-    final textColor = widget.colorPalette.textPrimary ?? const Color(0xFFD1D2D3);
+    final codeBackgroundColor =
+        widget.colorPalette.background3 ?? const Color(0xFF2A2D31);
+    final borderColor =
+        widget.colorPalette.borderDark ?? const Color(0xFF565856);
+    final textColor =
+        widget.colorPalette.textPrimary ?? const Color(0xFFD1D2D3);
 
     // Set up key event handler on the focus node
     widget.segment.focusNode.onKeyEvent = _handleKeyEvent;
 
     return Container(
-      margin: EdgeInsets.symmetric(
-        vertical: widget.spacing.padding1 ?? 4,
-      ),
+      margin: EdgeInsets.symmetric(vertical: widget.spacing.padding1 ?? 4),
       decoration: BoxDecoration(
         color: codeBackgroundColor,
         borderRadius: BorderRadius.circular(widget.spacing.radius1 ?? 5),
@@ -621,13 +696,12 @@ class CodeBlockButton extends StatelessWidget {
 
     return Tooltip(
       message: 'Code block',
+      preferBelow: false,
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

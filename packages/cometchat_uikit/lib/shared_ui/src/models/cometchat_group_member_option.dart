@@ -19,8 +19,12 @@ import '../../cometchat_uikit_shared.dart';
 /// ```
 class CometChatGroupMemberOption extends CometChatBaseOptions {
   ///[onClick] call function which takes 2 parameters
-  Function(Group group, GroupMember member,
-      CometChatGroupMembersControllerProtocol state)? onClick;
+  Function(
+    Group group,
+    GroupMember member,
+    CometChatGroupMembersControllerProtocol state,
+  )?
+  onClick;
 
   CometChatGroupMemberOption({
     this.onClick,

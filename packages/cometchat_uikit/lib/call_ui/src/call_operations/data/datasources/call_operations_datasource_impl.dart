@@ -2,13 +2,10 @@ import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../../../../cometchat_calls_uikit.dart';
 import '../../../../../cometchat_chat_uikit.dart';
-import 'call_operations_datasource.dart';
 
 /// Implementation of [CallOperationsDataSource] using CometChat SDK.
 ///
@@ -91,10 +88,12 @@ class CallOperationsDataSourceImpl implements CallOperationsDataSource {
       onSuccess: (callToken) {
         final token = callToken.callToken;
         if (token == null) {
-          completer.completeError(const CallOperationsException(
-            message: 'Call token is null',
-            code: 'NULL_TOKEN',
-          ));
+          completer.completeError(
+            const CallOperationsException(
+              message: 'Call token is null',
+              code: 'NULL_TOKEN',
+            ),
+          );
         } else {
           completer.complete(token);
         }
@@ -112,13 +111,17 @@ class CallOperationsDataSourceImpl implements CallOperationsDataSource {
 
   @override
   Future<Widget> startSession(
-      String sessionId, SessionSettings settings) async {
+    String sessionId,
+    SessionSettings settings,
+  ) async {
     final completer = Completer<Widget>();
     CometChatUIKitCalls.startSession(
       sessionId,
       settings,
       onSuccess: (dynamic screen) {
-        developer.log('CallOperationsDataSource: startSession onSuccess, screen=$screen, platform=${defaultTargetPlatform.name}');
+        developer.log(
+          'CallOperationsDataSource: startSession onSuccess, screen=$screen, platform=${defaultTargetPlatform.name}',
+        );
         // On Android, joinSession returns null — the call UI is rendered
         // natively by the Calls SDK. Return a transparent widget so the
         // bloc can emit active status.
@@ -130,7 +133,9 @@ class CallOperationsDataSourceImpl implements CallOperationsDataSource {
         }
       },
       onError: (CometChatCallsException e) {
-        developer.log('CallOperationsDataSource: startSession onError: ${e.message}');
+        developer.log(
+          'CallOperationsDataSource: startSession onError: ${e.message}',
+        );
         completer.completeError(
           CallOperationsException(
             message: e.message ?? 'Failed to start session',
@@ -146,7 +151,9 @@ class CallOperationsDataSourceImpl implements CallOperationsDataSource {
     return completer.future.timeout(
       const Duration(seconds: 5),
       onTimeout: () {
-        developer.log('CallOperationsDataSource: startSession timed out — assuming Android native UI launched');
+        developer.log(
+          'CallOperationsDataSource: startSession timed out — assuming Android native UI launched',
+        );
         return const SizedBox.shrink();
       },
     );

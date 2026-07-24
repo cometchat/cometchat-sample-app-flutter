@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../models/ai/stream_message.dart';
 import 'cometchat_stream_callback.dart';
 import '../../cometchat_uikit_shared.dart' as cc;
@@ -35,14 +35,11 @@ class CometChatStreamService {
 
   // Config
   int _maxConcurrentQueues = 10;
-  Duration _streamProcessingDelay = const Duration(milliseconds: 30);
+  Duration streamDelay = const Duration(milliseconds: 30);
 
   int get maxConcurrentQueues => _maxConcurrentQueues;
   set maxConcurrentQueues(int value) =>
       _maxConcurrentQueues = value.clamp(1, 10);
-
-  Duration get streamDelay => _streamProcessingDelay;
-  set streamDelay(Duration value) => _streamProcessingDelay = value;
 
   int getCurrentQueueCount() => _eventQueues.length;
   bool isQueueEmpty(int runId) => _eventQueues[runId]?.isEmpty ?? true;
@@ -82,7 +79,7 @@ class CometChatStreamService {
       try {
         onAiAssistantEvent?.call(event);
         controller.add(event);
-        await Future.delayed(_streamProcessingDelay);
+        await Future.delayed(streamDelay);
       } catch (e) {
         final ex = e is CometChatException
             ? e
@@ -128,8 +125,7 @@ class CometChatStreamService {
     return aiAssistantMessages.remove(runId);
   }
 
-  void setQueueCompletionCallback(
-      int runId, QueueCompletionCallback callback) {
+  void setQueueCompletionCallback(int runId, QueueCompletionCallback callback) {
     queueCompletionCallbacks[runId] = callback;
     checkAndTriggerQueueCompletion(runId);
   }
@@ -199,12 +195,14 @@ class CometChatStreamService {
         if (toolResult != null) {
           aiToolResultMessages.remove(runId);
           Future.microtask(
-              () => callback.onQueueCompleted(null, toolResult, null));
+            () => callback.onQueueCompleted(null, toolResult, null),
+          );
         }
         if (toolArg != null) {
           aiToolArgumentMessages.remove(runId);
           Future.microtask(
-              () => callback.onQueueCompleted(null, null, toolArg));
+            () => callback.onQueueCompleted(null, null, toolArg),
+          );
         }
       }
     }

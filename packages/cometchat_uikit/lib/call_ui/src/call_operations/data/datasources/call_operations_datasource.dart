@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../../../../cometchat_calls_uikit.dart';
@@ -18,7 +16,8 @@ class CallOperationsException implements Exception {
   });
 
   @override
-  String toString() => 'CallOperationsException(message: $message, code: $code)';
+  String toString() =>
+      'CallOperationsException(message: $message, code: $code)';
 }
 
 /// Abstract interface for call operations data source.

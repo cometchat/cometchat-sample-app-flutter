@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-import 'package:cometchat_chat_uikit/chat_ui/src/message_list/bloc/message_list_bloc.dart';
-import 'package:cometchat_chat_uikit/chat_ui/src/message_list/bloc/message_list_event.dart';
-import 'package:cometchat_chat_uikit/chat_ui/src/message_list/bloc/message_list_state.dart';
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -90,10 +84,7 @@ void main() {
     // -----------------------------------------------------------------------
 
     test('asserts when neither user nor group is provided', () {
-      expect(
-        () => CometChatMessageList(),
-        throwsA(isA<AssertionError>()),
-      );
+      expect(() => CometChatMessageList(), throwsA(isA<AssertionError>()));
     });
 
     test('asserts when both user and group are provided', () {
@@ -181,11 +172,8 @@ void main() {
     });
 
     test('accepts custom style', () {
-      final style = CometChatMessageListStyle();
-      final widget = CometChatMessageList(
-        user: FakeUser(),
-        style: style,
-      );
+      const style = CometChatMessageListStyle();
+      final widget = CometChatMessageList(user: FakeUser(), style: style);
       expect(widget.style, style);
     });
 
@@ -284,11 +272,7 @@ void main() {
     // -----------------------------------------------------------------------
 
     test('accepts onError callback', () {
-      var called = false;
-      final widget = CometChatMessageList(
-        user: FakeUser(),
-        onError: (e, st) => called = true,
-      );
+      final widget = CometChatMessageList(user: FakeUser(), onError: (e) {});
       expect(widget.onError, isNotNull);
     });
 

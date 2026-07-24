@@ -31,7 +31,7 @@ class ListItemStyle extends BaseStyles {
   /// Empty space to surround the [CometChatListItem].
   final EdgeInsetsGeometry? margin;
 
-  copyWith({
+  ListItemStyle copyWith({
     TextStyle? titleStyle,
     Color? separatorColor,
     double? width,
@@ -53,7 +53,7 @@ class ListItemStyle extends BaseStyles {
     );
   }
 
-  merge(ListItemStyle? style) {
+  dynamic merge(ListItemStyle? style) {
     if (style == null) return this;
     return copyWith(
       titleStyle: style.titleStyle,

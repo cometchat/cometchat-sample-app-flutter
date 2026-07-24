@@ -1,7 +1,6 @@
 import '../../../../../../cometchat_uikit_shared.dart';
 import 'package:flutter/material.dart';
 
-
 class CometChatDecoratedContainer extends StatelessWidget {
   const CometChatDecoratedContainer({
     super.key,
@@ -66,21 +65,31 @@ class CometChatDecoratedContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: height,
-        width: width,
-        decoration: BoxDecoration(
-          color:style?.backgroundColor ?? colorPalette?.background1,
-          borderRadius: style?.borderRadius ?? BorderRadius.circular(spacing?.radius2 ?? 0),
-          border: style?.border ??
-              Border.all(width: 1, color:colorPalette?.borderLight ?? Colors.transparent
-              ),
-        ),
-        constraints: BoxConstraints(maxHeight: maxHeight ?? 400.0),
-        padding:padding,
-        margin: margin ?? EdgeInsets.only(left: spacing?.margin2 ?? 0, right: spacing?.margin2 ?? 0,bottom: spacing?.margin1 ?? 0),
-        child: SingleChildScrollView(
-          padding: EdgeInsets.zero,
-          child: Column(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        color: style?.backgroundColor ?? colorPalette?.background1,
+        borderRadius:
+            style?.borderRadius ?? BorderRadius.circular(spacing?.radius2 ?? 0),
+        border:
+            style?.border ??
+            Border.all(
+              width: 1,
+              color: colorPalette?.borderLight ?? Colors.transparent,
+            ),
+      ),
+      constraints: BoxConstraints(maxHeight: maxHeight ?? 400.0),
+      padding: padding,
+      margin:
+          margin ??
+          EdgeInsets.only(
+            left: spacing?.margin2 ?? 0,
+            right: spacing?.margin2 ?? 0,
+            bottom: spacing?.margin1 ?? 0,
+          ),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.zero,
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -94,29 +103,34 @@ class CometChatDecoratedContainer extends StatelessWidget {
                     Text(
                       title!,
                       style: TextStyle(
-                             color: colorPalette?.textPrimary,
-                             fontSize: typography?.heading4?.medium?.fontSize,
-                             fontWeight: typography?.heading4?.medium?.fontWeight,).merge(style?.titleStyle),
+                        color: colorPalette?.textPrimary,
+                        fontSize: typography?.heading4?.medium?.fontSize,
+                        fontWeight: typography?.heading4?.medium?.fontWeight,
+                      ).merge(style?.titleStyle),
                     ),
                   SizedBox(
                     height: 20,
                     width: 20,
                     child: IconButton(
-                        onPressed: onCloseIconTap,
-                        padding: EdgeInsets.zero,
-                        icon: closeIconUrl == null
-                            ? Icon(
-                                Icons.close,
-                                color: style?.closeIconColor ?? colorPalette?.iconPrimary,
-                              )
-                            : Image.asset(closeIconUrl!,
-                                package: closeIconUrlPackageName)),
-                  )
+                      onPressed: onCloseIconTap,
+                      padding: EdgeInsets.zero,
+                      icon: closeIconUrl == null
+                          ? Icon(
+                              Icons.close,
+                              color:
+                                  style?.closeIconColor ??
+                                  colorPalette?.iconPrimary,
+                            )
+                          : Image.asset(
+                              closeIconUrl!,
+                              package: closeIconUrlPackageName,
+                            ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            if (content != null)
-              content!,
+            ?content,
           ],
         ),
       ),

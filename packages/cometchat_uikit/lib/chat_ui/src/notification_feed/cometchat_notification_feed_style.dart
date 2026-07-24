@@ -158,7 +158,9 @@ class CometChatNotificationFeedStyle
       retryButtonTextColor: colorPalette.buttonText,
       retryButtonBackgroundColor: colorPalette.primary,
       // Connectivity banner
-      connectivityBannerBackgroundColor: colorPalette.warning?.withValues(alpha: 0.15),
+      connectivityBannerBackgroundColor: colorPalette.warning?.withValues(
+        alpha: 0.15,
+      ),
       connectivityBannerTextColor: colorPalette.warning,
       connectivityBannerTextStyle: typography.caption1?.regular,
     );
@@ -249,7 +251,8 @@ class CometChatNotificationFeedStyle
       retryButtonTextColor: retryButtonTextColor ?? this.retryButtonTextColor,
       retryButtonBackgroundColor:
           retryButtonBackgroundColor ?? this.retryButtonBackgroundColor,
-      connectivityBannerBackgroundColor: connectivityBannerBackgroundColor ??
+      connectivityBannerBackgroundColor:
+          connectivityBannerBackgroundColor ??
           this.connectivityBannerBackgroundColor,
       connectivityBannerTextColor:
           connectivityBannerTextColor ?? this.connectivityBannerTextColor,
@@ -259,8 +262,7 @@ class CometChatNotificationFeedStyle
   }
 
   /// Merge another style on top of this one (non-null values override).
-  CometChatNotificationFeedStyle merge(
-      CometChatNotificationFeedStyle? other) {
+  CometChatNotificationFeedStyle merge(CometChatNotificationFeedStyle? other) {
     if (other == null) return this;
     return copyWith(
       backgroundColor: other.backgroundColor,
@@ -306,78 +308,154 @@ class CometChatNotificationFeedStyle
 
   @override
   CometChatNotificationFeedStyle lerp(
-      ThemeExtension<CometChatNotificationFeedStyle>? other, double t) {
+    ThemeExtension<CometChatNotificationFeedStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatNotificationFeedStyle) {
       return this;
     }
     return CometChatNotificationFeedStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
-      headerTitleColor:
-          Color.lerp(headerTitleColor, other.headerTitleColor, t),
-      headerTitleTextStyle:
-          TextStyle.lerp(headerTitleTextStyle, other.headerTitleTextStyle, t),
+      headerTitleColor: Color.lerp(headerTitleColor, other.headerTitleColor, t),
+      headerTitleTextStyle: TextStyle.lerp(
+        headerTitleTextStyle,
+        other.headerTitleTextStyle,
+        t,
+      ),
       backIconColor: Color.lerp(backIconColor, other.backIconColor, t),
       chipActiveBackgroundColor: Color.lerp(
-          chipActiveBackgroundColor, other.chipActiveBackgroundColor, t),
-      chipActiveTextColor:
-          Color.lerp(chipActiveTextColor, other.chipActiveTextColor, t),
+        chipActiveBackgroundColor,
+        other.chipActiveBackgroundColor,
+        t,
+      ),
+      chipActiveTextColor: Color.lerp(
+        chipActiveTextColor,
+        other.chipActiveTextColor,
+        t,
+      ),
       chipInactiveBackgroundColor: Color.lerp(
-          chipInactiveBackgroundColor, other.chipInactiveBackgroundColor, t),
-      chipInactiveTextColor:
-          Color.lerp(chipInactiveTextColor, other.chipInactiveTextColor, t),
+        chipInactiveBackgroundColor,
+        other.chipInactiveBackgroundColor,
+        t,
+      ),
+      chipInactiveTextColor: Color.lerp(
+        chipInactiveTextColor,
+        other.chipInactiveTextColor,
+        t,
+      ),
       chipBorderColor: Color.lerp(chipBorderColor, other.chipBorderColor, t),
       chipTextStyle: TextStyle.lerp(chipTextStyle, other.chipTextStyle, t),
-      badgeBackgroundColor:
-          Color.lerp(badgeBackgroundColor, other.badgeBackgroundColor, t),
+      badgeBackgroundColor: Color.lerp(
+        badgeBackgroundColor,
+        other.badgeBackgroundColor,
+        t,
+      ),
       badgeTextColor: Color.lerp(badgeTextColor, other.badgeTextColor, t),
       badgeTextStyle: TextStyle.lerp(badgeTextStyle, other.badgeTextStyle, t),
       separatorColor: Color.lerp(separatorColor, other.separatorColor, t),
-      timestampTextColor:
-          Color.lerp(timestampTextColor, other.timestampTextColor, t),
-      timestampTextStyle:
-          TextStyle.lerp(timestampTextStyle, other.timestampTextStyle, t),
+      timestampTextColor: Color.lerp(
+        timestampTextColor,
+        other.timestampTextColor,
+        t,
+      ),
+      timestampTextStyle: TextStyle.lerp(
+        timestampTextStyle,
+        other.timestampTextStyle,
+        t,
+      ),
       timestampHeaderTextStyle: TextStyle.lerp(
-          timestampHeaderTextStyle, other.timestampHeaderTextStyle, t),
+        timestampHeaderTextStyle,
+        other.timestampHeaderTextStyle,
+        t,
+      ),
       timestampHeaderTextColor: Color.lerp(
-          timestampHeaderTextColor, other.timestampHeaderTextColor, t),
-      cardBackgroundColor:
-          Color.lerp(cardBackgroundColor, other.cardBackgroundColor, t),
+        timestampHeaderTextColor,
+        other.timestampHeaderTextColor,
+        t,
+      ),
+      cardBackgroundColor: Color.lerp(
+        cardBackgroundColor,
+        other.cardBackgroundColor,
+        t,
+      ),
       cardBorderColor: Color.lerp(cardBorderColor, other.cardBorderColor, t),
-      cardBorderRadius:
-          lerpDouble(cardBorderRadius, other.cardBorderRadius, t),
+      cardBorderRadius: lerpDouble(cardBorderRadius, other.cardBorderRadius, t),
       cardBorderWidth: lerpDouble(cardBorderWidth, other.cardBorderWidth, t),
-      unreadIndicatorColor:
-          Color.lerp(unreadIndicatorColor, other.unreadIndicatorColor, t),
-      emptyStateTextStyle:
-          TextStyle.lerp(emptyStateTextStyle, other.emptyStateTextStyle, t),
-      emptyStateTextColor:
-          Color.lerp(emptyStateTextColor, other.emptyStateTextColor, t),
+      unreadIndicatorColor: Color.lerp(
+        unreadIndicatorColor,
+        other.unreadIndicatorColor,
+        t,
+      ),
+      emptyStateTextStyle: TextStyle.lerp(
+        emptyStateTextStyle,
+        other.emptyStateTextStyle,
+        t,
+      ),
+      emptyStateTextColor: Color.lerp(
+        emptyStateTextColor,
+        other.emptyStateTextColor,
+        t,
+      ),
       emptyStateSubtitleTextStyle: TextStyle.lerp(
-          emptyStateSubtitleTextStyle, other.emptyStateSubtitleTextStyle, t),
+        emptyStateSubtitleTextStyle,
+        other.emptyStateSubtitleTextStyle,
+        t,
+      ),
       emptyStateSubtitleTextColor: Color.lerp(
-          emptyStateSubtitleTextColor, other.emptyStateSubtitleTextColor, t),
-      errorStateTextStyle:
-          TextStyle.lerp(errorStateTextStyle, other.errorStateTextStyle, t),
-      errorStateTextColor:
-          Color.lerp(errorStateTextColor, other.errorStateTextColor, t),
+        emptyStateSubtitleTextColor,
+        other.emptyStateSubtitleTextColor,
+        t,
+      ),
+      errorStateTextStyle: TextStyle.lerp(
+        errorStateTextStyle,
+        other.errorStateTextStyle,
+        t,
+      ),
+      errorStateTextColor: Color.lerp(
+        errorStateTextColor,
+        other.errorStateTextColor,
+        t,
+      ),
       errorStateSubtitleTextStyle: TextStyle.lerp(
-          errorStateSubtitleTextStyle, other.errorStateSubtitleTextStyle, t),
+        errorStateSubtitleTextStyle,
+        other.errorStateSubtitleTextStyle,
+        t,
+      ),
       errorStateSubtitleTextColor: Color.lerp(
-          errorStateSubtitleTextColor, other.errorStateSubtitleTextColor, t),
-      retryButtonTextStyle:
-          TextStyle.lerp(retryButtonTextStyle, other.retryButtonTextStyle, t),
-      retryButtonTextColor:
-          Color.lerp(retryButtonTextColor, other.retryButtonTextColor, t),
+        errorStateSubtitleTextColor,
+        other.errorStateSubtitleTextColor,
+        t,
+      ),
+      retryButtonTextStyle: TextStyle.lerp(
+        retryButtonTextStyle,
+        other.retryButtonTextStyle,
+        t,
+      ),
+      retryButtonTextColor: Color.lerp(
+        retryButtonTextColor,
+        other.retryButtonTextColor,
+        t,
+      ),
       retryButtonBackgroundColor: Color.lerp(
-          retryButtonBackgroundColor, other.retryButtonBackgroundColor, t),
+        retryButtonBackgroundColor,
+        other.retryButtonBackgroundColor,
+        t,
+      ),
       connectivityBannerBackgroundColor: Color.lerp(
-          connectivityBannerBackgroundColor,
-          other.connectivityBannerBackgroundColor,
-          t),
+        connectivityBannerBackgroundColor,
+        other.connectivityBannerBackgroundColor,
+        t,
+      ),
       connectivityBannerTextColor: Color.lerp(
-          connectivityBannerTextColor, other.connectivityBannerTextColor, t),
+        connectivityBannerTextColor,
+        other.connectivityBannerTextColor,
+        t,
+      ),
       connectivityBannerTextStyle: TextStyle.lerp(
-          connectivityBannerTextStyle, other.connectivityBannerTextStyle, t),
+        connectivityBannerTextStyle,
+        other.connectivityBannerTextStyle,
+        t,
+      ),
     );
   }
 }

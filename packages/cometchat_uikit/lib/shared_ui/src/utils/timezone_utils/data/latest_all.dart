@@ -4,14 +4,14 @@ import 'dart:typed_data';
 import '../env.dart';
 import '../exceptions.dart';
 
-
 /// Initialize Time Zone database from latest_all.
 ///
 /// Throws [TimeZoneInitException] when something is wrong.
 void initializeTimeZones() {
   try {
     initializeDatabase(
-        Uint16List.fromList(_embeddedData.codeUnits).buffer.asUint8List());
+      Uint16List.fromList(_embeddedData.codeUnits).buffer.asUint8List(),
+    );
   }
   // ignore: avoid_catches_without_on_clauses
   catch (e) {

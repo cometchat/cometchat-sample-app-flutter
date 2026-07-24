@@ -9,10 +9,10 @@ class DeleteConversationUseCase {
   const DeleteConversationUseCase(this.repository);
 
   /// Execute the use case to delete a conversation
-  /// 
+  ///
   /// [conversationId] - ID of the conversation to delete
-  /// 
-  /// Returns Result<void> indicating success or failure
+  ///
+  /// Returns `Result<void>` indicating success or failure
   Future<Result<void>> call(String conversationId) async {
     // Validate input parameters
     if (conversationId.isEmpty) {

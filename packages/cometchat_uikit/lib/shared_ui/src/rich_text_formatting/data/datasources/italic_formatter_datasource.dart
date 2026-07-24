@@ -42,7 +42,8 @@ class ItalicFormatterDataSource implements FormatterDataSource {
     if (selection.isCollapsed) {
       // No selection - insert placeholder with markers
       final insertText = '$openingMarker$placeholderText$closingMarker';
-      final newText = text.substring(0, selection.start) +
+      final newText =
+          text.substring(0, selection.start) +
           insertText +
           text.substring(selection.end);
 
@@ -59,7 +60,9 @@ class ItalicFormatterDataSource implements FormatterDataSource {
       // Check if selection is already wrapped with italic markers
       final beforeSelection = selection.start >= openingMarker.length
           ? text.substring(
-              selection.start - openingMarker.length, selection.start)
+              selection.start - openingMarker.length,
+              selection.start,
+            )
           : '';
       final afterSelection = selection.end + closingMarker.length <= text.length
           ? text.substring(selection.end, selection.end + closingMarker.length)
@@ -78,8 +81,8 @@ class ItalicFormatterDataSource implements FormatterDataSource {
             : 1; // underscore is 1 char
         final newText =
             text.substring(0, selection.start - markerLength) +
-                text.substring(selection.start, selection.end) +
-                text.substring(selection.end + markerLength);
+            text.substring(selection.start, selection.end) +
+            text.substring(selection.end + markerLength);
 
         final newCursorPos = selection.end - markerLength;
 
@@ -109,7 +112,8 @@ class ItalicFormatterDataSource implements FormatterDataSource {
         // Wrap selected text with italic markers
         final selectedText = text.substring(selection.start, selection.end);
         final wrappedText = '$openingMarker$selectedText$closingMarker';
-        final newText = text.substring(0, selection.start) +
+        final newText =
+            text.substring(0, selection.start) +
             wrappedText +
             text.substring(selection.end);
 
@@ -134,14 +138,11 @@ class ItalicFormatterDataSource implements FormatterDataSource {
       return [];
     }
     final ranges = metadata['mentionRanges'] as List<dynamic>;
-    return ranges
-        .cast<Map<String, dynamic>>()
-        .where((r) {
-          final mStart = r['start'] as int;
-          final mEnd = r['end'] as int;
-          return mStart < selEnd && mEnd > selStart;
-        })
-        .toList()
+    return ranges.cast<Map<String, dynamic>>().where((r) {
+        final mStart = r['start'] as int;
+        final mEnd = r['end'] as int;
+        return mStart < selEnd && mEnd > selStart;
+      }).toList()
       ..sort((a, b) => (a['start'] as int).compareTo(b['start'] as int));
   }
 
@@ -162,14 +163,20 @@ class ItalicFormatterDataSource implements FormatterDataSource {
       final effectiveEnd = mEnd > selectionEnd ? selectionEnd : mEnd;
 
       if (cursor < effectiveStart) {
-        segments.add(_TextSegment(start: cursor, end: effectiveStart, isMention: false));
+        segments.add(
+          _TextSegment(start: cursor, end: effectiveStart, isMention: false),
+        );
       }
-      segments.add(_TextSegment(start: effectiveStart, end: effectiveEnd, isMention: true));
+      segments.add(
+        _TextSegment(start: effectiveStart, end: effectiveEnd, isMention: true),
+      );
       cursor = effectiveEnd;
     }
 
     if (cursor < selectionEnd) {
-      segments.add(_TextSegment(start: cursor, end: selectionEnd, isMention: false));
+      segments.add(
+        _TextSegment(start: cursor, end: selectionEnd, isMention: false),
+      );
     }
 
     final buffer = StringBuffer();
@@ -185,8 +192,13 @@ class ItalicFormatterDataSource implements FormatterDataSource {
         if (trimmed.isEmpty) {
           buffer.write(segmentText);
         } else {
-          final leadingSpace = segmentText.substring(0, segmentText.indexOf(trimmed));
-          final trailingSpace = segmentText.substring(segmentText.indexOf(trimmed) + trimmed.length);
+          final leadingSpace = segmentText.substring(
+            0,
+            segmentText.indexOf(trimmed),
+          );
+          final trailingSpace = segmentText.substring(
+            segmentText.indexOf(trimmed) + trimmed.length,
+          );
           buffer.write(leadingSpace);
           buffer.write('$openingMarker$trimmed$closingMarker');
           buffer.write(trailingSpace);
@@ -236,9 +248,7 @@ class ItalicFormatterDataSource implements FormatterDataSource {
         AttributedTextData(
           start: match.start,
           end: match.end,
-          attributes: {
-            'italic': true,
-          },
+          attributes: {'italic': true},
         ),
       );
     }

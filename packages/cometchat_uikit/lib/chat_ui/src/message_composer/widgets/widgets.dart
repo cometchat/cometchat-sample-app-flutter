@@ -3,6 +3,7 @@
 /// This file exports all modular widget components extracted from
 /// the CometChatMessageComposer widget for better maintainability
 /// and reusability.
+library;
 
 // Main Widget
 export 'cometchat_message_composer.dart';
@@ -16,6 +17,8 @@ export 'message_composer_auxiliary_buttons.dart';
 export 'message_composer_suggestion_list.dart';
 export 'attachment_options_overlay.dart';
 
+// Attachment upload error snackbar (shown on tap/hover of an errored tile)
+export 'cometchat_attachment_error_snackbar.dart';
+
 // Inline Audio Recorder
 export 'inline_audio_recorder/inline_audio_recorder.dart';
-

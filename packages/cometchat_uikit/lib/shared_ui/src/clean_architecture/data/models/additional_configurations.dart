@@ -1,4 +1,22 @@
-import '../../../../cometchat_uikit_shared.dart' show CometChatTextFormatter, CometChatTextBubbleStyle, CometChatImageBubbleStyle, CometChatVideoBubbleStyle, CometChatAudioBubbleStyle, CometChatFileBubbleStyle, CometChatAttachmentOptionSheetStyle, CometChatMessageOptionSheetStyle, CometChatCollaborativeBubbleStyle, CometChatPollsBubbleStyle, CometChatActionBubbleStyle, CometChatDeletedBubbleStyle, CometChatMessageTranslationBubbleStyle, CometChatLinkPreviewBubbleStyle, CometChatStickerBubbleStyle, CometChatCallBubbleStyle, CometChatCallButtonsStyle;
+import '../../../../cometchat_uikit_shared.dart'
+    show
+        CometChatTextFormatter,
+        CometChatTextBubbleStyle,
+        CometChatImageBubbleStyle,
+        CometChatVideoBubbleStyle,
+        CometChatVoiceNoteBubbleStyle,
+        CometChatFileBubbleStyle,
+        CometChatAttachmentOptionSheetStyle,
+        CometChatMessageOptionSheetStyle,
+        CometChatCollaborativeBubbleStyle,
+        CometChatPollsBubbleStyle,
+        CometChatActionBubbleStyle,
+        CometChatDeletedBubbleStyle,
+        CometChatMessageTranslationBubbleStyle,
+        CometChatLinkPreviewBubbleStyle,
+        CometChatStickerBubbleStyle,
+        CometChatCallBubbleStyle,
+        CometChatCallButtonsStyle;
 
 ///[AdditionalConfigurations] is a class that can be used to add additional configurations to the UI Kit
 /// ```dart
@@ -35,7 +53,8 @@ class AdditionalConfigurations {
     this.textBubbleStyle,
     this.imageBubbleStyle,
     this.videoBubbleStyle,
-    this.audioBubbleStyle,
+    @Deprecated('Use voiceNoteBubbleStyle instead.') this.audioBubbleStyle,
+    this.voiceNoteBubbleStyle,
     this.fileBubbleStyle,
     this.attachmentOptionSheetStyle,
     this.messageOptionSheetStyle,
@@ -73,8 +92,15 @@ class AdditionalConfigurations {
     this.hideShareMessageOption,
     this.showMarkAsUnreadOption,
     this.hideFlagOption,
+    this.enableMultipleAttachments,
   });
 
+  ///[enableMultipleAttachments] routes media messages to the multi-attachment
+  ///bubble family (images / videos / audios / voice note / files) when true
+  ///(the default); false falls back to the deprecated single-attachment
+  ///bubbles. Mutable so the message list can inject its widget-level flag into
+  ///an app-provided configurations object.
+  bool? enableMultipleAttachments;
 
   ///[textFormatters] is a list of [CometChatTextFormatter] that can be used to format text
   final List<CometChatTextFormatter>? textFormatters;
@@ -88,8 +114,20 @@ class AdditionalConfigurations {
   ///[videoBubbleStyle] is a [CometChatVideoBubbleStyle] that can be used to style video bubble
   final CometChatVideoBubbleStyle? videoBubbleStyle;
 
-  ///[audioBubbleStyle] is a [CometChatAudioBubbleStyle] that can be used to style audio bubble
-  final CometChatAudioBubbleStyle? audioBubbleStyle;
+  ///[audioBubbleStyle] is a [CometChatVoiceNoteBubbleStyle] that can be used to style audio bubble
+  @Deprecated('Use voiceNoteBubbleStyle instead.')
+  final CometChatVoiceNoteBubbleStyle? audioBubbleStyle;
+
+  ///[voiceNoteBubbleStyle] styles [CometChatVoiceNoteBubble] — voice notes on
+  ///either value of `enableMultipleAttachments`, and audio files when it is
+  ///false. Takes precedence over the deprecated [audioBubbleStyle].
+  final CometChatVoiceNoteBubbleStyle? voiceNoteBubbleStyle;
+
+  /// The style to apply, preferring [voiceNoteBubbleStyle] and falling back to
+  /// the deprecated [audioBubbleStyle] so existing integrations keep working.
+  CometChatVoiceNoteBubbleStyle? get effectiveVoiceNoteBubbleStyle =>
+      // ignore: deprecated_member_use_from_same_package
+      voiceNoteBubbleStyle ?? audioBubbleStyle;
 
   ///[fileBubbleStyle] is a [CometChatFileBubbleStyle] that can be used to style file bubble
   final CometChatFileBubbleStyle? fileBubbleStyle;

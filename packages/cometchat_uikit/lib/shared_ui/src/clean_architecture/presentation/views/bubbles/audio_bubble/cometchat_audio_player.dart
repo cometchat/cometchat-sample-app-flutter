@@ -6,14 +6,23 @@ import 'cometchat_audio_bubble_controller.dart';
 import 'waveform_utils.dart';
 import 'gesture_waveform.dart';
 
-/// Rewritten CometChatAudioBubble with lazy loading and gesture-controlled waveform
+/// Single-audio player widget (lazy loading + gesture-controlled waveform).
+///
+/// This is the internal player used by the voice-note bubble
+/// ([CometChatVoiceNoteBubble]) and the legacy audio bubble factory — it is
+/// not itself a routed message bubble. Plain audio *files* render via
+/// [CometChatAudiosBubble]; the deprecated single-attachment path renders via
+/// [CometChatVoiceNoteBubble].
 ///
 /// Flow:
 /// 1. Initial: Show play button + placeholder bars
 /// 2. On first play: Download audio, generate waveform
 /// 3. After download: Gesture-controlled seeking on waveform
-class CometChatAudioBubbleV2 extends StatefulWidget {
-  const CometChatAudioBubbleV2({
+///
+/// Renamed from `CometChatAudioBubbleV2`; the old name survives as a
+/// deprecated alias below so no import breaks.
+class CometChatAudioPlayer extends StatefulWidget {
+  const CometChatAudioPlayer({
     super.key,
     this.audioUrl,
     this.title,
@@ -35,7 +44,7 @@ class CometChatAudioBubbleV2 extends StatefulWidget {
 
   final String? audioUrl;
   final String? title;
-  final CometChatAudioBubbleStyle? style;
+  final CometChatVoiceNoteBubbleStyle? style;
   final Icon? playIcon;
   final Icon? pauseIcon;
   final double? height;
@@ -51,10 +60,10 @@ class CometChatAudioBubbleV2 extends StatefulWidget {
   final int barCount;
 
   @override
-  State<CometChatAudioBubbleV2> createState() => _CometChatAudioBubbleV2State();
+  State<CometChatAudioPlayer> createState() => _CometChatAudioPlayerState();
 }
 
-class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
+class _CometChatAudioPlayerState extends State<CometChatAudioPlayer> {
   AudioBubbleState? _audioState;
   StreamSubscription<AudioStateUpdate>? _audioStateSubscription;
   StreamSubscription<AudioBubbleEvents>? _eventSubscription;
@@ -70,12 +79,14 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
 
   // Separate notifier for playback progress — avoids full widget rebuild on every frame
   final ValueNotifier<double> _progressNotifier = ValueNotifier<double>(0.0);
-  final ValueNotifier<String> _durationNotifier = ValueNotifier<String>('00:00 / --:--');
+  final ValueNotifier<String> _durationNotifier = ValueNotifier<String>(
+    '00:00 / --:--',
+  );
   PlayStates _lastPlayState = PlayStates.init;
   bool _lastInitializing = false;
 
   // Theme caching
-  late CometChatAudioBubbleStyle _style;
+  late CometChatVoiceNoteBubbleStyle _style;
   late CometChatColorPalette _colorPalette;
   late CometChatSpacing _spacing;
   late CometChatTypography _typography;
@@ -86,7 +97,9 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
   void initState() {
     super.initState();
     _tag = widget.id ?? DateTime.now().millisecondsSinceEpoch;
-    _waveformData = WaveformUtils.generatePlaceholder(barCount: widget.barCount);
+    _waveformData = WaveformUtils.generatePlaceholder(
+      barCount: widget.barCount,
+    );
 
     // Use metadata duration as initial display if available
     final metaDurationMs = widget.metadata?['audioDurationMs'] as int?;
@@ -103,42 +116,49 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
-      _style = CometChatThemeHelper.getTheme<CometChatAudioBubbleStyle>(
+      _style = CometChatThemeHelper.getTheme<CometChatVoiceNoteBubbleStyle>(
         context: context,
-        defaultTheme: CometChatAudioBubbleStyle.of,
+        defaultTheme: CometChatVoiceNoteBubbleStyle.of,
       ).merge(widget.style);
-      _colorPalette = widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+      _colorPalette =
+          widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
       _spacing = widget.spacing ?? CometChatThemeHelper.getSpacing(context);
-      _typography = widget.typography ?? CometChatThemeHelper.getTypography(context);
+      _typography =
+          widget.typography ?? CometChatThemeHelper.getTypography(context);
       _themeInitialized = true;
     }
   }
 
   @override
-  void didUpdateWidget(CometChatAudioBubbleV2 oldWidget) {
+  void didUpdateWidget(CometChatAudioPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.style != oldWidget.style) {
-      _style = CometChatThemeHelper.getTheme<CometChatAudioBubbleStyle>(
+      _style = CometChatThemeHelper.getTheme<CometChatVoiceNoteBubbleStyle>(
         context: context,
-        defaultTheme: CometChatAudioBubbleStyle.of,
+        defaultTheme: CometChatVoiceNoteBubbleStyle.of,
       ).merge(widget.style);
     }
-    if (widget.colorPalette != oldWidget.colorPalette && widget.colorPalette != null) {
+    if (widget.colorPalette != oldWidget.colorPalette &&
+        widget.colorPalette != null) {
       _colorPalette = widget.colorPalette!;
     }
     if (widget.spacing != oldWidget.spacing && widget.spacing != null) {
       _spacing = widget.spacing!;
     }
-    if (widget.typography != oldWidget.typography && widget.typography != null) {
+    if (widget.typography != oldWidget.typography &&
+        widget.typography != null) {
       _typography = widget.typography!;
     }
   }
 
   void _setupEventStreams() {
-    _eventSubscription = AudioBubbleStream().stream.asBroadcastStream().listen((event) {
+    _eventSubscription = AudioBubbleStream().stream.asBroadcastStream().listen((
+      event,
+    ) {
       if (event.id != _tag && event.action == AudioBubbleActions.pausePlayer) {
         _audioState?.pauseAudio();
       } else if (event.action == AudioBubbleActions.stopPlayer) {
@@ -175,8 +195,14 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
   }
 
   void _setupAudioState() {
-    _audioState = AudioStateManager().getAudioState(_tag, widget.audioUrl, _localPath);
-    debugPrint('[AudioBubble $_tag] _setupAudioState: audioState.id=${_audioState!.id}, localPath=$_localPath');
+    _audioState = AudioStateManager().getAudioState(
+      _tag,
+      widget.audioUrl,
+      _localPath,
+    );
+    debugPrint(
+      '[AudioBubble $_tag] _setupAudioState: audioState.id=${_audioState!.id}, localPath=$_localPath',
+    );
     _audioStateSubscription?.cancel();
     _audioStateSubscription = _audioState!.stateStream.listen((update) {
       if (!mounted || update.id != _tag) return;
@@ -190,7 +216,8 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
           : '00:00 / --:--';
 
       // Trigger full rebuild when play state or initializing state changes
-      final needsRebuild = update.playState != _lastPlayState ||
+      final needsRebuild =
+          update.playState != _lastPlayState ||
           update.isInitializing != _lastInitializing;
       if (needsRebuild) {
         _lastPlayState = update.playState;
@@ -205,7 +232,9 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
     if (_localPath != null && _localPath!.isNotEmpty) {
       // Phase 1: Show deterministic placeholder instantly (based on file path hash)
       final quickBars = WaveformUtils.generateWaveform(
-          _localPath!, barCount: widget.barCount);
+        _localPath!,
+        barCount: widget.barCount,
+      );
       if (mounted) {
         setState(() {
           _waveformData = quickBars;
@@ -214,7 +243,9 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
       }
       // Phase 2: Extract real waveform via native codec in background
       final accurate = await WaveformUtils.extractWaveformFromFile(
-          _localPath!, barCount: widget.barCount);
+        _localPath!,
+        barCount: widget.barCount,
+      );
       if (mounted) {
         setState(() {
           _waveformData = accurate;
@@ -222,8 +253,10 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
         });
       }
     } else if (widget.audioUrl != null) {
-      final amplitudes = WaveformUtils.generateWaveform(widget.audioUrl!,
-          barCount: widget.barCount);
+      final amplitudes = WaveformUtils.generateWaveform(
+        widget.audioUrl!,
+        barCount: widget.barCount,
+      );
       if (mounted) {
         setState(() {
           _waveformData = amplitudes;
@@ -234,7 +267,9 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
   }
 
   Future<void> _onPlayTap() async {
-    debugPrint('[AudioBubble $_tag] _onPlayTap: _isDownloaded=$_isDownloaded, _audioState=${_audioState != null}');
+    debugPrint(
+      '[AudioBubble $_tag] _onPlayTap: _isDownloaded=$_isDownloaded, _audioState=${_audioState != null}',
+    );
     if (!_isDownloaded) {
       setState(() => _isPreparingToPlay = true);
       await _downloadAndPlay();
@@ -271,7 +306,10 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
         fileName += widget.title!;
       }
 
-      String? path = await _downloadFileWithProgress(widget.audioUrl!, fileName);
+      String? path = await _downloadFileWithProgress(
+        widget.audioUrl!,
+        fileName,
+      );
       if (path != null) {
         _localPath = path;
         _isDownloaded = true;
@@ -300,7 +338,10 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
   }
 
   /// Download file with progress tracking for large audio files
-  Future<String?> _downloadFileWithProgress(String fileUrl, String fileName) async {
+  Future<String?> _downloadFileWithProgress(
+    String fileUrl,
+    String fileName,
+  ) async {
     if (kIsWeb) {
       // On web, use BubbleUtils.downloadFile which opens URL in new tab
       return BubbleUtils.downloadFile(fileUrl, fileName);
@@ -311,13 +352,18 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
 
   void _togglePlayPause() {
     final playState = _audioState?.playState ?? PlayStates.init;
-    debugPrint('[AudioBubble $_tag] _togglePlayPause: playState=$playState, controller=${_audioState?.controller != null}, initialized=${_audioState?.controller?.value.isInitialized}');
+    debugPrint(
+      '[AudioBubble $_tag] _togglePlayPause: playState=$playState, controller=${_audioState?.controller != null}, initialized=${_audioState?.controller?.value.isInitialized}',
+    );
     if (playState == PlayStates.playing) {
       _audioState?.pauseAudio();
+    } else {
+      // Tell every other audio player (voice notes, audio-file rows, staged
+      // tray tiles) to pause before this one starts — only one plays at a
+      // time across the whole app.
       AudioBubbleStream().controller.sink.add(
         AudioBubbleEvents(id: _tag, action: AudioBubbleActions.pausePlayer),
       );
-    } else {
       _audioState?.playAudio();
     }
   }
@@ -368,7 +414,12 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
                     child: ValueListenableBuilder<double>(
                       valueListenable: _progressNotifier,
                       builder: (context, progress, _) {
-                        return _buildWaveform(progress, isRight, barWidth, barSpacing);
+                        return _buildWaveform(
+                          progress,
+                          isRight,
+                          barWidth,
+                          barSpacing,
+                        );
                       },
                     ),
                   ),
@@ -380,9 +431,13 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
                       return Text(
                         durationText,
                         style: TextStyle(
-                          color: _style.durationTextColor ??
-                              (isRight ? _colorPalette.white : _colorPalette.neutral600),
-                          fontSize: _typography.caption2?.regular?.fontSize ?? 12,
+                          color:
+                              _style.durationTextColor ??
+                              (isRight
+                                  ? _colorPalette.white
+                                  : _colorPalette.neutral600),
+                          fontSize:
+                              _typography.caption2?.regular?.fontSize ?? 12,
                           fontWeight: _typography.caption2?.regular?.fontWeight,
                         ).merge(_style.durationTextStyle),
                       );
@@ -397,7 +452,11 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
     );
   }
 
-  Widget _buildPlayButton(bool isRight, PlayStates playState, bool isInitializing) {
+  Widget _buildPlayButton(
+    bool isRight,
+    PlayStates playState,
+    bool isInitializing,
+  ) {
     if (_isPreparingToPlay || isInitializing) {
       return SizedBox(
         width: 40,
@@ -427,7 +486,7 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
     }
 
     final isPlaying = playState == PlayStates.playing;
-    
+
     return GestureDetector(
       onTap: _onPlayTap,
       child: CircleAvatar(
@@ -435,22 +494,27 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
         backgroundColor: _style.playIconBackgroundColor ?? _colorPalette.white,
         child: isPlaying
             ? widget.pauseIcon ??
-                Icon(
-                  Icons.pause,
-                  size: 28,
-                  color: _style.playIconColor ?? _colorPalette.primary,
-                )
+                  Icon(
+                    Icons.pause,
+                    size: 28,
+                    color: _style.playIconColor ?? _colorPalette.primary,
+                  )
             : widget.playIcon ??
-                Icon(
-                  Icons.play_arrow_rounded,
-                  size: 28,
-                  color: _style.playIconColor ?? _colorPalette.primary,
-                ),
+                  Icon(
+                    Icons.play_arrow_rounded,
+                    size: 28,
+                    color: _style.playIconColor ?? _colorPalette.primary,
+                  ),
       ),
     );
   }
 
-  Widget _buildWaveform(double progress, bool isRight, double barWidth, double barSpacing) {
+  Widget _buildWaveform(
+    double progress,
+    bool isRight,
+    double barWidth,
+    double barSpacing,
+  ) {
     return GestureWaveform(
       key: ValueKey(_waveformVersion),
       amplitudes: _waveformData,
@@ -470,7 +534,10 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
   }
 
   Color _getPlayedColor(bool isRight) {
-    return _style.audioBarColor ?? (isRight ? _colorPalette.white ?? Colors.white : _colorPalette.primary ?? Colors.blue);
+    return _style.audioBarColor ??
+        (isRight
+            ? _colorPalette.white ?? Colors.white
+            : _colorPalette.primary ?? Colors.blue);
   }
 
   Color _getUnplayedColor(bool isRight) {
@@ -484,3 +551,9 @@ class _CometChatAudioBubbleV2State extends State<CometChatAudioBubbleV2> {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 }
+
+/// Deprecated former name of [CometChatAudioPlayer]. Kept as an alias so any
+/// code that imported `CometChatAudioBubbleV2` keeps compiling — this is a
+/// pure rename with no behavior change, not a removal.
+@Deprecated('Renamed to CometChatAudioPlayer.')
+typedef CometChatAudioBubbleV2 = CometChatAudioPlayer;

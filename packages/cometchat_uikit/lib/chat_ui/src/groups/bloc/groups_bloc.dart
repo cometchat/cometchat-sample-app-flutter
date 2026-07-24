@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 import '../domain/usecases/get_groups_usecase.dart';
 import '../domain/usecases/load_more_groups_usecase.dart';
 import '../domain/usecases/get_logged_in_user_usecase.dart';
 import '../di/groups_service_locator.dart';
-import '../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../../../shared_ui/cometchat_uikit_shared.dart';
 import '../../shared/list_base.dart';
 import 'groups_event.dart';
@@ -85,13 +83,14 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
     LoadMoreGroupsUseCase? loadMoreGroupsUseCase,
     GetLoggedInUserUseCase? getLoggedInUserUseCase,
     this.disableSDKListeners = false,
-  })  : getGroupsUseCase =
-            getGroupsUseCase ?? _getServiceLocator().getGroupsUseCase,
-        loadMoreGroupsUseCase =
-            loadMoreGroupsUseCase ?? _getServiceLocator().loadMoreGroupsUseCase,
-        getLoggedInUserUseCase =
-            getLoggedInUserUseCase ?? _getServiceLocator().getLoggedInUserUseCase,
-        super(const GroupsInitial()) {
+  }) : getGroupsUseCase =
+           getGroupsUseCase ?? _getServiceLocator().getGroupsUseCase,
+       loadMoreGroupsUseCase =
+           loadMoreGroupsUseCase ?? _getServiceLocator().loadMoreGroupsUseCase,
+       getLoggedInUserUseCase =
+           getLoggedInUserUseCase ??
+           _getServiceLocator().getLoggedInUserUseCase,
+       super(const GroupsInitial()) {
     // Register event handlers (Requirement 1.2)
     on<LoadGroups>(_onLoadGroups);
     on<LoadMoreGroups>(_onLoadMoreGroups);
@@ -210,10 +209,7 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
     // Don't set hasMore here — let the caller (_onLoadGroups / _onLoadMoreGroups)
     // control hasMore based on the actual page size, not total list length.
     if (!isClosed) {
-      add(_ListStateChanged(
-        groups: newList,
-        isEmpty: newList.isEmpty,
-      ));
+      add(_ListStateChanged(groups: newList, isEmpty: newList.isEmpty));
     }
   }
 
@@ -301,7 +297,9 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   /// Requirement: 6.2
   void _handleGroupMemberJoined(Action action, User joinedUser, Group group) {
     if (isClosed) return;
-    add(GroupMemberJoined(action: action, joinedUser: joinedUser, group: group));
+    add(
+      GroupMemberJoined(action: action, joinedUser: joinedUser, group: group),
+    );
   }
 
   /// Handle group member left event from SDK
@@ -314,39 +312,57 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   /// Handle group member kicked event from SDK
   /// Requirement: 6.4
   void _handleGroupMemberKicked(
-      Action action, User kickedUser, User kickedBy, Group group) {
+    Action action,
+    User kickedUser,
+    User kickedBy,
+    Group group,
+  ) {
     if (isClosed) return;
-    add(GroupMemberKicked(
-      action: action,
-      kickedUser: kickedUser,
-      kickedBy: kickedBy,
-      group: group,
-    ));
+    add(
+      GroupMemberKicked(
+        action: action,
+        kickedUser: kickedUser,
+        kickedBy: kickedBy,
+        group: group,
+      ),
+    );
   }
 
   /// Handle group member banned event from SDK
   /// Requirement: 6.5
   void _handleGroupMemberBanned(
-      Action action, User bannedUser, User bannedBy, Group group) {
+    Action action,
+    User bannedUser,
+    User bannedBy,
+    Group group,
+  ) {
     if (isClosed) return;
-    add(GroupMemberBanned(
-      action: action,
-      bannedUser: bannedUser,
-      bannedBy: bannedBy,
-      group: group,
-    ));
+    add(
+      GroupMemberBanned(
+        action: action,
+        bannedUser: bannedUser,
+        bannedBy: bannedBy,
+        group: group,
+      ),
+    );
   }
 
   /// Handle group member unbanned event from SDK
   void _handleGroupMemberUnbanned(
-      Action action, User unbannedUser, User unbannedBy, Group group) {
+    Action action,
+    User unbannedUser,
+    User unbannedBy,
+    Group group,
+  ) {
     if (isClosed) return;
-    add(GroupMemberUnbanned(
-      action: action,
-      unbannedUser: unbannedUser,
-      unbannedBy: unbannedBy,
-      group: group,
-    ));
+    add(
+      GroupMemberUnbanned(
+        action: action,
+        unbannedUser: unbannedUser,
+        unbannedBy: unbannedBy,
+        group: group,
+      ),
+    );
   }
 
   /// Handle group member scope changed event from SDK
@@ -360,19 +376,25 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
     Group group,
   ) {
     if (isClosed) return;
-    add(GroupMemberScopeChanged(
-      action: action,
-      updatedUser: updatedUser,
-      scopeChangedTo: scopeChangedTo,
-      scopeChangedFrom: scopeChangedFrom,
-      group: group,
-    ));
+    add(
+      GroupMemberScopeChanged(
+        action: action,
+        updatedUser: updatedUser,
+        scopeChangedTo: scopeChangedTo,
+        scopeChangedFrom: scopeChangedFrom,
+        group: group,
+      ),
+    );
   }
 
   /// Handle member added to group event from SDK
   /// Requirement: 6.2
   void _handleMemberAddedToGroup(
-      Action action, User addedBy, User userAdded, Group group) {
+    Action action,
+    User addedBy,
+    User userAdded,
+    Group group,
+  ) {
     if (isClosed) return;
     // When a member is added to a group, update the group
     // If the logged-in user was added, mark hasJoined = true
@@ -445,12 +467,17 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   /// Handle group member added event from UI
   /// Requirement: 6.2
   void _handleCCGroupMemberAdded(
-      List<Action> messages, List<User> usersAdded, Group group, User addedBy) {
+    List<Action> messages,
+    List<User> usersAdded,
+    Group group,
+    User addedBy,
+  ) {
     if (isClosed) return;
     // Check if logged-in user was added
     if (_loggedInUser != null) {
-      final wasLoggedInUserAdded =
-          usersAdded.any((user) => user.uid == _loggedInUser!.uid);
+      final wasLoggedInUserAdded = usersAdded.any(
+        (user) => user.uid == _loggedInUser!.uid,
+      );
       if (wasLoggedInUserAdded) {
         group.hasJoined = true;
       }
@@ -461,7 +488,11 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   /// Handle group member kicked event from UI
   /// Requirement: 6.4
   void _handleCCGroupMemberKicked(
-      Action action, User kickedUser, User kickedBy, Group group) {
+    Action action,
+    User kickedUser,
+    User kickedBy,
+    Group group,
+  ) {
     if (isClosed) return;
     // If the logged-in user was kicked
     if (_loggedInUser != null && kickedUser.uid == _loggedInUser!.uid) {
@@ -480,7 +511,11 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   /// Handle group member banned event from UI
   /// Requirement: 6.5
   void _handleCCGroupMemberBanned(
-      Action action, User bannedUser, User bannedBy, Group group) {
+    Action action,
+    User bannedUser,
+    User bannedBy,
+    Group group,
+  ) {
     if (isClosed) return;
     // If the logged-in user was banned
     if (_loggedInUser != null && bannedUser.uid == _loggedInUser!.uid) {
@@ -498,7 +533,11 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
 
   /// Handle group member unbanned event from UI
   void _handleCCGroupMemberUnbanned(
-      Action action, User unbannedUser, User unbannedBy, Group group) {
+    Action action,
+    User unbannedUser,
+    User unbannedBy,
+    Group group,
+  ) {
     if (isClosed) return;
     add(UpdateGroup(group));
   }
@@ -609,13 +648,20 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
       replaceAll(allGroups);
       // Always emit the correct hasMore and isLoadingMore after replaceAll
       if (state is GroupsLoaded) {
-        emit((state as GroupsLoaded).copyWith(hasMore: hasMorePages, isLoadingMore: false));
+        emit(
+          (state as GroupsLoaded).copyWith(
+            hasMore: hasMorePages,
+            isLoadingMore: false,
+          ),
+        );
       }
     } else if (result is Failure) {
-      emit(GroupsError(
-        message: result.message,
-        previousGroups: currentState.groups,
-      ));
+      emit(
+        GroupsError(
+          message: result.message,
+          previousGroups: currentState.groups,
+        ),
+      );
     }
   }
 
@@ -708,10 +754,9 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
         replaceAll(groups);
       }
     } else if (result is Failure) {
-      emit(GroupsError(
-        message: result.message,
-        previousGroups: _originalGroups,
-      ));
+      emit(
+        GroupsError(message: result.message, previousGroups: _originalGroups),
+      );
     }
   }
 
@@ -758,10 +803,7 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   }
 
   /// Update a specific group
-  void _onUpdateGroup(
-    UpdateGroup event,
-    Emitter<GroupsState> emit,
-  ) {
+  void _onUpdateGroup(UpdateGroup event, Emitter<GroupsState> emit) {
     if (state is! GroupsLoaded) return;
 
     final groupIndex = findGroupIndex(event.group.guid);
@@ -775,10 +817,7 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   }
 
   /// Add a new group to the list
-  void _onAddGroup(
-    AddGroup event,
-    Emitter<GroupsState> emit,
-  ) {
+  void _onAddGroup(AddGroup event, Emitter<GroupsState> emit) {
     if (state is! GroupsLoaded) return;
 
     // Check if group already exists
@@ -794,10 +833,7 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   }
 
   /// Remove a group from the list
-  void _onRemoveGroup(
-    RemoveGroup event,
-    Emitter<GroupsState> emit,
-  ) {
+  void _onRemoveGroup(RemoveGroup event, Emitter<GroupsState> emit) {
     if (state is! GroupsLoaded) return;
 
     final group = findGroup(event.guid);
@@ -810,10 +846,7 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   // SDK LISTENER EVENT HANDLERS (Placeholders for Task 5.6)
   // ============================================================
 
-  void _onGroupCreated(
-    GroupCreated event,
-    Emitter<GroupsState> emit,
-  ) {
+  void _onGroupCreated(GroupCreated event, Emitter<GroupsState> emit) {
     // Requirement: 6.1 - Add newly created group to the list
     add(AddGroup(event.group));
   }
@@ -824,22 +857,19 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   ) {
     // Requirement: 6.2 - Update member count and hasJoined status
     final group = event.group;
-    
+
     // If the logged-in user joined, mark hasJoined = true
     if (_loggedInUser != null && event.joinedUser.uid == _loggedInUser!.uid) {
       group.hasJoined = true;
     }
-    
+
     add(UpdateGroup(group));
   }
 
-  void _onGroupMemberLeft(
-    GroupMemberLeft event,
-    Emitter<GroupsState> emit,
-  ) {
+  void _onGroupMemberLeft(GroupMemberLeft event, Emitter<GroupsState> emit) {
     // Requirement: 6.3 - Update group or remove if private
     final group = event.group;
-    
+
     // If the logged-in user left
     if (_loggedInUser != null && event.leftUser.uid == _loggedInUser!.uid) {
       if (group.type == GroupTypeConstants.private) {
@@ -863,7 +893,7 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   ) {
     // Requirement: 6.4 - Handle kicked member
     final group = event.group;
-    
+
     // If the logged-in user was kicked
     if (_loggedInUser != null && event.kickedUser.uid == _loggedInUser!.uid) {
       if (group.type == GroupTypeConstants.private) {
@@ -884,7 +914,7 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   ) {
     // Requirement: 6.5 - Handle banned member
     final group = event.group;
-    
+
     // If the logged-in user was banned
     if (_loggedInUser != null && event.bannedUser.uid == _loggedInUser!.uid) {
       if (group.type == GroupTypeConstants.private) {
@@ -913,12 +943,12 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   ) {
     // Requirement: 6.5 - Handle scope change
     final group = event.group;
-    
+
     // If the logged-in user's scope changed, update the group's scope
     if (_loggedInUser != null && event.updatedUser.uid == _loggedInUser!.uid) {
       group.scope = event.scopeChangedTo;
     }
-    
+
     add(UpdateGroup(group));
   }
 
@@ -928,12 +958,12 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   ) {
     // Handle ownership transfer - update the group
     final group = event.group;
-    
+
     // If the logged-in user became the owner, update scope
     if (_loggedInUser != null && event.newOwner.uid == _loggedInUser!.uid) {
       group.scope = GroupMemberScope.owner;
     }
-    
+
     add(UpdateGroup(group));
   }
 
@@ -958,24 +988,15 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> with ListBase<Group> {
   // INTERNAL EVENT HANDLERS
   // ============================================================
 
-  void _onListStateChanged(
-    _ListStateChanged event,
-    Emitter<GroupsState> emit,
-  ) {
+  void _onListStateChanged(_ListStateChanged event, Emitter<GroupsState> emit) {
     if (event.isEmpty) {
       emit(const GroupsEmpty());
     } else {
       final currentState = state;
       if (currentState is GroupsLoaded) {
-        emit(currentState.copyWith(
-          groups: event.groups,
-          isLoadingMore: false,
-        ));
+        emit(currentState.copyWith(groups: event.groups, isLoadingMore: false));
       } else {
-        emit(GroupsLoaded(
-          groups: event.groups,
-          hasMore: true,
-        ));
+        emit(GroupsLoaded(groups: event.groups, hasMore: true));
       }
     }
   }
@@ -1004,10 +1025,7 @@ class _ListStateChanged extends GroupsEvent {
   final List<Group> groups;
   final bool isEmpty;
 
-  const _ListStateChanged({
-    required this.groups,
-    required this.isEmpty,
-  });
+  const _ListStateChanged({required this.groups, required this.isEmpty});
 
   @override
   List<Object?> get props => [groups, isEmpty];
@@ -1047,7 +1065,7 @@ class _GroupsGroupListener with GroupListener {
   final void Function(Action, User, User, Group) onGroupMemberBannedCallback;
   final void Function(Action, User, User, Group) onGroupMemberUnbannedCallback;
   final void Function(Action, User, User, String, String, Group)
-      onGroupMemberScopeChangedCallback;
+  onGroupMemberScopeChangedCallback;
   final void Function(Action, User, User, Group) onMemberAddedToGroupCallback;
   final String? loggedInUserId;
 
@@ -1074,20 +1092,37 @@ class _GroupsGroupListener with GroupListener {
 
   @override
   void onGroupMemberKicked(
-      Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     onGroupMemberKickedCallback(action, kickedUser, kickedBy, kickedFrom);
   }
 
   @override
   void onGroupMemberBanned(
-      Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     onGroupMemberBannedCallback(action, bannedUser, bannedBy, bannedFrom);
   }
 
   @override
   void onGroupMemberUnbanned(
-      Action action, User unbannedUser, User unbannedBy, Group unbannedFrom) {
-    onGroupMemberUnbannedCallback(action, unbannedUser, unbannedBy, unbannedFrom);
+    Action action,
+    User unbannedUser,
+    User unbannedBy,
+    Group unbannedFrom,
+  ) {
+    onGroupMemberUnbannedCallback(
+      action,
+      unbannedUser,
+      unbannedBy,
+      unbannedFrom,
+    );
   }
 
   @override
@@ -1111,7 +1146,11 @@ class _GroupsGroupListener with GroupListener {
 
   @override
   void onMemberAddedToGroup(
-      Action action, User addedBy, User userAdded, Group addedTo) {
+    Action action,
+    User addedBy,
+    User userAdded,
+    Group addedTo,
+  ) {
     onMemberAddedToGroupCallback(action, addedBy, userAdded, addedTo);
   }
 }
@@ -1148,12 +1187,13 @@ class _GroupsCCEventListener with CometChatGroupEventListener {
   final void Function(Action, User, Group) onCCGroupLeftCallback;
   final void Function(User, Group) onCCGroupMemberJoinedCallback;
   final void Function(List<Action>, List<User>, Group, User)
-      onCCGroupMemberAddedCallback;
+  onCCGroupMemberAddedCallback;
   final void Function(Action, User, User, Group) onCCGroupMemberKickedCallback;
   final void Function(Action, User, User, Group) onCCGroupMemberBannedCallback;
-  final void Function(Action, User, User, Group) onCCGroupMemberUnbannedCallback;
+  final void Function(Action, User, User, Group)
+  onCCGroupMemberUnbannedCallback;
   final void Function(Action, User, String, String, Group)
-      onCCGroupMemberScopeChangedCallback;
+  onCCGroupMemberScopeChangedCallback;
   final void Function(Group, GroupMember) onCCOwnershipChangedCallback;
 
   _GroupsCCEventListener({
@@ -1191,33 +1231,64 @@ class _GroupsCCEventListener with CometChatGroupEventListener {
 
   @override
   void ccGroupMemberAdded(
-      List<Action> messages, List<User> usersAdded, Group groupAddedIn, User addedBy) {
+    List<Action> messages,
+    List<User> usersAdded,
+    Group groupAddedIn,
+    User addedBy,
+  ) {
     onCCGroupMemberAddedCallback(messages, usersAdded, groupAddedIn, addedBy);
   }
 
   @override
   void ccGroupMemberKicked(
-      Action message, User kickedUser, User kickedBy, Group kickedFrom) {
+    Action message,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     onCCGroupMemberKickedCallback(message, kickedUser, kickedBy, kickedFrom);
   }
 
   @override
   void ccGroupMemberBanned(
-      Action message, User bannedUser, User bannedBy, Group bannedFrom) {
+    Action message,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     onCCGroupMemberBannedCallback(message, bannedUser, bannedBy, bannedFrom);
   }
 
   @override
   void ccGroupMemberUnbanned(
-      Action message, User unbannedUser, User unbannedBy, Group unbannedFrom) {
-    onCCGroupMemberUnbannedCallback(message, unbannedUser, unbannedBy, unbannedFrom);
+    Action message,
+    User unbannedUser,
+    User unbannedBy,
+    Group unbannedFrom,
+  ) {
+    onCCGroupMemberUnbannedCallback(
+      message,
+      unbannedUser,
+      unbannedBy,
+      unbannedFrom,
+    );
   }
 
   @override
-  void ccGroupMemberScopeChanged(Action message, User updatedUser,
-      String scopeChangedTo, String scopeChangedFrom, Group group) {
+  void ccGroupMemberScopeChanged(
+    Action message,
+    User updatedUser,
+    String scopeChangedTo,
+    String scopeChangedFrom,
+    Group group,
+  ) {
     onCCGroupMemberScopeChangedCallback(
-        message, updatedUser, scopeChangedTo, scopeChangedFrom, group);
+      message,
+      updatedUser,
+      scopeChangedTo,
+      scopeChangedFrom,
+      group,
+    );
   }
 
   @override

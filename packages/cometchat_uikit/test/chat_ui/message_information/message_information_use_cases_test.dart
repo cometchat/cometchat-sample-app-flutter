@@ -75,8 +75,9 @@ void main() {
 
     test('delegates to repository with valid messageId', () async {
       final receipts = [FakeMessageReceipt(42, 'uid_1')];
-      when(() => repo.fetchMessageReceipts(any()))
-          .thenAnswer((_) async => Success(receipts));
+      when(
+        () => repo.fetchMessageReceipts(any()),
+      ).thenAnswer((_) async => Success(receipts));
 
       final result = await useCase(42);
       expect(result.isSuccess, isTrue);
@@ -88,8 +89,9 @@ void main() {
         FakeMessageReceipt(42, 'uid_1'),
         FakeMessageReceipt(42, 'uid_2'),
       ];
-      when(() => repo.fetchMessageReceipts(any()))
-          .thenAnswer((_) async => Success(receipts));
+      when(
+        () => repo.fetchMessageReceipts(any()),
+      ).thenAnswer((_) async => Success(receipts));
 
       final result = await useCase(42);
       expect(result.isSuccess, isTrue);
@@ -97,8 +99,9 @@ void main() {
     });
 
     test('propagates repository failure', () async {
-      when(() => repo.fetchMessageReceipts(any())).thenAnswer((_) async =>
-          const Failure(message: 'SDK error', code: 'SDK_ERR'));
+      when(() => repo.fetchMessageReceipts(any())).thenAnswer(
+        (_) async => const Failure(message: 'SDK error', code: 'SDK_ERR'),
+      );
 
       final result = await useCase(42);
       expect(result.isFailure, isTrue);
@@ -106,8 +109,9 @@ void main() {
     });
 
     test('accepts messageId of 1 (minimum valid)', () async {
-      when(() => repo.fetchMessageReceipts(any()))
-          .thenAnswer((_) async => const Success([]));
+      when(
+        () => repo.fetchMessageReceipts(any()),
+      ).thenAnswer((_) async => const Success([]));
 
       final result = await useCase(1);
       expect(result.isSuccess, isTrue);

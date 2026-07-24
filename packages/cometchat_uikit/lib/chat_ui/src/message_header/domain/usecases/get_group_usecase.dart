@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/message_header_repository.dart';
 
@@ -12,7 +12,7 @@ class GetGroupUseCase {
   ///
   /// [guid] - The group ID to fetch
   ///
-  /// Returns Result<Group> containing group or failure
+  /// Returns `Result<Group>` containing group or failure
   Future<Result<Group>> call(String guid) async {
     if (guid.isEmpty) {
       return const Failure(

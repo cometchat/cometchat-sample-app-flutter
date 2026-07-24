@@ -22,13 +22,14 @@ import 'package:flutter/material.dart';
 ///
 /// ```
 class BaseStyles {
-  const BaseStyles(
-      {this.width,
-      this.height,
-      this.background,
-      this.gradient,
-      this.border,
-      this.borderRadius});
+  const BaseStyles({
+    this.width,
+    this.height,
+    this.background,
+    this.gradient,
+    this.border,
+    this.borderRadius,
+  });
 
   ///[width] provides width to the widget
   final double? width;

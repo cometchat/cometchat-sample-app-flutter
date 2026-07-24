@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Base class for all message header events
 /// Uses Equatable for proper event comparison in BLoC
@@ -125,15 +125,11 @@ class GroupOwnershipChanged extends MessageHeaderEvent {
   final Group group;
   final GroupMember newOwner;
 
-  const GroupOwnershipChanged({
-    required this.group,
-    required this.newOwner,
-  });
+  const GroupOwnershipChanged({required this.group, required this.newOwner});
 
   @override
   List<Object?> get props => [group, newOwner];
 }
-
 
 /// Internal event for initializing logged-in user
 /// This is used internally by the BLoC and should not be dispatched externally

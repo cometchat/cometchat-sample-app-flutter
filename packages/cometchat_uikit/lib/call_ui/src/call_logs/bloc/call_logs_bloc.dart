@@ -1,5 +1,5 @@
 import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -80,15 +80,17 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
     InitiateCallUseCase? initiateCallUseCase,
     GetLoggedInUserUseCase? getLoggedInUserUseCase,
     this.callLogsRequestBuilder,
-  })  : getCallLogsUseCase =
-            getCallLogsUseCase ?? _getServiceLocator().getCallLogsUseCase,
-        loadMoreCallLogsUseCase = loadMoreCallLogsUseCase ??
-            _getServiceLocator().loadMoreCallLogsUseCase,
-        initiateCallUseCase =
-            initiateCallUseCase ?? _getServiceLocator().initiateCallUseCase,
-        getLoggedInUserUseCase = getLoggedInUserUseCase ??
-            _getServiceLocator().getLoggedInUserUseCase,
-        super(CallLogsState.initial()) {
+  }) : getCallLogsUseCase =
+           getCallLogsUseCase ?? _getServiceLocator().getCallLogsUseCase,
+       loadMoreCallLogsUseCase =
+           loadMoreCallLogsUseCase ??
+           _getServiceLocator().loadMoreCallLogsUseCase,
+       initiateCallUseCase =
+           initiateCallUseCase ?? _getServiceLocator().initiateCallUseCase,
+       getLoggedInUserUseCase =
+           getLoggedInUserUseCase ??
+           _getServiceLocator().getLoggedInUserUseCase,
+       super(CallLogsState.initial()) {
     // Register event handlers
     on<LoadCallLogs>(_onLoadCallLogs);
     on<LoadMoreCallLogs>(_onLoadMoreCallLogs);
@@ -128,8 +130,7 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
       if (callLogsRequestBuilder != null) {
         repo.setRequest(callLogsRequestBuilder!.build());
       } else {
-        final builder = CallLogRequestBuilder()
-          ..limit = limit;
+        final builder = CallLogRequestBuilder()..limit = limit;
         repo.setRequest(builder.build());
       }
     }
@@ -228,13 +229,14 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
     // Configure the repository with auth token and optional custom builder
     await _configureRequest(limit: 30);
 
-    Result<List<CallLog>> result = await getCallLogsUseCase(
-      limit: 30,
-
-    );
+    Result<List<CallLog>> result = await getCallLogsUseCase(limit: 30);
 
     // Retry logic: if the SDK fetch failed, wait and retry with a fresh request.
-    for (int attempt = 1; attempt <= _maxRetries && result is Failure; attempt++) {
+    for (
+      int attempt = 1;
+      attempt <= _maxRetries && result is Failure;
+      attempt++
+    ) {
       debugPrint(
         'CallLogsBloc: fetch failed, retrying in '
         '${_retryDelay.inSeconds}s (attempt $attempt/$_maxRetries)',
@@ -247,11 +249,8 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
       _resetRepositoryRequest();
       await _configureRequest(limit: 30);
 
-      result = await getCallLogsUseCase(
-        limit: 30,
-  
-      );
-      
+      result = await getCallLogsUseCase(limit: 30);
+
       debugPrint(
         'CallLogsBloc: retry attempt $attempt result: ${result is Success ? "SUCCESS" : "FAILED"}',
       );
@@ -260,30 +259,36 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
     if (result is Success<List<CallLog>>) {
       final callLogs = result.data;
       if (callLogs.isEmpty) {
-        emit(state.copyWith(
-          status: CallLogsStatus.empty,
-          loggedInUser: _loggedInUser,
-        ));
+        emit(
+          state.copyWith(
+            status: CallLogsStatus.empty,
+            loggedInUser: _loggedInUser,
+          ),
+        );
       } else {
         // Group call logs by date
         final groupedEntries = _groupCallLogsByDate(callLogs);
 
         replaceAll(callLogs);
 
-        emit(state.copyWith(
-          status: CallLogsStatus.loaded,
-          callLogs: callLogs,
-          hasMore: callLogs.length >= 30,
-          loggedInUser: _loggedInUser,
-          groupedEntries: groupedEntries,
-        ));
+        emit(
+          state.copyWith(
+            status: CallLogsStatus.loaded,
+            callLogs: callLogs,
+            hasMore: callLogs.length >= 30,
+            loggedInUser: _loggedInUser,
+            groupedEntries: groupedEntries,
+          ),
+        );
       }
     } else if (result is Failure) {
-      emit(state.copyWith(
-        status: CallLogsStatus.error,
-        errorMessage: result.message,
-        loggedInUser: _loggedInUser,
-      ));
+      emit(
+        state.copyWith(
+          status: CallLogsStatus.error,
+          errorMessage: result.message,
+          loggedInUser: _loggedInUser,
+        ),
+      );
     }
   }
 
@@ -334,18 +339,22 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
 
       replaceAll(allCallLogs);
 
-      emit(state.copyWith(
-        callLogs: allCallLogs,
-        hasMore: newCallLogs.length >= 30,
-        isLoadingMore: false,
-        groupedEntries: groupedEntries,
-      ));
+      emit(
+        state.copyWith(
+          callLogs: allCallLogs,
+          hasMore: newCallLogs.length >= 30,
+          isLoadingMore: false,
+          groupedEntries: groupedEntries,
+        ),
+      );
     } else if (result is Failure) {
-      emit(state.copyWith(
-        status: CallLogsStatus.error,
-        errorMessage: result.message,
-        isLoadingMore: false,
-      ));
+      emit(
+        state.copyWith(
+          status: CallLogsStatus.error,
+          errorMessage: result.message,
+          isLoadingMore: false,
+        ),
+      );
     }
   }
 
@@ -418,19 +427,18 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
 
     if (result is Success<Call>) {
       // Navigate to outgoing call screen
+      // ignore: use_build_context_synchronously
       _navigateToOutgoingCall(context, result.data);
     } else if (result is Failure) {
       // Error handling - could emit error state or show snackbar
-      emit(state.copyWith(
-        errorMessage: result.message,
-      ));
+      emit(state.copyWith(errorMessage: result.message));
     }
   }
 
   /// Check if logged in user is the initiator of the call
   bool _isLoggedInUserInitiator(CallLog callLog) {
     if (_loggedInUser == null) return false;
-    
+
     if (callLog.initiator is CallUser) {
       return (callLog.initiator as CallUser).uid == _loggedInUser!.uid;
     }
@@ -448,7 +456,8 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
     if (call.receiverType == CometChatReceiverType.user) {
       user = User(
         uid: call.receiverUid,
-        name: call.receiverUid, // Name will be fetched by the outgoing call screen
+        name: call
+            .receiverUid, // Name will be fetched by the outgoing call screen
       );
     }
 
@@ -458,10 +467,7 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
       Navigator.push(
         navigatorContext,
         MaterialPageRoute(
-          builder: (context) => CometChatOutgoingCall(
-            call: call,
-            user: user,
-          ),
+          builder: (context) => CometChatOutgoingCall(call: call, user: user),
         ),
       );
     } else {
@@ -469,10 +475,7 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CometChatOutgoingCall(
-            call: call,
-            user: user,
-          ),
+          builder: (context) => CometChatOutgoingCall(call: call, user: user),
         ),
       );
     }
@@ -521,8 +524,18 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
   /// Get month name abbreviation
   String _getMonthName(int month) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return months[month - 1];
   }
@@ -591,10 +604,7 @@ class CallLogsBloc extends Bloc<CallLogsEvent, CallLogsState>
   /// Called when the entire call logs list is replaced.
   /// Rebuilds the index map - state emission is in event handlers.
   @override
-  void onListReplaced(
-    List<CallLog> previousList,
-    List<CallLog> newList,
-  ) {
+  void onListReplaced(List<CallLog> previousList, List<CallLog> newList) {
     if (isClosed) return;
 
     // Full rebuild only on list replacement (initial load, refresh, pagination)

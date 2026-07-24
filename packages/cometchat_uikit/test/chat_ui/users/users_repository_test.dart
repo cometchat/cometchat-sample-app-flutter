@@ -53,11 +53,13 @@ void main() {
   group('getUsers', () {
     test('returns success with users from remote', () async {
       final users = [FakeUser('uid_1'), FakeUser('uid_2')];
-      when(() => remote.getUsers(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            usersRequestBuilder: any(named: 'usersRequestBuilder'),
-          )).thenAnswer((_) async => users);
+      when(
+        () => remote.getUsers(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          usersRequestBuilder: any(named: 'usersRequestBuilder'),
+        ),
+      ).thenAnswer((_) async => users);
       when(() => local.cacheUsers(any())).thenAnswer((_) async {});
 
       final result = await repo.getUsers();
@@ -68,11 +70,13 @@ void main() {
 
     test('caches users after successful remote fetch', () async {
       final users = [FakeUser('uid_1')];
-      when(() => remote.getUsers(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            usersRequestBuilder: any(named: 'usersRequestBuilder'),
-          )).thenAnswer((_) async => users);
+      when(
+        () => remote.getUsers(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          usersRequestBuilder: any(named: 'usersRequestBuilder'),
+        ),
+      ).thenAnswer((_) async => users);
       when(() => local.cacheUsers(any())).thenAnswer((_) async {});
 
       await repo.getUsers();
@@ -82,12 +86,15 @@ void main() {
 
     test('falls back to cache when remote fails', () async {
       final cached = [FakeUser('cached_uid')];
-      when(() => remote.getUsers(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            usersRequestBuilder: any(named: 'usersRequestBuilder'),
-          )).thenThrow(
-              const UsersRemoteDataSourceException(message: 'Network error'));
+      when(
+        () => remote.getUsers(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          usersRequestBuilder: any(named: 'usersRequestBuilder'),
+        ),
+      ).thenThrow(
+        const UsersRemoteDataSourceException(message: 'Network error'),
+      );
       when(() => local.getCachedUsers()).thenAnswer((_) async => cached);
 
       final result = await repo.getUsers();
@@ -97,14 +104,18 @@ void main() {
     });
 
     test('returns failure when both remote and cache fail', () async {
-      when(() => remote.getUsers(
-            limit: any(named: 'limit'),
-            searchKeyword: any(named: 'searchKeyword'),
-            usersRequestBuilder: any(named: 'usersRequestBuilder'),
-          )).thenThrow(
-              const UsersRemoteDataSourceException(message: 'Network error'));
-      when(() => local.getCachedUsers())
-          .thenThrow(const UsersLocalDataSourceException(message: 'Cache miss'));
+      when(
+        () => remote.getUsers(
+          limit: any(named: 'limit'),
+          searchKeyword: any(named: 'searchKeyword'),
+          usersRequestBuilder: any(named: 'usersRequestBuilder'),
+        ),
+      ).thenThrow(
+        const UsersRemoteDataSourceException(message: 'Network error'),
+      );
+      when(
+        () => local.getCachedUsers(),
+      ).thenThrow(const UsersLocalDataSourceException(message: 'Cache miss'));
 
       final result = await repo.getUsers();
 
@@ -153,7 +164,11 @@ void main() {
     test('returns failure when remote throws', () async {
       when(() => local.getCachedUser(any())).thenAnswer((_) async => null);
       when(() => remote.getUser(any())).thenThrow(
-          const UsersRemoteDataSourceException(message: 'Not found', code: 'NOT_FOUND'));
+        const UsersRemoteDataSourceException(
+          message: 'Not found',
+          code: 'NOT_FOUND',
+        ),
+      );
 
       final result = await repo.getUserById('uid_1');
 
@@ -175,7 +190,8 @@ void main() {
 
     test('returns failure when remote throws', () async {
       when(() => remote.blockUser(any())).thenThrow(
-          const UsersRemoteDataSourceException(message: 'Block failed'));
+        const UsersRemoteDataSourceException(message: 'Block failed'),
+      );
 
       final result = await repo.blockUser('uid_1');
       expect(result.isFailure, isTrue);
@@ -192,7 +208,8 @@ void main() {
 
     test('returns failure when remote throws', () async {
       when(() => remote.unblockUser(any())).thenThrow(
-          const UsersRemoteDataSourceException(message: 'Unblock failed'));
+        const UsersRemoteDataSourceException(message: 'Unblock failed'),
+      );
 
       final result = await repo.unblockUser('uid_1');
       expect(result.isFailure, isTrue);

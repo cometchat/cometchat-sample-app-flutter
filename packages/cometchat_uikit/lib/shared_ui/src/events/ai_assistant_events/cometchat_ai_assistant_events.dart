@@ -3,7 +3,7 @@ import '../../../cometchat_uikit_shared.dart';
 /// Event emitting class for AI Assistant features.
 class CometChatAIAssistantEvents {
   static final Map<String, CometChatAIAssistantEventsListener>
-      _aiAssistantListeners = {};
+  _aiAssistantListeners = {};
 
   static void addAIAssistantListener(
     String listenerId,

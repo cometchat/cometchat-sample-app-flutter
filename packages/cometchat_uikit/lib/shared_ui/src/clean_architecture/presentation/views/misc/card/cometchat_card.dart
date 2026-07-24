@@ -83,12 +83,9 @@ class CometChatCard extends StatelessWidget {
             titleView ??
                 Padding(
                   padding: titlePadding ?? EdgeInsets.zero,
-                  child: Text(
-                    title ?? "",
-                    style: cardStyle?.titleStyle,
-                  ),
+                  child: Text(title ?? "", style: cardStyle?.titleStyle),
                 ),
-            if (subtitleView != null) subtitleView!,
+            ?subtitleView,
             avatarView ??
                 CometChatAvatar(
                   image: avatarUrl,
@@ -101,7 +98,7 @@ class CometChatCard extends StatelessWidget {
                 ),
           ],
         ),
-        if (bottomView != null) bottomView!
+        ?bottomView,
       ],
     );
   }

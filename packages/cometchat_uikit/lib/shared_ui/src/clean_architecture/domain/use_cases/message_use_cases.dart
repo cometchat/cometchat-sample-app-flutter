@@ -4,13 +4,14 @@ import '../../core/result.dart';
 
 /// Base use case class
 /// All use cases should extend this class
-abstract class UseCase<Type, Params> {
-  Future<Result<Type>> call(Params params);
+abstract class UseCase<T, Params> {
+  Future<Result<T>> call(Params params);
 }
 
 /// Get messages use case
 /// Retrieves messages from a conversation with caching and filtering
-class GetMessagesUseCase implements UseCase<List<MessageEntity>, GetMessagesParams> {
+class GetMessagesUseCase
+    implements UseCase<List<MessageEntity>, GetMessagesParams> {
   final MessageRepository repository;
 
   GetMessagesUseCase({required this.repository});
@@ -34,9 +35,7 @@ class GetMessagesUseCase implements UseCase<List<MessageEntity>, GetMessagesPara
 
     // Apply business logic: filter deleted messages, sort by timestamp
     return result.map((messages) {
-      return messages
-          .where((msg) => !msg.isDeleted)
-          .toList()
+      return messages.where((msg) => !msg.isDeleted).toList()
         ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
     });
   }
@@ -104,7 +103,8 @@ class SendMessageParams {
 
 /// Search messages use case
 /// Searches messages with query validation
-class SearchMessagesUseCase implements UseCase<List<MessageEntity>, SearchMessagesParams> {
+class SearchMessagesUseCase
+    implements UseCase<List<MessageEntity>, SearchMessagesParams> {
   final MessageRepository repository;
 
   SearchMessagesUseCase({required this.repository});
@@ -138,10 +138,7 @@ class SearchMessagesParams {
   final String conversationId;
   final String query;
 
-  SearchMessagesParams({
-    required this.conversationId,
-    required this.query,
-  });
+  SearchMessagesParams({required this.conversationId, required this.query});
 }
 
 /// Delete message use case

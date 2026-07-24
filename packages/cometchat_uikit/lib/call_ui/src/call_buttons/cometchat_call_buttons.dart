@@ -18,7 +18,7 @@ import '../../../cometchat_chat_uikit.dart';
 /// ```
 class CometChatCallButtons extends StatefulWidget {
   const CometChatCallButtons({
-    Key? key,
+    super.key,
     this.user,
     this.group,
     this.callButtonsStyle,
@@ -30,7 +30,7 @@ class CometChatCallButtons extends StatefulWidget {
     this.outgoingCallConfiguration,
     this.callSettingsBuilder,
     this.callButtonsBloc,
-  }) : super(key: key);
+  });
 
   final User? user;
   final Group? group;
@@ -42,13 +42,16 @@ class CometChatCallButtons extends StatefulWidget {
   final Widget? videoCallIcon;
   final CometChatOutgoingCallConfiguration? outgoingCallConfiguration;
   final SessionSettingsBuilder Function(
-      User? user, Group? group, bool? isAudioOnly)? callSettingsBuilder;
+    User? user,
+    Group? group,
+    bool? isAudioOnly,
+  )?
+  callSettingsBuilder;
   final CallButtonsBloc? callButtonsBloc;
 
   @override
   State<CometChatCallButtons> createState() => _CometChatCallButtonsState();
 }
-
 
 class _CometChatCallButtonsState extends State<CometChatCallButtons> {
   late CallButtonsBloc _callButtonsBloc;
@@ -84,14 +87,16 @@ class _CometChatCallButtonsState extends State<CometChatCallButtons> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
     _cachedBrightness = currentBrightness;
     _themeInitialized = true;
     _colorPalette = CometChatThemeHelper.getColorPalette(context);
     _style = CometChatThemeHelper.getTheme<CometChatCallButtonsStyle>(
-            context: context, defaultTheme: CometChatCallButtonsStyle.of)
-        .merge(widget.callButtonsStyle);
+      context: context,
+      defaultTheme: CometChatCallButtonsStyle.of,
+    ).merge(widget.callButtonsStyle);
   }
 
   @override
@@ -100,8 +105,9 @@ class _CometChatCallButtonsState extends State<CometChatCallButtons> {
     if (widget.callButtonsStyle != oldWidget.callButtonsStyle &&
         widget.callButtonsStyle != null) {
       _style = CometChatThemeHelper.getTheme<CometChatCallButtonsStyle>(
-              context: context, defaultTheme: CometChatCallButtonsStyle.of)
-          .merge(widget.callButtonsStyle);
+        context: context,
+        defaultTheme: CometChatCallButtonsStyle.of,
+      ).merge(widget.callButtonsStyle);
     }
     if (widget.callButtonsBloc != oldWidget.callButtonsBloc) {
       if (!_isExternalBloc) {
@@ -145,7 +151,8 @@ class _CometChatCallButtonsState extends State<CometChatCallButtons> {
   }
 
   Widget _buildVoiceCallButton(CallButtonsState state) {
-    final hasBorder = _style.voiceCallButtonBorder != null &&
+    final hasBorder =
+        _style.voiceCallButtonBorder != null &&
         _style.voiceCallButtonBorder != BorderSide.none;
     return IconButton(
       tooltip: 'Voice call',
@@ -164,7 +171,8 @@ class _CometChatCallButtonsState extends State<CometChatCallButtons> {
       onPressed: state.isDisabled
           ? null
           : () => _callButtonsBloc.add(const InitiateVoiceCall()),
-      icon: widget.voiceCallIcon ??
+      icon:
+          widget.voiceCallIcon ??
           Icon(
             Icons.call_outlined,
             size: 24,
@@ -174,7 +182,8 @@ class _CometChatCallButtonsState extends State<CometChatCallButtons> {
   }
 
   Widget _buildVideoCallButton(CallButtonsState state) {
-    final hasBorder = _style.videoCallButtonBorder != null &&
+    final hasBorder =
+        _style.videoCallButtonBorder != null &&
         _style.videoCallButtonBorder != BorderSide.none;
     return IconButton(
       tooltip: 'Video call',
@@ -193,7 +202,8 @@ class _CometChatCallButtonsState extends State<CometChatCallButtons> {
       onPressed: state.isDisabled
           ? null
           : () => _callButtonsBloc.add(const InitiateVideoCall()),
-      icon: widget.videoCallIcon ??
+      icon:
+          widget.videoCallIcon ??
           SvgPicture.asset(
             SvgAssetConstants.videoCall,
             height: 24,

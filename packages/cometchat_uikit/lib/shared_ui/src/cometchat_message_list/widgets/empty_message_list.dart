@@ -53,10 +53,7 @@ class _EmptyMessageListState extends State<EmptyMessageList>
       vsync: this,
       duration: widget.animationDuration,
     );
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
   }
 
@@ -83,7 +80,8 @@ class _EmptyMessageListState extends State<EmptyMessageList>
               Icon(
                 widget.icon,
                 size: widget.iconSize,
-                color: widget.iconColor ??
+                color:
+                    widget.iconColor ??
                     theme.colorScheme.onSurface.withValues(alpha: 0.4),
               ),
               SizedBox(height: widget.spacing),

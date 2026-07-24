@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 ///[CometChatMessageTranslationBubbleStyle] is a data class that has styling-related properties
 ///to customize the appearance of [MessageTranslationBubble]
 ///
@@ -13,11 +12,11 @@ import 'package:flutter/material.dart';
 /// ```
 class CometChatMessageTranslationBubbleStyle
     extends ThemeExtension<CometChatMessageTranslationBubbleStyle> {
-  CometChatMessageTranslationBubbleStyle(
-      {this.infoTextStyle,
-      this.translatedTextStyle,
-      this.dividerColor,
-      });
+  CometChatMessageTranslationBubbleStyle({
+    this.infoTextStyle,
+    this.translatedTextStyle,
+    this.dividerColor,
+  });
 
   ///[infoTextStyle] provides styling for the text "Translated message"
   final TextStyle? infoTextStyle;
@@ -42,7 +41,8 @@ class CometChatMessageTranslationBubbleStyle
   }
 
   CometChatMessageTranslationBubbleStyle merge(
-      CometChatMessageTranslationBubbleStyle? other) {
+    CometChatMessageTranslationBubbleStyle? other,
+  ) {
     if (other == null) return this;
     return copyWith(
       infoTextStyle: other.infoTextStyle,
@@ -59,8 +59,11 @@ class CometChatMessageTranslationBubbleStyle
     if (other == null) return this;
     return copyWith(
       infoTextStyle: TextStyle.lerp(infoTextStyle, other.infoTextStyle, t),
-      translatedTextStyle:
-          TextStyle.lerp(translatedTextStyle, other.translatedTextStyle, t),
+      translatedTextStyle: TextStyle.lerp(
+        translatedTextStyle,
+        other.translatedTextStyle,
+        t,
+      ),
       dividerColor: Color.lerp(dividerColor, other.dividerColor, t),
     );
   }

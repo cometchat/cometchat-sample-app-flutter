@@ -1,10 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-import 'package:cometchat_chat_uikit/chat_ui/src/message_list/utils/message_template_utils.dart';
 
 // ===========================================================================
 // MessageOptionVisibilityPropertyTest — Flutter equivalent of Kotlin reference
@@ -38,9 +34,9 @@ class FakeTextMessage extends Fake implements TextMessage {
     User? sender,
     int parentMessageId = 0,
     DateTime? deletedAt,
-  })  : _sender = sender,
-        _parentMessageId = parentMessageId,
-        _deletedAt = deletedAt;
+  }) : _sender = sender,
+       _parentMessageId = parentMessageId,
+       _deletedAt = deletedAt;
 
   @override
   int get id => _id;
@@ -92,10 +88,10 @@ class FakeMediaMessage extends Fake implements MediaMessage {
     User? sender,
     int parentMessageId = 0,
     DateTime? deletedAt,
-  })  : _type = type,
-        _sender = sender,
-        _parentMessageId = parentMessageId,
-        _deletedAt = deletedAt;
+  }) : _type = type,
+       _sender = sender,
+       _parentMessageId = parentMessageId,
+       _deletedAt = deletedAt;
 
   @override
   int get id => _id;
@@ -135,9 +131,11 @@ class FakeGroup extends Fake implements Group {
   final String _owner;
   final String _scope;
 
-  FakeGroup({String owner = 'admin_user', String scope = GroupMemberScope.participant})
-      : _owner = owner,
-        _scope = scope;
+  FakeGroup({
+    String owner = 'admin_user',
+    String scope = GroupMemberScope.participant,
+  }) : _owner = owner,
+       _scope = scope;
 
   @override
   String get guid => 'test_group';
@@ -194,12 +192,20 @@ void main() {
       });
 
       test('reply-in-thread is available when parentMessageId is 0', () {
-        final message = FakeTextMessage(1, sender: loggedInUser, parentMessageId: 0);
+        final message = FakeTextMessage(
+          1,
+          sender: loggedInUser,
+          parentMessageId: 0,
+        );
         expect(message.parentMessageId, equals(0));
       });
 
       test('reply-in-thread is NOT available when parentMessageId > 0', () {
-        final message = FakeTextMessage(1, sender: loggedInUser, parentMessageId: 5);
+        final message = FakeTextMessage(
+          1,
+          sender: loggedInUser,
+          parentMessageId: 5,
+        );
         expect(message.parentMessageId, isNot(equals(0)));
       });
 
@@ -263,14 +269,25 @@ void main() {
         expect(message.deletedAt, isNull);
       });
 
-      test('mark as unread is available for received messages at root level', () {
-        final message = FakeTextMessage(1, sender: otherUser, parentMessageId: 0);
-        expect(message.sender?.uid, isNot(equals(loggedInUser.uid)));
-        expect(message.parentMessageId, equals(0));
-      });
+      test(
+        'mark as unread is available for received messages at root level',
+        () {
+          final message = FakeTextMessage(
+            1,
+            sender: otherUser,
+            parentMessageId: 0,
+          );
+          expect(message.sender?.uid, isNot(equals(loggedInUser.uid)));
+          expect(message.parentMessageId, equals(0));
+        },
+      );
 
       test('mark as unread is NOT available for thread messages', () {
-        final message = FakeTextMessage(1, sender: otherUser, parentMessageId: 5);
+        final message = FakeTextMessage(
+          1,
+          sender: otherUser,
+          parentMessageId: 5,
+        );
         expect(message.parentMessageId, isNot(equals(0)));
       });
 
@@ -279,12 +296,15 @@ void main() {
         expect(message.sender?.uid, isNot(equals(loggedInUser.uid)));
       });
 
-      test('message privately is available in group chat for others messages', () {
-        final message = FakeTextMessage(1, sender: otherUser);
-        final group = FakeGroup();
-        expect(group, isNotNull);
-        expect(message.sender?.uid, isNot(equals(loggedInUser.uid)));
-      });
+      test(
+        'message privately is available in group chat for others messages',
+        () {
+          final message = FakeTextMessage(1, sender: otherUser);
+          final group = FakeGroup();
+          expect(group, isNotNull);
+          expect(message.sender?.uid, isNot(equals(loggedInUser.uid)));
+        },
+      );
     });
 
     // -----------------------------------------------------------------------
@@ -325,24 +345,40 @@ void main() {
 
     group('Media message options', () {
       test('image message does NOT have copy option', () {
-        final message = FakeMediaMessage(1, type: 'image', sender: loggedInUser);
+        final message = FakeMediaMessage(
+          1,
+          type: 'image',
+          sender: loggedInUser,
+        );
         // Copy is only for TextMessage
         expect(message, isNot(isA<TextMessage>()));
       });
 
       test('image message does NOT have edit option', () {
-        final message = FakeMediaMessage(1, type: 'image', sender: loggedInUser);
+        final message = FakeMediaMessage(
+          1,
+          type: 'image',
+          sender: loggedInUser,
+        );
         // Edit is only for TextMessage (validated by type check in options)
         expect(message.type, equals('image'));
       });
 
       test('video message has share option', () {
-        final message = FakeMediaMessage(1, type: 'video', sender: loggedInUser);
+        final message = FakeMediaMessage(
+          1,
+          type: 'video',
+          sender: loggedInUser,
+        );
         expect(message, isA<MediaMessage>());
       });
 
       test('audio message has reply option', () {
-        final message = FakeMediaMessage(1, type: 'audio', sender: loggedInUser);
+        final message = FakeMediaMessage(
+          1,
+          type: 'audio',
+          sender: loggedInUser,
+        );
         expect(message.deletedAt, isNull);
       });
 
@@ -352,7 +388,12 @@ void main() {
       });
 
       test('media messages have reply-in-thread when parentMessageId is 0', () {
-        final message = FakeMediaMessage(1, type: 'image', sender: loggedInUser, parentMessageId: 0);
+        final message = FakeMediaMessage(
+          1,
+          type: 'image',
+          sender: loggedInUser,
+          parentMessageId: 0,
+        );
         expect(message.parentMessageId, equals(0));
       });
     });
@@ -363,12 +404,21 @@ void main() {
 
     group('Deleted message options', () {
       test('deleted text message has no options (deletedAt set)', () {
-        final message = FakeTextMessage(1, sender: loggedInUser, deletedAt: DateTime.now());
+        final message = FakeTextMessage(
+          1,
+          sender: loggedInUser,
+          deletedAt: DateTime.now(),
+        );
         expect(message.deletedAt, isNotNull);
       });
 
       test('deleted media message has no options', () {
-        final message = FakeMediaMessage(1, type: 'image', sender: loggedInUser, deletedAt: DateTime.now());
+        final message = FakeMediaMessage(
+          1,
+          type: 'image',
+          sender: loggedInUser,
+          deletedAt: DateTime.now(),
+        );
         expect(message.deletedAt, isNotNull);
       });
     });
@@ -414,7 +464,9 @@ void main() {
       });
 
       test('hideMessagePrivatelyOption removes private reply from options', () {
-        final config = AdditionalConfigurations(hideMessagePrivatelyOption: true);
+        final config = AdditionalConfigurations(
+          hideMessagePrivatelyOption: true,
+        );
         expect(config.hideMessagePrivatelyOption, isTrue);
       });
 

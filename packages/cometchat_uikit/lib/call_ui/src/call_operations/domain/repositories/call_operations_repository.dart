@@ -1,5 +1,5 @@
 import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart' hide User;
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import 'package:flutter/widgets.dart';
 
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
@@ -29,7 +29,9 @@ abstract class CallOperationsRepository {
   /// The SDK generates the call token internally.
   /// Returns the calling widget on success.
   Future<Result<Widget>> startSession(
-      String sessionId, SessionSettings settings);
+    String sessionId,
+    SessionSettings settings,
+  );
 
   /// End the current WebRTC session.
   Future<Result<void>> endSession();

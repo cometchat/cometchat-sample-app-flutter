@@ -7,7 +7,10 @@ import '../../../cometchat_chat_uikit.dart';
 class CallUtils {
   /// Returns the call status message.
   static String getCallStatus(
-      BuildContext context, BaseMessage baseMessage, User? loggedInUser) {
+    BuildContext context,
+    BaseMessage baseMessage,
+    User? loggedInUser,
+  ) {
     String callMessageText = "";
     //check if the message is a call message and the receiver type is user
     if (baseMessage is Call) {
@@ -69,7 +72,10 @@ class CallUtils {
   }
 
   static String getLastMessageForGroupCall(
-      BaseMessage lastMessage, BuildContext context, User? loggedInUser) {
+    BaseMessage lastMessage,
+    BuildContext context,
+    User? loggedInUser,
+  ) {
     String message = "";
     if (lastMessage.receiverType == ReceiverTypeConstants.group) {
       if (!isLoggedInUser(lastMessage.sender, loggedInUser)) {
@@ -125,7 +131,10 @@ class CallUtils {
 
   /// [getStatus] return call status
   static String getStatus(
-      BuildContext? context, CallLog? callLog, User? loggedInUser) {
+    BuildContext? context,
+    CallLog? callLog,
+    User? loggedInUser,
+  ) {
     String callMessageText = "";
 
     if (callLog == null || loggedInUser == null) {
@@ -201,21 +210,24 @@ class CallUtils {
     isAudioCall(callLog);
 
     // Define default icons if not provided
-    Widget incoming = incomingCallIcon ??
+    Widget incoming =
+        incomingCallIcon ??
         Icon(
           Icons.call_received_outlined,
           color: style.incomingCallIconColor ?? colorPalette.success,
           size: 16,
         );
 
-    Widget outgoing = outgoingCallIcon ??
+    Widget outgoing =
+        outgoingCallIcon ??
         Icon(
           Icons.call_made_outlined,
           color: style.outgoingCallIconColor ?? colorPalette.success,
           size: 16,
         );
 
-    Widget missed = missedCallIcon ??
+    Widget missed =
+        missedCallIcon ??
         Icon(
           Icons.call_missed_outgoing_rounded,
           color: style.missedCallIconColor ?? colorPalette.error,
@@ -268,14 +280,16 @@ class CallUtils {
       case CallStatusConstants.unanswered:
         return isInitiatedByUser
             ? colorPalette.textPrimary ??
-                Colors.transparent // Unanswered call by user
+                  Colors
+                      .transparent // Unanswered call by user
             : colorPalette.error ?? Colors.transparent; // Missed call
 
       case CallStatusConstants.cancelled:
       case CallStatusConstants.rejected:
         return isInitiatedByUser
             ? colorPalette.textPrimary ??
-                Colors.transparent // User cancelled/rejected
+                  Colors
+                      .transparent // User cancelled/rejected
             : colorPalette.error ?? Colors.transparent; // Missed call
 
       case CallStatusConstants.busy:
@@ -301,7 +315,11 @@ class CallUtils {
   }
 
   static String getCallIconByStatus(
-      BuildContext context, BaseMessage baseMessage, User? loggedInUser, bool isAudio) {
+    BuildContext context,
+    BaseMessage baseMessage,
+    User? loggedInUser,
+    bool isAudio,
+  ) {
     String callIcon = "";
     //check if the message is a call message and the receiver type is user
     if (baseMessage is Call) {
@@ -311,21 +329,36 @@ class CallUtils {
       if (call.callStatus == CallStatusConstants.initiated) {
         //check if the logged in user is the initiator
         if (!isLoggedInUser(initiator, loggedInUser)) {
-          callIcon = isAudio? AssetConstants.incomingAudioCallNoFill : AssetConstants.incomingVideoCallNoFill;
+          callIcon = isAudio
+              ? AssetConstants.incomingAudioCallNoFill
+              : AssetConstants.incomingVideoCallNoFill;
         } else {
-          callIcon = isAudio? AssetConstants.outgoingAudioCallNoFill : AssetConstants.outgoingVideoCallNoFill;
+          callIcon = isAudio
+              ? AssetConstants.outgoingAudioCallNoFill
+              : AssetConstants.outgoingVideoCallNoFill;
         }
-      }else if(!isLoggedInUser(initiator, loggedInUser) && ( call.callStatus == CallStatusConstants.cancelled || call.callStatus == CallStatusConstants.unanswered || call.callStatus == CallStatusConstants.busy)){
-        callIcon = isAudio? AssetConstants.audioMissed : AssetConstants.videoMissed;
+      } else if (!isLoggedInUser(initiator, loggedInUser) &&
+          (call.callStatus == CallStatusConstants.cancelled ||
+              call.callStatus == CallStatusConstants.unanswered ||
+              call.callStatus == CallStatusConstants.busy)) {
+        callIcon = isAudio
+            ? AssetConstants.audioMissed
+            : AssetConstants.videoMissed;
       } else {
-        callIcon = isAudio? AssetConstants.callNoFill : AssetConstants.videocamNoFill;
+        callIcon = isAudio
+            ? AssetConstants.callNoFill
+            : AssetConstants.videocamNoFill;
       }
     }
     return callIcon;
   }
 
   static Color getCallTextColor(
-      BuildContext context, BaseMessage baseMessage, User? loggedInUser, CometChatColorPalette colorPalette) {
+    BuildContext context,
+    BaseMessage baseMessage,
+    User? loggedInUser,
+    CometChatColorPalette colorPalette,
+  ) {
     Color callTextColor = colorPalette.textSecondary ?? Colors.transparent;
     if (baseMessage is Call &&
         baseMessage.receiverType == ReceiverTypeConstants.user) {
@@ -333,8 +366,7 @@ class CallUtils {
       User initiator = call.callInitiator as User;
 
       if (!isLoggedInUser(initiator, loggedInUser) &&
-          (
-              call.callStatus == CallStatusConstants.cancelled ||
+          (call.callStatus == CallStatusConstants.cancelled ||
               call.callStatus == CallStatusConstants.unanswered ||
               call.callStatus == CallStatusConstants.busy)) {
         callTextColor = colorPalette.error ?? Colors.transparent;
@@ -342,8 +374,13 @@ class CallUtils {
     }
     return callTextColor;
   }
+
   static Color getCallIconColor(
-      BuildContext context, BaseMessage baseMessage, User? loggedInUser, CometChatColorPalette colorPalette) {
+    BuildContext context,
+    BaseMessage baseMessage,
+    User? loggedInUser,
+    CometChatColorPalette colorPalette,
+  ) {
     Color callTextColor = colorPalette.iconSecondary ?? Colors.transparent;
     if (baseMessage is Call &&
         baseMessage.receiverType == ReceiverTypeConstants.user) {

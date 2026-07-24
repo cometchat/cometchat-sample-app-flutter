@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Exception thrown when remote data source operations fail
 class GroupsRemoteDataSourceException implements Exception {
@@ -24,7 +24,7 @@ abstract class GroupsRemoteDataSource {
   /// Get groups with optional pagination and search.
   /// On the first call (or after [resetRequest]) a new SDK request is built;
   /// subsequent calls reuse the same request so the SDK cursor advances.
-  /// 
+  ///
   /// [limit] - Maximum number of groups to fetch (default: 30)
   /// [searchKeyword] - Optional keyword to filter groups by name
   /// [joinedOnly] - If true, only returns groups the user has joined
@@ -39,12 +39,12 @@ abstract class GroupsRemoteDataSource {
   void resetRequest();
 
   /// Get a specific group by GUID
-  /// 
+  ///
   /// [guid] - The unique identifier of the group
   Future<Group> getGroupById(String guid);
 
   /// Join a group
-  /// 
+  ///
   /// [guid] - The unique identifier of the group to join
   /// [groupType] - The type of group (public, private, password)
   /// [password] - Required for password-protected groups
@@ -55,14 +55,13 @@ abstract class GroupsRemoteDataSource {
   });
 
   /// Leave a group
-  /// 
+  ///
   /// [guid] - The unique identifier of the group to leave
   Future<void> leaveGroup(String guid);
 
   /// Get the currently logged in user
   Future<User?> getLoggedInUser();
 }
-
 
 /// Implementation of GroupsRemoteDataSource using CometChat SDK
 class GroupsRemoteDataSourceImpl implements GroupsRemoteDataSource {
@@ -166,7 +165,6 @@ class GroupsRemoteDataSourceImpl implements GroupsRemoteDataSource {
       );
     }
   }
-
 
   @override
   Future<Group> joinGroup({
@@ -275,7 +273,8 @@ class GroupsRemoteDataSourceImpl implements GroupsRemoteDataSource {
       );
     } catch (e) {
       throw GroupsRemoteDataSourceException(
-        message: 'Unexpected error while getting logged in user: ${e.toString()}',
+        message:
+            'Unexpected error while getting logged in user: ${e.toString()}',
         originalException: e is Exception ? e : null,
       );
     }

@@ -253,9 +253,10 @@ class ComposerAttachmentUtils {
   }
 
   static List<CometChatMessageComposerAction> getAttachmentOptions(
-      BuildContext context,
-      Map<String, dynamic>? id,
-      AdditionalConfigurations? additionalConfigurations) {
+    BuildContext context,
+    Map<String, dynamic>? id,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
     final style = additionalConfigurations?.attachmentOptionSheetStyle;
@@ -271,16 +272,24 @@ class ComposerAttachmentUtils {
       actions.add(attachVideo(context, colorPalette, typography, style));
     }
     if (additionalConfigurations?.hideAudioAttachmentOption != true) {
-      actions.add(audioAttachmentOption(context, colorPalette, typography, style));
+      actions.add(
+        audioAttachmentOption(context, colorPalette, typography, style),
+      );
     }
     if (additionalConfigurations?.hideFileAttachmentOption != true) {
-      actions.add(fileAttachmentOption(context, colorPalette, typography, style));
+      actions.add(
+        fileAttachmentOption(context, colorPalette, typography, style),
+      );
     }
     if (additionalConfigurations?.hideCollaborativeDocumentOption != true) {
-      actions.add(collaborativeDocumentOption(context, colorPalette, typography, style));
+      actions.add(
+        collaborativeDocumentOption(context, colorPalette, typography, style),
+      );
     }
     if (additionalConfigurations?.hideCollaborativeWhiteboardOption != true) {
-      actions.add(collaborativeWhiteboardOption(context, colorPalette, typography, style));
+      actions.add(
+        collaborativeWhiteboardOption(context, colorPalette, typography, style),
+      );
     }
     if (additionalConfigurations?.hidePollsOption != true) {
       actions.add(pollsOption(context, colorPalette, typography, style));
@@ -288,7 +297,10 @@ class ComposerAttachmentUtils {
     return actions;
   }
 
-  static String getMessageTypeToSubtitle(String messageType, BuildContext context) {
+  static String getMessageTypeToSubtitle(
+    String messageType,
+    BuildContext context,
+  ) {
     switch (messageType) {
       case MessageTypeConstants.text:
         return Translations.of(context).text;

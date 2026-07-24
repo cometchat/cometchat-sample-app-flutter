@@ -1,4 +1,5 @@
-import '../../../cometchat_uikit_shared.dart' hide ActionEntity, APIAction, URLNavigationAction, CustomAction;
+import '../../../cometchat_uikit_shared.dart'
+    hide ActionEntity, APIAction, URLNavigationAction, CustomAction;
 import 'action_entity.dart';
 
 /// Represents an action for URL navigation within a chat application.
@@ -9,7 +10,7 @@ class URLNavigationAction extends ActionEntity {
   String url;
 
   URLNavigationAction({required this.url, String? type})
-      : super(actionType: type ?? ActionTypeConstants.urlNavigation);
+    : super(actionType: type ?? ActionTypeConstants.urlNavigation);
 
   @override
   Map<String, dynamic> toMap() {

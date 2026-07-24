@@ -4,7 +4,8 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:cometchat_sdk/cometchat_sdk.dart';
 
-import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' show CustomUIPosition;
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart'
+    show CustomUIPosition;
 import 'package:cometchat_chat_uikit/chat_ui/src/message_composer/bloc/message_composer_bloc.dart';
 import 'package:cometchat_chat_uikit/chat_ui/src/message_composer/bloc/message_composer_event.dart';
 import 'package:cometchat_chat_uikit/chat_ui/src/message_composer/bloc/message_composer_state.dart';
@@ -35,10 +36,10 @@ class FakeUser extends Fake implements User {
     String name = 'Test User',
     bool blockedByMe = false,
     bool hasBlockedMe = false,
-  })  : _uid = uid,
-        _name = name,
-        _blockedByMe = blockedByMe,
-        _hasBlockedMe = hasBlockedMe;
+  }) : _uid = uid,
+       _name = name,
+       _blockedByMe = blockedByMe,
+       _hasBlockedMe = hasBlockedMe;
 
   @override
   String get uid => _uid;
@@ -55,8 +56,8 @@ class FakeGroup extends Fake implements Group {
   final String _name;
 
   FakeGroup({String guid = 'test_group', String name = 'Test Group'})
-      : _guid = guid,
-        _name = name;
+    : _guid = guid,
+      _name = name;
 
   @override
   String get guid => _guid;
@@ -75,10 +76,10 @@ class FakeTextMessage extends Fake implements TextMessage {
     String text = 'Hello',
     String muid = 'muid_1',
     int parentMessageId = 0,
-  })  : _id = id,
-        _text = text,
-        _muid = muid,
-        _parentMessageId = parentMessageId;
+  }) : _id = id,
+       _text = text,
+       _muid = muid,
+       _parentMessageId = parentMessageId;
 
   @override
   int get id => _id;
@@ -182,16 +183,21 @@ void main() {
 
   setUp(() {
     repo = MockMessageComposerRepository();
-    when(() => repo.getLoggedInUser())
-        .thenAnswer((_) async => Success(FakeUser()));
-    when(() => repo.startTyping(
-          receiverUid: any(named: 'receiverUid'),
-          receiverType: any(named: 'receiverType'),
-        )).thenAnswer((_) async => const Success(null));
-    when(() => repo.endTyping(
-          receiverUid: any(named: 'receiverUid'),
-          receiverType: any(named: 'receiverType'),
-        )).thenAnswer((_) async => const Success(null));
+    when(
+      () => repo.getLoggedInUser(),
+    ).thenAnswer((_) async => Success(FakeUser()));
+    when(
+      () => repo.startTyping(
+        receiverUid: any(named: 'receiverUid'),
+        receiverType: any(named: 'receiverType'),
+      ),
+    ).thenAnswer((_) async => const Success(null));
+    when(
+      () => repo.endTyping(
+        receiverUid: any(named: 'receiverUid'),
+        receiverType: any(named: 'receiverType'),
+      ),
+    ).thenAnswer((_) async => const Success(null));
   });
 
   // =========================================================================
@@ -266,8 +272,11 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'editing state shows original message text in composeText',
       build: () => _makeBloc(repo),
-      act: (bloc) => bloc.add(SetEditMessage(
-          FakeTextMessage(id: 10, text: 'Hello world, this is a long message'))),
+      act: (bloc) => bloc.add(
+        SetEditMessage(
+          FakeTextMessage(id: 10, text: 'Hello world, this is a long message'),
+        ),
+      ),
       verify: (bloc) {
         expect(bloc.state.composeText, 'Hello world, this is a long message');
       },
@@ -353,8 +362,9 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'SubmitAudioRecording transitions through idle then sends',
       build: () {
-        when(() => repo.sendMediaMessage(any()))
-            .thenAnswer((_) async => Success(FakeMediaMessage()));
+        when(
+          () => repo.sendMediaMessage(any()),
+        ).thenAnswer((_) async => Success(FakeMediaMessage()));
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -379,7 +389,8 @@ void main() {
       'send failure transitions to error with message',
       build: () {
         when(() => repo.sendTextMessage(any())).thenAnswer(
-            (_) async => const Failure(message: 'Network timeout', code: 'TMO'));
+          (_) async => const Failure(message: 'Network timeout', code: 'TMO'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -398,7 +409,9 @@ void main() {
       'edit failure transitions to error with message',
       build: () {
         when(() => repo.editMessage(any())).thenAnswer(
-            (_) async => const Failure(message: 'Permission denied', code: 'PERM'));
+          (_) async =>
+              const Failure(message: 'Permission denied', code: 'PERM'),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -424,8 +437,9 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'successful send transitions to success with sentMessage',
       build: () {
-        when(() => repo.sendTextMessage(any()))
-            .thenAnswer((_) async => Success(FakeTextMessage(id: 99, text: 'Sent')));
+        when(() => repo.sendTextMessage(any())).thenAnswer(
+          (_) async => Success(FakeTextMessage(id: 99, text: 'Sent')),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -443,8 +457,9 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'successful edit transitions to success',
       build: () {
-        when(() => repo.editMessage(any()))
-            .thenAnswer((_) async => Success(FakeTextMessage(id: 10, text: 'Edited')));
+        when(() => repo.editMessage(any())).thenAnswer(
+          (_) async => Success(FakeTextMessage(id: 10, text: 'Edited')),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -497,13 +512,10 @@ void main() {
     blocTest<MessageComposerBloc, MessageComposerState>(
       'HidePanel with composerTop clears headerPanel',
       build: () => _makeBloc(repo),
-      seed: () => MessageComposerState(
-        user: FakeUser(),
-        headerPanel: const SizedBox(),
-      ),
-      act: (bloc) => bloc.add(const HidePanel(
-        position: CustomUIPosition.composerTop,
-      )),
+      seed: () =>
+          MessageComposerState(user: FakeUser(), headerPanel: const SizedBox()),
+      act: (bloc) =>
+          bloc.add(const HidePanel(position: CustomUIPosition.composerTop)),
       verify: (bloc) {
         expect(bloc.state.headerPanel, isNull);
       },
@@ -517,9 +529,8 @@ void main() {
         footerPanel: const SizedBox(),
         lockedBottomPadding: 300.0,
       ),
-      act: (bloc) => bloc.add(const HidePanel(
-        position: CustomUIPosition.composerBottom,
-      )),
+      act: (bloc) =>
+          bloc.add(const HidePanel(position: CustomUIPosition.composerBottom)),
       verify: (bloc) {
         expect(bloc.state.footerPanel, isNull);
         expect(bloc.state.lockedBottomPadding, isNull);
@@ -533,9 +544,8 @@ void main() {
         user: FakeUser(),
         previewPanel: const SizedBox(),
       ),
-      act: (bloc) => bloc.add(const HidePanel(
-        position: CustomUIPosition.composerPreview,
-      )),
+      act: (bloc) =>
+          bloc.add(const HidePanel(position: CustomUIPosition.composerPreview)),
       verify: (bloc) {
         expect(bloc.state.previewPanel, isNull);
       },
@@ -569,7 +579,9 @@ void main() {
       act: (bloc) async {
         bloc.add(const UpdateComposeText('Draft'));
         await Future.delayed(const Duration(milliseconds: 50));
-        bloc.add(ComposerSetGroup(FakeGroup(guid: 'new_group', name: 'New Group')));
+        bloc.add(
+          ComposerSetGroup(FakeGroup(guid: 'new_group', name: 'New Group')),
+        );
       },
       verify: (bloc) {
         expect(bloc.state.group?.guid, 'new_group');

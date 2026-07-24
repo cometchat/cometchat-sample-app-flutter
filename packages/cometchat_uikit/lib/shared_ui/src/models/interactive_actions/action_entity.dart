@@ -1,4 +1,5 @@
-import '../../../cometchat_uikit_shared.dart' hide ActionEntity, APIAction, URLNavigationAction, CustomAction;
+import '../../../cometchat_uikit_shared.dart'
+    hide ActionEntity, APIAction, URLNavigationAction, CustomAction;
 import 'api_action.dart';
 import 'url_navigation_action.dart';
 

@@ -66,10 +66,7 @@ class GroupEntity extends Equatable {
   GroupEntity addMember(String userId) {
     if (members.contains(userId)) return this;
     final newMembers = [...members, userId];
-    return copyWith(
-      members: newMembers,
-      memberCount: memberCount + 1,
-    );
+    return copyWith(members: newMembers, memberCount: memberCount + 1);
   }
 
   /// Remove member from group

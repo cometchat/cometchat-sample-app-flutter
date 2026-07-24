@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 /// Base class for groups states
 /// Uses Equatable for proper state comparison in BLoC
@@ -50,12 +50,12 @@ class GroupsLoaded extends GroupsState {
 
   @override
   List<Object?> get props => [
-        groups,
-        hasMore,
-        isLoadingMore,
-        selectedGroups,
-        searchKeyword,
-      ];
+    groups,
+    hasMore,
+    isLoadingMore,
+    selectedGroups,
+    searchKeyword,
+  ];
 
   /// Create a copy of this state with updated fields (Requirement 1.4)
   ///
@@ -94,10 +94,7 @@ class GroupsError extends GroupsState {
   /// Previously loaded groups, if any, for graceful degradation
   final List<Group>? previousGroups;
 
-  const GroupsError({
-    required this.message,
-    this.previousGroups,
-  });
+  const GroupsError({required this.message, this.previousGroups});
 
   @override
   List<Object?> get props => [message, previousGroups];

@@ -43,9 +43,9 @@ class MessageListBlocAdapter implements CometChatMessageListControllerProtocol {
     required Map<String, CometChatMessageTemplate> templateMap,
     required ScrollController scrollController,
     required BuildContext context,
-  })  : _templateMap = templateMap,
-        _scrollController = scrollController,
-        _context = context;
+  }) : _templateMap = templateMap,
+       _scrollController = scrollController,
+       _context = context;
 
   /// Update the context (call this in didChangeDependencies)
   void updateContext(BuildContext context) {

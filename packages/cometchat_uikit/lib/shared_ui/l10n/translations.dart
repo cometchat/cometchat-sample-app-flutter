@@ -93,12 +93,12 @@ const kCometChatSupportedLanguage = {
   'ru',
   'sv',
   'tr',
-  'zh'
+  'zh',
 };
 
 abstract class Translations {
   Translations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -122,11 +122,26 @@ abstract class Translations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    Translations.delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        Translations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
+
+  /// The locales for which this UI Kit ships built-in translations.
+  ///
+  /// Pass this to `MaterialApp.supportedLocales` together with
+  /// [localizationsDelegates], for example:
+  ///
+  /// ```dart
+  /// MaterialApp(
+  ///   localizationsDelegates: Translations.localizationsDelegates,
+  ///   supportedLocales: Translations.supportedLocales,
+  /// );
+  /// ```
+  static List<Locale> get supportedLocales => kCometChatSupportedLanguage
+      .map((languageCode) => Locale(languageCode))
+      .toList(growable: false);
 
   /// No description provided for @users.
   ///
@@ -1754,6 +1769,79 @@ abstract class Translations {
   /// **'Failed To Load Image'**
   String get failedToLoadImage;
 
+  /// No description provided for @upload_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed'**
+  String get uploadFailed;
+
+  /// No description provided for @tap_to_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to retry'**
+  String get tapToRetry;
+
+  /// No description provided for @drop_files_here.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop files here'**
+  String get dropFilesHere;
+
+  /// No description provided for @attachment_count_limit.
+  /// `{limit}` is replaced with the maximum file count.
+  ///
+  /// In en, this message translates to:
+  /// **'You can attach up to {limit} files per message.'**
+  String get attachmentCountLimit;
+
+  /// No description provided for @attachment_file_size_limit.
+  /// `{limit}` is replaced with the formatted maximum file size.
+  ///
+  /// In en, this message translates to:
+  /// **'Each file must be under {limit}.'**
+  String get attachmentFileSizeLimit;
+
+  /// No description provided for @file_list_show_more.
+  /// `{count}` is replaced with the number of hidden files.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String get fileListShowMore;
+
+  /// No description provided for @file_list_show_less.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get fileListShowLess;
+
+  /// No description provided for @search_images_count.
+  /// `{count}` is replaced with the number of image attachments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Images'**
+  String get searchImagesCount;
+
+  /// No description provided for @search_videos_count.
+  /// `{count}` is replaced with the number of video attachments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Videos'**
+  String get searchVideosCount;
+
+  /// No description provided for @search_audios_count.
+  /// `{count}` is replaced with the number of audio attachments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Audios'**
+  String get searchAudiosCount;
+
+  /// No description provided for @search_files_count.
+  /// `{count}` is replaced with the number of file attachments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Files'**
+  String get searchFilesCount;
+
   /// No description provided for @transfer_ownership.
   ///
   /// In en, this message translates to:
@@ -2267,6 +2355,39 @@ abstract class Translations {
   String get save;
 
   ///In en, this translates to :
+  ///**'File saved'
+  ///
+  ///Confirmation shown after a media file is saved from the viewer.
+  ///
+  ///Deliberately CONCRETE rather than abstract: every locale here — and any
+  ///[Translations] subclass a host app maintains — would otherwise fail to
+  ///compile until it supplied this string. Locales may override it; until they
+  ///do they inherit the English text rather than break the build.
+  String get fileSaved => 'File saved';
+
+  ///Title of the media viewer's "no preview" state — shown when an attachment
+  ///can't be previewed (image/video render failure, or a file whose actual type
+  ///doesn't match the message type it was sent as).
+  ///
+  ///Concrete (not abstract), like [fileSaved]: locales inherit the English text
+  ///until they override it, rather than breaking the build.
+  String get noPreviewAvailable => 'No preview available';
+
+  ///Subtitle under [noPreviewAvailable] in the media viewer's "no preview"
+  ///state. Concrete for the same reason as [fileSaved] / [noPreviewAvailable].
+  String get fileTypeNotSupportedForPreview =>
+      "This file type isn't supported for preview.";
+
+  ///"Download" action label — the media viewer's download button/tooltip.
+  ///Concrete for the same reason as [fileSaved].
+  String get download => 'Download';
+
+  ///Short reason shown on an attachment tile that was rejected as an invalid
+  ///file (e.g. an empty / 0-byte file). Replaces the verbose SDK message.
+  ///Concrete for the same reason as [fileSaved].
+  String get invalidFile => 'Invalid File';
+
+  ///In en, this translates to :
   ///**'You can change roles to manage group permissions and responsibilities.'
   String get changeScopeSubtitle;
 
@@ -2590,7 +2711,6 @@ abstract class Translations {
   ///In en, this translates to :
   ///**'Harassment'
   String get harassment;
-
 }
 
 class _TranslationsDelegate extends LocalizationsDelegate<Translations> {
@@ -2607,9 +2727,7 @@ class _TranslationsDelegate extends LocalizationsDelegate<Translations> {
     assert(isSupported(locale), '');
     return _loadedTranslations.putIfAbsent(
       locale,
-      () => SynchronousFuture<Translations>(
-        lookupTranslations(locale),
-      ),
+      () => SynchronousFuture<Translations>(lookupTranslations(locale)),
     );
   }
 
@@ -2686,8 +2804,9 @@ Translations lookupTranslations(Locale locale) {
   }
 
   throw FlutterError(
-      'Translations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'Translations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

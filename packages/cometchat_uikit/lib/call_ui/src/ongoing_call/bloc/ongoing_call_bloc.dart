@@ -8,7 +8,6 @@ import 'dart:developer' as developer;
 
 import '../../../../cometchat_calls_uikit.dart';
 import '../../../../cometchat_chat_uikit.dart';
-import '../call_screen_overlay.dart';
 
 /// Session status listener for the ongoing call
 class _OngoingCallSessionListener extends SessionStatusListeners {
@@ -31,8 +30,7 @@ class _OngoingCallButtonListener extends ButtonClickListeners {
   _OngoingCallButtonListener(this.bloc);
 
   @override
-  void onLeaveSessionButtonClicked() =>
-      bloc.add(const EndCallButtonPressed());
+  void onLeaveSessionButtonClicked() => bloc.add(const EndCallButtonPressed());
 }
 
 /// Participant event listener for the ongoing call
@@ -118,11 +116,13 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
   /// Handle calls error from SDK
   void handleCallsError(CometChatCallsException ce) {
     if (errorCallback != null) {
-      errorCallback!(CometChatException(
-        ce.code,
-        ce.message ?? 'Call error occurred',
-        ce.details ?? '',
-      ));
+      errorCallback!(
+        CometChatException(
+          ce.code,
+          ce.message ?? 'Call error occurred',
+          ce.details ?? '',
+        ),
+      );
     }
   }
 
@@ -163,11 +163,15 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
     // Guard: if the SDK still isn't ready after waiting, fail with a clear
     // message instead of letting the native SDK throw a cryptic error.
     if (!CallEventService.instance.isCallsSdkReady) {
-      developer.log('OngoingCallBloc: Calls SDK not ready after waitForCallsSdk — cannot start session');
-      emit(state.copyWith(
-        status: OngoingCallStatus.error,
-        errorMessage: 'Call service is not ready. Please try again.',
-      ));
+      developer.log(
+        'OngoingCallBloc: Calls SDK not ready after waitForCallsSdk — cannot start session',
+      );
+      emit(
+        state.copyWith(
+          status: OngoingCallStatus.error,
+          errorMessage: 'Call service is not ready. Please try again.',
+        ),
+      );
       return;
     }
 
@@ -190,28 +194,36 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
       developer.log(
         'OngoingCallBloc: permissions denied (audioOnly=$isAudioOnly), aborting session',
       );
-      emit(state.copyWith(
-        status: OngoingCallStatus.error,
-        errorMessage:
-            'Microphone${isAudioOnly ? '' : ' and camera'} permission is required to join the call.',
-      ));
+      emit(
+        state.copyWith(
+          status: OngoingCallStatus.error,
+          errorMessage:
+              'Microphone${isAudioOnly ? '' : ' and camera'} permission is required to join the call.',
+        ),
+      );
       return;
     }
 
     developer.log('OngoingCallBloc: Joining session $sessionId');
 
     // Join session directly with sessionId — SDK handles token internally
-    final startSessionUseCase = CallOperationsServiceLocator.instance.startSessionUseCase;
-    final sessionResult = await startSessionUseCase.call(sessionId, sessionSettings);
+    final startSessionUseCase =
+        CallOperationsServiceLocator.instance.startSessionUseCase;
+    final sessionResult = await startSessionUseCase.call(
+      sessionId,
+      sessionSettings,
+    );
 
     if (isClosed) return;
 
     sessionResult.fold(
       (failure) {
-        emit(state.copyWith(
-          status: OngoingCallStatus.error,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            status: OngoingCallStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
       },
       (screen) {
         // Register listeners AFTER session starts successfully
@@ -220,10 +232,12 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
         session?.addButtonClickListener(_buttonListener);
         session?.addParticipantEventListener(_participantListener);
 
-        emit(state.copyWith(
-          status: OngoingCallStatus.active,
-          callingWidget: screen,
-        ));
+        emit(
+          state.copyWith(
+            status: OngoingCallStatus.active,
+            callingWidget: screen,
+          ),
+        );
       },
     );
   }
@@ -306,10 +320,12 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
         }
         _handleError(CometChatException('ERR', failure.message, ''));
         _closeCallScreen();
-        emit(state.copyWith(
-          status: OngoingCallStatus.error,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            status: OngoingCallStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
       },
       (call) {
         _closeCallScreen(call: call, callStatus: 'endCall');
@@ -322,7 +338,8 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
   Future<void> _endSession(Emitter<OngoingCallState> emit) async {
     emit(state.copyWith(status: OngoingCallStatus.ending));
 
-    final endSessionUseCase = CallOperationsServiceLocator.instance.endSessionUseCase;
+    final endSessionUseCase =
+        CallOperationsServiceLocator.instance.endSessionUseCase;
     final result = await endSessionUseCase.call();
 
     if (isClosed) return;
@@ -333,10 +350,12 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
           debugPrint('Session could not be ended: ${failure.message}');
         }
         _handleError(CometChatException('ERR', failure.message, ''));
-        emit(state.copyWith(
-          status: OngoingCallStatus.error,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            status: OngoingCallStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
       },
       (_) {
         _closeCallScreen();
@@ -357,7 +376,8 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
     if (CallScreenOverlay.isShowing) {
       CallScreenOverlay.dismiss();
     } else {
-      final navigatorContext = CallNavigationContext.navigatorKey.currentContext;
+      final navigatorContext =
+          CallNavigationContext.navigatorKey.currentContext;
       if (navigatorContext != null && navigatorContext.mounted) {
         final navigator = Navigator.of(navigatorContext);
         if (navigator.canPop()) {
@@ -369,10 +389,13 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
 
   /// End the WebRTC session without navigation or state emission.
   Future<void> _endSessionQuietly() async {
-    final endSessionUseCase = CallOperationsServiceLocator.instance.endSessionUseCase;
+    final endSessionUseCase =
+        CallOperationsServiceLocator.instance.endSessionUseCase;
     final result = await endSessionUseCase.call();
     result.fold(
-      (failure) => developer.log('OngoingCallBloc: endSession quiet error: ${failure.message}'),
+      (failure) => developer.log(
+        'OngoingCallBloc: endSession quiet error: ${failure.message}',
+      ),
       (_) => developer.log('OngoingCallBloc: session ended quietly'),
     );
   }
@@ -383,11 +406,13 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
       if (error is CometChatException) {
         errorCallback!(error);
       } else if (error is CometChatCallsException) {
-        errorCallback!(CometChatException(
-          error.code,
-          error.message ?? 'Call error occurred',
-          error.details ?? '',
-        ));
+        errorCallback!(
+          CometChatException(
+            error.code,
+            error.message ?? 'Call error occurred',
+            error.details ?? '',
+          ),
+        );
       }
     }
   }

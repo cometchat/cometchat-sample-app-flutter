@@ -156,11 +156,7 @@ class _AttachmentOptionsOverlayState extends State<AttachmentOptionsOverlay>
     // raw parent value to Curve.transform() which asserts t ∈ [0, 1].
     // Instead, use a custom Animatable that clamps before applying the curve.
     _opacityAnimation = _animationController.drive(
-      _ClampedIntervalTween(
-        begin: 0.0,
-        end: 0.5,
-        curve: Curves.easeOut,
-      ),
+      _ClampedIntervalTween(begin: 0.0, end: 0.5, curve: Curves.easeOut),
     );
 
     // Scale reads directly from controller value (spring drives it to ~1.0)
@@ -173,7 +169,8 @@ class _AttachmentOptionsOverlayState extends State<AttachmentOptionsOverlay>
     const spring = SpringDescription(
       mass: 1.0,
       stiffness: 200.0, // higher = faster
-      damping: 18.0,    // lower = more overshoot; 18 gives ~15% overshoot, smooth settle
+      damping:
+          18.0, // lower = more overshoot; 18 gives ~15% overshoot, smooth settle
     );
     final simulation = SpringSimulation(spring, 0.0, 1.0, 0.0);
     _animationController.animateWith(simulation);
@@ -182,19 +179,22 @@ class _AttachmentOptionsOverlayState extends State<AttachmentOptionsOverlay>
   @override
   void didUpdateWidget(AttachmentOptionsOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Update animation duration if changed
     if (oldWidget.animationDuration != widget.animationDuration) {
       _animationController.duration = widget.animationDuration;
     }
-    
+
     // Handle visibility changes
     if (oldWidget.isVisible != widget.isVisible) {
       if (widget.isVisible) {
         _runSpringOpen();
       } else {
-        _animationController.animateTo(0.0, curve: Curves.easeIn,
-            duration: const Duration(milliseconds: 150));
+        _animationController.animateTo(
+          0.0,
+          curve: Curves.easeIn,
+          duration: const Duration(milliseconds: 150),
+        );
       }
     }
   }
@@ -220,38 +220,48 @@ class _AttachmentOptionsOverlayState extends State<AttachmentOptionsOverlay>
         widget.typography ?? CometChatThemeHelper.getTypography(context);
 
     // Merge provided style with defaults
-    final effectiveStyle = CometChatAttachmentOptionSheetStyle.of(context).merge(widget.style);
+    final effectiveStyle = CometChatAttachmentOptionSheetStyle.of(
+      context,
+    ).merge(widget.style);
 
     // Calculate effective dimensions - use IntrinsicWidth to fit content
-    final effectiveMaxHeight = widget.maxHeight ?? _calculateDefaultMaxHeight(context);
+    final effectiveMaxHeight =
+        widget.maxHeight ?? _calculateDefaultMaxHeight(context);
 
     // Use FadeTransition and ScaleTransition for proper layout during animation
     return FadeTransition(
       opacity: _opacityAnimation,
       child: ScaleTransition(
         scale: _scaleAnimation,
-        alignment: Alignment.bottomLeft, // Scale from bottom since overlay appears above
+        alignment: Alignment
+            .bottomLeft, // Scale from bottom since overlay appears above
         child: Semantics(
           label: 'Attachment options menu opened',
           child: IntrinsicWidth(
             child: Material(
               elevation: 12.0,
-              shadowColor: effectiveColorPalette.black?.withValues(alpha: 0.35) ??
+              shadowColor:
+                  effectiveColorPalette.black?.withValues(alpha: 0.35) ??
                   Colors.black.withValues(alpha: 0.35),
               borderRadius: _getBorderRadius(effectiveStyle, effectiveSpacing),
-              color: effectiveStyle.backgroundColor ??
+              color:
+                  effectiveStyle.backgroundColor ??
                   effectiveColorPalette.background1 ??
                   Colors.white,
               child: Container(
-                constraints: BoxConstraints(
-                  maxHeight: effectiveMaxHeight,
-                ),
+                constraints: BoxConstraints(maxHeight: effectiveMaxHeight),
                 decoration: BoxDecoration(
                   border: effectiveStyle.border,
-                  borderRadius: _getBorderRadius(effectiveStyle, effectiveSpacing),
+                  borderRadius: _getBorderRadius(
+                    effectiveStyle,
+                    effectiveSpacing,
+                  ),
                 ),
                 child: ClipRRect(
-                  borderRadius: _getBorderRadius(effectiveStyle, effectiveSpacing),
+                  borderRadius: _getBorderRadius(
+                    effectiveStyle,
+                    effectiveSpacing,
+                  ),
                   child: _buildActionItemsList(
                     effectiveColorPalette,
                     effectiveSpacing,
@@ -296,7 +306,9 @@ class _AttachmentOptionsOverlayState extends State<AttachmentOptionsOverlay>
     // Use SingleChildScrollView + Column instead of ListView.builder
     // because IntrinsicWidth cannot compute intrinsic dimensions for viewports
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(vertical: spacing.padding2 ?? AttachmentOptionsOverlay._verticalPadding),
+      padding: EdgeInsets.symmetric(
+        vertical: spacing.padding2 ?? AttachmentOptionsOverlay._verticalPadding,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -326,7 +338,8 @@ class _AttachmentOptionsOverlayState extends State<AttachmentOptionsOverlay>
   ) {
     final iconColor = itemStyle.iconColor ?? colorPalette.iconSecondary;
     final titleColor = itemStyle.titleColor ?? colorPalette.textPrimary;
-    final titleTextStyle = itemStyle.titleTextStyle ??
+    final titleTextStyle =
+        itemStyle.titleTextStyle ??
         typography.caption1?.medium ??
         const TextStyle(fontSize: 13, fontWeight: FontWeight.w500);
 
@@ -337,9 +350,7 @@ class _AttachmentOptionsOverlayState extends State<AttachmentOptionsOverlay>
         onTap: () => widget.onItemSelected(item),
         child: Container(
           height: AttachmentOptionsOverlay._itemHeight,
-          padding: EdgeInsets.symmetric(
-            horizontal: spacing.padding3 ?? 12.0,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: spacing.padding3 ?? 12.0),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

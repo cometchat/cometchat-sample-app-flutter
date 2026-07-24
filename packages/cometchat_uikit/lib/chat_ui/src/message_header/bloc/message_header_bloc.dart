@@ -69,12 +69,13 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
     GetMessageHeaderLoggedInUserUseCase? getLoggedInUserUseCase,
     this.usersStatusVisibility = true,
     this.disableSDKListeners = false,
-  })  : getUserUseCase = getUserUseCase ?? _getServiceLocator().getUserUseCase,
-        getGroupUseCase =
-            getGroupUseCase ?? _getServiceLocator().getGroupUseCase,
-        getLoggedInUserUseCase =
-            getLoggedInUserUseCase ?? _getServiceLocator().getLoggedInUserUseCase,
-        super(const MessageHeaderState()) {
+  }) : getUserUseCase = getUserUseCase ?? _getServiceLocator().getUserUseCase,
+       getGroupUseCase =
+           getGroupUseCase ?? _getServiceLocator().getGroupUseCase,
+       getLoggedInUserUseCase =
+           getLoggedInUserUseCase ??
+           _getServiceLocator().getLoggedInUserUseCase,
+       super(const MessageHeaderState()) {
     // Register event handlers
     on<SetUser>(_onSetUser);
     on<SetGroup>(_onSetGroup);
@@ -147,9 +148,7 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
     // Connection listener
     CometChat.addConnectionListener(
       _connectionListenerKey,
-      _MessageHeaderConnectionListener(
-        onConnectedCallback: _handleConnected,
-      ),
+      _MessageHeaderConnectionListener(onConnectedCallback: _handleConnected),
     );
 
     // CC UI Event listeners
@@ -183,39 +182,47 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
 
   /// Set user for the message header
   void _onSetUser(SetUser event, Emitter<MessageHeaderState> emit) {
-    emit(state.copyWith(
-      status: MessageHeaderStatus.loaded,
-      user: event.user,
-      group: null,
-      memberCount: 0,
-      isTyping: false,
-      clearTypingUser: true,
-    ));
+    emit(
+      state.copyWith(
+        status: MessageHeaderStatus.loaded,
+        user: event.user,
+        group: null,
+        memberCount: 0,
+        isTyping: false,
+        clearTypingUser: true,
+      ),
+    );
     _typingNotifier.value = [];
   }
 
   /// Handle internal logged in user initialization
   void _onInitializeLoggedInUser(
-      InitializeLoggedInUser event, Emitter<MessageHeaderState> emit) {
+    InitializeLoggedInUser event,
+    Emitter<MessageHeaderState> emit,
+  ) {
     emit(state.copyWith(loggedInUser: event.user));
   }
 
   /// Set group for the message header
   void _onSetGroup(SetGroup event, Emitter<MessageHeaderState> emit) {
-    emit(state.copyWith(
-      status: MessageHeaderStatus.loaded,
-      user: null,
-      group: event.group,
-      memberCount: event.group.membersCount,
-      isTyping: false,
-      clearTypingUser: true,
-    ));
+    emit(
+      state.copyWith(
+        status: MessageHeaderStatus.loaded,
+        user: null,
+        group: event.group,
+        memberCount: event.group.membersCount,
+        isTyping: false,
+        clearTypingUser: true,
+      ),
+    );
     _typingNotifier.value = [];
   }
 
   /// Refresh user data from SDK
   Future<void> _onRefreshUser(
-      RefreshUser event, Emitter<MessageHeaderState> emit) async {
+    RefreshUser event,
+    Emitter<MessageHeaderState> emit,
+  ) async {
     if (state.user == null) return;
 
     emit(state.copyWith(status: MessageHeaderStatus.loading));
@@ -223,21 +230,24 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
     final result = await getUserUseCase(state.user!.uid);
 
     if (result is Success<User>) {
-      emit(state.copyWith(
-        status: MessageHeaderStatus.loaded,
-        user: result.data,
-      ));
+      emit(
+        state.copyWith(status: MessageHeaderStatus.loaded, user: result.data),
+      );
     } else if (result is Failure) {
-      emit(state.copyWith(
-        status: MessageHeaderStatus.error,
-        errorMessage: result.message,
-      ));
+      emit(
+        state.copyWith(
+          status: MessageHeaderStatus.error,
+          errorMessage: result.message,
+        ),
+      );
     }
   }
 
   /// Refresh group data from SDK
   Future<void> _onRefreshGroup(
-      RefreshGroup event, Emitter<MessageHeaderState> emit) async {
+    RefreshGroup event,
+    Emitter<MessageHeaderState> emit,
+  ) async {
     if (state.group == null) return;
 
     emit(state.copyWith(status: MessageHeaderStatus.loading));
@@ -245,22 +255,28 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
     final result = await getGroupUseCase(state.group!.guid);
 
     if (result is Success<Group>) {
-      emit(state.copyWith(
-        status: MessageHeaderStatus.loaded,
-        group: result.data,
-        memberCount: result.data.membersCount,
-      ));
+      emit(
+        state.copyWith(
+          status: MessageHeaderStatus.loaded,
+          group: result.data,
+          memberCount: result.data.membersCount,
+        ),
+      );
     } else if (result is Failure) {
-      emit(state.copyWith(
-        status: MessageHeaderStatus.error,
-        errorMessage: result.message,
-      ));
+      emit(
+        state.copyWith(
+          status: MessageHeaderStatus.error,
+          errorMessage: result.message,
+        ),
+      );
     }
   }
 
   /// Update user status (online/offline)
   void _onUpdateUserStatus(
-      UpdateUserStatus event, Emitter<MessageHeaderState> emit) {
+    UpdateUserStatus event,
+    Emitter<MessageHeaderState> emit,
+  ) {
     if (state.user == null || state.user!.uid != event.userId) {
       return;
     }
@@ -285,7 +301,9 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
 
   /// Update group member count
   void _onUpdateGroupMemberCount(
-      UpdateGroupMemberCount event, Emitter<MessageHeaderState> emit) {
+    UpdateGroupMemberCount event,
+    Emitter<MessageHeaderState> emit,
+  ) {
     if (state.group == null || state.group!.guid != event.groupId) return;
 
     emit(state.copyWith(memberCount: event.memberCount));
@@ -293,13 +311,14 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
 
   /// Update group details
   void _onUpdateGroupDetails(
-      UpdateGroupDetails event, Emitter<MessageHeaderState> emit) {
+    UpdateGroupDetails event,
+    Emitter<MessageHeaderState> emit,
+  ) {
     if (state.group == null || state.group!.guid != event.group.guid) return;
 
-    emit(state.copyWith(
-      group: event.group,
-      memberCount: event.group.membersCount,
-    ));
+    emit(
+      state.copyWith(group: event.group, memberCount: event.group.membersCount),
+    );
   }
 
   /// Handle typing started
@@ -321,15 +340,13 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
     }
 
     if (isRelevant) {
-      emit(state.copyWith(
-        isTyping: true,
-        typingUser: typingIndicator.sender,
-      ));
+      emit(state.copyWith(isTyping: true, typingUser: typingIndicator.sender));
 
       // Update ValueNotifier for isolated rebuilds
       final currentTyping = List<TypingIndicator>.from(_typingNotifier.value);
-      final existingIndex = currentTyping
-          .indexWhere((t) => t.sender.uid == typingIndicator.sender.uid);
+      final existingIndex = currentTyping.indexWhere(
+        (t) => t.sender.uid == typingIndicator.sender.uid,
+      );
       if (existingIndex == -1) {
         currentTyping.add(typingIndicator);
         _typingNotifier.value = currentTyping;
@@ -357,8 +374,9 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
     if (isRelevant) {
       // Update ValueNotifier
       final currentTyping = List<TypingIndicator>.from(_typingNotifier.value);
-      currentTyping
-          .removeWhere((t) => t.sender.uid == typingIndicator.sender.uid);
+      currentTyping.removeWhere(
+        (t) => t.sender.uid == typingIndicator.sender.uid,
+      );
       _typingNotifier.value = currentTyping;
 
       // Update state
@@ -416,7 +434,9 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
 
   /// Handle group ownership changed
   void _onGroupOwnershipChanged(
-      GroupOwnershipChanged event, Emitter<MessageHeaderState> emit) {
+    GroupOwnershipChanged event,
+    Emitter<MessageHeaderState> emit,
+  ) {
     if (state.group == null || state.group!.guid != event.group.guid) return;
 
     emit(state.copyWith(group: event.group));
@@ -440,68 +460,91 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
 
   void _handleUserOnline(User user) {
     if (!isClosed) {
-      add(UpdateUserStatus(
-        userId: user.uid,
-        status: UserStatusConstants.online,
-      ));
+      add(
+        UpdateUserStatus(userId: user.uid, status: UserStatusConstants.online),
+      );
     }
   }
 
   void _handleUserOffline(User user) {
     if (!isClosed) {
-      add(UpdateUserStatus(
-        userId: user.uid,
-        status: UserStatusConstants.offline,
-        lastActiveAt: user.lastActiveAt,
-      ));
+      add(
+        UpdateUserStatus(
+          userId: user.uid,
+          status: UserStatusConstants.offline,
+          lastActiveAt: user.lastActiveAt,
+        ),
+      );
     }
   }
 
   void _handleGroupMemberJoined(Action action, User joinedUser, Group group) {
     if (!isClosed) {
-      add(UpdateGroupMemberCount(
-        groupId: group.guid,
-        memberCount: group.membersCount,
-      ));
+      add(
+        UpdateGroupMemberCount(
+          groupId: group.guid,
+          memberCount: group.membersCount,
+        ),
+      );
     }
   }
 
   void _handleGroupMemberLeft(Action action, User leftUser, Group group) {
     if (!isClosed) {
-      add(UpdateGroupMemberCount(
-        groupId: group.guid,
-        memberCount: group.membersCount,
-      ));
+      add(
+        UpdateGroupMemberCount(
+          groupId: group.guid,
+          memberCount: group.membersCount,
+        ),
+      );
     }
   }
 
   void _handleGroupMemberKicked(
-      Action action, User kickedUser, User kickedBy, Group group) {
+    Action action,
+    User kickedUser,
+    User kickedBy,
+    Group group,
+  ) {
     if (!isClosed) {
-      add(UpdateGroupMemberCount(
-        groupId: group.guid,
-        memberCount: group.membersCount,
-      ));
+      add(
+        UpdateGroupMemberCount(
+          groupId: group.guid,
+          memberCount: group.membersCount,
+        ),
+      );
     }
   }
 
   void _handleGroupMemberBanned(
-      Action action, User bannedUser, User bannedBy, Group group) {
+    Action action,
+    User bannedUser,
+    User bannedBy,
+    Group group,
+  ) {
     if (!isClosed) {
-      add(UpdateGroupMemberCount(
-        groupId: group.guid,
-        memberCount: group.membersCount,
-      ));
+      add(
+        UpdateGroupMemberCount(
+          groupId: group.guid,
+          memberCount: group.membersCount,
+        ),
+      );
     }
   }
 
   void _handleMemberAddedToGroup(
-      Action action, User addedBy, User userAdded, Group group) {
+    Action action,
+    User addedBy,
+    User userAdded,
+    Group group,
+  ) {
     if (!isClosed) {
-      add(UpdateGroupMemberCount(
-        groupId: group.guid,
-        memberCount: group.membersCount,
-      ));
+      add(
+        UpdateGroupMemberCount(
+          groupId: group.guid,
+          memberCount: group.membersCount,
+        ),
+      );
     }
   }
 
@@ -549,32 +592,50 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
 
   // CC Event callbacks
   void _handleCCGroupMemberAdded(
-      List<Action> messages, List<User> usersAdded, Group group, User addedBy) {
+    List<Action> messages,
+    List<User> usersAdded,
+    Group group,
+    User addedBy,
+  ) {
     if (!isClosed && state.group != null && state.group!.guid == group.guid) {
-      add(UpdateGroupMemberCount(
-        groupId: group.guid,
-        memberCount: group.membersCount,
-      ));
+      add(
+        UpdateGroupMemberCount(
+          groupId: group.guid,
+          memberCount: group.membersCount,
+        ),
+      );
     }
   }
 
   void _handleCCGroupMemberKicked(
-      Action message, User kickedUser, User kickedBy, Group group) {
+    Action message,
+    User kickedUser,
+    User kickedBy,
+    Group group,
+  ) {
     if (!isClosed) {
-      add(UpdateGroupMemberCount(
-        groupId: group.guid,
-        memberCount: group.membersCount,
-      ));
+      add(
+        UpdateGroupMemberCount(
+          groupId: group.guid,
+          memberCount: group.membersCount,
+        ),
+      );
     }
   }
 
   void _handleCCGroupMemberBanned(
-      Action message, User bannedUser, User bannedBy, Group group) {
+    Action message,
+    User bannedUser,
+    User bannedBy,
+    Group group,
+  ) {
     if (!isClosed) {
-      add(UpdateGroupMemberCount(
-        groupId: group.guid,
-        memberCount: group.membersCount,
-      ));
+      add(
+        UpdateGroupMemberCount(
+          groupId: group.guid,
+          memberCount: group.membersCount,
+        ),
+      );
     }
   }
 
@@ -614,7 +675,6 @@ class MessageHeaderBloc extends Bloc<MessageHeaderEvent, MessageHeaderState> {
     return super.close();
   }
 }
-
 
 // ============================================================
 // SDK LISTENER CLASSES
@@ -670,7 +730,7 @@ class _MessageHeaderGroupListener with GroupListener {
   final void Function(Action, User, User, Group) onGroupMemberBannedCallback;
   final void Function(Action, User, User, Group) onMemberAddedToGroupCallback;
   final void Function(Action, User, User, String, String, Group)
-      onGroupMemberScopeChangedCallback;
+  onGroupMemberScopeChangedCallback;
   final String? loggedInUserId;
 
   _MessageHeaderGroupListener({
@@ -695,19 +755,31 @@ class _MessageHeaderGroupListener with GroupListener {
 
   @override
   void onGroupMemberKicked(
-      Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     onGroupMemberKickedCallback(action, kickedUser, kickedBy, kickedFrom);
   }
 
   @override
   void onGroupMemberBanned(
-      Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     onGroupMemberBannedCallback(action, bannedUser, bannedBy, bannedFrom);
   }
 
   @override
   void onMemberAddedToGroup(
-      Action action, User addedby, User userAdded, Group addedTo) {
+    Action action,
+    User addedby,
+    User userAdded,
+    Group addedTo,
+  ) {
     onMemberAddedToGroupCallback(action, addedby, userAdded, addedTo);
   }
 
@@ -735,9 +807,7 @@ class _MessageHeaderGroupListener with GroupListener {
 class _MessageHeaderConnectionListener with ConnectionListener {
   final void Function() onConnectedCallback;
 
-  _MessageHeaderConnectionListener({
-    required this.onConnectedCallback,
-  });
+  _MessageHeaderConnectionListener({required this.onConnectedCallback});
 
   @override
   void onConnected() {
@@ -748,7 +818,7 @@ class _MessageHeaderConnectionListener with ConnectionListener {
 /// CC Group event listener
 class _CCMessageHeaderGroupEventListener with CometChatGroupEventListener {
   final void Function(List<Action>, List<User>, Group, User)
-      onCCGroupMemberAddedCallback;
+  onCCGroupMemberAddedCallback;
   final void Function(Action, User, User, Group) onCCGroupMemberKickedCallback;
   final void Function(Action, User, User, Group) onCCGroupMemberBannedCallback;
   final void Function(Group, GroupMember) onCCOwnershipChangedCallback;
@@ -762,19 +832,31 @@ class _CCMessageHeaderGroupEventListener with CometChatGroupEventListener {
 
   @override
   void ccGroupMemberAdded(
-      List<Action> messages, List<User> usersAdded, Group groupAddedIn, User addedBy) {
+    List<Action> messages,
+    List<User> usersAdded,
+    Group groupAddedIn,
+    User addedBy,
+  ) {
     onCCGroupMemberAddedCallback(messages, usersAdded, groupAddedIn, addedBy);
   }
 
   @override
   void ccGroupMemberKicked(
-      Action message, User kickedUser, User kickedBy, Group kickedFrom) {
+    Action message,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     onCCGroupMemberKickedCallback(message, kickedUser, kickedBy, kickedFrom);
   }
 
   @override
   void ccGroupMemberBanned(
-      Action message, User bannedUser, User bannedBy, Group bannedFrom) {
+    Action message,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     onCCGroupMemberBannedCallback(message, bannedUser, bannedBy, bannedFrom);
   }
 

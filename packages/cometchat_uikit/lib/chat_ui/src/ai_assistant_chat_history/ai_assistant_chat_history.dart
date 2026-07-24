@@ -1,4 +1,6 @@
 /// AI Assistant Chat History module barrel export
+library;
+
 export 'bloc/bloc.dart';
 export 'data/data.dart';
 export 'di/di.dart';

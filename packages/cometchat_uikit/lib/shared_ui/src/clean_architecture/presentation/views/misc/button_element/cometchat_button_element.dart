@@ -17,12 +17,13 @@ import '../../../../../../cometchat_uikit_shared.dart';
 ///  ```
 ///
 class CometChatButtonElement extends StatefulWidget {
-  const CometChatButtonElement(
-      {super.key,
-      required this.text,
-      this.buttonStyle,
-      this.onTap,
-      this.loadingStateChildView});
+  const CometChatButtonElement({
+    super.key,
+    required this.text,
+    this.buttonStyle,
+    this.onTap,
+    this.loadingStateChildView,
+  });
 
   ///[text] is a string which sets the text for the button
   final String text;
@@ -73,29 +74,31 @@ class _CometChatButtonElementState extends State<CometChatButtonElement> {
           });
         },
         child: Container(
-            padding: const EdgeInsets.all(8.0),
-            height: (widget.buttonStyle as BaseStyles?)?.height,
-            width: (widget.buttonStyle as BaseStyles?)?.width,
-            decoration: BoxDecoration(
-              color: (widget.buttonStyle as BaseStyles?)?.background,
-              gradient: (widget.buttonStyle as BaseStyles?)?.gradient,
-              border: (widget.buttonStyle as BaseStyles?)?.border,
-              borderRadius: (widget.buttonStyle as BaseStyles?)?.borderRadius ??
-                  BorderRadius.circular(4),
-            ),
-            child: isLoading == true
-                ? Center(
-                    child: Image.asset(
-                      AssetConstants.spinner,
-                      package: UIConstants.packageName,
-                    ),
-                  )
-                : Center(
-                    child: Text(
-                      widget.text,
-                      style: widget.buttonStyle?.buttonTextStyle,
-                    ),
-                  )),
+          padding: const EdgeInsets.all(8.0),
+          height: (widget.buttonStyle as BaseStyles?)?.height,
+          width: (widget.buttonStyle as BaseStyles?)?.width,
+          decoration: BoxDecoration(
+            color: (widget.buttonStyle as BaseStyles?)?.background,
+            gradient: (widget.buttonStyle as BaseStyles?)?.gradient,
+            border: (widget.buttonStyle as BaseStyles?)?.border,
+            borderRadius:
+                (widget.buttonStyle as BaseStyles?)?.borderRadius ??
+                BorderRadius.circular(4),
+          ),
+          child: isLoading == true
+              ? Center(
+                  child: Image.asset(
+                    AssetConstants.spinner,
+                    package: UIConstants.packageName,
+                  ),
+                )
+              : Center(
+                  child: Text(
+                    widget.text,
+                    style: widget.buttonStyle?.buttonTextStyle,
+                  ),
+                ),
+        ),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-import 'package:cometchat_chat_uikit/chat_ui/src/conversations/widgets/conversations_loading_view.dart';
 
 Widget _wrap(Widget child) {
   return MaterialApp(
@@ -38,31 +37,28 @@ void main() {
       },
     );
 
-    testWidgets(
-      'renders customView when provided and skips the shimmer',
-      (tester) async {
-        await tester.pumpWidget(
-          _wrap(
-            Builder(
-              builder: (context) {
-                return ConversationsLoadingView(
-                  colorPalette: CometChatThemeHelper.getColorPalette(context),
-                  spacing: CometChatThemeHelper.getSpacing(context),
-                  typography: CometChatThemeHelper.getTypography(context),
-                  customView: (_) => const Text(
-                    'Loading…',
-                    key: Key('custom-loading'),
-                  ),
-                );
-              },
-            ),
+    testWidgets('renders customView when provided and skips the shimmer', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          Builder(
+            builder: (context) {
+              return ConversationsLoadingView(
+                colorPalette: CometChatThemeHelper.getColorPalette(context),
+                spacing: CometChatThemeHelper.getSpacing(context),
+                typography: CometChatThemeHelper.getTypography(context),
+                customView: (_) =>
+                    const Text('Loading…', key: Key('custom-loading')),
+              );
+            },
           ),
-        );
-        await tester.pump();
+        ),
+      );
+      await tester.pump();
 
-        expect(find.byKey(const Key('custom-loading')), findsOneWidget);
-        expect(find.byType(ListView), findsNothing);
-      },
-    );
+      expect(find.byKey(const Key('custom-loading')), findsOneWidget);
+      expect(find.byType(ListView), findsNothing);
+    });
   });
 }

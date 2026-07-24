@@ -75,14 +75,18 @@ class _CometChatReceiptState extends State<CometChatReceipt> {
     super.didChangeDependencies();
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
-      _receiptsStyle = CometChatThemeHelper.getTheme<CometChatMessageReceiptStyle>(
-              context: context, defaultTheme: CometChatMessageReceiptStyle.of)
-          .merge(widget.style);
+      _receiptsStyle =
+          CometChatThemeHelper.getTheme<CometChatMessageReceiptStyle>(
+            context: context,
+            defaultTheme: CometChatMessageReceiptStyle.of,
+          ).merge(widget.style);
       // Use passed values OR fallback to lookup (for standalone usage)
-      _colorPalette = widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+      _colorPalette =
+          widget.colorPalette ?? CometChatThemeHelper.getColorPalette(context);
       _themeInitialized = true;
     }
   }
@@ -92,12 +96,15 @@ class _CometChatReceiptState extends State<CometChatReceipt> {
     super.didUpdateWidget(oldWidget);
     // Update style if it changed
     if (widget.style != oldWidget.style) {
-      _receiptsStyle = CometChatThemeHelper.getTheme<CometChatMessageReceiptStyle>(
-              context: context, defaultTheme: CometChatMessageReceiptStyle.of)
-          .merge(widget.style);
+      _receiptsStyle =
+          CometChatThemeHelper.getTheme<CometChatMessageReceiptStyle>(
+            context: context,
+            defaultTheme: CometChatMessageReceiptStyle.of,
+          ).merge(widget.style);
     }
     // Update cached theme values if they changed
-    if (widget.colorPalette != oldWidget.colorPalette && widget.colorPalette != null) {
+    if (widget.colorPalette != oldWidget.colorPalette &&
+        widget.colorPalette != null) {
       _colorPalette = widget.colorPalette;
     }
   }
@@ -108,28 +115,32 @@ class _CometChatReceiptState extends State<CometChatReceipt> {
     final colorPalette = _colorPalette!;
 
     late Widget receiptWidget;
-    receiptWidget = widget.waitIcon ??
+    receiptWidget =
+        widget.waitIcon ??
         Icon(
           Icons.schedule,
           color: receiptsStyle.waitIconColor ?? colorPalette.iconSecondary,
           size: widget.size,
         );
     if (widget.status == ReceiptStatus.error) {
-      receiptWidget = widget.errorIcon ??
+      receiptWidget =
+          widget.errorIcon ??
           Icon(
             Icons.error_outline_outlined,
             color: receiptsStyle.errorIconColor ?? colorPalette.error,
             size: widget.size,
           );
     } else if (widget.status == ReceiptStatus.read) {
-      receiptWidget = widget.readIcon ??
+      receiptWidget =
+          widget.readIcon ??
           Icon(
             Icons.done_all,
             color: receiptsStyle.readIconColor ?? colorPalette.messageSeen,
             size: widget.size,
           );
     } else if (widget.status == ReceiptStatus.delivered) {
-      receiptWidget = widget.deliveredIcon ??
+      receiptWidget =
+          widget.deliveredIcon ??
           Icon(
             Icons.done_all,
             color:
@@ -137,14 +148,16 @@ class _CometChatReceiptState extends State<CometChatReceipt> {
             size: widget.size,
           );
     } else if (widget.status == ReceiptStatus.sent) {
-      receiptWidget = widget.sentIcon ??
+      receiptWidget =
+          widget.sentIcon ??
           Icon(
             Icons.check,
             color: receiptsStyle.sentIconColor ?? colorPalette.iconSecondary,
             size: widget.size,
           );
     } else if (widget.status == ReceiptStatus.waiting) {
-      receiptWidget = widget.waitIcon ??
+      receiptWidget =
+          widget.waitIcon ??
           Icon(
             Icons.schedule,
             color: receiptsStyle.waitIconColor ?? colorPalette.iconSecondary,

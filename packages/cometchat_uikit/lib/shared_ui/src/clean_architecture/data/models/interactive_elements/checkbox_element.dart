@@ -1,18 +1,20 @@
-import '../../../../../cometchat_uikit_shared.dart' show UIElementTypeConstants, ModelFieldConstants;
+import '../../../../../cometchat_uikit_shared.dart'
+    show UIElementTypeConstants, ModelFieldConstants;
 import 'base_input_element.dart';
 import 'option_element.dart';
+
 /// Represents a checkbox model class , used to draw checkbox .
 class CheckBoxElement extends BaseInputElement<List<String>> {
-  CheckBoxElement(
-      {super.elementType = UIElementTypeConstants.checkbox,
-      required super.elementId,
-      required this.label,
-      required this.options,
-      this.isChecked,
-      super.defaultValue,
-      List<String>? response,
-      bool? optional})
-      : super(optional: optional ?? true);
+  CheckBoxElement({
+    super.elementType = UIElementTypeConstants.checkbox,
+    required super.elementId,
+    required this.label,
+    required this.options,
+    this.isChecked,
+    super.defaultValue,
+    List<String>? response,
+    bool? optional,
+  }) : super(optional: optional ?? true);
 
   String label;
   List<OptionElement> options;
@@ -23,8 +25,9 @@ class CheckBoxElement extends BaseInputElement<List<String>> {
     Map<String, dynamic> map = super.toMap();
     map[ModelFieldConstants.optional] = optional;
     map[ModelFieldConstants.label] = label;
-    map[ModelFieldConstants.options] =
-        options.map((option) => option.toMap()).toList();
+    map[ModelFieldConstants.options] = options
+        .map((option) => option.toMap())
+        .toList();
     return map;
   }
 
@@ -50,4 +53,4 @@ class CheckBoxElement extends BaseInputElement<List<String>> {
   }
 }
 
-T? cast<T>(x) => x is T ? x : null;
+T? cast<T>(Object? x) => x is T ? x : null;

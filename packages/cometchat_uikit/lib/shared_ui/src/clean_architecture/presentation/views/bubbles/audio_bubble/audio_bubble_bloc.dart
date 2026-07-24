@@ -10,11 +10,7 @@ class InitializeAudioEvent extends AudioBubbleEvent {
   final String? audioUrl;
   final String? localPath;
 
-  InitializeAudioEvent({
-    required this.id,
-    this.audioUrl,
-    this.localPath,
-  });
+  InitializeAudioEvent({required this.id, this.audioUrl, this.localPath});
 }
 
 class PlayAudioEvent extends AudioBubbleEvent {}
@@ -60,12 +56,12 @@ abstract class AudioBubbleBlocState {
 
 class AudioBubbleInitial extends AudioBubbleBlocState {
   const AudioBubbleInitial()
-      : super(
-          playState: PlayStates.init,
-          isInitializing: false,
-          currentPosition: Duration.zero,
-          totalDuration: Duration.zero,
-        );
+    : super(
+        playState: PlayStates.init,
+        isInitializing: false,
+        currentPosition: Duration.zero,
+        totalDuration: Duration.zero,
+      );
 }
 
 class AudioBubbleLoaded extends AudioBubbleBlocState {
@@ -122,12 +118,14 @@ class AudioBubbleBloc extends Bloc<AudioBubbleEvent, AudioBubbleBlocState> {
     });
 
     // Emit initial state
-    emit(AudioBubbleLoaded(
-      playState: _audioState!.playState,
-      isInitializing: _audioState!.isInitializing,
-      currentPosition: _audioState!.currentPosition,
-      totalDuration: _audioState!.totalDuration ?? Duration.zero,
-    ));
+    emit(
+      AudioBubbleLoaded(
+        playState: _audioState!.playState,
+        isInitializing: _audioState!.isInitializing,
+        currentPosition: _audioState!.currentPosition,
+        totalDuration: _audioState!.totalDuration ?? Duration.zero,
+      ),
+    );
   }
 
   Future<void> _onPlay(
@@ -156,12 +154,16 @@ class AudioBubbleBloc extends Bloc<AudioBubbleEvent, AudioBubbleBlocState> {
     Emitter<AudioBubbleBlocState> emit,
   ) {
     if (state is AudioBubbleLoaded) {
-      emit((state as AudioBubbleLoaded).copyWith(
-        playState: event.update.playState,
-        isInitializing: event.update.isInitializing,
-        currentPosition: event.update.currentPosition,
-        totalDuration: event.update.totalDuration ?? (state as AudioBubbleLoaded).totalDuration,
-      ));
+      emit(
+        (state as AudioBubbleLoaded).copyWith(
+          playState: event.update.playState,
+          isInitializing: event.update.isInitializing,
+          currentPosition: event.update.currentPosition,
+          totalDuration:
+              event.update.totalDuration ??
+              (state as AudioBubbleLoaded).totalDuration,
+        ),
+      );
     }
   }
 

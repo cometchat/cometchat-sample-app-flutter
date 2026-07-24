@@ -18,14 +18,16 @@ import '../../../../../../cometchat_uikit_shared.dart';
 ///  ```
 ///
 class CometChatActionBubble extends StatefulWidget {
-  const CometChatActionBubble(
-      {super.key,
-      this.message,
-      required this.text,
-      this.style,
-      this.leadingIcon,
-        this.padding, this.height, this.width
-      });
+  const CometChatActionBubble({
+    super.key,
+    this.message,
+    required this.text,
+    this.style,
+    this.leadingIcon,
+    this.padding,
+    this.height,
+    this.width,
+  });
 
   ///[message] action message object
   final String? message;
@@ -57,7 +59,7 @@ class _CometChatActionBubbleState extends State<CometChatActionBubble> {
   late CometChatColorPalette colorPalette;
   late CometChatSpacing spacing;
   late CometChatTypography typography;
-  
+
   // Cached values to avoid MediaQuery in build()
   double _cachedMaxWidth = 300;
   bool _themeInitialized = false;
@@ -67,15 +69,17 @@ class _CometChatActionBubbleState extends State<CometChatActionBubble> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
       _cachedBrightness = currentBrightness;
       _themeInitialized = true;
       // Cache theme values
-      actionBubbleStyle = CometChatThemeHelper.getTheme<CometChatActionBubbleStyle>(
-        context: context,
-        defaultTheme: CometChatActionBubbleStyle.of
-      ).merge(widget.style);
+      actionBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatActionBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatActionBubbleStyle.of,
+          ).merge(widget.style);
       colorPalette = CometChatThemeHelper.getColorPalette(context);
       spacing = CometChatThemeHelper.getSpacing(context);
       typography = CometChatThemeHelper.getTypography(context);
@@ -88,10 +92,11 @@ class _CometChatActionBubbleState extends State<CometChatActionBubble> {
   void didUpdateWidget(CometChatActionBubble oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.style != oldWidget.style && widget.style != null) {
-      actionBubbleStyle = CometChatThemeHelper.getTheme<CometChatActionBubbleStyle>(
-        context: context,
-        defaultTheme: CometChatActionBubbleStyle.of
-      ).merge(widget.style);
+      actionBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatActionBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatActionBubbleStyle.of,
+          ).merge(widget.style);
     }
   }
 
@@ -99,28 +104,31 @@ class _CometChatActionBubbleState extends State<CometChatActionBubble> {
   Widget build(BuildContext context) {
     String? text = widget.text;
     if (text == null) {
-      return const SizedBox(
-        height: 0,
-        width: 0,
-      );
+      return const SizedBox(height: 0, width: 0);
     }
 
     return Container(
       height: widget.height,
       width: widget.width,
-      constraints: BoxConstraints(
-        maxWidth: _cachedMaxWidth,
-      ),
-      padding: widget.padding ?? EdgeInsets.symmetric(vertical: spacing.padding1 ?? 0, horizontal: spacing.padding3 ?? 0),
+      constraints: BoxConstraints(maxWidth: _cachedMaxWidth),
+      padding:
+          widget.padding ??
+          EdgeInsets.symmetric(
+            vertical: spacing.padding1 ?? 0,
+            horizontal: spacing.padding3 ?? 0,
+          ),
       decoration: BoxDecoration(
-          color: actionBubbleStyle.backgroundColor ?? colorPalette.background2,
-          border: actionBubbleStyle.border ??
-              Border.all(
-                color: colorPalette.borderDefault ?? Colors.transparent,
-                width: 1
-              ),
-          borderRadius: actionBubbleStyle.borderRadius ?? BorderRadius.circular(spacing.radiusMax ?? 0),
-        ),
+        color: actionBubbleStyle.backgroundColor ?? colorPalette.background2,
+        border:
+            actionBubbleStyle.border ??
+            Border.all(
+              color: colorPalette.borderDefault ?? Colors.transparent,
+              width: 1,
+            ),
+        borderRadius:
+            actionBubbleStyle.borderRadius ??
+            BorderRadius.circular(spacing.radiusMax ?? 0),
+      ),
       alignment: Alignment.center,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -133,14 +141,13 @@ class _CometChatActionBubbleState extends State<CometChatActionBubble> {
               _sanitizeUtf16(text),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
-              style:
-                  TextStyle(
-                      fontSize: typography.caption1?.regular?.fontSize,
-                      fontWeight: typography.caption1?.regular?.fontWeight,
-                      fontFamily: typography.caption1?.regular?.fontFamily,
-                      color: colorPalette.textSecondary,
-                      letterSpacing: 0
-                  ).merge(actionBubbleStyle.textStyle),
+              style: TextStyle(
+                fontSize: typography.caption1?.regular?.fontSize,
+                fontWeight: typography.caption1?.regular?.fontWeight,
+                fontFamily: typography.caption1?.regular?.fontFamily,
+                color: colorPalette.textSecondary,
+                letterSpacing: 0,
+              ).merge(actionBubbleStyle.textStyle),
             ),
           ),
         ],

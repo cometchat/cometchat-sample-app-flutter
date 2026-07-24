@@ -11,7 +11,7 @@ import 'inline_audio_recorder_state.dart';
 import 'inline_audio_recorder_style.dart';
 import 'audio_waveform_visualizer.dart';
 import 'web_audio_recorder_stub.dart'
-    if (dart.library.html) 'web_audio_recorder.dart';
+    if (dart.library.js_interop) 'web_audio_recorder.dart';
 
 /// An inline audio recorder widget that replaces the text input in the composer
 /// when recording audio. Shows a waveform visualization with recording controls.
@@ -20,7 +20,7 @@ import 'web_audio_recorder_stub.dart'
 /// WhatsApp/iMessage style inline recording.
 ///
 /// Layout:
-/// [Trash] | [Record Indicator/Play] | [Waveform] | [Duration] | [Pause/Mic] | [Send]
+/// `Trash` | `Record Indicator/Play` | `Waveform` | [Duration] | `Pause/Mic` | `Send`
 ///
 /// Example usage:
 /// ```dart
@@ -47,7 +47,7 @@ class CometChatInlineAudioRecorder extends StatefulWidget {
   });
 
   /// Callback when audio is submitted with the file path
-  /// On web, [fileBytes] contains the audio data for upload
+  /// On web, `fileBytes` contains the audio data for upload
   final Function(String path, {List<int>? fileBytes})? onSubmit;
 
   /// Callback when recording is cancelled
@@ -115,7 +115,8 @@ class _CometChatInlineAudioRecorderState
   void didChangeDependencies() {
     super.didChangeDependencies();
     final currentBrightness = MediaQuery.platformBrightnessOf(context);
-    final brightnessChanged = _cachedBrightness != null && _cachedBrightness != currentBrightness;
+    final brightnessChanged =
+        _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
     _cachedBrightness = currentBrightness;
     _themeInitialized = true;
@@ -152,7 +153,11 @@ class _CometChatInlineAudioRecorderState
       if (started) {
         _bloc.add(const StartRecording());
       } else {
-        _bloc.add(const RecordingError('Failed to start recording — microphone permission may be denied'));
+        _bloc.add(
+          const RecordingError(
+            'Failed to start recording — microphone permission may be denied',
+          ),
+        );
       }
     } catch (e) {
       debugPrint('[InlineAudioRecorder] Web recording error: $e');
@@ -231,7 +236,9 @@ class _CometChatInlineAudioRecorderState
       final result = await _channel.invokeMethod('stopRecordingAudio', {});
 
       if (kDebugMode) {
-        debugPrint('[InlineAudioRecorder] Native recording stopped, path: $result');
+        debugPrint(
+          '[InlineAudioRecorder] Native recording stopped, path: $result',
+        );
       }
 
       if (result is String && result.isNotEmpty) {
@@ -264,11 +271,15 @@ class _CometChatInlineAudioRecorderState
   /// Extract waveform from the recorded file and update state
   Future<void> _extractAndSetWaveform() async {
     if (kDebugMode) {
-      debugPrint('[InlineAudioRecorder] Extracting waveform from recorded file...');
+      debugPrint(
+        '[InlineAudioRecorder] Extracting waveform from recorded file...',
+      );
     }
     final waveform = await _extractWaveform(sampleCount: 50);
     if (kDebugMode) {
-      debugPrint('[InlineAudioRecorder] Extracted waveform: ${waveform.length} samples');
+      debugPrint(
+        '[InlineAudioRecorder] Extracted waveform: ${waveform.length} samples',
+      );
     }
     if (waveform.isNotEmpty) {
       _bloc.add(SetExtractedWaveform(waveform));
@@ -339,7 +350,9 @@ class _CometChatInlineAudioRecorderState
   /// Seek to a specific position in the recorded audio
   Future<void> _seekRecordedAudio(int positionMs) async {
     try {
-      await _channel.invokeMethod('seekRecordedAudio', {'position': positionMs});
+      await _channel.invokeMethod('seekRecordedAudio', {
+        'position': positionMs,
+      });
       if (kDebugMode) {
         debugPrint('[InlineAudioRecorder] Seeked to position: $positionMs ms');
       }
@@ -357,7 +370,9 @@ class _CometChatInlineAudioRecorderState
         'sampleCount': sampleCount,
       });
       if (kDebugMode) {
-        debugPrint('[InlineAudioRecorder] Extracted waveform with ${(result as List?)?.length ?? 0} samples');
+        debugPrint(
+          '[InlineAudioRecorder] Extracted waveform with ${(result as List?)?.length ?? 0} samples',
+        );
       }
       if (result is List) {
         return result.map((e) => (e as num).toDouble()).toList();
@@ -390,12 +405,14 @@ class _CometChatInlineAudioRecorderState
             ),
             decoration: BoxDecoration(
               color: _style.backgroundColor ?? _colorPalette.background1,
-              border: _style.border ??
+              border:
+                  _style.border ??
                   Border.all(
                     color: _colorPalette.borderDefault ?? Colors.transparent,
                     width: 1,
                   ),
-              borderRadius: _style.borderRadius ??
+              borderRadius:
+                  _style.borderRadius ??
                   BorderRadius.circular(_spacing.radius2 ?? 8),
             ),
             child: Row(
@@ -411,9 +428,7 @@ class _CometChatInlineAudioRecorderState
                 SizedBox(width: _spacing.padding2 ?? 8),
 
                 // Waveform visualization
-                Expanded(
-                  child: _buildWaveform(state),
-                ),
+                Expanded(child: _buildWaveform(state)),
 
                 SizedBox(width: _spacing.padding2 ?? 8),
 
@@ -457,13 +472,16 @@ class _CometChatInlineAudioRecorderState
           height: 32,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _style.deleteButtonBackgroundColor ?? _colorPalette.transparent,
+            color:
+                _style.deleteButtonBackgroundColor ?? _colorPalette.transparent,
             shape: BoxShape.circle,
           ),
-          child: widget.deleteIcon ??
+          child:
+              widget.deleteIcon ??
               Icon(
                 Icons.delete_outline,
-                color: _style.deleteButtonIconColor ?? _colorPalette.iconSecondary,
+                color:
+                    _style.deleteButtonIconColor ?? _colorPalette.iconSecondary,
                 size: 26,
               ),
         ),
@@ -490,7 +508,8 @@ class _CometChatInlineAudioRecorderState
       height: 32,
       alignment: Alignment.center,
       child: _AnimatedRecordingDot(
-        color: _style.recordingIndicatorColor ?? _colorPalette.error ?? Colors.red,
+        color:
+            _style.recordingIndicatorColor ?? _colorPalette.error ?? Colors.red,
         size: 14,
       ),
     );
@@ -511,9 +530,9 @@ class _CometChatInlineAudioRecorderState
           } else {
             // Get current state from bloc
             final currentState = _bloc.state;
-            
+
             // Check if we should resume from current position or start fresh
-            if (currentState.currentPosition > Duration.zero && 
+            if (currentState.currentPosition > Duration.zero &&
                 currentState.currentPosition < currentState.duration) {
               // Resume from current position
               await _resumePlayingRecordedAudio();
@@ -522,7 +541,7 @@ class _CometChatInlineAudioRecorderState
               // Start from beginning - this will finalize the recording file
               await _playRecordedAudio();
               _bloc.add(const PlayRecording());
-              
+
               // Extract waveform after file is finalized (playRecordedAudio stops the recorder)
               // Only extract if we don't have extracted waveform yet
               if (currentState.extractedWaveform.isEmpty) {
@@ -536,22 +555,25 @@ class _CometChatInlineAudioRecorderState
           height: 32,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _style.playButtonBackgroundColor ?? _colorPalette.transparent,
+            color:
+                _style.playButtonBackgroundColor ?? _colorPalette.transparent,
             shape: BoxShape.circle,
           ),
           child: isPlaying
               ? (widget.pauseIcon ??
-              Icon(
-                Icons.pause,
-                color: _style.pauseButtonIconColor ?? _colorPalette.primary,
-                size: 26,
-              ))
+                    Icon(
+                      Icons.pause,
+                      color:
+                          _style.pauseButtonIconColor ?? _colorPalette.primary,
+                      size: 26,
+                    ))
               : (widget.playIcon ??
-              Icon(
-                Icons.play_arrow,
-                color: _style.playButtonIconColor ?? _colorPalette.primary,
-                size: 26,
-              )),
+                    Icon(
+                      Icons.play_arrow,
+                      color:
+                          _style.playButtonIconColor ?? _colorPalette.primary,
+                      size: 26,
+                    )),
         ),
       ),
     );
@@ -561,28 +583,35 @@ class _CometChatInlineAudioRecorderState
     // Only animate (add new bars) when recording, NOT when playing
     final isAnimating = state.isRecording;
     // Keep primary color even when paused (don't turn grey)
-    final waveformColor = _style.waveformRecordingColor ?? _colorPalette.primary;
-    
+    final waveformColor =
+        _style.waveformRecordingColor ?? _colorPalette.primary;
+
     // Calculate playback progress (0.0 to 1.0)
     // Show progress when playing, paused during playback, or completed with position
     double playbackProgress = 0.0;
     if (state.duration.inMilliseconds > 0) {
-      if (state.isPlaying || 
+      if (state.isPlaying ||
           (state.isPaused && state.currentPosition.inMilliseconds > 0) ||
           (state.isCompleted && state.currentPosition.inMilliseconds > 0)) {
-        playbackProgress = state.currentPosition.inMilliseconds / state.duration.inMilliseconds;
+        playbackProgress =
+            state.currentPosition.inMilliseconds /
+            state.duration.inMilliseconds;
       }
       playbackProgress = playbackProgress.clamp(0.0, 1.0);
     }
 
     // Use extracted waveform for playback if available, otherwise fall back to recording amplitudes
-    final playbackAmplitudes = state.extractedWaveform.isNotEmpty 
-        ? state.extractedWaveform 
+    final playbackAmplitudes = state.extractedWaveform.isNotEmpty
+        ? state.extractedWaveform
         : state.amplitudes;
 
     if (kDebugMode && !isAnimating) {
-      debugPrint('[InlineAudioRecorder] _buildWaveform: extractedWaveform.length=${state.extractedWaveform.length}, amplitudes.length=${state.amplitudes.length}');
-      debugPrint('[InlineAudioRecorder] _buildWaveform: using ${state.extractedWaveform.isNotEmpty ? "extractedWaveform" : "amplitudes"} with ${playbackAmplitudes.length} samples');
+      debugPrint(
+        '[InlineAudioRecorder] _buildWaveform: extractedWaveform.length=${state.extractedWaveform.length}, amplitudes.length=${state.amplitudes.length}',
+      );
+      debugPrint(
+        '[InlineAudioRecorder] _buildWaveform: using ${state.extractedWaveform.isNotEmpty ? "extractedWaveform" : "amplitudes"} with ${playbackAmplitudes.length} samples',
+      );
     }
 
     return AudioWaveformVisualizer(
@@ -591,7 +620,9 @@ class _CometChatInlineAudioRecorderState
       playbackProgress: playbackProgress,
       barColor: waveformColor,
       playedBarColor: waveformColor, // Purple for played bars
-      unplayedBarColor: _colorPalette.neutral300 ?? Colors.grey.shade300, // Light grey for unplayed bars
+      unplayedBarColor:
+          _colorPalette.neutral300 ??
+          Colors.grey.shade300, // Light grey for unplayed bars
       barWidth: 3.0,
       barSpacing: 2.0,
       minBarHeight: 4.0,
@@ -600,7 +631,7 @@ class _CometChatInlineAudioRecorderState
       // Pass extracted waveform for playback (when not recording), fall back to recording amplitudes
       amplitudes: !isAnimating ? playbackAmplitudes : null,
       // Store amplitudes during recording
-      onAmplitudeReceived: isAnimating 
+      onAmplitudeReceived: isAnimating
           ? (amplitude) => _bloc.add(UpdateAmplitude(amplitude))
           : null,
       // Allow seeking only when not recording and has recording
@@ -611,11 +642,12 @@ class _CometChatInlineAudioRecorderState
       onSeek: !isAnimating && state.hasRecording
           ? (progress) async {
               // Calculate position in milliseconds
-              final positionMs = (state.duration.inMilliseconds * progress).round();
-              
+              final positionMs = (state.duration.inMilliseconds * progress)
+                  .round();
+
               // Seek native audio player (this also starts playback)
               await _seekRecordedAudio(positionMs);
-              
+
               // Update bloc state - SeekToPosition will set status to playing
               _bloc.add(SeekToPosition(progress));
             }
@@ -626,11 +658,14 @@ class _CometChatInlineAudioRecorderState
   Widget _buildDurationDisplay(InlineAudioRecorderState state) {
     // Show current position during playback or when paused during playback
     // Otherwise show total duration
-    final showPlaybackPosition = state.isPlaying || 
+    final showPlaybackPosition =
+        state.isPlaying ||
         (state.isPaused && state.currentPosition > Duration.zero) ||
         (state.isCompleted && state.currentPosition > Duration.zero);
-    
-    final duration = showPlaybackPosition ? state.currentPosition : state.duration;
+
+    final duration = showPlaybackPosition
+        ? state.currentPosition
+        : state.duration;
 
     return Text(
       _formatDuration(duration),
@@ -677,10 +712,12 @@ class _CometChatInlineAudioRecorderState
           height: 32,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _style.pauseButtonBackgroundColor ?? _colorPalette.transparent,
+            color:
+                _style.pauseButtonBackgroundColor ?? _colorPalette.transparent,
             shape: BoxShape.circle,
           ),
-          child: widget.pauseIcon ??
+          child:
+              widget.pauseIcon ??
               Icon(
                 Icons.pause,
                 color: _style.pauseButtonIconColor ?? _colorPalette.error,
@@ -721,15 +758,18 @@ class _CometChatInlineAudioRecorderState
           height: 32,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _style.recordButtonBackgroundColor ?? _colorPalette.transparent,
+            color:
+                _style.recordButtonBackgroundColor ?? _colorPalette.transparent,
             shape: BoxShape.circle,
           ),
-          child: widget.recordIcon ??
+          child:
+              widget.recordIcon ??
               Icon(
                 Icons.mic,
                 color: isResume
                     ? (_style.recordButtonIconColor ?? _colorPalette.error)
-                    : (_style.recordButtonIconColor ?? _colorPalette.iconSecondary),
+                    : (_style.recordButtonIconColor ??
+                          _colorPalette.iconSecondary),
                 size: 26,
               ),
         ),
@@ -747,25 +787,27 @@ class _CometChatInlineAudioRecorderState
       child: GestureDetector(
         onTap: canSend
             ? () async {
-          // Stop recording if still recording and get file path
-          String? filePath = _recordedFilePath;
-          if (state.isRecording || state.isPaused) {
-            if (kIsWeb) {
-              filePath = (await _stopWebRecording());
-            } else {
-              filePath = await _stopNativeRecording();
-            }
-            _bloc.add(const StopRecording());
-          }
+                // Stop recording if still recording and get file path
+                String? filePath = _recordedFilePath;
+                if (state.isRecording || state.isPaused) {
+                  if (kIsWeb) {
+                    filePath = (await _stopWebRecording());
+                  } else {
+                    filePath = await _stopNativeRecording();
+                  }
+                  _bloc.add(const StopRecording());
+                }
 
-          // Submit the recording with the file path
-          if (filePath != null && filePath.isNotEmpty) {
-            final bytes = kIsWeb ? _webRecorder?.recordedBytes : null;
-            widget.onSubmit?.call(filePath, fileBytes: bytes);
-          } else if (kDebugMode) {
-            debugPrint('[InlineAudioRecorder] No file path available for submission');
-          }
-        }
+                // Submit the recording with the file path
+                if (filePath != null && filePath.isNotEmpty) {
+                  final bytes = kIsWeb ? _webRecorder?.recordedBytes : null;
+                  widget.onSubmit?.call(filePath, fileBytes: bytes);
+                } else if (kDebugMode) {
+                  debugPrint(
+                    '[InlineAudioRecorder] No file path available for submission',
+                  );
+                }
+              }
             : null,
         child: Container(
           width: 32,
@@ -777,7 +819,8 @@ class _CometChatInlineAudioRecorderState
                 : (_colorPalette.neutral300),
             shape: BoxShape.circle,
           ),
-          child: widget.sendIcon ??
+          child:
+              widget.sendIcon ??
               Icon(
                 Icons.send,
                 color: _style.sendButtonIconColor ?? _colorPalette.white,
@@ -791,10 +834,7 @@ class _CometChatInlineAudioRecorderState
 
 /// Animated recording indicator dot that pulses
 class _AnimatedRecordingDot extends StatefulWidget {
-  const _AnimatedRecordingDot({
-    required this.color,
-    this.size = 12,
-  });
+  const _AnimatedRecordingDot({required this.color, this.size = 12});
 
   final Color color;
   final double size;
@@ -815,9 +855,10 @@ class _AnimatedRecordingDotState extends State<_AnimatedRecordingDot>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _animation = Tween<double>(begin: 0.6, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _animation = Tween<double>(
+      begin: 0.6,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.repeat(reverse: true);
   }
 

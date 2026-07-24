@@ -103,6 +103,5 @@ class CometChatKeyboardDiagnostics {
 }
 
 /// Signature for the keyboard diagnostics callback.
-typedef CometChatKeyboardDiagnosticsCallback = void Function(
-  CometChatKeyboardDiagnostics diagnostics,
-);
+typedef CometChatKeyboardDiagnosticsCallback =
+    void Function(CometChatKeyboardDiagnostics diagnostics);

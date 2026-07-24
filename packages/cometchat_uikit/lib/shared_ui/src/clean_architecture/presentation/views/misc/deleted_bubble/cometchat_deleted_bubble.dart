@@ -3,7 +3,7 @@ import '../../../../../../cometchat_uikit_shared.dart';
 
 ///[CometChatDeletedBubble] is a widget that provides a placeholder for messages thave been deleted
 ///
-///a [BaseMessage] is considered deleted if the value of its [deletedAt] property is not null
+///a [BaseMessage] is considered deleted if the value of its `deletedAt` property is not null
 /// ```dart
 /// CometChatDeleteMessageBubble(
 ///      style: CometChatDeletedBubbleStyle(
@@ -16,8 +16,14 @@ import '../../../../../../cometchat_uikit_shared.dart';
 /// )
 /// ```
 class CometChatDeletedBubble extends StatelessWidget {
-  const CometChatDeletedBubble(
-      {super.key, this.style, this.height, this.width, this.padding, this.margin});
+  const CometChatDeletedBubble({
+    super.key,
+    this.style,
+    this.height,
+    this.width,
+    this.padding,
+    this.margin,
+  });
 
   ///[height] defines the height of the widget
   final double? height;
@@ -38,15 +44,28 @@ class CometChatDeletedBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     CometChatDeletedBubbleStyle deletedBubbleStyle;
     if (style == null) {
-      deletedBubbleStyle = CometChatThemeHelper.getTheme<CometChatDeletedBubbleStyle>(context: context, defaultTheme: CometChatDeletedBubbleStyle.of).merge(style);
+      deletedBubbleStyle =
+          CometChatThemeHelper.getTheme<CometChatDeletedBubbleStyle>(
+            context: context,
+            defaultTheme: CometChatDeletedBubbleStyle.of,
+          ).merge(style);
     } else {
       deletedBubbleStyle = style!;
     }
     CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
-    CometChatTypography typography = CometChatThemeHelper.getTypography(context);
+    CometChatTypography typography = CometChatThemeHelper.getTypography(
+      context,
+    );
     return Container(
       margin: margin,
-      padding: padding ?? EdgeInsets.fromLTRB(spacing.padding2 ?? 0, spacing.padding2 ?? 0, spacing.padding2 ?? 0, 0),
+      padding:
+          padding ??
+          EdgeInsets.fromLTRB(
+            spacing.padding2 ?? 0,
+            spacing.padding2 ?? 0,
+            spacing.padding2 ?? 0,
+            0,
+          ),
       decoration: BoxDecoration(
         color: deletedBubbleStyle.backgroundColor,
         border: deletedBubbleStyle.border,
@@ -57,7 +76,7 @@ class CometChatDeletedBubble extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Padding(
-            padding:  EdgeInsets.only(right: spacing.padding1 ?? 0),
+            padding: EdgeInsets.only(right: spacing.padding1 ?? 0),
             child: Icon(
               Icons.block,
               color: deletedBubbleStyle.iconColor,
@@ -65,13 +84,16 @@ class CometChatDeletedBubble extends StatelessWidget {
             ),
           ),
           Text(
-           Translations.of(context).thisMessageDeleted,
-          style: TextStyle(
-            color: deletedBubbleStyle.textColor,
-            fontSize: typography.body?.regular?.fontSize,
-            fontWeight: typography.body?.regular?.fontWeight,
-            fontFamily: typography.body?.regular?.fontFamily,
-          ).merge(deletedBubbleStyle.textStyle).copyWith(color: deletedBubbleStyle.textColor),
+            Translations.of(context).thisMessageDeleted,
+            style:
+                TextStyle(
+                      color: deletedBubbleStyle.textColor,
+                      fontSize: typography.body?.regular?.fontSize,
+                      fontWeight: typography.body?.regular?.fontWeight,
+                      fontFamily: typography.body?.regular?.fontFamily,
+                    )
+                    .merge(deletedBubbleStyle.textStyle)
+                    .copyWith(color: deletedBubbleStyle.textColor),
           ),
         ],
       ),

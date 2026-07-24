@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../../shared_ui/cometchat_uikit_shared.dart';
 
 /// Style class for the Flag Message dialog.
-class CometChatFlagMessageStyle extends ThemeExtension<CometChatFlagMessageStyle> {
+class CometChatFlagMessageStyle
+    extends ThemeExtension<CometChatFlagMessageStyle> {
   const CometChatFlagMessageStyle({
     this.backgroundColor,
     this.border,
@@ -132,26 +133,44 @@ class CometChatFlagMessageStyle extends ThemeExtension<CometChatFlagMessageStyle
       chipBorderRadius: chipBorderRadius ?? this.chipBorderRadius,
       chipTitleTextStyle: chipTitleTextStyle ?? this.chipTitleTextStyle,
       chipTitleTextColor: chipTitleTextColor ?? this.chipTitleTextColor,
-      chipActiveBackgroundColor: chipActiveBackgroundColor ?? this.chipActiveBackgroundColor,
-      chipActiveTitleTextColor: chipActiveTitleTextColor ?? this.chipActiveTitleTextColor,
-      chipActiveTitleTextStyle: chipActiveTitleTextStyle ?? this.chipActiveTitleTextStyle,
+      chipActiveBackgroundColor:
+          chipActiveBackgroundColor ?? this.chipActiveBackgroundColor,
+      chipActiveTitleTextColor:
+          chipActiveTitleTextColor ?? this.chipActiveTitleTextColor,
+      chipActiveTitleTextStyle:
+          chipActiveTitleTextStyle ?? this.chipActiveTitleTextStyle,
       chipActiveBorder: chipActiveBorder ?? this.chipActiveBorder,
-      remarkFieldBackgroundColor: remarkFieldBackgroundColor ?? this.remarkFieldBackgroundColor,
-      remarkFieldHintTextColor: remarkFieldHintTextColor ?? this.remarkFieldHintTextColor,
-      remarkFieldHintTextStyle: remarkFieldHintTextStyle ?? this.remarkFieldHintTextStyle,
+      remarkFieldBackgroundColor:
+          remarkFieldBackgroundColor ?? this.remarkFieldBackgroundColor,
+      remarkFieldHintTextColor:
+          remarkFieldHintTextColor ?? this.remarkFieldHintTextColor,
+      remarkFieldHintTextStyle:
+          remarkFieldHintTextStyle ?? this.remarkFieldHintTextStyle,
       remarkFieldTextColor: remarkFieldTextColor ?? this.remarkFieldTextColor,
       remarkFieldTextStyle: remarkFieldTextStyle ?? this.remarkFieldTextStyle,
-      remarkFieldTitleTextColor: remarkFieldTitleTextColor ?? this.remarkFieldTitleTextColor,
-      remarkFieldTitleTextStyle: remarkFieldTitleTextStyle ?? this.remarkFieldTitleTextStyle,
-      remarkFieldSubTitleTextColor: remarkFieldSubTitleTextColor ?? this.remarkFieldSubTitleTextColor,
-      remarkFieldSubTitleTextStyle: remarkFieldSubTitleTextStyle ?? this.remarkFieldSubTitleTextStyle,
-      cancelButtonBackgroundColor: cancelButtonBackgroundColor ?? this.cancelButtonBackgroundColor,
-      cancelButtonTextStyle: cancelButtonTextStyle ?? this.cancelButtonTextStyle,
-      cancelButtonTextColor: cancelButtonTextColor ?? this.cancelButtonTextColor,
-      reportButtonBackgroundColor: reportButtonBackgroundColor ?? this.reportButtonBackgroundColor,
-      reportButtonActiveBackgroundColor: reportButtonActiveBackgroundColor ?? this.reportButtonActiveBackgroundColor,
-      reportButtonTextStyle: reportButtonTextStyle ?? this.reportButtonTextStyle,
-      reportButtonTextColor: reportButtonTextColor ?? this.reportButtonTextColor,
+      remarkFieldTitleTextColor:
+          remarkFieldTitleTextColor ?? this.remarkFieldTitleTextColor,
+      remarkFieldTitleTextStyle:
+          remarkFieldTitleTextStyle ?? this.remarkFieldTitleTextStyle,
+      remarkFieldSubTitleTextColor:
+          remarkFieldSubTitleTextColor ?? this.remarkFieldSubTitleTextColor,
+      remarkFieldSubTitleTextStyle:
+          remarkFieldSubTitleTextStyle ?? this.remarkFieldSubTitleTextStyle,
+      cancelButtonBackgroundColor:
+          cancelButtonBackgroundColor ?? this.cancelButtonBackgroundColor,
+      cancelButtonTextStyle:
+          cancelButtonTextStyle ?? this.cancelButtonTextStyle,
+      cancelButtonTextColor:
+          cancelButtonTextColor ?? this.cancelButtonTextColor,
+      reportButtonBackgroundColor:
+          reportButtonBackgroundColor ?? this.reportButtonBackgroundColor,
+      reportButtonActiveBackgroundColor:
+          reportButtonActiveBackgroundColor ??
+          this.reportButtonActiveBackgroundColor,
+      reportButtonTextStyle:
+          reportButtonTextStyle ?? this.reportButtonTextStyle,
+      reportButtonTextColor:
+          reportButtonTextColor ?? this.reportButtonTextColor,
       errorTextColor: errorTextColor ?? this.errorTextColor,
       errorTextStyle: errorTextStyle ?? this.errorTextStyle,
     );
@@ -190,7 +209,8 @@ class CometChatFlagMessageStyle extends ThemeExtension<CometChatFlagMessageStyle
       cancelButtonTextStyle: other.cancelButtonTextStyle,
       cancelButtonTextColor: other.cancelButtonTextColor,
       reportButtonBackgroundColor: other.reportButtonBackgroundColor,
-      reportButtonActiveBackgroundColor: other.reportButtonActiveBackgroundColor,
+      reportButtonActiveBackgroundColor:
+          other.reportButtonActiveBackgroundColor,
       reportButtonTextStyle: other.reportButtonTextStyle,
       reportButtonTextColor: other.reportButtonTextColor,
       errorTextColor: other.errorTextColor,
@@ -200,7 +220,9 @@ class CometChatFlagMessageStyle extends ThemeExtension<CometChatFlagMessageStyle
 
   @override
   ThemeExtension<CometChatFlagMessageStyle> lerp(
-      covariant ThemeExtension<CometChatFlagMessageStyle>? other, double t) {
+    covariant ThemeExtension<CometChatFlagMessageStyle>? other,
+    double t,
+  ) {
     return this;
   }
 }
@@ -296,8 +318,7 @@ class _CometChatFlagMessageDialogState
           setState(() {
             _isLoading = false;
             _hasError = true;
-            _errorMessage =
-                Translations.of(context).somethingWentWrongError;
+            _errorMessage = Translations.of(context).somethingWentWrongError;
           });
         }
       },
@@ -337,9 +358,7 @@ class _CometChatFlagMessageDialogState
 
     final detail = FlagDetail(
       reasonId: _reasons[_selectedReasonIndex!].id,
-      remark: _remarkController.text.isNotEmpty
-          ? _remarkController.text
-          : null,
+      remark: _remarkController.text.isNotEmpty ? _remarkController.text : null,
     );
 
     CometChat.flagMessage(
@@ -362,7 +381,8 @@ class _CometChatFlagMessageDialogState
           setState(() {
             _isSubmitting = false;
             _hasError = true;
-            _errorMessage = excep.details ??
+            _errorMessage =
+                excep.details ??
                 Translations.of(context).somethingWentWrongError;
           });
         }
@@ -382,14 +402,13 @@ class _CometChatFlagMessageDialogState
     final style = widget.style ?? const CometChatFlagMessageStyle();
 
     return AlertDialog(
-      backgroundColor:
-          style.backgroundColor ?? _colorPalette.background1,
+      backgroundColor: style.backgroundColor ?? _colorPalette.background1,
       shape: RoundedRectangleBorder(
-        side: style.border ??
-            BorderSide(
-              color: _colorPalette.borderLight ?? Colors.transparent,
-            ),
-        borderRadius: style.borderRadius as BorderRadius? ??
+        side:
+            style.border ??
+            BorderSide(color: _colorPalette.borderLight ?? Colors.transparent),
+        borderRadius:
+            style.borderRadius as BorderRadius? ??
             BorderRadius.circular(_spacing.radius5 ?? 16),
       ),
       titlePadding: EdgeInsets.fromLTRB(
@@ -421,10 +440,10 @@ class _CometChatFlagMessageDialogState
             Expanded(
               child: Text(
                 Translations.of(context).reportMessage,
-                style: style.titleTextStyle ??
+                style:
+                    style.titleTextStyle ??
                     TextStyle(
-                      color: style.titleTextColor ??
-                          _colorPalette.textPrimary,
+                      color: style.titleTextColor ?? _colorPalette.textPrimary,
                       fontFamily: _typography.heading2?.bold?.fontFamily,
                       fontWeight: _typography.heading2?.bold?.fontWeight,
                       fontSize: _typography.heading2?.bold?.fontSize,
@@ -448,10 +467,10 @@ class _CometChatFlagMessageDialogState
         SizedBox(height: _spacing.padding2 ?? 8),
         Text(
           Translations.of(context).reportChatInfo,
-          style: style.subTitleTextStyle ??
+          style:
+              style.subTitleTextStyle ??
               TextStyle(
-                color: style.subTitleTextColor ??
-                    _colorPalette.textSecondary,
+                color: style.subTitleTextColor ?? _colorPalette.textSecondary,
                 fontFamily: _typography.button?.regular?.fontFamily,
                 fontWeight: _typography.button?.regular?.fontWeight,
                 fontSize: _typography.button?.regular?.fontSize,
@@ -488,60 +507,62 @@ class _CometChatFlagMessageDialogState
                   child: GestureDetector(
                     onTap: () => _toggleReason(index),
                     child: Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: _spacing.padding1 ?? 4,
-                      horizontal: _spacing.padding3 ?? 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? (style.chipActiveBackgroundColor ??
-                              _colorPalette.extendedPrimary100)
-                          : (style.chipBackgroundColor ??
-                              _colorPalette.background1),
-                      border: isSelected
-                          ? (style.chipActiveBorder ??
-                              Border.all(
-                                color:
-                                    _colorPalette.extendedPrimary200 ??
+                      padding: EdgeInsets.symmetric(
+                        vertical: _spacing.padding1 ?? 4,
+                        horizontal: _spacing.padding3 ?? 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? (style.chipActiveBackgroundColor ??
+                                  _colorPalette.extendedPrimary100)
+                            : (style.chipBackgroundColor ??
+                                  _colorPalette.background1),
+                        border: isSelected
+                            ? (style.chipActiveBorder ??
+                                  Border.all(
+                                    color:
+                                        _colorPalette.extendedPrimary200 ??
                                         Colors.blue,
-                              ))
-                          : (style.chipBorder ??
-                              Border.all(
-                                color: _colorPalette.borderDefault ??
-                                    Colors.grey,
-                              )),
-                      borderRadius: style.chipBorderRadius ??
-                          BorderRadius.circular(
-                              _spacing.radiusMax ?? 100),
-                    ),
-                    child: Text(
-                      _getLocalizedReason(_reasons[index]),
-                      style: isSelected
-                          ? (style.chipActiveTitleTextStyle ??
-                              TextStyle(
-                                color:
-                                    style.chipActiveTitleTextColor ??
+                                  ))
+                            : (style.chipBorder ??
+                                  Border.all(
+                                    color:
+                                        _colorPalette.borderDefault ??
+                                        Colors.grey,
+                                  )),
+                        borderRadius:
+                            style.chipBorderRadius ??
+                            BorderRadius.circular(_spacing.radiusMax ?? 100),
+                      ),
+                      child: Text(
+                        _getLocalizedReason(_reasons[index]),
+                        style: isSelected
+                            ? (style.chipActiveTitleTextStyle ??
+                                  TextStyle(
+                                    color:
+                                        style.chipActiveTitleTextColor ??
                                         _colorPalette.textHighlight,
-                                fontFamily: _typography
-                                    .body?.medium?.fontFamily,
-                                fontWeight: _typography
-                                    .body?.medium?.fontWeight,
-                                fontSize:
-                                    _typography.body?.medium?.fontSize,
-                              ))
-                          : (style.chipTitleTextStyle ??
-                              TextStyle(
-                                color: style.chipTitleTextColor ??
-                                    _colorPalette.textPrimary,
-                                fontFamily: _typography
-                                    .body?.regular?.fontFamily,
-                                fontWeight: _typography
-                                    .body?.regular?.fontWeight,
-                                fontSize: _typography
-                                    .body?.regular?.fontSize,
-                              )),
+                                    fontFamily:
+                                        _typography.body?.medium?.fontFamily,
+                                    fontWeight:
+                                        _typography.body?.medium?.fontWeight,
+                                    fontSize:
+                                        _typography.body?.medium?.fontSize,
+                                  ))
+                            : (style.chipTitleTextStyle ??
+                                  TextStyle(
+                                    color:
+                                        style.chipTitleTextColor ??
+                                        _colorPalette.textPrimary,
+                                    fontFamily:
+                                        _typography.body?.regular?.fontFamily,
+                                    fontWeight:
+                                        _typography.body?.regular?.fontWeight,
+                                    fontSize:
+                                        _typography.body?.regular?.fontSize,
+                                  )),
+                      ),
                     ),
-                  ),
                   ),
                 );
               }),
@@ -555,29 +576,28 @@ class _CometChatFlagMessageDialogState
                 children: [
                   TextSpan(
                     text: '${Translations.of(context).reason} ',
-                    style: style.remarkFieldTitleTextStyle ??
+                    style:
+                        style.remarkFieldTitleTextStyle ??
                         TextStyle(
-                          color: style.remarkFieldTitleTextColor ??
+                          color:
+                              style.remarkFieldTitleTextColor ??
                               _colorPalette.textPrimary,
-                          fontFamily:
-                              _typography.body?.medium?.fontFamily,
-                          fontWeight:
-                              _typography.body?.medium?.fontWeight,
+                          fontFamily: _typography.body?.medium?.fontFamily,
+                          fontWeight: _typography.body?.medium?.fontWeight,
                           fontSize: _typography.body?.medium?.fontSize,
                         ),
                   ),
                   TextSpan(
                     text: '(${Translations.of(context).optional})',
-                    style: style.remarkFieldSubTitleTextStyle ??
+                    style:
+                        style.remarkFieldSubTitleTextStyle ??
                         TextStyle(
-                          color: style.remarkFieldHintTextColor ??
+                          color:
+                              style.remarkFieldHintTextColor ??
                               _colorPalette.textTertiary,
-                          fontFamily:
-                              _typography.body?.regular?.fontFamily,
-                          fontWeight:
-                              _typography.body?.regular?.fontWeight,
-                          fontSize:
-                              _typography.body?.regular?.fontSize,
+                          fontFamily: _typography.body?.regular?.fontFamily,
+                          fontWeight: _typography.body?.regular?.fontWeight,
+                          fontSize: _typography.body?.regular?.fontSize,
                         ),
                   ),
                 ],
@@ -589,37 +609,34 @@ class _CometChatFlagMessageDialogState
               maxLines: 6,
               minLines: 3,
               decoration: InputDecoration(
-                hintText:
-                    Translations.of(context).additionalContext,
-                hintStyle: style.remarkFieldHintTextStyle ??
+                hintText: Translations.of(context).additionalContext,
+                hintStyle:
+                    style.remarkFieldHintTextStyle ??
                     TextStyle(
-                      color: style.remarkFieldHintTextColor ??
+                      color:
+                          style.remarkFieldHintTextColor ??
                           _colorPalette.textTertiary,
-                      fontFamily:
-                          _typography.body?.regular?.fontFamily,
-                      fontWeight:
-                          _typography.body?.regular?.fontWeight,
+                      fontFamily: _typography.body?.regular?.fontFamily,
+                      fontWeight: _typography.body?.regular?.fontWeight,
                       fontSize: _typography.body?.regular?.fontSize,
                     ),
                 filled: true,
-                fillColor: style.remarkFieldBackgroundColor ??
+                fillColor:
+                    style.remarkFieldBackgroundColor ??
                     _colorPalette.background2,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(
-                      _spacing.radius2 ?? 8),
+                  borderRadius: BorderRadius.circular(_spacing.radius2 ?? 8),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: EdgeInsets.all(
-                    _spacing.padding3 ?? 12),
+                contentPadding: EdgeInsets.all(_spacing.padding3 ?? 12),
               ),
-              style: style.remarkFieldTextStyle ??
+              style:
+                  style.remarkFieldTextStyle ??
                   TextStyle(
-                    color: style.remarkFieldTextColor ??
-                        _colorPalette.textPrimary,
-                    fontFamily:
-                        _typography.body?.regular?.fontFamily,
-                    fontWeight:
-                        _typography.body?.regular?.fontWeight,
+                    color:
+                        style.remarkFieldTextColor ?? _colorPalette.textPrimary,
+                    fontFamily: _typography.body?.regular?.fontFamily,
+                    fontWeight: _typography.body?.regular?.fontWeight,
                     fontSize: _typography.body?.regular?.fontSize,
                   ),
             ),
@@ -630,15 +647,13 @@ class _CometChatFlagMessageDialogState
             SizedBox(height: _spacing.padding2 ?? 8),
             Text(
               _errorMessage,
-              style: style.errorTextStyle ??
+              style:
+                  style.errorTextStyle ??
                   TextStyle(
                     color: style.errorTextColor ?? _colorPalette.error,
-                    fontFamily:
-                        _typography.caption1?.regular?.fontFamily,
-                    fontWeight:
-                        _typography.caption1?.regular?.fontWeight,
-                    fontSize:
-                        _typography.caption1?.regular?.fontSize,
+                    fontFamily: _typography.caption1?.regular?.fontFamily,
+                    fontWeight: _typography.caption1?.regular?.fontWeight,
+                    fontSize: _typography.caption1?.regular?.fontSize,
                   ),
             ),
           ],
@@ -655,24 +670,25 @@ class _CometChatFlagMessageDialogState
           child: ElevatedButton(
             onPressed: () => Navigator.pop(context, false),
             style: ElevatedButton.styleFrom(
-              backgroundColor: style.cancelButtonBackgroundColor ??
+              backgroundColor:
+                  style.cancelButtonBackgroundColor ??
                   _colorPalette.background1,
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(_spacing.radius2 ?? 8),
+                borderRadius: BorderRadius.circular(_spacing.radius2 ?? 8),
                 side: BorderSide(
                   color: _colorPalette.borderDefault ?? Colors.grey,
                 ),
               ),
-              padding: EdgeInsets.symmetric(
-                  vertical: _spacing.padding3 ?? 12),
+              padding: EdgeInsets.symmetric(vertical: _spacing.padding3 ?? 12),
             ),
             child: Text(
               Translations.of(context).cancel,
-              style: style.cancelButtonTextStyle ??
+              style:
+                  style.cancelButtonTextStyle ??
                   TextStyle(
-                    color: style.cancelButtonTextColor ??
+                    color:
+                        style.cancelButtonTextColor ??
                         _colorPalette.textPrimary,
                     fontFamily: _typography.button?.medium?.fontFamily,
                     fontWeight: _typography.button?.medium?.fontWeight,
@@ -691,16 +707,14 @@ class _CometChatFlagMessageDialogState
             style: ElevatedButton.styleFrom(
               backgroundColor: _isReportEnabled
                   ? (style.reportButtonActiveBackgroundColor ??
-                      _colorPalette.primary)
+                        _colorPalette.primary)
                   : (style.reportButtonBackgroundColor ??
-                      _colorPalette.background4),
+                        _colorPalette.background4),
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(_spacing.radius2 ?? 8),
+                borderRadius: BorderRadius.circular(_spacing.radius2 ?? 8),
               ),
-              padding: EdgeInsets.symmetric(
-                  vertical: _spacing.padding3 ?? 12),
+              padding: EdgeInsets.symmetric(vertical: _spacing.padding3 ?? 12),
             ),
             child: _isSubmitting
                 ? SizedBox(
@@ -708,22 +722,20 @@ class _CometChatFlagMessageDialogState
                     width: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: style.reportButtonTextColor ??
-                          _colorPalette.white,
+                      color: style.reportButtonTextColor ?? _colorPalette.white,
                     ),
                   )
                 : Text(
                     Translations.of(context).report,
-                    style: style.reportButtonTextStyle ??
+                    style:
+                        style.reportButtonTextStyle ??
                         TextStyle(
-                          color: style.reportButtonTextColor ??
+                          color:
+                              style.reportButtonTextColor ??
                               _colorPalette.white,
-                          fontFamily:
-                              _typography.button?.medium?.fontFamily,
-                          fontWeight:
-                              _typography.button?.medium?.fontWeight,
-                          fontSize:
-                              _typography.button?.medium?.fontSize,
+                          fontFamily: _typography.button?.medium?.fontFamily,
+                          fontWeight: _typography.button?.medium?.fontWeight,
+                          fontSize: _typography.button?.medium?.fontSize,
                         ),
                   ),
           ),

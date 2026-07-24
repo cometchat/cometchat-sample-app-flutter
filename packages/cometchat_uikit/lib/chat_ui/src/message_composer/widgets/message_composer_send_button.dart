@@ -81,7 +81,7 @@ class MessageComposerSendButton extends StatelessWidget {
 
     if (customSendButtonView != null) {
       return GestureDetector(
-        onTap: onPressed,
+        onTap: isDisabled ? null : onPressed,
         child: customSendButtonView,
       );
     }
@@ -91,12 +91,14 @@ class MessageComposerSendButton extends StatelessWidget {
     final effectiveSpacing =
         spacing ?? CometChatThemeHelper.getSpacing(context);
 
-    final Color backgroundColor = sendButtonIconBackgroundColor ??
+    final Color backgroundColor =
+        sendButtonIconBackgroundColor ??
         (isDisabled
             ? effectiveColorPalette.background4 ?? Colors.grey
             : effectiveColorPalette.primary ?? Colors.blue);
 
-    final BorderRadiusGeometry borderRadius = sendButtonBorderRadius ??
+    final BorderRadiusGeometry borderRadius =
+        sendButtonBorderRadius ??
         BorderRadius.circular(effectiveSpacing.radiusMax ?? 20);
 
     const double buttonSize = 32;
@@ -107,7 +109,10 @@ class MessageComposerSendButton extends StatelessWidget {
       enabled: !isDisabled,
       child: kIsWeb
           ? GestureDetector(
-              onTap: onPressed,
+              // [isDisabled] must actually block the tap — it previously only
+              // greyed the fill, so a "disabled" button still sent (e.g. while
+              // attachments were mid-upload).
+              onTap: isDisabled ? null : onPressed,
               child: Container(
                 decoration: BoxDecoration(
                   color: backgroundColor,
@@ -130,7 +135,9 @@ class MessageComposerSendButton extends StatelessWidget {
               child: IconButton(
                 padding: const EdgeInsets.all(0),
                 icon: _buildIcon(effectiveColorPalette),
-                onPressed: onPressed,
+                // Null disables the IconButton for real; passing the callback
+                // regardless made the greyed-out button still fire.
+                onPressed: isDisabled ? null : onPressed,
               ),
             ),
     );

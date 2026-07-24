@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../core/constants/enums.dart';
 import '../../../theme/colors/cometchat_color_palette.dart';
 import '../../../theme/typography/cometchat_typography.dart';
@@ -7,11 +7,12 @@ import '../../../theme/spacing/cometchat_spacing.dart';
 
 /// Callback for providing custom views for message bubble slots.
 /// Returns Widget or null to use default/hide.
-typedef BubbleViewProvider = Widget? Function(
-  BuildContext context,
-  BaseMessage message,
-  BubbleAlignment alignment,
-);
+typedef BubbleViewProvider =
+    Widget? Function(
+      BuildContext context,
+      BaseMessage message,
+      BubbleAlignment alignment,
+    );
 
 /// Abstract factory for creating message bubble content widgets.
 ///

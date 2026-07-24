@@ -260,20 +260,21 @@ class CometChatSearchStyle extends ThemeExtension<CometChatSearchStyle> {
       searchBackIconColor: searchBackIconColor ?? this.searchBackIconColor,
       searchClearIconColor: searchClearIconColor ?? this.searchClearIconColor,
       searchFilterChipBackgroundColor:
-          searchFilterChipBackgroundColor ?? this.searchFilterChipBackgroundColor,
+          searchFilterChipBackgroundColor ??
+          this.searchFilterChipBackgroundColor,
       searchFilterChipSelectedBackgroundColor:
           searchFilterChipSelectedBackgroundColor ??
-              this.searchFilterChipSelectedBackgroundColor,
+          this.searchFilterChipSelectedBackgroundColor,
       searchFilterChipTextColor:
           searchFilterChipTextColor ?? this.searchFilterChipTextColor,
       searchFilterChipSelectedTextColor:
           searchFilterChipSelectedTextColor ??
-              this.searchFilterChipSelectedTextColor,
+          this.searchFilterChipSelectedTextColor,
       searchFilterChipTextStyle:
           searchFilterChipTextStyle ?? this.searchFilterChipTextStyle,
       searchFilterChipSelectedTextStyle:
           searchFilterChipSelectedTextStyle ??
-              this.searchFilterChipSelectedTextStyle,
+          this.searchFilterChipSelectedTextStyle,
       searchFilterChipBorder:
           searchFilterChipBorder ?? this.searchFilterChipBorder,
       searchFilterChipSelectedBorder:
@@ -290,19 +291,19 @@ class CometChatSearchStyle extends ThemeExtension<CometChatSearchStyle> {
           sectionHeaderTextStyle ?? this.sectionHeaderTextStyle,
       searchConversationTitleTextColor:
           searchConversationTitleTextColor ??
-              this.searchConversationTitleTextColor,
+          this.searchConversationTitleTextColor,
       searchConversationTitleTextStyle:
           searchConversationTitleTextStyle ??
-              this.searchConversationTitleTextStyle,
+          this.searchConversationTitleTextStyle,
       searchConversationSubtitleTextColor:
           searchConversationSubtitleTextColor ??
-              this.searchConversationSubtitleTextColor,
+          this.searchConversationSubtitleTextColor,
       searchConversationSubtitleTextStyle:
           searchConversationSubtitleTextStyle ??
-              this.searchConversationSubtitleTextStyle,
+          this.searchConversationSubtitleTextStyle,
       searchConversationItemBackgroundColor:
           searchConversationItemBackgroundColor ??
-              this.searchConversationItemBackgroundColor,
+          this.searchConversationItemBackgroundColor,
       searchMessageSenderTextColor:
           searchMessageSenderTextColor ?? this.searchMessageSenderTextColor,
       searchMessageSenderTextStyle:
@@ -339,19 +340,33 @@ class CometChatSearchStyle extends ThemeExtension<CometChatSearchStyle> {
 
   @override
   CometChatSearchStyle lerp(
-      ThemeExtension<CometChatSearchStyle>? other, double t) {
+    ThemeExtension<CometChatSearchStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatSearchStyle) return this;
     return CometChatSearchStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
-      searchBackgroundColor:
-          Color.lerp(searchBackgroundColor, other.searchBackgroundColor, t),
+      searchBackgroundColor: Color.lerp(
+        searchBackgroundColor,
+        other.searchBackgroundColor,
+        t,
+      ),
       searchTextColor: Color.lerp(searchTextColor, other.searchTextColor, t),
       searchPlaceHolderTextColor: Color.lerp(
-          searchPlaceHolderTextColor, other.searchPlaceHolderTextColor, t),
-      searchBackIconColor:
-          Color.lerp(searchBackIconColor, other.searchBackIconColor, t),
-      searchClearIconColor:
-          Color.lerp(searchClearIconColor, other.searchClearIconColor, t),
+        searchPlaceHolderTextColor,
+        other.searchPlaceHolderTextColor,
+        t,
+      ),
+      searchBackIconColor: Color.lerp(
+        searchBackIconColor,
+        other.searchBackIconColor,
+        t,
+      ),
+      searchClearIconColor: Color.lerp(
+        searchClearIconColor,
+        other.searchClearIconColor,
+        t,
+      ),
     );
   }
 }

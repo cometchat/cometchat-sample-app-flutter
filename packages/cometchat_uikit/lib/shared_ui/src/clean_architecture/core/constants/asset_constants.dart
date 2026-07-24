@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 ///[AssetConstants] is a utility class that stores String constants of asset image paths
 class AssetConstants {
-
   ///[_mode] stores the default asset directory according to the brightness mode of the device
   String _mode = "light";
   AssetConstants(Brightness brightness) {
@@ -87,33 +86,44 @@ class AssetConstants {
   static const videocamNoFill = "assets/icons/videocam_no_fill.png";
   static const callNoFill = "assets/icons/call_no_fill.png";
   static const stickerFilled = "assets/icons/sticker_filled.png";
-  static const collaborativeDocumentFilled = "assets/icons/collaborative_document_filled.png";
-  static const collaborativeWhiteBoardFilled = "assets/icons/2x/collaborative_whiteboard_filled.png";
+  static const collaborativeDocumentFilled =
+      "assets/icons/collaborative_document_filled.png";
+  static const collaborativeWhiteBoardFilled =
+      "assets/icons/2x/collaborative_whiteboard_filled.png";
   static const shareOutlined = "assets/icons/share_outline.png";
   static const mediaLoading = "assets/icons/media_loading.png";
   static const videoPlaceholder = "assets/icons/video_placeholder.png";
   static const conversationError = "assets/icons/conversation_error.png";
-  static const conversationEmpty= "assets/icons/conversation_empty.png";
-  static const darkModeConversationEmpty= "assets/dark_mode_icons/conversation_empty.png";
+  static const conversationEmpty = "assets/icons/conversation_empty.png";
+  static const darkModeConversationEmpty =
+      "assets/dark_mode_icons/conversation_empty.png";
   static const voiceIncoming = "assets/icons/voice_incoming.png";
   static const voiceOutgoing = "assets/icons/voice_outgoing.png";
-  static const darkModeConversationError = "assets/icons/conversation_error_dark.png";
+  static const darkModeConversationError =
+      "assets/icons/conversation_error_dark.png";
   static const whiteBoard = "assets/icons/collaborative.png";
-  static const collaborativeWhiteboardPreview = "assets/icons/collaborative_whiteboard_preview.png";
-  static const collaborativeDocumentPreview = "assets/icons/collaborative_document_preview.png";
+  static const collaborativeWhiteboardPreview =
+      "assets/icons/collaborative_whiteboard_preview.png";
+  static const collaborativeDocumentPreview =
+      "assets/icons/collaborative_document_preview.png";
   static const delete48px = "assets/icons/delete_48px.png";
   static const mic96px = "assets/icons/mic_96px.png";
   static const stop48px = "assets/icons/stop_48px.png";
-  static const mediaRecorderSendIcon = "assets/icons/media_recorder_send_icon.png";
+  static const mediaRecorderSendIcon =
+      "assets/icons/media_recorder_send_icon.png";
   static const pause72px = "assets/icons/pause_72px.png";
   static const drag = "assets/icons/drag.png";
-  static const changeScope96px= "assets/icons/change_scope_96px.png";
+  static const changeScope96px = "assets/icons/change_scope_96px.png";
   static const cancel = "assets/icons/cancel.png";
   static const block = "assets/icons/block.png";
-  static const incomingAudioCallNoFill = "assets/icons/incoming_audio_no_fill.png";
-  static const outgoingAudioCallNoFill = "assets/icons/outgoing_audio_no_fill.png";
-  static const incomingVideoCallNoFill = "assets/icons/incoming_video_no_fill.png";
-  static const outgoingVideoCallNoFill = "assets/icons/outgoing_video_no_fill.png";
+  static const incomingAudioCallNoFill =
+      "assets/icons/incoming_audio_no_fill.png";
+  static const outgoingAudioCallNoFill =
+      "assets/icons/outgoing_audio_no_fill.png";
+  static const incomingVideoCallNoFill =
+      "assets/icons/incoming_video_no_fill.png";
+  static const outgoingVideoCallNoFill =
+      "assets/icons/outgoing_video_no_fill.png";
 }
 
 ///[CometChatAssetConstants] is an extension that provides asset image paths according to the brightness mode of the device
@@ -127,11 +137,9 @@ extension CometChatAssetConstants on AssetConstants {
 
 ///[SvgAssetConstants] is a utility class that stores String constants of asset image paths
 class SvgAssetConstants {
-
   SvgAssetConstants(Brightness brightness) {
     // brightness parameter can be used for mode selection if needed
   }
 
   static const videoCall = "assets/icons/svg/calls/video_call.svg";
-
 }

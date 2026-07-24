@@ -51,12 +51,11 @@ class ConversationsEmptyView extends StatelessWidget {
         children: [
           // Empty state image
           Padding(
-            padding: EdgeInsets.only(
-              bottom: spacing.padding5 ?? 0,
-            ),
+            padding: EdgeInsets.only(bottom: spacing.padding5 ?? 0),
             child: Image.asset(
-              AssetConstants(CometChatThemeHelper.getBrightness(context))
-                  .conversationEmpty,
+              AssetConstants(
+                CometChatThemeHelper.getBrightness(context),
+              ).conversationEmpty,
               package: UIConstants.packageName,
               width: 162,
               height: 121,
@@ -66,36 +65,32 @@ class ConversationsEmptyView extends StatelessWidget {
           Text(
             cc.Translations.of(context).noConversationsYet,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: style.emptyStateTextColor ?? colorPalette.textPrimary,
-              fontSize: typography.heading3?.bold?.fontSize,
-              fontWeight: typography.heading3?.bold?.fontWeight,
-              fontFamily: typography.heading3?.bold?.fontFamily,
-            )
-                .merge(
-                  style.emptyStateTextStyle,
-                )
-                .copyWith(
-                  color: style.emptyStateTextColor,
-                ),
+            style:
+                TextStyle(
+                      color:
+                          style.emptyStateTextColor ?? colorPalette.textPrimary,
+                      fontSize: typography.heading3?.bold?.fontSize,
+                      fontWeight: typography.heading3?.bold?.fontWeight,
+                      fontFamily: typography.heading3?.bold?.fontFamily,
+                    )
+                    .merge(style.emptyStateTextStyle)
+                    .copyWith(color: style.emptyStateTextColor),
           ),
           // Subtitle text - "Start a new chat or invite..."
           Text(
             cc.Translations.of(context).startNewChatOrInvite,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: style.emptyStateSubTitleTextColor ??
-                  colorPalette.textSecondary,
-              fontSize: typography.heading3?.regular?.fontSize,
-              fontWeight: typography.heading3?.regular?.fontWeight,
-              fontFamily: typography.heading3?.regular?.fontFamily,
-            )
-                .merge(
-                  style.emptyStateSubTitleTextStyle,
-                )
-                .copyWith(
-                  color: style.emptyStateSubTitleTextColor,
-                ),
+            style:
+                TextStyle(
+                      color:
+                          style.emptyStateSubTitleTextColor ??
+                          colorPalette.textSecondary,
+                      fontSize: typography.heading3?.regular?.fontSize,
+                      fontWeight: typography.heading3?.regular?.fontWeight,
+                      fontFamily: typography.heading3?.regular?.fontFamily,
+                    )
+                    .merge(style.emptyStateSubTitleTextStyle)
+                    .copyWith(color: style.emptyStateSubTitleTextColor),
           ),
         ],
       ),

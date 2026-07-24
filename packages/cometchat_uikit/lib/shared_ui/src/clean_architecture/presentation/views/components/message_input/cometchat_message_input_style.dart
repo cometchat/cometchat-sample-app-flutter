@@ -17,7 +17,8 @@ import "../../../../clean_architecture.dart";
 /// borderRadius: BorderRadius.circular(10),
 /// )
 /// ```
-class CometChatMessageInputStyle extends ThemeExtension<CometChatMessageInputStyle> {
+class CometChatMessageInputStyle
+    extends ThemeExtension<CometChatMessageInputStyle> {
   const CometChatMessageInputStyle({
     this.textStyle,
     this.textColor,
@@ -113,13 +114,21 @@ class CometChatMessageInputStyle extends ThemeExtension<CometChatMessageInputSty
     return CometChatMessageInputStyle(
       textStyle: TextStyle.lerp(textStyle, other.textStyle, t),
       textColor: Color.lerp(textColor, other.textColor, t),
-      placeholderTextStyle: TextStyle.lerp(placeholderTextStyle, other.placeholderTextStyle, t),
+      placeholderTextStyle: TextStyle.lerp(
+        placeholderTextStyle,
+        other.placeholderTextStyle,
+        t,
+      ),
       placeholderColor: Color.lerp(placeholderColor, other.placeholderColor, t),
       dividerTint: Color.lerp(dividerTint, other.dividerTint, t),
       dividerHeight: lerpDouble(dividerHeight, other.dividerHeight, t),
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius: BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       filledColor: Color.lerp(filledColor, other.filledColor, t),
     );
   }

@@ -12,11 +12,7 @@ class StatusIndicatorConfig {
   /// The icon widget for the status indicator (for group types).
   final Widget? icon;
 
-  const StatusIndicatorConfig({
-    required this.show,
-    this.color,
-    this.icon,
-  });
+  const StatusIndicatorConfig({required this.show, this.color, this.icon});
 }
 
 /// Utility class for determining status indicator configuration.

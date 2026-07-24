@@ -6,14 +6,14 @@ import 'package:url_launcher/url_launcher.dart';
 
 ///[CometChatWebView] is widget that renders a WebView
 class CometChatWebView extends StatefulWidget {
-  const CometChatWebView(
-      {super.key,
-      required this.title,
-      required this.webViewUrl,
-      this.backIcon,
-      this.appBarColor,
-      this.webViewStyle,
-      });
+  const CometChatWebView({
+    super.key,
+    required this.title,
+    required this.webViewUrl,
+    this.backIcon,
+    this.appBarColor,
+    this.webViewStyle,
+  });
 
   ///[title] of the page
   final String title;
@@ -46,21 +46,25 @@ class _CometChatWebViewState extends State<CometChatWebView> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: widget.backIcon ??
+          icon:
+              widget.backIcon ??
               Icon(
                 Icons.close,
                 size: 24,
-                color: widget.webViewStyle?.backIconColor ??
+                color:
+                    widget.webViewStyle?.backIconColor ??
                     const Color(0xff3399FF),
               ),
         ),
         title: Text(
           widget.title,
-          style: widget.webViewStyle?.titleStyle ??
+          style:
+              widget.webViewStyle?.titleStyle ??
               const TextStyle(
-                  color: Color(0xff141414),
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500),
+                color: Color(0xff141414),
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+              ),
         ),
       ),
       body: kIsWeb ? _buildWebFallback() : _buildNativeWebView(),
@@ -97,11 +101,14 @@ class _CometChatWebViewState extends State<CometChatWebView> {
 
   /// On native platforms, use the webview_flutter package
   Widget _buildNativeWebView() {
-    return Stack(children: <Widget>[
-      WebViewWidget(
+    return Stack(
+      children: <Widget>[
+        WebViewWidget(
           controller: WebViewController()
             ..loadRequest(Uri.parse(widget.webViewUrl))
-            ..setJavaScriptMode(JavaScriptMode.unrestricted)),
-    ]);
+            ..setJavaScriptMode(JavaScriptMode.unrestricted),
+        ),
+      ],
+    );
   }
 }

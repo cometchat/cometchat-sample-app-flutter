@@ -1,5 +1,6 @@
 /// Use cases exports for groups module
 /// This barrel file provides a single import point for all use case components
+library;
 
 export 'get_groups_usecase.dart';
 export 'load_more_groups_usecase.dart';

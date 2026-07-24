@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/call_logs_repository.dart';
@@ -14,7 +14,7 @@ class InitiateCallUseCase {
   ///
   /// [call] - The call object containing receiver details and call type
   ///
-  /// Returns Result<Call> containing the initiated call or failure.
+  /// Returns `Result<Call>` containing the initiated call or failure.
   Future<Result<Call>> call(Call callObject) async {
     // Validate call object - these are required non-nullable fields,
     // but we still validate they're not empty strings

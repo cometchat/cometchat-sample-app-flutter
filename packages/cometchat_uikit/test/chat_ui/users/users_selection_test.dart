@@ -78,13 +78,16 @@ void main() {
 
   setUp(() {
     repo = MockUsersRepository();
-    when(() => repo.getLoggedInUser())
-        .thenAnswer((_) async => Success(FakeUser('me', 'Me')));
-    when(() => repo.getUsers(
-          limit: any(named: 'limit'),
-          searchKeyword: any(named: 'searchKeyword'),
-          usersRequestBuilder: any(named: 'usersRequestBuilder'),
-        )).thenAnswer((_) async => Success(_generateUsers(5)));
+    when(
+      () => repo.getLoggedInUser(),
+    ).thenAnswer((_) async => Success(FakeUser('me', 'Me')));
+    when(
+      () => repo.getUsers(
+        limit: any(named: 'limit'),
+        searchKeyword: any(named: 'searchKeyword'),
+        usersRequestBuilder: any(named: 'usersRequestBuilder'),
+      ),
+    ).thenAnswer((_) async => Success(_generateUsers(5)));
   });
 
   // =========================================================================
@@ -234,10 +237,14 @@ void main() {
       verify: (bloc) {
         final state = bloc.state as UsersLoaded;
         final selectedIds = state.selectedUsers;
-        final selectedUsers =
-            state.users.where((u) => selectedIds.contains(u.uid)).toList();
+        final selectedUsers = state.users
+            .where((u) => selectedIds.contains(u.uid))
+            .toList();
         expect(selectedUsers.length, 2);
-        expect(selectedUsers.map((u) => u.uid), containsAll(['uid_1', 'uid_3']));
+        expect(
+          selectedUsers.map((u) => u.uid),
+          containsAll(['uid_1', 'uid_3']),
+        );
       },
     );
 
@@ -268,18 +275,25 @@ void main() {
       'selection preserved across LoadMoreUsers',
       build: () {
         var callCount = 0;
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async {
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async {
           callCount++;
           if (callCount == 1) {
-            return Success(List.generate(
-                30, (i) => FakeUser('uid_$i', 'User $i')));
+            return Success(
+              List.generate(30, (i) => FakeUser('uid_$i', 'User $i')),
+            );
           }
-          return Success(List.generate(
-              10, (i) => FakeUser('uid_${30 + i}', 'User ${30 + i}')));
+          return Success(
+            List.generate(
+              10,
+              (i) => FakeUser('uid_${30 + i}', 'User ${30 + i}'),
+            ),
+          );
         });
         return _makeBloc(repo);
       },
@@ -449,11 +463,13 @@ void main() {
       'selection survives error during LoadMoreUsers',
       build: () {
         var callCount = 0;
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async {
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer((_) async {
           callCount++;
           if (callCount == 1) {
             return Success(_generateUsers(30));
@@ -497,12 +513,16 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'large selection set (100 users) works correctly',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(
-            List.generate(100, (i) => FakeUser('uid_$i', 'User $i'))));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer(
+          (_) async =>
+              Success(List.generate(100, (i) => FakeUser('uid_$i', 'User $i'))),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {
@@ -522,12 +542,16 @@ void main() {
     blocTest<UsersBloc, UsersState>(
       'ClearUserSelection after large selection empties completely',
       build: () {
-        when(() => repo.getUsers(
-              limit: any(named: 'limit'),
-              searchKeyword: any(named: 'searchKeyword'),
-              usersRequestBuilder: any(named: 'usersRequestBuilder'),
-            )).thenAnswer((_) async => Success(
-            List.generate(50, (i) => FakeUser('uid_$i', 'User $i'))));
+        when(
+          () => repo.getUsers(
+            limit: any(named: 'limit'),
+            searchKeyword: any(named: 'searchKeyword'),
+            usersRequestBuilder: any(named: 'usersRequestBuilder'),
+          ),
+        ).thenAnswer(
+          (_) async =>
+              Success(List.generate(50, (i) => FakeUser('uid_$i', 'User $i'))),
+        );
         return _makeBloc(repo);
       },
       act: (bloc) async {

@@ -7,19 +7,19 @@ import '../../cometchat_uikit_shared.dart' as cc;
 ///provides the default action to execute on a conversation
 class ConversationUtils {
   /// Get default options for a conversation
-  /// 
+  ///
   /// **Deprecated**: This method previously required a controller parameter.
   /// Use [getDefaultOptionsWithCallback] instead to provide custom delete action.
   @Deprecated(
     'Use getDefaultOptionsWithCallback instead. '
-    'See CONVERSATIONS_MIGRATION_GUIDE.md for migration instructions.'
+    'See CONVERSATIONS_MIGRATION_GUIDE.md for migration instructions.',
   )
   static List<CometChatOption>? getDefaultOptions(
-      Conversation conversation,
-      dynamic controller,
-      BuildContext context,
-      CometChatColorPalette colorPalette,
-      ) {
+    Conversation conversation,
+    dynamic controller,
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+  ) {
     return getDefaultOptionsWithCallback(
       conversation: conversation,
       context: context,
@@ -29,7 +29,7 @@ class ConversationUtils {
   }
 
   /// Get default options for a conversation with custom delete callback
-  /// 
+  ///
   /// This is the new recommended way to get default conversation options.
   /// Provide a custom [onDelete] callback to handle deletion.
   static List<CometChatOption>? getDefaultOptionsWithCallback({
@@ -40,24 +40,26 @@ class ConversationUtils {
   }) {
     return [
       CometChatOption(
-          id: ConversationOptionConstants.delete,
-          icon: AssetConstants.delete,
-          packageName: UIConstants.packageName,
-          backgroundColor: colorPalette.background1,
-          iconTint: colorPalette.error,
-          title: Translations.of(context).delete,
-          onClick: () {
-            if (onDelete != null) {
-              onDelete(conversation);
-            }
-          },
+        id: ConversationOptionConstants.delete,
+        icon: AssetConstants.delete,
+        packageName: UIConstants.packageName,
+        backgroundColor: colorPalette.background1,
+        iconTint: colorPalette.error,
+        title: Translations.of(context).delete,
+        onClick: () {
+          if (onDelete != null) {
+            onDelete(conversation);
+          }
+        },
       ),
     ];
   }
 
   static String getLastCustomMessage(
-      Conversation conversation, BuildContext context) {
-    if(conversation.lastMessage is CustomMessage) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
+    if (conversation.lastMessage is CustomMessage) {
       CustomMessage customMessage = conversation.lastMessage as CustomMessage;
       String messageType = customMessage.type;
       String subtitle = '';
@@ -92,7 +94,9 @@ class ConversationUtils {
   /// If initiated by the logged-in user: "You've initiated a group call"
   /// If initiated by someone else: "{Name} has initiated a group call"
   static String _getGroupCallSubtitle(
-      BaseMessage message, BuildContext context) {
+    BaseMessage message,
+    BuildContext context,
+  ) {
     if (message.sender?.uid == CometChatUIKit.loggedInUser?.uid) {
       return Translations.of(context).youInitiatedGroupCall;
     } else {
@@ -117,17 +121,32 @@ class ConversationUtils {
     result = result.replaceAllMapped(RegExp(r'_{2}(.+?)_{2}'), (m) => m[1]!);
     // Italic (*text* or _text_)
     result = result.replaceAllMapped(RegExp(r'\*(.+?)\*'), (m) => m[1]!);
-    result = result.replaceAllMapped(RegExp(r'(?<=\s|^)_(.+?)_(?=\s|$)'), (m) => m[1]!);
+    result = result.replaceAllMapped(
+      RegExp(r'(?<=\s|^)_(.+?)_(?=\s|$)'),
+      (m) => m[1]!,
+    );
     // Strikethrough (~~text~~)
     result = result.replaceAllMapped(RegExp(r'~~(.+?)~~'), (m) => m[1]!);
     // Blockquote (>> or > at line start)
-    result = result.replaceAll(RegExp(r'(^|\n)>{1,2}\s?', multiLine: true), r'$1');
+    result = result.replaceAll(
+      RegExp(r'(^|\n)>{1,2}\s?', multiLine: true),
+      r'$1',
+    );
     // Headings (# ## ### etc.)
-    result = result.replaceAll(RegExp(r'(^|\n)#{1,6}\s+', multiLine: true), r'$1');
+    result = result.replaceAll(
+      RegExp(r'(^|\n)#{1,6}\s+', multiLine: true),
+      r'$1',
+    );
     // Unordered list markers (- or * at line start)
-    result = result.replaceAll(RegExp(r'(^|\n)[*\-]\s+', multiLine: true), r'$1');
+    result = result.replaceAll(
+      RegExp(r'(^|\n)[*\-]\s+', multiLine: true),
+      r'$1',
+    );
     // Ordered list markers (1. 2. etc.)
-    result = result.replaceAll(RegExp(r'(^|\n)\d+\.\s+', multiLine: true), r'$1');
+    result = result.replaceAll(
+      RegExp(r'(^|\n)\d+\.\s+', multiLine: true),
+      r'$1',
+    );
     // Collapse newlines into single space for single-line subtitle display
     result = result.replaceAll(RegExp(r'\n+'), ' ');
     // Collapse multiple spaces into one
@@ -136,7 +155,9 @@ class ConversationUtils {
   }
 
   static String getLastMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     BaseMessage message = conversation.lastMessage!;
     String messageType = message.type;
     String subtitle;
@@ -146,7 +167,9 @@ class ConversationUtils {
         subtitle = (message as TextMessage).text;
         if (message.mentionedUsers.isNotEmpty) {
           subtitle = CometChatMentionsFormatter.getTextWithMentions(
-              message.text, message.mentionedUsers);
+            message.text,
+            message.mentionedUsers,
+          );
         }
         // Strip markdown syntax so subtitle shows plain text
         subtitle = stripMarkdownSyntax(subtitle);
@@ -172,41 +195,39 @@ class ConversationUtils {
   }
 
   /// Truncates long URLs in text to make them more readable in conversation subtitles.
-  /// 
+  ///
   /// URLs longer than [maxUrlLength] characters are shortened to show the domain
   /// and a truncated path (e.g., "https://example.com/very/long/path..." becomes
   /// "example.com/very/lo...").
   static String _truncateUrlsInText(String text, {int maxUrlLength = 30}) {
     // Regular expression to match URLs
-    final urlRegex = RegExp(
-      r'https?://[^\s]+',
-      caseSensitive: false,
-    );
-    
+    final urlRegex = RegExp(r'https?://[^\s]+', caseSensitive: false);
+
     return text.replaceAllMapped(urlRegex, (match) {
       final url = match.group(0)!;
       if (url.length <= maxUrlLength) {
         return url;
       }
-      
+
       // Try to parse the URL to extract domain
       try {
         final uri = Uri.parse(url);
         final domain = uri.host;
         final path = uri.path;
-        
+
         // If just the domain fits, show domain + truncated path
         if (domain.length < maxUrlLength - 3) {
-          final remainingLength = maxUrlLength - domain.length - 3; // -3 for "..."
+          final remainingLength =
+              maxUrlLength - domain.length - 3; // -3 for "..."
           if (path.isNotEmpty && remainingLength > 0) {
-            final truncatedPath = path.length > remainingLength 
+            final truncatedPath = path.length > remainingLength
                 ? '${path.substring(0, remainingLength)}...'
                 : path;
             return '$domain$truncatedPath';
           }
           return '$domain...';
         }
-        
+
         // Domain itself is too long, truncate it
         return '${domain.substring(0, maxUrlLength - 3)}...';
       } catch (e) {
@@ -217,7 +238,9 @@ class ConversationUtils {
   }
 
   static String getLastInteractiveMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     BaseMessage message = conversation.lastMessage!;
     String messageType = message.type;
     String subtitle;
@@ -231,9 +254,12 @@ class ConversationUtils {
       case MessageTypeConstants.scheduler:
         SchedulerMessage schedulerMessage =
             SchedulerMessage.fromInteractiveMessage(
-                message as InteractiveMessage);
-        String meetingMessage =
-            SchedulerUtils.getSchedulerTitle(schedulerMessage, context);
+              message as InteractiveMessage,
+            );
+        String meetingMessage = SchedulerUtils.getSchedulerTitle(
+          schedulerMessage,
+          context,
+        );
         subtitle = "🗓️ $meetingMessage";
         break;
       default:
@@ -243,7 +269,9 @@ class ConversationUtils {
   }
 
   static String getLastActionMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     BaseMessage message = conversation.lastMessage!;
     String subtitle;
 
@@ -258,7 +286,9 @@ class ConversationUtils {
   }
 
   static String getLastCallMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     Call call = conversation.lastMessage as Call;
     User? conversationWithUser;
     Group? conversationWithGroup;
@@ -327,7 +357,9 @@ class ConversationUtils {
   }
 
   static String getLastConversationMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     String? messageCategory = conversation.lastMessage?.category;
     String subtitle;
     switch (messageCategory) {
@@ -359,8 +391,9 @@ class ConversationUtils {
         // AIAssistantMessage; fall back to a localized label when it's empty
         // (previously fell through to the raw message type).
         final agentMsg = conversation.lastMessage;
-        final agentText =
-            (agentMsg is AIAssistantMessage) ? (agentMsg.text ?? '') : '';
+        final agentText = (agentMsg is AIAssistantMessage)
+            ? (agentMsg.text ?? '')
+            : '';
         subtitle = agentText.isNotEmpty
             ? agentText
             : Translations.of(context).aiAgentMessage;
@@ -376,7 +409,10 @@ class ConversationUtils {
   // return icon widget to be shown in the prefix to the last message
 
   static Widget getLastConversationIcon(
-      Conversation conversation, BuildContext context, Color? iconColor) {
+    Conversation conversation,
+    BuildContext context,
+    Color? iconColor,
+  ) {
     String? messageCategory = conversation.lastMessage?.category;
     Widget subtitle;
     switch (messageCategory) {
@@ -394,12 +430,7 @@ class ConversationUtils {
         break;
       case MessageCategoryConstants.interactive:
         // subtitle = getLastInteractiveWidget(conversation, context);
-        subtitle =  Icon(
-    Icons.block,
-    color:  iconColor,
-    size: 16,
-    )
-    ;
+        subtitle = Icon(Icons.block, color: iconColor, size: 16);
         break;
       default:
         subtitle = const SizedBox();

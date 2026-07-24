@@ -3,7 +3,7 @@ import '../../../formatters/formatters.dart';
 import '../text_bubble/cometchat_text_bubble_style.dart';
 import '../image_bubble/cometchat_image_bubble_style.dart';
 import '../video_bubble/cometchat_video_bubble_style.dart';
-import '../audio_bubble/cometchat_audio_bubble_style.dart';
+import '../audio_bubble/cometchat_voice_note_bubble_style.dart';
 import '../file_bubble/cometchat_file_bubble_style.dart';
 import 'bubble_factory.dart';
 import 'text_bubble_factory.dart';
@@ -24,12 +24,14 @@ class DefaultBubbleFactories {
     CometChatTextBubbleStyle? outgoingTextStyle,
     CometChatImageBubbleStyle? imageStyle,
     CometChatVideoBubbleStyle? videoStyle,
-    CometChatAudioBubbleStyle? audioStyle,
+    CometChatVoiceNoteBubbleStyle? audioStyle,
     CometChatFileBubbleStyle? fileStyle,
   }) {
     return {
-      _key(MessageCategoryConstants.message, MessageTypeConstants.text):
-          TextBubbleFactory(
+      _key(
+        MessageCategoryConstants.message,
+        MessageTypeConstants.text,
+      ): TextBubbleFactory(
         textFormatters: FormatterUtils.ensureMarkdownFormatter(textFormatters),
         incomingStyle: incomingTextStyle,
         outgoingStyle: outgoingTextStyle,

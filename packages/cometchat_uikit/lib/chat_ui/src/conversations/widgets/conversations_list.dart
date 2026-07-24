@@ -9,7 +9,7 @@ import '../../../../cometchat_chat_uikit.dart';
 /// - [ConversationsLoading] → [ConversationsLoadingView]
 /// - [ConversationsEmpty] → [ConversationsEmptyView]
 /// - [ConversationsError] → [ConversationsErrorView]
-/// - [ConversationsLoaded] → ListView.builder with [ConversationsListItem]
+/// - [ConversationsLoaded] → ListView.builder with [CometChatConversationListItem]
 ///
 /// The widget handles pagination by dispatching [LoadMoreConversations] event
 /// when the user scrolls to the bottom of the list.
@@ -124,18 +124,18 @@ class ConversationsList extends StatelessWidget {
 
   /// Custom subtitle view builder.
   final Widget? Function(BuildContext context, Conversation conversation)?
-      subtitleView;
+  subtitleView;
 
   /// Custom trailing view builder.
   final Widget? Function(Conversation conversation)? trailingView;
 
   /// Custom leading view builder.
   final Widget? Function(BuildContext context, Conversation conversation)?
-      leadingView;
+  leadingView;
 
   /// Custom title view builder.
   final Widget? Function(BuildContext context, Conversation conversation)?
-      titleView;
+  titleView;
 
   /// Custom style for the list item.
   final ListItemStyle? listItemStyle;
@@ -235,7 +235,12 @@ class ConversationsList extends StatelessWidget {
 
   /// Optional wrapper builder that wraps each conversation list item.
   /// Used by the parent widget to add overlays (e.g., delete button) on top of items.
-  final Widget Function(BuildContext context, Conversation conversation, Widget child)? itemWrapperBuilder;
+  final Widget Function(
+    BuildContext context,
+    Conversation conversation,
+    Widget child,
+  )?
+  itemWrapperBuilder;
 
   /// Callback triggered when conversations are loaded successfully.
   final OnLoad<Conversation>? onLoad;
@@ -258,11 +263,13 @@ class ConversationsList extends StatelessWidget {
           onEmpty!();
         }
         if (state is ConversationsError && onError != null) {
-          onError!(CometChatException(
-            'CONVERSATIONS_ERROR',
-            state.message,
-            state.message,
-          ));
+          onError!(
+            CometChatException(
+              'CONVERSATIONS_ERROR',
+              state.message,
+              state.message,
+            ),
+          );
         }
       },
       builder: (context, state) {
@@ -378,8 +385,10 @@ class ConversationsList extends StatelessWidget {
       return listItemView!(conversation);
     }
 
-    final isSelected = selectedConversations.contains(conversation.conversationId);
-    
+    final isSelected = selectedConversations.contains(
+      conversation.conversationId,
+    );
+
     // Calculate hideThreadIndicator dynamically
     // Show thread indicator (hideThreadIndicator = false) only when:
     // The last message has a parentMessageId (is a reply in a thread)
@@ -388,7 +397,7 @@ class ConversationsList extends StatelessWidget {
     return CometChatConversationListItem(
       conversation: conversation,
       onItemClick: (conv) => _handleItemTap(conv, selectedConversations),
-      onItemLongClick: onItemLongPress != null 
+      onItemLongClick: onItemLongPress != null
           ? (conv) => _handleItemLongPress(conv, selectedConversations)
           : null,
       onSelectionToggle: () => _handleSelectionToggle(conversation),
@@ -413,7 +422,7 @@ class ConversationsList extends StatelessWidget {
       readIcon: readIcon,
       deliveredIcon: deliveredIcon,
       sentIcon: sentIcon,
-      leadingView: leadingView != null 
+      leadingView: leadingView != null
           ? (conv, typing) => leadingView!(context, conv)
           : null,
       titleView: titleView != null
@@ -455,8 +464,9 @@ class ConversationsList extends StatelessWidget {
         (activateSelection == ActivateSelection.onLongClick &&
                 selectedConversations.isNotEmpty) &&
             !(selectionMode == null || selectionMode == SelectionMode.none)) {
-      conversationsBloc
-          .add(ToggleConversationSelection(conversation.conversationId ?? ''));
+      conversationsBloc.add(
+        ToggleConversationSelection(conversation.conversationId ?? ''),
+      );
     } else if (onItemTap != null) {
       onItemTap!(conversation);
     }
@@ -470,8 +480,9 @@ class ConversationsList extends StatelessWidget {
     if (activateSelection == ActivateSelection.onLongClick &&
         selectedConversations.isEmpty &&
         !(selectionMode == null || selectionMode == SelectionMode.none)) {
-      conversationsBloc
-          .add(ToggleConversationSelection(conversation.conversationId ?? ''));
+      conversationsBloc.add(
+        ToggleConversationSelection(conversation.conversationId ?? ''),
+      );
     } else if (onItemLongPress != null) {
       onItemLongPress!(conversation);
     }
@@ -479,12 +490,13 @@ class ConversationsList extends StatelessWidget {
 
   /// Handles selection toggle for a conversation.
   void _handleSelectionToggle(Conversation conversation) {
-    conversationsBloc
-        .add(ToggleConversationSelection(conversation.conversationId ?? ''));
+    conversationsBloc.add(
+      ToggleConversationSelection(conversation.conversationId ?? ''),
+    );
   }
 
   /// Determines whether to hide the thread indicator for a conversation.
-  /// 
+  ///
   /// Returns false (show indicator) only when:
   /// - The last message has a parentMessageId (is a reply in a thread)
   /// - hideThreadIndicator parameter is not explicitly set to true
@@ -493,15 +505,15 @@ class ConversationsList extends StatelessWidget {
     if (hideThreadIndicator == true) {
       return true;
     }
-    
+
     final lastMessage = conversation.lastMessage;
     if (lastMessage == null) {
       return true;
     }
-    
+
     // Show thread indicator only when message has a parentMessageId (is a reply in a thread)
     final isThreadReply = lastMessage.parentMessageId != 0;
-    
+
     // Hide indicator if it's not a thread reply
     return !isThreadReply;
   }

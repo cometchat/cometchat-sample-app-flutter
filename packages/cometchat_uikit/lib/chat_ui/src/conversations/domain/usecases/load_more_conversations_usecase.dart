@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../repositories/conversations_repository.dart';
 
@@ -10,14 +10,14 @@ class LoadMoreConversationsUseCase {
   const LoadMoreConversationsUseCase(this.repository);
 
   /// Execute the use case to load more conversations
-  /// 
+  ///
   /// [limit] - Maximum number of conversations to fetch (default: 30)
   /// [fromId] - ID to start pagination from (required for load more)
   /// [currentConversations] - Currently loaded conversations to prevent duplicates
   /// [requestBuilder] - Optional caller-provided builder whose filter fields
   ///   are forwarded to the repository.
-  /// 
-  /// Returns Result<List<Conversation>> containing additional conversations or failure
+  ///
+  /// Returns `Result<List<Conversation>>` containing additional conversations or failure
   Future<Result<List<Conversation>>> call({
     int limit = 30,
     required String fromId,
@@ -60,11 +60,16 @@ class LoadMoreConversationsUseCase {
       }
 
       // Create a set of existing conversation IDs for efficient lookup
-      final existingIds = currentConversations.map((c) => c.conversationId).toSet();
-      
+      final existingIds = currentConversations
+          .map((c) => c.conversationId)
+          .toSet();
+
       // Filter out any conversations that already exist
       final filteredConversations = newConversations
-          .where((conversation) => !existingIds.contains(conversation.conversationId))
+          .where(
+            (conversation) =>
+                !existingIds.contains(conversation.conversationId),
+          )
           .toList();
 
       return filteredConversations;

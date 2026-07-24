@@ -3,6 +3,7 @@
 /// This file exports all modular widget components extracted from
 /// the CometChatCallLogs widget for better maintainability
 /// and reusability.
+library;
 
 // State Views
 export 'call_logs_loading_view.dart';

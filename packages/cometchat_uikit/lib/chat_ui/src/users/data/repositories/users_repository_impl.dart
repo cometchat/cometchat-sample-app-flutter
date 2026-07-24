@@ -1,4 +1,4 @@
-import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart' hide CardMessage;
 import '../../../../../shared_ui/src/clean_architecture/core/result.dart';
 import '../../domain/repositories/users_repository.dart';
 import '../datasources/users_remote_datasource.dart';
@@ -101,7 +101,8 @@ class UsersRepositoryImpl implements UsersRepository {
       );
     } catch (e) {
       return Failure(
-        message: 'Unexpected error while getting logged-in user: ${e.toString()}',
+        message:
+            'Unexpected error while getting logged-in user: ${e.toString()}',
         exception: e is Exception ? e : null,
       );
     }
