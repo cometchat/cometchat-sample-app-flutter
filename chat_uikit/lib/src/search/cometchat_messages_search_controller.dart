@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../cometchat_chat_uikit.dart';
@@ -8,26 +7,19 @@ class CometChatMessagesSearchController
     extends CometChatSearchListController<BaseMessage, int>
     with CometChatMessageEventListener {
   CometChatMessagesSearchController({
-    required BuilderProtocol builderProtocol,
-    Function(Exception)? onError,
-    OnLoad<BaseMessage>? onLoad,
-    OnEmpty? onEmpty,
+    required super.builderProtocol,
+    super.onError,
+    super.onLoad,
+    super.onEmpty,
     this.user,
     this.group,
     this.tag,
-    this.textFormatters
-  }) : super(
-          builderProtocol: builderProtocol,
-          onError: onError,
-          onLoad: onLoad,
-          onEmpty: onEmpty,
-        );
+    this.textFormatters,
+  });
 
   final String? tag;
 
   late String dateStamp;
-  late String _messageListenerId;
-  late String _groupListenerId;
 
   // The text formatters to be used for formatting text messages.
   List<CometChatTextFormatter>? textFormatters;
@@ -48,7 +40,6 @@ class CometChatMessagesSearchController
   int newUnreadMessageCount = 0;
   static int counter = 0;
   bool isThread = false;
-  late String _uiGroupListener;
   late String _uiMessageListener;
   bool inInitialized = false;
 
@@ -60,7 +51,11 @@ class CometChatMessagesSearchController
 
   late CometChatSearchController searchController;
 
+  // super.onInit() is deliberately not called: CometChatListController.onInit()
+  // kicks off loadMoreElements(), and a search list must stay empty until the
+  // user actually searches. Calling it would fetch on open.
   @override
+  // ignore: must_call_super
   void onInit() {
     isLoading = false;
     dateStamp = DateTime.now().microsecondsSinceEpoch.toString();
@@ -79,7 +74,6 @@ class CometChatMessagesSearchController
   }
 
   void initializeTextFormatters() {
-    CometChatConversationsStyle? style;
     CometChatMentionsStyle? ccMentionStyle;
     // if (context != null) {
     //   style = CometChatThemeHelper.getTheme<CometChatConversationsStyle>(
@@ -93,15 +87,19 @@ class CometChatMessagesSearchController
 
     if ((textFormatters.isEmpty ||
         textFormatters.indexWhere(
-                (element) => element is CometChatMentionsFormatter) ==
+              (element) => element is CometChatMentionsFormatter,
+            ) ==
             -1)) {
-      textFormatters.add(CometChatMentionsFormatter(
-          style: ccMentionStyle /*?? mentionsStyle*/));
+      textFormatters.add(
+        CometChatMentionsFormatter(style: ccMentionStyle /*?? mentionsStyle*/),
+      );
     }
 
     // Ensure rich text formatter is included for rendering formatted messages in search results
     if (textFormatters.indexWhere(
-            (element) => element is CometChatRichTextFormatter) == -1) {
+          (element) => element is CometChatRichTextFormatter,
+        ) ==
+        -1) {
       textFormatters.add(CometChatRichTextFormatter());
     }
 
@@ -139,7 +137,7 @@ class CometChatMessagesSearchController
   }
 
   final deBouncer = Debouncer(milliseconds: 500);
-  
+
   /// Request version to track and ignore stale responses
   int _requestVersion = 0;
 
@@ -147,8 +145,10 @@ class CometChatMessagesSearchController
     handleSearchAndFilters(filters: filters);
   }
 
-  void handleSearchAndFilters(
-      {String? searchText, Set<String>? filters}) async {
+  void handleSearchAndFilters({
+    String? searchText,
+    Set<String>? filters,
+  }) async {
     final currentFilters = filters ?? selectedFilters;
     final currentSearch = (searchText ?? searchController.searchText).trim();
 
@@ -160,7 +160,7 @@ class CometChatMessagesSearchController
       SearchConstants.videos,
       SearchConstants.audio,
       SearchConstants.documents,
-      SearchConstants.links
+      SearchConstants.links,
     };
     final hasValidFilter = currentFilters.any((f) => validFilters.contains(f));
     final hasInvalidFilter = currentFilters.isNotEmpty && !hasValidFilter;
@@ -175,7 +175,7 @@ class CometChatMessagesSearchController
 
     // Cancel any pending debounced operations first
     deBouncer.cancel();
-    
+
     // Increment request version to invalidate any in-flight requests
     _requestVersion++;
     final currentRequestVersion = _requestVersion;
@@ -246,14 +246,14 @@ class CometChatMessagesSearchController
 
     builderProtocol = UIMessagesBuilder(builder);
     request = builderProtocol.getSearchRequest(currentSearch);
-    
+
     // Use debouncer for typing search
     deBouncer.run(() async {
       // Check if this request is still valid (not superseded by a newer one)
       if (currentRequestVersion != _requestVersion) {
         return;
       }
-      
+
       await _loadMoreWithVersionCheck(currentRequestVersion);
     });
   }
@@ -279,12 +279,12 @@ class CometChatMessagesSearchController
       await request.fetchPrevious(
         onSuccess: (List<BaseMessage> fetchedList) {
           isFetching = false;
-          
+
           // Ignore results if request version has changed
           if (requestVersion != _requestVersion) {
             return;
           }
-          
+
           if (fetchedList.isEmpty) {
             isLoading = false;
             hasMoreItems = false;
@@ -295,8 +295,10 @@ class CometChatMessagesSearchController
             hasMoreItems = fetchedList.length >= limit;
             for (var element in fetchedList.reversed) {
               if (element is InteractiveMessage) {
-                element = InteractiveMessageUtils
-                    .getSpecificMessageFromInteractiveMessage(element);
+                element =
+                    InteractiveMessageUtils.getSpecificMessageFromInteractiveMessage(
+                      element,
+                    );
               }
               list.add(element);
             }
@@ -307,12 +309,12 @@ class CometChatMessagesSearchController
         },
         onError: (CometChatException e) {
           isFetching = false;
-          
+
           // Ignore errors if request version has changed
           if (requestVersion != _requestVersion) {
             return;
           }
-          
+
           error = e;
           hasError = true;
           isLoading = false;
@@ -323,12 +325,12 @@ class CometChatMessagesSearchController
       );
     } catch (e, s) {
       isFetching = false;
-      
+
       // Ignore errors if request version has changed
       if (requestVersion != _requestVersion) {
         return;
       }
-      
+
       error = CometChatException("ERR", s.toString(), "Error");
       hasError = true;
       isLoading = false;
@@ -349,9 +351,11 @@ class CometChatMessagesSearchController
   /// @param message The message to validate.
   /// @return True if both category and type are allowed, false otherwise.
   bool messageCategoryTypeCheck(BaseMessage message) {
-    List<String> categories = builderProtocol.requestBuilder.categories ??
+    List<String> categories =
+        builderProtocol.requestBuilder.categories ??
         CometChatUIKit.getDataSource().getAllMessageCategories();
-    List<String> types = builderProtocol.requestBuilder.types ??
+    List<String> types =
+        builderProtocol.requestBuilder.types ??
         CometChatUIKit.getDataSource().getAllMessageTypes();
 
     return categories.contains(message.category) &&
@@ -364,7 +368,7 @@ class CometChatMessagesSearchController
 
       final bool shouldUpdate =
           searchCtrl.showConversationsSearch == true ||
-              searchCtrl.showMessagesSearch == true;
+          searchCtrl.showMessagesSearch == true;
 
       if (shouldUpdate) {
         searchCtrl.update();
@@ -384,17 +388,23 @@ class CometChatMessagesSearchController
     _updateMessageOnReaction(reactionEvent, ReactionAction.reactionRemoved);
   }
 
-  void _updateMessageOnReaction(ReactionEvent reactionEvent, String reactionAction) {
+  void _updateMessageOnReaction(
+    ReactionEvent reactionEvent,
+    String reactionAction,
+  ) {
     Reaction? messageReaction = reactionEvent.reaction;
     if (messageReaction != null) {
       int? messageId = messageReaction.messageId;
       if (messageId == null) return;
-      BaseMessage? message =
-          list.firstWhereOrNull((element) => element.id == messageId);
+      BaseMessage? message = list.firstWhereOrNull(
+        (element) => element.id == messageId,
+      );
       if (message == null) return;
       CometChatHelper.updateMessageWithReactionInfo(
-          message, messageReaction, reactionAction)
-          .then((reactedMessage) {
+        message,
+        messageReaction,
+        reactionAction,
+      ).then((reactedMessage) {
         if (reactedMessage == null) return;
         updateElement(reactedMessage);
       });

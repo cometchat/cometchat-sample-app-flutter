@@ -3,7 +3,8 @@ import '../../../../../cometchat_chat_uikit.dart';
 
 ///[PollsExtensionDecorator] is a the view model for [PollsExtension] it contains all the relevant business logic
 ///it is also a sub-class of [DataSourceDecorator] which allows any extension to override the default methods provided by [MessagesDataSource]
-class PollsExtensionDecorator extends DataSourceDecorator with CometChatMessageEventListener, CometChatUIEventListener {
+class PollsExtensionDecorator extends DataSourceDecorator
+    with CometChatMessageEventListener, CometChatUIEventListener {
   String pollsTypeConstant = "extension_poll";
   PollsConfiguration? configuration;
 
@@ -11,11 +12,14 @@ class PollsExtensionDecorator extends DataSourceDecorator with CometChatMessageE
 
   PollsExtensionDecorator(super.dataSource, {this.configuration}) {
     getLoggedInUser();
-    CometChatMessageEvents.addMessagesListener(ExtensionType.extensionPoll, this);
+    CometChatMessageEvents.addMessagesListener(
+      ExtensionType.extensionPoll,
+      this,
+    );
     CometChatUIEvents.addUiListener(ExtensionType.extensionPoll, this);
   }
 
-  getLoggedInUser() async {
+  dynamic getLoggedInUser() async {
     loggedInUser = await CometChat.getLoggedInUser();
   }
 
@@ -45,9 +49,8 @@ class PollsExtensionDecorator extends DataSourceDecorator with CometChatMessageE
 
   @override
   List<CometChatMessageTemplate> getAllMessageTemplates() {
-
-    List<CometChatMessageTemplate> templateList =
-        super.getAllMessageTemplates();
+    List<CometChatMessageTemplate> templateList = super
+        .getAllMessageTemplates();
 
     templateList.add(getTemplate());
 
@@ -71,46 +74,65 @@ class PollsExtensionDecorator extends DataSourceDecorator with CometChatMessageE
   void ccMessageSent(BaseMessage message, MessageStatus messageStatus) {
     // Clear quotedMessage when ANY message is successfully sent
     // This ensures the quoted message doesn't persist to subsequent polls
-    if (messageStatus == MessageStatus.sent || messageStatus == MessageStatus.error) {
+    if (messageStatus == MessageStatus.sent ||
+        messageStatus == MessageStatus.error) {
       quotedMessage = null;
     }
   }
 
   @override
-  void ccActiveChatChanged(Map<String, dynamic>? id, BaseMessage? lastMessage,
-      User? user, Group? group, int unreadMessageCount) {
+  void ccActiveChatChanged(
+    Map<String, dynamic>? id,
+    BaseMessage? lastMessage,
+    User? user,
+    Group? group,
+    int unreadMessageCount,
+  ) {
     // Clear quotedMessage when user switches to a different chat
     quotedMessage = null;
   }
 
   @override
   List<CometChatMessageComposerAction> getAttachmentOptions(
-      BuildContext context,
-      Map<String, dynamic>? id,
-      AdditionalConfigurations? additionalConfigurations) {
+    BuildContext context,
+    Map<String, dynamic>? id,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     _attachmentStyle = CometChatAttachmentOptionSheetStyle(
-      border: additionalConfigurations?.attachmentOptionSheetStyle?.border ??
+      border:
+          additionalConfigurations?.attachmentOptionSheetStyle?.border ??
           configuration?.optionStyle?.attachmentOptionSheetStyle?.border,
-      borderRadius: additionalConfigurations
-              ?.attachmentOptionSheetStyle?.borderRadius ??
+      borderRadius:
+          additionalConfigurations?.attachmentOptionSheetStyle?.borderRadius ??
           configuration?.optionStyle?.attachmentOptionSheetStyle?.borderRadius,
-      titleTextStyle: additionalConfigurations
-              ?.attachmentOptionSheetStyle?.titleTextStyle ??
+      titleTextStyle:
+          additionalConfigurations
+              ?.attachmentOptionSheetStyle
+              ?.titleTextStyle ??
           configuration
-              ?.optionStyle?.attachmentOptionSheetStyle?.titleTextStyle,
+              ?.optionStyle
+              ?.attachmentOptionSheetStyle
+              ?.titleTextStyle,
       iconColor:
           additionalConfigurations?.attachmentOptionSheetStyle?.iconColor ??
-              configuration?.optionStyle?.attachmentOptionSheetStyle?.iconColor,
-      backgroundColor: additionalConfigurations
-              ?.attachmentOptionSheetStyle?.backgroundColor ??
+          configuration?.optionStyle?.attachmentOptionSheetStyle?.iconColor,
+      backgroundColor:
+          additionalConfigurations
+              ?.attachmentOptionSheetStyle
+              ?.backgroundColor ??
           configuration
-              ?.optionStyle?.attachmentOptionSheetStyle?.backgroundColor,
-      titleColor: additionalConfigurations
-              ?.attachmentOptionSheetStyle?.titleColor ??
+              ?.optionStyle
+              ?.attachmentOptionSheetStyle
+              ?.backgroundColor,
+      titleColor:
+          additionalConfigurations?.attachmentOptionSheetStyle?.titleColor ??
           configuration?.optionStyle?.attachmentOptionSheetStyle?.titleColor,
     );
-    List<CometChatMessageComposerAction> actions =
-        super.getAttachmentOptions(context, id, additionalConfigurations);
+    List<CometChatMessageComposerAction> actions = super.getAttachmentOptions(
+      context,
+      id,
+      additionalConfigurations,
+    );
 
     if (additionalConfigurations?.hidePollsOption != true && isNotThread(id)) {
       actions.add(getAttachmentOption(context, id, additionalConfigurations));
@@ -121,7 +143,9 @@ class PollsExtensionDecorator extends DataSourceDecorator with CometChatMessageE
 
   @override
   String getLastConversationMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     BaseMessage? message = conversation.lastMessage;
     if (message != null &&
         message.type == pollsTypeConstant &&
@@ -133,29 +157,42 @@ class PollsExtensionDecorator extends DataSourceDecorator with CometChatMessageE
   }
 
   CometChatMessageTemplate getTemplate() {
-
     return CometChatMessageTemplate(
-        type: pollsTypeConstant,
-        category: CometChatMessageCategory.custom,
-        contentView: (BaseMessage message, BuildContext context,
-            BubbleAlignment alignment,
-            {AdditionalConfigurations? additionalConfigurations}) {
-
-          if (message.deletedAt != null) {
-            return super.getDeleteMessageBubble(message, context, additionalConfigurations?.deletedBubbleStyle);
-          }
-          return getContentView(message as CustomMessage, context,alignment,additionalConfigurations?.pollsBubbleStyle);
-
-        },
-        options: CometChatUIKit.getDataSource().getCommonOptions,
-        bottomView: CometChatUIKit.getDataSource().getBottomView,
+      type: pollsTypeConstant,
+      category: CometChatMessageCategory.custom,
+      contentView:
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return super.getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
+            return getContentView(
+              message as CustomMessage,
+              context,
+              alignment,
+              additionalConfigurations?.pollsBubbleStyle,
+            );
+          },
+      options: CometChatUIKit.getDataSource().getCommonOptions,
+      bottomView: CometChatUIKit.getDataSource().getBottomView,
       replyView: CometChatUIKit.getDataSource().getReplyView,
     );
   }
 
   Widget getContentView(
-      CustomMessage customMessage, BuildContext context,BubbleAlignment alignment, CometChatPollsBubbleStyle?  pollsBubbleStyle) {
-
+    CustomMessage customMessage,
+    BuildContext context,
+    BubbleAlignment alignment,
+    CometChatPollsBubbleStyle? pollsBubbleStyle,
+  ) {
     return CometChatPollsBubble(
       loggedInUser: loggedInUser?.uid,
       choosePoll: (vote, id) {
@@ -173,16 +210,18 @@ class PollsExtensionDecorator extends DataSourceDecorator with CometChatMessageE
   }
 
   CometChatMessageComposerAction getAttachmentOption(
-      BuildContext context,
-      Map<String, dynamic>? id,
-      AdditionalConfigurations? additionalConfigurations) {
+    BuildContext context,
+    Map<String, dynamic>? id,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
     return CometChatMessageComposerAction(
       id: pollsTypeConstant,
       title: configuration?.optionTitle ?? '${Translations.of(context).poll}s',
-      icon: configuration?.optionIcon ??
+      icon:
+          configuration?.optionIcon ??
           Icon(
             Icons.menu,
             color: _attachmentStyle?.iconColor ?? colorPalette.iconHighlight,
@@ -219,7 +258,7 @@ class PollsExtensionDecorator extends DataSourceDecorator with CometChatMessageE
             title: configuration?.title,
             quotedMessage: quotedMessage,
             groupObject: group,
-            userObject: user
+            userObject: user,
           );
         }
       },
@@ -229,8 +268,9 @@ class PollsExtensionDecorator extends DataSourceDecorator with CometChatMessageE
   Future<void> choosePoll(String vote, String id, BaseMessage message) async {
     Map<String, dynamic> body = {"vote": vote, "id": id};
 
-    if(message.quotedMessageId != null && message.quotedMessageId != -1){
-      body['quotedMessageId'] = message.quotedMessageId ?? quotedMessage?.quotedMessageId;
+    if (message.quotedMessageId != null && message.quotedMessageId != -1) {
+      body['quotedMessageId'] =
+          message.quotedMessageId ?? quotedMessage?.quotedMessageId;
     }
 
     await CometChat.callExtension(
@@ -247,8 +287,9 @@ class PollsExtensionDecorator extends DataSourceDecorator with CometChatMessageE
 
   Map<String, dynamic> getPollsResult(BaseMessage baseMessage) {
     Map<String, dynamic> result = {};
-    Map<String, Map>? extensionList =
-        ExtensionModerator.extensionCheck(baseMessage);
+    Map<String, Map>? extensionList = ExtensionModerator.extensionCheck(
+      baseMessage,
+    );
     if (extensionList != null) {
       try {
         if (extensionList.containsKey(ExtensionConstants.polls)) {

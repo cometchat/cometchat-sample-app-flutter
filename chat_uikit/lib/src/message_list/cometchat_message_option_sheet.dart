@@ -76,9 +76,9 @@ class _CometchatMessageOptionSheetState
   Widget build(BuildContext context) {
     final optionStyle =
         CometChatThemeHelper.getTheme<CometChatMessageOptionSheetStyle>(
-                context: context,
-                defaultTheme: CometChatMessageOptionSheetStyle.of)
-            .merge(widget.messageOptionStyle);
+          context: context,
+          defaultTheme: CometChatMessageOptionSheetStyle.of,
+        ).merge(widget.messageOptionStyle);
     final spacing = CometChatThemeHelper.getSpacing(context);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
@@ -92,11 +92,10 @@ class _CometchatMessageOptionSheetState
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
             border: optionStyle.border,
-            borderRadius: optionStyle.borderRadius ??
+            borderRadius:
+                optionStyle.borderRadius ??
                 BorderRadius.vertical(
-                  top: Radius.circular(
-                    spacing.radius6 ?? 0,
-                  ),
+                  top: Radius.circular(spacing.radius6 ?? 0),
                 ),
           ),
           child: Column(
@@ -110,11 +109,10 @@ class _CometchatMessageOptionSheetState
                 decoration: BoxDecoration(
                   color:
                       optionStyle.backgroundColor ?? colorPalette.background1,
-                  borderRadius: optionStyle.borderRadius ??
+                  borderRadius:
+                      optionStyle.borderRadius ??
                       BorderRadius.vertical(
-                        top: Radius.circular(
-                          spacing.radius6 ?? 0,
-                        ),
+                        top: Radius.circular(spacing.radius6 ?? 0),
                       ),
                 ),
                 child: Center(
@@ -130,11 +128,17 @@ class _CometchatMessageOptionSheetState
                   ),
                 ),
               ),
-              if (!ModerationCheckUtil.instance.isMessageDisapprovedFromModeration(widget.messageObject)) ...[
-                if ((widget.hideReactionOption != true) && !(widget.hideReactions ?? false))
+              if (!ModerationCheckUtil.instance
+                  .isMessageDisapprovedFromModeration(
+                    widget.messageObject,
+                  )) ...[
+                if ((widget.hideReactionOption != true) &&
+                    !(widget.hideReactions ?? false))
                   Container(
                     decoration: BoxDecoration(
-                      color: optionStyle.backgroundColor ?? colorPalette.background1,
+                      color:
+                          optionStyle.backgroundColor ??
+                          colorPalette.background1,
                     ),
                     padding: EdgeInsets.symmetric(
                       vertical: spacing.padding2 ?? 0,
@@ -146,14 +150,17 @@ class _CometchatMessageOptionSheetState
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           ...favoriteReactions.map(
-                                (reaction) => SizedBox(
+                            (reaction) => SizedBox(
                               height: 40,
                               width: 40,
                               child: GestureDetector(
                                 onTap: () async {
                                   Navigator.of(context).pop();
                                   if (widget.onReactionTap != null) {
-                                    widget.onReactionTap!(widget.messageObject, reaction);
+                                    widget.onReactionTap!(
+                                      widget.messageObject,
+                                      reaction,
+                                    );
                                   }
                                 },
                                 child: CircleAvatar(
@@ -163,9 +170,18 @@ class _CometchatMessageOptionSheetState
                                     reaction,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: typography.heading1?.regular?.fontSize,
-                                      fontWeight: typography.heading1?.regular?.fontWeight,
-                                      fontFamily: typography.heading1?.regular?.fontFamily,
+                                      fontSize: typography
+                                          .heading1
+                                          ?.regular
+                                          ?.fontSize,
+                                      fontWeight: typography
+                                          .heading1
+                                          ?.regular
+                                          ?.fontWeight,
+                                      fontFamily: typography
+                                          .heading1
+                                          ?.regular
+                                          ?.fontFamily,
                                     ),
                                   ),
                                 ),
@@ -181,11 +197,15 @@ class _CometchatMessageOptionSheetState
                               child: IconButton(
                                 onPressed: () async {
                                   if (widget.onAddReactionIconTap != null) {
-                                    FocusManager.instance.primaryFocus?.unfocus();
-                                    widget.onAddReactionIconTap!(widget.messageObject);
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                    widget.onAddReactionIconTap!(
+                                      widget.messageObject,
+                                    );
                                   }
                                 },
-                                icon: widget.addReactionIcon ??
+                                icon:
+                                    widget.addReactionIcon ??
                                     Icon(
                                       Icons.add_reaction_outlined,
                                       size: 24,
@@ -193,12 +213,13 @@ class _CometchatMessageOptionSheetState
                                     ),
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
                   ),
-                if ((widget.hideReactionOption != true) && !(widget.hideReactions ?? false))
+                if ((widget.hideReactionOption != true) &&
+                    !(widget.hideReactions ?? false))
                   Divider(
                     height: 1,
                     thickness: 1,
@@ -230,38 +251,52 @@ class _CometchatMessageOptionSheetState
                       selected: selectedIndex == index,
                       selectedTileColor:
                           widget.actionItems[index].style?.backgroundColor ??
-                              optionStyle.backgroundColor ??
-                              colorPalette.background4,
+                          optionStyle.backgroundColor ??
+                          colorPalette.background4,
                       minLeadingWidth: 0,
                       leading: widget.actionItems[index].icon,
-                      iconColor: widget.actionItems[index].style?.iconColor ??
+                      iconColor:
+                          widget.actionItems[index].style?.iconColor ??
                           optionStyle.iconColor ??
                           colorPalette.iconSecondary,
                       tileColor:
                           widget.actionItems[index].style?.backgroundColor ??
-                              optionStyle.backgroundColor ??
-                              colorPalette.background1,
+                          optionStyle.backgroundColor ??
+                          colorPalette.background1,
                       title: Text(
                         widget.actionItems[index].title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: widget.actionItems[index].style?.titleColor ??
-                              optionStyle.titleColor ??
-                              colorPalette.textPrimary,
-                          fontSize: typography.body?.regular?.fontSize,
-                          fontWeight: typography.body?.regular?.fontWeight,
-                          fontFamily: typography.body?.regular?.fontFamily,
-                        )
-                            .merge(
-                              widget.actionItems[index].style?.titleTextStyle ??
-                                  optionStyle.titleTextStyle,
-                            )
-                            .copyWith(
-                              color:
-                                  widget.actionItems[index].style?.titleColor ??
+                        style:
+                            TextStyle(
+                                  color:
+                                      widget
+                                          .actionItems[index]
+                                          .style
+                                          ?.titleColor ??
+                                      optionStyle.titleColor ??
+                                      colorPalette.textPrimary,
+                                  fontSize: typography.body?.regular?.fontSize,
+                                  fontWeight:
+                                      typography.body?.regular?.fontWeight,
+                                  fontFamily:
+                                      typography.body?.regular?.fontFamily,
+                                )
+                                .merge(
+                                  widget
+                                          .actionItems[index]
+                                          .style
+                                          ?.titleTextStyle ??
+                                      optionStyle.titleTextStyle,
+                                )
+                                .copyWith(
+                                  color:
+                                      widget
+                                          .actionItems[index]
+                                          .style
+                                          ?.titleColor ??
                                       optionStyle.titleColor,
-                            ),
+                                ),
                       ),
                     );
                   },

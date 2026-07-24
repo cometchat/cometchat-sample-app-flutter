@@ -42,30 +42,32 @@ class CometChatEditPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CometChatSpacing spacing = CometChatThemeHelper.getSpacing(context);
-    CometChatColorPalette colorPalette =
-        CometChatThemeHelper.getColorPalette(context);
+    CometChatColorPalette colorPalette = CometChatThemeHelper.getColorPalette(
+      context,
+    );
     return Container(
       padding: EdgeInsets.all(spacing.padding ?? 0),
       decoration: BoxDecoration(
         color: colorPalette.borderDefault,
         borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(spacing.radius2 ?? 0),
-            topRight: Radius.circular(spacing.radius2 ?? 0)),
+          topLeft: Radius.circular(spacing.radius2 ?? 0),
+          topRight: Radius.circular(spacing.radius2 ?? 0),
+        ),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(spacing.radius2 ?? 0),
-            topRight: Radius.circular(spacing.radius2 ?? 0)),
+          topLeft: Radius.circular(spacing.radius2 ?? 0),
+          topRight: Radius.circular(spacing.radius2 ?? 0),
+        ),
         child: Container(
           height: 51,
-          decoration: BoxDecoration(
-            color: style.editPreviewBackground,
-          ),
+          decoration: BoxDecoration(color: style.editPreviewBackground),
           child: Padding(
             padding: EdgeInsets.only(
-                left: spacing.padding2 ?? 0,
-                top: spacing.padding2 ?? 0,
-                right: spacing.padding2 ?? 0),
+              left: spacing.padding2 ?? 0,
+              top: spacing.padding2 ?? 0,
+              right: spacing.padding2 ?? 0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -76,27 +78,32 @@ class CometChatEditPreview extends StatelessWidget {
                       editPreviewTitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: style.editPreviewTitleStyle ??
+                      style:
+                          style.editPreviewTitleStyle ??
                           TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xff141414).withValues(alpha: 0.6)),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(
+                              0xff141414,
+                            ).withValues(alpha: 0.6),
+                          ),
                     ),
                     if (hideCloseButton == false)
                       GestureDetector(
-                          onTap: onCloseClick,
-                          child: editPreviewCloseButtonIcon ??
-                              Icon(
-                                Icons.close,
-                                size: 20,
-                                color: style.closeIconColor ??
-                                    const Color(0xff000000),
-                              ))
+                        onTap: onCloseClick,
+                        child:
+                            editPreviewCloseButtonIcon ??
+                            Icon(
+                              Icons.close,
+                              size: 20,
+                              color:
+                                  style.closeIconColor ??
+                                  const Color(0xff000000),
+                            ),
+                      ),
                   ],
                 ),
-                Flexible(
-                  child: _buildSubtitleWidget(context, colorPalette),
-                )
+                Flexible(child: _buildSubtitleWidget(context, colorPalette)),
               ],
             ),
           ),
@@ -114,11 +121,13 @@ class CometChatEditPreview extends StatelessWidget {
     CometChatColorPalette colorPalette,
   ) {
     // Default text style for the subtitle
-    final defaultTextStyle = style.editPreviewSubtitleStyle ??
+    final defaultTextStyle =
+        style.editPreviewSubtitleStyle ??
         TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
-            color: const Color(0xff141414).withValues(alpha: 0.6));
+          fontSize: 13,
+          fontWeight: FontWeight.w400,
+          color: const Color(0xff141414).withValues(alpha: 0.6),
+        );
 
     // If no text formatters provided, use plain Text widget
     if (textFormatters == null || textFormatters!.isEmpty) {
@@ -142,21 +151,19 @@ class CometChatEditPreview extends StatelessWidget {
     return RichText(
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      text: TextSpan(
-        style: defaultTextStyle,
-        children: textSpans,
-      ),
+      text: TextSpan(style: defaultTextStyle, children: textSpans),
     );
   }
 }
 
 class CometChatEditPreviewStyle {
-  const CometChatEditPreviewStyle(
-      {this.editPreviewBackground,
-      this.editPreviewBorder,
-      this.editPreviewTitleStyle,
-      this.editPreviewSubtitleStyle,
-      this.closeIconColor});
+  const CometChatEditPreviewStyle({
+    this.editPreviewBackground,
+    this.editPreviewBorder,
+    this.editPreviewTitleStyle,
+    this.editPreviewSubtitleStyle,
+    this.closeIconColor,
+  });
 
   ///[editPreviewBackground]
   final Color? editPreviewBackground;

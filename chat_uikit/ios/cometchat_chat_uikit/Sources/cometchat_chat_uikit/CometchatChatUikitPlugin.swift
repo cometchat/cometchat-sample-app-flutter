@@ -14,7 +14,7 @@ var docController : UIDocumentInteractionController?
 var viewController :  UIViewController?
 var globalResult:  FlutterResult?
 
-public class SwiftCometchatChatUikitPlugin: NSObject, FlutterPlugin , QLPreviewControllerDataSource, QLPreviewControllerDelegate, UINavigationControllerDelegate
+public class CometchatChatUikitPlugin: NSObject, FlutterPlugin , QLPreviewControllerDataSource, QLPreviewControllerDelegate, UINavigationControllerDelegate
 {
     
     lazy var previewItem = NSURL()
@@ -29,7 +29,7 @@ public class SwiftCometchatChatUikitPlugin: NSObject, FlutterPlugin , QLPreviewC
     
 public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "cometchat_chat_uikit", binaryMessenger: registrar.messenger())
-      let instance = SwiftCometchatChatUikitPlugin()
+      let instance = CometchatChatUikitPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
     globalRegistrar = registrar
     

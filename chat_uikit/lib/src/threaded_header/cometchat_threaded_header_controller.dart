@@ -10,10 +10,7 @@ class CometChatThreadedHeaderController extends GetxController
         MessageListener,
         CometChatGroupEventListener {
   //--------------------Constructor-----------------------
-  CometChatThreadedHeaderController(
-    this.parentMessage,
-    this.loggedInUser,
-  ) {
+  CometChatThreadedHeaderController(this.parentMessage, this.loggedInUser) {
     if (parentMessage.sender!.uid == loggedInUser.uid) {
       if (parentMessage.receiver is Group) {
         group = (parentMessage.receiver as Group);
@@ -56,9 +53,7 @@ class CometChatThreadedHeaderController extends GetxController
       RenderBox renderBox = context.findRenderObject() as RenderBox;
       var size = renderBox.size;
 
-      composerPlaceHolder = SizedBox(
-        height: size.height,
-      );
+      composerPlaceHolder = SizedBox(height: size.height);
     }
     update();
   }

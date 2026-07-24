@@ -14,17 +14,16 @@ Future<String?> showCometChatEmojiKeyboard({
     isScrollControlled: true,
     isDismissible: true,
     shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
     builder: (context) {
-      return CometChatEmojiKeyboard();
+      return const CometChatEmojiKeyboard();
     },
   );
 }
 
 class CometChatEmojiKeyboard extends StatefulWidget {
-  const CometChatEmojiKeyboard({
-    super.key,
-  });
+  const CometChatEmojiKeyboard({super.key});
   @override
   State<CometChatEmojiKeyboard> createState() => _CometChatEmojiKeyboardState();
 }
@@ -61,7 +60,6 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
     }
   }
 
-
   @override
   void initState() {
     emojiScrollController.addListener(scrollControllerListener);
@@ -86,9 +84,7 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
             decoration: BoxDecoration(
               color: colorPalette.background1,
               borderRadius: BorderRadius.vertical(
-                top: Radius.circular(
-                  spacing.radius6 ?? 0,
-                ),
+                top: Radius.circular(spacing.radius6 ?? 0),
               ),
             ),
             child: Column(
@@ -152,10 +148,10 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
                                           const NeverScrollableScrollPhysics(), // Prevent scrolling in GridView
                                       gridDelegate:
                                           const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 8,
-                                        crossAxisSpacing: 8.0,
-                                        mainAxisSpacing: 8.0,
-                                      ),
+                                            crossAxisCount: 8,
+                                            crossAxisSpacing: 8.0,
+                                            mainAxisSpacing: 8.0,
+                                          ),
                                       itemCount: data.emojies.length,
                                       itemBuilder: (context, index) {
                                         final emoji = data.emojies[index];
@@ -169,9 +165,13 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
                                               style: TextStyle(
                                                 color: colorPalette.textPrimary,
                                                 fontFamily: typography
-                                                    .title?.bold?.fontFamily,
+                                                    .title
+                                                    ?.bold
+                                                    ?.fontFamily,
                                                 fontWeight: typography
-                                                    .title?.bold?.fontWeight,
+                                                    .title
+                                                    ?.bold
+                                                    ?.fontWeight,
                                               ),
                                             ),
                                           ),
@@ -198,9 +198,7 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
                     ),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.all(
-                      spacing.padding2 ?? 0,
-                    ),
+                    padding: EdgeInsets.all(spacing.padding2 ?? 0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -208,7 +206,8 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
                           GestureDetector(
                             onTap: () {
                               Scrollable.ensureVisible(
-                                  data.key.currentContext!);
+                                data.key.currentContext!,
+                              );
                               currentCategory = data.id;
                               setState(() {});
                             },
@@ -239,7 +238,7 @@ class _CometChatEmojiKeyboardState extends State<CometChatEmojiKeyboard> {
                       ],
                     ),
                   ),
-                )
+                ),
               ],
             ),
           );

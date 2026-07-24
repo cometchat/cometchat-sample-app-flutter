@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -516,17 +514,14 @@ class _CometChatFileBubbleState extends State<CometChatFileBubble> with TickerPr
                         _ticker?.stop();
                         _ticker?.dispose();
 
-                        Timer.periodic(const Duration(milliseconds: 100), (timer) {
-                          if(progress>=1.0) {
-                            timer.cancel();
-                          }
-                          setState(() {
-                            progress += 0.1;
-                          });
-                        },);
-
-                        isFileDownloading = false;
-                        setState(() {});
+                        // The widget may have been disposed while the download was
+                        // in flight (e.g. the user left the chat). Guard before
+                        // touching state to avoid "setState() called after dispose()".
+                        if (!mounted) return;
+                        setState(() {
+                          progress = 1.0;
+                          isFileDownloading = false;
+                        });
                       }
                     },
                     icon: Image.asset(

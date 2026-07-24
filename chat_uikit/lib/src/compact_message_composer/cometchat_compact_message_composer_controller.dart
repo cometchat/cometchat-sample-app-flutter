@@ -3446,11 +3446,6 @@ class CometChatCompactMessageComposerController extends GetxController
         final savedPositions = Map<int, String>.from(
           formatter.trackedMentionPositions,
         );
-        final savedMentionTextToPositions = Map<String, List<int>>.from(
-          formatter.mentionTextToPositions.map(
-            (k, v) => MapEntry(k, List<int>.from(v)),
-          ),
-        );
 
         // Call onChange for this segment
         formatter.onChange(segment.controller, segmentPreviousText);
@@ -3708,7 +3703,6 @@ class CometChatCompactMessageComposerController extends GetxController
 
     final start = selection.start;
     final end = selection.end;
-    final text = controller.text;
 
     // Find the mentions formatter
     final mentionFormatter = _formatters

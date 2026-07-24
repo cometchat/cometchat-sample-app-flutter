@@ -9,9 +9,12 @@ class CollaborativeDocumentExtension extends ExtensionsDataSource {
 
   @override
   void addExtension() {
-    ChatConfigurator.enable((dataSource) =>
-        CollaborativeDocumentExtensionDecorator(dataSource,
-            configuration: configuration));
+    ChatConfigurator.enable(
+      (dataSource) => CollaborativeDocumentExtensionDecorator(
+        dataSource,
+        configuration: configuration,
+      ),
+    );
   }
 
   @override

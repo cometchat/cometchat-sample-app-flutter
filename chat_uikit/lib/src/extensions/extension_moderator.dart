@@ -17,28 +17,33 @@ class ExtensionModerator {
             extensionMap[ExtensionConstants.smartReply] =
                 extensionsObject[ExtensionConstants.smartReply];
           }
-          if (extensionsObject
-              .containsKey(ExtensionConstants.messageTranslation)) {
+          if (extensionsObject.containsKey(
+            ExtensionConstants.messageTranslation,
+          )) {
             extensionMap[ExtensionConstants.messageTranslation] =
                 extensionsObject[ExtensionConstants.messageTranslation];
           }
-          if (extensionsObject
-              .containsKey(ExtensionConstants.profanityFilter)) {
+          if (extensionsObject.containsKey(
+            ExtensionConstants.profanityFilter,
+          )) {
             extensionMap[ExtensionConstants.profanityFilter] =
                 extensionsObject[ExtensionConstants.profanityFilter];
           }
-          if (extensionsObject
-              .containsKey(ExtensionConstants.imageModeration)) {
+          if (extensionsObject.containsKey(
+            ExtensionConstants.imageModeration,
+          )) {
             extensionMap[ExtensionConstants.imageModeration] =
                 extensionsObject[ExtensionConstants.imageModeration];
           }
-          if (extensionsObject
-              .containsKey(ExtensionConstants.thumbnailGeneration)) {
+          if (extensionsObject.containsKey(
+            ExtensionConstants.thumbnailGeneration,
+          )) {
             extensionMap[ExtensionConstants.thumbnailGeneration] =
                 extensionsObject[ExtensionConstants.thumbnailGeneration];
           }
-          if (extensionsObject
-              .containsKey(ExtensionConstants.sentimentalAnalysis)) {
+          if (extensionsObject.containsKey(
+            ExtensionConstants.sentimentalAnalysis,
+          )) {
             extensionMap[ExtensionConstants.sentimentalAnalysis] =
                 extensionsObject[ExtensionConstants.sentimentalAnalysis];
           }

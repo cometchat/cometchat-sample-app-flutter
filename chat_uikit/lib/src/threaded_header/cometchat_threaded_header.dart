@@ -80,15 +80,16 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
     spacing = CometChatThemeHelper.getSpacing(context);
     threadedHeaderStyle =
         CometChatThemeHelper.getTheme<CometChatThreadedHeaderStyle>(
-                context: context, defaultTheme: CometChatThreadedHeaderStyle.of)
-            .merge(widget.style);
+          context: context,
+          defaultTheme: CometChatThreadedHeaderStyle.of,
+        ).merge(widget.style);
   }
 
   @override
   void initState() {
     super.initState();
-    List<CometChatMessageTemplate> template =
-        CometChatUIKit.getDataSource().getAllMessageTemplates();
+    List<CometChatMessageTemplate> template = CometChatUIKit.getDataSource()
+        .getAllMessageTemplates();
     for (var element in template) {
       if (widget.parentMessage.category == element.category &&
           widget.parentMessage.type == element.type) {
@@ -103,16 +104,20 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
   }
 
   Widget getActionView(
-      CometChatThreadedHeaderController controller, BuildContext context) {
+    CometChatThreadedHeaderController controller,
+    BuildContext context,
+  ) {
     if (widget.messageActionView != null) {
       return widget.messageActionView!(widget.parentMessage, context);
     }
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: threadedHeaderStyle.countContainerBackGroundColor ??
+        color:
+            threadedHeaderStyle.countContainerBackGroundColor ??
             colorPalette.extendedPrimary100,
-        border: threadedHeaderStyle.countContainerBorder ??
+        border:
+            threadedHeaderStyle.countContainerBorder ??
             Border(
               bottom: BorderSide(
                 width: 1.0,
@@ -127,94 +132,96 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
       ),
       child: Text(
         "${threadedHeaderController.replyCount} ${threadedHeaderController.replyCount > 1 ? cc.Translations.of(context).replies : cc.Translations.of(context).reply}",
-        style: TextStyle(
-          color:
-              threadedHeaderStyle.countTextColor ?? colorPalette.textSecondary,
-          fontSize: typography.body?.regular?.fontSize,
-          fontFamily: typography.body?.regular?.fontFamily,
-          fontWeight: typography.body?.regular?.fontWeight,
-        )
-            .merge(
-              threadedHeaderStyle.countTextStyle,
-            )
-            .copyWith(
-              color: threadedHeaderStyle.countTextColor,
-            ),
+        style:
+            TextStyle(
+                  color:
+                      threadedHeaderStyle.countTextColor ??
+                      colorPalette.textSecondary,
+                  fontSize: typography.body?.regular?.fontSize,
+                  fontFamily: typography.body?.regular?.fontFamily,
+                  fontWeight: typography.body?.regular?.fontWeight,
+                )
+                .merge(threadedHeaderStyle.countTextStyle)
+                .copyWith(color: threadedHeaderStyle.countTextColor),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-
     final bubble = MessageUtils.getMessageBubble(
-        context: context,
-        colorPalette: colorPalette,
-        spacing: spacing,
-        typography: typography,
-        bubbleAlignment: widget.parentMessage.sender?.uid==widget.loggedInUser.uid? BubbleAlignment.right:BubbleAlignment.left,
-        message: widget.parentMessage,
-        template: _messageTemplate,
-        outgoingMessageBubbleStyle: threadedHeaderStyle
-            .outgoingMessageBubbleStyle,
-        incomingMessageBubbleStyle: threadedHeaderStyle.incomingMessageBubbleStyle,
-        textFormatters: widget.textFormatters ?? CometChatUIKit.getDataSource().getDefaultTextFormatters(),
-        key: key,
-        receiptsVisibility: widget.receiptsVisibility,
+      context: context,
+      colorPalette: colorPalette,
+      spacing: spacing,
+      typography: typography,
+      bubbleAlignment:
+          widget.parentMessage.sender?.uid == widget.loggedInUser.uid
+          ? BubbleAlignment.right
+          : BubbleAlignment.left,
+      message: widget.parentMessage,
+      template: _messageTemplate,
+      outgoingMessageBubbleStyle:
+          threadedHeaderStyle.outgoingMessageBubbleStyle,
+      incomingMessageBubbleStyle:
+          threadedHeaderStyle.incomingMessageBubbleStyle,
+      textFormatters:
+          widget.textFormatters ??
+          CometChatUIKit.getDataSource().getDefaultTextFormatters(),
+      key: key,
+      receiptsVisibility: widget.receiptsVisibility,
     );
 
     final maxHeight = MediaQuery.of(context).size.height * 0.30;
 
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        final keyContext = key.currentContext;
-        if (keyContext != null && height==null) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final keyContext = key.currentContext;
+      if (keyContext != null && height == null) {
         final RenderBox renderBox = keyContext.findRenderObject() as RenderBox;
         height = renderBox.size.height;
-        setState(() {
-        });
+        setState(() {});
       }
-      },);
-      
+    });
 
-        return Container(
-          width: widget.width ?? double.infinity,
-          constraints: threadedHeaderStyle.constraints ??
-              BoxConstraints(
-                maxHeight: widget.height ?? (height!=null && height!<maxHeight?(height??0)+64:maxHeight),
-              ),
-          child: GetBuilder(
-            init: threadedHeaderController,
-            tag: threadedHeaderController.tag,
-            builder: (CometChatThreadedHeaderController value) {
-              return Column(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: threadedHeaderStyle.bubbleContainerBackGroundColor ??
-                            colorPalette.background3,
-                        borderRadius:
-                            threadedHeaderStyle.bubbleContainerBorderRadius,
-                        border: threadedHeaderStyle.bubbleContainerBorder,
-                      ),
-                      child: SingleChildScrollView(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            top: spacing.padding4 ?? 0,
-                          ),
-                          child: IgnorePointer(
-                            child: bubble,
-                          ),
-                        ),
-                      ),
+    return Container(
+      width: widget.width ?? double.infinity,
+      constraints:
+          threadedHeaderStyle.constraints ??
+          BoxConstraints(
+            maxHeight:
+                widget.height ??
+                (height != null && height! < maxHeight
+                    ? (height ?? 0) + 64
+                    : maxHeight),
+          ),
+      child: GetBuilder(
+        init: threadedHeaderController,
+        tag: threadedHeaderController.tag,
+        builder: (CometChatThreadedHeaderController value) {
+          return Column(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color:
+                        threadedHeaderStyle.bubbleContainerBackGroundColor ??
+                        colorPalette.background3,
+                    borderRadius:
+                        threadedHeaderStyle.bubbleContainerBorderRadius,
+                    border: threadedHeaderStyle.bubbleContainerBorder,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: spacing.padding4 ?? 0),
+                      child: IgnorePointer(child: bubble),
                     ),
                   ),
-                  getActionView(value, context),
-                ],
-              );
-            },
-          ),
-        );
-
+                ),
+              ),
+              getActionView(value, context),
+            ],
+          );
+        },
+      ),
+    );
   }
 }

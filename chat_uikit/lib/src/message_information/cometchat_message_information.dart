@@ -44,15 +44,15 @@ class CometChatMessageInformation extends StatefulWidget {
 class _CometChatMessageInformationState
     extends State<CometChatMessageInformation> {
   late CometchatMessageInformationController
-      cometchatMessageInformationController;
+  cometchatMessageInformationController;
 
   late CometChatMessageTemplate _messageTemplate;
 
   @override
   void initState() {
     super.initState();
-    List<CometChatMessageTemplate> template =
-        CometChatUIKit.getDataSource().getAllMessageTemplates();
+    List<CometChatMessageTemplate> template = CometChatUIKit.getDataSource()
+        .getAllMessageTemplates();
     for (var element in template) {
       if (widget.message.category == element.category &&
           widget.message.type == element.type) {
@@ -63,17 +63,18 @@ class _CometChatMessageInformationState
     cometchatMessageInformationController =
         CometchatMessageInformationController(widget.message);
     cometchatMessageInformationController.fetchMessageRecipients(
-        cometchatMessageInformationController.group,
-        cometchatMessageInformationController.parentMessage);
+      cometchatMessageInformationController.group,
+      cometchatMessageInformationController.parentMessage,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final messageInfoStyle =
         CometChatThemeHelper.getTheme<CometChatMessageInformationStyle>(
-                context: context,
-                defaultTheme: CometChatMessageInformationStyle.of)
-            .merge(widget.messageInformationStyle);
+          context: context,
+          defaultTheme: CometChatMessageInformationStyle.of,
+        ).merge(widget.messageInformationStyle);
     final spacing = CometChatThemeHelper.getSpacing(context);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
@@ -91,11 +92,10 @@ class _CometChatMessageInformationState
               color:
                   messageInfoStyle.backgroundColor ?? colorPalette.background1,
               border: messageInfoStyle.border,
-              borderRadius: messageInfoStyle.borderRadius ??
+              borderRadius:
+                  messageInfoStyle.borderRadius ??
                   BorderRadius.vertical(
-                    top: Radius.circular(
-                      spacing.radius6 ?? 0,
-                    ),
+                    top: Radius.circular(spacing.radius6 ?? 0),
                   ),
             ),
             child: Column(
@@ -123,7 +123,8 @@ class _CometChatMessageInformationState
                     Container(
                       height: 64,
                       decoration: BoxDecoration(
-                        color: messageInfoStyle.backgroundColor ??
+                        color:
+                            messageInfoStyle.backgroundColor ??
                             colorPalette.background1,
                       ),
                       child: Align(
@@ -135,23 +136,23 @@ class _CometChatMessageInformationState
                           ),
                           child: Text(
                             widget.title ??
-                                cc.Translations.of(context)
-                                    .messageInformation,
-                            style: TextStyle(
-                              color: messageInfoStyle.titleTextColor ??
-                                  colorPalette.textPrimary,
-                              fontSize: typography.heading2?.bold?.fontSize,
-                              fontWeight:
-                                  typography.heading2?.bold?.fontWeight,
-                              fontFamily:
-                                  typography.heading2?.bold?.fontFamily,
-                            )
-                                .merge(
-                                  messageInfoStyle.titleTextStyle,
-                                )
-                                .copyWith(
-                                  color: messageInfoStyle.titleTextColor,
-                                ),
+                                cc.Translations.of(context).messageInformation,
+                            style:
+                                TextStyle(
+                                      color:
+                                          messageInfoStyle.titleTextColor ??
+                                          colorPalette.textPrimary,
+                                      fontSize:
+                                          typography.heading2?.bold?.fontSize,
+                                      fontWeight:
+                                          typography.heading2?.bold?.fontWeight,
+                                      fontFamily:
+                                          typography.heading2?.bold?.fontFamily,
+                                    )
+                                    .merge(messageInfoStyle.titleTextStyle)
+                                    .copyWith(
+                                      color: messageInfoStyle.titleTextColor,
+                                    ),
                           ),
                         ),
                       ),
@@ -165,18 +166,15 @@ class _CometChatMessageInformationState
                       // error view
                       return const SizedBox();
                     } else if (cometchatMessageInformationController
-                            .messageReceiptList.isEmpty &&
+                            .messageReceiptList
+                            .isEmpty &&
                         value.isLoading == true) {
                       // loading view
                       return Expanded(
                         child: SingleChildScrollView(
                           child: Column(
                             children: [
-                              loadingView(
-                                context,
-                                colorPalette,
-                                spacing,
-                              ),
+                              loadingView(context, colorPalette, spacing),
                             ],
                           ),
                         ),
@@ -191,7 +189,8 @@ class _CometChatMessageInformationState
                               IgnorePointer(
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: messageInfoStyle
+                                    color:
+                                        messageInfoStyle
                                             .backgroundHighLightColor ??
                                         colorPalette.background2,
                                   ),
@@ -207,14 +206,17 @@ class _CometChatMessageInformationState
                                       bubbleAlignment: BubbleAlignment.right,
                                       message: value.parentMessage,
                                       template: _messageTemplate,
-                                      textFormatters: CometChatUIKit.getDataSource().getDefaultTextFormatters(),
+                                      textFormatters:
+                                          CometChatUIKit.getDataSource()
+                                              .getDefaultTextFormatters(),
                                     ),
                                   ),
                                 ),
                               ),
                               ListView.builder(
                                 itemCount: cometchatMessageInformationController
-                                    .messageReceiptList.length,
+                                    .messageReceiptList
+                                    .length,
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, index) {
@@ -273,13 +275,7 @@ class _CometChatMessageInformationState
         fontSize: typography.body?.regular?.fontSize,
         fontWeight: typography.body?.regular?.fontWeight,
         fontFamily: typography.body?.regular?.fontFamily,
-      )
-          .merge(
-            mergeTextStyle,
-          )
-          .copyWith(
-            color: textColor,
-          ),
+      ).merge(mergeTextStyle).copyWith(color: textColor),
     );
   }
 
@@ -313,15 +309,11 @@ class _CometChatMessageInformationState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(
-                  bottom: spacing.padding1 ?? 0,
-                ),
+                padding: EdgeInsets.only(bottom: spacing.padding1 ?? 0),
                 child: Row(
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(
-                        right: spacing.padding1 ?? 0,
-                      ),
+                      padding: EdgeInsets.only(right: spacing.padding1 ?? 0),
                       child: CometChatReceipt(
                         status: ReceiptStatus.read,
                         size: 16,
@@ -347,10 +339,7 @@ class _CometChatMessageInformationState
                       colorPalette,
                     )
                   : timeText(
-                      convertTime(
-                        messageReceipt.readAt,
-                        "dd/M/yyyy, h:mm a",
-                      ),
+                      convertTime(messageReceipt.readAt, "dd/M/yyyy, h:mm a"),
                       messageInfoStyle.readDateTextStyle,
                       messageInfoStyle.readDateTextColor,
                       typography,
@@ -368,15 +357,11 @@ class _CometChatMessageInformationState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(
-                  bottom: spacing.padding1 ?? 0,
-                ),
+                padding: EdgeInsets.only(bottom: spacing.padding1 ?? 0),
                 child: Row(
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(
-                        right: spacing.padding1 ?? 0,
-                      ),
+                      padding: EdgeInsets.only(right: spacing.padding1 ?? 0),
                       child: CometChatReceipt(
                         status: ReceiptStatus.delivered,
                         size: 16,
@@ -449,14 +434,17 @@ class _CometChatMessageInformationState
         children: [
           Text(
             messageReceipt.sender.name,
-            style: TextStyle(
-              color: messageInfoStyle.nameTextColor ?? colorPalette.textPrimary,
-              fontSize: typography.heading4?.medium?.fontSize,
-              fontWeight: typography.heading4?.medium?.fontWeight,
-              fontFamily: typography.heading4?.medium?.fontFamily,
-            ).merge(messageInfoStyle.nameTextStyle).copyWith(
-                  color: messageInfoStyle.nameTextColor,
-                ),
+            style:
+                TextStyle(
+                      color:
+                          messageInfoStyle.nameTextColor ??
+                          colorPalette.textPrimary,
+                      fontSize: typography.heading4?.medium?.fontSize,
+                      fontWeight: typography.heading4?.medium?.fontWeight,
+                      fontFamily: typography.heading4?.medium?.fontFamily,
+                    )
+                    .merge(messageInfoStyle.nameTextStyle)
+                    .copyWith(color: messageInfoStyle.nameTextColor),
           ),
           if (messageReceipt.readAt != null)
             Row(
@@ -470,10 +458,7 @@ class _CometChatMessageInformationState
                 ),
                 const Spacer(),
                 timeText(
-                  convertTime(
-                    messageReceipt.readAt,
-                    "dd/M/yyyy, h:mm a",
-                  ),
+                  convertTime(messageReceipt.readAt, "dd/M/yyyy, h:mm a"),
                   messageInfoStyle.readDateTextStyle,
                   messageInfoStyle.readDateTextColor,
                   typography,
@@ -493,10 +478,7 @@ class _CometChatMessageInformationState
                 ),
                 const Spacer(),
                 timeText(
-                  convertTime(
-                    messageReceipt.deliveredAt,
-                    "dd/M/yyyy, h:mm a",
-                  ),
+                  convertTime(messageReceipt.deliveredAt, "dd/M/yyyy, h:mm a"),
                   messageInfoStyle.deliveredDateTextStyle,
                   messageInfoStyle.deliveredDateTextColor,
                   typography,
@@ -514,8 +496,11 @@ class _CometChatMessageInformationState
   }
 
   // loading view
-  Widget loadingView(BuildContext context, CometChatColorPalette colorPalette,
-      CometChatSpacing spacing) {
+  Widget loadingView(
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+  ) {
     return CometChatShimmerEffect(
       child: ListView.builder(
         shrinkWrap: true,
@@ -531,10 +516,7 @@ class _CometChatMessageInformationState
               children: [
                 const Padding(
                   padding: EdgeInsets.only(right: 8.0), // Adjust as necessary
-                  child: CircleAvatar(
-                    radius: 24,
-                    backgroundColor: Colors.grey,
-                  ),
+                  child: CircleAvatar(radius: 24, backgroundColor: Colors.grey),
                 ),
                 Expanded(
                   child: Column(

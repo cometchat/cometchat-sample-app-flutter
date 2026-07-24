@@ -8,9 +8,12 @@ class MessageTranslationExtension extends ExtensionsDataSource {
 
   @override
   void addExtension() {
-    ChatConfigurator.enable((dataSource) =>
-        MessageExtensionTranslationDecorator(dataSource,
-            configuration: configuration));
+    ChatConfigurator.enable(
+      (dataSource) => MessageExtensionTranslationDecorator(
+        dataSource,
+        configuration: configuration,
+      ),
+    );
   }
 
   @override

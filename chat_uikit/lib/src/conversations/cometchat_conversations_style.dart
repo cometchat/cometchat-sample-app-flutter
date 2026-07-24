@@ -254,9 +254,9 @@ class CometChatConversationsStyle
       errorStateTextStyle: errorStateTextStyle ?? this.errorStateTextStyle,
       errorStateTextColor: errorStateTextColor ?? this.errorStateTextColor,
       emptyStateSubTitleTextStyle:
-          emptyStateSubtitleTextStyle ?? this.emptyStateSubTitleTextStyle,
+          emptyStateSubtitleTextStyle ?? emptyStateSubTitleTextStyle,
       emptyStateSubTitleTextColor:
-          emptyStateSubtitleTextColor ?? this.emptyStateSubTitleTextColor,
+          emptyStateSubtitleTextColor ?? emptyStateSubTitleTextColor,
       errorStateSubTitleTextStyle:
           errorStateSubTitleTextStyle ?? this.errorStateSubTitleTextStyle,
       errorStateSubTitleTextColor:
@@ -270,7 +270,7 @@ class CometChatConversationsStyle
       messageTypeIconColor: messageTypeIconColor ?? this.messageTypeIconColor,
       separatorHeight: separatorHeight ?? this.separatorHeight,
       separatorColor: separatorColor ?? this.separatorColor,
-      avatarStyle: messageBubbleAvatarStyle ?? this.avatarStyle,
+      avatarStyle: messageBubbleAvatarStyle ?? avatarStyle,
       statusIndicatorStyle: statusIndicatorStyle ?? this.statusIndicatorStyle,
       badgeStyle: badgeStyle ?? this.badgeStyle,
       receiptStyle: receiptStyle ?? this.receiptStyle,
@@ -289,7 +289,8 @@ class CometChatConversationsStyle
       checkBoxCheckedBackgroundColor:
           checkBoxCheckedBackgroundColor ?? this.checkBoxCheckedBackgroundColor,
       checkBoxBorderRadius: checkBoxBorderRadius ?? this.checkBoxBorderRadius,
-      listItemSelectedBackgroundColor: listItemSelectedBackgroundColor ??
+      listItemSelectedBackgroundColor:
+          listItemSelectedBackgroundColor ??
           this.listItemSelectedBackgroundColor,
       checkboxSelectedIconColor:
           checkboxSelectedIconColor ?? this.checkboxSelectedIconColor,
@@ -358,87 +359,174 @@ class CometChatConversationsStyle
 
   @override
   CometChatConversationsStyle lerp(
-      ThemeExtension<CometChatConversationsStyle>? other, double t) {
+    ThemeExtension<CometChatConversationsStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatConversationsStyle) {
       return this;
     }
     return CometChatConversationsStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: Border.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       backIconColor: Color.lerp(backIconColor, other.backIconColor, t),
       titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
       titleTextColor: Color.lerp(titleTextColor, other.titleTextColor, t),
-      emptyStateTextStyle:
-          TextStyle.lerp(emptyStateTextStyle, other.emptyStateTextStyle, t),
-      emptyStateTextColor:
-          Color.lerp(emptyStateTextColor, other.emptyStateTextColor, t),
-      errorStateTextStyle:
-          TextStyle.lerp(errorStateTextStyle, other.errorStateTextStyle, t),
-      errorStateTextColor:
-          Color.lerp(errorStateTextColor, other.errorStateTextColor, t),
+      emptyStateTextStyle: TextStyle.lerp(
+        emptyStateTextStyle,
+        other.emptyStateTextStyle,
+        t,
+      ),
+      emptyStateTextColor: Color.lerp(
+        emptyStateTextColor,
+        other.emptyStateTextColor,
+        t,
+      ),
+      errorStateTextStyle: TextStyle.lerp(
+        errorStateTextStyle,
+        other.errorStateTextStyle,
+        t,
+      ),
+      errorStateTextColor: Color.lerp(
+        errorStateTextColor,
+        other.errorStateTextColor,
+        t,
+      ),
       emptyStateSubTitleTextStyle: TextStyle.lerp(
-          emptyStateSubTitleTextStyle, other.emptyStateSubTitleTextStyle, t),
+        emptyStateSubTitleTextStyle,
+        other.emptyStateSubTitleTextStyle,
+        t,
+      ),
       emptyStateSubTitleTextColor: Color.lerp(
-          emptyStateSubTitleTextColor, other.emptyStateSubTitleTextColor, t),
+        emptyStateSubTitleTextColor,
+        other.emptyStateSubTitleTextColor,
+        t,
+      ),
       errorStateSubTitleTextStyle: TextStyle.lerp(
-          errorStateSubTitleTextStyle, other.errorStateSubTitleTextStyle, t),
+        errorStateSubTitleTextStyle,
+        other.errorStateSubTitleTextStyle,
+        t,
+      ),
       errorStateSubTitleTextColor: Color.lerp(
-          errorStateSubTitleTextColor, other.errorStateSubTitleTextColor, t),
-      itemTitleTextStyle:
-          TextStyle.lerp(itemTitleTextStyle, other.itemTitleTextStyle, t),
-      itemTitleTextColor:
-          Color.lerp(itemTitleTextColor, other.itemTitleTextColor, t),
-      itemSubtitleTextStyle:
-          TextStyle.lerp(itemSubtitleTextStyle, other.itemSubtitleTextStyle, t),
-      itemSubtitleTextColor:
-          Color.lerp(itemSubtitleTextColor, other.itemSubtitleTextColor, t),
-      messageTypeIconColor:
-          Color.lerp(messageTypeIconColor, other.messageTypeIconColor, t),
+        errorStateSubTitleTextColor,
+        other.errorStateSubTitleTextColor,
+        t,
+      ),
+      itemTitleTextStyle: TextStyle.lerp(
+        itemTitleTextStyle,
+        other.itemTitleTextStyle,
+        t,
+      ),
+      itemTitleTextColor: Color.lerp(
+        itemTitleTextColor,
+        other.itemTitleTextColor,
+        t,
+      ),
+      itemSubtitleTextStyle: TextStyle.lerp(
+        itemSubtitleTextStyle,
+        other.itemSubtitleTextStyle,
+        t,
+      ),
+      itemSubtitleTextColor: Color.lerp(
+        itemSubtitleTextColor,
+        other.itemSubtitleTextColor,
+        t,
+      ),
+      messageTypeIconColor: Color.lerp(
+        messageTypeIconColor,
+        other.messageTypeIconColor,
+        t,
+      ),
       separatorHeight: lerpDouble(separatorHeight, other.separatorHeight, t),
       separatorColor: Color.lerp(separatorColor, other.separatorColor, t),
       avatarStyle: avatarStyle?.lerp(other.avatarStyle, t),
-      typingIndicatorStyle:
-          typingIndicatorStyle?.lerp(other.typingIndicatorStyle, t),
+      typingIndicatorStyle: typingIndicatorStyle?.lerp(
+        other.typingIndicatorStyle,
+        t,
+      ),
       badgeStyle: badgeStyle?.lerp(other.badgeStyle, t),
       dateStyle: dateStyle?.lerp(other.dateStyle, t),
       mentionsStyle: mentionsStyle?.lerp(other.mentionsStyle, t),
       receiptStyle: receiptStyle?.lerp(other.receiptStyle, t),
-      statusIndicatorStyle:
-          statusIndicatorStyle?.lerp(other.statusIndicatorStyle, t),
+      statusIndicatorStyle: statusIndicatorStyle?.lerp(
+        other.statusIndicatorStyle,
+        t,
+      ),
       deleteConversationDialogStyle: deleteConversationDialogStyle?.lerp(
-          other.deleteConversationDialogStyle, t),
+        other.deleteConversationDialogStyle,
+        t,
+      ),
       privateGroupIconBackground: Color.lerp(
-          privateGroupIconBackground, other.privateGroupIconBackground, t),
+        privateGroupIconBackground,
+        other.privateGroupIconBackground,
+        t,
+      ),
       protectedGroupIconBackground: Color.lerp(
-          protectedGroupIconBackground, other.protectedGroupIconBackground, t),
-      checkBoxBorder: BorderSide.lerp(checkBoxBorder ?? BorderSide.none,
-          other.checkBoxBorder ?? BorderSide.none, t),
-      checkBoxBackgroundColor:
-          Color.lerp(checkBoxBackgroundColor, other.checkBoxBackgroundColor, t),
-      checkBoxCheckedBackgroundColor: Color.lerp(checkBoxCheckedBackgroundColor,
-          other.checkBoxCheckedBackgroundColor, t),
+        protectedGroupIconBackground,
+        other.protectedGroupIconBackground,
+        t,
+      ),
+      checkBoxBorder: BorderSide.lerp(
+        checkBoxBorder ?? BorderSide.none,
+        other.checkBoxBorder ?? BorderSide.none,
+        t,
+      ),
+      checkBoxBackgroundColor: Color.lerp(
+        checkBoxBackgroundColor,
+        other.checkBoxBackgroundColor,
+        t,
+      ),
+      checkBoxCheckedBackgroundColor: Color.lerp(
+        checkBoxCheckedBackgroundColor,
+        other.checkBoxCheckedBackgroundColor,
+        t,
+      ),
       checkBoxBorderRadius: BorderRadiusGeometry.lerp(
-          checkBoxBorderRadius, other.checkBoxBorderRadius, t),
+        checkBoxBorderRadius,
+        other.checkBoxBorderRadius,
+        t,
+      ),
       listItemSelectedBackgroundColor: Color.lerp(
-          listItemSelectedBackgroundColor,
-          other.listItemSelectedBackgroundColor,
-          t),
+        listItemSelectedBackgroundColor,
+        other.listItemSelectedBackgroundColor,
+        t,
+      ),
       checkboxSelectedIconColor: Color.lerp(
-          checkboxSelectedIconColor, other.checkboxSelectedIconColor, t),
+        checkboxSelectedIconColor,
+        other.checkboxSelectedIconColor,
+        t,
+      ),
       submitIconColor: Color.lerp(submitIconColor, other.submitIconColor, t),
-      searchBackgroundColor:
-          Color.lerp(searchBackgroundColor, other.searchBackgroundColor, t),
-      searchBorder: BorderSide.lerp(searchBorder ?? BorderSide.none,
-          other.searchBorder ?? BorderSide.none, t),
-      searchBorderRadius:
-          BorderRadius.lerp(searchBorderRadius, other.searchBorderRadius, t),
+      searchBackgroundColor: Color.lerp(
+        searchBackgroundColor,
+        other.searchBackgroundColor,
+        t,
+      ),
+      searchBorder: BorderSide.lerp(
+        searchBorder ?? BorderSide.none,
+        other.searchBorder ?? BorderSide.none,
+        t,
+      ),
+      searchBorderRadius: BorderRadius.lerp(
+        searchBorderRadius,
+        other.searchBorderRadius,
+        t,
+      ),
       searchIconColor: Color.lerp(searchIconColor, other.searchIconColor, t),
       searchPlaceHolderTextColor: Color.lerp(
-          searchPlaceHolderTextColor, other.searchPlaceHolderTextColor, t),
+        searchPlaceHolderTextColor,
+        other.searchPlaceHolderTextColor,
+        t,
+      ),
       searchPlaceHolderTextStyle: TextStyle.lerp(
-          searchPlaceHolderTextStyle, other.searchPlaceHolderTextStyle, t),
+        searchPlaceHolderTextStyle,
+        other.searchPlaceHolderTextStyle,
+        t,
+      ),
     );
   }
 }

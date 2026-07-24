@@ -102,25 +102,26 @@ class CometChatMessageInformationStyle
       const CometChatMessageInformationStyle();
 
   @override
-  CometChatMessageInformationStyle copyWith(
-      {TextStyle? titleTextStyle,
-      Color? titleTextColor,
-      Color? backgroundColor,
-      BoxBorder? border,
-      BorderRadiusGeometry? borderRadius,
-      TextStyle? nameTextStyle,
-      TextStyle? readTextStyle,
-      TextStyle? readDateTextStyle,
-      TextStyle? deliveredTextStyle,
-      TextStyle? deliveredDateTextStyle,
-      Color? deliveredDateTextColor,
-      Color? deliveredTextColor,
-      Color? nameTextColor,
-      Color? readDateTextColor,
-      Color? readTextColor,
-      CometChatAvatarStyle? messageBubbleAvatarStyle,
-      Color? backgroundHighLightColor,
-      CometChatMessageReceiptStyle? messageReceiptStyle}) {
+  CometChatMessageInformationStyle copyWith({
+    TextStyle? titleTextStyle,
+    Color? titleTextColor,
+    Color? backgroundColor,
+    BoxBorder? border,
+    BorderRadiusGeometry? borderRadius,
+    TextStyle? nameTextStyle,
+    TextStyle? readTextStyle,
+    TextStyle? readDateTextStyle,
+    TextStyle? deliveredTextStyle,
+    TextStyle? deliveredDateTextStyle,
+    Color? deliveredDateTextColor,
+    Color? deliveredTextColor,
+    Color? nameTextColor,
+    Color? readDateTextColor,
+    Color? readTextColor,
+    CometChatAvatarStyle? messageBubbleAvatarStyle,
+    Color? backgroundHighLightColor,
+    CometChatMessageReceiptStyle? messageReceiptStyle,
+  }) {
     return CometChatMessageInformationStyle(
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
       titleTextColor: titleTextColor ?? this.titleTextColor,
@@ -139,7 +140,7 @@ class CometChatMessageInformationStyle
       nameTextColor: nameTextColor ?? this.nameTextColor,
       readDateTextColor: readDateTextColor ?? this.readDateTextColor,
       readTextColor: readTextColor ?? this.readTextColor,
-      avatarStyle: messageBubbleAvatarStyle ?? this.avatarStyle,
+      avatarStyle: messageBubbleAvatarStyle ?? avatarStyle,
       backgroundHighLightColor:
           backgroundHighLightColor ?? this.backgroundHighLightColor,
       messageReceiptStyle: messageReceiptStyle ?? this.messageReceiptStyle,
@@ -147,7 +148,8 @@ class CometChatMessageInformationStyle
   }
 
   CometChatMessageInformationStyle merge(
-      CometChatMessageInformationStyle? style) {
+    CometChatMessageInformationStyle? style,
+  ) {
     if (style == null) return this;
     return copyWith(
       titleTextStyle: style.titleTextStyle,
@@ -173,7 +175,9 @@ class CometChatMessageInformationStyle
 
   @override
   CometChatMessageInformationStyle lerp(
-      ThemeExtension<CometChatMessageInformationStyle>? other, double t) {
+    ThemeExtension<CometChatMessageInformationStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatMessageInformationStyle) {
       return this;
     }
@@ -182,29 +186,55 @@ class CometChatMessageInformationStyle
       titleTextColor: Color.lerp(titleTextColor, other.titleTextColor, t),
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       nameTextStyle: TextStyle.lerp(nameTextStyle, other.nameTextStyle, t),
       readTextStyle: TextStyle.lerp(readTextStyle, other.readTextStyle, t),
-      readDateTextStyle:
-          TextStyle.lerp(readDateTextStyle, other.readDateTextStyle, t),
-      deliveredTextStyle:
-          TextStyle.lerp(deliveredTextStyle, other.deliveredTextStyle, t),
+      readDateTextStyle: TextStyle.lerp(
+        readDateTextStyle,
+        other.readDateTextStyle,
+        t,
+      ),
+      deliveredTextStyle: TextStyle.lerp(
+        deliveredTextStyle,
+        other.deliveredTextStyle,
+        t,
+      ),
       deliveredDateTextStyle: TextStyle.lerp(
-          deliveredDateTextStyle, other.deliveredDateTextStyle, t),
-      deliveredDateTextColor:
-          Color.lerp(deliveredDateTextColor, other.deliveredDateTextColor, t),
-      deliveredTextColor:
-          Color.lerp(deliveredTextColor, other.deliveredTextColor, t),
+        deliveredDateTextStyle,
+        other.deliveredDateTextStyle,
+        t,
+      ),
+      deliveredDateTextColor: Color.lerp(
+        deliveredDateTextColor,
+        other.deliveredDateTextColor,
+        t,
+      ),
+      deliveredTextColor: Color.lerp(
+        deliveredTextColor,
+        other.deliveredTextColor,
+        t,
+      ),
       nameTextColor: Color.lerp(nameTextColor, other.nameTextColor, t),
-      readDateTextColor:
-          Color.lerp(readDateTextColor, other.readDateTextColor, t),
+      readDateTextColor: Color.lerp(
+        readDateTextColor,
+        other.readDateTextColor,
+        t,
+      ),
       readTextColor: Color.lerp(readTextColor, other.readTextColor, t),
       avatarStyle: avatarStyle?.lerp(other.avatarStyle, t),
       backgroundHighLightColor: Color.lerp(
-          backgroundHighLightColor, other.backgroundHighLightColor, t),
-      messageReceiptStyle:
-          messageReceiptStyle?.lerp(other.messageReceiptStyle, t),
+        backgroundHighLightColor,
+        other.backgroundHighLightColor,
+        t,
+      ),
+      messageReceiptStyle: messageReceiptStyle?.lerp(
+        other.messageReceiptStyle,
+        t,
+      ),
     );
   }
 }

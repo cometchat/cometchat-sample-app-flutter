@@ -40,7 +40,12 @@ class CometChatConversationsController
     this.mentionAllLabel,
     this.mentionAllLabelId,
     this.conversationsStyle,
-  }) : super(conversationsBuilderProtocol.getRequest(), onError: onError, onLoad: onLoad, onEmpty: onEmpty) {
+  }) : super(
+         conversationsBuilderProtocol.getRequest(),
+         onError: onError,
+         onLoad: onLoad,
+         onEmpty: onEmpty,
+       ) {
     selectionMode = mode ?? SelectionMode.none;
     dateStamp = DateTime.now().microsecondsSinceEpoch.toString();
 
@@ -83,7 +88,7 @@ class CometChatConversationsController
 
   String loggedInUserId = "";
   String?
-      activeConversation; //active user or groupID, null when no message list is active
+  activeConversation; //active user or groupID, null when no message list is active
 
   CometChatConversationsStyle? style;
 
@@ -129,7 +134,9 @@ class CometChatConversationsController
     CometChat.addCallListener(_conversationListenerId, this);
     CometChat.addConnectionListener(_conversationListenerId, this);
     CometChatConversationEvents.addConversationListListener(
-        _conversationEventListenerId, this);
+      _conversationEventListenerId,
+      this,
+    );
     initializeTextFormatters();
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       WidgetsBinding.instance.addObserver(this);
@@ -155,7 +162,8 @@ class CometChatConversationsController
     CometChat.removeCallListener(_conversationListenerId);
     CometChat.removeConnectionListener(_conversationListenerId);
     CometChatConversationEvents.removeConversationListListener(
-        _conversationEventListenerId);
+      _conversationEventListenerId,
+    );
     super.onClose();
   }
 
@@ -267,26 +275,29 @@ class CometChatConversationsController
   }
 
   @override
-  void ccGroupMemberAdded(List<cc.Action> messages, List<User> usersAdded,
-      Group groupAddedIn, User addedBy) {
+  void ccGroupMemberAdded(
+    List<cc.Action> messages,
+    List<User> usersAdded,
+    Group groupAddedIn,
+    User addedBy,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
-    if(messages.isNotEmpty) {
+    if (messages.isNotEmpty) {
       refreshSingleConversation(messages.last, true);
     }
   }
 
   //-----------Message Listeners------------------------------------------------
 
-  _onMessageReceived(BaseMessage message, bool isActionMessage) {
-    
+  void _onMessageReceived(BaseMessage message, bool isActionMessage) {
     // Deduplicate: Skip if this message was recently processed
     // This prevents double-counting when SDK fires duplicate events
     if (message.id > 0 && _recentlyProcessedMessageIds.contains(message.id)) {
       return;
     }
-    
+
     // Add to recently processed set and remove after delay
     if (message.id > 0) {
       _recentlyProcessedMessageIds.add(message.id);
@@ -294,10 +305,7 @@ class CometChatConversationsController
         _recentlyProcessedMessageIds.remove(message.id);
       });
     }
-    
-    // Log current count in list before refresh
-    final existingIndex = list.indexWhere((c) => c.conversationId == message.conversationId);
-    
+
     if (message.sender!.uid != loggedInUserId) {
       CometChat.markAsDelivered(message, onSuccess: (_) {}, onError: (_) {});
     }
@@ -402,7 +410,8 @@ class CometChatConversationsController
 
   @override
   void onCustomInteractiveMessageReceived(
-      CustomInteractiveMessage customInteractiveMessage) {
+    CustomInteractiveMessage customInteractiveMessage,
+  ) {
     if (_checkMessageSettings(customInteractiveMessage)) {
       return;
     }
@@ -436,9 +445,11 @@ class CometChatConversationsController
         true) {
       return;
     }
-    int matchingIndex = list.indexWhere((Conversation conversation) =>
-        (conversation.conversationType == ReceiverTypeConstants.user &&
-            (conversation.conversationWith as User).uid == user.uid));
+    int matchingIndex = list.indexWhere(
+      (Conversation conversation) =>
+          (conversation.conversationType == ReceiverTypeConstants.user &&
+          (conversation.conversationWith as User).uid == user.uid),
+    );
     if (matchingIndex >= 0 && matchingIndex < list.length) {
       removeElementAt(matchingIndex);
     } else {
@@ -471,7 +482,11 @@ class CometChatConversationsController
 
   @override
   onGroupMemberKicked(
-      cc.Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    cc.Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -484,7 +499,11 @@ class CometChatConversationsController
 
   @override
   void ccGroupMemberKicked(
-      cc.Action message, User kickedUser, User kickedBy, Group kickedFrom) {
+    cc.Action message,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -497,7 +516,11 @@ class CometChatConversationsController
 
   @override
   onGroupMemberBanned(
-      cc.Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    cc.Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -509,8 +532,12 @@ class CometChatConversationsController
   }
 
   @override
-  onGroupMemberUnbanned(cc.Action action, User unbannedUser, User unbannedBy,
-      Group unbannedFrom) {
+  onGroupMemberUnbanned(
+    cc.Action action,
+    User unbannedUser,
+    User unbannedBy,
+    Group unbannedFrom,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -518,8 +545,14 @@ class CometChatConversationsController
   }
 
   @override
-  onGroupMemberScopeChanged(cc.Action action, User updatedBy, User updatedUser,
-      String scopeChangedTo, String scopeChangedFrom, Group group) {
+  onGroupMemberScopeChanged(
+    cc.Action action,
+    User updatedBy,
+    User updatedUser,
+    String scopeChangedTo,
+    String scopeChangedFrom,
+    Group group,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -528,18 +561,24 @@ class CometChatConversationsController
 
   @override
   onMemberAddedToGroup(
-      cc.Action action, User addedby, User userAdded, Group addedTo) {
+    cc.Action action,
+    User addedby,
+    User userAdded,
+    Group addedTo,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
-    if (action.actionFor is Group && (action.actionFor as Group).guid == addedTo.guid) {
+    if (action.actionFor is Group &&
+        (action.actionFor as Group).guid == addedTo.guid) {
       Group updatedGroup = action.actionFor as Group;
       updatedGroup.hasJoined = true;
 
       action.actionFor = updatedGroup;
 
       // ✅ ALSO update receiver if it's the same group
-      if (action.receiver is Group && (action.receiver as Group).guid == addedTo.guid) {
+      if (action.receiver is Group &&
+          (action.receiver as Group).guid == addedTo.guid) {
         action.receiver = updatedGroup;
       }
     }
@@ -548,7 +587,11 @@ class CometChatConversationsController
 
   @override
   void ccGroupMemberBanned(
-      cc.Action message, User bannedUser, User bannedBy, Group bannedFrom) {
+    cc.Action message,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -563,9 +606,11 @@ class CometChatConversationsController
 
   @override
   updateUserStatus(User user, String status) {
-    int matchingIndex = list.indexWhere((element) =>
-        (element.conversationType == ReceiverTypeConstants.user &&
-            (element.conversationWith as User).uid == user.uid));
+    int matchingIndex = list.indexWhere(
+      (element) =>
+          (element.conversationType == ReceiverTypeConstants.user &&
+          (element.conversationWith as User).uid == user.uid),
+    );
 
     if (matchingIndex != -1) {
       (list[matchingIndex].conversationWith as User).status = status;
@@ -606,8 +651,9 @@ class CometChatConversationsController
       removeElementAt(matchingIndex);
       addElement(conversation);
     } else {
-      final conversation =
-          await CometChatHelper.getConversationFromMessage(message);
+      final conversation = await CometChatHelper.getConversationFromMessage(
+        message,
+      );
       if (conversation != null) {
         addElement(conversation);
       }
@@ -616,9 +662,11 @@ class CometChatConversationsController
 
   @override
   updateGroup(Group group) {
-    int matchingIndex = list.indexWhere((element) =>
-        ((element.conversationWith is Group) &&
-            ((element.conversationWith as Group).guid == group.guid)));
+    int matchingIndex = list.indexWhere(
+      (element) =>
+          ((element.conversationWith is Group) &&
+          ((element.conversationWith as Group).guid == group.guid)),
+    );
 
     if (matchingIndex != -1) {
       list[matchingIndex].conversationWith = group;
@@ -628,9 +676,11 @@ class CometChatConversationsController
 
   @override
   removeGroup(String guid) {
-    int matchingIndex = list.indexWhere((element) =>
-        ((element.conversationWith is Group) &&
-            ((element.conversationWith as Group).guid == guid)));
+    int matchingIndex = list.indexWhere(
+      (element) =>
+          ((element.conversationWith is Group) &&
+          ((element.conversationWith as Group).guid == guid)),
+    );
 
     if (matchingIndex != -1) {
       removeElementAt(matchingIndex);
@@ -650,11 +700,15 @@ class CometChatConversationsController
   }
 
   @override
-  refreshSingleConversation(BaseMessage message, bool isActionMessage,
-      {bool? remove}) async {
+  refreshSingleConversation(
+    BaseMessage message,
+    bool isActionMessage, {
+    bool? remove,
+  }) async {
     if (checkMessageIsAllowed(message)) {
-      final conversation =
-          await CometChatHelper.getConversationFromMessage(message);
+      final conversation = await CometChatHelper.getConversationFromMessage(
+        message,
+      );
       if (conversation != null) {
         conversation.lastMessage = message;
         conversation.updatedAt = message.updatedAt;
@@ -673,7 +727,8 @@ class CometChatConversationsController
     int matchingIndex = getMatchingIndex(conversation);
 
     bool incrementUnreadCount = false;
-    bool isCategoryMessage = (conversation.lastMessage!.category ==
+    bool isCategoryMessage =
+        (conversation.lastMessage!.category ==
             MessageCategoryConstants.message) ||
         (conversation.lastMessage!.category ==
             MessageCategoryConstants.interactive) ||
@@ -681,8 +736,8 @@ class CometChatConversationsController
     if (conversation.lastMessage is CustomMessage) {
       final message = conversation.lastMessage as CustomMessage;
       if (message.updateConversation == true ||
-          (conversation.lastMessage?.metadata?[
-                      UpdateSettingsConstant.incrementUnreadCount] ??
+          (conversation.lastMessage?.metadata?[UpdateSettingsConstant
+                      .incrementUnreadCount] ??
                   false) ==
               true ||
           (CometChatUIKit.conversationUpdateSettings?.customMessages ??
@@ -720,7 +775,7 @@ class CometChatConversationsController
     update();
   }
 
-//Set Receipt for
+  //Set Receipt for
   @override
   setReceipts(MessageReceipt receipt) {
     for (int i = 0; i < list.length; i++) {
@@ -777,18 +832,24 @@ class CometChatConversationsController
 
   @override
   setTypingIndicator(
-      TypingIndicator typingIndicator, bool isTypingStarted) async {
+    TypingIndicator typingIndicator,
+    bool isTypingStarted,
+  ) async {
     int matchingIndex;
     if (typingIndicator.receiverType == ReceiverTypeConstants.user) {
-      matchingIndex = list.indexWhere((Conversation conversation) =>
-          (conversation.conversationType == ReceiverTypeConstants.user &&
-              (conversation.conversationWith as User).uid ==
-                  typingIndicator.sender.uid));
+      matchingIndex = list.indexWhere(
+        (Conversation conversation) =>
+            (conversation.conversationType == ReceiverTypeConstants.user &&
+            (conversation.conversationWith as User).uid ==
+                typingIndicator.sender.uid),
+      );
     } else {
-      matchingIndex = list.indexWhere((Conversation conversation) =>
-          (conversation.conversationType == ReceiverTypeConstants.group &&
-              (conversation.conversationWith as Group).guid ==
-                  typingIndicator.receiverId));
+      matchingIndex = list.indexWhere(
+        (Conversation conversation) =>
+            (conversation.conversationType == ReceiverTypeConstants.group &&
+            (conversation.conversationWith as Group).guid ==
+                typingIndicator.receiverId),
+      );
     }
     if (matchingIndex != -1) {
       if (isTypingStarted == true) {
@@ -818,13 +879,14 @@ class CometChatConversationsController
       final colorPalette = CometChatThemeHelper.getColorPalette(context!);
       final typography = CometChatThemeHelper.getTypography(context!);
       final style = CometChatThemeHelper.getTheme<CometChatConversationsStyle>(
-              context: context!, defaultTheme: CometChatConversationsStyle.of)
-          .merge(conversationsStyle);
+        context: context!,
+        defaultTheme: CometChatConversationsStyle.of,
+      ).merge(conversationsStyle);
       final confirmDialogStyle =
           CometChatThemeHelper.getTheme<CometChatConfirmDialogStyle>(
-                  context: context!,
-                  defaultTheme: CometChatConfirmDialogStyle.of)
-              .merge(style.deleteConversationDialogStyle);
+            context: context!,
+            defaultTheme: CometChatConfirmDialogStyle.of,
+          ).merge(style.deleteConversationDialogStyle);
       CometChatConfirmDialog(
         context: context!,
         confirmButtonText: cc.Translations.of(context!).delete,
@@ -857,7 +919,8 @@ class CometChatConversationsController
           iconBackgroundColor: confirmDialogStyle.iconBackgroundColor,
           borderRadius: confirmDialogStyle.borderRadius,
           border: confirmDialogStyle.border,
-          cancelButtonBackground: confirmDialogStyle.cancelButtonBackground ??
+          cancelButtonBackground:
+              confirmDialogStyle.cancelButtonBackground ??
               colorPalette.transparent,
           confirmButtonBackground:
               confirmDialogStyle.confirmButtonBackground ?? colorPalette.error,
@@ -865,58 +928,50 @@ class CometChatConversationsController
           confirmButtonTextColor: confirmDialogStyle.confirmButtonTextColor,
           messageTextColor: confirmDialogStyle.messageTextColor,
           titleTextColor: confirmDialogStyle.titleTextColor,
-          titleTextStyle: TextStyle(
-            color:
-                confirmDialogStyle.titleTextColor ?? colorPalette.textPrimary,
-            fontSize: typography.heading2?.medium?.fontSize,
-            fontWeight: typography.heading2?.medium?.fontWeight,
-            fontFamily: typography.heading2?.medium?.fontFamily,
-          )
-              .merge(
-                confirmDialogStyle.titleTextStyle,
-              )
-              .copyWith(
-                color: confirmDialogStyle.titleTextColor,
-              ),
-          messageTextStyle: TextStyle(
-            color: confirmDialogStyle.messageTextColor ??
-                colorPalette.textSecondary,
-            fontSize: typography.body?.regular?.fontSize,
-            fontWeight: typography.body?.regular?.fontWeight,
-            fontFamily: typography.body?.regular?.fontFamily,
-          )
-              .merge(
-                confirmDialogStyle.messageTextStyle,
-              )
-              .copyWith(
-                color: confirmDialogStyle.messageTextColor,
-              ),
-          confirmButtonTextStyle: TextStyle(
-            color:
-                confirmDialogStyle.confirmButtonTextColor ?? colorPalette.white,
-            fontSize: typography.button?.medium?.fontSize,
-            fontWeight: typography.button?.medium?.fontWeight,
-            fontFamily: typography.button?.medium?.fontFamily,
-          )
-              .merge(
-                confirmDialogStyle.confirmButtonTextStyle,
-              )
-              .copyWith(
-                color: confirmDialogStyle.confirmButtonTextColor,
-              ),
-          cancelButtonTextStyle: TextStyle(
-            color: confirmDialogStyle.cancelButtonTextColor ??
-                colorPalette.textPrimary,
-            fontSize: typography.button?.medium?.fontSize,
-            fontWeight: typography.button?.medium?.fontWeight,
-            fontFamily: typography.button?.medium?.fontFamily,
-          )
-              .merge(
-                confirmDialogStyle.cancelButtonTextStyle,
-              )
-              .copyWith(
-                color: confirmDialogStyle.cancelButtonTextColor,
-              ),
+          titleTextStyle:
+              TextStyle(
+                    color:
+                        confirmDialogStyle.titleTextColor ??
+                        colorPalette.textPrimary,
+                    fontSize: typography.heading2?.medium?.fontSize,
+                    fontWeight: typography.heading2?.medium?.fontWeight,
+                    fontFamily: typography.heading2?.medium?.fontFamily,
+                  )
+                  .merge(confirmDialogStyle.titleTextStyle)
+                  .copyWith(color: confirmDialogStyle.titleTextColor),
+          messageTextStyle:
+              TextStyle(
+                    color:
+                        confirmDialogStyle.messageTextColor ??
+                        colorPalette.textSecondary,
+                    fontSize: typography.body?.regular?.fontSize,
+                    fontWeight: typography.body?.regular?.fontWeight,
+                    fontFamily: typography.body?.regular?.fontFamily,
+                  )
+                  .merge(confirmDialogStyle.messageTextStyle)
+                  .copyWith(color: confirmDialogStyle.messageTextColor),
+          confirmButtonTextStyle:
+              TextStyle(
+                    color:
+                        confirmDialogStyle.confirmButtonTextColor ??
+                        colorPalette.white,
+                    fontSize: typography.button?.medium?.fontSize,
+                    fontWeight: typography.button?.medium?.fontWeight,
+                    fontFamily: typography.button?.medium?.fontFamily,
+                  )
+                  .merge(confirmDialogStyle.confirmButtonTextStyle)
+                  .copyWith(color: confirmDialogStyle.confirmButtonTextColor),
+          cancelButtonTextStyle:
+              TextStyle(
+                    color:
+                        confirmDialogStyle.cancelButtonTextColor ??
+                        colorPalette.textPrimary,
+                    fontSize: typography.button?.medium?.fontSize,
+                    fontWeight: typography.button?.medium?.fontWeight,
+                    fontFamily: typography.button?.medium?.fontFamily,
+                  )
+                  .merge(confirmDialogStyle.cancelButtonTextStyle)
+                  .copyWith(color: confirmDialogStyle.cancelButtonTextColor),
         ),
         onConfirm: () async {
           isDeleteLoading.value = true;
@@ -933,8 +988,9 @@ class CometChatConversationsController
                 var snackBar = SnackBar(
                   backgroundColor: colorPalette.error,
                   content: Text(
-                    cc.Translations.of(context!)
-                        .errorUnableToDeleteConversation,
+                    cc.Translations.of(
+                      context!,
+                    ).errorUnableToDeleteConversation,
                     style: TextStyle(
                       color: colorPalette.white,
                       fontSize: typography.button?.medium?.fontSize,
@@ -959,25 +1015,23 @@ class CometChatConversationsController
               ? SizedBox(
                   height: 25,
                   width: 25,
-                  child: CircularProgressIndicator(
-                    color: colorPalette.white,
-                  ),
+                  child: CircularProgressIndicator(color: colorPalette.white),
                 )
               : Text(
                   cc.Translations.of(context!).delete,
-                  style: TextStyle(
-                    color: confirmDialogStyle.confirmButtonTextColor ??
-                        colorPalette.white,
-                    fontSize: typography.button?.medium?.fontSize,
-                    fontWeight: typography.button?.medium?.fontWeight,
-                    fontFamily: typography.button?.medium?.fontFamily,
-                  )
-                      .merge(
-                        confirmDialogStyle.confirmButtonTextStyle,
-                      )
-                      .copyWith(
-                        color: confirmDialogStyle.confirmButtonTextColor,
-                      ),
+                  style:
+                      TextStyle(
+                            color:
+                                confirmDialogStyle.confirmButtonTextColor ??
+                                colorPalette.white,
+                            fontSize: typography.button?.medium?.fontSize,
+                            fontWeight: typography.button?.medium?.fontWeight,
+                            fontFamily: typography.button?.medium?.fontFamily,
+                          )
+                          .merge(confirmDialogStyle.confirmButtonTextStyle)
+                          .copyWith(
+                            color: confirmDialogStyle.confirmButtonTextColor,
+                          ),
                 ),
         ),
       ).show();
@@ -1003,13 +1057,16 @@ class CometChatConversationsController
     if (activeConversation == null) {
       //if no message list is open
       CometChatUIKit.soundManager.play(
-          sound: Sound.incomingMessageFromOther,
-          customSound: customSoundForMessages);
+        sound: Sound.incomingMessageFromOther,
+        customSound: customSoundForMessages,
+      );
     } else {
       if (activeConversation != message.conversationId) {
         //if open message list has different conversation id then message received conversation id
         CometChatUIKit.soundManager.play(
-            sound: Sound.incomingMessage, customSound: customSoundForMessages);
+          sound: Sound.incomingMessage,
+          customSound: customSoundForMessages,
+        );
       }
     }
   }
@@ -1046,27 +1103,35 @@ class CometChatConversationsController
     CometChatMentionsStyle? ccMentionStyle;
     if (context != null) {
       style = CometChatThemeHelper.getTheme<CometChatConversationsStyle>(
-              context: context!, defaultTheme: CometChatConversationsStyle.of)
-          .merge(conversationsStyle);
+        context: context!,
+        defaultTheme: CometChatConversationsStyle.of,
+      ).merge(conversationsStyle);
       ccMentionStyle = CometChatThemeHelper.getTheme<CometChatMentionsStyle>(
-              context: context!, defaultTheme: CometChatMentionsStyle.of)
-          .merge(style.mentionsStyle);
+        context: context!,
+        defaultTheme: CometChatMentionsStyle.of,
+      ).merge(style.mentionsStyle);
     }
     List<CometChatTextFormatter> textFormatters = this.textFormatters ?? [];
 
     if ((textFormatters.isEmpty ||
-            textFormatters.indexWhere(
-                    (element) => element is CometChatMentionsFormatter) ==
-                -1)) {
-      textFormatters.add(CometChatMentionsFormatter(
+        textFormatters.indexWhere(
+              (element) => element is CometChatMentionsFormatter,
+            ) ==
+            -1)) {
+      textFormatters.add(
+        CometChatMentionsFormatter(
           style: ccMentionStyle ?? mentionsStyle,
           mentionAllLabel: mentionAllLabel,
-          mentionAllLabelId: mentionAllLabelId));
+          mentionAllLabelId: mentionAllLabelId,
+        ),
+      );
     }
 
     // Ensure rich text formatter is included for rendering formatted messages in conversation subtitle
     if (textFormatters.indexWhere(
-            (element) => element is CometChatRichTextFormatter) == -1) {
+          (element) => element is CometChatRichTextFormatter,
+        ) ==
+        -1) {
       textFormatters.add(CometChatRichTextFormatter());
     }
 
@@ -1227,7 +1292,7 @@ class CometChatConversationsController
     return true;
   }
 
-// Check settings for Group Actions
+  // Check settings for Group Actions
   bool _checkGroupSettings() {
     if (CometChatUIKit.conversationUpdateSettings != null) {
       return CometChatUIKit.conversationUpdateSettings!.groupActions;
@@ -1249,8 +1314,7 @@ class CometChatConversationsController
   }
 
   bool hideGroupIconVisibility(Group? group) {
-    return group != null &&
-        (groupTypeVisibility != true);
+    return group != null && (groupTypeVisibility != true);
   }
 
   void clearSelection() {
@@ -1264,10 +1328,13 @@ class CometChatConversationsController
     List<CometChatOption> options,
     GlobalKey widgetKey,
   ) {
-    if(options.isEmpty) {
+    if (options.isEmpty) {
       return;
     }
-    RelativeRect? position = WidgetPositionUtil.getWidgetPosition(context, widgetKey);
+    RelativeRect? position = WidgetPositionUtil.getWidgetPosition(
+      context,
+      widgetKey,
+    );
     showMenu(
       context: context,
       position: position ?? const RelativeRect.fromLTRB(0, 0, 0, 0),
@@ -1283,10 +1350,9 @@ class CometChatConversationsController
       ),
       items: options.map((CometChatOption option) {
         return CustomPopupMenuItem<CometChatOption>(
-            value: option,
-            child: GetMenuView(
-              option: option,
-            ));
+          value: option,
+          child: GetMenuView(option: option),
+        );
       }).toList(),
     ).then((selectedOption) {
       if (selectedOption != null) {

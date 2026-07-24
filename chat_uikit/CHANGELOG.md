@@ -1,3 +1,19 @@
+# 5.2.18
+
+## New
+- Added Swift Package Manager support to the iOS plugin. Opt in with `flutter config --enable-swift-package-manager` (requires Flutter 3.44 or later). CocoaPods remains the default and works unchanged.
+
+## Enhancements
+- Relicensed the package under the MIT License.
+- Improved pub.dev package health, with no changes to the public API, dependencies, or minimum Dart and Flutter versions.
+- Updated deprecated Flutter APIs
+- Migrated the iOS plugin to Swift-only and aligned its declared minimum to iOS 12 (already required by `cometchat_sdk`). Standard integrations require no action; apps that register plugins manually should replace `#import <cometchat_chat_uikit/CometchatChatUikitPlugin.h>` with `@import cometchat_chat_uikit;`.
+
+## Fixes
+- Fixed debug log messages leaking into the host app's console during message-list scrolling, poll creation, and composer updates.
+- Fixed a potential exception when deleting a message from the AI assistant chat history after leaving the screen.
+- Fixed a crash (`Bad state: Cannot add new events after calling close`) that occurred when leaving a chat screen before messages finished loading, such as pressing back on a slow network.
+
 # 5.2.17
 
 ## New

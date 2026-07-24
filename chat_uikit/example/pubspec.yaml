@@ -1,0 +1,21 @@
+name: cometchat_chat_uikit_example
+description: Minimal example showing how to initialize CometChat's Flutter Chat UI Kit and render a conversation list.
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cometchat_chat_uikit:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true

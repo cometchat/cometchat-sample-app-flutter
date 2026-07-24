@@ -8,9 +8,12 @@ class ImageModerationExtension extends ExtensionsDataSource {
 
   @override
   void addExtension() {
-    ChatConfigurator.enable((dataSource) => ImageModerationExtensionDecorator(
+    ChatConfigurator.enable(
+      (dataSource) => ImageModerationExtensionDecorator(
         dataSource,
-        configuration: configuration));
+        configuration: configuration,
+      ),
+    );
   }
 
   @override

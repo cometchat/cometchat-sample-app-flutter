@@ -22,15 +22,15 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 ///
 /// ```
 class CometChatLinkPreviewBubble extends StatelessWidget {
-  const CometChatLinkPreviewBubble(
-      {super.key,
-      required this.onTapUrl,
-      required this.links,
-      this.child,
-      this.defaultImage,
-      this.style,
-      this.alignment
-      });
+  const CometChatLinkPreviewBubble({
+    super.key,
+    required this.onTapUrl,
+    required this.links,
+    this.child,
+    this.defaultImage,
+    this.style,
+    this.alignment,
+  });
 
   ///[onTapUrl] opens the link in a browser
   final Future<void> Function(String url) onTapUrl;
@@ -54,16 +54,15 @@ class CometChatLinkPreviewBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final style =
         CometChatThemeHelper.getTheme<CometChatLinkPreviewBubbleStyle>(
-                context: context,
-                defaultTheme: CometChatLinkPreviewBubbleStyle.of)
-            .merge(this.style);
+          context: context,
+          defaultTheme: CometChatLinkPreviewBubbleStyle.of,
+        ).merge(this.style);
     final typography = CometChatThemeHelper.getTypography(context);
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-          maxWidth: 232),
+      constraints: const BoxConstraints(maxWidth: 232),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -80,11 +79,19 @@ class CometChatLinkPreviewBubble extends StatelessWidget {
               },
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                    color: style.backgroundColor ?? (alignment==BubbleAlignment.left?colorPalette.neutral400:colorPalette.extendedPrimary900),
-                    border: style.border,
-                    borderRadius: style.borderRadius ?? BorderRadius.only(
+                  color:
+                      style.backgroundColor ??
+                      (alignment == BubbleAlignment.left
+                          ? colorPalette.neutral400
+                          : colorPalette.extendedPrimary900),
+                  border: style.border,
+                  borderRadius:
+                      style.borderRadius ??
+                      BorderRadius.only(
                         bottomLeft: Radius.circular(spacing.radius2 ?? 0),
-                        bottomRight: Radius.circular(spacing.radius2 ?? 0))),
+                        bottomRight: Radius.circular(spacing.radius2 ?? 0),
+                      ),
+                ),
                 child: Column(
                   children: [
                     if (links.isNotEmpty &&
@@ -92,17 +99,15 @@ class CometChatLinkPreviewBubble extends StatelessWidget {
                         links[0]["image"].toString().isNotEmpty)
                       Container(
                         alignment: Alignment.topCenter,
-                        constraints: const BoxConstraints(
-                            maxWidth: 232),
-                        child: Image.network(links[0]["image"],
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, object, stack) {
-                          return defaultImage ??
-                              const SizedBox(
-                                height: 0,
-                                width: 0,
-                              );
-                        }),
+                        constraints: const BoxConstraints(maxWidth: 232),
+                        child: Image.network(
+                          links[0]["image"],
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, object, stack) {
+                            return defaultImage ??
+                                const SizedBox(height: 0, width: 0);
+                          },
+                        ),
                       ),
                     if (links.isNotEmpty &&
                         (links[0]["title"] != null ||
@@ -112,70 +117,105 @@ class CometChatLinkPreviewBubble extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.all(spacing.padding2 ?? 0),
                         child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: style.tileColor
-                          ),
+                          decoration: BoxDecoration(color: style.tileColor),
                           child: ListTile(
                             contentPadding: const EdgeInsets.all(0),
                             minVerticalPadding: 0.0,
                             minLeadingWidth: 0,
-                            title: (links.isNotEmpty && links[0]["title"] != null)
+                            title:
+                                (links.isNotEmpty && links[0]["title"] != null)
                                 ? Text(
                                     links[0]["title"],
                                     style: TextStyle(
-                                            fontSize:
-                                                typography.body?.bold?.fontSize,
-                                            fontWeight:
-                                            typography.body?.bold?.fontWeight,
-                                            color: (alignment==BubbleAlignment.left?colorPalette.neutral900:colorPalette.white))
-                                        .merge(style.titleStyle),
+                                      fontSize: typography.body?.bold?.fontSize,
+                                      fontWeight:
+                                          typography.body?.bold?.fontWeight,
+                                      color: (alignment == BubbleAlignment.left
+                                          ? colorPalette.neutral900
+                                          : colorPalette.white),
+                                    ).merge(style.titleStyle),
                                   )
                                 : null,
-                            subtitle: (links.isNotEmpty && (links[0]["description"] != null || links[0]["url"] != null))
+                            subtitle:
+                                (links.isNotEmpty &&
+                                    (links[0]["description"] != null ||
+                                        links[0]["url"] != null))
                                 ? Column(
-                              mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (links.isNotEmpty && links[0]["description"] != null)
-                                    Text(
-                                      links[0]["description"],
-                                      style: TextStyle(
-                                          fontSize:
-                                          typography.caption1?.regular?.fontSize,
-                                          fontWeight: typography.caption1?.regular?.fontWeight,
-                                          color: (alignment==BubbleAlignment.left?colorPalette.neutral900:colorPalette.white))
-                                          .merge(style.descriptionStyle),
-                                    ),
-                                    if (links.isNotEmpty && links[0]["url"] != null)
-                                    Text(
-                                        links[0]["url"],
-                                        style: TextStyle(
-                                                fontSize:
-                                                typography.caption1?.regular?.fontSize,
-                                                fontWeight: typography.caption1?.regular?.fontWeight,
-                                                color: (alignment==BubbleAlignment.left?colorPalette.neutral900:colorPalette.white))
-                                            .merge(style.urlStyle),
-                                      ),
-                                  ],
-                                )
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (links.isNotEmpty &&
+                                          links[0]["description"] != null)
+                                        Text(
+                                          links[0]["description"],
+                                          style: TextStyle(
+                                            fontSize: typography
+                                                .caption1
+                                                ?.regular
+                                                ?.fontSize,
+                                            fontWeight: typography
+                                                .caption1
+                                                ?.regular
+                                                ?.fontWeight,
+                                            color:
+                                                (alignment ==
+                                                    BubbleAlignment.left
+                                                ? colorPalette.neutral900
+                                                : colorPalette.white),
+                                          ).merge(style.descriptionStyle),
+                                        ),
+                                      if (links.isNotEmpty &&
+                                          links[0]["url"] != null)
+                                        Text(
+                                          links[0]["url"],
+                                          style: TextStyle(
+                                            fontSize: typography
+                                                .caption1
+                                                ?.regular
+                                                ?.fontSize,
+                                            fontWeight: typography
+                                                .caption1
+                                                ?.regular
+                                                ?.fontWeight,
+                                            color:
+                                                (alignment ==
+                                                    BubbleAlignment.left
+                                                ? colorPalette.neutral900
+                                                : colorPalette.white),
+                                          ).merge(style.urlStyle),
+                                        ),
+                                    ],
+                                  )
                                 : null,
 
-                            trailing: (() {
-                                      final image = links.isNotEmpty ? links[0]["image"] : null;
-                                      final favicon = links.isNotEmpty ? links[0]["favicon"] : null;
-                                      final hasImage = image != null && image.toString().isNotEmpty;
-                                      final hasFavicon = favicon != null && favicon.toString().isNotEmpty;
-                                      return links.isNotEmpty && !hasImage && hasFavicon;
-                                    })()
-                                ? Image.network(links[0]["favicon"],
-                                    height: 36, width: 36,
+                            trailing:
+                                (() {
+                                  final image = links.isNotEmpty
+                                      ? links[0]["image"]
+                                      : null;
+                                  final favicon = links.isNotEmpty
+                                      ? links[0]["favicon"]
+                                      : null;
+                                  final hasImage =
+                                      image != null &&
+                                      image.toString().isNotEmpty;
+                                  final hasFavicon =
+                                      favicon != null &&
+                                      favicon.toString().isNotEmpty;
+                                  return links.isNotEmpty &&
+                                      !hasImage &&
+                                      hasFavicon;
+                                })()
+                                ? Image.network(
+                                    links[0]["favicon"],
+                                    height: 36,
+                                    width: 36,
                                     errorBuilder: (context, object, stack) {
-                                    return defaultImage ??
-                                        const SizedBox(
-                                          height: 0,
-                                          width: 0,
-                                        );
-                                  })
+                                      return defaultImage ??
+                                          const SizedBox(height: 0, width: 0);
+                                    },
+                                  )
                                 : null,
                           ),
                         ),
@@ -186,7 +226,7 @@ class CometChatLinkPreviewBubble extends StatelessWidget {
             ),
 
           //-----child widget-----
-          if (child != null) child!
+          ?child,
         ],
       ),
     );

@@ -7,9 +7,7 @@ import '../../cometchat_chat_uikit.dart';
 class CometchatMessageInformationController extends GetxController
     with CometChatMessageEventListener, CometChatGroupEventListener {
   //--------------------Constructor-----------------------
-  CometchatMessageInformationController(
-    this.parentMessage,
-  ) {
+  CometchatMessageInformationController(this.parentMessage) {
     if (parentMessage.receiver is Group) {
       group = (parentMessage.receiver as Group);
     } else {
@@ -61,8 +59,11 @@ class CometchatMessageInformationController extends GetxController
           messageReceiptList[0].deliveredAt ??= messageReceipt.readAt;
           messageReceiptList[0].readAt = messageReceipt.readAt;
         } else {
-          bool add =
-              updateMessageList(messageReceiptList, messageReceipt, "read");
+          bool add = updateMessageList(
+            messageReceiptList,
+            messageReceipt,
+            "read",
+          );
           if (add == false) {
             messageReceiptList.add(messageReceipt);
           }
@@ -92,7 +93,10 @@ class CometchatMessageInformationController extends GetxController
           messageReceiptList[0].deliveredAt = messageReceipt.deliveredAt;
         } else {
           bool add = updateMessageList(
-              messageReceiptList, messageReceipt, "delivered");
+            messageReceiptList,
+            messageReceipt,
+            "delivered",
+          );
           if (add == false) {
             messageReceiptList.add(messageReceipt);
           }
@@ -103,7 +107,10 @@ class CometchatMessageInformationController extends GetxController
   }
 
   bool updateMessageList(
-      List<MessageReceipt> list, MessageReceipt messageReceipt, String type) {
+    List<MessageReceipt> list,
+    MessageReceipt messageReceipt,
+    String type,
+  ) {
     bool isMatchFound = false;
     for (int i = 0; i < messageReceiptList.length; i++) {
       if (messageReceiptList[i].sender.uid == messageReceipt.sender.uid) {
@@ -144,19 +151,20 @@ class CometchatMessageInformationController extends GetxController
         onSuccess: (recipientList) {
           messageReceiptList = recipientList;
           messageReceiptList.removeWhere(
-              (element) => element.sender.uid == baseMessage.sender?.uid);
+            (element) => element.sender.uid == baseMessage.sender?.uid,
+          );
           isLoading = false;
           update();
         },
-        onError:
-            (CometChatException e) {
-              hasError = true;
-              error = e;
-              isLoading = false;
-              update();
-              debugPrint(
-                  "Error while retrieving group member recipient list ${e.message}");
-            },
+        onError: (CometChatException e) {
+          hasError = true;
+          error = e;
+          isLoading = false;
+          update();
+          debugPrint(
+            "Error while retrieving group member recipient list ${e.message}",
+          );
+        },
       );
     }
   }

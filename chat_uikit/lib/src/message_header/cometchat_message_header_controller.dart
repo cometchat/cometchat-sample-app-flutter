@@ -135,7 +135,7 @@ class CometChatMessageHeaderController extends GetxController
     }
   }
 
-  updateMemberCount(Group group) {
+  dynamic updateMemberCount(Group group) {
     if (groupObject != null && groupObject!.guid == group.guid) {
       membersCount = group.membersCount;
       groupObject?.membersCount = membersCount ?? 1;

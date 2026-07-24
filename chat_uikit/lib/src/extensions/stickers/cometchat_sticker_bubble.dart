@@ -54,15 +54,18 @@ class CometChatStickerBubble extends StatelessWidget {
     String? stickerUrl = getStickerUrl();
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final spacing = CometChatThemeHelper.getSpacing(context);
-    final style =  CometChatThemeHelper.getTheme<CometChatStickerBubbleStyle>(context: context, defaultTheme: CometChatStickerBubbleStyle.of).merge(this.style);
+    final style = CometChatThemeHelper.getTheme<CometChatStickerBubbleStyle>(
+      context: context,
+      defaultTheme: CometChatStickerBubbleStyle.of,
+    ).merge(this.style);
 
     return stickerUrl != null && stickerUrl.isNotEmpty
         ? Container(
-            padding: padding ?? EdgeInsets.symmetric(
-              vertical: spacing.padding2 ?? 0,
-            ),
+            padding:
+                padding ??
+                EdgeInsets.symmetric(vertical: spacing.padding2 ?? 0),
             decoration: BoxDecoration(
-              color:style.backgroundColor,
+              color: style.backgroundColor,
               border: style.border,
               borderRadius: style.borderRadius,
             ),
@@ -92,11 +95,7 @@ class CometChatStickerBubble extends StatelessWidget {
                 return SizedBox(
                   height: height ?? 180,
                   width: width ?? 180,
-                  child: const Center(
-                    child: Text(
-                      "Failed To Load Sticker",
-                    ),
-                  ),
+                  child: const Center(child: Text("Failed To Load Sticker")),
                 );
               },
             ),
@@ -104,11 +103,7 @@ class CometChatStickerBubble extends StatelessWidget {
         : SizedBox(
             height: height ?? 100,
             width: width ?? 100,
-            child: const Center(
-              child: Text(
-                "Failed To Load Sticker",
-              ),
-            ),
+            child: const Center(child: Text("Failed To Load Sticker")),
           );
   }
 }

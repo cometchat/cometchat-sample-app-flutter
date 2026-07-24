@@ -50,7 +50,8 @@ class CometChatNewMessageIndicatorStyle
 
   /// Merge with another CometChatNewMessageIndicatorStyle
   CometChatNewMessageIndicatorStyle merge(
-      CometChatNewMessageIndicatorStyle? other) {
+    CometChatNewMessageIndicatorStyle? other,
+  ) {
     if (other == null) return this;
     return copyWith(
       textColor: other.textColor,
@@ -62,7 +63,9 @@ class CometChatNewMessageIndicatorStyle
 
   @override
   CometChatNewMessageIndicatorStyle lerp(
-      CometChatNewMessageIndicatorStyle? other, double t) {
+    CometChatNewMessageIndicatorStyle? other,
+    double t,
+  ) {
     if (other is! CometChatNewMessageIndicatorStyle) {
       return this;
     }

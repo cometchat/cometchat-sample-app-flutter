@@ -9,9 +9,12 @@ class CollaborativeWhiteBoardExtension extends ExtensionsDataSource {
 
   @override
   void addExtension() {
-    ChatConfigurator.enable((dataSource) =>
-        CollaborativeWhiteBoardExtensionDecorator(dataSource,
-            configuration: configuration));
+    ChatConfigurator.enable(
+      (dataSource) => CollaborativeWhiteBoardExtensionDecorator(
+        dataSource,
+        configuration: configuration,
+      ),
+    );
   }
 
   @override

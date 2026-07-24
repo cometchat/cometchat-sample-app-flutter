@@ -28,13 +28,14 @@ class CometChatAIAssistantChatHistoryController
     this.hideStickyDate = false,
     this.chatHistoryStyle,
   }) : super(
-            builderProtocol: user != null
-                ? (messagesBuilderProtocol
-                  ..requestBuilder.uid = user.uid
-                  ..requestBuilder.guid = '')
-                : (messagesBuilderProtocol
-                  ..requestBuilder.guid = group!.guid
-                  ..requestBuilder.uid = '')) {
+         builderProtocol: user != null
+             ? (messagesBuilderProtocol
+                 ..requestBuilder.uid = user.uid
+                 ..requestBuilder.guid = '')
+             : (messagesBuilderProtocol
+                 ..requestBuilder.guid = group!.guid
+                 ..requestBuilder.uid = ''),
+       ) {
     dateStamp = DateTime.now().microsecondsSinceEpoch.toString();
     _messageListenerId = "${dateStamp}user_listener";
     _uiMessageListener = "${dateStamp}UI_message_listener";
@@ -186,8 +187,9 @@ class CometChatAIAssistantChatHistoryController
 
     if (topDate != null && stickyDateNotifier.value != topDate) {
       stickyDateNotifier.value = topDate;
-      stickyDateString =
-          dateSeparatorPattern != null ? dateSeparatorPattern!(topDate) : null;
+      stickyDateString = dateSeparatorPattern != null
+          ? dateSeparatorPattern!(topDate)
+          : null;
     }
   }
 
@@ -235,52 +237,61 @@ class CometChatAIAssistantChatHistoryController
     getLoggedInUser();
     await getUnreadCount();
     conversation ??= (await CometChat.getConversation(
-        conversationWithId, conversationType, onSuccess: (conversation) {
-      if (conversation.lastMessage != null) {
-        /// "Marking as read"
-        if (kDebugMode) {
-          debugPrint("Marking as read from here");
+      conversationWithId,
+      conversationType,
+      onSuccess: (conversation) {
+        if (conversation.lastMessage != null) {
+          /// "Marking as read"
+          if (kDebugMode) {
+            debugPrint("Marking as read from here");
+          }
         }
-      }
-    }, onError: (_) {}));
+      },
+      onError: (_) {},
+    ));
     conversationId ??= conversation?.conversationId;
 
     try {
-      await request.fetchPrevious(onSuccess: (List<BaseMessage> fetchedList) {
-        if (fetchedList.isEmpty) {
-          isLoading = false;
-          hasMoreItems = false;
-          onEmpty?.call();
-          update();
-        } else {
-          isLoading = false;
-          hasMoreItems = true;
-          for (var element in fetchedList.reversed) {
-            if (element is InteractiveMessage) {
-              element = InteractiveMessageUtils
-                  .getSpecificMessageFromInteractiveMessage(element);
-            }
+      await request.fetchPrevious(
+        onSuccess: (List<BaseMessage> fetchedList) {
+          if (fetchedList.isEmpty) {
+            isLoading = false;
+            hasMoreItems = false;
+            onEmpty?.call();
+            update();
+          } else {
+            isLoading = false;
+            hasMoreItems = true;
+            for (var element in fetchedList.reversed) {
+              if (element is InteractiveMessage) {
+                element =
+                    InteractiveMessageUtils.getSpecificMessageFromInteractiveMessage(
+                      element,
+                    );
+              }
 
-            list.add(element);
+              list.add(element);
 
-            if (lastParticipantMessage == null) {
-              if (element.sender?.uid != loggedInUser?.uid) {
-                lastParticipantMessage = element;
+              if (lastParticipantMessage == null) {
+                if (element.sender?.uid != loggedInUser?.uid) {
+                  lastParticipantMessage = element;
+                }
               }
             }
+            if (inInitialized == false && list.isNotEmpty) {
+              lastMessage = list[0];
+            }
+            onLoad?.call(list);
           }
-          if (inInitialized == false && list.isNotEmpty) {
-            lastMessage = list[0];
-          }
-          onLoad?.call(list);
-        }
-        update();
-      }, onError: (CometChatException e) {
-        onError?.call(e);
-        error = e;
-        hasError = true;
-        update();
-      });
+          update();
+        },
+        onError: (CometChatException e) {
+          onError?.call(e);
+          error = e;
+          hasError = true;
+          update();
+        },
+      );
     } catch (e, s) {
       error = CometChatException("ERR", s.toString(), "Error");
       hasError = true;
@@ -292,11 +303,16 @@ class CometChatAIAssistantChatHistoryController
     if (inInitialized == false) {
       inInitialized = true;
       CometChatUIEvents.ccActiveChatChanged(
-          messageListId, lastMessage, user, group, initialUnreadCount ?? 0);
+        messageListId,
+        lastMessage,
+        user,
+        group,
+        initialUnreadCount ?? 0,
+      );
     }
   }
 
-  getLoggedInUser() async {
+  dynamic getLoggedInUser() async {
     loggedInUser ??= await CometChat.getLoggedInUser();
   }
 
@@ -360,8 +376,9 @@ class CometChatAIAssistantChatHistoryController
 
   @override
   updateMessageWithMuid(BaseMessage message) {
-    int matchingIndex =
-        list.indexWhere((element) => (element.muid == message.muid));
+    int matchingIndex = list.indexWhere(
+      (element) => (element.muid == message.muid),
+    );
     if (matchingIndex != -1) {
       list[matchingIndex] = message;
       update();
@@ -382,7 +399,7 @@ class CometChatAIAssistantChatHistoryController
     }
   }
 
-  _onMessageReceived(BaseMessage message) {
+  void _onMessageReceived(BaseMessage message) {
     if ((message.conversationId == conversationId ||
             _checkIfSameConversationForReceivedMessage(message) ||
             _checkIfSameConversationForSenderMessage(message)) &&
@@ -390,8 +407,9 @@ class CometChatAIAssistantChatHistoryController
       addElement(message);
     } else if (message.conversationId == conversationId ||
         _checkIfSameConversationForReceivedMessage(message)) {
-      int matchingIndex =
-          list.indexWhere((element) => (element.id == message.parentMessageId));
+      int matchingIndex = list.indexWhere(
+        (element) => (element.id == message.parentMessageId),
+      );
       if (matchingIndex != -1) {
         list[matchingIndex].replyCount++;
       }
@@ -432,7 +450,7 @@ class CometChatAIAssistantChatHistoryController
     }
     return false;
   }
-//----------------- UI Call Listeners---------------
+  //----------------- UI Call Listeners---------------
 
   @override
   String getConversationId() {
@@ -489,8 +507,9 @@ class CometChatAIAssistantChatHistoryController
     int messageId = lastMessageId ?? 1;
     List<String> categories =
         messagesBuilderProtocol.requestBuilder.categories ??
-            CometChatUIKit.getDataSource().getAllMessageCategories();
-    List<String> types = messagesBuilderProtocol.requestBuilder.types ??
+        CometChatUIKit.getDataSource().getAllMessageCategories();
+    List<String> types =
+        messagesBuilderProtocol.requestBuilder.types ??
         CometChatUIKit.getDataSource().getAllMessageTypes();
     bool hideReplies =
         messagesBuilderProtocol.requestBuilder.hideReplies ?? true;
@@ -502,71 +521,78 @@ class CometChatAIAssistantChatHistoryController
 
     while (hasMoreItems) {
       ///The following message request fetches the new messages received after the last message sent or received recorded in the list.
-      MessagesRequest messageRequest = (MessagesRequestBuilder()
-            ..uid = user?.uid
-            ..guid = group?.guid
-            ..categories = categories
-            ..types = types
-            ..messageId = messageId
-            ..parentMessageId = parentMessageId
-            ..hideReplies = hideReplies)
-          .build();
+      MessagesRequest messageRequest =
+          (MessagesRequestBuilder()
+                ..uid = user?.uid
+                ..guid = group?.guid
+                ..categories = categories
+                ..types = types
+                ..messageId = messageId
+                ..parentMessageId = parentMessageId
+                ..hideReplies = hideReplies)
+              .build();
       try {
         await messageRequest.fetchNext(
-            onSuccess: (List<BaseMessage> fetchedList) {
-          //if fetched messages list is empty, it means there are no new messages and hence stop proceeding.
-          if (fetchedList.isNotEmpty) {
-            hasMoreItems = true;
-            for (BaseMessage message in fetchedList) {
-              if (message is InteractiveMessage) {
-                message = InteractiveMessageUtils
-                    .getSpecificMessageFromInteractiveMessage(message);
-              }
-              if (message.parentMessageId != 0) {
-                updateMessageThreadCount(message.parentMessageId);
-              } else if (message is cc.Action) {
-                if (message.type == MessageTypeConstants.message &&
-                    (message.action == ActionMessageTypeConstants.edited ||
-                        message.action == ActionMessageTypeConstants.deleted) &&
-                    message.actionOn is BaseMessage) {
-                  BaseMessage actionOn = message.actionOn as BaseMessage;
-                  int matchingIndex =
-                      list.indexWhere((element) => (element.id == actionOn.id));
-                  if (matchingIndex != -1) {
-                    list[matchingIndex] = actionOn;
+          onSuccess: (List<BaseMessage> fetchedList) {
+            //if fetched messages list is empty, it means there are no new messages and hence stop proceeding.
+            if (fetchedList.isNotEmpty) {
+              hasMoreItems = true;
+              for (BaseMessage message in fetchedList) {
+                if (message is InteractiveMessage) {
+                  message =
+                      InteractiveMessageUtils.getSpecificMessageFromInteractiveMessage(
+                        message,
+                      );
+                }
+                if (message.parentMessageId != 0) {
+                  updateMessageThreadCount(message.parentMessageId);
+                } else if (message is cc.Action) {
+                  if (message.type == MessageTypeConstants.message &&
+                      (message.action == ActionMessageTypeConstants.edited ||
+                          message.action ==
+                              ActionMessageTypeConstants.deleted) &&
+                      message.actionOn is BaseMessage) {
+                    BaseMessage actionOn = message.actionOn as BaseMessage;
+                    int matchingIndex = list.indexWhere(
+                      (element) => (element.id == actionOn.id),
+                    );
+                    if (matchingIndex != -1) {
+                      list[matchingIndex] = actionOn;
+                      update();
+                    }
+                  } else if (message.sender?.uid != null &&
+                      loggedInUser?.uid != null &&
+                      message.sender?.uid == loggedInUser?.uid) {
+                    updateMessageWithMuid(message);
+                  } else {
+                    addElement(message);
+                    newUnreadMessageCount++;
                     update();
                   }
-                } else if (message.sender?.uid != null &&
-                    loggedInUser?.uid != null &&
-                    message.sender?.uid == loggedInUser?.uid) {
-                  updateMessageWithMuid(message);
                 } else {
+                  for (int i = 0; i < list.length; i++) {
+                    if (list[i].muid == message.muid) {
+                      removeElementAt(i);
+                      update();
+                      break;
+                    }
+                  }
                   addElement(message);
                   newUnreadMessageCount++;
                   update();
                 }
-              } else {
-                for (int i = 0; i < list.length; i++) {
-                  if (list[i].muid == message.muid) {
-                    removeElementAt(i);
-                    update();
-                    break;
-                  }
-                }
-                addElement(message);
-                newUnreadMessageCount++;
-                update();
               }
+              messageId = fetchedList.last.id;
+              return;
+            } else {
+              hasMoreItems = false;
+              update();
             }
-            messageId = fetchedList.last.id;
-            return;
-          } else {
+          },
+          onError: (CometChatException e) {
             hasMoreItems = false;
-            update();
-          }
-        }, onError: (CometChatException e) {
-          hasMoreItems = false;
-        });
+          },
+        );
       } catch (e, _) {
         hasMoreItems = false;
       }
@@ -574,7 +600,7 @@ class CometChatAIAssistantChatHistoryController
   }
 
   ///[_updateUserAndGroup] method updates the user and group details if the user or group is updated while the web socket connection is lost.
-  _updateUserAndGroup() async {
+  Future<void> _updateUserAndGroup() async {
     if (user != null) {
       user = await CometChat.getUser(
         user!.uid,
@@ -608,8 +634,9 @@ class CometChatAIAssistantChatHistoryController
   bool _messageCategoryTypeCheck(BaseMessage message) {
     List<String> categories =
         messagesBuilderProtocol.requestBuilder.categories ??
-            CometChatUIKit.getDataSource().getAllMessageCategories();
-    List<String> types = messagesBuilderProtocol.requestBuilder.types ??
+        CometChatUIKit.getDataSource().getAllMessageCategories();
+    List<String> types =
+        messagesBuilderProtocol.requestBuilder.types ??
         CometChatUIKit.getDataSource().getAllMessageTypes();
 
     return categories.contains(message.category) &&
@@ -631,15 +658,18 @@ class CometChatAIAssistantChatHistoryController
 
   // Function to show pop-up menu on long press
   void showPopupMenu(
-      BuildContext context,
-      List<CometChatOption> options,
-      GlobalKey widgetKey,
-      BaseMessage message,
-      ) {
-    if(options.isEmpty) {
+    BuildContext context,
+    List<CometChatOption> options,
+    GlobalKey widgetKey,
+    BaseMessage message,
+  ) {
+    if (options.isEmpty) {
       return;
     }
-    RelativeRect? position = WidgetPositionUtil.getWidgetPosition(context, widgetKey);
+    RelativeRect? position = WidgetPositionUtil.getWidgetPosition(
+      context,
+      widgetKey,
+    );
     showMenu(
       context: context,
       position: position ?? const RelativeRect.fromLTRB(0, 0, 0, 0),
@@ -655,10 +685,9 @@ class CometChatAIAssistantChatHistoryController
       ),
       items: options.map((CometChatOption option) {
         return CustomPopupMenuItem<CometChatOption>(
-            value: option,
-            child: GetMenuView(
-              option: option,
-            ));
+          value: option,
+          child: GetMenuView(option: option),
+        );
       }).toList(),
     ).then((selectedOption) {
       if (selectedOption != null) {
@@ -667,17 +696,19 @@ class CometChatAIAssistantChatHistoryController
     });
   }
 
-  showDeleteOptions(BaseMessage message) {
+  dynamic showDeleteOptions(BaseMessage message) {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
-    final style = CometChatThemeHelper.getTheme<CometChatAIAssistantChatHistoryStyle>(
-        context: context, defaultTheme: CometChatAIAssistantChatHistoryStyle.of)
-        .merge(chatHistoryStyle);
+    final style =
+        CometChatThemeHelper.getTheme<CometChatAIAssistantChatHistoryStyle>(
+          context: context,
+          defaultTheme: CometChatAIAssistantChatHistoryStyle.of,
+        ).merge(chatHistoryStyle);
     final confirmDialogStyle =
-    CometChatThemeHelper.getTheme<CometChatConfirmDialogStyle>(
-        context: context,
-        defaultTheme: CometChatConfirmDialogStyle.of)
-        .merge(style.deleteChatHistoryDialogStyle);
+        CometChatThemeHelper.getTheme<CometChatConfirmDialogStyle>(
+          context: context,
+          defaultTheme: CometChatConfirmDialogStyle.of,
+        ).merge(style.deleteChatHistoryDialogStyle);
     CometChatConfirmDialog(
       context: context,
       confirmButtonText: cc.Translations.of(context).delete,
@@ -687,155 +718,148 @@ class CometChatAIAssistantChatHistoryController
         child: Image.asset(
           AssetConstants.deleteIcon,
           package: UIConstants.packageName,
-            height: 48,
-            width: 48,
-            color: confirmDialogStyle.iconColor ?? colorPalette.error,
-          ),
+          height: 48,
+          width: 48,
+          color: confirmDialogStyle.iconColor ?? colorPalette.error,
         ),
-        title: Text(
-          cc.Translations.of(context).deleteConversation,
-          textAlign: TextAlign.center,
-        ),
-        messageText: Text(
-          cc.Translations.of(context).confirmDeleteConversation,
-          textAlign: TextAlign.center,
-        ),
-        onCancel: () {
-          Navigator.pop(context);
-        },
-        style: CometChatConfirmDialogStyle(
-          iconColor: confirmDialogStyle.iconColor ?? colorPalette.error,
-          backgroundColor: confirmDialogStyle.backgroundColor,
-          shadow: confirmDialogStyle.shadow,
-          iconBackgroundColor: confirmDialogStyle.iconBackgroundColor,
-          borderRadius: confirmDialogStyle.borderRadius,
-          border: confirmDialogStyle.border,
-          cancelButtonBackground: confirmDialogStyle.cancelButtonBackground ??
-              colorPalette.transparent,
-          confirmButtonBackground:
-          confirmDialogStyle.confirmButtonBackground ?? colorPalette.error,
-          cancelButtonTextColor: confirmDialogStyle.cancelButtonTextColor,
-          confirmButtonTextColor: confirmDialogStyle.confirmButtonTextColor,
-          messageTextColor: confirmDialogStyle.messageTextColor,
-          titleTextColor: confirmDialogStyle.titleTextColor,
-          titleTextStyle: TextStyle(
-            color:
-            confirmDialogStyle.titleTextColor ?? colorPalette.textPrimary,
-            fontSize: typography.heading2?.medium?.fontSize,
-            fontWeight: typography.heading2?.medium?.fontWeight,
-            fontFamily: typography.heading2?.medium?.fontFamily,
-          )
-              .merge(
-            confirmDialogStyle.titleTextStyle,
-          )
-              .copyWith(
-            color: confirmDialogStyle.titleTextColor,
-          ),
-          messageTextStyle: TextStyle(
-            color: confirmDialogStyle.messageTextColor ??
-                colorPalette.textSecondary,
-            fontSize: typography.body?.regular?.fontSize,
-            fontWeight: typography.body?.regular?.fontWeight,
-            fontFamily: typography.body?.regular?.fontFamily,
-          )
-              .merge(
-            confirmDialogStyle.messageTextStyle,
-          )
-              .copyWith(
-            color: confirmDialogStyle.messageTextColor,
-          ),
-          confirmButtonTextStyle: TextStyle(
-            color:
-            confirmDialogStyle.confirmButtonTextColor ?? colorPalette.white,
-            fontSize: typography.button?.medium?.fontSize,
-            fontWeight: typography.button?.medium?.fontWeight,
-            fontFamily: typography.button?.medium?.fontFamily,
-          )
-              .merge(
-            confirmDialogStyle.confirmButtonTextStyle,
-          )
-              .copyWith(
-            color: confirmDialogStyle.confirmButtonTextColor,
-          ),
-          cancelButtonTextStyle: TextStyle(
-            color: confirmDialogStyle.cancelButtonTextColor ??
-                colorPalette.textPrimary,
-            fontSize: typography.button?.medium?.fontSize,
-            fontWeight: typography.button?.medium?.fontWeight,
-            fontFamily: typography.button?.medium?.fontFamily,
-          )
-              .merge(
-            confirmDialogStyle.cancelButtonTextStyle,
-          )
-              .copyWith(
-            color: confirmDialogStyle.cancelButtonTextColor,
-          ),
-        ),
-        onConfirm: () async {
-          isDeleteLoading.value = true;
-          await CometChat.deleteMessage(
-            message.id,
-            onSuccess: (updatedMessage) {
-              isDeleteLoading.value = false;
-              updatedMessage.deletedAt ??= DateTime.now();
-              message.deletedAt = DateTime.now();
-              message.deletedBy = loggedInUser?.uid;
-              CometChatMessageEvents.ccMessageDeleted(
-                  updatedMessage, EventStatus.success);
-            },
-            onError: (onError) {
-              isDeleteLoading.value = false;
-              try {
-                var snackBar = SnackBar(
-                  backgroundColor: colorPalette.error,
-                  content: Text(
-                    cc.Translations.of(context)
-                        .somethingWentWrongError,
-                    style: TextStyle(
-                      color: colorPalette.white,
-                      fontSize: typography.button?.medium?.fontSize,
-                      fontWeight: typography.button?.medium?.fontWeight,
-                      fontFamily: typography.button?.medium?.fontFamily,
-                    ),
+      ),
+      title: Text(
+        cc.Translations.of(context).deleteConversation,
+        textAlign: TextAlign.center,
+      ),
+      messageText: Text(
+        cc.Translations.of(context).confirmDeleteConversation,
+        textAlign: TextAlign.center,
+      ),
+      onCancel: () {
+        Navigator.pop(context);
+      },
+      style: CometChatConfirmDialogStyle(
+        iconColor: confirmDialogStyle.iconColor ?? colorPalette.error,
+        backgroundColor: confirmDialogStyle.backgroundColor,
+        shadow: confirmDialogStyle.shadow,
+        iconBackgroundColor: confirmDialogStyle.iconBackgroundColor,
+        borderRadius: confirmDialogStyle.borderRadius,
+        border: confirmDialogStyle.border,
+        cancelButtonBackground:
+            confirmDialogStyle.cancelButtonBackground ??
+            colorPalette.transparent,
+        confirmButtonBackground:
+            confirmDialogStyle.confirmButtonBackground ?? colorPalette.error,
+        cancelButtonTextColor: confirmDialogStyle.cancelButtonTextColor,
+        confirmButtonTextColor: confirmDialogStyle.confirmButtonTextColor,
+        messageTextColor: confirmDialogStyle.messageTextColor,
+        titleTextColor: confirmDialogStyle.titleTextColor,
+        titleTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.titleTextColor ??
+                      colorPalette.textPrimary,
+                  fontSize: typography.heading2?.medium?.fontSize,
+                  fontWeight: typography.heading2?.medium?.fontWeight,
+                  fontFamily: typography.heading2?.medium?.fontFamily,
+                )
+                .merge(confirmDialogStyle.titleTextStyle)
+                .copyWith(color: confirmDialogStyle.titleTextColor),
+        messageTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.messageTextColor ??
+                      colorPalette.textSecondary,
+                  fontSize: typography.body?.regular?.fontSize,
+                  fontWeight: typography.body?.regular?.fontWeight,
+                  fontFamily: typography.body?.regular?.fontFamily,
+                )
+                .merge(confirmDialogStyle.messageTextStyle)
+                .copyWith(color: confirmDialogStyle.messageTextColor),
+        confirmButtonTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.confirmButtonTextColor ??
+                      colorPalette.white,
+                  fontSize: typography.button?.medium?.fontSize,
+                  fontWeight: typography.button?.medium?.fontWeight,
+                  fontFamily: typography.button?.medium?.fontFamily,
+                )
+                .merge(confirmDialogStyle.confirmButtonTextStyle)
+                .copyWith(color: confirmDialogStyle.confirmButtonTextColor),
+        cancelButtonTextStyle:
+            TextStyle(
+                  color:
+                      confirmDialogStyle.cancelButtonTextColor ??
+                      colorPalette.textPrimary,
+                  fontSize: typography.button?.medium?.fontSize,
+                  fontWeight: typography.button?.medium?.fontWeight,
+                  fontFamily: typography.button?.medium?.fontFamily,
+                )
+                .merge(confirmDialogStyle.cancelButtonTextStyle)
+                .copyWith(color: confirmDialogStyle.cancelButtonTextColor),
+      ),
+      onConfirm: () async {
+        isDeleteLoading.value = true;
+        await CometChat.deleteMessage(
+          message.id,
+          onSuccess: (updatedMessage) {
+            isDeleteLoading.value = false;
+            updatedMessage.deletedAt ??= DateTime.now();
+            message.deletedAt = DateTime.now();
+            message.deletedBy = loggedInUser?.uid;
+            CometChatMessageEvents.ccMessageDeleted(
+              updatedMessage,
+              EventStatus.success,
+            );
+          },
+          onError: (onError) {
+            isDeleteLoading.value = false;
+            try {
+              var snackBar = SnackBar(
+                backgroundColor: colorPalette.error,
+                content: Text(
+                  cc.Translations.of(context).somethingWentWrongError,
+                  style: TextStyle(
+                    color: colorPalette.white,
+                    fontSize: typography.button?.medium?.fontSize,
+                    fontWeight: typography.button?.medium?.fontWeight,
+                    fontFamily: typography.button?.medium?.fontFamily,
                   ),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              } catch (e) {
-                if (kDebugMode) {
-                  debugPrint("Error while displaying snackBar: $e");
-                }
+                ),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            } catch (e) {
+              if (kDebugMode) {
+                debugPrint("Error while displaying snackBar: $e");
               }
-            },
-          );
-          Navigator.pop(context);
-          update();
-        },
-        confirmButtonTextWidget: Obx(
-              () => (isDeleteLoading.value)
-              ? SizedBox(
-            height: 25,
-            width: 25,
-            child: CircularProgressIndicator(
-              color: colorPalette.white,
-            ),
-          )
-              : Text(
-            cc.Translations.of(context).delete,
-            style: TextStyle(
-              color: confirmDialogStyle.confirmButtonTextColor ??
-                  colorPalette.white,
-              fontSize: typography.button?.medium?.fontSize,
-              fontWeight: typography.button?.medium?.fontWeight,
-              fontFamily: typography.button?.medium?.fontFamily,
-            )
-                .merge(
-              confirmDialogStyle.confirmButtonTextStyle,
-            )
-                .copyWith(
-              color: confirmDialogStyle.confirmButtonTextColor,
-            ),
-          ),
-        ),
-      ).show();
+            }
+          },
+        );
+        if (!context.mounted) return;
+        Navigator.pop(context);
+        update();
+      },
+      confirmButtonTextWidget: Obx(
+        () => (isDeleteLoading.value)
+            ? SizedBox(
+                height: 25,
+                width: 25,
+                child: CircularProgressIndicator(color: colorPalette.white),
+              )
+            : Text(
+                cc.Translations.of(context).delete,
+                style:
+                    TextStyle(
+                          color:
+                              confirmDialogStyle.confirmButtonTextColor ??
+                              colorPalette.white,
+                          fontSize: typography.button?.medium?.fontSize,
+                          fontWeight: typography.button?.medium?.fontWeight,
+                          fontFamily: typography.button?.medium?.fontFamily,
+                        )
+                        .merge(confirmDialogStyle.confirmButtonTextStyle)
+                        .copyWith(
+                          color: confirmDialogStyle.confirmButtonTextColor,
+                        ),
+              ),
+      ),
+    ).show();
   }
 }

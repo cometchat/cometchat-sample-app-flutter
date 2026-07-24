@@ -97,14 +97,14 @@ class CometChatCompactMessageComposer extends StatefulWidget {
     this.recorderDeleteButtonIcon,
     this.recorderStopButtonIcon,
     this.recorderSendButtonIcon,
-  })  : assert(
-          user != null || group != null,
-          "One of user or group should be passed",
-        ),
-        assert(
-          user == null || group == null,
-          "Only one of user or group should be passed",
-        );
+  }) : assert(
+         user != null || group != null,
+         "One of user or group should be passed",
+       ),
+       assert(
+         user == null || group == null,
+         "Only one of user or group should be passed",
+       );
 
   //--------------------Target Configuration-----------------------
 
@@ -292,7 +292,8 @@ class CometChatCompactMessageComposer extends StatefulWidget {
     BuildContext context,
     BaseMessage message,
     PreviewMessageMode? previewMessageMode,
-  )? onSendButtonTap;
+  )?
+  onSendButtonTap;
 
   /// [onError] callback invoked when an error occurs.
   /// _Requirements: 12.3_
@@ -313,7 +314,7 @@ class CometChatCompactMessageComposer extends StatefulWidget {
   /// [stateCallBack] provides access to the controller for external state management.
   /// _Requirements: 12.4_
   final void Function(CometChatCompactMessageComposerController controller)?
-      stateCallBack;
+  stateCallBack;
 
   //--------------------Custom Views-----------------------
 
@@ -389,7 +390,7 @@ class _CometChatCompactMessageComposerState
 
   /// [_layerLink] used for positioning the suggestion list overlay
   final LayerLink _layerLink = LayerLink();
-  
+
   /// Unique key for the TextField to ensure proper widget tree management
   late final Key _textFieldKey = UniqueKey();
 
@@ -402,7 +403,7 @@ class _CometChatCompactMessageComposerState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    
+
     // Get theme properties from context
     colorPalette = CometChatThemeHelper.getColorPalette(context);
     typography = CometChatThemeHelper.getTypography(context);
@@ -415,12 +416,13 @@ class _CometChatCompactMessageComposerState
     ).merge(widget.compactMessageComposerStyle);
 
     // Update auxiliary button icon color from style when theme changes
-    _controller?.auxiliaryButtonIconColor = style?.auxiliaryButtonIconColor ?? colorPalette?.iconSecondary;
-    
+    _controller?.auxiliaryButtonIconColor =
+        style?.auxiliaryButtonIconColor ?? colorPalette?.iconSecondary;
+
     // Initialize auxiliary options here (not during build phase)
     _controller?.initAuxiliaryOptions(context);
   }
-  
+
   void _initializeController() {
     // Initialize controller
     _controller = CometChatCompactMessageComposerController(
@@ -440,7 +442,8 @@ class _CometChatCompactMessageComposerState
       enterKeyBehavior: widget.enterKeyBehavior,
       enableRichTextEditor: widget.enableRichTextFormatting,
       hideRichTextFormattingOptions: widget.hideRichTextFormattingOptions,
-      richTextFormatterStyle: widget.compactMessageComposerStyle?.richTextFormatterStyle,
+      richTextFormatterStyle:
+          widget.compactMessageComposerStyle?.richTextFormatterStyle,
       stateCallBack: widget.stateCallBack,
       onSendButtonTap: widget.onSendButtonTap,
       onError: widget.onError,
@@ -448,7 +451,8 @@ class _CometChatCompactMessageComposerState
       onMentionLimitReached: widget.onMentionLimitReached,
       onEditCancel: widget.onEditCancel,
       onChange: widget.onChange != null
-          ? (controller) => widget.onChange!(controller.textEditingController?.text ?? '')
+          ? (controller) =>
+                widget.onChange!(controller.textEditingController?.text ?? '')
           : null,
       attachmentOptions: widget.attachmentOptions,
       attachmentOptionSheetStyle: null, // Will be set in didChangeDependencies
@@ -458,7 +462,8 @@ class _CometChatCompactMessageComposerState
       hideFileAttachmentOption: widget.hideFileAttachmentOption,
       hidePollsOption: widget.hidePollsOption,
       hideCollaborativeDocumentOption: widget.hideCollaborativeDocumentOption,
-      hideCollaborativeWhiteboardOption: widget.hideCollaborativeWhiteboardOption,
+      hideCollaborativeWhiteboardOption:
+          widget.hideCollaborativeWhiteboardOption,
       hideTakePhotoOption: widget.hideTakePhotoOption,
       hideStickersButton: widget.hideStickersButton,
       textFormatters: widget.textFormatters,
@@ -478,22 +483,29 @@ class _CometChatCompactMessageComposerState
     if (_controller == null) {
       return const SizedBox.shrink();
     }
-    
-    final effectiveStyle = style ?? CometChatCompactMessageComposerStyle();
-    final effectiveColorPalette = colorPalette ?? CometChatThemeHelper.getColorPalette(context);
-    final effectiveTypography = typography ?? CometChatThemeHelper.getTypography(context);
-    final effectiveSpacing = spacing ?? CometChatThemeHelper.getSpacing(context);
-    
+
+    final effectiveStyle =
+        style ?? const CometChatCompactMessageComposerStyle();
+    final effectiveColorPalette =
+        colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+    final effectiveTypography =
+        typography ?? CometChatThemeHelper.getTypography(context);
+    final effectiveSpacing =
+        spacing ?? CometChatThemeHelper.getSpacing(context);
+
     return PopScope(
       canPop: true,
       child: SafeArea(
         child: GetBuilder(
           init: _controller,
           tag: _controller!.tag,
-          dispose: (GetBuilderState<CometChatCompactMessageComposerController> state) =>
-              Get.delete<CometChatCompactMessageComposerController>(
-            tag: state.controller?.tag,
-          ),
+          dispose:
+              (
+                GetBuilderState<CometChatCompactMessageComposerController>
+                state,
+              ) => Get.delete<CometChatCompactMessageComposerController>(
+                tag: state.controller?.tag,
+              ),
           builder: (CometChatCompactMessageComposerController controller) {
             return Container(
               decoration: BoxDecoration(
@@ -529,7 +541,8 @@ class _CometChatCompactMessageComposerState
                           followerAnchor: Alignment.bottomLeft,
                           child: Align(
                             alignment: Alignment.bottomLeft,
-                            child: controller.preview ?? const SizedBox.shrink(),
+                            child:
+                                controller.preview ?? const SizedBox.shrink(),
                           ),
                         );
                       },
@@ -538,7 +551,8 @@ class _CometChatCompactMessageComposerState
                         children: [
                           // Preview banner (edit/reply mode)
                           // _Requirements: 6.1, 6.2, 6.3_
-                          if (controller.previewMessageMode != PreviewMessageMode.none)
+                          if (controller.previewMessageMode !=
+                              PreviewMessageMode.none)
                             _buildPreviewBanner(controller),
 
                           // Main compose box (optionally unified with rich text toolbar)
@@ -546,12 +560,14 @@ class _CometChatCompactMessageComposerState
                           Builder(
                             builder: (builderContext) {
                               return _buildComposerWithOptionalToolbar(
-                                controller, 
-                                effectiveColorPalette, 
-                                effectiveSpacing, 
+                                controller,
+                                effectiveColorPalette,
+                                effectiveSpacing,
                                 effectiveTypography,
                                 builderContext,
-                                hasPreview: controller.previewMessageMode != PreviewMessageMode.none,
+                                hasPreview:
+                                    controller.previewMessageMode !=
+                                    PreviewMessageMode.none,
                               );
                             },
                           ),
@@ -592,15 +608,21 @@ class _CometChatCompactMessageComposerState
   }) {
     // Always set context so that showPanel can work properly
     controller.setContext(builderContext);
-    
-    final effectiveStyle = style ?? CometChatCompactMessageComposerStyle();
-    final showToolbar = widget.enableRichTextFormatting &&
+
+    final effectiveStyle =
+        style ?? const CometChatCompactMessageComposerStyle();
+    final showToolbar =
+        widget.enableRichTextFormatting &&
         widget.showRichTextFormattingOptions &&
         !controller.isInlineAudioRecorderVisible;
 
     final composeBoxContent = controller.isInlineAudioRecorderVisible
         ? _buildInlineAudioRecorder(controller)
-        : _buildComposeBox(controller, unified: showToolbar, hasPreview: hasPreview);
+        : _buildComposeBox(
+            controller,
+            unified: showToolbar,
+            hasPreview: hasPreview,
+          );
 
     if (!showToolbar) {
       // No toolbar — just the compose box with its own styling
@@ -615,9 +637,10 @@ class _CometChatCompactMessageComposerState
     }
 
     // Unified container: compose box + divider + toolbar
-    final toolbarStyle = widget.richTextToolbarStyle ??
+    final toolbarStyle =
+        widget.richTextToolbarStyle ??
         effectiveStyle.richTextToolbarStyle ??
-        CometChatRichTextToolbarStyle();
+        const CometChatRichTextToolbarStyle();
 
     return Padding(
       padding: EdgeInsets.only(
@@ -633,26 +656,35 @@ class _CometChatCompactMessageComposerState
                   bottomRight: Radius.circular(effectiveSpacing.radius2 ?? 8),
                 )
               : (effectiveStyle.composeBoxBorderRadius ??
-                  BorderRadius.circular(effectiveSpacing.radius2 ?? 8)),
-          border: effectiveStyle.composeBoxBorder ??
+                    BorderRadius.circular(effectiveSpacing.radius2 ?? 8)),
+          border:
+              effectiveStyle.composeBoxBorder ??
               (hasPreview
                   ? Border(
                       top: BorderSide.none,
                       bottom: BorderSide(
-                        color: effectiveColorPalette.borderDefault ?? Colors.transparent,
+                        color:
+                            effectiveColorPalette.borderDefault ??
+                            Colors.transparent,
                         width: 1,
                       ),
                       left: BorderSide(
-                        color: effectiveColorPalette.borderDefault ?? Colors.transparent,
+                        color:
+                            effectiveColorPalette.borderDefault ??
+                            Colors.transparent,
                         width: 1,
                       ),
                       right: BorderSide(
-                        color: effectiveColorPalette.borderDefault ?? Colors.transparent,
+                        color:
+                            effectiveColorPalette.borderDefault ??
+                            Colors.transparent,
                         width: 1,
                       ),
                     )
                   : Border.all(
-                      color: effectiveColorPalette.borderDefault ?? Colors.transparent,
+                      color:
+                          effectiveColorPalette.borderDefault ??
+                          Colors.transparent,
                       width: 1,
                     )),
         ),
@@ -662,7 +694,8 @@ class _CometChatCompactMessageComposerState
           children: [
             // Compose box with background1 (white in light mode)
             Container(
-              color: effectiveStyle.composeBoxBackgroundColor ??
+              color:
+                  effectiveStyle.composeBoxBackgroundColor ??
                   effectiveColorPalette.background1,
               child: composeBoxContent,
             ),
@@ -674,7 +707,8 @@ class _CometChatCompactMessageComposerState
                 color: effectiveColorPalette.background2,
                 border: Border(
                   top: BorderSide(
-                    color: effectiveColorPalette.borderLight ?? Colors.transparent,
+                    color:
+                        effectiveColorPalette.borderLight ?? Colors.transparent,
                     width: 1,
                   ),
                 ),
@@ -686,11 +720,13 @@ class _CometChatCompactMessageComposerState
                 activeFormats: controller.activeFormats,
                 hiddenFormats: widget.hideRichTextFormattingOptions ?? {},
                 disabledFormats: controller.disabledFormats,
-                style: toolbarStyle.merge(CometChatRichTextToolbarStyle(
-                  backgroundColor: Colors.transparent,
-                  border: Border.all(color: Colors.transparent, width: 0),
-                  borderRadius: BorderRadius.zero,
-                )),
+                style: toolbarStyle.merge(
+                  CometChatRichTextToolbarStyle(
+                    backgroundColor: Colors.transparent,
+                    border: Border.all(color: Colors.transparent, width: 0),
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
               ),
             ),
           ],
@@ -704,100 +740,117 @@ class _CometChatCompactMessageComposerState
   /// Layout order: attachment button | text input | toggle button | auxiliary buttons (stickers) | voice button | send button
   ///
   /// _Requirements: 1.1, 1.2, 1.3, 1.5, 1.7_
-  Widget _buildComposeBox(CometChatCompactMessageComposerController controller, {bool unified = false, bool hasPreview = false}) {
-    final effectiveStyle = style ?? CometChatCompactMessageComposerStyle();
-    final effectiveColorPalette = colorPalette ?? CometChatThemeHelper.getColorPalette(context);
-    final effectiveSpacing = spacing ?? CometChatThemeHelper.getSpacing(context);
-    
-    final screenWidth = MediaQuery.of(context).size.width;
-    final minHeight = 56.0;
+  Widget _buildComposeBox(
+    CometChatCompactMessageComposerController controller, {
+    bool unified = false,
+    bool hasPreview = false,
+  }) {
+    final effectiveStyle =
+        style ?? const CometChatCompactMessageComposerStyle();
+    final effectiveColorPalette =
+        colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+    final effectiveSpacing =
+        spacing ?? CometChatThemeHelper.getSpacing(context);
+
+    const minHeight = 56.0;
 
     return ConstrainedBox(
-      constraints: BoxConstraints(minHeight: minHeight),
+      constraints: const BoxConstraints(minHeight: minHeight),
       child: Container(
-      decoration: unified
-          ? null
-          : BoxDecoration(
-              color: effectiveStyle.composeBoxBackgroundColor ?? effectiveColorPalette.background1,
-              borderRadius: hasPreview
-                  ? BorderRadius.only(
-                      bottomLeft: Radius.circular(effectiveSpacing.radius2 ?? 8),
-                      bottomRight: Radius.circular(effectiveSpacing.radius2 ?? 8),
-                    )
-                  : (effectiveStyle.composeBoxBorderRadius ?? BorderRadius.circular(effectiveSpacing.radius2 ?? 8)),
-              border: effectiveStyle.composeBoxBorder ??
-                  (hasPreview
-                      ? Border(
-                          top: BorderSide.none,
-                          bottom: BorderSide(
-                            color: effectiveColorPalette.borderDefault ?? Colors.transparent,
+        decoration: unified
+            ? null
+            : BoxDecoration(
+                color:
+                    effectiveStyle.composeBoxBackgroundColor ??
+                    effectiveColorPalette.background1,
+                borderRadius: hasPreview
+                    ? BorderRadius.only(
+                        bottomLeft: Radius.circular(
+                          effectiveSpacing.radius2 ?? 8,
+                        ),
+                        bottomRight: Radius.circular(
+                          effectiveSpacing.radius2 ?? 8,
+                        ),
+                      )
+                    : (effectiveStyle.composeBoxBorderRadius ??
+                          BorderRadius.circular(effectiveSpacing.radius2 ?? 8)),
+                border:
+                    effectiveStyle.composeBoxBorder ??
+                    (hasPreview
+                        ? Border(
+                            top: BorderSide.none,
+                            bottom: BorderSide(
+                              color:
+                                  effectiveColorPalette.borderDefault ??
+                                  Colors.transparent,
+                              width: 1,
+                            ),
+                            left: BorderSide(
+                              color:
+                                  effectiveColorPalette.borderDefault ??
+                                  Colors.transparent,
+                              width: 1,
+                            ),
+                            right: BorderSide(
+                              color:
+                                  effectiveColorPalette.borderDefault ??
+                                  Colors.transparent,
+                              width: 1,
+                            ),
+                          )
+                        : Border.all(
+                            color:
+                                effectiveColorPalette.borderDefault ??
+                                Colors.transparent,
                             width: 1,
-                          ),
-                          left: BorderSide(
-                            color: effectiveColorPalette.borderDefault ?? Colors.transparent,
-                            width: 1,
-                          ),
-                          right: BorderSide(
-                            color: effectiveColorPalette.borderDefault ?? Colors.transparent,
-                            width: 1,
-                          ),
-                        )
-                      : Border.all(
-                          color: effectiveColorPalette.borderDefault ?? Colors.transparent,
-                          width: 1,
-                        )),
-            ),
-      padding: EdgeInsets.symmetric(horizontal: effectiveSpacing.padding3 ?? 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // Attachment button (left side)
-          // _Requirements: 1.2, 1.9_
-          if (!widget.hideAttachmentButton && !controller.isUserAgentic()) 
-            _buildAttachmentButton(controller),
+                          )),
+              ),
+        padding: EdgeInsets.symmetric(
+          horizontal: effectiveSpacing.padding3 ?? 12,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // Attachment button (left side)
+            // _Requirements: 1.2, 1.9_
+            if (!widget.hideAttachmentButton && !controller.isUserAgentic())
+              _buildAttachmentButton(controller),
 
-          // Text input field (expandable)
-          // _Requirements: 1.3_
-          Expanded(
-            child: _buildTextInput(controller),
-          ),
+            // Text input field (expandable)
+            // _Requirements: 1.3_
+            Expanded(child: _buildTextInput(controller)),
 
-          // Auxiliary buttons (stickers) - positioned on right, before mic and send
-          // Hidden when user is agentic
-          // _Requirements: 1.5_
-          if (!controller.isUserAgentic())
-            _buildAuxiliaryButtons(controller),
+            // Auxiliary buttons (stickers) - positioned on right, before mic and send
+            // Hidden when user is agentic
+            // _Requirements: 1.5_
+            if (!controller.isUserAgentic()) _buildAuxiliaryButtons(controller),
 
-          // Voice recording button with animation
-          // Hidden when user is agentic
-          // _Requirements: 1.6, 7.3_
-          if (!widget.hideVoiceRecordingButton && !controller.isUserAgentic())
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return SizeTransition(
-                  sizeFactor: animation,
-                  axis: Axis.horizontal,
-                  child: FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  ),
-                );
-              },
-              child: controller.hasText
-                  ? const SizedBox.shrink(key: ValueKey('empty'))
-                  : KeyedSubtree(
-                      key: const ValueKey('mic'),
-                      child: _buildVoiceRecordingButton(controller),
-                    ),
-            ),
+            // Voice recording button with animation
+            // Hidden when user is agentic
+            // _Requirements: 1.6, 7.3_
+            if (!widget.hideVoiceRecordingButton && !controller.isUserAgentic())
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return SizeTransition(
+                    sizeFactor: animation,
+                    axis: Axis.horizontal,
+                    child: FadeTransition(opacity: animation, child: child),
+                  );
+                },
+                child: controller.hasText
+                    ? const SizedBox.shrink(key: ValueKey('empty'))
+                    : KeyedSubtree(
+                        key: const ValueKey('mic'),
+                        child: _buildVoiceRecordingButton(controller),
+                      ),
+              ),
 
-          // Send button (far right)
-          // _Requirements: 1.7, 1.8_
-          if (!widget.hideSendButton) 
-            _buildSendButton(controller),
-        ],
-      ),
+            // Send button (far right)
+            // _Requirements: 1.7, 1.8_
+            if (!widget.hideSendButton) _buildSendButton(controller),
+          ],
+        ),
       ),
     );
   }
@@ -808,12 +861,18 @@ class _CometChatCompactMessageComposerState
   /// attachment types (image, video, audio, file).
   ///
   /// _Requirements: 1.2, 1.9, 8.1, 8.2, 8.3_
-  Widget _buildAttachmentButton(CometChatCompactMessageComposerController controller) {
-    final effectiveStyle = style ?? CometChatCompactMessageComposerStyle();
-    final effectiveColorPalette = colorPalette ?? CometChatThemeHelper.getColorPalette(context);
-    final effectiveSpacing = spacing ?? CometChatThemeHelper.getSpacing(context);
-    final effectiveTypography = typography ?? CometChatThemeHelper.getTypography(context);
-    
+  Widget _buildAttachmentButton(
+    CometChatCompactMessageComposerController controller,
+  ) {
+    final effectiveStyle =
+        style ?? const CometChatCompactMessageComposerStyle();
+    final effectiveColorPalette =
+        colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+    final effectiveSpacing =
+        spacing ?? CometChatThemeHelper.getSpacing(context);
+    final effectiveTypography =
+        typography ?? CometChatThemeHelper.getTypography(context);
+
     return Semantics(
       label: 'Attachment button',
       button: true,
@@ -826,12 +885,15 @@ class _CometChatCompactMessageComposerState
         ),
         decoration: BoxDecoration(
           color: effectiveStyle.attachmentButtonBackgroundColor,
-          borderRadius: effectiveStyle.attachmentButtonBorderRadius ?? BorderRadius.circular(12),
+          borderRadius:
+              effectiveStyle.attachmentButtonBorderRadius ??
+              BorderRadius.circular(12),
         ),
         child: IconButton(
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
-          icon: widget.attachmentIcon ??
+          icon:
+              widget.attachmentIcon ??
               Padding(
                 padding: const EdgeInsets.all(1.25),
                 child: Image.asset(
@@ -839,7 +901,9 @@ class _CometChatCompactMessageComposerState
                   package: UIConstants.packageName,
                   height: 21.5,
                   width: 21.5,
-                  color: effectiveStyle.attachmentButtonIconColor ?? effectiveColorPalette.iconSecondary,
+                  color:
+                      effectiveStyle.attachmentButtonIconColor ??
+                      effectiveColorPalette.iconSecondary,
                 ),
               ),
           onPressed: () {
@@ -863,19 +927,31 @@ class _CometChatCompactMessageComposerState
   ///
   /// _Requirements: 1.3_
   Widget _buildTextInput(CometChatCompactMessageComposerController controller) {
-    final effectiveStyle = style ?? CometChatCompactMessageComposerStyle();
-    final effectiveColorPalette = colorPalette ?? CometChatThemeHelper.getColorPalette(context);
-    final effectiveSpacing = spacing ?? CometChatThemeHelper.getSpacing(context);
-    final effectiveTypography = typography ?? CometChatThemeHelper.getTypography(context);
-    
+    final effectiveStyle =
+        style ?? const CometChatCompactMessageComposerStyle();
+    final effectiveColorPalette =
+        colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+    final effectiveSpacing =
+        spacing ?? CometChatThemeHelper.getSpacing(context);
+    final effectiveTypography =
+        typography ?? CometChatThemeHelper.getTypography(context);
+
     // If in segmented mode, render segments as a Column
     if (controller.isSegmentedMode && controller.segmentedController != null) {
-      return _buildSegmentedInput(controller, effectiveStyle, effectiveColorPalette, effectiveSpacing, effectiveTypography);
+      return _buildSegmentedInput(
+        controller,
+        effectiveStyle,
+        effectiveColorPalette,
+        effectiveSpacing,
+        effectiveTypography,
+      );
     }
-    
+
     // Check if code block format is active (non-segmented mode)
-    final isCodeBlockActive = controller.activeFormats.contains(FormatType.codeBlock);
-    
+    final isCodeBlockActive = controller.activeFormats.contains(
+      FormatType.codeBlock,
+    );
+
     final textField = TextField(
       key: _textFieldKey,
       controller: controller.textEditingController,
@@ -884,20 +960,30 @@ class _CometChatCompactMessageComposerState
       keyboardAppearance: CometChatThemeHelper.getBrightness(context),
       minLines: 1,
       maxLines: widget.maxLine,
-      style: TextStyle(
-        color: effectiveColorPalette.textPrimary,
-        fontSize: effectiveTypography.body?.regular?.fontSize,
-        fontWeight: effectiveTypography.body?.regular?.fontWeight,
-        fontFamily: isCodeBlockActive ? 'monospace' : effectiveTypography.body?.regular?.fontFamily,
-      ).merge(effectiveStyle.textStyle).copyWith(color: effectiveStyle.textColor),
+      style:
+          TextStyle(
+                color: effectiveColorPalette.textPrimary,
+                fontSize: effectiveTypography.body?.regular?.fontSize,
+                fontWeight: effectiveTypography.body?.regular?.fontWeight,
+                fontFamily: isCodeBlockActive
+                    ? 'monospace'
+                    : effectiveTypography.body?.regular?.fontFamily,
+              )
+              .merge(effectiveStyle.textStyle)
+              .copyWith(color: effectiveStyle.textColor),
       decoration: InputDecoration(
-        hintText: widget.placeholderText ?? cc.Translations.of(context).typeYourMessage,
-        hintStyle: TextStyle(
-          color: effectiveColorPalette.textTertiary,
-          fontSize: effectiveTypography.body?.regular?.fontSize,
-          fontWeight: effectiveTypography.body?.regular?.fontWeight,
-          fontFamily: effectiveTypography.body?.regular?.fontFamily,
-        ).merge(effectiveStyle.placeholderTextStyle).copyWith(color: effectiveStyle.placeholderTextColor),
+        hintText:
+            widget.placeholderText ??
+            cc.Translations.of(context).typeYourMessage,
+        hintStyle:
+            TextStyle(
+                  color: effectiveColorPalette.textTertiary,
+                  fontSize: effectiveTypography.body?.regular?.fontSize,
+                  fontWeight: effectiveTypography.body?.regular?.fontWeight,
+                  fontFamily: effectiveTypography.body?.regular?.fontFamily,
+                )
+                .merge(effectiveStyle.placeholderTextStyle)
+                .copyWith(color: effectiveStyle.placeholderTextColor),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
@@ -922,7 +1008,8 @@ class _CometChatCompactMessageComposerState
           ? (_) => controller.handleEnterKey(context)
           : null,
       // Add rich text formatting options to the native text selection context menu
-      contextMenuBuilder: (widget.enableRichTextFormatting && widget.showTextSelectionMenuItems)
+      contextMenuBuilder:
+          (widget.enableRichTextFormatting && widget.showTextSelectionMenuItems)
           ? (context, editableTextState) {
               return shared.buildRichTextContextMenu(
                 context: context,
@@ -940,7 +1027,7 @@ class _CometChatCompactMessageComposerState
               );
             },
     );
-    
+
     // Wrap in code block container when code block format is active
     if (isCodeBlockActive) {
       return Semantics(
@@ -953,7 +1040,10 @@ class _CometChatCompactMessageComposerState
           ),
           padding: EdgeInsets.all(effectiveSpacing.padding2 ?? 8),
           decoration: BoxDecoration(
-            color: effectiveStyle.richTextFormatterStyle?.codeBlockBackgroundColor ?? 
+            color:
+                effectiveStyle
+                    .richTextFormatterStyle
+                    ?.codeBlockBackgroundColor ??
                 effectiveColorPalette.background3,
             borderRadius: BorderRadius.circular(effectiveSpacing.radius2 ?? 8),
           ),
@@ -961,7 +1051,7 @@ class _CometChatCompactMessageComposerState
         ),
       );
     }
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Semantics(
@@ -984,7 +1074,7 @@ class _CometChatCompactMessageComposerState
     final segments = segmentedController.segments;
     final hasCodeBlocks = segmentedController.hasCodeBlocks;
     final pendingFocusSegment = segmentedController.pendingFocusSegment;
-    
+
     // Handle pending focus after frame
     if (pendingFocusSegment != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -992,11 +1082,13 @@ class _CometChatCompactMessageComposerState
         segmentedController.clearPendingFocus();
       });
     }
-    
+
     // Calculate max height based on maxLine (approximately 4 lines of text)
-    final lineHeight = (effectiveTypography.body?.regular?.fontSize ?? 16) * 1.4;
-    final maxHeight = lineHeight * widget.maxLine + (effectiveSpacing.padding2 ?? 8) * 2;
-    
+    final lineHeight =
+        (effectiveTypography.body?.regular?.fontSize ?? 16) * 1.4;
+    final maxHeight =
+        lineHeight * widget.maxLine + (effectiveSpacing.padding2 ?? 8) * 2;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: ConstrainedBox(
@@ -1006,42 +1098,44 @@ class _CometChatCompactMessageComposerState
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: segments.map((segment) {
-            // Determine visibility for empty normal segments
-            final shouldHide = segment.type == shared.SegmentType.normal &&
-                segment.isEmpty &&
-                hasCodeBlocks &&
-                segments.length > 1 &&
-                !segment.hasFocus &&
-                segment != pendingFocusSegment;
-            
-            if (shouldHide) {
-              return SizedBox.shrink(key: ValueKey(segment.id));
-            }
-            
-            if (segment.type == shared.SegmentType.code) {
-              return _buildCodeSegmentWidget(
-                segment,
-                controller,
-                effectiveStyle,
-                effectiveColorPalette,
-                effectiveSpacing,
-                effectiveTypography,
-              );
-            } else {
-              return _buildNormalSegmentWidget(
-                segment,
-                controller,
-                effectiveStyle,
-                effectiveColorPalette,
-                effectiveSpacing,
-                effectiveTypography,
-                showPlaceholder: segments.indexOf(segment) == 0 && !hasCodeBlocks,
-              );
-            }
-          }).toList(),
+              // Determine visibility for empty normal segments
+              final shouldHide =
+                  segment.type == shared.SegmentType.normal &&
+                  segment.isEmpty &&
+                  hasCodeBlocks &&
+                  segments.length > 1 &&
+                  !segment.hasFocus &&
+                  segment != pendingFocusSegment;
+
+              if (shouldHide) {
+                return SizedBox.shrink(key: ValueKey(segment.id));
+              }
+
+              if (segment.type == shared.SegmentType.code) {
+                return _buildCodeSegmentWidget(
+                  segment,
+                  controller,
+                  effectiveStyle,
+                  effectiveColorPalette,
+                  effectiveSpacing,
+                  effectiveTypography,
+                );
+              } else {
+                return _buildNormalSegmentWidget(
+                  segment,
+                  controller,
+                  effectiveStyle,
+                  effectiveColorPalette,
+                  effectiveSpacing,
+                  effectiveTypography,
+                  showPlaceholder:
+                      segments.indexOf(segment) == 0 && !hasCodeBlocks,
+                );
+              }
+            }).toList(),
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -1060,7 +1154,7 @@ class _CometChatCompactMessageComposerState
       child: Focus(
         onKeyEvent: (node, event) {
           // Handle backspace on empty normal segment
-          if (event is KeyDownEvent && 
+          if (event is KeyDownEvent &&
               event.logicalKey == LogicalKeyboardKey.backspace &&
               segment.isEmpty) {
             if (controller.handleSegmentedBackspace()) {
@@ -1076,22 +1170,29 @@ class _CometChatCompactMessageComposerState
           keyboardAppearance: CometChatThemeHelper.getBrightness(context),
           minLines: 1,
           maxLines: null,
-          style: TextStyle(
-            color: effectiveColorPalette.textPrimary,
-            fontSize: effectiveTypography.body?.regular?.fontSize,
-            fontWeight: effectiveTypography.body?.regular?.fontWeight,
-            fontFamily: effectiveTypography.body?.regular?.fontFamily,
-          ).merge(effectiveStyle.textStyle).copyWith(color: effectiveStyle.textColor),
+          style:
+              TextStyle(
+                    color: effectiveColorPalette.textPrimary,
+                    fontSize: effectiveTypography.body?.regular?.fontSize,
+                    fontWeight: effectiveTypography.body?.regular?.fontWeight,
+                    fontFamily: effectiveTypography.body?.regular?.fontFamily,
+                  )
+                  .merge(effectiveStyle.textStyle)
+                  .copyWith(color: effectiveStyle.textColor),
           decoration: InputDecoration(
-            hintText: showPlaceholder 
-                ? (widget.placeholderText ?? cc.Translations.of(context).typeYourMessage)
+            hintText: showPlaceholder
+                ? (widget.placeholderText ??
+                      cc.Translations.of(context).typeYourMessage)
                 : null,
-            hintStyle: TextStyle(
-              color: effectiveColorPalette.textTertiary,
-              fontSize: effectiveTypography.body?.regular?.fontSize,
-              fontWeight: effectiveTypography.body?.regular?.fontWeight,
-              fontFamily: effectiveTypography.body?.regular?.fontFamily,
-            ).merge(effectiveStyle.placeholderTextStyle).copyWith(color: effectiveStyle.placeholderTextColor),
+            hintStyle:
+                TextStyle(
+                      color: effectiveColorPalette.textTertiary,
+                      fontSize: effectiveTypography.body?.regular?.fontSize,
+                      fontWeight: effectiveTypography.body?.regular?.fontWeight,
+                      fontFamily: effectiveTypography.body?.regular?.fontFamily,
+                    )
+                    .merge(effectiveStyle.placeholderTextStyle)
+                    .copyWith(color: effectiveStyle.placeholderTextColor),
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
@@ -1106,7 +1207,9 @@ class _CometChatCompactMessageComposerState
             controller.onSegmentTextChanged(segment);
             widget.onChange?.call(text);
           },
-          contextMenuBuilder: (widget.enableRichTextFormatting && widget.showTextSelectionMenuItems)
+          contextMenuBuilder:
+              (widget.enableRichTextFormatting &&
+                  widget.showTextSelectionMenuItems)
               ? (context, editableTextState) {
                   return shared.buildRichTextContextMenu(
                     context: context,
@@ -1129,7 +1232,7 @@ class _CometChatCompactMessageComposerState
   }
 
   /// Builds a code segment widget.
-  /// 
+  ///
   /// If the segment is inside a blockquote, it renders with a left border
   /// to indicate the blockquote context.
   Widget _buildCodeSegmentWidget(
@@ -1142,11 +1245,12 @@ class _CometChatCompactMessageComposerState
   ) {
     // Determine if this code segment is inside a blockquote
     final isInsideBlockquote = segment.isInsideBlockquote;
-    
+
     // Build the code block container
     Widget codeBlock = Container(
       decoration: BoxDecoration(
-        color: effectiveStyle.richTextFormatterStyle?.codeBlockBackgroundColor ?? 
+        color:
+            effectiveStyle.richTextFormatterStyle?.codeBlockBackgroundColor ??
             effectiveColorPalette.background3,
         borderRadius: BorderRadius.circular(effectiveSpacing.radius1 ?? 5),
         border: Border.all(
@@ -1157,7 +1261,7 @@ class _CometChatCompactMessageComposerState
       child: Focus(
         onKeyEvent: (node, event) {
           // Handle backspace on empty code segment
-          if (event is KeyDownEvent && 
+          if (event is KeyDownEvent &&
               event.logicalKey == LogicalKeyboardKey.backspace &&
               segment.isEmpty) {
             if (controller.handleSegmentedBackspace()) {
@@ -1190,15 +1294,19 @@ class _CometChatCompactMessageComposerState
         ),
       ),
     );
-    
+
     // If inside blockquote, wrap with a container that has a left border
     if (isInsideBlockquote) {
       codeBlock = Container(
         decoration: BoxDecoration(
           border: Border(
             left: BorderSide(
-              color: effectiveStyle.richTextFormatterStyle?.blockquoteBorderColor ?? 
-                  effectiveColorPalette.primary ?? Colors.blue,
+              color:
+                  effectiveStyle
+                      .richTextFormatterStyle
+                      ?.blockquoteBorderColor ??
+                  effectiveColorPalette.primary ??
+                  Colors.blue,
               width: 3,
             ),
           ),
@@ -1207,13 +1315,11 @@ class _CometChatCompactMessageComposerState
         child: codeBlock,
       );
     }
-    
+
     return KeyedSubtree(
       key: ValueKey(segment.id),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: effectiveSpacing.margin1 ?? 4,
-        ),
+        padding: EdgeInsets.symmetric(vertical: effectiveSpacing.margin1 ?? 4),
         child: codeBlock,
       ),
     );
@@ -1226,7 +1332,9 @@ class _CometChatCompactMessageComposerState
   /// before the microphone and send buttons.
   ///
   /// _Requirements: 1.5_
-  Widget _buildAuxiliaryButtons(CometChatCompactMessageComposerController controller) {
+  Widget _buildAuxiliaryButtons(
+    CometChatCompactMessageComposerController controller,
+  ) {
     // If custom auxiliary button view is provided, use it
     if (widget.auxiliaryButtonView != null) {
       return widget.auxiliaryButtonView!(
@@ -1242,7 +1350,8 @@ class _CometChatCompactMessageComposerState
     // Wrap with compact-composer-specific margin since the default margin
     // inside StickerAuxiliaryButton is tuned for MessageComposer.
     if (controller.auxiliaryOptions != null) {
-      final effectiveSpacing = spacing ?? CometChatThemeHelper.getSpacing(context);
+      final effectiveSpacing =
+          spacing ?? CometChatThemeHelper.getSpacing(context);
       return Container(
         margin: EdgeInsets.only(
           left: effectiveSpacing.padding3 ?? 12,
@@ -1263,11 +1372,16 @@ class _CometChatCompactMessageComposerState
   /// voice messages. The recording is handled by the controller's [sendMediaRecording] method.
   ///
   /// _Requirements: 1.6, 7.1, 7.2, 7.3_
-  Widget _buildVoiceRecordingButton(CometChatCompactMessageComposerController controller) {
-    final effectiveStyle = style ?? CometChatCompactMessageComposerStyle();
-    final effectiveColorPalette = colorPalette ?? CometChatThemeHelper.getColorPalette(context);
-    final effectiveSpacing = spacing ?? CometChatThemeHelper.getSpacing(context);
-    
+  Widget _buildVoiceRecordingButton(
+    CometChatCompactMessageComposerController controller,
+  ) {
+    final effectiveStyle =
+        style ?? const CometChatCompactMessageComposerStyle();
+    final effectiveColorPalette =
+        colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+    final effectiveSpacing =
+        spacing ?? CometChatThemeHelper.getSpacing(context);
+
     return Semantics(
       label: 'Voice recording button',
       button: true,
@@ -1281,18 +1395,23 @@ class _CometChatCompactMessageComposerState
         ),
         decoration: BoxDecoration(
           color: effectiveStyle.voiceRecordingButtonBackgroundColor,
-          borderRadius: effectiveStyle.voiceRecordingButtonBorderRadius ?? BorderRadius.circular(12),
+          borderRadius:
+              effectiveStyle.voiceRecordingButtonBorderRadius ??
+              BorderRadius.circular(12),
         ),
         child: IconButton(
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
-          icon: widget.voiceRecordingIcon ??
+          icon:
+              widget.voiceRecordingIcon ??
               Image.asset(
                 AssetConstants.microphone,
                 package: UIConstants.packageName,
                 height: 24,
                 width: 24,
-                color: effectiveStyle.voiceRecordingButtonIconColor ?? effectiveColorPalette.iconSecondary,
+                color:
+                    effectiveStyle.voiceRecordingButtonIconColor ??
+                    effectiveColorPalette.iconSecondary,
               ),
           onPressed: () {
             // Show the inline audio recorder
@@ -1311,11 +1430,16 @@ class _CometChatCompactMessageComposerState
   /// - Paused state: Delete | Play | Waveform | 0:00 | Mic | Send
   ///
   /// _Requirements: 7.1, 7.2, 7.3_
-  Widget _buildInlineAudioRecorder(CometChatCompactMessageComposerController controller) {
-    final effectiveStyle = style ?? CometChatCompactMessageComposerStyle();
-    final effectiveColorPalette = colorPalette ?? CometChatThemeHelper.getColorPalette(context);
-    final effectiveSpacing = spacing ?? CometChatThemeHelper.getSpacing(context);
-    
+  Widget _buildInlineAudioRecorder(
+    CometChatCompactMessageComposerController controller,
+  ) {
+    final effectiveStyle =
+        style ?? const CometChatCompactMessageComposerStyle();
+    final effectiveColorPalette =
+        colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+    final effectiveSpacing =
+        spacing ?? CometChatThemeHelper.getSpacing(context);
+
     return CometChatSingleLineMediaRecorder(
       onSubmit: controller.sendMediaRecording,
       onClose: controller.hideInlineAudioRecorder,
@@ -1325,20 +1449,32 @@ class _CometChatCompactMessageComposerState
       micIcon: widget.voiceRecordingIcon,
       sendIcon: widget.recorderSendButtonIcon,
       style: CometChatSingleLineMediaRecorderStyle(
-        backgroundColor: effectiveStyle.composeBoxBackgroundColor ?? effectiveColorPalette.background2,
-        borderRadius: effectiveStyle.composeBoxBorderRadius ?? BorderRadius.circular(effectiveSpacing.radius2 ?? 8),
+        backgroundColor:
+            effectiveStyle.composeBoxBackgroundColor ??
+            effectiveColorPalette.background2,
+        borderRadius:
+            effectiveStyle.composeBoxBorderRadius ??
+            BorderRadius.circular(effectiveSpacing.radius2 ?? 8),
         border: effectiveStyle.composeBoxBorder,
-        deleteIconColor: effectiveStyle.mediaRecorderStyle?.deleteButtonIconColor ?? effectiveColorPalette.iconSecondary,
+        deleteIconColor:
+            effectiveStyle.mediaRecorderStyle?.deleteButtonIconColor ??
+            effectiveColorPalette.iconSecondary,
         recordingIndicatorColor: effectiveColorPalette.error,
-        waveformColor: effectiveStyle.mediaRecorderStyle?.recordIndicatorBackgroundColor ?? effectiveColorPalette.primary,
+        waveformColor:
+            effectiveStyle.mediaRecorderStyle?.recordIndicatorBackgroundColor ??
+            effectiveColorPalette.primary,
         waveformInactiveColor: effectiveColorPalette.iconSecondary,
         timerTextColor: effectiveColorPalette.textSecondary,
         pauseIconColor: effectiveColorPalette.iconSecondary,
         playIconColor: effectiveColorPalette.primary,
         micIconColor: effectiveColorPalette.primary,
-        sendButtonBackgroundColor: effectiveStyle.sendButtonBackgroundColor ?? effectiveColorPalette.primary,
-        sendButtonIconColor: effectiveStyle.sendButtonIconColor ?? effectiveColorPalette.white,
-        sendButtonBorderRadius: effectiveStyle.sendButtonBorderRadius ?? BorderRadius.circular(16),
+        sendButtonBackgroundColor:
+            effectiveStyle.sendButtonBackgroundColor ??
+            effectiveColorPalette.primary,
+        sendButtonIconColor:
+            effectiveStyle.sendButtonIconColor ?? effectiveColorPalette.white,
+        sendButtonBorderRadius:
+            effectiveStyle.sendButtonBorderRadius ?? BorderRadius.circular(16),
       ),
     );
   }
@@ -1346,11 +1482,16 @@ class _CometChatCompactMessageComposerState
   /// Builds the send button.
   ///
   /// _Requirements: 1.7, 1.8, 3.1, 3.2_
-  Widget _buildSendButton(CometChatCompactMessageComposerController controller) {
-    final effectiveStyle = style ?? CometChatCompactMessageComposerStyle();
-    final effectiveColorPalette = colorPalette ?? CometChatThemeHelper.getColorPalette(context);
-    final effectiveSpacing = spacing ?? CometChatThemeHelper.getSpacing(context);
-    
+  Widget _buildSendButton(
+    CometChatCompactMessageComposerController controller,
+  ) {
+    final effectiveStyle =
+        style ?? const CometChatCompactMessageComposerStyle();
+    final effectiveColorPalette =
+        colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+    final effectiveSpacing =
+        spacing ?? CometChatThemeHelper.getSpacing(context);
+
     final isAgentic = controller.isUserAgentic();
     final isAiBusy = isAgentic && controller.isActiveStreaming;
     final isEnabled = controller.isSendButtonEnabled;
@@ -1361,13 +1502,25 @@ class _CometChatCompactMessageComposerState
     final double buttonSize = isAgentic ? 40 : 32;
     final Color backgroundColor;
     if (isStopButton) {
-      backgroundColor = effectiveColorPalette.secondaryButtonBackground ?? effectiveColorPalette.background4 ?? Colors.grey;
+      backgroundColor =
+          effectiveColorPalette.secondaryButtonBackground ??
+          effectiveColorPalette.background4 ??
+          Colors.grey;
     } else if (shouldDisable) {
-      backgroundColor = effectiveStyle.sendButtonDisabledBackgroundColor ?? effectiveColorPalette.background4 ?? Colors.grey;
+      backgroundColor =
+          effectiveStyle.sendButtonDisabledBackgroundColor ??
+          effectiveColorPalette.background4 ??
+          Colors.grey;
     } else if (isAgentic) {
-      backgroundColor = effectiveColorPalette.secondaryButtonBackground ?? effectiveColorPalette.primary ?? Colors.blue;
+      backgroundColor =
+          effectiveColorPalette.secondaryButtonBackground ??
+          effectiveColorPalette.primary ??
+          Colors.blue;
     } else {
-      backgroundColor = effectiveStyle.sendButtonBackgroundColor ?? effectiveColorPalette.primary ?? Colors.blue;
+      backgroundColor =
+          effectiveStyle.sendButtonBackgroundColor ??
+          effectiveColorPalette.primary ??
+          Colors.blue;
     }
 
     final Widget buttonIcon;
@@ -1377,12 +1530,16 @@ class _CometChatCompactMessageComposerState
       buttonIcon = isAiBusy
           ? Icon(
               Icons.stop_rounded,
-              color: effectiveColorPalette.iconWhite ?? effectiveColorPalette.white,
+              color:
+                  effectiveColorPalette.iconWhite ??
+                  effectiveColorPalette.white,
               size: 20,
             )
           : Icon(
               Icons.arrow_upward_outlined,
-              color: effectiveColorPalette.iconWhite ?? effectiveColorPalette.white,
+              color:
+                  effectiveColorPalette.iconWhite ??
+                  effectiveColorPalette.white,
               size: 20,
             );
     } else {
@@ -1392,8 +1549,10 @@ class _CometChatCompactMessageComposerState
         height: 24,
         width: 24,
         color: isEnabled
-            ? (effectiveStyle.sendButtonIconColor ?? effectiveColorPalette.white)
-            : (effectiveStyle.sendButtonIconColor ?? effectiveColorPalette.white),
+            ? (effectiveStyle.sendButtonIconColor ??
+                  effectiveColorPalette.white)
+            : (effectiveStyle.sendButtonIconColor ??
+                  effectiveColorPalette.white),
       );
     }
 
@@ -1405,7 +1564,10 @@ class _CometChatCompactMessageComposerState
         height: buttonSize,
         width: buttonSize,
         alignment: Alignment.center,
-        margin: EdgeInsets.only(left: effectiveSpacing.margin1 ?? 4, bottom: 12),
+        margin: EdgeInsets.only(
+          left: effectiveSpacing.margin1 ?? 4,
+          bottom: 12,
+        ),
         decoration: BoxDecoration(
           color: backgroundColor,
           shape: BoxShape.circle,
@@ -1434,12 +1596,18 @@ class _CometChatCompactMessageComposerState
   /// The cancel button calls [controller.cancelPreview()] to exit preview mode.
   ///
   /// _Requirements: 6.1, 6.2, 6.3_
-  Widget _buildPreviewBanner(CometChatCompactMessageComposerController controller) {
-    final effectiveStyle = style ?? CometChatCompactMessageComposerStyle();
-    final effectiveColorPalette = colorPalette ?? CometChatThemeHelper.getColorPalette(context);
-    final effectiveSpacing = spacing ?? CometChatThemeHelper.getSpacing(context);
-    final effectiveTypography = typography ?? CometChatThemeHelper.getTypography(context);
-    
+  Widget _buildPreviewBanner(
+    CometChatCompactMessageComposerController controller,
+  ) {
+    final effectiveStyle =
+        style ?? const CometChatCompactMessageComposerStyle();
+    final effectiveColorPalette =
+        colorPalette ?? CometChatThemeHelper.getColorPalette(context);
+    final effectiveSpacing =
+        spacing ?? CometChatThemeHelper.getSpacing(context);
+    final effectiveTypography =
+        typography ?? CometChatThemeHelper.getTypography(context);
+
     // Determine the preview title based on mode
     final String previewTitle;
     final String previewSubtitle;
@@ -1450,7 +1618,7 @@ class _CometChatCompactMessageComposerState
       // _Requirements: 6.1_
       previewTitle = cc.Translations.of(context).editMessage;
       previewMessage = controller.oldMessage;
-      
+
       // Get the message text for subtitle
       // Convert mentions for preview display
       if (previewMessage is TextMessage) {
@@ -1458,20 +1626,26 @@ class _CometChatCompactMessageComposerState
         // First convert mentions to display format
         if (previewMessage.mentionedUsers.isNotEmpty) {
           subtitle = shared.CometChatMentionsFormatter.getTextWithMentions(
-              subtitle, previewMessage.mentionedUsers);
+            subtitle,
+            previewMessage.mentionedUsers,
+          );
         }
         // Also handle @all mentions
         subtitle = subtitle.replaceAll(RegExp(r'<@all:[^>]+>'), '@all');
         previewSubtitle = subtitle;
       } else {
-        previewSubtitle = shared.ComposerUtils().getReplySubtitle(previewMessage, context);
+        previewSubtitle = shared.ComposerUtils().getReplySubtitle(
+          previewMessage,
+          context,
+        );
       }
     } else if (controller.previewMessageMode == PreviewMessageMode.reply) {
       // Reply mode: Show sender's name as title
       // _Requirements: 6.2_
       previewMessage = controller.quotedMessage;
-      previewTitle = previewMessage?.sender?.name ?? cc.Translations.of(context).reply;
-      
+      previewTitle =
+          previewMessage?.sender?.name ?? cc.Translations.of(context).reply;
+
       // Get the message text for subtitle
       // Convert mentions for preview display
       if (previewMessage is TextMessage) {
@@ -1479,13 +1653,18 @@ class _CometChatCompactMessageComposerState
         // First convert mentions to display format
         if (previewMessage.mentionedUsers.isNotEmpty) {
           subtitle = shared.CometChatMentionsFormatter.getTextWithMentions(
-              subtitle, previewMessage.mentionedUsers);
+            subtitle,
+            previewMessage.mentionedUsers,
+          );
         }
         // Also handle @all mentions
         subtitle = subtitle.replaceAll(RegExp(r'<@all:[^>]+>'), '@all');
         previewSubtitle = subtitle;
       } else {
-        previewSubtitle = shared.ComposerUtils().getReplySubtitle(previewMessage, context);
+        previewSubtitle = shared.ComposerUtils().getReplySubtitle(
+          previewMessage,
+          context,
+        );
       }
     } else {
       // No preview mode - should not reach here due to conditional rendering
@@ -1493,10 +1672,11 @@ class _CometChatCompactMessageComposerState
     }
 
     // Get the message preview style from style prop or default
-    final messagePreviewStyle = CometChatThemeHelper.getTheme<CometChatMessagePreviewStyle>(
-      context: context,
-      defaultTheme: CometChatMessagePreviewStyle.of,
-    ).merge(effectiveStyle.messagePreviewStyle);
+    final messagePreviewStyle =
+        CometChatThemeHelper.getTheme<CometChatMessagePreviewStyle>(
+          context: context,
+          defaultTheme: CometChatMessagePreviewStyle.of,
+        ).merge(effectiveStyle.messagePreviewStyle);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -1506,7 +1686,9 @@ class _CometChatCompactMessageComposerState
       child: Container(
         padding: EdgeInsets.all(effectiveSpacing.padding2 ?? 8),
         decoration: BoxDecoration(
-          color: effectiveStyle.backgroundColor ?? effectiveColorPalette.background1,
+          color:
+              effectiveStyle.backgroundColor ??
+              effectiveColorPalette.background1,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(effectiveSpacing.radius2 ?? 8),
             topRight: Radius.circular(effectiveSpacing.radius2 ?? 8),
@@ -1554,12 +1736,16 @@ class _CometChatCompactMessageComposerState
               fontWeight: effectiveTypography.caption1?.regular?.fontWeight,
               fontFamily: effectiveTypography.caption1?.regular?.fontFamily,
             ),
-            closeIconColor: effectiveStyle.closeIconTint ?? effectiveColorPalette.iconPrimary,
+            closeIconColor:
+                effectiveStyle.closeIconTint ??
+                effectiveColorPalette.iconPrimary,
             messagePreviewBackground: effectiveColorPalette.background3,
-            messagePreviewBorderRadius: controller.previewMessageMode == PreviewMessageMode.edit
+            messagePreviewBorderRadius:
+                controller.previewMessageMode == PreviewMessageMode.edit
                 ? BorderRadius.circular(4)
                 : BorderRadius.zero,
-            messagePreviewBorder: controller.previewMessageMode == PreviewMessageMode.edit
+            messagePreviewBorder:
+                controller.previewMessageMode == PreviewMessageMode.edit
                 ? Border.all(width: 0, color: Colors.transparent)
                 : null,
           ).merge(messagePreviewStyle),

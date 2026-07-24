@@ -2,7 +2,7 @@ name: sample_app
 description: "CometChat Flutter Sample App"
 publish_to: 'none'
 
-version: 5.2.16
+version: 5.2.18
 
 environment:
   sdk: ^3.5.0
@@ -17,7 +17,7 @@ dependencies:
 
   intl: any
   cupertino_icons: ^1.0.2
-  cometchat_chat_uikit: ^5.2.16
+  cometchat_chat_uikit: ^5.2.18
   cometchat_calls_uikit: ^5.0.16
   http: ^1.1.0
   toast: ^0.3.0

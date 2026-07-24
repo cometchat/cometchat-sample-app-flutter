@@ -93,23 +93,23 @@ class CometChatSearch extends StatefulWidget {
 
   ///[conversationItemView] set custom view for each searched conversation
   final Widget? Function(BuildContext context, Conversation conversation)?
-      conversationItemView;
+  conversationItemView;
 
   ///[conversationTitleView] to set title view for each conversation
   final Widget? Function(BuildContext context, Conversation conversation)?
-      conversationTitleView;
+  conversationTitleView;
 
   ///[conversationLeadingView] to set leading view for each conversation
   final Widget? Function(BuildContext context, Conversation conversation)?
-      conversationLeadingView;
+  conversationLeadingView;
 
   ///[conversationSubtitleView] to set subtitle for each conversation
   final Widget? Function(BuildContext context, Conversation conversation)?
-      conversationSubtitleView;
+  conversationSubtitleView;
 
   ///[conversationTailView] to set tailView for each conversation
   final Widget? Function(BuildContext context, Conversation conversation)?
-      conversationTailView;
+  conversationTailView;
 
   ///[usersStatusVisibility] controls visibility of status indicator shown if a user is online
   final bool? usersStatusVisibility;
@@ -137,27 +137,27 @@ class CometChatSearch extends StatefulWidget {
 
   ///[searchMessageLinkView] sets custom link view for each message
   final Widget? Function(BuildContext context, BaseMessage message)?
-      searchMessageLinkView;
+  searchMessageLinkView;
 
   ///[searchTextMessageView] sets text view for each message
   final Widget? Function(BuildContext context, TextMessage message)?
-      searchTextMessageView;
+  searchTextMessageView;
 
   ///[searchImageMessageView] sets image view for each message
   final Widget? Function(BuildContext context, MediaMessage message)?
-      searchImageMessageView;
+  searchImageMessageView;
 
   ///[searchVideoMessageView] sets video view for each message
   final Widget? Function(BuildContext context, MediaMessage message)?
-      searchVideoMessageView;
+  searchVideoMessageView;
 
   ///[searchFileMessageView] sets file view for each message
   final Widget? Function(BuildContext context, MediaMessage message)?
-      searchFileMessageView;
+  searchFileMessageView;
 
   ///[searchAudioMessageView] sets audio view for each message
   final Widget? Function(BuildContext context, MediaMessage message)?
-      searchAudioMessageView;
+  searchAudioMessageView;
 
   ///[conversationsProtocol] Request builder protocol to fetch conversations.
   final ConversationsBuilderProtocol? conversationsProtocol;
@@ -190,8 +190,9 @@ class _CometChatSearchState extends State<CometChatSearch> {
     colorPalette = CometChatThemeHelper.getColorPalette(context);
     spacing = CometChatThemeHelper.getSpacing(context);
     style = CometChatThemeHelper.getTheme<CometChatSearchStyle>(
-            context: context, defaultTheme: CometChatSearchStyle.of)
-        .merge(widget.searchStyle);
+      context: context,
+      defaultTheme: CometChatSearchStyle.of,
+    ).merge(widget.searchStyle);
     super.didChangeDependencies();
   }
 
@@ -203,7 +204,7 @@ class _CometChatSearchState extends State<CometChatSearch> {
     super.initState();
   }
 
-  initializeSearchController() {
+  dynamic initializeSearchController() {
     _searchController = Get.put(
       CometChatSearchController(
         searchFilters: widget.searchFilters,
@@ -215,14 +216,14 @@ class _CometChatSearchState extends State<CometChatSearch> {
     initializeMessagesController();
   }
 
-  initializeConversationController() {
+  dynamic initializeConversationController() {
     _conversationsController = Get.put(
       CometChatConversationsSearchController(
-        builderProtocol: widget.conversationsProtocol ??
+        builderProtocol:
+            widget.conversationsProtocol ??
             UIConversationsBuilder(
               widget.conversationsRequestBuilder ??
-                  RequestBuilderConstants
-                      .getDefaultConversationsRequestBuilder(),
+                  RequestBuilderConstants.getDefaultConversationsRequestBuilder(),
             ),
         onEmpty: widget.onEmpty,
         onError: widget.onError,
@@ -236,7 +237,7 @@ class _CometChatSearchState extends State<CometChatSearch> {
     );
   }
 
-  initializeMessagesController() {
+  dynamic initializeMessagesController() {
     MessagesRequestBuilder requestBuilder =
         widget.messagesRequestBuilder ?? MessagesRequestBuilder();
 
@@ -307,19 +308,37 @@ class _CometChatSearchState extends State<CometChatSearch> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Search bar
-                  _buildSearchBar(context, typography, colorPalette, spacing,
-                      style, searchController),
+                  _buildSearchBar(
+                    context,
+                    typography,
+                    colorPalette,
+                    spacing,
+                    style,
+                    searchController,
+                  ),
 
                   // Filter chips
-                  _buildFilterChips(context, typography, colorPalette, spacing,
-                      style, searchController),
+                  _buildFilterChips(
+                    context,
+                    typography,
+                    colorPalette,
+                    spacing,
+                    style,
+                    searchController,
+                  ),
 
                   Expanded(
                     child: searchController.shouldShowNoResultsScreen()
                         ? SingleChildScrollView(
                             physics: const NeverScrollableScrollPhysics(),
-                            child: getEmptyView(context, colorPalette, spacing,
-                                typography, style, searchController),
+                            child: getEmptyView(
+                              context,
+                              colorPalette,
+                              spacing,
+                              typography,
+                              style,
+                              searchController,
+                            ),
                           )
                         : SingleChildScrollView(
                             physics: const AlwaysScrollableScrollPhysics(),
@@ -329,106 +348,143 @@ class _CometChatSearchState extends State<CometChatSearch> {
                                 if (searchController.bothActive == true &&
                                     _conversationsController.isLoading &&
                                     _messagesController.isLoading)
-                                  getLoadingView(context, colorPalette, spacing,
-                                      typography, style),
+                                  getLoadingView(
+                                    context,
+                                    colorPalette,
+                                    spacing,
+                                    typography,
+                                    style,
+                                  ),
                                 if (searchController.bothActive == true &&
                                     _conversationsController.list.isEmpty &&
                                     _messagesController.list.isEmpty)
-                                  getEmptyView(context, colorPalette, spacing,
-                                      typography, style, searchController),
+                                  getEmptyView(
+                                    context,
+                                    colorPalette,
+                                    spacing,
+                                    typography,
+                                    style,
+                                    searchController,
+                                  ),
                                 if (searchController.bothActive == true &&
                                     _conversationsController.hasError &&
                                     _messagesController.hasError)
-                                  getErrorView(context, colorPalette, spacing,
-                                      typography, style),
+                                  getErrorView(
+                                    context,
+                                    colorPalette,
+                                    spacing,
+                                    typography,
+                                    style,
+                                  ),
                                 // Check if the controller is loading, has an error, or has no conversations
-                                if (searchController.shouldShowConversationList() &&
+                                if (searchController
+                                        .shouldShowConversationList() &&
                                     searchController.showConversationsSearch)
-                            GetBuilder<CometChatConversationsSearchController>(
-                              init: _conversationsController,
-                              tag: tag,
-                              builder: (ctrl) {
-                                if (searchController.bothActive == false &&
-                                    ctrl.isLoading) {
-                                  if (widget.loadingStateView != null) {
-                                    return widget.loadingStateView!(context);
-                                  } else {
-                                    return SearchUtils.loadingView(
-                                      context: context,
-                                      colorPalette: colorPalette,
-                                      spacing: spacing,
-                                      typography: typography,
-                                    );
-                                  }
-                                }
+                                  GetBuilder<
+                                    CometChatConversationsSearchController
+                                  >(
+                                    init: _conversationsController,
+                                    tag: tag,
+                                    builder: (ctrl) {
+                                      if (searchController.bothActive ==
+                                              false &&
+                                          ctrl.isLoading) {
+                                        if (widget.loadingStateView != null) {
+                                          return widget.loadingStateView!(
+                                            context,
+                                          );
+                                        } else {
+                                          return SearchUtils.loadingView(
+                                            context: context,
+                                            colorPalette: colorPalette,
+                                            spacing: spacing,
+                                            typography: typography,
+                                          );
+                                        }
+                                      }
 
-                                if (searchController.bothActive == false &&
-                                    !ctrl.isLoading &&
-                                    ctrl.list.isEmpty) {
-                                  if (widget.emptyStateView != null) {
-                                    return widget.emptyStateView!(context);
-                                  } else {
-                                    return SearchUtils.emptyView(
-                                      context: context,
-                                      colorPalette: colorPalette,
-                                      typography: typography,
-                                      spacing: spacing,
-                                      searchText: searchController.searchText,
-                                      conversationsController:
-                                          _conversationsController,
-                                      messagesController: _messagesController,
-                                      style: style,
-                                    );
-                                  }
-                                }
+                                      if (searchController.bothActive ==
+                                              false &&
+                                          !ctrl.isLoading &&
+                                          ctrl.list.isEmpty) {
+                                        if (widget.emptyStateView != null) {
+                                          return widget.emptyStateView!(
+                                            context,
+                                          );
+                                        } else {
+                                          return SearchUtils.emptyView(
+                                            context: context,
+                                            colorPalette: colorPalette,
+                                            typography: typography,
+                                            spacing: spacing,
+                                            searchText:
+                                                searchController.searchText,
+                                            conversationsController:
+                                                _conversationsController,
+                                            messagesController:
+                                                _messagesController,
+                                            style: style,
+                                          );
+                                        }
+                                      }
 
-                                // If there's an error, display it
-                                if (searchController.bothActive == false &&
-                                    ctrl.hasError) {
-                                  if (widget.errorStateView != null) {
-                                    return widget.errorStateView!(context);
-                                  } else {
-                                    return SearchUtils.errorView(
-                                      context: context,
-                                      colorPalette: colorPalette,
-                                      typography: typography,
-                                      spacing: spacing,
-                                      conversationsController:
-                                          _conversationsController,
-                                      messagesController: _messagesController,
-                                      style: style,
-                                    );
-                                  }
-                                }
+                                      // If there's an error, display it
+                                      if (searchController.bothActive ==
+                                              false &&
+                                          ctrl.hasError) {
+                                        if (widget.errorStateView != null) {
+                                          return widget.errorStateView!(
+                                            context,
+                                          );
+                                        } else {
+                                          return SearchUtils.errorView(
+                                            context: context,
+                                            colorPalette: colorPalette,
+                                            typography: typography,
+                                            spacing: spacing,
+                                            conversationsController:
+                                                _conversationsController,
+                                            messagesController:
+                                                _messagesController,
+                                            style: style,
+                                          );
+                                        }
+                                      }
 
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (_conversationsController
-                                        .list.isNotEmpty)
-                                      SearchUtils.headingTitle(
-                                        title: cc.Translations.of(context)
-                                            .conversations,
-                                        colorPalette: colorPalette,
-                                        typography: typography,
-                                        spacing: spacing,
-                                        style: style,
-                                      ),
-                                    ListView.builder(
-                                      itemCount: (searchController
-                                              .selectedFilters.isNotEmpty)
-                                          ? (ctrl.hasMoreItems
-                                              ? ctrl.list.length + 1
-                                              : ctrl.list.length)
-                                          : ctrl.list.length,
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        if (searchController
-                                                .selectedFilters.isNotEmpty &&
-                                            index >= ctrl.list.length) {
+                                      return Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          if (_conversationsController
+                                              .list
+                                              .isNotEmpty)
+                                            SearchUtils.headingTitle(
+                                              title: cc.Translations.of(
+                                                context,
+                                              ).conversations,
+                                              colorPalette: colorPalette,
+                                              typography: typography,
+                                              spacing: spacing,
+                                              style: style,
+                                            ),
+                                          ListView.builder(
+                                            itemCount:
+                                                (searchController
+                                                    .selectedFilters
+                                                    .isNotEmpty)
+                                                ? (ctrl.hasMoreItems
+                                                      ? ctrl.list.length + 1
+                                                      : ctrl.list.length)
+                                                : ctrl.list.length,
+                                            shrinkWrap: true,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            itemBuilder: (context, index) {
+                                              if (searchController
+                                                      .selectedFilters
+                                                      .isNotEmpty &&
+                                                  index >= ctrl.list.length) {
                                                 WidgetsBinding.instance
                                                     .addPostFrameCallback(
                                                       (_) => ctrl
@@ -436,408 +492,505 @@ class _CometChatSearchState extends State<CometChatSearch> {
                                                     );
                                                 if (widget.loadingStateView !=
                                                     null) {
-                                            return widget
+                                                  return widget
                                                       .loadingStateView!(
                                                     context,
                                                   );
-                                          } else {
-                                            return SearchUtils.loadingView(
-                                              context: context,
+                                                } else {
+                                                  return SearchUtils.loadingView(
+                                                    context: context,
+                                                    colorPalette: colorPalette,
+                                                    spacing: spacing,
+                                                    typography: typography,
+                                                  );
+                                                }
+                                              }
+
+                                              final conversation =
+                                                  ctrl.list[index];
+
+                                              if (widget.conversationItemView !=
+                                                  null) {
+                                                return widget
+                                                    .conversationItemView!(
+                                                  context,
+                                                  conversation,
+                                                );
+                                              }
+                                              User? conversationWithUser;
+                                              Group? conversationWithGroup;
+                                              if (conversation.conversationWith
+                                                  is User) {
+                                                conversationWithUser =
+                                                    conversation
+                                                            .conversationWith
+                                                        as User;
+                                              } else {
+                                                conversationWithGroup =
+                                                    conversation
+                                                            .conversationWith
+                                                        as Group;
+                                              }
+
+                                              Widget? subtitle;
+                                              Widget? tail;
+                                              Color? backgroundColor;
+                                              Widget? icon;
+
+                                              if (widget
+                                                      .conversationSubtitleView !=
+                                                  null) {
+                                                subtitle =
+                                                    widget
+                                                        .conversationSubtitleView!(
+                                                      context,
+                                                      conversation,
+                                                    );
+                                              } else {
+                                                subtitle = SearchUtils.getSubtitleView(
+                                                  context: context,
+                                                  conversation: conversation,
+                                                  showTypingIndicator:
+                                                      _conversationsController
+                                                          .typingMap
+                                                          .containsKey(
+                                                            conversation
+                                                                .conversationId,
+                                                          ),
+                                                  controller:
+                                                      _conversationsController,
+                                                  typography: typography,
+                                                  colorPalette: colorPalette,
+                                                  spacing: spacing,
+                                                  hideThreadIndicator: false,
+                                                  style: style,
+                                                  receiptsVisibility:
+                                                      widget.receiptsVisibility,
+                                                  receiptStyle:
+                                                      CometChatMessageReceiptStyle(),
+                                                  typingStyle:
+                                                      const CometChatTypingIndicatorStyle(),
+                                                );
+                                              }
+
+                                              tail = SearchUtils.getTrailingView(
+                                                context: context,
+                                                conversation: conversation,
+                                                colorPalette: colorPalette,
+                                                typography: typography,
+                                                spacing: spacing,
+                                                trailingView:
+                                                    widget.conversationTailView,
+                                                style: style,
+                                                dateTimeFormatterCallback: widget
+                                                    .timeSeparatorFormatterCallback,
+                                              );
+
+                                              StatusIndicatorUtils
+                                              statusIndicatorUtils =
+                                                  StatusIndicatorUtils.getStatusIndicatorFromParams(
+                                                    context: context,
+                                                    isSelected: false,
+                                                    user: conversationWithUser,
+                                                    group:
+                                                        conversationWithGroup,
+                                                    onlineStatusIndicatorColor:
+                                                        colorPalette.success,
+                                                    privateGroupIcon: null,
+                                                    protectedGroupIcon: null,
+                                                    privateGroupIconBackground:
+                                                        null,
+                                                    protectedGroupIconBackground:
+                                                        null,
+                                                    usersStatusVisibility:
+                                                        _conversationsController
+                                                            .hideUserPresence(
+                                                              conversationWithUser,
+                                                            ),
+                                                    groupTypeVisibility:
+                                                        _conversationsController
+                                                            .hideGroupIconVisibility(
+                                                              conversationWithGroup,
+                                                            ),
+                                                  );
+
+                                              backgroundColor =
+                                                  statusIndicatorUtils
+                                                      .statusIndicatorColor;
+                                              icon = statusIndicatorUtils.icon;
+
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  if (widget
+                                                          .onConversationClicked !=
+                                                      null) {
+                                                    widget
+                                                        .onConversationClicked!(
+                                                      conversation,
+                                                    );
+                                                  }
+                                                },
+                                                child: CometChatListItem(
+                                                  avatarHeight: 48,
+                                                  avatarWidth: 48,
+                                                  avatarPadding: null,
+                                                  statusIndicatorBorderRadius:
+                                                      null,
+                                                  avatarMargin: null,
+                                                  statusIndicatorHeight: null,
+                                                  statusIndicatorWidth: null,
+                                                  id: conversation
+                                                      .conversationId,
+                                                  avatarName:
+                                                      conversationWithUser
+                                                          ?.name ??
+                                                      conversationWithGroup
+                                                          ?.name,
+                                                  avatarURL:
+                                                      conversationWithUser
+                                                          ?.avatar ??
+                                                      conversationWithGroup
+                                                          ?.icon,
+                                                  title:
+                                                      conversationWithUser
+                                                          ?.name ??
+                                                      conversationWithGroup
+                                                          ?.name,
+                                                  key: UniqueKey(),
+                                                  avatarStyle:
+                                                      style.avatarStyle ??
+                                                      const CometChatAvatarStyle(),
+                                                  statusIndicatorColor:
+                                                      backgroundColor,
+                                                  statusIndicatorIcon: icon,
+                                                  statusIndicatorStyle:
+                                                      CometChatStatusIndicatorStyle(
+                                                        border: Border.all(
+                                                          width:
+                                                              spacing.spacing ??
+                                                              0,
+                                                          color:
+                                                              colorPalette
+                                                                  .background1 ??
+                                                              Colors
+                                                                  .transparent,
+                                                        ),
+                                                        backgroundColor:
+                                                            colorPalette
+                                                                .success,
+                                                      ),
+                                                  hideSeparator: true,
+                                                  contentPadding:
+                                                      EdgeInsets.zero,
+                                                  style: ListItemStyle(
+                                                    background:
+                                                        style
+                                                            .searchConversationItemBackgroundColor ??
+                                                        colorPalette
+                                                            .transparent,
+                                                    titleStyle:
+                                                        TextStyle(
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              fontSize:
+                                                                  typography
+                                                                      .heading4
+                                                                      ?.medium
+                                                                      ?.fontSize,
+                                                              fontWeight:
+                                                                  typography
+                                                                      .heading4
+                                                                      ?.medium
+                                                                      ?.fontWeight,
+                                                              fontFamily:
+                                                                  typography
+                                                                      .heading4
+                                                                      ?.medium
+                                                                      ?.fontFamily,
+                                                              color:
+                                                                  style
+                                                                      .searchConversationTitleTextColor ??
+                                                                  colorPalette
+                                                                      .textPrimary,
+                                                            )
+                                                            .merge(
+                                                              style
+                                                                  .searchConversationTitleTextStyle,
+                                                            )
+                                                            .copyWith(
+                                                              color: style
+                                                                  .searchConversationTitleTextColor,
+                                                            ),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                          vertical:
+                                                              spacing
+                                                                  .padding3 ??
+                                                              0,
+                                                        ),
+                                                  ),
+                                                  subtitleView: subtitle,
+                                                  tailView: tail,
+                                                  leadingStateView:
+                                                      SearchUtils.getLeadingView(
+                                                        context: context,
+                                                        conversation:
+                                                            conversation,
+                                                        leadingView: widget
+                                                            .conversationLeadingView,
+                                                      ),
+                                                  titleView:
+                                                      SearchUtils.getTitleView(
+                                                        context: context,
+                                                        conversation:
+                                                            conversation,
+                                                        titleView: widget
+                                                            .conversationTitleView,
+                                                      ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          if (searchController
+                                                  .selectedFilters
+                                                  .isEmpty &&
+                                              _conversationsController
+                                                  .list
+                                                  .isNotEmpty &&
+                                              _conversationsController
+                                                      .list
+                                                      .length >=
+                                                  3 &&
+                                              _conversationsController
+                                                  .hasMoreItems)
+                                            SearchUtils.seeMoreButton(
+                                              callback:
+                                                  (ctrl.isLoading == false ||
+                                                      ctrl.hasError == false)
+                                                  ? ctrl.loadMore
+                                                  : null,
                                               colorPalette: colorPalette,
-                                              spacing: spacing,
                                               typography: typography,
-                                            );
-                                          }
-                                        }
-
-                                        final conversation = ctrl.list[index];
-
-                                        if (widget.conversationItemView !=
-                                            null) {
-                                          return widget.conversationItemView!(
-                                              context, conversation);
-                                        }
-                                        User? conversationWithUser;
-                                        Group? conversationWithGroup;
-                                        if (conversation.conversationWith
-                                            is User) {
-                                          conversationWithUser = conversation
-                                              .conversationWith as User;
-                                        } else {
-                                          conversationWithGroup = conversation
-                                              .conversationWith as Group;
-                                        }
-
-                                        Widget? subtitle;
-                                        Widget? tail;
-                                        Color? backgroundColor;
-                                        Widget? icon;
-
-                                        if (widget.conversationSubtitleView !=
-                                            null) {
-                                          subtitle =
-                                              widget.conversationSubtitleView!(
-                                                  context, conversation);
-                                        } else {
-                                          subtitle =
-                                              SearchUtils.getSubtitleView(
-                                            context: context,
-                                            conversation: conversation,
-                                            showTypingIndicator:
-                                                _conversationsController
-                                                    .typingMap
-                                                    .containsKey(
-                                              conversation.conversationId,
+                                              spacing: spacing,
+                                              style: style,
+                                              context: context,
                                             ),
-                                            controller:
-                                                _conversationsController,
-                                            typography: typography,
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                if (searchController.shouldShowMessageList() &&
+                                    searchController.showMessagesSearch)
+                                  GetBuilder<CometChatMessagesSearchController>(
+                                    init: _messagesController,
+                                    tag: tag,
+                                    builder: (ctrl) {
+                                      if (searchController.bothActive ==
+                                              false &&
+                                          ctrl.isLoading) {
+                                        if (widget.loadingStateView != null) {
+                                          return widget.loadingStateView!(
+                                            context,
+                                          );
+                                        } else {
+                                          return SearchUtils.loadingView(
+                                            context: context,
                                             colorPalette: colorPalette,
                                             spacing: spacing,
-                                            hideThreadIndicator: false,
-                                            style: style,
-                                            receiptsVisibility:
-                                                widget.receiptsVisibility,
-                                            receiptStyle:
-                                                CometChatMessageReceiptStyle(),
-                                            typingStyle:
-                                                const CometChatTypingIndicatorStyle(),
+                                            typography: typography,
                                           );
                                         }
+                                      }
 
-                                        tail = SearchUtils.getTrailingView(
-                                          context: context,
-                                          conversation: conversation,
-                                          colorPalette: colorPalette,
-                                          typography: typography,
-                                          spacing: spacing,
-                                          trailingView:
-                                              widget.conversationTailView,
-                                          style: style,
-                                          dateTimeFormatterCallback: widget
-                                              .timeSeparatorFormatterCallback,
-                                        );
+                                      if (searchController.bothActive ==
+                                              false &&
+                                          !ctrl.isLoading &&
+                                          ctrl.list.isEmpty) {
+                                        if (widget.emptyStateView != null) {
+                                          return widget.emptyStateView!(
+                                            context,
+                                          );
+                                        } else {
+                                          return SearchUtils.emptyView(
+                                            context: context,
+                                            colorPalette: colorPalette,
+                                            typography: typography,
+                                            spacing: spacing,
+                                            searchText:
+                                                searchController.searchText,
+                                            conversationsController:
+                                                _conversationsController,
+                                            messagesController:
+                                                _messagesController,
+                                            style: style,
+                                          );
+                                        }
+                                      }
 
-                                        StatusIndicatorUtils
-                                            statusIndicatorUtils =
-                                            StatusIndicatorUtils
-                                                .getStatusIndicatorFromParams(
-                                          context: context,
-                                          isSelected: false,
-                                          user: conversationWithUser,
-                                          group: conversationWithGroup,
-                                          onlineStatusIndicatorColor:
-                                              colorPalette.success,
-                                          privateGroupIcon: null,
-                                          protectedGroupIcon: null,
-                                          privateGroupIconBackground: null,
-                                          protectedGroupIconBackground: null,
-                                          usersStatusVisibility:
-                                              _conversationsController
-                                                  .hideUserPresence(
-                                                      conversationWithUser),
-                                          groupTypeVisibility:
-                                              _conversationsController
-                                                  .hideGroupIconVisibility(
-                                                      conversationWithGroup),
-                                        );
-
-                                        backgroundColor = statusIndicatorUtils
-                                            .statusIndicatorColor;
-                                        icon = statusIndicatorUtils.icon;
-
-                                        return GestureDetector(
-                                          onTap: () {
-                                            if (widget.onConversationClicked !=
-                                                null) {
-                                              widget.onConversationClicked!(
-                                                  conversation);
-                                            }
-                                          },
-                                          child: CometChatListItem(
-                                            avatarHeight: 48,
-                                            avatarWidth: 48,
-                                            avatarPadding: null,
-                                            statusIndicatorBorderRadius: null,
-                                            avatarMargin: null,
-                                            statusIndicatorHeight: null,
-                                            statusIndicatorWidth: null,
-                                            id: conversation.conversationId,
-                                            avatarName:
-                                                conversationWithUser?.name ??
-                                                    conversationWithGroup?.name,
-                                            avatarURL:
-                                                conversationWithUser?.avatar ??
-                                                    conversationWithGroup?.icon,
-                                            title: conversationWithUser?.name ??
-                                                conversationWithGroup?.name,
-                                            key: UniqueKey(),
-                                            avatarStyle: style.avatarStyle ??
-                                                const CometChatAvatarStyle(),
-                                            statusIndicatorColor:
-                                                backgroundColor,
-                                            statusIndicatorIcon: icon,
-                                            statusIndicatorStyle:
-                                                CometChatStatusIndicatorStyle(
-                                              border: Border.all(
-                                                width: spacing.spacing ?? 0,
-                                                color:
-                                                    colorPalette.background1 ??
-                                                        Colors.transparent,
-                                              ),
-                                              backgroundColor:
-                                                  colorPalette.success,
+                                      // If there's an error, display it
+                                      if (searchController.bothActive ==
+                                              false &&
+                                          ctrl.hasError) {
+                                        if (widget.errorStateView != null) {
+                                          return widget.errorStateView!(
+                                            context,
+                                          );
+                                        } else {
+                                          return SearchUtils.errorView(
+                                            context: context,
+                                            colorPalette: colorPalette,
+                                            typography: typography,
+                                            spacing: spacing,
+                                            conversationsController:
+                                                _conversationsController,
+                                            messagesController:
+                                                _messagesController,
+                                            style: style,
+                                          );
+                                        }
+                                      }
+                                      // Check if the controller is loading, has an error, or has no conversations
+                                      return Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          if (_messagesController
+                                              .list
+                                              .isNotEmpty)
+                                            SearchUtils.headingTitle(
+                                              title: cc.Translations.of(
+                                                context,
+                                              ).messages,
+                                              colorPalette: colorPalette,
+                                              typography: typography,
+                                              spacing: spacing,
+                                              style: style,
                                             ),
-                                            hideSeparator: true,
-                                            contentPadding: EdgeInsets.zero,
-                                            style: ListItemStyle(
-                                              background: style
-                                                      .searchConversationItemBackgroundColor ??
-                                                  colorPalette.transparent,
-                                              titleStyle: TextStyle(
-                                                overflow: TextOverflow.ellipsis,
-                                                fontSize: typography
-                                                    .heading4?.medium?.fontSize,
-                                                fontWeight: typography.heading4
-                                                    ?.medium?.fontWeight,
-                                                fontFamily: typography.heading4
-                                                    ?.medium?.fontFamily,
-                                                color: style
-                                                        .searchConversationTitleTextColor ??
-                                                    colorPalette.textPrimary,
-                                              )
-                                                  .merge(style
-                                                      .searchConversationTitleTextStyle)
-                                                  .copyWith(
-                                                    color: style
-                                                        .searchConversationTitleTextColor,
-                                                  ),
-                                              padding: EdgeInsets.symmetric(
-                                                vertical: spacing.padding3 ?? 0,
-                                              ),
-                                            ),
-                                            subtitleView: subtitle,
-                                            tailView: tail,
-                                            leadingStateView:
-                                                SearchUtils.getLeadingView(
-                                              context: context,
-                                              conversation: conversation,
-                                              leadingView: widget
-                                                  .conversationLeadingView,
-                                            ),
-                                            titleView: SearchUtils.getTitleView(
-                                              context: context,
-                                              conversation: conversation,
-                                              titleView:
-                                                  widget.conversationTitleView,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    if (searchController.selectedFilters.isEmpty &&
-                                        _conversationsController
-                                            .list.isNotEmpty &&
-                                        _conversationsController.list.length >= 3 &&
-                                        _conversationsController.hasMoreItems)
-                                      SearchUtils.seeMoreButton(
-                                          callback: (ctrl.isLoading == false ||
-                                                  ctrl.hasError == false)
-                                              ? ctrl.loadMore
-                                              : null,
-                                          colorPalette: colorPalette,
-                                          typography: typography,
-                                          spacing: spacing,
-                                          style: style,
-                                          context: context),
-                                  ],
-                                );
-                              },
-                            ),
-                          if (searchController.shouldShowMessageList() &&
-                              searchController.showMessagesSearch)
-                            GetBuilder<CometChatMessagesSearchController>(
-                              init: _messagesController,
-                              tag: tag,
-                              builder: (ctrl) {
-                                if (searchController.bothActive == false &&
-                                    ctrl.isLoading) {
-                                  if (widget.loadingStateView != null) {
-                                    return widget.loadingStateView!(context);
-                                  } else {
-                                    return SearchUtils.loadingView(
-                                      context: context,
-                                      colorPalette: colorPalette,
-                                      spacing: spacing,
-                                      typography: typography,
-                                    );
-                                  }
-                                }
-
-                                if (searchController.bothActive == false &&
-                                    !ctrl.isLoading &&
-                                    ctrl.list.isEmpty) {
-                                  if (widget.emptyStateView != null) {
-                                    return widget.emptyStateView!(context);
-                                  } else {
-                                    return SearchUtils.emptyView(
-                                      context: context,
-                                      colorPalette: colorPalette,
-                                      typography: typography,
-                                      spacing: spacing,
-                                      searchText: searchController.searchText,
-                                      conversationsController:
-                                          _conversationsController,
-                                      messagesController: _messagesController,
-                                      style: style,
-                                    );
-                                  }
-                                }
-
-                                // If there's an error, display it
-                                if (searchController.bothActive == false &&
-                                    ctrl.hasError) {
-                                  if (widget.errorStateView != null) {
-                                    return widget.errorStateView!(context);
-                                  } else {
-                                    return SearchUtils.errorView(
-                                      context: context,
-                                      colorPalette: colorPalette,
-                                      typography: typography,
-                                      spacing: spacing,
-                                      conversationsController:
-                                          _conversationsController,
-                                      messagesController: _messagesController,
-                                      style: style,
-                                    );
-                                  }
-                                }
-                                // Check if the controller is loading, has an error, or has no conversations
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (_messagesController.list.isNotEmpty)
-                                      SearchUtils.headingTitle(
-                                        title: cc.Translations.of(context)
-                                            .messages,
-                                        colorPalette: colorPalette,
-                                        typography: typography,
-                                        spacing: spacing,
-                                        style: style,
-                                      ),
-                                    ListView.builder(
-                                      itemCount: (searchController
-                                              .selectedFilters.isNotEmpty)
-                                          ? (ctrl.hasMoreItems
-                                              ? ctrl.list.length + 1
-                                              : ctrl.list.length)
-                                          : ctrl.list.length,
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        if (searchController
-                                                .selectedFilters.isNotEmpty &&
-                                            index >= ctrl.list.length) {
-WidgetsBinding.instance
+                                          ListView.builder(
+                                            itemCount:
+                                                (searchController
+                                                    .selectedFilters
+                                                    .isNotEmpty)
+                                                ? (ctrl.hasMoreItems
+                                                      ? ctrl.list.length + 1
+                                                      : ctrl.list.length)
+                                                : ctrl.list.length,
+                                            shrinkWrap: true,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            itemBuilder: (context, index) {
+                                              if (searchController
+                                                      .selectedFilters
+                                                      .isNotEmpty &&
+                                                  index >= ctrl.list.length) {
+                                                WidgetsBinding.instance
                                                     .addPostFrameCallback(
                                                       (_) => ctrl
                                                           .loadMoreElements(),
                                                     );
                                                 if (widget.loadingStateView !=
                                                     null) {
-                                            return widget
+                                                  return widget
                                                       .loadingStateView!(
                                                     context,
                                                   );
-                                          } else {
-                                            return SearchUtils.loadingView(
-                                              context: context,
-                                              colorPalette: colorPalette,
-                                              spacing: spacing,
-                                              typography: typography,
-                                            );
-                                          }
-                                        }
-                                        final message = ctrl.list[index];
-
-                                        return Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            SearchUtils.getDateSeparator(
-                                              _messagesController,
-                                              index,
-                                              context,
-                                              colorPalette,
-                                              typography,
-                                              spacing,
-                                              widget
-                                                  .dateSeparatorFormatterCallback,
-                                              style,
-                                            ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                if (widget.onMessageClicked !=
-                                                    null) {
-                                                  widget.onMessageClicked!(
-                                                      message);
+                                                } else {
+                                                  return SearchUtils.loadingView(
+                                                    context: context,
+                                                    colorPalette: colorPalette,
+                                                    spacing: spacing,
+                                                    typography: typography,
+                                                  );
                                                 }
-                                              },
-                                              child: SearchUtils
-                                                  .buildMessageTypeBubble(
-                                                context: context,
-                                                message: message,
-                                                controller: ctrl,
-                                                colorPalette: colorPalette,
-                                                typography: typography,
-                                                spacing: spacing,
-                                                style: style,
-                                                timeSeparatorFormatterCallback:
+                                              }
+                                              final message = ctrl.list[index];
+
+                                              return Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  SearchUtils.getDateSeparator(
+                                                    _messagesController,
+                                                    index,
+                                                    context,
+                                                    colorPalette,
+                                                    typography,
+                                                    spacing,
                                                     widget
-                                                        .timeSeparatorFormatterCallback,
-                                                searchMessageLinkView: widget
-                                                    .searchMessageLinkView,
-                                                searchTextMessageView: widget
-                                                    .searchTextMessageView,
-                                                searchImageMessageView: widget
-                                                    .searchImageMessageView,
-                                                searchVideoMessageView: widget
-                                                    .searchVideoMessageView,
-                                                searchFileMessageView: widget
-                                                    .searchFileMessageView,
-                                                searchAudioMessageView: widget
-                                                    .searchAudioMessageView,
-                                                onMessageClicked: widget.onMessageClicked,
-                                              ),
+                                                        .dateSeparatorFormatterCallback,
+                                                    style,
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      if (widget
+                                                              .onMessageClicked !=
+                                                          null) {
+                                                        widget
+                                                            .onMessageClicked!(
+                                                          message,
+                                                        );
+                                                      }
+                                                    },
+                                                    child: SearchUtils.buildMessageTypeBubble(
+                                                      context: context,
+                                                      message: message,
+                                                      controller: ctrl,
+                                                      colorPalette:
+                                                          colorPalette,
+                                                      typography: typography,
+                                                      spacing: spacing,
+                                                      style: style,
+                                                      timeSeparatorFormatterCallback:
+                                                          widget
+                                                              .timeSeparatorFormatterCallback,
+                                                      searchMessageLinkView: widget
+                                                          .searchMessageLinkView,
+                                                      searchTextMessageView: widget
+                                                          .searchTextMessageView,
+                                                      searchImageMessageView: widget
+                                                          .searchImageMessageView,
+                                                      searchVideoMessageView: widget
+                                                          .searchVideoMessageView,
+                                                      searchFileMessageView: widget
+                                                          .searchFileMessageView,
+                                                      searchAudioMessageView: widget
+                                                          .searchAudioMessageView,
+                                                      onMessageClicked: widget
+                                                          .onMessageClicked,
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                          if (searchController
+                                                  .selectedFilters
+                                                  .isEmpty &&
+                                              _messagesController
+                                                  .list
+                                                  .isNotEmpty &&
+                                              _messagesController.hasMoreItems)
+                                            SearchUtils.seeMoreButton(
+                                              callback:
+                                                  (ctrl.isLoading == false ||
+                                                      ctrl.hasError == false)
+                                                  ? ctrl.loadMoreElements
+                                                  : null,
+                                              colorPalette: colorPalette,
+                                              typography: typography,
+                                              spacing: spacing,
+                                              style: style,
+                                              context: context,
                                             ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                    if (searchController
-                                            .selectedFilters.isEmpty &&
-                                        _messagesController.list.isNotEmpty &&
-                                        _messagesController.hasMoreItems)
-                                      SearchUtils.seeMoreButton(
-                                        callback: (ctrl.isLoading == false ||
-                                                ctrl.hasError == false)
-                                            ? ctrl.loadMoreElements
-                                            : null,
-                                        colorPalette: colorPalette,
-                                        typography: typography,
-                                        spacing: spacing,
-                                        style: style,
-                                        context: context,
-                                      ),
-                                  ],
-                                );
-                              },
-                            )
-                        ],
-                      ),
-                    ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
                   ),
                 ],
               );
@@ -850,7 +1003,7 @@ WidgetsBinding.instance
 
   /// Builds the search bar widget
 
-  _buildSearchBar(
+  Padding _buildSearchBar(
     BuildContext context,
     CometChatTypography typography,
     CometChatColorPalette colorPalette,
@@ -859,14 +1012,12 @@ WidgetsBinding.instance
     CometChatSearchController searchController,
   ) {
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: spacing.padding3 ?? 0,
-      ),
+      padding: EdgeInsets.only(bottom: spacing.padding3 ?? 0),
       child: TextField(
         keyboardAppearance:
             CometChatThemeHelper.getBrightness(context) == Brightness.dark
-                ? Brightness.dark
-                : Brightness.light,
+            ? Brightness.dark
+            : Brightness.light,
         controller: searchController.searchEditingController,
         onChanged: (val) {
           if (searchController.bothActive == true) {
@@ -883,9 +1034,7 @@ WidgetsBinding.instance
           fontSize: typography.heading4?.regular?.fontSize,
           fontWeight: typography.heading4?.regular?.fontWeight,
           fontFamily: typography.heading4?.regular?.fontFamily,
-        ).merge(style.searchTextStyle).copyWith(
-              color: style.searchTextColor,
-            ),
+        ).merge(style.searchTextStyle).copyWith(color: style.searchTextColor),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(
             horizontal: spacing.padding3 ?? 0,
@@ -895,11 +1044,13 @@ WidgetsBinding.instance
               ? "${cc.Translations.of(context).search} in ${widget.user?.name ?? widget.group?.name ?? ""}"
               : cc.Translations.of(context).search,
           prefixIcon: GestureDetector(
-            onTap: widget.onBack ??
+            onTap:
+                widget.onBack ??
                 () {
                   Navigator.of(context).pop();
                 },
-            child: widget.searchBackIcon ??
+            child:
+                widget.searchBackIcon ??
                 Icon(
                   Icons.arrow_back,
                   color:
@@ -918,7 +1069,8 @@ WidgetsBinding.instance
               _conversationsController.onSearch("");
               _messagesController.onSearch("");
             },
-            child: widget.searchClearIcon ??
+            child:
+                widget.searchClearIcon ??
                 Icon(
                   Icons.close,
                   color:
@@ -926,47 +1078,49 @@ WidgetsBinding.instance
                   size: 24,
                 ),
           ),
-          hintStyle: TextStyle(
-            color:
-                style.searchPlaceHolderTextColor ?? colorPalette.textTertiary,
-            fontSize: typography.heading4?.regular?.fontSize,
-            fontWeight: typography.heading4?.regular?.fontWeight,
-            fontFamily: typography.heading4?.regular?.fontFamily,
-          ).merge(style.searchPlaceHolderTextStyle).copyWith(
-                color: style.searchPlaceHolderTextColor,
-              ),
+          hintStyle:
+              TextStyle(
+                    color:
+                        style.searchPlaceHolderTextColor ??
+                        colorPalette.textTertiary,
+                    fontSize: typography.heading4?.regular?.fontSize,
+                    fontWeight: typography.heading4?.regular?.fontWeight,
+                    fontFamily: typography.heading4?.regular?.fontFamily,
+                  )
+                  .merge(style.searchPlaceHolderTextStyle)
+                  .copyWith(color: style.searchPlaceHolderTextColor),
           focusedBorder: OutlineInputBorder(
-            borderSide: style.searchBorder ??
+            borderSide:
+                style.searchBorder ??
                 BorderSide(
                   color: colorPalette.borderDark ?? Colors.transparent,
                   width: 1,
                 ),
-            borderRadius: style.searchBorderRadius ??
-                BorderRadius.circular(
-                  spacing.radiusMax ?? 0,
-                ),
+            borderRadius:
+                style.searchBorderRadius ??
+                BorderRadius.circular(spacing.radiusMax ?? 0),
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: style.searchBorder ??
+            borderSide:
+                style.searchBorder ??
                 BorderSide(
                   color: colorPalette.borderDark ?? Colors.transparent,
                   width: 1,
                 ),
-            borderRadius: style.searchBorderRadius ??
-                BorderRadius.circular(
-                  spacing.radiusMax ?? 0,
-                ),
+            borderRadius:
+                style.searchBorderRadius ??
+                BorderRadius.circular(spacing.radiusMax ?? 0),
           ),
           border: OutlineInputBorder(
-            borderSide: style.searchBorder ??
+            borderSide:
+                style.searchBorder ??
                 BorderSide(
                   color: colorPalette.borderDark ?? Colors.transparent,
                   width: 1,
                 ),
-            borderRadius: style.searchBorderRadius ??
-                BorderRadius.circular(
-                  spacing.radiusMax ?? 0,
-                ),
+            borderRadius:
+                style.searchBorderRadius ??
+                BorderRadius.circular(spacing.radiusMax ?? 0),
           ),
           fillColor: style.searchBackgroundColor ?? colorPalette.background3,
           filled: true,
@@ -976,7 +1130,7 @@ WidgetsBinding.instance
   }
 
   /// Builds the filter chips widget
-  _buildFilterChips(
+  Obx _buildFilterChips(
     BuildContext context,
     CometChatTypography typography,
     CometChatColorPalette colorPalette,
@@ -986,48 +1140,56 @@ WidgetsBinding.instance
   ) {
     return Obx(
       () => Padding(
-        padding: EdgeInsets.only(
-          bottom: spacing.padding3 ?? 0,
-        ),
+        padding: EdgeInsets.only(bottom: spacing.padding3 ?? 0),
         child: Wrap(
           spacing: spacing.padding2 ?? 0,
           runSpacing: spacing.padding2 ?? 0,
           children: searchController.visibleFilters.map((filter) {
-            final isSelected =
-                searchController.selectedFilters.contains(filter.label);
+            final isSelected = searchController.selectedFilters.contains(
+              filter.label,
+            );
             return cc.FilterChip(
               label: filter.label,
               icon: filter.icon,
               isSelected: isSelected,
               onTap: () => searchController.onFilterTap(filter.label),
-              selectedColor: style.searchFilterChipSelectedBackgroundColor ??
+              selectedColor:
+                  style.searchFilterChipSelectedBackgroundColor ??
                   colorPalette.secondaryButtonBackground ??
                   Colors.transparent,
-              unselectedColor: style.searchFilterChipBackgroundColor ??
+              unselectedColor:
+                  style.searchFilterChipBackgroundColor ??
                   colorPalette.background3 ??
                   Colors.transparent,
-              selectedIconColor: style.searchFilterSelectedIconColor ??
+              selectedIconColor:
+                  style.searchFilterSelectedIconColor ??
                   colorPalette.iconWhite ??
                   Colors.transparent,
-              unselectedIconColor: style.searchFilterIconColor ??
+              unselectedIconColor:
+                  style.searchFilterIconColor ??
                   colorPalette.iconSecondary ??
                   Colors.transparent,
-              selectedTextColor: style.searchFilterChipSelectedTextColor ??
+              selectedTextColor:
+                  style.searchFilterChipSelectedTextColor ??
                   colorPalette.textWhite,
-              unselectedTextColor: style.searchFilterChipTextColor ??
+              unselectedTextColor:
+                  style.searchFilterChipTextColor ??
                   colorPalette.textSecondary ??
                   Colors.transparent,
-              selectedBorder: style.searchFilterChipSelectedBorder ??
+              selectedBorder:
+                  style.searchFilterChipSelectedBorder ??
                   Border.all(
                     color: colorPalette.neutral800 ?? Colors.transparent,
                     width: 1,
                   ),
-              unSelectedBorder: style.searchFilterChipBorder ??
+              unSelectedBorder:
+                  style.searchFilterChipBorder ??
                   Border.all(
                     color: colorPalette.borderLight ?? Colors.transparent,
                     width: 1,
                   ),
-              borderRadius: style.searchFilterChipBorderRadius ??
+              borderRadius:
+                  style.searchFilterChipBorderRadius ??
                   BorderRadius.circular(spacing.radiusMax ?? 0),
               selectedTextStyle: style.searchFilterChipSelectedTextStyle,
               textStyle: style.searchFilterChipTextStyle,
@@ -1042,11 +1204,12 @@ WidgetsBinding.instance
   }
 
   Widget getLoadingView(
-      context,
-      CometChatColorPalette colorPalette,
-      CometChatSpacing spacing,
-      CometChatTypography typography,
-      CometChatSearchStyle style) {
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+    CometChatTypography typography,
+    CometChatSearchStyle style,
+  ) {
     // Check if the controller is loading, has an error, or has no conversations
     if (widget.loadingStateView != null) {
       return widget.loadingStateView!(context);
@@ -1061,7 +1224,7 @@ WidgetsBinding.instance
   }
 
   Widget getEmptyView(
-    context,
+    BuildContext context,
     CometChatColorPalette colorPalette,
     CometChatSpacing spacing,
     CometChatTypography typography,
@@ -1085,11 +1248,12 @@ WidgetsBinding.instance
   }
 
   Widget getErrorView(
-      context,
-      CometChatColorPalette colorPalette,
-      CometChatSpacing spacing,
-      CometChatTypography typography,
-      CometChatSearchStyle style) {
+    BuildContext context,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+    CometChatTypography typography,
+    CometChatSearchStyle style,
+  ) {
     if (widget.errorStateView != null) {
       return widget.errorStateView!(context);
     } else {

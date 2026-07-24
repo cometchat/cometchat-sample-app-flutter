@@ -12,8 +12,10 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
 
   User? loggedInUser;
 
-  CollaborativeWhiteBoardExtensionDecorator(super.dataSource,
-      {this.configuration}) {
+  CollaborativeWhiteBoardExtensionDecorator(
+    super.dataSource, {
+    this.configuration,
+  }) {
     getLoggedInUser();
     CometChatMessageEvents.addMessagesListener(ExtensionType.whiteboard, this);
     CometChatUIEvents.addUiListener(ExtensionType.whiteboard, this);
@@ -21,7 +23,7 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
 
   CometChatAttachmentOptionSheetStyle? _attachmentStyle;
 
-  getLoggedInUser() async {
+  dynamic getLoggedInUser() async {
     loggedInUser = await CometChat.getLoggedInUser();
   }
 
@@ -49,8 +51,8 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
 
   @override
   List<CometChatMessageTemplate> getAllMessageTemplates() {
-    List<CometChatMessageTemplate> templateList =
-        super.getAllMessageTemplates();
+    List<CometChatMessageTemplate> templateList = super
+        .getAllMessageTemplates();
 
     templateList.add(getTemplate());
 
@@ -74,46 +76,65 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
   void ccMessageSent(BaseMessage message, MessageStatus messageStatus) {
     // Clear quotedMessage when ANY message is successfully sent
     // This ensures the quoted message doesn't persist to subsequent collaborative whiteboards
-    if (messageStatus == MessageStatus.sent || messageStatus == MessageStatus.error) {
+    if (messageStatus == MessageStatus.sent ||
+        messageStatus == MessageStatus.error) {
       quotedMessage = null;
     }
   }
 
   @override
-  void ccActiveChatChanged(Map<String, dynamic>? id, BaseMessage? lastMessage,
-      User? user, Group? group, int unreadMessageCount) {
+  void ccActiveChatChanged(
+    Map<String, dynamic>? id,
+    BaseMessage? lastMessage,
+    User? user,
+    Group? group,
+    int unreadMessageCount,
+  ) {
     // Clear quotedMessage when user switches to a different chat
     quotedMessage = null;
   }
 
   @override
   List<CometChatMessageComposerAction> getAttachmentOptions(
-      BuildContext context,
-      Map<String, dynamic>? id,
-      AdditionalConfigurations? additionalConfigurations) {
+    BuildContext context,
+    Map<String, dynamic>? id,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     _attachmentStyle = CometChatAttachmentOptionSheetStyle(
-      border: additionalConfigurations?.attachmentOptionSheetStyle?.border ??
+      border:
+          additionalConfigurations?.attachmentOptionSheetStyle?.border ??
           configuration?.optionStyle?.attachmentOptionSheetStyle?.border,
-      borderRadius: additionalConfigurations
-              ?.attachmentOptionSheetStyle?.borderRadius ??
+      borderRadius:
+          additionalConfigurations?.attachmentOptionSheetStyle?.borderRadius ??
           configuration?.optionStyle?.attachmentOptionSheetStyle?.borderRadius,
-      titleTextStyle: additionalConfigurations
-              ?.attachmentOptionSheetStyle?.titleTextStyle ??
+      titleTextStyle:
+          additionalConfigurations
+              ?.attachmentOptionSheetStyle
+              ?.titleTextStyle ??
           configuration
-              ?.optionStyle?.attachmentOptionSheetStyle?.titleTextStyle,
+              ?.optionStyle
+              ?.attachmentOptionSheetStyle
+              ?.titleTextStyle,
       iconColor:
           additionalConfigurations?.attachmentOptionSheetStyle?.iconColor ??
-              configuration?.optionStyle?.attachmentOptionSheetStyle?.iconColor,
-      backgroundColor: additionalConfigurations
-              ?.attachmentOptionSheetStyle?.backgroundColor ??
+          configuration?.optionStyle?.attachmentOptionSheetStyle?.iconColor,
+      backgroundColor:
+          additionalConfigurations
+              ?.attachmentOptionSheetStyle
+              ?.backgroundColor ??
           configuration
-              ?.optionStyle?.attachmentOptionSheetStyle?.backgroundColor,
-      titleColor: additionalConfigurations
-              ?.attachmentOptionSheetStyle?.titleColor ??
+              ?.optionStyle
+              ?.attachmentOptionSheetStyle
+              ?.backgroundColor,
+      titleColor:
+          additionalConfigurations?.attachmentOptionSheetStyle?.titleColor ??
           configuration?.optionStyle?.attachmentOptionSheetStyle?.titleColor,
     );
-    List<CometChatMessageComposerAction> actions =
-        super.getAttachmentOptions(context, id, additionalConfigurations);
+    List<CometChatMessageComposerAction> actions = super.getAttachmentOptions(
+      context,
+      id,
+      additionalConfigurations,
+    );
 
     if (additionalConfigurations?.hideCollaborativeWhiteboardOption != true &&
         isNotThread(id)) {
@@ -125,7 +146,9 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
 
   @override
   String getLastConversationMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     BaseMessage? message = conversation.lastMessage;
     if (message != null &&
         message.type == collaborativeWhiteBoardExtensionTypeConstant &&
@@ -141,15 +164,26 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
       type: collaborativeWhiteBoardExtensionTypeConstant,
       category: CometChatMessageCategory.custom,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return super.getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        }
-        return getContentView(message as CustomMessage, context, alignment,
-            additionalConfigurations?.collaborativeWhiteboardBubbleStyle);
-      },
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return super.getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            }
+            return getContentView(
+              message as CustomMessage,
+              context,
+              alignment,
+              additionalConfigurations?.collaborativeWhiteboardBubbleStyle,
+            );
+          },
       options: CometChatUIKit.getDataSource().getCommonOptions,
       bottomView: CometChatUIKit.getDataSource().getBottomView,
       replyView: CometChatUIKit.getDataSource().getReplyView,
@@ -157,15 +191,18 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
   }
 
   Widget getContentView(
-      CustomMessage customMessage,
-      BuildContext context,
-      BubbleAlignment alignment,
-      CometChatCollaborativeBubbleStyle? collaborativeBubbleStyle) {
+    CustomMessage customMessage,
+    BuildContext context,
+    BubbleAlignment alignment,
+    CometChatCollaborativeBubbleStyle? collaborativeBubbleStyle,
+  ) {
     return CometChatCollaborativeBubble(
       url: getWebViewUrl(customMessage),
-      title: configuration?.title ??
+      title:
+          configuration?.title ??
           Translations.of(context).collaborativeWhiteboard,
-      subtitle: configuration?.subtitle ??
+      subtitle:
+          configuration?.subtitle ??
           Translations.of(context).openWhiteboardSubtitle,
       buttonText:
           configuration?.buttonText ?? Translations.of(context).openWhiteboard,
@@ -177,7 +214,7 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
     );
   }
 
-  sendCollaborativeWhiteBoard(
+  dynamic sendCollaborativeWhiteBoard(
     BuildContext context,
     String receiverID,
     String receiverType, {
@@ -187,15 +224,15 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
     int? getQuotedMessageId = ReplyUtils.getQuotedMessageId(
-        quotedMessage: quotedMessage, user: user, group: group);
+      quotedMessage: quotedMessage,
+      user: user,
+      group: group,
+    );
     if (getQuotedMessageId != null && getQuotedMessageId == -1) {
       quotedMessage = null;
     }
 
-    final body = {
-      "receiver": receiverID,
-      "receiverType": receiverType,
-    };
+    final body = {"receiver": receiverID, "receiverType": receiverType};
 
     if (quotedMessage != null && getQuotedMessageId != -1) {
       body['quotedMessageId'] = quotedMessage!.id.toString();
@@ -203,18 +240,24 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
 
     if (quotedMessage != null) {
       CometChatMessageEvents.ccReplyToMessage(
-          quotedMessage!, MessageStatus.sent);
+        quotedMessage!,
+        MessageStatus.sent,
+      );
       quotedMessage = null;
     }
 
     CometChat.callExtension(
-        ExtensionConstants.whiteboard, "POST", ExtensionUrls.whiteboard, body,
-        onSuccess: (Map<String, dynamic> map) {
-      debugPrint("Success map $map");
-    }, onError: (CometChatException e) {
-      debugPrint('$e');
-      String error = getErrorTranslatedText(context, e.code);
-      CometChatConfirmDialog(
+      ExtensionConstants.whiteboard,
+      "POST",
+      ExtensionUrls.whiteboard,
+      body,
+      onSuccess: (Map<String, dynamic> map) {
+        debugPrint("Success map $map");
+      },
+      onError: (CometChatException e) {
+        debugPrint('$e');
+        String error = getErrorTranslatedText(context, e.code);
+        CometChatConfirmDialog(
           context: context,
           messageText: Text(
             error,
@@ -229,61 +272,76 @@ class CollaborativeWhiteBoardExtensionDecorator extends DataSourceDecorator
           cancelButtonText: Translations.of(context).cancelCapital,
           onConfirm: () {
             Navigator.pop(context);
-            sendCollaborativeWhiteBoard(context, receiverID, receiverType,
-                user: user, group: group);
-          }).show();
-    });
+            sendCollaborativeWhiteBoard(
+              context,
+              receiverID,
+              receiverType,
+              user: user,
+              group: group,
+            );
+          },
+        ).show();
+      },
+    );
   }
 
   CometChatMessageComposerAction getAttachmentOption(
-      BuildContext context,
-      Map<String, dynamic>? id,
-      AdditionalConfigurations? additionalConfigurations) {
+    BuildContext context,
+    Map<String, dynamic>? id,
+    AdditionalConfigurations? additionalConfigurations,
+  ) {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
     return CometChatMessageComposerAction(
-        id: collaborativeWhiteBoardExtensionTypeConstant,
-        title: configuration?.optionTitle ??
-            Translations.of(context).collaborativeWhiteboard,
-        icon: configuration?.optionIcon ??
-            Image.asset(
-              AssetConstants.whiteBoard,
-              package: UIConstants.packageName,
-              color: _attachmentStyle?.iconColor ?? colorPalette.iconHighlight,
-              height: 24,
-              width: 24,
-            ),
-        style: CometChatAttachmentOptionSheetStyle(
-          iconColor: _attachmentStyle?.iconColor ?? colorPalette.iconHighlight,
-          titleTextStyle: TextStyle(
-            color: _attachmentStyle?.titleColor,
-            fontSize: typography.heading4?.regular?.fontSize,
-            fontWeight: typography.heading4?.regular?.fontWeight,
-            fontFamily: typography.heading4?.regular?.fontFamily,
-          ).merge(_attachmentStyle?.titleTextStyle),
-          titleColor: _attachmentStyle?.titleColor,
-          backgroundColor: _attachmentStyle?.backgroundColor,
-          border: _attachmentStyle?.border,
-          borderRadius: _attachmentStyle?.borderRadius,
-        ),
-        onItemClick: (context, user, group) {
-          String? uid, guid;
-          String receiverType = '';
-          if (user != null) {
-            uid = user.uid;
-            receiverType = ReceiverTypeConstants.user;
-          }
-          if (group != null) {
-            guid = group.guid;
-            receiverType = ReceiverTypeConstants.group;
-          }
+      id: collaborativeWhiteBoardExtensionTypeConstant,
+      title:
+          configuration?.optionTitle ??
+          Translations.of(context).collaborativeWhiteboard,
+      icon:
+          configuration?.optionIcon ??
+          Image.asset(
+            AssetConstants.whiteBoard,
+            package: UIConstants.packageName,
+            color: _attachmentStyle?.iconColor ?? colorPalette.iconHighlight,
+            height: 24,
+            width: 24,
+          ),
+      style: CometChatAttachmentOptionSheetStyle(
+        iconColor: _attachmentStyle?.iconColor ?? colorPalette.iconHighlight,
+        titleTextStyle: TextStyle(
+          color: _attachmentStyle?.titleColor,
+          fontSize: typography.heading4?.regular?.fontSize,
+          fontWeight: typography.heading4?.regular?.fontWeight,
+          fontFamily: typography.heading4?.regular?.fontFamily,
+        ).merge(_attachmentStyle?.titleTextStyle),
+        titleColor: _attachmentStyle?.titleColor,
+        backgroundColor: _attachmentStyle?.backgroundColor,
+        border: _attachmentStyle?.border,
+        borderRadius: _attachmentStyle?.borderRadius,
+      ),
+      onItemClick: (context, user, group) {
+        String? uid, guid;
+        String receiverType = '';
+        if (user != null) {
+          uid = user.uid;
+          receiverType = ReceiverTypeConstants.user;
+        }
+        if (group != null) {
+          guid = group.guid;
+          receiverType = ReceiverTypeConstants.group;
+        }
 
-          if (uid != null || guid != null) {
-            sendCollaborativeWhiteBoard(
-                context, uid ?? guid ?? '', receiverType,
-                user: user, group: group);
-          }
-        });
+        if (uid != null || guid != null) {
+          sendCollaborativeWhiteBoard(
+            context,
+            uid ?? guid ?? '',
+            receiverType,
+            user: user,
+            group: group,
+          );
+        }
+      },
+    );
   }
 
   String? getWebViewUrl(CustomMessage? messageObject) {

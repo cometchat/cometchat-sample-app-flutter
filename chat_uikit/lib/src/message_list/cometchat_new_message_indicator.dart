@@ -17,11 +17,7 @@ import 'cometchat_new_message_indicator_style.dart';
 /// )
 /// ```
 class CometChatNewMessageIndicator extends StatelessWidget {
-  const CometChatNewMessageIndicator({
-    super.key,
-    this.style,
-    this.text,
-  });
+  const CometChatNewMessageIndicator({super.key, this.style, this.text});
 
   /// [style] defines the styling properties for the indicator
   final CometChatNewMessageIndicatorStyle? style;
@@ -49,11 +45,7 @@ class CometChatNewMessageIndicator extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Divider(
-              color: indicatorColor,
-              thickness: 1,
-              height: 1,
-            ),
+            child: Divider(color: indicatorColor, thickness: 1, height: 1),
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: spacing.padding2 ?? 8),
@@ -67,11 +59,7 @@ class CometChatNewMessageIndicator extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Divider(
-              color: indicatorColor,
-              thickness: 1,
-              height: 1,
-            ),
+            child: Divider(color: indicatorColor, thickness: 1, height: 1),
           ),
         ],
       ),

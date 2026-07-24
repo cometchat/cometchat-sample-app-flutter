@@ -24,15 +24,14 @@ class CometChatGroupsController
   late String groupUIListenerID;
 
   //Constructor
-  CometChatGroupsController(
-      {required this.groupsBuilderProtocol,
-        this.groupTypeVisibility = true,
-      SelectionMode? mode,
-      super.onError,
-        super.onEmpty,
-        super.onLoad,
-      })
-      : super(builderProtocol: groupsBuilderProtocol) {
+  CometChatGroupsController({
+    required this.groupsBuilderProtocol,
+    this.groupTypeVisibility = true,
+    SelectionMode? mode,
+    super.onError,
+    super.onEmpty,
+    super.onLoad,
+  }) : super(builderProtocol: groupsBuilderProtocol) {
     selectionMode = mode ?? SelectionMode.none;
     dateStamp = DateTime.now().microsecondsSinceEpoch.toString();
 
@@ -49,7 +48,7 @@ class CometChatGroupsController
   /// Cancellable retry timer for connection recovery
   Timer? _retryTimer;
 
-//initialization functions
+  //initialization functions
   @override
   void onInit() {
     CometChatGroupEvents.addGroupsListener(groupUIListenerID, this);
@@ -106,8 +105,12 @@ class CometChatGroupsController
   }
 
   @override
-  void ccGroupMemberAdded(List<kit.Action> messages, List<User> usersAdded,
-      Group groupAddedIn, User addedBy) {
+  void ccGroupMemberAdded(
+    List<kit.Action> messages,
+    List<User> usersAdded,
+    Group groupAddedIn,
+    User addedBy,
+  ) {
     updateElement(groupAddedIn);
   }
 
@@ -124,13 +127,21 @@ class CometChatGroupsController
 
   @override
   void ccGroupMemberBanned(
-      kit.Action message, User bannedUser, User bannedBy, Group bannedFrom) {
+    kit.Action message,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     updateElement(bannedFrom);
   }
 
   @override
   onGroupMemberKicked(
-      kit.Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    kit.Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     updateElement(kickedFrom);
   }
 
@@ -146,19 +157,33 @@ class CometChatGroupsController
 
   @override
   onGroupMemberBanned(
-      kit.Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    kit.Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     updateElement(bannedFrom);
   }
 
   @override
-  onGroupMemberScopeChanged(kit.Action action, User updatedBy, User updatedUser,
-      String scopeChangedTo, String scopeChangedFrom, Group group) {
+  onGroupMemberScopeChanged(
+    kit.Action action,
+    User updatedBy,
+    User updatedUser,
+    String scopeChangedTo,
+    String scopeChangedFrom,
+    Group group,
+  ) {
     updateElement(group);
   }
 
   @override
   onMemberAddedToGroup(
-      kit.Action action, User addedby, User userAdded, Group addedTo) {
+    kit.Action action,
+    User addedby,
+    User userAdded,
+    Group addedTo,
+  ) {
     int matchedIndex;
     matchedIndex = getMatchingIndex(addedTo);
     if (matchedIndex == -1) {
@@ -177,7 +202,11 @@ class CometChatGroupsController
 
   @override
   void ccGroupMemberKicked(
-      kit.Action message, User kickedUser, User kickedBy, Group kickedFrom) {
+    kit.Action message,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     updateElement(kickedFrom);
   }
 
@@ -212,7 +241,7 @@ class CometChatGroupsController
     update();
   }
 
-  resetGroups({int retryCount = 0}) {
+  dynamic resetGroups({int retryCount = 0}) {
     _retryTimer?.cancel();
     // reset values
     list.clear();
@@ -234,22 +263,23 @@ class CometChatGroupsController
     });
   }
 
-
   bool hideGroupIconVisibility(Group? group) {
-    return group != null &&
-        (groupTypeVisibility != true);
+    return group != null && (groupTypeVisibility != true);
   }
 
   // Function to show pop-up menu on long press
   void showPopupMenu(
-      BuildContext context,
-      List<CometChatOption> options,
-      GlobalKey widgetKey,
-      ) {
-    if(options.isEmpty) {
+    BuildContext context,
+    List<CometChatOption> options,
+    GlobalKey widgetKey,
+  ) {
+    if (options.isEmpty) {
       return;
     }
-    RelativeRect? position = WidgetPositionUtil.getWidgetPosition(context, widgetKey);
+    RelativeRect? position = WidgetPositionUtil.getWidgetPosition(
+      context,
+      widgetKey,
+    );
     showMenu(
       context: context,
       position: position ?? const RelativeRect.fromLTRB(0, 0, 0, 0),
@@ -265,10 +295,9 @@ class CometChatGroupsController
       ),
       items: options.map((CometChatOption option) {
         return CustomPopupMenuItem<CometChatOption>(
-            value: option,
-            child: GetMenuView(
-              option: option,
-            ));
+          value: option,
+          child: GetMenuView(option: option),
+        );
       }).toList(),
     ).then((selectedOption) {
       if (selectedOption != null) {

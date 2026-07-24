@@ -1,4 +1,4 @@
-library cometchat_chat_uikit;
+library;
 
 export 'src/conversations/cometchat_conversations_style.dart';
 

@@ -15,12 +15,13 @@ import '../../../../../cometchat_chat_uikit.dart';
 ///
 /// ```
 class ImageModerationFilter extends StatefulWidget {
-  const ImageModerationFilter(
-      {required this.message,
-      required this.child,
-      super.key,
-      this.warningText,
-      this.style});
+  const ImageModerationFilter({
+    required this.message,
+    required this.child,
+    super.key,
+    this.warningText,
+    this.style,
+  });
 
   ///[message] the object containing the image
   final MediaMessage message;
@@ -42,8 +43,9 @@ class _ImageModerationFilterState extends State<ImageModerationFilter> {
   bool imageModerated = false;
 
   static bool checkImageModeration(MediaMessage mediaMessage) {
-    Map<String, Map>? extensions =
-        ExtensionModerator.extensionCheck(mediaMessage);
+    Map<String, Map>? extensions = ExtensionModerator.extensionCheck(
+      mediaMessage,
+    );
     if (extensions != null) {
       try {
         if (extensions.containsKey(ExtensionConstants.imageModeration)) {
@@ -89,7 +91,9 @@ class _ImageModerationFilterState extends State<ImageModerationFilter> {
           child: Container(
             alignment: Alignment.center,
             constraints: const BoxConstraints(
-                minWidth: double.infinity, minHeight: double.infinity),
+              minWidth: double.infinity,
+              minHeight: double.infinity,
+            ),
             color: widget.style?.filterColor,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -97,17 +101,16 @@ class _ImageModerationFilterState extends State<ImageModerationFilter> {
                 Image.asset(
                   widget.style?.warningImageUrl ??
                       AssetConstants.messagesUnsafe,
-                  package: widget.style?.warningImagePackageName ??
+                  package:
+                      widget.style?.warningImagePackageName ??
                       UIConstants.packageName,
                   color: widget.style?.warningImageColor,
                 ),
-                const SizedBox(
-                  height: 12,
-                ),
+                const SizedBox(height: 12),
                 Text(
                   widget.warningText ?? Translations.of(context).unsafeContent,
-                  style: widget.style?.warningTextStyle
-                )
+                  style: widget.style?.warningTextStyle,
+                ),
               ],
             ),
           ),
@@ -126,7 +129,7 @@ class _ImageModerationFilterState extends State<ImageModerationFilter> {
     imageModerated = checkImageModeration(widget.message);
   }
 
-  showImage() {
+  dynamic showImage() {
     imageModerated = false;
     setState(() {});
   }

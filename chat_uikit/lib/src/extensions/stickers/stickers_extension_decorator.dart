@@ -15,34 +15,42 @@ class StickersExtensionDecorator extends DataSourceDecorator
 
   @override
   List<CometChatMessageTemplate> getAllMessageTemplates() {
-    List<CometChatMessageTemplate> templateList =
-        super.getAllMessageTemplates();
+    List<CometChatMessageTemplate> templateList = super
+        .getAllMessageTemplates();
     templateList.add(getTemplate());
 
     return templateList;
   }
 
   @override
-  Widget getAuxiliaryOptions(User? user, Group? group, BuildContext context,
-      Map<String, dynamic>? id, Color? color,
-      {AdditionalConfigurations? additionalConfigurations}) {
+  Widget getAuxiliaryOptions(
+    User? user,
+    Group? group,
+    BuildContext context,
+    Map<String, dynamic>? id,
+    Color? color, {
+    AdditionalConfigurations? additionalConfigurations,
+  }) {
     List<Widget> auxiliaryButtons = [];
 
     Widget auxiliaryOption = super.getAuxiliaryOptions(
-        user, group, context, id, color,
-        additionalConfigurations: additionalConfigurations);
+      user,
+      group,
+      context,
+      id,
+      color,
+      additionalConfigurations: additionalConfigurations,
+    );
     auxiliaryButtons.add(auxiliaryOption);
     if (additionalConfigurations?.hideStickersButton != true) {
-      auxiliaryButtons
-          .add(getStickerAuxiliaryButton(user, group, context, id, color));
+      auxiliaryButtons.add(
+        getStickerAuxiliaryButton(user, group, context, id, color),
+      );
     }
 
     return auxiliaryButtons.isEmpty
         ? const SizedBox()
-        : Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [...auxiliaryButtons],
-          );
+        : Row(mainAxisSize: MainAxisSize.min, children: [...auxiliaryButtons]);
   }
 
   @override
@@ -63,7 +71,9 @@ class StickersExtensionDecorator extends DataSourceDecorator
 
   @override
   String getLastConversationMessage(
-      Conversation conversation, BuildContext context) {
+    Conversation conversation,
+    BuildContext context,
+  ) {
     BaseMessage? message = conversation.lastMessage;
     if (message != null &&
         message.type == stickerTypeConstant &&
@@ -91,14 +101,20 @@ class StickersExtensionDecorator extends DataSourceDecorator
   void ccMessageSent(BaseMessage message, MessageStatus messageStatus) {
     // Clear quotedMessage when ANY message is successfully sent
     // This ensures the quoted message doesn't persist to subsequent stickers
-    if (messageStatus == MessageStatus.sent || messageStatus == MessageStatus.error) {
+    if (messageStatus == MessageStatus.sent ||
+        messageStatus == MessageStatus.error) {
       quotedMessage = null;
     }
   }
 
   @override
-  void ccActiveChatChanged(Map<String, dynamic>? id, BaseMessage? lastMessage,
-      User? user, Group? group, int unreadMessageCount) {
+  void ccActiveChatChanged(
+    Map<String, dynamic>? id,
+    BaseMessage? lastMessage,
+    User? user,
+    Group? group,
+    int unreadMessageCount,
+  ) {
     // Clear quotedMessage when user switches to a different chat
     quotedMessage = null;
   }
@@ -108,21 +124,28 @@ class StickersExtensionDecorator extends DataSourceDecorator
       type: stickerTypeConstant,
       category: CometChatMessageCategory.custom,
       contentView:
-          (BaseMessage message, BuildContext context, BubbleAlignment alignment,
-              {AdditionalConfigurations? additionalConfigurations}) {
-        if (message.deletedAt != null) {
-          return super.getDeleteMessageBubble(
-              message, context, additionalConfigurations?.deletedBubbleStyle);
-        } else {
-          return CometChatStickerBubble(
-            message: (message as CustomMessage),
-            height: configuration?.stickerBubbleHeight,
-            width: configuration?.stickerBubbleWidth,
-            stickerUrl: configuration?.stickerUrl,
-            style: additionalConfigurations?.stickerBubbleStyle,
-          );
-        }
-      },
+          (
+            BaseMessage message,
+            BuildContext context,
+            BubbleAlignment alignment, {
+            AdditionalConfigurations? additionalConfigurations,
+          }) {
+            if (message.deletedAt != null) {
+              return super.getDeleteMessageBubble(
+                message,
+                context,
+                additionalConfigurations?.deletedBubbleStyle,
+              );
+            } else {
+              return CometChatStickerBubble(
+                message: (message as CustomMessage),
+                height: configuration?.stickerBubbleHeight,
+                width: configuration?.stickerBubbleWidth,
+                stickerUrl: configuration?.stickerUrl,
+                style: additionalConfigurations?.stickerBubbleStyle,
+              );
+            }
+          },
       options: CometChatUIKit.getDataSource().getCommonOptions,
       bottomView: CometChatUIKit.getDataSource().getBottomView,
       replyView: CometChatUIKit.getDataSource().getReplyView,
@@ -131,8 +154,13 @@ class StickersExtensionDecorator extends DataSourceDecorator
 
   bool _isSendingSticker = false;
 
-  getStickerAuxiliaryButton(User? user, Group? group, BuildContext context,
-      Map<String, dynamic>? id, Color? color) {
+  dynamic getStickerAuxiliaryButton(
+    User? user,
+    Group? group,
+    BuildContext context,
+    Map<String, dynamic>? id,
+    Color? color,
+  ) {
     onStickerTap(Sticker st) async {
       // Prevent multiple rapid taps from sending multiple stickers
       if (_isSendingSticker) {
@@ -141,7 +169,10 @@ class StickersExtensionDecorator extends DataSourceDecorator
       _isSendingSticker = true;
 
       int? getQuotedMessageId = ReplyUtils.getQuotedMessageId(
-          quotedMessage: quotedMessage, user: user, group: group);
+        quotedMessage: quotedMessage,
+        user: user,
+        group: group,
+      );
       if (getQuotedMessageId != null && getQuotedMessageId == -1) {
         quotedMessage = null;
       }
@@ -174,9 +205,7 @@ class StickersExtensionDecorator extends DataSourceDecorator
           parentMessageId: parentMessageId,
           muid: DateTime.now().microsecondsSinceEpoch.toString(),
           updateConversation: true,
-          metadata: {
-            UpdateSettingsConstant.incrementUnreadCount: true,
-          },
+          metadata: {UpdateSettingsConstant.incrementUnreadCount: true},
         );
 
         if (quotedMessage != null) {
@@ -186,19 +215,24 @@ class StickersExtensionDecorator extends DataSourceDecorator
 
         if (quotedMessage != null) {
           CometChatMessageEvents.ccReplyToMessage(
-              quotedMessage!, MessageStatus.sent);
+            quotedMessage!,
+            MessageStatus.sent,
+          );
           quotedMessage = null;
         }
 
-        CometChatUIKit.sendCustomMessage(customMessage,
-            onSuccess: (customMessage) {
-          _isSendingSticker = false;
-        }, onError: (error) {
-          _isSendingSticker = false;
-          if (quotedMessage != null) {
-            quotedMessage = null;
-          }
-        });
+        CometChatUIKit.sendCustomMessage(
+          customMessage,
+          onSuccess: (customMessage) {
+            _isSendingSticker = false;
+          },
+          onError: (error) {
+            _isSendingSticker = false;
+            if (quotedMessage != null) {
+              quotedMessage = null;
+            }
+          },
+        );
       } else {
         _isSendingSticker = false;
       }
@@ -212,8 +246,9 @@ class StickersExtensionDecorator extends DataSourceDecorator
       onStickerTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
         Future.delayed(const Duration(milliseconds: 300), () {
-          CometChatUIEvents.showPanel(id, CustomUIPosition.composerBottom,
-              (context) {
+          CometChatUIEvents.showPanel(id, CustomUIPosition.composerBottom, (
+            context,
+          ) {
             return CometChatStickerKeyboard(
               onStickerTap: onStickerTap,
               emptyStateView: configuration?.errorStateView,
@@ -224,10 +259,7 @@ class StickersExtensionDecorator extends DataSourceDecorator
         });
       },
       onKeyboardTap: () {
-        CometChatUIEvents.hidePanel(
-          id,
-          CustomUIPosition.composerBottom,
-        );
+        CometChatUIEvents.hidePanel(id, CustomUIPosition.composerBottom);
       },
     );
   }

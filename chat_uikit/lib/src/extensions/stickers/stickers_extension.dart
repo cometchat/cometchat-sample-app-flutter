@@ -8,8 +8,10 @@ class StickersExtension extends ExtensionsDataSource {
 
   @override
   void addExtension() {
-    ChatConfigurator.enable((dataSource) =>
-        StickersExtensionDecorator(dataSource, configuration: configuration));
+    ChatConfigurator.enable(
+      (dataSource) =>
+          StickersExtensionDecorator(dataSource, configuration: configuration),
+    );
   }
 
   @override

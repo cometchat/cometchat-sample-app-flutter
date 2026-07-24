@@ -11,18 +11,26 @@ class LinkPreviewExtensionDecorator extends DataSourceDecorator {
   LinkPreviewExtensionDecorator(super.dataSource, {this.configuration});
 
   @override
-  Widget getTextMessageContentView(TextMessage message, BuildContext context,
-      BubbleAlignment alignment,
-      {AdditionalConfigurations? additionalConfigurations}) {
+  Widget getTextMessageContentView(
+    TextMessage message,
+    BuildContext context,
+    BubbleAlignment alignment, {
+    AdditionalConfigurations? additionalConfigurations,
+  }) {
     Widget? child = super.getTextMessageContentView(
-        message, context, alignment,
-        additionalConfigurations: additionalConfigurations);
+      message,
+      context,
+      alignment,
+      additionalConfigurations: additionalConfigurations,
+    );
 
     return CometChatLinkPreviewBubble(
       onTapUrl: onTapUrl,
       links: getMessageLinks(message),
       defaultImage: configuration?.defaultImage,
-      style: configuration?.style ?? additionalConfigurations?.linkPreviewBubbleStyle,
+      style:
+          configuration?.style ??
+          additionalConfigurations?.linkPreviewBubbleStyle,
       alignment: alignment,
       child: child,
     );
@@ -34,8 +42,9 @@ class LinkPreviewExtensionDecorator extends DataSourceDecorator {
   }
 
   List<dynamic> getMessageLinks(BaseMessage message) {
-    Map<String, Map>? extensionList =
-        ExtensionModerator.extensionCheck(message);
+    Map<String, Map>? extensionList = ExtensionModerator.extensionCheck(
+      message,
+    );
     List<dynamic> links = [];
     if (extensionList != null) {
       try {
@@ -55,11 +64,13 @@ class LinkPreviewExtensionDecorator extends DataSourceDecorator {
     r'^(.*?)((mailto:)?[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z][A-Z]+)',
     caseSensitive: false,
   );
-  final RegExp _urlRegex =
-      RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
+  final RegExp _urlRegex = RegExp(
+    r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+',
+  );
 
   final RegExp _phoneNumberRegex = RegExp(
-      r'\b(\+?( |-|\.)?\d{1,2}( |-|\.)?)?(\(?\d{3}\)?|\d{3})( |-|\.)?(\d{3}( |-|\.)?\d{4})\b');
+    r'\b(\+?( |-|\.)?\d{1,2}( |-|\.)?)?(\(?\d{3}\)?|\d{3})( |-|\.)?(\d{3}( |-|\.)?\d{4})\b',
+  );
 
   Future<void> onTapUrl(String url) async {
     if (_urlRegex.hasMatch(url)) {

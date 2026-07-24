@@ -1,3 +1,15 @@
+## 5.2.5
+
+## New
+- None
+
+## Enhancements
+- None
+
+## Fixes
+- Fixed a crash (`Bad state: Cannot add new events after calling close`) that occurred when leaving a chat screen before messages finished loading, such as pressing back on a slow network.
+- Fixed a crash in the file message bubble that occurred when leaving a chat during, or shortly after, a file download. In release builds this surfaced as `Null check operator used on a null value`.
+
 ## 5.2.4
 
 ## New 

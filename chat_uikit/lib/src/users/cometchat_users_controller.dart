@@ -130,7 +130,7 @@ class CometChatUsersController
     update();
   }
 
-  resetUsers({int retryCount = 0}) {
+  dynamic resetUsers({int retryCount = 0}) {
     _retryTimer?.cancel();
     // reset values
     list.clear();
@@ -152,17 +152,19 @@ class CometChatUsersController
     });
   }
 
-
   // Function to show pop-up menu on long press
   void showPopupMenu(
-      BuildContext context,
-      List<CometChatOption> options,
-      GlobalKey widgetKey,
-      ) {
-    if(options.isEmpty) {
+    BuildContext context,
+    List<CometChatOption> options,
+    GlobalKey widgetKey,
+  ) {
+    if (options.isEmpty) {
       return;
     }
-    RelativeRect? position = WidgetPositionUtil.getWidgetPosition(context, widgetKey);
+    RelativeRect? position = WidgetPositionUtil.getWidgetPosition(
+      context,
+      widgetKey,
+    );
     showMenu(
       context: context,
       position: position ?? const RelativeRect.fromLTRB(0, 0, 0, 0),
@@ -178,10 +180,9 @@ class CometChatUsersController
       ),
       items: options.map((CometChatOption option) {
         return CustomPopupMenuItem<CometChatOption>(
-            value: option,
-            child: GetMenuView(
-              option: option,
-            ));
+          value: option,
+          child: GetMenuView(option: option),
+        );
       }).toList(),
     ).then((selectedOption) {
       if (selectedOption != null) {

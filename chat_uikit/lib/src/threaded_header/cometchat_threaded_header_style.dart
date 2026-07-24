@@ -77,8 +77,10 @@ class CometChatThreadedHeaderStyle
           countContainerBackGroundColor ?? this.countContainerBackGroundColor,
       countContainerBorder: countContainerBorder ?? this.countContainerBorder,
       constraints: constraints ?? this.constraints,
-      incomingMessageBubbleStyle: incomingMessageBubbleStyle ?? this.incomingMessageBubbleStyle,
-      outgoingMessageBubbleStyle: outgoingMessageBubbleStyle ?? this.outgoingMessageBubbleStyle,
+      incomingMessageBubbleStyle:
+          incomingMessageBubbleStyle ?? this.incomingMessageBubbleStyle,
+      outgoingMessageBubbleStyle:
+          outgoingMessageBubbleStyle ?? this.outgoingMessageBubbleStyle,
     );
   }
 
@@ -100,26 +102,49 @@ class CometChatThreadedHeaderStyle
 
   @override
   CometChatThreadedHeaderStyle lerp(
-      ThemeExtension<CometChatThreadedHeaderStyle>? other, double t) {
+    ThemeExtension<CometChatThreadedHeaderStyle>? other,
+    double t,
+  ) {
     if (other is! CometChatThreadedHeaderStyle) {
       return this;
     }
     return CometChatThreadedHeaderStyle(
-      bubbleContainerBackGroundColor: Color.lerp(bubbleContainerBackGroundColor,
-          other.bubbleContainerBackGroundColor, t),
-      bubbleContainerBorder:
-          BoxBorder.lerp(bubbleContainerBorder, other.bubbleContainerBorder, t),
+      bubbleContainerBackGroundColor: Color.lerp(
+        bubbleContainerBackGroundColor,
+        other.bubbleContainerBackGroundColor,
+        t,
+      ),
+      bubbleContainerBorder: BoxBorder.lerp(
+        bubbleContainerBorder,
+        other.bubbleContainerBorder,
+        t,
+      ),
       bubbleContainerBorderRadius: BorderRadiusGeometry.lerp(
-          bubbleContainerBorderRadius, other.bubbleContainerBorderRadius, t),
+        bubbleContainerBorderRadius,
+        other.bubbleContainerBorderRadius,
+        t,
+      ),
       countTextStyle: TextStyle.lerp(countTextStyle, other.countTextStyle, t),
       countTextColor: Color.lerp(countTextColor, other.countTextColor, t),
-      countContainerBackGroundColor: Color.lerp(countContainerBackGroundColor,
-          other.countContainerBackGroundColor, t),
-      countContainerBorder:
-          BoxBorder.lerp(countContainerBorder, other.countContainerBorder, t),
+      countContainerBackGroundColor: Color.lerp(
+        countContainerBackGroundColor,
+        other.countContainerBackGroundColor,
+        t,
+      ),
+      countContainerBorder: BoxBorder.lerp(
+        countContainerBorder,
+        other.countContainerBorder,
+        t,
+      ),
       constraints: BoxConstraints.lerp(constraints, other.constraints, t),
-      incomingMessageBubbleStyle: incomingMessageBubbleStyle?.lerp(other.incomingMessageBubbleStyle,t),
-      outgoingMessageBubbleStyle: outgoingMessageBubbleStyle?.lerp(other.outgoingMessageBubbleStyle,t),
+      incomingMessageBubbleStyle: incomingMessageBubbleStyle?.lerp(
+        other.incomingMessageBubbleStyle,
+        t,
+      ),
+      outgoingMessageBubbleStyle: outgoingMessageBubbleStyle?.lerp(
+        other.outgoingMessageBubbleStyle,
+        t,
+      ),
     );
   }
 }

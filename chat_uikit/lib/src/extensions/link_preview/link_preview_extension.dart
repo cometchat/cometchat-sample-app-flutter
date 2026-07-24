@@ -8,9 +8,12 @@ class LinkPreviewExtension extends ExtensionsDataSource {
 
   @override
   void addExtension() {
-    ChatConfigurator.enable((dataSource) => LinkPreviewExtensionDecorator(
+    ChatConfigurator.enable(
+      (dataSource) => LinkPreviewExtensionDecorator(
         dataSource,
-        configuration: configuration));
+        configuration: configuration,
+      ),
+    );
   }
 
   @override

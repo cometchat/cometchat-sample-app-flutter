@@ -12,36 +12,44 @@ class ThumbnailGenerationExtensionDecorator extends DataSourceDecorator {
 
   @override
   Widget getVideoMessageBubble(
-      String? videoUrl,
-      String? thumbnailUrl,
-      MediaMessage message,
-      Function()? onClick,
-      BuildContext context,
-      CometChatVideoBubbleStyle? style) {
+    String? videoUrl,
+    String? thumbnailUrl,
+    MediaMessage message,
+    Function()? onClick,
+    BuildContext context,
+    CometChatVideoBubbleStyle? style,
+  ) {
     String? thumbnailUrl0 = checkForThumbnail(message);
-    return super.getVideoMessageBubble(videoUrl, thumbnailUrl0, message, null,
-        context, configuration?.style ?? style);
+    return super.getVideoMessageBubble(
+      videoUrl,
+      thumbnailUrl0,
+      message,
+      null,
+      context,
+      configuration?.style ?? style,
+    );
   }
 
   @override
   Widget getImageMessageBubble(
-      String? imageUrl,
-      String? placeholderImage,
-      String? caption,
-      CometChatImageBubbleStyle? style,
-      MediaMessage message,
-      Function()? onClick,
-      BuildContext context,) {
+    String? imageUrl,
+    String? placeholderImage,
+    String? caption,
+    CometChatImageBubbleStyle? style,
+    MediaMessage message,
+    Function()? onClick,
+    BuildContext context,
+  ) {
     String? thumbnailUrl = checkForThumbnail(message);
     return super.getImageMessageBubble(
-        thumbnailUrl ?? imageUrl,
-        placeholderImage,
-        caption,
-        style,
-        message,
-        () => openImageInFullScreenMode(imageUrl, context),
-        context,
-        );
+      thumbnailUrl ?? imageUrl,
+      placeholderImage,
+      caption,
+      style,
+      message,
+      () => openImageInFullScreenMode(imageUrl, context),
+      context,
+    );
   }
 
   @override
@@ -52,8 +60,9 @@ class ThumbnailGenerationExtensionDecorator extends DataSourceDecorator {
   String? getThumbnailGeneration(BaseMessage baseMessage) {
     String? resultUrl;
     try {
-      Map<String, Map>? extensionList =
-          ExtensionModerator.extensionCheck(baseMessage);
+      Map<String, Map>? extensionList = ExtensionModerator.extensionCheck(
+        baseMessage,
+      );
       if (extensionList != null &&
           extensionList.containsKey(ExtensionConstants.thumbnailGeneration)) {
         Map? thumbnailGeneration =
@@ -82,15 +91,12 @@ class ThumbnailGenerationExtensionDecorator extends DataSourceDecorator {
     return null;
   }
 
-  openImageInFullScreenMode(
-      String? imageUrl, BuildContext context) {
+  dynamic openImageInFullScreenMode(String? imageUrl, BuildContext context) {
     if (imageUrl != null && imageUrl.isNotEmpty) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ImageViewer(
-            imageUrl: imageUrl,
-          ),
+          builder: (context) => ImageViewer(imageUrl: imageUrl),
         ),
       );
     }

@@ -15,12 +15,6 @@
 *.iws
 .idea/
 
-#Example file
-#example/*
-#!example/lib
-#!example/integration_test
-
-
 # Flutter/Dart/Pub related
 .dart_tool/
 .packages
@@ -28,15 +22,17 @@ build/
 pubspec.lock
 .DS_Store
 
+# example/ is published on purpose: pub.dev scores it and renders it on the
+# package page. Only its build output and platform scaffolding are excluded.
 example/ios
 example/android
-example/README.md
-example/lib/
-example/assets
+example/build
+example/.dart_tool
+example/.flutter-plugins
+example/.flutter-plugins-dependencies
+example/pubspec.lock
 example/test
 example/integration_test
-example/pubspec.yaml
-example/analysis_options.yaml
 
 examples/
 doc/

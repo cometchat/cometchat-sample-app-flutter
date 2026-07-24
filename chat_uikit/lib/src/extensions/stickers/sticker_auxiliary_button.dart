@@ -20,14 +20,15 @@ import '../../../../cometchat_chat_uikit.dart';
 ///
 /// ```
 class StickerAuxiliaryButton extends StatefulWidget {
-  const StickerAuxiliaryButton(
-      {super.key,
-      this.keyboardButtonIcon,
-      this.stickerButtonIcon,
-      this.onKeyboardTap,
-      this.onStickerTap,
-      this.stickerIconTint,
-      this.keyboardIconTint});
+  const StickerAuxiliaryButton({
+    super.key,
+    this.keyboardButtonIcon,
+    this.stickerButtonIcon,
+    this.onKeyboardTap,
+    this.onStickerTap,
+    this.stickerIconTint,
+    this.keyboardIconTint,
+  });
 
   ///[stickerButtonIcon] shows stickers keyboard
   final Widget? stickerButtonIcon;
@@ -93,17 +94,14 @@ class _StickerAuxiliaryButtonState extends State<StickerAuxiliaryButton>
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       height: 24,
       width: 24,
       margin: EdgeInsets.only(right: spacing.margin3 ?? 0),
       child: _isStickerButtonActive == true
           ? IconButton(
-        padding:
-        const EdgeInsets.all(0),
-        constraints:
-        const BoxConstraints(),
+              padding: const EdgeInsets.all(0),
+              constraints: const BoxConstraints(),
               onPressed: () {
                 if (widget.onStickerTap != null) {
                   widget.onStickerTap!();
@@ -112,7 +110,8 @@ class _StickerAuxiliaryButtonState extends State<StickerAuxiliaryButton>
                   _isStickerButtonActive = false;
                 });
               },
-              icon: widget.stickerButtonIcon ??
+              icon:
+                  widget.stickerButtonIcon ??
                   Image.asset(
                     AssetConstants.smile,
                     package: UIConstants.packageName,
@@ -122,10 +121,8 @@ class _StickerAuxiliaryButtonState extends State<StickerAuxiliaryButton>
                   ),
             )
           : IconButton(
-        padding:
-        const EdgeInsets.all(0),
-        constraints:
-        const BoxConstraints(),
+              padding: const EdgeInsets.all(0),
+              constraints: const BoxConstraints(),
               onPressed: () {
                 if (widget.onKeyboardTap != null) {
                   widget.onKeyboardTap!();
@@ -134,11 +131,13 @@ class _StickerAuxiliaryButtonState extends State<StickerAuxiliaryButton>
                   _isStickerButtonActive = true;
                 });
               },
-              icon: widget.keyboardButtonIcon ??
+              icon:
+                  widget.keyboardButtonIcon ??
                   Image.asset(
                     AssetConstants.stickerFilled,
                     package: UIConstants.packageName,
-                    color: widget.keyboardIconTint ?? colorPalette.iconHighlight,
+                    color:
+                        widget.keyboardIconTint ?? colorPalette.iconHighlight,
                     height: 24,
                     width: 24,
                   ),

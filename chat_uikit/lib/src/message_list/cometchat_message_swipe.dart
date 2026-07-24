@@ -65,14 +65,14 @@ class SwipeMessage extends StatefulWidget {
   final bool Function()? canSwipeLeft;
 
   const SwipeMessage({
-    Key? key,
+    super.key,
     required this.child,
     this.onSwipeRight,
     this.onSwipeLeft,
     this.enableSwipe = true,
     this.canSwipeRight,
     this.canSwipeLeft,
-  }) : super(key: key);
+  });
 
   @override
   State<SwipeMessage> createState() => _SwipeMessageState();

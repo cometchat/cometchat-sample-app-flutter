@@ -393,7 +393,7 @@ class CometChatMessageComposerController extends GetxController
     super.onInit();
   }
 
-  initAuxiliaryOption() {
+  dynamic initAuxiliaryOption() {
     AdditionalConfigurations additionalConfigurations =
         AdditionalConfigurations(hideStickersButton: hideStickersButton);
     return CometChatUIKit.getDataSource().getAuxiliaryOptions(
@@ -488,7 +488,7 @@ class CometChatMessageComposerController extends GetxController
     );
   }
 
-  populateComposerId() {
+  dynamic populateComposerId() {
     if (parentMessageId != 0) {
       composerId['parentMessageId'] = parentMessageId;
     }
@@ -552,15 +552,19 @@ class CometChatMessageComposerController extends GetxController
         borderRadius:
             suggestionListStyle?.borderRadius ??
             BorderRadius.circular(spacing?.radius4 ?? 0),
+        // The literal here was 0xff10182808, which is 10 hex digits: Color masks
+        // it to 32 bits, so it has always rendered as 0x10182808. Kept
+        // bit-identical rather than corrected to the likely intended #101828,
+        // which would change the shadow's hue.
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff10182808).withOpacity(.03),
+            color: const Color(0x10182808).withValues(alpha: .03),
             spreadRadius: -2,
             blurRadius: 6,
             offset: const Offset(0, 4), // changes position of shadow
           ),
           BoxShadow(
-            color: const Color(0xff10182808).withOpacity(.08),
+            color: const Color(0x10182808).withValues(alpha: .08),
             spreadRadius: -4,
             blurRadius: 16,
             offset: const Offset(0, 12), // changes position of shadow
@@ -649,8 +653,8 @@ class CometChatMessageComposerController extends GetxController
                         )
                         .merge(suggestionListStyle?.textStyle)
                         .copyWith(
-                          color: suggestionListStyle?.textColor?.withOpacity(
-                            0.6,
+                          color: suggestionListStyle?.textColor?.withValues(
+                            alpha: 0.6,
                           ),
                         ),
                 overflow: TextOverflow.ellipsis, // Prevent overflow
@@ -735,7 +739,6 @@ class CometChatMessageComposerController extends GetxController
 
   @override
   void hidePanel(Map<String, dynamic>? id, CustomUIPosition uiPosition) {
-    print("HIDE PANEL is for this ID $id ${isForThisWidget(id)}");
     if (isForThisWidget(id) == false) return;
     if (id?.containsKey(AIUtils.extensionKey) == true) {
       String? extension = id?[AIUtils.extensionKey];
@@ -749,7 +752,6 @@ class CometChatMessageComposerController extends GetxController
     } else if (uiPosition == CustomUIPosition.composerTop) {
       header = null;
     } else if (uiPosition == CustomUIPosition.composerPreview) {
-      print("HIDE PREVIEW PANEL");
       preview = null;
     }
     update();
@@ -760,26 +762,26 @@ class CometChatMessageComposerController extends GetxController
   }
 
   //-----------------------Internal Dependency Initialization-------------------------
-  initializeHeaderView() {
+  dynamic initializeHeaderView() {
     if (headerView != null) {
       header = headerView!(context, user, group, composerId);
     }
   }
 
-  initializeFooterView() {
+  dynamic initializeFooterView() {
     if (footerView != null) {
       footer = footerView!(context, user, group, composerId);
     }
   }
 
-  _getLoggedInUser() async {
+  Future<void> _getLoggedInUser() async {
     User? user = await CometChat.getLoggedInUser();
     if (user != null) {
       loggedInUser = user;
     }
   }
 
-  getAttachmentOptions(
+  dynamic getAttachmentOptions(
     BuildContext context,
     CometChatColorPalette colorPalette,
     CometChatTypography typography,
@@ -892,7 +894,7 @@ class CometChatMessageComposerController extends GetxController
 
   //-----------------------methods performing API calls-----------------------------
 
-  _checkFormatter() {
+  void _checkFormatter() {
     for (var element in _formatters) {
       if (_currentSearchKeyword == null ||
           (_currentSearchKeyword != null &&
@@ -909,7 +911,7 @@ class CometChatMessageComposerController extends GetxController
     }
   }
 
-  _onTyping() {
+  void _onTyping() {
     if (textEditingController == null) return;
     if ((_previousText.isEmpty && textEditingController!.text.isNotEmpty) ||
         (_previousText.isNotEmpty && textEditingController!.text.isEmpty) ||
@@ -953,13 +955,13 @@ class CometChatMessageComposerController extends GetxController
     }
   }
 
-  handlePreMessageSend(BaseMessage baseMessage) {
+  dynamic handlePreMessageSend(BaseMessage baseMessage) {
     for (var element in _formatters) {
       element.handlePreMessageSend(context, baseMessage);
     }
   }
 
-  sendTextMessage({Map<String, dynamic>? metadata}) {
+  dynamic sendTextMessage({Map<String, dynamic>? metadata}) {
     if (textEditingController == null) return;
     String messagesText = textEditingController!.text;
     String type = MessageTypeConstants.text;
@@ -1103,7 +1105,7 @@ class CometChatMessageComposerController extends GetxController
     return false;
   }
 
-  sendMediaMessage({
+  dynamic sendMediaMessage({
     required String path,
     required String messageType,
     Map<String, dynamic>? metadata,
@@ -1208,7 +1210,7 @@ class CometChatMessageComposerController extends GetxController
     return original.trim() != edited.trim();
   }
 
-  editTextMessage() {
+  dynamic editTextMessage() {
     if (textEditingController == null) return;
     final newText = textEditingController!.text;
     final oldText = (oldMessage as TextMessage).text;
@@ -1263,7 +1265,7 @@ class CometChatMessageComposerController extends GetxController
     update();
   }
 
-  sendCustomMessage(Map<String, String> customData, String type) {
+  dynamic sendCustomMessage(Map<String, String> customData, String type) {
     CustomMessage customMessage = CustomMessage(
       receiverUid: receiverID,
       type: type,
@@ -1315,7 +1317,7 @@ class CometChatMessageComposerController extends GetxController
     );
   }
 
-  hideReplyPreview() {
+  dynamic hideReplyPreview() {
     if (overlayPortalController.isShowing) {
       overlayPortalController.hide();
     }
@@ -1327,7 +1329,7 @@ class CometChatMessageComposerController extends GetxController
     update();
   }
 
-  sendReplyMessage({
+  dynamic sendReplyMessage({
     Map<String, dynamic>? metadata,
     BaseMessage? quotedMessage,
   }) {
@@ -1411,14 +1413,14 @@ class CometChatMessageComposerController extends GetxController
 
   //----------------------------methods used internally----------------------------
   //triggered if developer doesn't pass their onChange handler
-  onChange(val) {
+  dynamic onChange(dynamic val) {
     //we are not exposing our internal onChange handler
     //hence allowing a to interact with our controller only through a limited interface
     _onTyping();
   }
 
   //triggers message preview view of the message composer view
-  previewMessage(BaseMessage message, PreviewMessageMode mode) {
+  dynamic previewMessage(BaseMessage message, PreviewMessageMode mode) {
     if (mode == PreviewMessageMode.edit) {
       messagePreviewTitle = cc.Translations.of(context).editMessage;
       overlayPortalController.show();
@@ -1513,7 +1515,7 @@ class CometChatMessageComposerController extends GetxController
   }
 
   //shows attachment options
-  showBottomActionSheet(
+  dynamic showBottomActionSheet(
     BuildContext context,
     CometChatColorPalette colorPalette,
     CometChatTypography typography,
@@ -1607,7 +1609,7 @@ class CometChatMessageComposerController extends GetxController
   }
 
   //shows CometChat's emoji keyboard
-  useEmojis(BuildContext context) async {
+  dynamic useEmojis(BuildContext context) async {
     String? emoji = await showCometChatEmojiKeyboard(
       context: context,
       colorPalette:
@@ -1626,7 +1628,7 @@ class CometChatMessageComposerController extends GetxController
   }
 
   //triggered if developer doesn't pass their onSendButtonClick handler
-  onSendButtonClick() {
+  dynamic onSendButtonClick() {
     final isAiBusy = isUserAgentic() && isActiveStreaming;
     if (isAiBusy) {
       return;
@@ -1649,7 +1651,7 @@ class CometChatMessageComposerController extends GetxController
   }
 
   //closes message preview view
-  onMessagePreviewClose({bool clearText = true, bool isReply = false}) {
+  dynamic onMessagePreviewClose({bool clearText = true, bool isReply = false}) {
     if (isReply == true && quotedMessage != null) {
       CometChatMessageEvents.ccReplyToMessage(
         quotedMessage!,
@@ -1679,7 +1681,7 @@ class CometChatMessageComposerController extends GetxController
   }
 
   //plays sound on message sent
-  _playSound() {
+  void _playSound() {
     if (disableSoundForMessages == false) {
       CometChatUIKit.soundManager.play(
         sound: Sound.outgoingMessage,
@@ -1693,7 +1695,7 @@ class CometChatMessageComposerController extends GetxController
   }
 
   //inserts emojis to correct position in the text
-  _addEmojiToText(String emoji) {
+  void _addEmojiToText(String emoji) {
     if (textEditingController == null) return;
     int cursorPosition = textEditingController!.selection.base.offset;
     if (cursorPosition == -1) {
@@ -1781,7 +1783,7 @@ class CometChatMessageComposerController extends GetxController
     }
   }
 
-  aiButtonTap(
+  dynamic aiButtonTap(
     BuildContext context,
     id,
     CometChatAiOptionSheetStyle? aiOptionSheetStyle,

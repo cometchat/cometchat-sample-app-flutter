@@ -5,10 +5,7 @@ import '../../cometchat_chat_uikit.dart';
 import '../../cometchat_chat_uikit.dart' as cc;
 
 class CometChatSearchController extends GetxController {
-  CometChatSearchController({
-    this.searchFilters,
-    this.searchScopes,
-  });
+  CometChatSearchController({this.searchFilters, this.searchScopes});
 
   /// [searchFilters] list of filters to be shown in the search screen
   final List<SearchFilter>? searchFilters;
@@ -89,19 +86,18 @@ class CometChatSearchController extends GetxController {
     // Build filters from provided searchFilters or defaults
     final baseFilters = searchFilters ?? defaultFilterLabels;
 
-    filters = baseFilters.map((filter) {
-      final id = filterIds[filter] ?? "";
-      final label = _mapEnumToLabel(filter);
-      final icon = filterIcons[id] ?? Icons.filter_alt_outlined;
+    filters = baseFilters
+        .map((filter) {
+          final id = filterIds[filter] ?? "";
+          final label = _mapEnumToLabel(filter);
+          final icon = filterIcons[id] ?? Icons.filter_alt_outlined;
 
-      return FilterItem(
-        id,
-        label,
-        icon,
-      );
-    }).where((item) {
-      return allowedFilterLabels.contains(item.id);
-    }).toList();
+          return FilterItem(id, label, icon);
+        })
+        .where((item) {
+          return allowedFilterLabels.contains(item.id);
+        })
+        .toList();
 
     super.onInit();
   }
@@ -117,11 +113,11 @@ class CometChatSearchController extends GetxController {
       selectedFilters.contains("Unread") || selectedFilters.contains("Groups");
 
   List<Set<String>> get filterGroups => [
-        {SearchConstants.unread, SearchConstants.groups},
-        {SearchConstants.photos, SearchConstants.videos},
-        {SearchConstants.audio, SearchConstants.documents},
-        {SearchConstants.links},
-      ];
+    {SearchConstants.unread, SearchConstants.groups},
+    {SearchConstants.photos, SearchConstants.videos},
+    {SearchConstants.audio, SearchConstants.documents},
+    {SearchConstants.links},
+  ];
 
   List<FilterItem> get visibleFilters {
     if (selectedFilters.isEmpty) {
@@ -144,7 +140,7 @@ class CometChatSearchController extends GetxController {
     return filters.where((f) => visibleLabels.contains(f.label)).toList();
   }
 
-  getScope() {
+  dynamic getScope() {
     final List<SearchScope> effectiveScopes;
     if (searchScopes != null && searchScopes!.isNotEmpty) {
       effectiveScopes = searchScopes!;
@@ -153,8 +149,9 @@ class CometChatSearchController extends GetxController {
     }
 
     if (effectiveScopes.isNotEmpty) {
-      showConversationsSearch =
-          effectiveScopes.contains(SearchScope.conversations);
+      showConversationsSearch = effectiveScopes.contains(
+        SearchScope.conversations,
+      );
       showMessagesSearch = effectiveScopes.contains(SearchScope.messages);
     }
     if (showConversationsSearch && showMessagesSearch) {
@@ -163,7 +160,7 @@ class CometChatSearchController extends GetxController {
     }
   }
 
-  getAllowedLabels() {
+  dynamic getAllowedLabels() {
     if (showConversationsSearch && showMessagesSearch) {
       // Both scopes — show all filters
       allowedFilterLabels = [
@@ -177,10 +174,7 @@ class CometChatSearchController extends GetxController {
       ];
     } else if (showConversationsSearch) {
       // Only conversations — show unread + groups
-      allowedFilterLabels = [
-        SearchConstants.unread,
-        SearchConstants.groups,
-      ];
+      allowedFilterLabels = [SearchConstants.unread, SearchConstants.groups];
     } else if (showMessagesSearch) {
       // Only messages — show media filters
       allowedFilterLabels = [
@@ -201,37 +195,40 @@ class CometChatSearchController extends GetxController {
     _isProcessingTap = true;
 
     try {
-    // Find which group this filter belongs to
-    final group = filterGroups.firstWhere((g) => g.contains(label),
-        orElse: () => {label});
+      // Find which group this filter belongs to
+      final group = filterGroups.firstWhere(
+        (g) => g.contains(label),
+        orElse: () => {label},
+      );
 
-    // Check if we should reorder
-    bool shouldReorder = true;
+      // Check if we should reorder
+      bool shouldReorder = true;
 
-    if (group.length > 1) {
-      // If any other filter from the same group is already selected
-      final otherSelectedInGroup = group
-          .any((gLabel) => gLabel != label && selectedFilters.contains(gLabel));
+      if (group.length > 1) {
+        // If any other filter from the same group is already selected
+        final otherSelectedInGroup = group.any(
+          (gLabel) => gLabel != label && selectedFilters.contains(gLabel),
+        );
 
-      if (otherSelectedInGroup) {
-        shouldReorder = false; // Prevent reordering
+        if (otherSelectedInGroup) {
+          shouldReorder = false; // Prevent reordering
+        }
       }
-    }
 
-    if (shouldReorder) {
-      filters = filters.toList();
-      int index = filters.indexWhere((f) => f.label == label);
-      if (index != -1) {
-        final tappedFilter = filters[index];
-        final reordered = [
-          tappedFilter,
-          ...filters.where((f) => f.label != label)
-        ];
-        filters
-          ..clear()
-          ..addAll(reordered);
+      if (shouldReorder) {
+        filters = filters.toList();
+        int index = filters.indexWhere((f) => f.label == label);
+        if (index != -1) {
+          final tappedFilter = filters[index];
+          final reordered = [
+            tappedFilter,
+            ...filters.where((f) => f.label != label),
+          ];
+          filters
+            ..clear()
+            ..addAll(reordered);
+        }
       }
-    }
 
       // Check if tapped filter is already selected (toggle off)
       if (selectedFilters.contains(label)) {
@@ -263,16 +260,19 @@ class CometChatSearchController extends GetxController {
   void _toggleConversationOrMessages() {
     final filters = selectedFilters.toList();
 
-    final hasConversationFilters = filters.contains(SearchConstants.unread) ||
+    final hasConversationFilters =
+        filters.contains(SearchConstants.unread) ||
         filters.contains(SearchConstants.groups);
 
-    final hasMessageFilters = filters.any((filter) => [
-          SearchConstants.photos,
-          SearchConstants.videos,
-          SearchConstants.links,
-          SearchConstants.documents,
-          SearchConstants.audio
-        ].contains(filter));
+    final hasMessageFilters = filters.any(
+      (filter) => [
+        SearchConstants.photos,
+        SearchConstants.videos,
+        SearchConstants.links,
+        SearchConstants.documents,
+        SearchConstants.audio,
+      ].contains(filter),
+    );
 
     if (hasConversationFilters && !hasMessageFilters) {
       showConversationsSearch = true;
@@ -326,7 +326,8 @@ class CometChatSearchController extends GetxController {
   /// Determines if the conversation list should be visible
   bool shouldShowConversationList() {
     final hasSearchText = searchText.trim().isNotEmpty;
-    final hasConversationFilters = selectedFilters.isNotEmpty &&
+    final hasConversationFilters =
+        selectedFilters.isNotEmpty &&
         (selectedFilters.contains(SearchConstants.unread) ||
             selectedFilters.contains(SearchConstants.groups));
 
@@ -347,7 +348,8 @@ class CometChatSearchController extends GetxController {
   /// Determines if the message list should be visible
   bool shouldShowMessageList() {
     final hasSearchText = searchText.trim().isNotEmpty;
-    final hasMessageFilters = selectedFilters.isNotEmpty &&
+    final hasMessageFilters =
+        selectedFilters.isNotEmpty &&
         (selectedFilters.contains(SearchConstants.photos) ||
             selectedFilters.contains(SearchConstants.videos) ||
             selectedFilters.contains(SearchConstants.audio) ||

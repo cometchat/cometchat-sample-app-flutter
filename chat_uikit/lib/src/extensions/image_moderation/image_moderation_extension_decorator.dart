@@ -11,15 +11,23 @@ class ImageModerationExtensionDecorator extends DataSourceDecorator {
     getLoggedInUser();
   }
 
-  getLoggedInUser() async {
+  dynamic getLoggedInUser() async {
     loggedInUser = await CometChat.getLoggedInUser();
   }
 
   @override
-  Widget getImageMessageContentView(MediaMessage message, BuildContext context,
-      BubbleAlignment alignment,{AdditionalConfigurations? additionalConfigurations}) {
-    Widget child =
-        super.getImageMessageContentView(message, context, alignment,additionalConfigurations: additionalConfigurations);
+  Widget getImageMessageContentView(
+    MediaMessage message,
+    BuildContext context,
+    BubbleAlignment alignment, {
+    AdditionalConfigurations? additionalConfigurations,
+  }) {
+    Widget child = super.getImageMessageContentView(
+      message,
+      context,
+      alignment,
+      additionalConfigurations: additionalConfigurations,
+    );
     if (message.sender?.uid == loggedInUser?.uid) {
       return child;
     }
@@ -27,7 +35,7 @@ class ImageModerationExtensionDecorator extends DataSourceDecorator {
     return getImageContent(message, child);
   }
 
-  getImageContent(MediaMessage message, Widget child) {
+  dynamic getImageContent(MediaMessage message, Widget child) {
     return ImageModerationFilter(
       key: UniqueKey(),
       message: message,

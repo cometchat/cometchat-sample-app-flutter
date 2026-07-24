@@ -8,8 +8,11 @@ class LiveReactionAnimation extends StatefulWidget {
   final VoidCallback? endAnimation;
   final String reaction;
 
-  const LiveReactionAnimation(
-      {super.key, this.endAnimation, required this.reaction});
+  const LiveReactionAnimation({
+    super.key,
+    this.endAnimation,
+    required this.reaction,
+  });
 
   @override
   State<LiveReactionAnimation> createState() => _LiveReactionAnimationState();
@@ -26,8 +29,9 @@ class _LiveReactionAnimationState extends State<LiveReactionAnimation>
     super.initState();
 
     _controller = AnimationController(
-        duration: const Duration(milliseconds: LiveReactionConstants.timeout),
-        vsync: this);
+      duration: const Duration(milliseconds: LiveReactionConstants.timeout),
+      vsync: this,
+    );
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {

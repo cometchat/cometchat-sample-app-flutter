@@ -1,11 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
 ///[CometChatMessageHeaderStyle] is a data class that has styling-related properties
 ///to customize the appearance of [CometChatMessageHeader]
-class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderStyle> {
+class CometChatMessageHeaderStyle
+    extends ThemeExtension<CometChatMessageHeaderStyle> {
   ///message header style components
   const CometChatMessageHeaderStyle({
     this.onlineStatusColor,
@@ -139,11 +138,18 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
       subtitleTextColor: subtitleTextColor ?? this.subtitleTextColor,
       backIconColor: backIconColor ?? this.backIconColor,
-      privateGroupBadgeIcon: privateGroupBadgeIcon ?? this.privateGroupBadgeIcon,
-      passwordProtectedGroupBadgeIcon: passwordProtectedGroupBadgeIcon ?? this.passwordProtectedGroupBadgeIcon,
-      privateGroupBadgeIconColor: privateGroupBadgeIconColor ?? this.privateGroupBadgeIconColor,
-      passwordProtectedGroupBadgeIconColor: passwordProtectedGroupBadgeIconColor ?? this.passwordProtectedGroupBadgeIconColor,
-      groupIconBackgroundColor: groupIconBackgroundColor ?? this.groupIconBackgroundColor,
+      privateGroupBadgeIcon:
+          privateGroupBadgeIcon ?? this.privateGroupBadgeIcon,
+      passwordProtectedGroupBadgeIcon:
+          passwordProtectedGroupBadgeIcon ??
+          this.passwordProtectedGroupBadgeIcon,
+      privateGroupBadgeIconColor:
+          privateGroupBadgeIconColor ?? this.privateGroupBadgeIconColor,
+      passwordProtectedGroupBadgeIconColor:
+          passwordProtectedGroupBadgeIconColor ??
+          this.passwordProtectedGroupBadgeIconColor,
+      groupIconBackgroundColor:
+          groupIconBackgroundColor ?? this.groupIconBackgroundColor,
       avatarStyle: avatarStyle ?? this.avatarStyle,
       callButtonsStyle: callButtonsStyle ?? this.callButtonsStyle,
       statusIndicatorStyle: statusIndicatorStyle ?? this.statusIndicatorStyle,
@@ -169,7 +175,8 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
       privateGroupBadgeIcon: style.privateGroupBadgeIcon,
       passwordProtectedGroupBadgeIcon: style.passwordProtectedGroupBadgeIcon,
       privateGroupBadgeIconColor: style.privateGroupBadgeIconColor,
-      passwordProtectedGroupBadgeIconColor: style.passwordProtectedGroupBadgeIconColor,
+      passwordProtectedGroupBadgeIconColor:
+          style.passwordProtectedGroupBadgeIconColor,
       groupIconBackgroundColor: style.groupIconBackgroundColor,
       avatarStyle: style.avatarStyle,
       callButtonsStyle: style.callButtonsStyle,
@@ -181,29 +188,78 @@ class CometChatMessageHeaderStyle extends ThemeExtension<CometChatMessageHeaderS
   }
 
   @override
-  CometChatMessageHeaderStyle lerp(CometChatMessageHeaderStyle? other, double t) {
+  CometChatMessageHeaderStyle lerp(
+    CometChatMessageHeaderStyle? other,
+    double t,
+  ) {
     return CometChatMessageHeaderStyle(
-      typingIndicatorTextStyle: TextStyle.lerp(typingIndicatorTextStyle, other?.typingIndicatorTextStyle, t),
-      subtitleTextStyle: TextStyle.lerp(subtitleTextStyle, other?.subtitleTextStyle, t),
-      onlineStatusColor: Color.lerp(onlineStatusColor, other?.onlineStatusColor, t),
+      typingIndicatorTextStyle: TextStyle.lerp(
+        typingIndicatorTextStyle,
+        other?.typingIndicatorTextStyle,
+        t,
+      ),
+      subtitleTextStyle: TextStyle.lerp(
+        subtitleTextStyle,
+        other?.subtitleTextStyle,
+        t,
+      ),
+      onlineStatusColor: Color.lerp(
+        onlineStatusColor,
+        other?.onlineStatusColor,
+        t,
+      ),
       backgroundColor: Color.lerp(backgroundColor, other?.backgroundColor, t),
       border: BoxBorder.lerp(border, other?.border, t),
-      borderRadius: BorderRadiusGeometry.lerp(borderRadius, other?.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other?.borderRadius,
+        t,
+      ),
       titleTextColor: Color.lerp(titleTextColor, other?.titleTextColor, t),
       titleTextStyle: TextStyle.lerp(titleTextStyle, other?.titleTextStyle, t),
-      subtitleTextColor: Color.lerp(subtitleTextColor, other?.subtitleTextColor, t),
+      subtitleTextColor: Color.lerp(
+        subtitleTextColor,
+        other?.subtitleTextColor,
+        t,
+      ),
       backIconColor: Color.lerp(backIconColor, other?.backIconColor, t),
       backIcon: other?.backIcon ?? backIcon,
-      privateGroupBadgeIcon: other?.privateGroupBadgeIcon ?? privateGroupBadgeIcon,
-      passwordProtectedGroupBadgeIcon: other?.passwordProtectedGroupBadgeIcon ?? passwordProtectedGroupBadgeIcon,
-      groupIconBackgroundColor: Color.lerp(groupIconBackgroundColor, other?.groupIconBackgroundColor, t),
-      passwordProtectedGroupBadgeIconColor: Color.lerp(passwordProtectedGroupBadgeIconColor, other?.passwordProtectedGroupBadgeIconColor, t),
-      privateGroupBadgeIconColor: Color.lerp(privateGroupBadgeIconColor, other?.privateGroupBadgeIconColor, t),
+      privateGroupBadgeIcon:
+          other?.privateGroupBadgeIcon ?? privateGroupBadgeIcon,
+      passwordProtectedGroupBadgeIcon:
+          other?.passwordProtectedGroupBadgeIcon ??
+          passwordProtectedGroupBadgeIcon,
+      groupIconBackgroundColor: Color.lerp(
+        groupIconBackgroundColor,
+        other?.groupIconBackgroundColor,
+        t,
+      ),
+      passwordProtectedGroupBadgeIconColor: Color.lerp(
+        passwordProtectedGroupBadgeIconColor,
+        other?.passwordProtectedGroupBadgeIconColor,
+        t,
+      ),
+      privateGroupBadgeIconColor: Color.lerp(
+        privateGroupBadgeIconColor,
+        other?.privateGroupBadgeIconColor,
+        t,
+      ),
       avatarStyle: avatarStyle?.lerp(other?.avatarStyle, t),
       callButtonsStyle: callButtonsStyle?.lerp(other?.callButtonsStyle, t),
-      statusIndicatorStyle: statusIndicatorStyle?.lerp(other?.statusIndicatorStyle, t),
-      newChatIconColor: Color.lerp(newChatIconColor, other?.newChatIconColor, t),
-      chatHistoryIconColor: Color.lerp(chatHistoryIconColor, other?.chatHistoryIconColor, t),
+      statusIndicatorStyle: statusIndicatorStyle?.lerp(
+        other?.statusIndicatorStyle,
+        t,
+      ),
+      newChatIconColor: Color.lerp(
+        newChatIconColor,
+        other?.newChatIconColor,
+        t,
+      ),
+      chatHistoryIconColor: Color.lerp(
+        chatHistoryIconColor,
+        other?.chatHistoryIconColor,
+        t,
+      ),
       menuIconColor: Color.lerp(menuIconColor, other?.menuIconColor, t),
     );
   }

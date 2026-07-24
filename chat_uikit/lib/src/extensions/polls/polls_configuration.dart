@@ -57,7 +57,6 @@ class PollsConfiguration {
     this.optionStyle,
   });
 
-
   ///[pollsBubbleStyle] styling parameters for polls bubble
   final CometChatPollsBubbleStyle? pollsBubbleStyle;
 

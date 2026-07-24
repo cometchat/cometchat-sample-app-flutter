@@ -8,9 +8,12 @@ class ThumbnailGenerationExtension extends ExtensionsDataSource {
 
   @override
   void addExtension() {
-    ChatConfigurator.enable((dataSource) =>
-        ThumbnailGenerationExtensionDecorator(dataSource,
-            configuration: configuration));
+    ChatConfigurator.enable(
+      (dataSource) => ThumbnailGenerationExtensionDecorator(
+        dataSource,
+        configuration: configuration,
+      ),
+    );
   }
 
   @override

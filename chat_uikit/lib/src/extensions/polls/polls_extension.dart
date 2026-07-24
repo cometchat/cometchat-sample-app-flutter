@@ -9,8 +9,10 @@ class PollsExtension extends ExtensionsDataSource {
 
   @override
   void addExtension() {
-    ChatConfigurator.enable((dataSource) =>
-        PollsExtensionDecorator(dataSource, configuration: configuration));
+    ChatConfigurator.enable(
+      (dataSource) =>
+          PollsExtensionDecorator(dataSource, configuration: configuration),
+    );
   }
 
   @override

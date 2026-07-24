@@ -19,20 +19,15 @@ class CometChatConversationsSearchController
         CometChatConversationEventListener
     implements CometChatConversationsControllerProtocol {
   CometChatConversationsSearchController({
-    required BuilderProtocol builderProtocol,
-    Function(Exception)? onError,
-    OnLoad<Conversation>? onLoad,
-    OnEmpty? onEmpty,
+    required super.builderProtocol,
+    super.onError,
+    super.onLoad,
+    super.onEmpty,
     this.usersStatusVisibility = true,
     this.groupTypeVisibility = true,
     this.receiptsVisibility = true,
     this.tag,
-  }) : super(
-          builderProtocol: builderProtocol,
-          onError: onError,
-          onLoad: onLoad,
-          onEmpty: onEmpty,
-        ) {
+  }) {
     dateStamp = DateTime.now().microsecondsSinceEpoch.toString();
 
     groupSDKListenerID = "${dateStamp}_group_sdk_listener";
@@ -84,7 +79,11 @@ class CometChatConversationsSearchController
 
   late CometChatSearchController searchController;
 
+  // super.onInit() is deliberately not called: CometChatListController.onInit()
+  // kicks off loadMoreElements(), and a search list must stay empty until the
+  // user actually searches. Calling it would fetch on open.
   @override
+  // ignore: must_call_super
   void onInit() {
     isLoading = false;
     loadUtils();
@@ -106,11 +105,13 @@ class CometChatConversationsSearchController
     CometChat.addCallListener(_conversationListenerId, this);
     CometChat.addConnectionListener(_conversationListenerId, this);
     CometChatConversationEvents.addConversationListListener(
-        _conversationEventListenerId, this);
+      _conversationEventListenerId,
+      this,
+    );
     initializeTextFormatters();
   }
 
-  loadUtils() async {
+  dynamic loadUtils() async {
     loggedInUser = await CometChat.getLoggedInUser();
     if (loggedInUser != null) {
       loggedInUserId = loggedInUser!.uid;
@@ -131,7 +132,8 @@ class CometChatConversationsSearchController
     CometChat.removeCallListener(_conversationListenerId);
     CometChat.removeConnectionListener(_conversationListenerId);
     CometChatConversationEvents.removeConversationListListener(
-        _conversationEventListenerId);
+      _conversationEventListenerId,
+    );
     selectedFilters.clear();
     list.clear();
     super.onClose();
@@ -163,7 +165,7 @@ class CometChatConversationsSearchController
 
   Future<void> _loadMoreWithVersionCheck(int requestVersion) async {
     if (isFetching) return;
-    
+
     isFetching = true;
     isLoading = true;
 
@@ -171,12 +173,12 @@ class CometChatConversationsSearchController
       await request.fetchNext(
         onSuccess: (List<Conversation> fetchedList) {
           isFetching = false;
-          
+
           // Ignore results if request version has changed
           if (requestVersion != _requestVersion) {
             return;
           }
-          
+
           if (fetchedList.isEmpty) {
             isLoading = false;
             hasMoreItems = false;
@@ -192,12 +194,12 @@ class CometChatConversationsSearchController
         },
         onError: (CometChatException e) {
           isFetching = false;
-          
+
           // Ignore errors if request version has changed
           if (requestVersion != _requestVersion) {
             return;
           }
-          
+
           error = e;
           hasError = true;
           isLoading = false;
@@ -208,12 +210,12 @@ class CometChatConversationsSearchController
       );
     } catch (e, s) {
       isFetching = false;
-      
+
       // Ignore errors if request version has changed
       if (requestVersion != _requestVersion) {
         return;
       }
-      
+
       error = CometChatException("ERR", s.toString(), "Error");
       hasError = true;
       isLoading = false;
@@ -223,8 +225,10 @@ class CometChatConversationsSearchController
     }
   }
 
-  void handleSearchAndFilters(
-      {String? searchText, Set<String>? filters}) async {
+  void handleSearchAndFilters({
+    String? searchText,
+    Set<String>? filters,
+  }) async {
     final currentFilters = filters ?? selectedFilters;
     final currentSearch = (searchText ?? searchController.searchText).trim();
 
@@ -245,7 +249,7 @@ class CometChatConversationsSearchController
 
     // Cancel any pending debounced operations first
     deBouncer.cancel();
-    
+
     // Increment request version to invalidate any in-flight requests
     _requestVersion++;
     final currentRequestVersion = _requestVersion;
@@ -293,7 +297,7 @@ class CometChatConversationsSearchController
       if (currentRequestVersion != _requestVersion) {
         return;
       }
-      
+
       await _loadMoreWithVersionCheck(currentRequestVersion);
     });
   }
@@ -376,8 +380,12 @@ class CometChatConversationsSearchController
   }
 
   @override
-  void ccGroupMemberAdded(List<cc.Action> messages, List<User> usersAdded,
-      Group groupAddedIn, User addedBy) {
+  void ccGroupMemberAdded(
+    List<cc.Action> messages,
+    List<User> usersAdded,
+    Group groupAddedIn,
+    User addedBy,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -388,12 +396,12 @@ class CometChatConversationsSearchController
 
   //-----------Message Listeners------------------------------------------------
 
-  _onMessageReceived(BaseMessage message, bool isActionMessage) {
+  void _onMessageReceived(BaseMessage message, bool isActionMessage) {
     // Deduplicate: Skip if this message was recently processed
     if (message.id > 0 && _recentlyProcessedMessageIds.contains(message.id)) {
       return;
     }
-    
+
     // Add to recently processed set and remove after delay
     if (message.id > 0) {
       _recentlyProcessedMessageIds.add(message.id);
@@ -401,7 +409,7 @@ class CometChatConversationsSearchController
         _recentlyProcessedMessageIds.remove(message.id);
       });
     }
-    
+
     if (message.sender!.uid != loggedInUserId) {
       CometChat.markAsDelivered(message, onSuccess: (_) {}, onError: (_) {});
     }
@@ -504,7 +512,8 @@ class CometChatConversationsSearchController
 
   @override
   void onCustomInteractiveMessageReceived(
-      CustomInteractiveMessage customInteractiveMessage) {
+    CustomInteractiveMessage customInteractiveMessage,
+  ) {
     if (_checkMessageSettings(customInteractiveMessage)) {
       return;
     }
@@ -533,9 +542,11 @@ class CometChatConversationsSearchController
     if (builderProtocol.requestBuilder.includeBlockedUsers == true) {
       return;
     }
-    int matchingIndex = list.indexWhere((Conversation conversation) =>
-        (conversation.conversationType == ReceiverTypeConstants.user &&
-            (conversation.conversationWith as User).uid == user.uid));
+    int matchingIndex = list.indexWhere(
+      (Conversation conversation) =>
+          (conversation.conversationType == ReceiverTypeConstants.user &&
+          (conversation.conversationWith as User).uid == user.uid),
+    );
     if (matchingIndex >= 0 && matchingIndex < list.length) {
       removeElementAt(matchingIndex);
     } else {
@@ -568,7 +579,11 @@ class CometChatConversationsSearchController
 
   @override
   onGroupMemberKicked(
-      cc.Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    cc.Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -581,7 +596,11 @@ class CometChatConversationsSearchController
 
   @override
   void ccGroupMemberKicked(
-      cc.Action message, User kickedUser, User kickedBy, Group kickedFrom) {
+    cc.Action message,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -594,7 +613,11 @@ class CometChatConversationsSearchController
 
   @override
   onGroupMemberBanned(
-      cc.Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    cc.Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -606,8 +629,12 @@ class CometChatConversationsSearchController
   }
 
   @override
-  onGroupMemberUnbanned(cc.Action action, User unbannedUser, User unbannedBy,
-      Group unbannedFrom) {
+  onGroupMemberUnbanned(
+    cc.Action action,
+    User unbannedUser,
+    User unbannedBy,
+    Group unbannedFrom,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -615,8 +642,14 @@ class CometChatConversationsSearchController
   }
 
   @override
-  onGroupMemberScopeChanged(cc.Action action, User updatedBy, User updatedUser,
-      String scopeChangedTo, String scopeChangedFrom, Group group) {
+  onGroupMemberScopeChanged(
+    cc.Action action,
+    User updatedBy,
+    User updatedUser,
+    String scopeChangedTo,
+    String scopeChangedFrom,
+    Group group,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -625,7 +658,11 @@ class CometChatConversationsSearchController
 
   @override
   onMemberAddedToGroup(
-      cc.Action action, User addedby, User userAdded, Group addedTo) {
+    cc.Action action,
+    User addedby,
+    User userAdded,
+    Group addedTo,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -647,7 +684,11 @@ class CometChatConversationsSearchController
 
   @override
   void ccGroupMemberBanned(
-      cc.Action message, User bannedUser, User bannedBy, Group bannedFrom) {
+    cc.Action message,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     if (_checkGroupSettings() == false) {
       return;
     }
@@ -662,9 +703,11 @@ class CometChatConversationsSearchController
 
   @override
   updateUserStatus(User user, String status) {
-    int matchingIndex = list.indexWhere((element) =>
-        (element.conversationType == ReceiverTypeConstants.user &&
-            (element.conversationWith as User).uid == user.uid));
+    int matchingIndex = list.indexWhere(
+      (element) =>
+          (element.conversationType == ReceiverTypeConstants.user &&
+          (element.conversationWith as User).uid == user.uid),
+    );
 
     if (matchingIndex != -1) {
       (list[matchingIndex].conversationWith as User).status = status;
@@ -702,8 +745,9 @@ class CometChatConversationsSearchController
       removeElementAt(matchingIndex);
       addElement(conversation);
     } else {
-      final conversation =
-          await CometChatHelper.getConversationFromMessage(message);
+      final conversation = await CometChatHelper.getConversationFromMessage(
+        message,
+      );
       if (conversation != null) {
         addElement(conversation);
       }
@@ -712,9 +756,11 @@ class CometChatConversationsSearchController
 
   @override
   updateGroup(Group group) {
-    int matchingIndex = list.indexWhere((element) =>
-        ((element.conversationWith is Group) &&
-            ((element.conversationWith as Group).guid == group.guid)));
+    int matchingIndex = list.indexWhere(
+      (element) =>
+          ((element.conversationWith is Group) &&
+          ((element.conversationWith as Group).guid == group.guid)),
+    );
 
     if (matchingIndex != -1) {
       list[matchingIndex].conversationWith = group;
@@ -724,9 +770,11 @@ class CometChatConversationsSearchController
 
   @override
   removeGroup(String guid) {
-    int matchingIndex = list.indexWhere((element) =>
-        ((element.conversationWith is Group) &&
-            ((element.conversationWith as Group).guid == guid)));
+    int matchingIndex = list.indexWhere(
+      (element) =>
+          ((element.conversationWith is Group) &&
+          ((element.conversationWith as Group).guid == guid)),
+    );
 
     if (matchingIndex != -1) {
       removeElementAt(matchingIndex);
@@ -746,11 +794,15 @@ class CometChatConversationsSearchController
   }
 
   @override
-  refreshSingleConversation(BaseMessage message, bool isActionMessage,
-      {bool? remove}) async {
+  refreshSingleConversation(
+    BaseMessage message,
+    bool isActionMessage, {
+    bool? remove,
+  }) async {
     if (checkMessageIsAllowed(message)) {
-      final conversation =
-          await CometChatHelper.getConversationFromMessage(message);
+      final conversation = await CometChatHelper.getConversationFromMessage(
+        message,
+      );
       if (conversation != null) {
         conversation.lastMessage = message;
         conversation.updatedAt = message.updatedAt;
@@ -769,7 +821,8 @@ class CometChatConversationsSearchController
     int matchingIndex = getMatchingIndex(conversation);
 
     bool incrementUnreadCount = false;
-    bool isCategoryMessage = (conversation.lastMessage!.category ==
+    bool isCategoryMessage =
+        (conversation.lastMessage!.category ==
             MessageCategoryConstants.message) ||
         (conversation.lastMessage!.category ==
             MessageCategoryConstants.interactive) ||
@@ -777,8 +830,8 @@ class CometChatConversationsSearchController
     if (conversation.lastMessage is CustomMessage) {
       final message = conversation.lastMessage as CustomMessage;
       if (message.updateConversation == true ||
-          (conversation.lastMessage?.metadata?[
-                      UpdateSettingsConstant.incrementUnreadCount] ??
+          (conversation.lastMessage?.metadata?[UpdateSettingsConstant
+                      .incrementUnreadCount] ??
                   false) ==
               true ||
           (CometChatUIKit.conversationUpdateSettings?.customMessages ??
@@ -816,7 +869,7 @@ class CometChatConversationsSearchController
     update();
   }
 
-//Set Receipt for
+  //Set Receipt for
   @override
   setReceipts(MessageReceipt receipt) {
     for (int i = 0; i < list.length; i++) {
@@ -873,18 +926,24 @@ class CometChatConversationsSearchController
 
   @override
   setTypingIndicator(
-      TypingIndicator typingIndicator, bool isTypingStarted) async {
+    TypingIndicator typingIndicator,
+    bool isTypingStarted,
+  ) async {
     int matchingIndex;
     if (typingIndicator.receiverType == ReceiverTypeConstants.user) {
-      matchingIndex = list.indexWhere((Conversation conversation) =>
-          (conversation.conversationType == ReceiverTypeConstants.user &&
-              (conversation.conversationWith as User).uid ==
-                  typingIndicator.sender.uid));
+      matchingIndex = list.indexWhere(
+        (Conversation conversation) =>
+            (conversation.conversationType == ReceiverTypeConstants.user &&
+            (conversation.conversationWith as User).uid ==
+                typingIndicator.sender.uid),
+      );
     } else {
-      matchingIndex = list.indexWhere((Conversation conversation) =>
-          (conversation.conversationType == ReceiverTypeConstants.group &&
-              (conversation.conversationWith as Group).guid ==
-                  typingIndicator.receiverId));
+      matchingIndex = list.indexWhere(
+        (Conversation conversation) =>
+            (conversation.conversationType == ReceiverTypeConstants.group &&
+            (conversation.conversationWith as Group).guid ==
+                typingIndicator.receiverId),
+      );
     }
     if (matchingIndex != -1) {
       if (isTypingStarted == true) {
@@ -898,19 +957,10 @@ class CometChatConversationsSearchController
     }
   }
 
+  // Intentionally a no-op: this override has never deleted anything. Its body
+  // only resolved the conversation's uid/guid and discarded them.
   @override
-  void deleteConversationFromIndex(int index) async {
-    late String conversationWith;
-    late String conversationType;
-    if (list[index].conversationType.toLowerCase() ==
-        ReceiverTypeConstants.group.toLowerCase()) {
-      conversationWith = (list[index].conversationWith as Group).guid;
-      conversationType = ReceiverTypeConstants.group;
-    } else {
-      conversationWith = (list[index].conversationWith as User).uid;
-      conversationType = ReceiverTypeConstants.user;
-    }
-  }
+  void deleteConversationFromIndex(int index) async {}
 
   @override
   playNotificationSound(BaseMessage message) {
@@ -970,7 +1020,6 @@ class CometChatConversationsSearchController
   //----------- get last message text-----------
 
   void initializeTextFormatters() {
-    CometChatConversationsStyle? style;
     CometChatMentionsStyle? ccMentionStyle;
     // if (context != null) {
     //   style = CometChatThemeHelper.getTheme<CometChatConversationsStyle>(
@@ -984,15 +1033,19 @@ class CometChatConversationsSearchController
 
     if ((textFormatters.isEmpty ||
         textFormatters.indexWhere(
-                (element) => element is CometChatMentionsFormatter) ==
+              (element) => element is CometChatMentionsFormatter,
+            ) ==
             -1)) {
-      textFormatters.add(CometChatMentionsFormatter(
-          style: ccMentionStyle /*?? mentionsStyle*/));
+      textFormatters.add(
+        CometChatMentionsFormatter(style: ccMentionStyle /*?? mentionsStyle*/),
+      );
     }
 
     // Ensure rich text formatter is included for rendering formatted messages in conversation subtitle
     if (textFormatters.indexWhere(
-            (element) => element is CometChatRichTextFormatter) == -1) {
+          (element) => element is CometChatRichTextFormatter,
+        ) ==
+        -1) {
       textFormatters.add(CometChatRichTextFormatter());
     }
 
@@ -1147,7 +1200,7 @@ class CometChatConversationsSearchController
     return true;
   }
 
-// Check settings for Group Actions
+  // Check settings for Group Actions
   bool _checkGroupSettings() {
     if (CometChatUIKit.conversationUpdateSettings != null) {
       return CometChatUIKit.conversationUpdateSettings!.groupActions;
@@ -1172,7 +1225,7 @@ class CometChatConversationsSearchController
 
       final bool shouldUpdate =
           searchCtrl.showConversationsSearch == true ||
-              searchCtrl.showMessagesSearch == true;
+          searchCtrl.showMessagesSearch == true;
 
       if (shouldUpdate) {
         searchCtrl.update();

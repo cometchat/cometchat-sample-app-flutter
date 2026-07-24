@@ -1,5 +1,9 @@
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-import 'package:cometchat_uikit_shared/src/cometchat_message_list/chatwidget/flutter_chat_core/flutter_chat_core.dart' as core;
+// Not re-exported from cometchat_uikit_shared's public barrel; see
+// cometchat_message_list.dart for the same workaround.
+// ignore: implementation_imports
+import 'package:cometchat_uikit_shared/src/cometchat_message_list/chatwidget/flutter_chat_core/flutter_chat_core.dart'
+    as core;
 
 /// Adapter to convert CometChat BaseMessage to flutter_chat_ui Message
 class MessageAdapter {
@@ -30,12 +34,19 @@ class MessageAdapter {
       'originalMessage': baseMessage,
       'messageType': baseMessage.type,
       'category': baseMessage.category,
-      'baseMessageId': baseMessage.id, // Add this so equality check detects changes
-      'updatedAt': baseMessage.updatedAt?.millisecondsSinceEpoch, // Add this for poll updates
-      'deletedAt': baseMessage.deletedAt?.millisecondsSinceEpoch, // Add this to detect deletion
+      'baseMessageId':
+          baseMessage.id, // Add this so equality check detects changes
+      'updatedAt': baseMessage
+          .updatedAt
+          ?.millisecondsSinceEpoch, // Add this for poll updates
+      'deletedAt': baseMessage
+          .deletedAt
+          ?.millisecondsSinceEpoch, // Add this to detect deletion
       'reactionsHash': reactionsHash, // Add this to detect reaction changes
-      'hasError': baseMessage.metadata?.containsKey('fileSizeError') == true ||
-                  baseMessage.metadata?.containsKey('error') == true, // Detect error state changes
+      'hasError':
+          baseMessage.metadata?.containsKey('fileSizeError') == true ||
+          baseMessage.metadata?.containsKey('error') ==
+              true, // Detect error state changes
     };
 
     // For now, convert all messages to text messages to simplify
@@ -51,7 +62,8 @@ class MessageAdapter {
     } else if (baseMessage is CustomMessage) {
       metadata['customType'] = baseMessage.type;
       metadata['customData'] = baseMessage.customData;
-      displayText = baseMessage.customData?['message']?.toString() ?? '[Custom message]';
+      displayText =
+          baseMessage.customData?['message']?.toString() ?? '[Custom message]';
     } else {
       displayText = '[Unsupported message]';
     }
@@ -73,7 +85,9 @@ class MessageAdapter {
   }
 
   /// Convert a list of CometChat BaseMessages to flutter_chat_ui Messages
-  static List<core.Message> toFlutterChatMessages(List<BaseMessage> baseMessages) {
+  static List<core.Message> toFlutterChatMessages(
+    List<BaseMessage> baseMessages,
+  ) {
     return baseMessages.map((msg) => toFlutterChatMessage(msg)).toList();
   }
 

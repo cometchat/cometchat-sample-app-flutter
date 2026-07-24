@@ -20,6 +20,18 @@ class InMemoryChatController
   List<Message> _messages;
   final _operationsController = StreamController<ChatOperation>.broadcast();
 
+  /// Emits [operation] only while the stream is still open.
+  ///
+  /// After [dispose] closes [_operationsController], an async callback that was
+  /// already in flight (e.g. a message fetch completing after the chat screen
+  /// was popped) could still try to emit, throwing
+  /// "Bad state: Cannot add new events after calling close". Dropping those
+  /// late operations is safe: the controller is gone and nothing is listening.
+  void _safeAdd(ChatOperation operation) {
+    if (_operationsController.isClosed) return;
+    _operationsController.add(operation);
+  }
+
   /// Creates an in-memory chat controller.
   /// Optionally initializes with a list of [messages].
   InMemoryChatController({List<Message>? messages})
@@ -69,12 +81,12 @@ class InMemoryChatController
 
     if (index == null) {
       _messages.add(message);
-      _operationsController.add(
+      _safeAdd(
         ChatOperation.insert(message, _messages.length - 1, animated: animated),
       );
     } else {
       _messages.insert(index, message);
-      _operationsController.add(
+      _safeAdd(
         ChatOperation.insert(message, index, animated: animated),
       );
     }
@@ -109,12 +121,12 @@ class InMemoryChatController
     if (index == null) {
       final originalLength = _messages.length;
       _messages.addAll(messagesToInsert);
-      _operationsController.add(
+      _safeAdd(
         ChatOperation.insertAll(messagesToInsert, originalLength, animated: animated),
       );
     } else {
       _messages.insertAll(index, messagesToInsert);
-      _operationsController.add(
+      _safeAdd(
         ChatOperation.insertAll(messagesToInsert, index, animated: animated),
       );
     }
@@ -130,7 +142,7 @@ class InMemoryChatController
       _messages.removeAt(index); // Remove from the internal list
 
       // Emit the operation with the actual message instance from the list and its original index.
-      _operationsController.add(
+      _safeAdd(
         ChatOperation.remove(messageToRemove, index, animated: animated),
       );
     }
@@ -151,7 +163,7 @@ class InMemoryChatController
 
       _messages[index] = newMessage;
       // Emit the operation with the state *before* this update and the new state.
-      _operationsController.add(
+      _safeAdd(
         ChatOperation.update(actualOldMessage, newMessage, index),
       );
     }
@@ -164,7 +176,7 @@ class InMemoryChatController
   }) async {
     _assertNoMessageIdDuplicates(messages, 'set');
     _messages = List.from(messages);
-    _operationsController.add(
+    _safeAdd(
       ChatOperation.set(
         _messages,
         animated: _messages.isEmpty ? false : animated,

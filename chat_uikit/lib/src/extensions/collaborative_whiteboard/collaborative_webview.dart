@@ -3,14 +3,15 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 ///[CometChatCollaborativeWebView] is widget that renders a WebView
 class CometChatCollaborativeWebView extends StatefulWidget {
-  const CometChatCollaborativeWebView(
-      {super.key,
-      required this.title,
-      required this.webviewUrl,
-      this.titleStyle,
-      this.backIcon,
-      this.appBarColor,
-      this.backIconColor});
+  const CometChatCollaborativeWebView({
+    super.key,
+    required this.title,
+    required this.webviewUrl,
+    this.titleStyle,
+    this.backIcon,
+    this.appBarColor,
+    this.backIconColor,
+  });
 
   ///[title] of the page
   final String title;
@@ -48,7 +49,8 @@ class _CometChatCollaborativeWebViewState
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: widget.backIcon ??
+          icon:
+              widget.backIcon ??
               Icon(
                 Icons.close,
                 size: 24,
@@ -57,17 +59,20 @@ class _CometChatCollaborativeWebViewState
         ),
         title: Text(
           widget.title,
-          style: widget.titleStyle ??
+          style:
+              widget.titleStyle ??
               const TextStyle(
-                  color: Color(0xff141414),
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500),
+                color: Color(0xff141414),
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+              ),
         ),
       ),
       body: WebViewWidget(
-          controller: WebViewController()
-            ..loadRequest(Uri.parse(widget.webviewUrl))
-            ..setJavaScriptMode(JavaScriptMode.unrestricted)),
+        controller: WebViewController()
+          ..loadRequest(Uri.parse(widget.webviewUrl))
+          ..setJavaScriptMode(JavaScriptMode.unrestricted),
+      ),
     );
   }
 }

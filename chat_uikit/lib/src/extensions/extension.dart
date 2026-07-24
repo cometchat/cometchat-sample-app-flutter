@@ -60,4 +60,3 @@ export 'thumbnail_generation/thumbnail_generation_extension_decorator.dart';
 export 'thumbnail_generation/thumbnail_generation_configuration.dart';
 
 export 'default_extension.dart';
-

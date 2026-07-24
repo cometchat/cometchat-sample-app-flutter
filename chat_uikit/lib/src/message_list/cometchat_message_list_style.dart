@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-import 'cometchat_new_message_indicator_style.dart';
 
 ///[CometChatMessageListStyle] is a data class that has styling-related properties
 ///to customize the appearance of [CometChatMessageList]
@@ -193,7 +192,7 @@ class CometChatMessageListStyle
 
   ///[aiConversationSummaryStyle] provides styling to the reply chips/bubbles
   final CometChatAIConversationSummaryStyle? aiConversationSummaryStyle;
-  
+
   ///[flagMessageStyle] is a parameter used to set the style for the flag message
   final CometchatFlagMessageStyle? flagMessageStyle;
 
@@ -246,7 +245,7 @@ class CometChatMessageListStyle
       backgroundColor: backgroundColor ?? this.backgroundColor,
       border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
-      avatarStyle: messageBubbleAvatarStyle ?? this.avatarStyle,
+      avatarStyle: messageBubbleAvatarStyle ?? avatarStyle,
       emptyStateTextStyle: emptyStateTextStyle ?? this.emptyStateTextStyle,
       emptyStateTextColor: emptyStateTextColor ?? this.emptyStateTextColor,
       emptyStateSubtitleStyle:
@@ -276,33 +275,39 @@ class CometChatMessageListStyle
           aiConversationStarterStyle ?? this.aiConversationStarterStyle,
       aiAssistantSuggestedMessageTextStyle:
           aiAssistantSuggestedMessageTextStyle ??
-              this.aiAssistantSuggestedMessageTextStyle,
+          this.aiAssistantSuggestedMessageTextStyle,
       aiAssistantSuggestedMessageTextColor:
           aiAssistantSuggestedMessageTextColor ??
-              this.aiAssistantSuggestedMessageTextColor,
-      aiAssistantSuggestedMessageBorder: aiAssistantSuggestedMessageBorder ??
+          this.aiAssistantSuggestedMessageTextColor,
+      aiAssistantSuggestedMessageBorder:
+          aiAssistantSuggestedMessageBorder ??
           this.aiAssistantSuggestedMessageBorder,
       aiAssistantSuggestedMessageBorderRadius:
           aiAssistantSuggestedMessageBorderRadius ??
-              this.aiAssistantSuggestedMessageBorderRadius,
+          this.aiAssistantSuggestedMessageBorderRadius,
       aiAssistantSuggestedMessageBackgroundColor:
           aiAssistantSuggestedMessageBackgroundColor ??
-              this.aiAssistantSuggestedMessageBackgroundColor,
+          this.aiAssistantSuggestedMessageBackgroundColor,
       aiAssistantSuggestedMessageIconColor:
           aiAssistantSuggestedMessageIconColor ??
-              this.aiAssistantSuggestedMessageIconColor,
-      emptyChatGreetingTitleTextColor: emptyChatGreetingTitleTextColor ??
+          this.aiAssistantSuggestedMessageIconColor,
+      emptyChatGreetingTitleTextColor:
+          emptyChatGreetingTitleTextColor ??
           this.emptyChatGreetingTitleTextColor,
-      emptyChatGreetingTitleTextStyle: emptyChatGreetingTitleTextStyle ??
+      emptyChatGreetingTitleTextStyle:
+          emptyChatGreetingTitleTextStyle ??
           this.emptyChatGreetingTitleTextStyle,
-      emptyChatGreetingSubtitleTextColor: emptyChatGreetingSubtitleTextColor ??
+      emptyChatGreetingSubtitleTextColor:
+          emptyChatGreetingSubtitleTextColor ??
           this.emptyChatGreetingSubtitleTextColor,
-      emptyChatGreetingSubtitleTextStyle: emptyChatGreetingSubtitleTextStyle ??
+      emptyChatGreetingSubtitleTextStyle:
+          emptyChatGreetingSubtitleTextStyle ??
           this.emptyChatGreetingSubtitleTextStyle,
-      aiConversationSummaryStyle: aiConversationSummaryStyle ??
-          this.aiConversationSummaryStyle,
+      aiConversationSummaryStyle:
+          aiConversationSummaryStyle ?? this.aiConversationSummaryStyle,
       flagMessageStyle: flagMessageStyle ?? this.flagMessageStyle,
-      newMessageIndicatorStyle: newMessageIndicatorStyle ?? this.newMessageIndicatorStyle,
+      newMessageIndicatorStyle:
+          newMessageIndicatorStyle ?? this.newMessageIndicatorStyle,
     );
   }
 
@@ -367,85 +372,139 @@ class CometChatMessageListStyle
     return CometChatMessageListStyle(
       backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       border: BoxBorder.lerp(border, other.border, t),
-      borderRadius:
-          BorderRadiusGeometry.lerp(borderRadius, other.borderRadius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        borderRadius,
+        other.borderRadius,
+        t,
+      ),
       avatarStyle: avatarStyle?.lerp(other.avatarStyle, t),
-      emptyStateTextStyle:
-          TextStyle.lerp(emptyStateTextStyle, other.emptyStateTextStyle, t),
-      emptyStateTextColor:
-          Color.lerp(emptyStateTextColor, other.emptyStateTextColor, t),
+      emptyStateTextStyle: TextStyle.lerp(
+        emptyStateTextStyle,
+        other.emptyStateTextStyle,
+        t,
+      ),
+      emptyStateTextColor: Color.lerp(
+        emptyStateTextColor,
+        other.emptyStateTextColor,
+        t,
+      ),
       emptyStateSubtitleStyle: TextStyle.lerp(
-          emptyStateSubtitleStyle, other.emptyStateSubtitleStyle, t),
-      emptyStateSubtitleColor:
-          Color.lerp(emptyStateSubtitleColor, other.emptyStateSubtitleColor, t),
-      errorStateTextStyle:
-          TextStyle.lerp(errorStateTextStyle, other.errorStateTextStyle, t),
-      errorStateTextColor:
-          Color.lerp(errorStateTextColor, other.errorStateTextColor, t),
+        emptyStateSubtitleStyle,
+        other.emptyStateSubtitleStyle,
+        t,
+      ),
+      emptyStateSubtitleColor: Color.lerp(
+        emptyStateSubtitleColor,
+        other.emptyStateSubtitleColor,
+        t,
+      ),
+      errorStateTextStyle: TextStyle.lerp(
+        errorStateTextStyle,
+        other.errorStateTextStyle,
+        t,
+      ),
+      errorStateTextColor: Color.lerp(
+        errorStateTextColor,
+        other.errorStateTextColor,
+        t,
+      ),
       errorStateSubtitleStyle: TextStyle.lerp(
-          errorStateSubtitleStyle, other.errorStateSubtitleStyle, t),
-      errorStateSubtitleColor:
-          Color.lerp(errorStateSubtitleColor, other.errorStateSubtitleColor, t),
-      incomingMessageBubbleStyle:
-          incomingMessageBubbleStyle?.lerp(other.incomingMessageBubbleStyle, t),
-      outgoingMessageBubbleStyle:
-          outgoingMessageBubbleStyle?.lerp(other.outgoingMessageBubbleStyle, t),
-      messageInformationStyle:
-          messageInformationStyle?.lerp(other.messageInformationStyle, t),
-      messageOptionSheetStyle:
-          messageOptionSheetStyle?.lerp(other.messageOptionSheetStyle, t),
+        errorStateSubtitleStyle,
+        other.errorStateSubtitleStyle,
+        t,
+      ),
+      errorStateSubtitleColor: Color.lerp(
+        errorStateSubtitleColor,
+        other.errorStateSubtitleColor,
+        t,
+      ),
+      incomingMessageBubbleStyle: incomingMessageBubbleStyle?.lerp(
+        other.incomingMessageBubbleStyle,
+        t,
+      ),
+      outgoingMessageBubbleStyle: outgoingMessageBubbleStyle?.lerp(
+        other.outgoingMessageBubbleStyle,
+        t,
+      ),
+      messageInformationStyle: messageInformationStyle?.lerp(
+        other.messageInformationStyle,
+        t,
+      ),
+      messageOptionSheetStyle: messageOptionSheetStyle?.lerp(
+        other.messageOptionSheetStyle,
+        t,
+      ),
       mentionsStyle: mentionsStyle?.lerp(other.mentionsStyle, t),
       actionBubbleStyle: actionBubbleStyle?.lerp(other.actionBubbleStyle, t),
       reactionListStyle: reactionListStyle?.lerp(other.reactionListStyle, t),
       reactionsStyle: reactionsStyle?.lerp(other.reactionsStyle, t),
-      aiSmartRepliesStyle:
-          aiSmartRepliesStyle?.lerp(other.aiSmartRepliesStyle, t),
-      aiConversationStarterStyle:
-          aiConversationStarterStyle?.lerp(other.aiConversationStarterStyle, t),
+      aiSmartRepliesStyle: aiSmartRepliesStyle?.lerp(
+        other.aiSmartRepliesStyle,
+        t,
+      ),
+      aiConversationStarterStyle: aiConversationStarterStyle?.lerp(
+        other.aiConversationStarterStyle,
+        t,
+      ),
       aiAssistantSuggestedMessageTextStyle: TextStyle.lerp(
-          aiAssistantSuggestedMessageTextStyle,
-          other.aiAssistantSuggestedMessageTextStyle,
-          t),
+        aiAssistantSuggestedMessageTextStyle,
+        other.aiAssistantSuggestedMessageTextStyle,
+        t,
+      ),
       aiAssistantSuggestedMessageTextColor: Color.lerp(
-          aiAssistantSuggestedMessageTextColor,
-          other.aiAssistantSuggestedMessageTextColor,
-          t),
+        aiAssistantSuggestedMessageTextColor,
+        other.aiAssistantSuggestedMessageTextColor,
+        t,
+      ),
       aiAssistantSuggestedMessageBorder: Border.lerp(
-          aiAssistantSuggestedMessageBorder,
-          other.aiAssistantSuggestedMessageBorder,
-          t),
+        aiAssistantSuggestedMessageBorder,
+        other.aiAssistantSuggestedMessageBorder,
+        t,
+      ),
       aiAssistantSuggestedMessageBorderRadius: BorderRadius.lerp(
-          aiAssistantSuggestedMessageBorderRadius,
-          other.aiAssistantSuggestedMessageBorderRadius,
-          t),
+        aiAssistantSuggestedMessageBorderRadius,
+        other.aiAssistantSuggestedMessageBorderRadius,
+        t,
+      ),
       aiAssistantSuggestedMessageBackgroundColor: Color.lerp(
-          aiAssistantSuggestedMessageBackgroundColor,
-          other.aiAssistantSuggestedMessageBackgroundColor,
-          t),
+        aiAssistantSuggestedMessageBackgroundColor,
+        other.aiAssistantSuggestedMessageBackgroundColor,
+        t,
+      ),
       aiAssistantSuggestedMessageIconColor: Color.lerp(
-          aiAssistantSuggestedMessageIconColor,
-          other.aiAssistantSuggestedMessageIconColor,
-          t),
+        aiAssistantSuggestedMessageIconColor,
+        other.aiAssistantSuggestedMessageIconColor,
+        t,
+      ),
       emptyChatGreetingTitleTextColor: Color.lerp(
-          emptyChatGreetingTitleTextColor,
-          other.emptyChatGreetingTitleTextColor,
-          t),
+        emptyChatGreetingTitleTextColor,
+        other.emptyChatGreetingTitleTextColor,
+        t,
+      ),
       emptyChatGreetingTitleTextStyle: TextStyle.lerp(
-          emptyChatGreetingTitleTextStyle,
-          other.emptyChatGreetingTitleTextStyle,
-          t),
+        emptyChatGreetingTitleTextStyle,
+        other.emptyChatGreetingTitleTextStyle,
+        t,
+      ),
       emptyChatGreetingSubtitleTextColor: Color.lerp(
-          emptyChatGreetingSubtitleTextColor,
-          other.emptyChatGreetingSubtitleTextColor,
-          t),
+        emptyChatGreetingSubtitleTextColor,
+        other.emptyChatGreetingSubtitleTextColor,
+        t,
+      ),
       emptyChatGreetingSubtitleTextStyle: TextStyle.lerp(
-          emptyChatGreetingSubtitleTextStyle,
-          other.emptyChatGreetingSubtitleTextStyle,
-          t),
-      aiConversationSummaryStyle:
-          aiConversationSummaryStyle?.lerp(other.aiConversationSummaryStyle, t),
+        emptyChatGreetingSubtitleTextStyle,
+        other.emptyChatGreetingSubtitleTextStyle,
+        t,
+      ),
+      aiConversationSummaryStyle: aiConversationSummaryStyle?.lerp(
+        other.aiConversationSummaryStyle,
+        t,
+      ),
       flagMessageStyle: flagMessageStyle?.lerp(other.flagMessageStyle, t),
-      newMessageIndicatorStyle: newMessageIndicatorStyle?.lerp(other.newMessageIndicatorStyle, t),
+      newMessageIndicatorStyle: newMessageIndicatorStyle?.lerp(
+        other.newMessageIndicatorStyle,
+        t,
+      ),
     );
   }
 }

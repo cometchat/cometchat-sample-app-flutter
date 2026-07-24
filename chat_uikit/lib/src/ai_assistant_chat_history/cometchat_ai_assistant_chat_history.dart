@@ -31,10 +31,14 @@ class CometChatAIAssistantChatHistory extends StatefulWidget {
     this.width,
     this.hideStickyDate,
     this.hideDateSeparator,
-  })  : assert(user != null || group != null,
-            "One of user or group should be passed"),
-        assert(user == null || group == null,
-            "Only one of user or group should be passed");
+  }) : assert(
+         user != null || group != null,
+         "One of user or group should be passed",
+       ),
+       assert(
+         user == null || group == null,
+         "Only one of user or group should be passed",
+       );
 
   ///[user] user object  for user message list
   final User? user;
@@ -116,7 +120,7 @@ class CometChatAIAssistantChatHistory extends StatefulWidget {
 class _CometChatAIAssistantChatHistoryState
     extends State<CometChatAIAssistantChatHistory> {
   late CometChatAIAssistantChatHistoryController
-      aiAssistantChatHistoryController;
+  aiAssistantChatHistoryController;
   late CometChatAIAssistantChatHistoryStyle aiAssistantChatHistoryStyle;
   late CometChatDateStyle dateStyle;
   late CometChatColorPalette colorPalette;
@@ -127,9 +131,9 @@ class _CometChatAIAssistantChatHistoryState
   void didChangeDependencies() {
     aiAssistantChatHistoryStyle =
         CometChatThemeHelper.getTheme<CometChatAIAssistantChatHistoryStyle>(
-      context: context,
-      defaultTheme: CometChatAIAssistantChatHistoryStyle.of,
-    ).merge(widget.style);
+          context: context,
+          defaultTheme: CometChatAIAssistantChatHistoryStyle.of,
+        ).merge(widget.style);
     dateStyle = CometChatThemeHelper.getTheme<CometChatDateStyle>(
       context: context,
       defaultTheme: CometChatDateStyle.of,
@@ -170,15 +174,15 @@ class _CometChatAIAssistantChatHistoryState
 
     aiAssistantChatHistoryController =
         CometChatAIAssistantChatHistoryController(
-      user: widget.user,
-      group: widget.group,
-      onError: widget.onError,
-      onLoad: widget.onLoad,
-      onEmpty: widget.onEmpty,
-      messagesBuilderProtocol: UIMessagesBuilder(messagesRequestBuilder),
-      dateSeparatorPattern: widget.dateSeparatorPattern,
-      hideStickyDate: widget.hideStickyDate ?? false,
-    );
+          user: widget.user,
+          group: widget.group,
+          onError: widget.onError,
+          onLoad: widget.onLoad,
+          onEmpty: widget.onEmpty,
+          messagesBuilderProtocol: UIMessagesBuilder(messagesRequestBuilder),
+          dateSeparatorPattern: widget.dateSeparatorPattern,
+          hideStickyDate: widget.hideStickyDate ?? false,
+        );
 
     super.initState();
   }
@@ -229,18 +233,19 @@ class _CometChatAIAssistantChatHistoryState
             ),
           );
         } else {
-          List<GlobalKey> tileKeys =
-              List.generate(value.list.length, (index) => GlobalKey());
+          List<GlobalKey> tileKeys = List.generate(
+            value.list.length,
+            (index) => GlobalKey(),
+          );
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              newChatView(
-                aiAssistantChatHistoryStyle,
-              ),
+              newChatView(aiAssistantChatHistoryStyle),
               Expanded(
                 child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: spacing.padding3 ?? 0),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: spacing.padding3 ?? 0,
+                  ),
                   child: Stack(
                     children: [
                       ListView.builder(
@@ -266,8 +271,10 @@ class _CometChatAIAssistantChatHistoryState
                             );
                           }
                           return Column(
-                            key: controller.keys
-                                .putIfAbsent(index, () => GlobalKey()),
+                            key: controller.keys.putIfAbsent(
+                              index,
+                              () => GlobalKey(),
+                            ),
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _getDateSeparator(
@@ -345,9 +352,7 @@ class _CometChatAIAssistantChatHistoryState
                 height: 40.0,
                 decoration: BoxDecoration(
                   color: Colors.grey,
-                  borderRadius: BorderRadius.circular(
-                    spacing.radius2 ?? 0,
-                  ),
+                  borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
                 ),
               ),
             );
@@ -357,10 +362,7 @@ class _CometChatAIAssistantChatHistoryState
     }
   }
 
-  bool _isSameDate({
-    DateTime? dt1,
-    DateTime? dt2,
-  }) {
+  bool _isSameDate({DateTime? dt1, DateTime? dt2}) {
     if (dt1 == null || dt2 == null) return true;
     return dt1.year == dt2.year && dt1.month == dt2.month && dt1.day == dt2.day;
   }
@@ -412,9 +414,7 @@ class _CometChatAIAssistantChatHistoryState
             color: colorPalette.textTertiary,
           ),
         ).merge(dateStyle),
-        padding: EdgeInsets.symmetric(
-          vertical: spacing.padding2 ?? 0,
-        ),
+        padding: EdgeInsets.symmetric(vertical: spacing.padding2 ?? 0),
       );
     } else {
       return const SizedBox.shrink();
@@ -432,35 +432,34 @@ class _CometChatAIAssistantChatHistoryState
     }
 
     return ValueListenableBuilder<DateTime?>(
-        valueListenable: controller.stickyDateNotifier,
-        builder: (context, stickyDate, child) {
-          return Padding(
-            padding: EdgeInsets.fromLTRB(0, spacing.padding2 ?? 0, 0, 0),
-            child: CometChatDate(
-              date: stickyDate,
-              pattern: DateTimePattern.dayDateFormat,
-              customDateString: controller.stickyDateString,
-              style: CometChatDateStyle(
-                backgroundColor: colorPalette.background3,
-                borderRadius: BorderRadius.circular(spacing.radius1 ?? 0),
-                border: Border.all(
-                  color: colorPalette.transparent ?? Colors.transparent,
-                  width: 0,
-                ),
-                textStyle: TextStyle(
-                  fontSize: typography.caption1?.medium?.fontSize,
-                  fontWeight: typography.caption1?.medium?.fontWeight,
-                  fontFamily: typography.caption1?.medium?.fontFamily,
-                  letterSpacing: 0,
-                  color: colorPalette.textTertiary,
-                ),
-              ).merge(dateStyle),
-              padding: EdgeInsets.symmetric(
-                vertical: spacing.padding2 ?? 0,
+      valueListenable: controller.stickyDateNotifier,
+      builder: (context, stickyDate, child) {
+        return Padding(
+          padding: EdgeInsets.fromLTRB(0, spacing.padding2 ?? 0, 0, 0),
+          child: CometChatDate(
+            date: stickyDate,
+            pattern: DateTimePattern.dayDateFormat,
+            customDateString: controller.stickyDateString,
+            style: CometChatDateStyle(
+              backgroundColor: colorPalette.background3,
+              borderRadius: BorderRadius.circular(spacing.radius1 ?? 0),
+              border: Border.all(
+                color: colorPalette.transparent ?? Colors.transparent,
+                width: 0,
               ),
-            ),
-          );
-        });
+              textStyle: TextStyle(
+                fontSize: typography.caption1?.medium?.fontSize,
+                fontWeight: typography.caption1?.medium?.fontWeight,
+                fontFamily: typography.caption1?.medium?.fontFamily,
+                letterSpacing: 0,
+                color: colorPalette.textTertiary,
+              ),
+            ).merge(dateStyle),
+            padding: EdgeInsets.symmetric(vertical: spacing.padding2 ?? 0),
+          ),
+        );
+      },
+    );
   }
 
   Widget _showError(
@@ -471,16 +470,6 @@ class _CometChatAIAssistantChatHistoryState
     CometChatTypography typography,
     CometChatSpacing spacing,
   ) {
-    String error;
-    if (aiAssistantChatHistoryController.error != null &&
-        aiAssistantChatHistoryController.error is CometChatException) {
-      error = Utils.getErrorTranslatedText(
-        context,
-        (aiAssistantChatHistoryController.error as CometChatException).code,
-      );
-    } else {
-      error = cc.Translations.of(context).noMessagesFound;
-    }
     if (widget.errorStateView != null) {
       return widget.errorStateView!(context);
     } else {
@@ -530,8 +519,8 @@ class _CometChatAIAssistantChatHistoryState
                     padding: EdgeInsets.only(bottom: spacing.padding3 ?? 12),
                     child: Image.asset(
                       AssetConstants(
-                              CometChatThemeHelper.getBrightness(context))
-                          .messagesError,
+                        CometChatThemeHelper.getBrightness(context),
+                      ).messagesError,
                       package: UIConstants.packageName,
                       width: 150,
                       height: 150,
@@ -542,35 +531,45 @@ class _CometChatAIAssistantChatHistoryState
                   widget.emptyStateText ??
                       cc.Translations.of(context).noConversationHistoryFound,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: aiAssistantChatHistoryStyle.emptyStateTextColor ??
-                        colorPalette.textPrimary,
-                    fontSize: typography.body?.regular?.fontSize,
-                    fontWeight: typography.body?.regular?.fontWeight,
-                    fontFamily: typography.body?.regular?.fontFamily,
-                  )
-                      .merge(aiAssistantChatHistoryStyle.emptyStateTextStyle)
-                      .copyWith(
-                        color: aiAssistantChatHistoryStyle.emptyStateTextColor,
-                      ),
+                  style:
+                      TextStyle(
+                            color:
+                                aiAssistantChatHistoryStyle
+                                    .emptyStateTextColor ??
+                                colorPalette.textPrimary,
+                            fontSize: typography.body?.regular?.fontSize,
+                            fontWeight: typography.body?.regular?.fontWeight,
+                            fontFamily: typography.body?.regular?.fontFamily,
+                          )
+                          .merge(
+                            aiAssistantChatHistoryStyle.emptyStateTextStyle,
+                          )
+                          .copyWith(
+                            color:
+                                aiAssistantChatHistoryStyle.emptyStateTextColor,
+                          ),
                 ),
                 Text(
                   widget.emptyStateSubtitleText ??
                       cc.Translations.of(context).startChatByTappingNewChat,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: aiAssistantChatHistoryStyle.emptyStateTextColor ??
-                        colorPalette.textPrimary,
-                    fontSize: typography.body?.regular?.fontSize,
-                    fontWeight: typography.body?.regular?.fontWeight,
-                    fontFamily: typography.body?.regular?.fontFamily,
-                  )
-                      .merge(
-                          aiAssistantChatHistoryStyle.emptyStateSubtitleStyle)
-                      .copyWith(
-                        color:
-                            aiAssistantChatHistoryStyle.emptyStateSubtitleColor,
-                      ),
+                  style:
+                      TextStyle(
+                            color:
+                                aiAssistantChatHistoryStyle
+                                    .emptyStateTextColor ??
+                                colorPalette.textPrimary,
+                            fontSize: typography.body?.regular?.fontSize,
+                            fontWeight: typography.body?.regular?.fontWeight,
+                            fontFamily: typography.body?.regular?.fontFamily,
+                          )
+                          .merge(
+                            aiAssistantChatHistoryStyle.emptyStateSubtitleStyle,
+                          )
+                          .copyWith(
+                            color: aiAssistantChatHistoryStyle
+                                .emptyStateSubtitleColor,
+                          ),
                 ),
               ],
             ),
@@ -624,25 +623,22 @@ class _CometChatAIAssistantChatHistoryState
         child: SizedBox(
           width: double.infinity,
           child: Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: spacing.padding3 ?? 0,
-            ),
+            padding: EdgeInsets.symmetric(vertical: spacing.padding3 ?? 0),
             child: Text(
               messageObject.text,
               maxLines: 1,
-              style: TextStyle(
-                overflow: TextOverflow.ellipsis,
-                fontSize: typography.body?.regular?.fontSize,
-                fontWeight: typography.body?.regular?.fontWeight,
-                fontFamily: typography.body?.regular?.fontFamily,
-                color: colorPalette.textPrimary,
-              )
-                  .merge(
-                    aiAssistantChatHistoryStyle.itemTextStyle,
-                  )
-                  .copyWith(
-                    color: aiAssistantChatHistoryStyle.itemTextColor,
-                  ),
+              style:
+                  TextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        fontSize: typography.body?.regular?.fontSize,
+                        fontWeight: typography.body?.regular?.fontWeight,
+                        fontFamily: typography.body?.regular?.fontFamily,
+                        color: colorPalette.textPrimary,
+                      )
+                      .merge(aiAssistantChatHistoryStyle.itemTextStyle)
+                      .copyWith(
+                        color: aiAssistantChatHistoryStyle.itemTextColor,
+                      ),
             ),
           ),
         ),
@@ -653,43 +649,40 @@ class _CometChatAIAssistantChatHistoryState
   }
 
   Widget newChatView(
-      CometChatAIAssistantChatHistoryStyle aiAssistantChatHistoryStyle) {
+    CometChatAIAssistantChatHistoryStyle aiAssistantChatHistoryStyle,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: spacing.padding2 ?? 0),
       child: GestureDetector(
         onTap: widget.onNewChatButtonClicked,
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: spacing.padding4 ?? 0,
-          ),
+          padding: EdgeInsets.symmetric(vertical: spacing.padding4 ?? 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(
-                  right: spacing.padding2 ?? 0,
-                ),
+                padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
                 child: Icon(
                   Icons.add,
-                  color: aiAssistantChatHistoryStyle.newChatIconColor ??
+                  color:
+                      aiAssistantChatHistoryStyle.newChatIconColor ??
                       colorPalette.iconSecondary,
                   size: 24,
                 ),
               ),
               Text(
                 cc.Translations.of(context).newChat,
-                style: TextStyle(
-                  color: colorPalette.textPrimary,
-                  fontSize: typography.button?.regular?.fontSize,
-                  fontWeight: typography.button?.regular?.fontWeight,
-                  fontFamily: typography.button?.regular?.fontFamily,
-                )
-                    .merge(
-                      aiAssistantChatHistoryStyle.newChaTitleStyle,
-                    )
-                    .copyWith(
-                      color: aiAssistantChatHistoryStyle.newChatTextColor,
-                    ),
+                style:
+                    TextStyle(
+                          color: colorPalette.textPrimary,
+                          fontSize: typography.button?.regular?.fontSize,
+                          fontWeight: typography.button?.regular?.fontWeight,
+                          fontFamily: typography.button?.regular?.fontFamily,
+                        )
+                        .merge(aiAssistantChatHistoryStyle.newChaTitleStyle)
+                        .copyWith(
+                          color: aiAssistantChatHistoryStyle.newChatTextColor,
+                        ),
               ),
             ],
           ),
@@ -704,7 +697,8 @@ class _CometChatAIAssistantChatHistoryState
       title: cc.Translations.of(context).chatHistory,
       showBackButton: true,
       titleSpacing: spacing.padding1,
-      backIcon: widget.backButton ??
+      backIcon:
+          widget.backButton ??
           GestureDetector(
             onTap: () {
               if (widget.onClose != null) {
@@ -714,44 +708,45 @@ class _CometChatAIAssistantChatHistoryState
             child: Icon(
               Icons.close,
               size: 24,
-              color: aiAssistantChatHistoryStyle.closeIconColor ??
+              color:
+                  aiAssistantChatHistoryStyle.closeIconColor ??
                   colorPalette.iconSecondary,
             ),
           ),
-      leadingIconPadding: EdgeInsets.only(
-        left: spacing.padding ?? 0,
-      ),
+      leadingIconPadding: EdgeInsets.only(left: spacing.padding ?? 0),
       hideSearch: true,
       style: ListBaseStyle(
-          height: widget.height,
-          width: widget.width,
-          background: aiAssistantChatHistoryStyle.backgroundColor ??
-              colorPalette.background3,
-          appBarBackground: aiAssistantChatHistoryStyle.headerBackgroundColor ??
-              aiAssistantChatHistoryStyle.backgroundColor ??
-              colorPalette.background3,
-          titleStyle: TextStyle(
-            color: colorPalette.textPrimary,
-            fontSize: typography.heading4?.medium?.fontSize,
-            fontWeight: typography.heading4?.medium?.fontWeight,
-            fontFamily: typography.heading4?.medium?.fontFamily,
-          )
-              .merge(
-                aiAssistantChatHistoryStyle.headerTitleTextStyle,
-              )
-              .copyWith(
-                color: aiAssistantChatHistoryStyle.headerTitleTextColor,
-              ),
-          border: aiAssistantChatHistoryStyle.border,
-          borderRadius: aiAssistantChatHistoryStyle.borderRadius ??
-              BorderRadius.circular(0),
-          padding: EdgeInsets.only(
-            top: spacing.padding2 ?? 10,
-          )),
+        height: widget.height,
+        width: widget.width,
+        background:
+            aiAssistantChatHistoryStyle.backgroundColor ??
+            colorPalette.background3,
+        appBarBackground:
+            aiAssistantChatHistoryStyle.headerBackgroundColor ??
+            aiAssistantChatHistoryStyle.backgroundColor ??
+            colorPalette.background3,
+        titleStyle:
+            TextStyle(
+                  color: colorPalette.textPrimary,
+                  fontSize: typography.heading4?.medium?.fontSize,
+                  fontWeight: typography.heading4?.medium?.fontWeight,
+                  fontFamily: typography.heading4?.medium?.fontFamily,
+                )
+                .merge(aiAssistantChatHistoryStyle.headerTitleTextStyle)
+                .copyWith(
+                  color: aiAssistantChatHistoryStyle.headerTitleTextColor,
+                ),
+        border: aiAssistantChatHistoryStyle.border,
+        borderRadius:
+            aiAssistantChatHistoryStyle.borderRadius ??
+            BorderRadius.circular(0),
+        padding: EdgeInsets.only(top: spacing.padding2 ?? 10),
+      ),
       container: Column(
         children: [
           Divider(
-            color: aiAssistantChatHistoryStyle.separatorColor ??
+            color:
+                aiAssistantChatHistoryStyle.separatorColor ??
                 colorPalette.borderDefault,
             height: aiAssistantChatHistoryStyle.separatorHeight ?? 1,
           ),

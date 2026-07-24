@@ -42,7 +42,6 @@ class CometChatCreatePoll extends StatefulWidget {
   ///[groupObject] group object
   final Group? groupObject;
 
-
   @override
   State<CometChatCreatePoll> createState() => _CometChatCreatePollState();
 }
@@ -70,13 +69,16 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
     super.initState();
 
     // Initialize answers with empty strings
-    _answers
-        .addAll(List<String>.filled(widget.defaultAnswers, "", growable: true));
+    _answers.addAll(
+      List<String>.filled(widget.defaultAnswers, "", growable: true),
+    );
 
     // Initialize focus nodes and controllers
     focusNodes = List.generate(widget.defaultAnswers, (index) => FocusNode());
     textEditingControllers = List.generate(
-        widget.defaultAnswers, (index) => TextEditingController());
+      widget.defaultAnswers,
+      (index) => TextEditingController(),
+    );
   }
 
   @override
@@ -119,19 +121,12 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
           decoration: BoxDecoration(
             color: colorPalette.background1,
             borderRadius: BorderRadius.vertical(
-              top: Radius.circular(
-                spacing.radius6 ?? 0,
-              ),
+              top: Radius.circular(spacing.radius6 ?? 0),
             ),
           ),
           child: Column(
             children: [
-              _buildHeader(
-                context,
-                spacing,
-                typography,
-                colorPalette,
-              ),
+              _buildHeader(context, spacing, typography, colorPalette),
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
@@ -149,7 +144,10 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
                             children: [
                               // Question Text
                               _buildQuestionInput(
-                                  typography, colorPalette, spacing),
+                                typography,
+                                colorPalette,
+                                spacing,
+                              ),
                               // Options Text
                               Padding(
                                 padding: EdgeInsets.only(
@@ -158,12 +156,12 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
                                 child: Text(
                                   Translations.of(context).options,
                                   style: TextStyle(
-                                    fontSize: typography
-                                        .heading4?.medium?.fontSize,
-                                    fontFamily: typography
-                                        .heading4?.medium?.fontFamily,
-                                    fontWeight: typography
-                                        .heading4?.medium?.fontWeight,
+                                    fontSize:
+                                        typography.heading4?.medium?.fontSize,
+                                    fontFamily:
+                                        typography.heading4?.medium?.fontFamily,
+                                    fontWeight:
+                                        typography.heading4?.medium?.fontWeight,
                                     color: colorPalette.textPrimary,
                                   ),
                                 ),
@@ -171,16 +169,14 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
                               // Options TextField
                               ReorderableListView(
                                 shrinkWrap: true,
-                                physics:
-                                const NeverScrollableScrollPhysics(),
-                                onReorder: _onReorder,
+                                physics: const NeverScrollableScrollPhysics(),
+                                onReorderItem: _onReorder,
                                 children: List.generate(
                                   _answers.length,
-                                      (index) => getTextKey(
+                                  (index) => getTextKey(
                                     index,
                                     context,
-                                    key: ValueKey(
-                                        '$index-${_answers[index]}'),
+                                    key: ValueKey('$index-${_answers[index]}'),
                                     focusNode: focusNodes[index],
                                   ),
                                 ),
@@ -189,40 +185,47 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
                               (_answers.length >= 12)
                                   ? const SizedBox()
                                   : GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _answers.add("");
+                                      onTap: () {
+                                        setState(() {
+                                          _answers.add("");
 
-                                    FocusNode newFocusNode =
-                                    FocusNode(); // Create a new FocusNode
-                                    focusNodes.add(
-                                        newFocusNode); // Add it to the list
-                                    textEditingControllers.add(
-                                      TextEditingController(),
-                                    );
-                                    textFields.add(
-                                      getTextKey(
-                                        _answers.length - 1,
-                                        context,
-                                        focusNode: newFocusNode,
+                                          FocusNode newFocusNode =
+                                              FocusNode(); // Create a new FocusNode
+                                          focusNodes.add(
+                                            newFocusNode,
+                                          ); // Add it to the list
+                                          textEditingControllers.add(
+                                            TextEditingController(),
+                                          );
+                                          textFields.add(
+                                            getTextKey(
+                                              _answers.length - 1,
+                                              context,
+                                              focusNode: newFocusNode,
+                                            ),
+                                          );
+                                          newFocusNode.requestFocus();
+                                        });
+                                      },
+                                      child: Text(
+                                        "+ ${Translations.of(context).addOption}",
+                                        style: TextStyle(
+                                          fontSize: typography
+                                              .caption1
+                                              ?.medium
+                                              ?.fontSize,
+                                          fontFamily: typography
+                                              .caption1
+                                              ?.medium
+                                              ?.fontFamily,
+                                          fontWeight: typography
+                                              .caption1
+                                              ?.medium
+                                              ?.fontWeight,
+                                          color: colorPalette.textHighlight,
+                                        ),
                                       ),
-                                    );
-                                    newFocusNode.requestFocus();
-                                  });
-                                },
-                                child: Text(
-                                  "+ ${Translations.of(context).addOption}",
-                                  style: TextStyle(
-                                    fontSize: typography
-                                        .caption1?.medium?.fontSize,
-                                    fontFamily: typography
-                                        .caption1?.medium?.fontFamily,
-                                    fontWeight: typography
-                                        .caption1?.medium?.fontWeight,
-                                    color: colorPalette.textHighlight,
-                                  ),
-                                ),
-                              ),
+                                    ),
                             ],
                           ),
                         ),
@@ -230,68 +233,77 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
                       (!_isEmpty && !_isError)
                           ? const SizedBox()
                           : Padding(
-                        padding: EdgeInsets.only(
-                          top: spacing.padding5 ?? 16,
-                          left: spacing.padding4 ?? 16,
-                          right: spacing.padding4 ?? 16,
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: colorPalette.error?.withOpacity(
-                              0.1,
-                            ),
-                            borderRadius: BorderRadius.circular(
-                              spacing.radius2 ?? 8,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: spacing.padding2 ?? 8,
-                              vertical: spacing.padding1 ?? 4,
-                            ),
-                            child: Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                    right: spacing.padding1 ?? 2,
+                              padding: EdgeInsets.only(
+                                top: spacing.padding5 ?? 16,
+                                left: spacing.padding4 ?? 16,
+                                right: spacing.padding4 ?? 16,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: colorPalette.error?.withValues(
+                                    alpha: 0.1,
                                   ),
-                                  child: Icon(
-                                    Icons.error_outline,
-                                    color: colorPalette.error,
-                                    size: 16,
+                                  borderRadius: BorderRadius.circular(
+                                    spacing.radius2 ?? 8,
                                   ),
                                 ),
-                                Expanded(
-                                  child: Text(
-                                    (_isEmpty)
-                                        ? Translations.of(context).pollEmptyString
-                                        : (_isError)
-                                        ? Translations.of(context)
-                                        .somethingWrong
-                                        : "",
-                                    style: TextStyle(
-                                      color: colorPalette.error,
-                                      fontSize: typography
-                                          .caption1?.regular?.fontSize,
-                                      fontFamily: typography.caption1
-                                          ?.regular?.fontFamily,
-                                      fontWeight: typography.caption1
-                                          ?.regular?.fontWeight,
-                                    ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: spacing.padding2 ?? 8,
+                                    vertical: spacing.padding1 ?? 4,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                          right: spacing.padding1 ?? 2,
+                                        ),
+                                        child: Icon(
+                                          Icons.error_outline,
+                                          color: colorPalette.error,
+                                          size: 16,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          (_isEmpty)
+                                              ? Translations.of(
+                                                  context,
+                                                ).pollEmptyString
+                                              : (_isError)
+                                              ? Translations.of(
+                                                  context,
+                                                ).somethingWrong
+                                              : "",
+                                          style: TextStyle(
+                                            color: colorPalette.error,
+                                            fontSize: typography
+                                                .caption1
+                                                ?.regular
+                                                ?.fontSize,
+                                            fontFamily: typography
+                                                .caption1
+                                                ?.regular
+                                                ?.fontFamily,
+                                            fontWeight: typography
+                                                .caption1
+                                                ?.regular
+                                                ?.fontWeight,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
                       Padding(
                         padding: EdgeInsets.only(
-                          top: ((_isEmpty || _isError)
-                              ? spacing.padding3
-                              : spacing.padding5) ??
+                          top:
+                              ((_isEmpty || _isError)
+                                  ? spacing.padding3
+                                  : spacing.padding5) ??
                               16,
                           bottom: spacing.padding5 ?? 16,
                           left: spacing.padding4 ?? 16,
@@ -301,7 +313,11 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
                           onPressed: () {
                             // Trim and validate question and options
                             if (_question.trim().isEmpty ||
-                                _answers.map((a) => a.trim()).where((a) => a.isNotEmpty).length < 2) {
+                                _answers
+                                        .map((a) => a.trim())
+                                        .where((a) => a.isNotEmpty)
+                                        .length <
+                                    2) {
                               setState(() {
                                 _isEmpty = true;
                                 _isError = false;
@@ -334,20 +350,20 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
                           child: Center(
                             child: (_isLoading)
                                 ? CircularProgressIndicator(
-                              color: colorPalette.white,
-                            )
+                                    color: colorPalette.white,
+                                  )
                                 : Text(
-                              Translations.of(context).create,
-                              style: TextStyle(
-                                color: colorPalette.buttonIconColor,
-                                fontSize: typography
-                                    .button?.medium?.fontSize,
-                                fontFamily: typography
-                                    .button?.medium?.fontFamily,
-                                fontWeight: typography
-                                    .button?.medium?.fontWeight,
-                              ),
-                            ),
+                                    Translations.of(context).create,
+                                    style: TextStyle(
+                                      color: colorPalette.buttonIconColor,
+                                      fontSize:
+                                          typography.button?.medium?.fontSize,
+                                      fontFamily:
+                                          typography.button?.medium?.fontFamily,
+                                      fontWeight:
+                                          typography.button?.medium?.fontWeight,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
@@ -362,12 +378,10 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
     );
   }
 
+  // Receives newIndex already adjusted for the item removed at oldIndex —
+  // ReorderableListView.onReorderItem does that shift itself.
   void _onReorder(int oldIndex, int newIndex) {
     setState(() {
-      if (oldIndex < newIndex) {
-        newIndex--;
-      }
-
       if (newIndex >= _answers.length) {
         newIndex = _answers.length - 1;
       }
@@ -404,26 +418,20 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.only(
-            top: spacing.padding3 ?? 0,
-          ),
+          padding: EdgeInsets.only(top: spacing.padding3 ?? 0),
           child: Container(
             height: 4,
             width: 32,
             decoration: BoxDecoration(
               color: colorPalette.neutral500,
-              borderRadius: BorderRadius.circular(
-                spacing.radiusMax ?? 0,
-              ),
+              borderRadius: BorderRadius.circular(spacing.radiusMax ?? 0),
             ),
           ),
         ),
         Align(
           alignment: Alignment.centerLeft,
           child: Padding(
-            padding: EdgeInsets.all(
-              spacing.padding3 ?? 12,
-            ),
+            padding: EdgeInsets.all(spacing.padding3 ?? 12),
             child: Text(
               widget.title ?? Translations.of(context).createPoll,
               style: TextStyle(
@@ -449,9 +457,7 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(
-            bottom: spacing.padding1 ?? 0,
-          ),
+          padding: EdgeInsets.only(bottom: spacing.padding1 ?? 0),
           child: Text(
             Translations.of(context).question,
             style: TextStyle(
@@ -464,13 +470,10 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
         ),
         // Question TextField
         Padding(
-          padding: EdgeInsets.only(
-            bottom: spacing.padding5 ?? 0,
-          ),
+          padding: EdgeInsets.only(bottom: spacing.padding5 ?? 0),
           child: TextFormField(
             textCapitalization: TextCapitalization.sentences,
-            keyboardAppearance:
-            CometChatThemeHelper.getBrightness(context),
+            keyboardAppearance: CometChatThemeHelper.getBrightness(context),
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return "";
@@ -487,34 +490,24 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
               fontWeight: typography.body?.regular?.fontWeight,
             ),
             decoration: InputDecoration(
-              errorStyle: const TextStyle(
-                fontSize: 0,
-              ),
-              contentPadding: EdgeInsets.all(
-                spacing.padding2 ?? 0,
-              ),
+              errorStyle: const TextStyle(fontSize: 0),
+              contentPadding: EdgeInsets.all(spacing.padding2 ?? 0),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(
-                  spacing.radius2 ?? 0,
-                ),
+                borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
                 borderSide: BorderSide(
                   width: 1,
                   color: colorPalette.borderLight ?? Colors.transparent,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(
-                  spacing.radius2 ?? 0,
-                ),
+                borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
                 borderSide: BorderSide(
                   width: 1,
                   color: colorPalette.borderLight ?? Colors.transparent,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(
-                  spacing.radius2 ?? 0,
-                ),
+                borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
                 borderSide: BorderSide(
                   width: 1,
                   color: colorPalette.borderLight ?? Colors.transparent,
@@ -535,8 +528,12 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
   }
 
   // Options TextField
-  getTextKey(int index, BuildContext context,
-      {Key? key, FocusNode? focusNode}) {
+  dynamic getTextKey(
+    int index,
+    BuildContext context, {
+    Key? key,
+    FocusNode? focusNode,
+  }) {
     return SizedBox(
       key: key ?? ValueKey('$index'),
       child: Row(
@@ -544,13 +541,10 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
         children: [
           Expanded(
             child: Padding(
-              padding: EdgeInsets.only(
-                bottom: spacing.padding2 ?? 0,
-              ),
+              padding: EdgeInsets.only(bottom: spacing.padding2 ?? 0),
               child: TextFormField(
                 textCapitalization: TextCapitalization.sentences,
-                keyboardAppearance:
-                CometChatThemeHelper.getBrightness(context),
+                keyboardAppearance: CometChatThemeHelper.getBrightness(context),
                 key: ValueKey('$index'),
                 controller: textEditingControllers[index],
                 validator: (value) {
@@ -576,34 +570,24 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
                   fontWeight: typography.body?.regular?.fontWeight,
                 ),
                 decoration: InputDecoration(
-                  errorStyle: const TextStyle(
-                    fontSize: 0,
-                  ),
-                  contentPadding: EdgeInsets.all(
-                    spacing.padding2 ?? 0,
-                  ),
+                  errorStyle: const TextStyle(fontSize: 0),
+                  contentPadding: EdgeInsets.all(spacing.padding2 ?? 0),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                      spacing.radius2 ?? 0,
-                    ),
+                    borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
                     borderSide: BorderSide(
                       width: 1,
                       color: colorPalette.borderLight ?? Colors.transparent,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                      spacing.radius2 ?? 0,
-                    ),
+                    borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
                     borderSide: BorderSide(
                       width: 1,
                       color: colorPalette.borderLight ?? Colors.transparent,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                      spacing.radius2 ?? 0,
-                    ),
+                    borderRadius: BorderRadius.circular(spacing.radius2 ?? 0),
                     borderSide: BorderSide(
                       width: 1,
                       color: colorPalette.borderLight ?? Colors.transparent,
@@ -692,19 +676,17 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
   }
 
   // Create Poll Options
-  createPoll({User? user, Group? group}) async {
-    print("Create Poll Called");
-    print(user);
-    print(group);
+  dynamic createPoll({User? user, Group? group}) async {
     if (_isLoading) {
       return;
     }
 
     int? getQuotedMessageId = ReplyUtils.getQuotedMessageId(
-        quotedMessage: widget.quotedMessage, user: user, group: group);
+      quotedMessage: widget.quotedMessage,
+      user: user,
+      group: group,
+    );
     if (getQuotedMessageId != null && getQuotedMessageId == -1) {}
-
-    print("Quoted Message ID: $getQuotedMessageId");
 
     FocusScope.of(context).unfocus();
     String receiverUid = '';
@@ -750,30 +732,37 @@ class _CometChatCreatePollState extends State<CometChatCreatePoll> {
     });
 
     CometChat.callExtension(
-        ExtensionConstants.polls, "POST", ExtensionUrls.createPoll, body,
-        onSuccess: (Map<String, dynamic> map) {
-      debugPrint("Success map $map");
-      setState(() {
-        _isLoading = false;
-      });
-      if (widget.quotedMessage != null) {
-        CometChatMessageEvents.ccReplyToMessage(
-            widget.quotedMessage!, MessageStatus.sent);
-      }
-      Navigator.pop(context);
-    }, onError: (CometChatException e) {
-      setState(() {
-        _isLoading = false;
-        _isError = true;
-      });
-      debugPrint("On Create Exception ${e.code} ${e.message}");
-    });
+      ExtensionConstants.polls,
+      "POST",
+      ExtensionUrls.createPoll,
+      body,
+      onSuccess: (Map<String, dynamic> map) {
+        debugPrint("Success map $map");
+        setState(() {
+          _isLoading = false;
+        });
+        if (widget.quotedMessage != null) {
+          CometChatMessageEvents.ccReplyToMessage(
+            widget.quotedMessage!,
+            MessageStatus.sent,
+          );
+        }
+        Navigator.pop(context);
+      },
+      onError: (CometChatException e) {
+        setState(() {
+          _isLoading = false;
+          _isError = true;
+        });
+        debugPrint("On Create Exception ${e.code} ${e.message}");
+      },
+    );
   }
 }
 
 ///[showCometChatCreatePoll] is a function used to show the create poll widget
 Future<String?> showCometChatCreatePoll({
-  required context,
+  required BuildContext context,
   required CometChatColorPalette colorPalette,
   required CometChatSpacing spacing,
   String? uid,
@@ -798,13 +787,12 @@ Future<String?> showCometChatCreatePoll({
         child: Material(
           color: colorPalette.background1,
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(
-              spacing.radius6 ?? 0,
-            ),
+            top: Radius.circular(spacing.radius6 ?? 0),
           ),
           child: Padding(
             padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
             child: CometChatCreatePoll(
               user: uid,
               group: guid,

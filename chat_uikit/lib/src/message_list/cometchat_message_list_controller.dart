@@ -1,14 +1,16 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:cometchat_chat_uikit/src/message_list/messages_builder_protocol.dart';
 import 'package:cometchat_chat_uikit/src/message_list/message_adapter.dart';
 import 'package:get/get.dart';
-import 'package:cometchat_uikit_shared/src/cometchat_message_list/chatwidget/flutter_chat_core/flutter_chat_core.dart' as core;
+// Not re-exported from cometchat_uikit_shared's public barrel; see
+// cometchat_message_list.dart for the same workaround.
+// ignore: implementation_imports
+import 'package:cometchat_uikit_shared/src/cometchat_message_list/chatwidget/flutter_chat_core/flutter_chat_core.dart'
+    as core;
 
 import '../../cometchat_chat_uikit.dart';
 import '../../cometchat_chat_uikit.dart' as cc;
@@ -70,13 +72,14 @@ class CometChatMessageListController
     this.mentionAllLabel,
     this.mentionAllLabelId,
   }) : super(
-      builderProtocol: user != null
-          ? (messagesBuilderProtocol
-        ..requestBuilder.uid = user.uid
-        ..requestBuilder.guid = '')
-          : (messagesBuilderProtocol
-        ..requestBuilder.guid = group!.guid
-        ..requestBuilder.uid = '')) {
+         builderProtocol: user != null
+             ? (messagesBuilderProtocol
+                 ..requestBuilder.uid = user.uid
+                 ..requestBuilder.guid = '')
+             : (messagesBuilderProtocol
+                 ..requestBuilder.guid = group!.guid
+                 ..requestBuilder.uid = ''),
+       ) {
     dateStamp = DateTime.now().microsecondsSinceEpoch.toString();
     _messageListenerId = "${dateStamp}user_listener";
     _groupListenerId = "${dateStamp}group_listener";
@@ -164,6 +167,12 @@ class CometChatMessageListController
   late String _uiMessageListener;
   late BuildContext context;
 
+  /// Set in [onClose]. Guards async continuations (e.g. a fetchPrevious callback
+  /// that lands after the chat screen is popped) from touching the disposed
+  /// chatController, which would throw
+  /// "Bad state: Cannot add new events after calling close".
+  bool _isDisposed = false;
+
   /// [addTemplate] Add Custom message templates on the existing templated.
   final List<CometChatMessageTemplate>? addTemplate;
 
@@ -201,12 +210,22 @@ class CometChatMessageListController
   Timer? _syncDebounceTimer;
 
   ///[headerView] shown in header view
-  Widget? Function(BuildContext,
-      {User? user, Group? group, int? parentMessageId})? headerView;
+  Widget? Function(
+    BuildContext, {
+    User? user,
+    Group? group,
+    int? parentMessageId,
+  })?
+  headerView;
 
   ///[footerView] shown in footer view
-  Widget? Function(BuildContext,
-      {User? user, Group? group, int? parentMessageId})? footerView;
+  Widget? Function(
+    BuildContext, {
+    User? user,
+    Group? group,
+    int? parentMessageId,
+  })?
+  footerView;
 
   final bool? disableReactions;
 
@@ -338,14 +357,6 @@ class CometChatMessageListController
   /// We remove more than just the excess to avoid frequent trimming operations.
   static const int windowBuffer = 300;
 
-  /// [_hasTrimmedOlderMessages] tracks if we've trimmed older messages (bottom of list)
-  /// When true, hasMoreItems should be true to allow re-fetching
-  bool _hasTrimmedOlderMessages = false;
-
-  /// [_hasTrimmedNewerMessages] tracks if we've trimmed newer messages (top of list)
-  /// When true, hasMoreNext should be true to allow re-fetching
-  bool _hasTrimmedNewerMessages = false;
-
   /// [isTrimmingWindow] indicates if we're in the process of trimming the message window
   /// This flag is used to show shimmer during the trim + scroll process
   bool isTrimmingWindow = false;
@@ -361,7 +372,8 @@ class CometChatMessageListController
         final direction = scrollDelta > 0 ? 'DOWN' : 'UP';
         if (kDebugMode) {
           print(
-              '📜 [GoToMessage Scroll] Direction: $direction | Delta: ${scrollDelta.toStringAsFixed(2)} | Offset: ${offset.toStringAsFixed(2)} | Target Message ID: $_goToMessageTargetId');
+            '📜 [GoToMessage Scroll] Direction: $direction | Delta: ${scrollDelta.toStringAsFixed(2)} | Offset: ${offset.toStringAsFixed(2)} | Target Message ID: $_goToMessageTargetId',
+          );
         }
       }
     }
@@ -370,7 +382,9 @@ class CometChatMessageListController
 
     // Only auto-reset unread count when scrolling to bottom if NOT marked as unread in this session
     // When markedAsUnreadInSession is true, user must tap the scroll-to-bottom button to clear
-    if (offset <= 10 && newUnreadMessageCount != 0 && !markedAsUnreadInSession) {
+    if (offset <= 10 &&
+        newUnreadMessageCount != 0 &&
+        !markedAsUnreadInSession) {
       markAsRead(list[0]);
       newUnreadMessageCount = 0;
     }
@@ -379,7 +393,9 @@ class CometChatMessageListController
     // - User did NOT manually mark as unread in this session
     // - There are unread messages (from a previous session/re-entry)
     // When user marks as unread in current session, they must tap the button to mark as read
-    if (offset <= 10 && unreadMessageAnchor != null && !markedAsUnreadInSession) {
+    if (offset <= 10 &&
+        unreadMessageAnchor != null &&
+        !markedAsUnreadInSession) {
       markConversationAsRead();
     }
 
@@ -430,7 +446,8 @@ class CometChatMessageListController
     final indicatorBottom = indicatorPosition + renderBox.size.height;
 
     // Check if indicator is within the visible viewport
-    final isVisible = indicatorBottom > listTop && indicatorPosition < listBottom;
+    final isVisible =
+        indicatorBottom > listTop && indicatorPosition < listBottom;
 
     if (isVisible) {
       unreadCount = 0;
@@ -555,22 +572,24 @@ class CometChatMessageListController
     if (topDate != null) {
       // Compare only the date part (year, month, day), not the time
       final currentStickyDate = stickyDateNotifier.value;
-      final shouldUpdate = currentStickyDate == null ||
+      final shouldUpdate =
+          currentStickyDate == null ||
           topDate.year != currentStickyDate.year ||
           topDate.month != currentStickyDate.month ||
           topDate.day != currentStickyDate.day;
 
       if (shouldUpdate) {
         stickyDateNotifier.value = topDate;
-        stickyDateString =
-        dateSeparatorPattern != null ? dateSeparatorPattern!(topDate) : null;
+        stickyDateString = dateSeparatorPattern != null
+            ? dateSeparatorPattern!(topDate)
+            : null;
       }
     }
   }
 
-  createTemplateMap() {
-    List<CometChatMessageTemplate> localTypes =
-    CometChatUIKit.getDataSource().getAllMessageTemplates();
+  dynamic createTemplateMap() {
+    List<CometChatMessageTemplate> localTypes = CometChatUIKit.getDataSource()
+        .getAllMessageTemplates();
     if (addTemplate != null && addTemplate!.isNotEmpty) {
       localTypes.addAll(addTemplate!);
     }
@@ -637,7 +656,12 @@ class CometChatMessageListController
       }
       if (threadMessageParentId == 0) {
         CometChatUIEvents.ccActiveChatChanged(
-            messageListId, null, user, group, initialUnreadCount ?? 0);
+          messageListId,
+          null,
+          user,
+          group,
+          initialUnreadCount ?? 0,
+        );
         isLoading = false;
         list.clear();
         return;
@@ -695,7 +719,10 @@ class CometChatMessageListController
   /// Clean up keys for messages that no longer exist in the list
   void _cleanupStaleKeys() {
     // Get all valid message IDs from current list (excluding pending messages with id=0)
-    final validIds = list.where((msg) => msg.id > 0).map((msg) => msg.id).toSet();
+    final validIds = list
+        .where((msg) => msg.id > 0)
+        .map((msg) => msg.id)
+        .toSet();
 
     // Check for duplicates in the list and remove them
     final seenIds = <int>{};
@@ -729,7 +756,9 @@ class CometChatMessageListController
 
     // Remove keys that are no longer in the list
     messageKeys.removeWhere((id, value) => !validIds.contains(id));
-    indexToMessageKey.removeWhere((index, key) => !messageKeys.containsValue(key));
+    indexToMessageKey.removeWhere(
+      (index, key) => !messageKeys.containsValue(key),
+    );
   }
 
   /// Trims the message list to stay within [maxMessagesInMemory] limit.
@@ -757,7 +786,8 @@ class CometChatMessageListController
       // When trimming from top (scrolling up), anchor to the oldest message currently visible
       // which will be near the end of the list after trim
       if (list.length > windowBuffer) {
-        anchorMessage = list[windowBuffer]; // First message that will remain after trim
+        anchorMessage =
+            list[windowBuffer]; // First message that will remain after trim
       }
     } else {
       // When trimming from bottom (scrolling down), anchor to the newest message
@@ -773,7 +803,6 @@ class CometChatMessageListController
       // list structure: [newest...oldest], so index 0 = newest
       removedMessages = list.sublist(0, windowBuffer);
       list.removeRange(0, windowBuffer);
-      _hasTrimmedNewerMessages = true;
       hasMoreNext = true; // Allow fetching newer messages again
     } else {
       // Remove older messages from the end of the list
@@ -782,7 +811,6 @@ class CometChatMessageListController
       if (startIndex > 0) {
         removedMessages = list.sublist(startIndex);
         list.removeRange(startIndex, list.length);
-        _hasTrimmedOlderMessages = true;
         hasMoreItems = true; // Allow fetching older messages again
       }
     }
@@ -841,6 +869,10 @@ class CometChatMessageListController
 
   @override
   void onClose() {
+    // Mark disposed BEFORE tearing anything down, so any in-flight async
+    // callback (e.g. a fetchPrevious that completes after the screen is popped)
+    // bails out instead of touching the disposed chatController.
+    _isDisposed = true;
     _retryTimer?.cancel();
     _syncDebounceTimer?.cancel(); // Cancel any pending sync
     chatController.dispose();
@@ -874,6 +906,8 @@ class CometChatMessageListController
   /// Uses updateMessage for existing messages to trigger ChatOperationType.update
   /// which causes ChatMessageInternal to rebuild without GlobalKey conflicts
   Future<void> syncMessagesToChatController() async {
+    // Guard: the screen may have been popped while a fetch was in flight.
+    if (_isDisposed) return;
     final reversedList = list.reversed.toList();
     var newFlutterMessages = MessageAdapter.toFlutterChatMessages(reversedList);
 
@@ -921,7 +955,9 @@ class CometChatMessageListController
             currentReactionsHash != newReactionsHash ||
             currentBaseMessageId != newBaseMessageId ||
             currentHasError != newHasError) {
-          debugPrint('🔄 [SYNC] Message needs update - id: ${newMsg.id}, deletedAt: $currentDeletedAt -> $newDeletedAt');
+          debugPrint(
+            '🔄 [SYNC] Message needs update - id: ${newMsg.id}, deletedAt: $currentDeletedAt -> $newDeletedAt',
+          );
           messagesToUpdate.add(newMsg);
         }
       } else {
@@ -937,7 +973,8 @@ class CometChatMessageListController
     }
 
     // Determine if we need structural changes (inserts/removals) or just updates
-    final hasStructuralChanges = messagesToInsert.isNotEmpty || messagesToRemove.isNotEmpty;
+    final hasStructuralChanges =
+        messagesToInsert.isNotEmpty || messagesToRemove.isNotEmpty;
 
     if (hasStructuralChanges) {
       // For structural changes, use setMessages for a clean atomic sync
@@ -995,7 +1032,9 @@ class CometChatMessageListController
       if (element.id > 0 && msg.id == element.id) {
         return true;
       }
-      if (element.muid.isNotEmpty && msg.muid.isNotEmpty && msg.muid == element.muid) {
+      if (element.muid.isNotEmpty &&
+          msg.muid.isNotEmpty &&
+          msg.muid == element.muid) {
         return true;
       }
       return false;
@@ -1008,17 +1047,20 @@ class CometChatMessageListController
       // If the message ID changed (pending -> sent), clean up old key
       if (oldMessage.id != element.id && oldMessage.id > 0) {
         messageKeys.remove(oldMessage.id);
-        indexToMessageKey.removeWhere((idx, key) => key == messageKeys[oldMessage.id]);
+        indexToMessageKey.removeWhere(
+          (idx, key) => key == messageKeys[oldMessage.id],
+        );
       }
 
       // Preserve reactions from old message if new message has no reactions
       if (element.reactions.isEmpty && oldMessage.reactions.isNotEmpty) {
         element.reactions.addAll(oldMessage.reactions);
-      } else if (element.reactions.isNotEmpty && oldMessage.reactions.isNotEmpty) {
+      } else if (element.reactions.isNotEmpty &&
+          oldMessage.reactions.isNotEmpty) {
         // Merge reactions - preserve local reactedByMe state
         for (final oldReaction in oldMessage.reactions) {
           final newReactionIdx = element.reactions.indexWhere(
-                  (r) => r.reaction == oldReaction.reaction
+            (r) => r.reaction == oldReaction.reaction,
           );
           if (newReactionIdx == -1 && oldReaction.reactedByMe == true) {
             element.reactions.add(oldReaction);
@@ -1090,7 +1132,6 @@ class CometChatMessageListController
     // list structure: [newest...oldest], so end = oldest
     final messagesToRemove = list.length - maxMessagesInMemory + windowBuffer;
     if (messagesToRemove > 0 && messagesToRemove < list.length) {
-
       final startIndex = list.length - messagesToRemove;
       final removedMessages = list.sublist(startIndex);
       list.removeRange(startIndex, list.length);
@@ -1142,16 +1183,22 @@ class CometChatMessageListController
 
     // First try muid
     if (muidId != null) {
-      chatControllerIndex = chatController.messages.indexWhere((m) => m.id == muidId);
+      chatControllerIndex = chatController.messages.indexWhere(
+        (m) => m.id == muidId,
+      );
     }
 
     // If not found by muid, try numeric id
     if (chatControllerIndex == -1) {
-      chatControllerIndex = chatController.messages.indexWhere((m) => m.id == numericId);
+      chatControllerIndex = chatController.messages.indexWhere(
+        (m) => m.id == numericId,
+      );
     }
 
     if (chatControllerIndex != -1) {
-      chatController.removeMessage(chatController.messages[chatControllerIndex]);
+      chatController.removeMessage(
+        chatController.messages[chatControllerIndex],
+      );
     } else {
       // Message not found - trigger a full sync to ensure consistency
       _scheduleSyncToChatController();
@@ -1164,7 +1211,7 @@ class CometChatMessageListController
   Future<void> getUnreadCount() async {
     if (initialUnreadCount == null) {
       Map<String, Map<String, int>>? resultMap =
-      await CometChat.getUnreadMessageCount();
+          await CometChat.getUnreadMessageCount();
 
       if (resultMap != null) {
         Map<String, int> countMap = {};
@@ -1221,7 +1268,7 @@ class CometChatMessageListController
     if (conversation != null && lastReadMessageId == null && !isThread) {
       lastReadMessageId = conversation!.lastReadMessageId;
       unreadCount = conversation!.unreadMessageCount ?? 0;
-      
+
       // If the last message is a thread reply and we're in main message list (not thread view),
       // we need to check if there are any non-thread unread messages
       // This will be done after messages are loaded in the anchor finding logic
@@ -1232,98 +1279,107 @@ class CometChatMessageListController
         // Check if we need to trim before fetching more messages
         // This happens when approaching the memory limit
         final didTrim = await _trimMessageWindow(trimFromTop: true);
-        if (didTrim) {
-        }
+        if (didTrim) {}
 
-        await request.fetchPrevious(onSuccess: (List<BaseMessage> fetchedList) {
-          isFetching = false;
-          if (fetchedList.isEmpty) {
-            isLoading = false;
-            hasMoreItems = false;
-            onEmpty?.call();
-            update();
-          } else {
-            isLoading = false;
-            hasMoreItems = true;
+        await request.fetchPrevious(
+          onSuccess: (List<BaseMessage> fetchedList) {
+            isFetching = false;
+            if (fetchedList.isEmpty) {
+              isLoading = false;
+              hasMoreItems = false;
+              onEmpty?.call();
+              update();
+            } else {
+              isLoading = false;
+              hasMoreItems = true;
 
-            for (var element in fetchedList.reversed) {
-              if (element is InteractiveMessage) {
-                element = InteractiveMessageUtils
-                    .getSpecificMessageFromInteractiveMessage(element);
-              }
+              for (var element in fetchedList.reversed) {
+                if (element is InteractiveMessage) {
+                  element =
+                      InteractiveMessageUtils.getSpecificMessageFromInteractiveMessage(
+                        element,
+                      );
+                }
 
-              // Restore saved reactions if any
-              _restoreSavedReactions(element);
+                // Restore saved reactions if any
+                _restoreSavedReactions(element);
 
-              // Use addElement to handle duplicates and preserve reactions
-              addElement(element, index: list.length);
+                // Use addElement to handle duplicates and preserve reactions
+                addElement(element, index: list.length);
 
-              if (lastParticipantMessage == null) {
-                if (element.sender?.uid != loggedInUser?.uid) {
-                  lastParticipantMessage = element;
-                  // Only mark as read if there are no unread messages to show indicator for
-                  // If unreadCount > 0, we want to show the indicator first
-                  if (unreadCount == 0) {
-                    markAsRead(element);
+                if (lastParticipantMessage == null) {
+                  if (element.sender?.uid != loggedInUser?.uid) {
+                    lastParticipantMessage = element;
+                    // Only mark as read if there are no unread messages to show indicator for
+                    // If unreadCount > 0, we want to show the indicator first
+                    if (unreadCount == 0) {
+                      markAsRead(element);
+                    }
                   }
                 }
               }
-            }
-            if (inInitialized == false && list.isNotEmpty) {
-              lastMessage = list[0];
-            }
-            onLoad?.call(list);
-
-            // Sync to chatController
-            syncMessagesToChatController();
-
-            // Set unread message anchor if there are unread messages (unreadCount > 0)
-            // This must happen BEFORE marking as read so the indicator is preserved
-            // Skip anchor recalculation if user manually marked as unread in this session
-            // The anchor was already set correctly by markMessageAsUnread
-            if (unreadCount > 0 && !markedAsUnreadInSession) {
-              // First try to find using lastReadMessageId
-              if (unreadMessageAnchor == null && lastReadMessageId != null && lastReadMessageId! > 0) {
-                unreadMessageAnchor = _findFirstUnreadAfterLastRead();
-                unreadMessageAnchorId = unreadMessageAnchor?.id;
+              if (inInitialized == false && list.isNotEmpty) {
+                lastMessage = list[0];
               }
-              // If still not found, try getFirstUnreadMessage
-              if (unreadMessageAnchor == null) {
-                unreadMessageAnchor = getFirstUnreadMessage();
-                unreadMessageAnchorId = unreadMessageAnchor?.id;
+              onLoad?.call(list);
+
+              // Sync to chatController
+              syncMessagesToChatController();
+
+              // Set unread message anchor if there are unread messages (unreadCount > 0)
+              // This must happen BEFORE marking as read so the indicator is preserved
+              // Skip anchor recalculation if user manually marked as unread in this session
+              // The anchor was already set correctly by markMessageAsUnread
+              if (unreadCount > 0 && !markedAsUnreadInSession) {
+                // First try to find using lastReadMessageId
+                if (unreadMessageAnchor == null &&
+                    lastReadMessageId != null &&
+                    lastReadMessageId! > 0) {
+                  unreadMessageAnchor = _findFirstUnreadAfterLastRead();
+                  unreadMessageAnchorId = unreadMessageAnchor?.id;
+                }
+                // If still not found, try getFirstUnreadMessage
+                if (unreadMessageAnchor == null) {
+                  unreadMessageAnchor = getFirstUnreadMessage();
+                  unreadMessageAnchorId = unreadMessageAnchor?.id;
+                }
+
+                // If no anchor found (all unread messages are thread replies), clear unreadCount
+                // Thread replies shouldn't trigger unread indicator in main message list
+                if (unreadMessageAnchor == null) {
+                  unreadCount = 0;
+                  markConversationAsRead();
+                }
               }
-              
-              // If no anchor found (all unread messages are thread replies), clear unreadCount
-              // Thread replies shouldn't trigger unread indicator in main message list
-              if (unreadMessageAnchor == null) {
+
+              // When startFromUnreadMessages is false, mark conversation as read (default behavior)
+              // This clears the badge but keeps the indicator (set above)
+              // Only do this on first load (inInitialized == false) and if there are messages
+              if (!startFromUnreadMessages &&
+                  !inInitialized &&
+                  list.isNotEmpty) {
+                // Clear badge immediately
                 unreadCount = 0;
                 markConversationAsRead();
+              } else if (startFromUnreadMessages &&
+                  unreadMessageAnchor != null) {
+                // When startFromUnreadMessages is true, check if indicator is visible
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  _checkUnreadIndicatorVisibility();
+                });
               }
             }
-
-            // When startFromUnreadMessages is false, mark conversation as read (default behavior)
-            // This clears the badge but keeps the indicator (set above)
-            // Only do this on first load (inInitialized == false) and if there are messages
-            if (!startFromUnreadMessages && !inInitialized && list.isNotEmpty) {
-              // Clear badge immediately
-              unreadCount = 0;
-              markConversationAsRead();
-            } else if (startFromUnreadMessages && unreadMessageAnchor != null) {
-              // When startFromUnreadMessages is true, check if indicator is visible
-              Future.delayed(const Duration(milliseconds: 100), () {
-                _checkUnreadIndicatorVisibility();
-              });
-            }
-          }
-          update();
-        }, onError: (CometChatException e) {
-          isFetching = false;
-          isLoading = false;
-          onError?.call(e);
-          error = e;
-          hasError = true;
-          update();
-        });
+            update();
+          },
+          onError: (CometChatException e) {
+            isFetching = false;
+            isLoading = false;
+            onError?.call(e);
+            error = e;
+            hasError = true;
+            update();
+          },
+        );
       } catch (e, s) {
         error = CometChatException("ERR", s.toString(), "Error");
         isFetching = false;
@@ -1337,8 +1393,7 @@ class CometChatMessageListController
       try {
         // Check if we need to trim before fetching more messages
         final didTrim = await _trimMessageWindow(trimFromTop: false);
-        if (didTrim) {
-        }
+        if (didTrim) {}
 
         // Show overlay if user has jumped to a quoted message and is now scrolling down
         // Only show if not already showing to prevent multiple overlays
@@ -1373,9 +1428,9 @@ class CometChatMessageListController
         }
 
         MessagesRequest messageRequest =
-        ((messagesBuilderProtocol.requestBuilder
-          ..messageId = fetchNextLastMessage.id))
-            .build();
+            ((messagesBuilderProtocol.requestBuilder
+                  ..messageId = fetchNextLastMessage.id))
+                .build();
 
         final completer = Completer<void>();
 
@@ -1389,7 +1444,8 @@ class CometChatMessageListController
               // No more messages - reset both flags
               if (isFetchingNextForQuotedMessage) {
                 isFetchingNextForQuotedMessage = false;
-                hasJumpedToQuotedMessage = false; // Reset since we've reached the end
+                hasJumpedToQuotedMessage =
+                    false; // Reset since we've reached the end
               }
 
               onEmpty?.call();
@@ -1407,8 +1463,10 @@ class CometChatMessageListController
               // Process fetched messages
               for (var element in fetchedList) {
                 if (element is InteractiveMessage) {
-                  element = InteractiveMessageUtils
-                      .getSpecificMessageFromInteractiveMessage(element);
+                  element =
+                      InteractiveMessageUtils.getSpecificMessageFromInteractiveMessage(
+                        element,
+                      );
                 }
 
                 tempList.add(element);
@@ -1426,8 +1484,9 @@ class CometChatMessageListController
 
               // Insert new messages at the beginning of the list (only if not already present)
               final existingIds = list.map((m) => m.id).toSet();
-              final newMessages =
-              tempList.where((m) => !existingIds.contains(m.id)).toList();
+              final newMessages = tempList
+                  .where((m) => !existingIds.contains(m.id))
+                  .toList();
 
               // Restore saved reactions for new messages
               for (final msg in newMessages) {
@@ -1444,10 +1503,12 @@ class CometChatMessageListController
                 // ChatAnimatedList expects [oldest...newest] order (opposite of internal list)
                 // So we reverse before inserting at the end of chatController.messages
                 // Filter out any messages that already exist in chatController to prevent duplicates
-                final chatControllerIds = chatController.messages.map((m) => m.id).toSet();
-                final flutterMessages = MessageAdapter.toFlutterChatMessages(newMessages.reversed.toList())
-                    .where((m) => !chatControllerIds.contains(m.id))
-                    .toList();
+                final chatControllerIds = chatController.messages
+                    .map((m) => m.id)
+                    .toSet();
+                final flutterMessages = MessageAdapter.toFlutterChatMessages(
+                  newMessages.reversed.toList(),
+                ).where((m) => !chatControllerIds.contains(m.id)).toList();
 
                 if (flutterMessages.isNotEmpty) {
                   await chatController.insertAllMessages(
@@ -1534,7 +1595,7 @@ class CometChatMessageListController
     }
   }
 
-  getLoggedInUser() async {
+  dynamic getLoggedInUser() async {
     loggedInUser ??= await CometChat.getLoggedInUser();
   }
 
@@ -1556,29 +1617,31 @@ class CometChatMessageListController
       request = ((messagesBuilderProtocol.requestBuilder).build());
 
       await request.fetchPrevious(
-          onSuccess: (List<BaseMessage> fetchedList) async {
-            if (fetchedList.isEmpty) {
-              hasMoreItems = false;
-            } else {
-              hasMoreItems = true;
-            }
-            await CometChatHelper.getMessageDetails(
-              targetMessageId,
-              onSuccess: (message) async {
-                if (message == null) return _showError();
-                await fetchNextMessagesForGotoMessages(fetchedList, message);
-              },
-              onError: (_) => _showError(),
-            );
-          }, onError: (CometChatException e) {
-        // Stop jumping process on error
-        isJumpingToMessage = false;
-        onError?.call(e);
-        error = e;
-        isLoading = false;
-        hasError = true;
-        update();
-      });
+        onSuccess: (List<BaseMessage> fetchedList) async {
+          if (fetchedList.isEmpty) {
+            hasMoreItems = false;
+          } else {
+            hasMoreItems = true;
+          }
+          await CometChatHelper.getMessageDetails(
+            targetMessageId,
+            onSuccess: (message) async {
+              if (message == null) return _showError();
+              await fetchNextMessagesForGotoMessages(fetchedList, message);
+            },
+            onError: (_) => _showError(),
+          );
+        },
+        onError: (CometChatException e) {
+          // Stop jumping process on error
+          isJumpingToMessage = false;
+          onError?.call(e);
+          error = e;
+          isLoading = false;
+          hasError = true;
+          update();
+        },
+      );
     } catch (e) {
       _showError();
     }
@@ -1618,10 +1681,12 @@ class CometChatMessageListController
     // Skip if this message was already added via ccMessageSent (by checking our tracking Sets)
     // This handles stickers and other custom messages sent via sendCustomMessage
     // But allows polls (sent via callExtension) to be added since they don't go through ccMessageSent
-    if (customMessage.id > 0 && _recentlyAddedMessageIds.contains(customMessage.id)) {
+    if (customMessage.id > 0 &&
+        _recentlyAddedMessageIds.contains(customMessage.id)) {
       return;
     }
-    if (customMessage.muid.isNotEmpty && _recentlyAddedMessageMuids.contains(customMessage.muid)) {
+    if (customMessage.muid.isNotEmpty &&
+        _recentlyAddedMessageMuids.contains(customMessage.muid)) {
       return;
     }
 
@@ -1746,7 +1811,8 @@ class CometChatMessageListController
 
   @override
   void onCustomInteractiveMessageReceived(
-      CustomInteractiveMessage customInteractiveMessage) {
+    CustomInteractiveMessage customInteractiveMessage,
+  ) {
     hidePanelReceivedMessage(customInteractiveMessage);
     if (_messageCategoryTypeCheck(customInteractiveMessage)) {
       _onMessageReceived(customInteractiveMessage);
@@ -1800,7 +1866,11 @@ class CometChatMessageListController
   //------------------------SDK Group Event Listeners------------------------------
   @override
   void onMemberAddedToGroup(
-      cc.Action action, User addedby, User userAdded, Group addedTo) {
+    cc.Action action,
+    User addedby,
+    User userAdded,
+    Group addedTo,
+  ) {
     if (_messageCategoryTypeCheck(action)) {
       if (group?.guid == addedTo.guid) {
         _onMessageReceived(action);
@@ -1810,7 +1880,10 @@ class CometChatMessageListController
 
   @override
   void onGroupMemberJoined(
-      cc.Action action, User joinedUser, Group joinedGroup) {
+    cc.Action action,
+    User joinedUser,
+    Group joinedGroup,
+  ) {
     if (_messageCategoryTypeCheck(action)) {
       if (group?.guid == joinedGroup.guid) {
         _onMessageReceived(action);
@@ -1829,7 +1902,11 @@ class CometChatMessageListController
 
   @override
   void onGroupMemberKicked(
-      cc.Action action, User kickedUser, User kickedBy, Group kickedFrom) {
+    cc.Action action,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     if (_messageCategoryTypeCheck(action)) {
       if (group?.guid == kickedFrom.guid) {
         _onMessageReceived(action, markRead: false, playSound: false);
@@ -1839,7 +1916,11 @@ class CometChatMessageListController
 
   @override
   void onGroupMemberBanned(
-      cc.Action action, User bannedUser, User bannedBy, Group bannedFrom) {
+    cc.Action action,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     if (_messageCategoryTypeCheck(action)) {
       if (group?.guid == bannedFrom.guid) {
         _onMessageReceived(action, markRead: false, playSound: false);
@@ -1849,7 +1930,11 @@ class CometChatMessageListController
 
   @override
   void ccGroupMemberBanned(
-      cc.Action message, User bannedUser, User bannedBy, Group bannedFrom) {
+    cc.Action message,
+    User bannedUser,
+    User bannedBy,
+    Group bannedFrom,
+  ) {
     if (_messageCategoryTypeCheck(message)) {
       if (group?.guid == bannedFrom.guid) {
         _onMessageFromLoggedInUser(message);
@@ -1859,7 +1944,11 @@ class CometChatMessageListController
 
   @override
   void ccGroupMemberKicked(
-      cc.Action message, User kickedUser, User kickedBy, Group kickedFrom) {
+    cc.Action message,
+    User kickedUser,
+    User kickedBy,
+    Group kickedFrom,
+  ) {
     if (_messageCategoryTypeCheck(message)) {
       if (group?.guid == kickedFrom.guid) {
         _onMessageFromLoggedInUser(message);
@@ -1868,8 +1957,12 @@ class CometChatMessageListController
   }
 
   @override
-  void ccGroupMemberAdded(List<cc.Action> messages, List<User> usersAdded,
-      Group groupAddedIn, User addedBy) {
+  void ccGroupMemberAdded(
+    List<cc.Action> messages,
+    List<User> usersAdded,
+    Group groupAddedIn,
+    User addedBy,
+  ) {
     if (group?.guid == groupAddedIn.guid) {
       for (var message in messages) {
         if (_messageCategoryTypeCheck(message)) {
@@ -1880,8 +1973,12 @@ class CometChatMessageListController
   }
 
   @override
-  void ccGroupMemberUnbanned(cc.Action message, User unbannedUser,
-      User unbannedBy, Group unbannedFrom) {
+  void ccGroupMemberUnbanned(
+    cc.Action message,
+    User unbannedUser,
+    User unbannedBy,
+    Group unbannedFrom,
+  ) {
     if (_messageCategoryTypeCheck(message)) {
       if (group?.guid == unbannedFrom.guid) {
         _onMessageFromLoggedInUser(message);
@@ -1890,8 +1987,12 @@ class CometChatMessageListController
   }
 
   @override
-  void onGroupMemberUnbanned(cc.Action action, User unbannedUser,
-      User unbannedBy, Group unbannedFrom) {
+  void onGroupMemberUnbanned(
+    cc.Action action,
+    User unbannedUser,
+    User unbannedBy,
+    Group unbannedFrom,
+  ) {
     if (_messageCategoryTypeCheck(action)) {
       if (group?.guid == unbannedFrom.guid) {
         _onMessageReceived(action);
@@ -1901,19 +2002,21 @@ class CometChatMessageListController
 
   @override
   void onGroupMemberScopeChanged(
-      cc.Action action,
-      User updatedBy,
-      User updatedUser,
-      String scopeChangedTo,
-      String scopeChangedFrom,
-      Group group) {
+    cc.Action action,
+    User updatedBy,
+    User updatedUser,
+    String scopeChangedTo,
+    String scopeChangedFrom,
+    Group group,
+  ) {
     if (_messageCategoryTypeCheck(action)) {
       if (group.guid == this.group?.guid) {
         if (loggedInUser?.uid == updatedUser.uid) {
           //TODO: use scopeChangedTo instead of scopeChangedFrom when the bug in SDK is fixed
           this.group?.scope = scopeChangedFrom;
           debugPrint(
-              'scope of ${updatedUser.name} changed to $scopeChangedFrom from $scopeChangedTo');
+            'scope of ${updatedUser.name} changed to $scopeChangedFrom from $scopeChangedTo',
+          );
         }
         _onMessageReceived(action);
       }
@@ -1970,7 +2073,7 @@ class CometChatMessageListController
   @override
   void ccMessageEdited(BaseMessage message, MessageEditStatus status) {
     if ((_checkIfSameConversationForReceivedMessage(message) ||
-        _checkIfSameConversationForSenderMessage(message)) &&
+            _checkIfSameConversationForSenderMessage(message)) &&
         status == MessageEditStatus.success) {
       updateElement(message);
     }
@@ -2008,9 +2111,11 @@ class CometChatMessageListController
     });
   }
 
+  @override
   updateMessageWithMuid(BaseMessage message) async {
-    int matchingIndex =
-    list.indexWhere((element) => element.muid == message.muid);
+    int matchingIndex = list.indexWhere(
+      (element) => element.muid == message.muid,
+    );
     if (matchingIndex == -1) {
       return;
     }
@@ -2025,26 +2130,33 @@ class CometChatMessageListController
     // If the message ID changed (pending -> sent), clean up old key
     if (existingMessage.id != message.id && existingMessage.id > 0) {
       messageKeys.remove(existingMessage.id);
-      indexToMessageKey.removeWhere((idx, key) => key == messageKeys[existingMessage.id]);
+      indexToMessageKey.removeWhere(
+        (idx, key) => key == messageKeys[existingMessage.id],
+      );
     }
 
     if (existingMessage is TextMessage || existingMessage is MediaMessage) {
-      bool isDisapproved =
-      moderationUtil.isMessageDisapprovedFromModeration(existingMessage);
+      bool isDisapproved = moderationUtil.isMessageDisapprovedFromModeration(
+        existingMessage,
+      );
       if (!isDisapproved) {
         list[matchingIndex] = message;
         _cleanupStaleKeys();
 
         // Handle the update in chatController
-        final oldFlutterMessage = MessageAdapter.toFlutterChatMessage(existingMessage);
+        final oldFlutterMessage = MessageAdapter.toFlutterChatMessage(
+          existingMessage,
+        );
         final newFlutterMessage = MessageAdapter.toFlutterChatMessage(message);
 
-        final chatControllerIndex = chatController.messages.indexWhere((m) => m.id == oldFlutterMessage.id);
+        final chatControllerIndex = chatController.messages.indexWhere(
+          (m) => m.id == oldFlutterMessage.id,
+        );
         if (chatControllerIndex != -1) {
           // Use updateMessage to trigger UI refresh
           await chatController.updateMessage(
             chatController.messages[chatControllerIndex],
-            newFlutterMessage
+            newFlutterMessage,
           );
         }
 
@@ -2071,13 +2183,19 @@ class CometChatMessageListController
 
   @override
   deleteMessage(BaseMessage message) async {
-    await CometChat.deleteMessage(message.id, onSuccess: (updatedMessage) {
-      updatedMessage.deletedAt ??= DateTime.now();
-      message.deletedAt = DateTime.now();
-      message.deletedBy = loggedInUser?.uid;
-      CometChatMessageEvents.ccMessageDeleted(
-          updatedMessage, EventStatus.success);
-    }, onError: (_) {});
+    await CometChat.deleteMessage(
+      message.id,
+      onSuccess: (updatedMessage) {
+        updatedMessage.deletedAt ??= DateTime.now();
+        message.deletedAt = DateTime.now();
+        message.deletedBy = loggedInUser?.uid;
+        CometChatMessageEvents.ccMessageDeleted(
+          updatedMessage,
+          EventStatus.success,
+        );
+      },
+      onError: (_) {},
+    );
   }
 
   @override
@@ -2095,15 +2213,15 @@ class CometChatMessageListController
       message,
       onSuccess: (Conversation updatedConversation) {
         CometChatUIKitHelper.onConversationUpdate(updatedConversation);
-        
+
         unreadMessageAnchor = message;
         unreadMessageAnchorId = message.id;
-        
+
         if (updatedConversation.lastReadMessageId != null &&
             updatedConversation.lastReadMessageId! > 0) {
           lastReadMessageId = updatedConversation.lastReadMessageId;
         }
-        
+
         unreadCount = updatedConversation.unreadMessageCount ?? 0;
         markedAsUnreadInSession = true;
         update();
@@ -2163,23 +2281,23 @@ class CometChatMessageListController
     // 2. It's not deleted
     // 3. It's not a thread reply (parentMessageId == 0)
     // 4. Its ID > lastReadMessageId (if lastReadMessageId is available)
-    
+
     // List is ordered newest first (index 0 = newest)
     // We need to find the OLDEST unread message (highest index that meets criteria)
     BaseMessage? firstUnreadMessage;
 
     for (int i = list.length - 1; i >= 0; i--) {
       final message = list[i];
-      
+
       // Skip messages from logged-in user
       if (message.sender?.uid == loggedInUid) continue;
-      
+
       // Skip deleted messages
       if (message.deletedAt != null) continue;
-      
+
       // Skip thread replies - they shouldn't trigger unread indicator in main list
       if (message.parentMessageId != 0) continue;
-      
+
       // If we have lastReadMessageId, only count messages with ID > lastReadMessageId as unread
       if (lastReadMessageId != null && lastReadMessageId! > 0) {
         if (message.id <= lastReadMessageId!) {
@@ -2187,7 +2305,7 @@ class CometChatMessageListController
           break;
         }
       }
-      
+
       // This is an unread non-thread message
       firstUnreadMessage = message;
       break; // Found the oldest unread message
@@ -2220,32 +2338,32 @@ class CometChatMessageListController
     // - NOT from logged-in user
     // - NOT a thread reply
     // - NOT an action message (system messages)
-    
+
     BaseMessage? firstUnreadMessage;
     int? smallestValidId;
 
     for (int i = 0; i < list.length; i++) {
       final message = list[i];
-      
+
       // Skip messages at or before lastReadMessageId
       if (message.id <= lastReadMessageId!) continue;
-      
+
       // Skip deleted messages - indicator should appear BELOW deleted messages
       if (message.deletedAt != null) {
         continue;
       }
-      
+
       // Skip thread replies
       if (message.parentMessageId != 0) continue;
-      
+
       // Skip messages from logged-in user
       if (message.sender?.uid == loggedInUid) continue;
-      
+
       // Skip ACTION messages (system messages like "user joined", "user left", etc.)
       if (message.category == MessageCategoryConstants.action) {
         continue;
       }
-      
+
       // This message is a candidate - check if it has the smallest ID
       if (smallestValidId == null || message.id < smallestValidId) {
         smallestValidId = message.id;
@@ -2269,7 +2387,7 @@ class CometChatMessageListController
       loadMoreElements();
       return;
     }
-    
+
     final uid = user?.uid ?? group?.guid;
     if (uid == null) return;
 
@@ -2310,7 +2428,7 @@ class CometChatMessageListController
       gotoMessageId(targetMessageId);
       return;
     }
-    
+
     final uid = user?.uid ?? group?.guid;
     if (uid == null) {
       gotoMessageId(targetMessageId);
@@ -2347,14 +2465,17 @@ class CometChatMessageListController
 
     // Build a request to fetch messages after lastReadMessageId
     // Cap the limit at 30 (SDK max limit) - we only need to find the first unread message
-    final fetchLimit = unreadCount > 0 ? (unreadCount > 30 ? 30 : unreadCount) : 30;
-    
-    MessagesRequest messageRequest = (MessagesRequestBuilder()
-          ..uid = user?.uid
-          ..guid = group?.guid
-          ..messageId = lastReadMessageId
-          ..limit = fetchLimit)
-        .build();
+    final fetchLimit = unreadCount > 0
+        ? (unreadCount > 30 ? 30 : unreadCount)
+        : 30;
+
+    MessagesRequest messageRequest =
+        (MessagesRequestBuilder()
+              ..uid = user?.uid
+              ..guid = group?.guid
+              ..messageId = lastReadMessageId
+              ..limit = fetchLimit)
+            .build();
 
     await messageRequest.fetchNext(
       onSuccess: (List<BaseMessage> fetchedList) async {
@@ -2371,45 +2492,45 @@ class CometChatMessageListController
         //
         // This ensures if the first message after lastReadMessageId is deleted,
         // we skip it and show indicator at the next non-deleted message (below the deleted one)
-        
+
         BaseMessage? firstUnreadMessage;
-        
+
         for (int i = 0; i < fetchedList.length; i++) {
           final message = fetchedList[i];
-          
+
           // Skip messages from logged-in user
           if (message.sender?.uid == loggedInUser?.uid) {
             continue;
           }
-          
+
           // Skip deleted messages - indicator should appear BELOW deleted messages
           if (message.deletedAt != null) {
             continue;
           }
-          
+
           // Skip thread replies
           if (message.parentMessageId != 0) {
             continue;
           }
-          
+
           // Skip ACTION messages (system messages like "user joined", "user left", etc.)
           if (message.category == MessageCategoryConstants.action) {
             continue;
           }
-          
+
           // Found the first valid unread message
           firstUnreadMessage = message;
           break;
         }
-        
+
         if (firstUnreadMessage == null) {
           loadMoreElements();
           return;
         }
-        
+
         unreadMessageAnchorId = firstUnreadMessage.id;
         unreadMessageAnchor = firstUnreadMessage;
-        
+
         unreadCount = 0;
         await markConversationAsRead();
         highlightScroll = false;
@@ -2421,35 +2542,42 @@ class CometChatMessageListController
     );
   }
 
-  _playSound() {
+  void _playSound() {
     if (!disableSoundForMessages) {
       CometChatUIKit.soundManager.play(
-          sound: Sound.incomingMessage,
-          customSound: customIncomingMessageSound,
-          packageName: customIncomingMessageSound == null ||
-              customIncomingMessageSound == ""
-              ? UIConstants.packageName
-              : customIncomingMessageSoundPackage);
+        sound: Sound.incomingMessage,
+        customSound: customIncomingMessageSound,
+        packageName:
+            customIncomingMessageSound == null ||
+                customIncomingMessageSound == ""
+            ? UIConstants.packageName
+            : customIncomingMessageSoundPackage,
+      );
     }
   }
 
-  markAsRead(BaseMessage message) {
+  dynamic markAsRead(BaseMessage message) {
     if (message.sender?.uid != loggedInUser?.uid && message.readAt == null) {
-      CometChat.markAsRead(message, onSuccess: (String res) {
-        CometChatMessageEvents.ccMessageRead(message);
-      }, onError: (e) {
-      });
+      CometChat.markAsRead(
+        message,
+        onSuccess: (String res) {
+          CometChatMessageEvents.ccMessageRead(message);
+        },
+        onError: (e) {},
+      );
     }
   }
 
-  _onMessageReceived(BaseMessage message,
-      {bool playSound = true, bool markRead = true}) {
-    
+  void _onMessageReceived(
+    BaseMessage message, {
+    bool playSound = true,
+    bool markRead = true,
+  }) {
     // Check for duplicate message event early - SDK fires multiple events for same message
     if (message.id > 0 && _recentlyAddedMessageIds.contains(message.id)) {
       return;
     }
-    
+
     // For agentic user, set parent id on first received message
     if (isUserAgentic() && threadMessageParentId == 0) {
       if (message.parentMessageId > 0) {
@@ -2471,21 +2599,21 @@ class CometChatMessageListController
     }
 
     if ((message.conversationId == conversationId ||
-        _checkIfSameConversationForReceivedMessage(message) ||
-        _checkIfSameConversationForSenderMessage(message)) &&
+            _checkIfSameConversationForReceivedMessage(message) ||
+            _checkIfSameConversationForSenderMessage(message)) &&
         message.parentMessageId == threadMessageParentId) {
-      
       // Track message ID to prevent duplicates
       if (message.id > 0) {
         _recentlyAddedMessageIds.add(message.id);
       }
-      
+
       // If hasMoreNext is true and user is NOT at the bottom of the list,
       // we're not at the latest messages yet - don't add the message to avoid wrong ordering
       // Only increment the badge count
       // But if user is at the bottom (offset <= 100), add the message regardless of hasMoreNext
-      final isAtBottom = !messageListScrollController.hasClients || 
-                         messageListScrollController.offset <= 100;
+      final isAtBottom =
+          !messageListScrollController.hasClients ||
+          messageListScrollController.offset <= 100;
       if (hasMoreNext && !isAtBottom) {
         if (playSound) {
           _playSound();
@@ -2499,10 +2627,10 @@ class CometChatMessageListController
         update();
         return;
       }
-      
+
       // addElement returns true only if message was actually added (not a duplicate)
       final wasAdded = addElement(message);
-      
+
       if (playSound) {
         _playSound();
       }
@@ -2516,7 +2644,7 @@ class CometChatMessageListController
       // Don't auto-mark as read if user manually marked messages as unread in this session
       // This fixes ENG-28434: unread count resets to 1 instead of incrementing
       if (markedAsUnreadInSession) {
-        unreadCount++;  // Increment unreadCount so badge shows correct total
+        unreadCount++; // Increment unreadCount so badge shows correct total
         update();
       } else if (scrollToBottomOnNewMessage) {
         markAsRead(message);
@@ -2537,35 +2665,39 @@ class CometChatMessageListController
       if (message.id > 0 && _recentlyAddedMessageIds.contains(message.id)) {
         return;
       }
-      
+
       // Track thread message ID to prevent duplicates
       if (message.id > 0) {
         _recentlyAddedMessageIds.add(message.id);
       }
-      
+
       //incrementing reply count
       if (playSound) {
         _playSound();
       }
-      int matchingIndex =
-          list.indexWhere((element) => (element.id == message.parentMessageId));
+      int matchingIndex = list.indexWhere(
+        (element) => (element.id == message.parentMessageId),
+      );
       if (matchingIndex != -1) {
         list[matchingIndex].replyCount++;
       }
-      
+
       // Also increment unread count for thread messages when markedAsUnreadInSession
       if (markedAsUnreadInSession) {
         unreadCount++;
       }
-      
+
       update();
     }
   }
 
-  _onMessageFromLoggedInUser(BaseMessage message,
-      {bool playSound = true, bool markRead = true}) {
+  void _onMessageFromLoggedInUser(
+    BaseMessage message, {
+    bool playSound = true,
+    bool markRead = true,
+  }) {
     if ((message.conversationId == conversationId ||
-        _checkIfSameConversationForSenderMessage(message)) &&
+            _checkIfSameConversationForSenderMessage(message)) &&
         message.parentMessageId == threadMessageParentId) {
       addElement(message);
       if (playSound) {
@@ -2595,8 +2727,9 @@ class CometChatMessageListController
         _playSound();
       }
 
-      int matchingIndex =
-      list.indexWhere((element) => (element.id == message.parentMessageId));
+      int matchingIndex = list.indexWhere(
+        (element) => (element.id == message.parentMessageId),
+      );
       if (matchingIndex != -1) {
         list[matchingIndex].replyCount++;
       }
@@ -2606,19 +2739,26 @@ class CometChatMessageListController
 
   //-----message option methods-----
 
-  _messageEdit(
-      BaseMessage message, CometChatMessageListControllerProtocol state) {
+  void _messageEdit(
+    BaseMessage message,
+    CometChatMessageListControllerProtocol state,
+  ) {
     if (message.deletedAt == null) {
       CometChatMessageEvents.ccMessageEdited(
-          message, MessageEditStatus.inProgress);
+        message,
+        MessageEditStatus.inProgress,
+      );
     }
   }
 
-  clearOverlayView(BaseMessage message) {
+  dynamic clearOverlayView(BaseMessage message) {
     CometChatMessageEvents.ccReplyToMessage(message, MessageStatus.error);
   }
 
-  _delete(BaseMessage message, CometChatMessageListControllerProtocol state) {
+  void _delete(
+    BaseMessage message,
+    CometChatMessageListControllerProtocol state,
+  ) {
     final colorPalette = CometChatThemeHelper.getColorPalette(context);
     final typography = CometChatThemeHelper.getTypography(context);
 
@@ -2684,7 +2824,9 @@ class CometChatMessageListController
         FocusScope.of(context).unfocus();
         if (message.deletedAt == null) {
           CometChatMessageEvents.ccMessageDeleted(
-              message, EventStatus.inProgress);
+            message,
+            EventStatus.inProgress,
+          );
           // Dismiss the confirm dialog on the root navigator (where showDialog placed
           // it), not the nearest one - otherwise a nested Navigator setup pops the
           // chat screen instead of the dialog.
@@ -2704,47 +2846,54 @@ class CometChatMessageListController
     ).show();
   }
 
-  _markAsUnread(
-      BaseMessage message, CometChatMessageListControllerProtocol state) {
+  void _markAsUnread(
+    BaseMessage message,
+    CometChatMessageListControllerProtocol state,
+  ) {
     markMessageAsUnread(message);
   }
 
-  _shareMessage(
-      BaseMessage message, CometChatMessageListControllerProtocol state) async {
+  Future<void> _shareMessage(
+    BaseMessage message,
+    CometChatMessageListControllerProtocol state,
+  ) async {
     //share
     if (message is TextMessage) {
       String text = message.text;
       //if message has mentions we need to send the text with mentions and not the original text
       if (message.mentionedUsers.isNotEmpty) {
         text = CometChatMentionsFormatter.getTextWithMentions(
-            message.text, message.mentionedUsers);
+          message.text,
+          message.mentionedUsers,
+        );
       }
-      await UIConstants.channel.invokeMethod(
-        "shareMessage",
-        {'message': text, "type": "text"},
-      );
+      await UIConstants.channel.invokeMethod("shareMessage", {
+        'message': text,
+        "type": "text",
+      });
     } else if (message is MediaMessage) {
-      await UIConstants.channel.invokeMethod(
-        "shareMessage",
-        {
-          "message": message.attachment?.fileName, // For ios
-          'mediaName': message.attachment?.fileName,
-          "type": "media",
-          "subtype": message.type.toString(),
-          "fileUrl": message.attachment?.fileUrl,
-          "mimeType": message.attachment?.fileMimeType
-        },
-      );
+      await UIConstants.channel.invokeMethod("shareMessage", {
+        "message": message.attachment?.fileName, // For ios
+        'mediaName': message.attachment?.fileName,
+        "type": "media",
+        "subtype": message.type.toString(),
+        "fileUrl": message.attachment?.fileUrl,
+        "mimeType": message.attachment?.fileMimeType,
+      });
     }
   }
 
-  _copyMessage(
-      BaseMessage message, CometChatMessageListControllerProtocol state) {
+  void _copyMessage(
+    BaseMessage message,
+    CometChatMessageListControllerProtocol state,
+  ) {
     if (message is TextMessage) {
       String text = message.text;
       if (message.mentionedUsers.isNotEmpty) {
         text = CometChatMentionsFormatter.getTextWithMentions(
-            message.text, message.mentionedUsers);
+          message.text,
+          message.mentionedUsers,
+        );
       }
       Clipboard.setData(ClipboardData(text: text));
     } else if (message is AIAssistantMessage) {
@@ -2753,21 +2902,27 @@ class CometChatMessageListController
     }
   }
 
-  _reportMessage(
-      BaseMessage message, CometChatMessageListControllerProtocol state) {
+  void _reportMessage(
+    BaseMessage message,
+    CometChatMessageListControllerProtocol state,
+  ) {
     showConfirmationDialog(context, message);
   }
 
   Future<bool?> showConfirmationDialog(
-      BuildContext context, BaseMessage message) {
+    BuildContext context,
+    BaseMessage message,
+  ) {
     final listStyle = CometChatThemeHelper.getTheme<CometChatMessageListStyle>(
-        context: context, defaultTheme: CometChatMessageListStyle.of)
-        .merge(messageListStyle);
+      context: context,
+      defaultTheme: CometChatMessageListStyle.of,
+    ).merge(messageListStyle);
 
     final flagMessageStyle =
-    CometChatThemeHelper.getTheme<CometchatFlagMessageStyle>(
-        context: context, defaultTheme: CometchatFlagMessageStyle.of)
-        .merge(listStyle.flagMessageStyle);
+        CometChatThemeHelper.getTheme<CometchatFlagMessageStyle>(
+          context: context,
+          defaultTheme: CometchatFlagMessageStyle.of,
+        ).merge(listStyle.flagMessageStyle);
 
     return showDialog<bool>(
       context: context,
@@ -2782,17 +2937,20 @@ class CometChatMessageListController
     );
   }
 
-  _messageInformation(
-      BaseMessage message, CometChatMessageListControllerProtocol state) {
+  void _messageInformation(
+    BaseMessage message,
+    CometChatMessageListControllerProtocol state,
+  ) {
     final listStyle = CometChatThemeHelper.getTheme<CometChatMessageListStyle>(
-        context: context, defaultTheme: CometChatMessageListStyle.of)
-        .merge(messageListStyle);
+      context: context,
+      defaultTheme: CometChatMessageListStyle.of,
+    ).merge(messageListStyle);
 
     final messageInfoStyle =
-    CometChatThemeHelper.getTheme<CometChatMessageInformationStyle>(
-        context: context,
-        defaultTheme: CometChatMessageInformationStyle.of)
-        .merge(listStyle.messageInformationStyle);
+        CometChatThemeHelper.getTheme<CometChatMessageInformationStyle>(
+          context: context,
+          defaultTheme: CometChatMessageInformationStyle.of,
+        ).merge(listStyle.messageInformationStyle);
     showMessageInformation(
       context: context,
       message: message,
@@ -2801,8 +2959,10 @@ class CometChatMessageListController
     );
   }
 
-  _sendMessagePrivately(
-      BaseMessage message, CometChatMessageListControllerProtocol state) async {
+  Future<void> _sendMessagePrivately(
+    BaseMessage message,
+    CometChatMessageListControllerProtocol state,
+  ) async {
     if (message.receiver is Group) {
       User? user = await CometChat.getUser(
         message.sender!.uid,
@@ -2825,15 +2985,23 @@ class CometChatMessageListController
     }
   }
 
-  replyToMessage(
-      BaseMessage message, CometChatMessageListControllerProtocol state) async {
+  dynamic replyToMessage(
+    BaseMessage message,
+    CometChatMessageListControllerProtocol state,
+  ) async {
     if (message.deletedAt == null) {
       CometChatMessageEvents.ccReplyToMessage(
-          message, MessageStatus.inProgress);
+        message,
+        MessageStatus.inProgress,
+      );
     }
   }
 
-  createMessage(BaseMessage copyFromMessage, User? user, Group? group) async {
+  dynamic createMessage(
+    BaseMessage copyFromMessage,
+    User? user,
+    Group? group,
+  ) async {
     if (copyFromMessage is TextMessage) {
       TextMessage message = TextMessage(
         text: copyFromMessage.text,
@@ -2847,9 +3015,11 @@ class CometChatMessageListController
         sender: loggedInUser,
         parentMessageId: 0,
       );
-      await CometChatUIKit.sendTextMessage(message,
-          onSuccess: (BaseMessage returnedMessage) {},
-          onError: (CometChatException excep) {});
+      await CometChatUIKit.sendTextMessage(
+        message,
+        onSuccess: (BaseMessage returnedMessage) {},
+        onError: (CometChatException excep) {},
+      );
     } else if (copyFromMessage is MediaMessage) {
       if (copyFromMessage.attachment == null) return;
 
@@ -2858,24 +3028,32 @@ class CometChatMessageListController
       String fileExtension = copyFromMessage.attachment!.fileExtension;
       String fileMimeType = copyFromMessage.attachment!.fileMimeType;
 
-      Attachment attachment =
-      Attachment(fileUrl, fileName, fileExtension, fileMimeType, null);
+      Attachment attachment = Attachment(
+        fileUrl,
+        fileName,
+        fileExtension,
+        fileMimeType,
+        null,
+      );
 
       MediaMessage message = MediaMessage(
-          receiverUid: user?.uid ?? group?.guid ?? "",
-          type: copyFromMessage.type,
-          category: MessageCategoryConstants.message,
-          receiverType: user != null
-              ? ReceiverTypeConstants.user
-              : ReceiverTypeConstants.group,
-          muid: DateTime.now().microsecondsSinceEpoch.toString(),
-          sender: loggedInUser,
-          parentMessageId: 0,
-          attachment: attachment);
+        receiverUid: user?.uid ?? group?.guid ?? "",
+        type: copyFromMessage.type,
+        category: MessageCategoryConstants.message,
+        receiverType: user != null
+            ? ReceiverTypeConstants.user
+            : ReceiverTypeConstants.group,
+        muid: DateTime.now().microsecondsSinceEpoch.toString(),
+        sender: loggedInUser,
+        parentMessageId: 0,
+        attachment: attachment,
+      );
 
-      await CometChatUIKit.sendMediaMessage(message,
-          onSuccess: (BaseMessage returnedMessage) {},
-          onError: (CometChatException excep) {});
+      await CometChatUIKit.sendMediaMessage(
+        message,
+        onSuccess: (BaseMessage returnedMessage) {},
+        onError: (CometChatException excep) {},
+      );
     } else if (copyFromMessage is CustomMessage) {
       CustomMessage message = CustomMessage(
         customData: copyFromMessage.customData,
@@ -2890,9 +3068,11 @@ class CometChatMessageListController
         parentMessageId: 0,
       );
 
-      await CometChatUIKit.sendCustomMessage(message,
-          onSuccess: (BaseMessage returnedMessage) {},
-          onError: (CometChatException excep) {});
+      await CometChatUIKit.sendCustomMessage(
+        message,
+        onSuccess: (BaseMessage returnedMessage) {},
+        onError: (CometChatException excep) {},
+      );
     }
   }
 
@@ -2944,28 +3124,34 @@ class CometChatMessageListController
   }
 
   @override
-  void ccGroupMemberScopeChanged(cc.Action message, User updatedUser,
-      String scopeChangedTo, String scopeChangedFrom, Group group) {
+  void ccGroupMemberScopeChanged(
+    cc.Action message,
+    User updatedUser,
+    String scopeChangedTo,
+    String scopeChangedFrom,
+    Group group,
+  ) {
     if (group.guid == this.group?.guid) {
       if (loggedInUser?.uid == updatedUser.uid) {
         this.group?.scope = scopeChangedTo;
       }
       debugPrint(
-          'scope of ${updatedUser.name} changed to $scopeChangedTo from $scopeChangedFrom');
+        'scope of ${updatedUser.name} changed to $scopeChangedTo from $scopeChangedFrom',
+      );
       _onMessageFromLoggedInUser(message);
     }
   }
 
   bool _checkIfSameConversationForReceivedMessage(BaseMessage message) {
     return (message.receiverType == CometChatReceiverType.user &&
-        user?.uid == message.sender?.uid) ||
+            user?.uid == message.sender?.uid) ||
         (message.receiverType == CometChatReceiverType.group &&
             group?.guid == message.receiverUid);
   }
 
   bool _checkIfSameConversationForSenderMessage(BaseMessage message) {
     return (message.sender?.role == AIConstants.aiRole &&
-        conversationId == message.conversationId) ||
+            conversationId == message.conversationId) ||
         (message.receiverType == CometChatReceiverType.user &&
             user?.uid == message.receiverUid) ||
         (message.receiverType == CometChatReceiverType.group &&
@@ -2978,13 +3164,15 @@ class CometChatMessageListController
     }
 
     return (message.receiverType == CometChatReceiverType.user &&
-        user?.uid == message.receiverUid) ||
+            user?.uid == message.receiverUid) ||
         (message.receiverType == CometChatReceiverType.group &&
             group?.guid == message.receiverUid);
   }
 
   BubbleContentVerifier checkBubbleContent(
-      BaseMessage messageObject, ChatAlignment alignment) {
+    BaseMessage messageObject,
+    ChatAlignment alignment,
+  ) {
     bool isMessageSentByMe = messageObject.sender?.uid == loggedInUser?.uid;
 
     BubbleAlignment alignment0 = BubbleAlignment.right;
@@ -3111,13 +3299,21 @@ class CometChatMessageListController
   initializeHeaderAndFooterView() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (headerView != null) {
-        defaultHeader = headerView!(context,
-            user: user, group: group, parentMessageId: threadMessageParentId);
+        defaultHeader = headerView!(
+          context,
+          user: user,
+          group: group,
+          parentMessageId: threadMessageParentId,
+        );
       }
 
       if (footerView != null) {
-        defaultFooter = footerView!(context,
-            user: user, group: group, parentMessageId: threadMessageParentId);
+        defaultFooter = footerView!(
+          context,
+          user: user,
+          group: group,
+          parentMessageId: threadMessageParentId,
+        );
       }
     });
   }
@@ -3131,8 +3327,11 @@ class CometChatMessageListController
   }
 
   @override
-  void showPanel(Map<String, dynamic>? id, CustomUIPosition uiPosition,
-      WidgetBuilder child) {
+  void showPanel(
+    Map<String, dynamic>? id,
+    CustomUIPosition uiPosition,
+    WidgetBuilder child,
+  ) {
     if (isForThisWidget(id) == false) return;
     if (uiPosition == CustomUIPosition.messageListBottom) {
       footer = child(context);
@@ -3158,8 +3357,8 @@ class CometChatMessageListController
       return true; //if passed id is null , that means for all composer
     }
     if ((id['uid'] != null &&
-        id['uid'] ==
-            user?.uid) //checking if uid or guid match composer's uid or guid
+            id['uid'] ==
+                user?.uid) //checking if uid or guid match composer's uid or guid
         ||
         (id['guid'] != null && id['guid'] == group?.guid)) {
       if (id['parentMessageId'] != null) {
@@ -3171,7 +3370,7 @@ class CometChatMessageListController
     return false;
   }
 
-//--------------SDK Call listeners-----------------------------------------------
+  //--------------SDK Call listeners-----------------------------------------------
 
   @override
   void onIncomingCallReceived(Call call) {
@@ -3203,11 +3402,13 @@ class CometChatMessageListController
     _onMessageReceived(call);
   }
 
-//----------------- UI Call Listeners---------------
+  //----------------- UI Call Listeners---------------
 
   bool _checkCallInSameConversation(Call call) {
     if (kDebugMode) {
-      debugPrint(" $threadMessageParentId ${user?.uid} ${group?.guid} ${call.receiverUid} ");
+      debugPrint(
+        " $threadMessageParentId ${user?.uid} ${group?.guid} ${call.receiverUid} ",
+      );
     }
 
     // Check for thread - calls should not appear in threads
@@ -3216,7 +3417,7 @@ class CometChatMessageListController
     }
 
     // Check for 1:1 user calls
-    if (user != null ) {
+    if (user != null) {
       return call.sender?.uid == user?.uid || call.receiverUid == user?.uid;
     }
 
@@ -3320,25 +3521,25 @@ class CometChatMessageListController
   }
 
   @override
-  void onConnectionError(CometChatException e) {
+  void onConnectionError(CometChatException error) {
     if (isUserAgentic()) {
       CometChatStreamCallBackEvents.ccStreamInterrupted(true);
-      _queueManager.onConnectionError(e, context);
+      _queueManager.onConnectionError(error, context);
     }
   }
 
   void _handleInterruptedRuns() {
-    list
-        .whereType<StreamMessage>()
-        .toList()
-        .forEach((msg) => removeElement(msg));
+    list.whereType<StreamMessage>().toList().forEach(
+      (msg) => removeElement(msg),
+    );
   }
 
   final registeredElements = ValueNotifier<Set<Element>?>(null);
 
   Future<void> jumpToMessageId(int messageId) async {
-    if (kDebugMode)
+    if (kDebugMode) {
       print("🔍 jumpToMessageId called with messageId: $messageId");
+    }
 
     // Find the message in the list
     final messageIndex = list.indexWhere((msg) => msg.id == messageId);
@@ -3351,17 +3552,22 @@ class CometChatMessageListController
       return;
     }
 
-    if (kDebugMode)
+    if (kDebugMode) {
       print(
-          "✅ Message found at index $messageIndex in list of ${list.length} messages");
+        "✅ Message found at index $messageIndex in list of ${list.length} messages",
+      );
+    }
 
     // Get the actual message to construct the correct flutter_chat_ui ID
     final message = list[messageIndex];
     final flutterChatMessage = MessageAdapter.toFlutterChatMessage(message);
     final flutterChatMessageId = flutterChatMessage.id;
 
-    if (kDebugMode)
-      print("🔍 Looking for flutter_chat_ui message with ID: $flutterChatMessageId");
+    if (kDebugMode) {
+      print(
+        "🔍 Looking for flutter_chat_ui message with ID: $flutterChatMessageId",
+      );
+    }
 
     try {
       await chatController.scrollToMessage(
@@ -3380,7 +3586,8 @@ class CometChatMessageListController
       _previousScrollOffset = messageListScrollController.offset;
       if (kDebugMode) {
         print(
-            '📜 [GoToMessage] Scroll tracking enabled for message ID: $messageId | Initial offset: ${_previousScrollOffset.toStringAsFixed(2)}');
+          '📜 [GoToMessage] Scroll tracking enabled for message ID: $messageId | Initial offset: ${_previousScrollOffset.toStringAsFixed(2)}',
+        );
       }
 
       // Start cooldown period to prevent immediate pagination
@@ -3425,8 +3632,9 @@ class CometChatMessageListController
     int messageId = lastMessageId ?? 1;
     List<String> categories =
         messagesBuilderProtocol.requestBuilder.categories ??
-            CometChatUIKit.getDataSource().getAllMessageCategories();
-    List<String> types = messagesBuilderProtocol.requestBuilder.types ??
+        CometChatUIKit.getDataSource().getAllMessageCategories();
+    List<String> types =
+        messagesBuilderProtocol.requestBuilder.types ??
         CometChatUIKit.getDataSource().getAllMessageTypes();
     bool hideReplies =
         messagesBuilderProtocol.requestBuilder.hideReplies ?? true;
@@ -3438,75 +3646,82 @@ class CometChatMessageListController
 
     while (hasMoreItems) {
       ///The following message request fetches the new messages received after the last message sent or received recorded in the list.
-      MessagesRequest messageRequest = (MessagesRequestBuilder()
-        ..uid = user?.uid
-        ..guid = group?.guid
-        ..categories = categories
-        ..types = types
-        ..messageId = messageId
-        ..parentMessageId = parentMessageId
-        ..hideReplies = hideReplies)
-          .build();
+      MessagesRequest messageRequest =
+          (MessagesRequestBuilder()
+                ..uid = user?.uid
+                ..guid = group?.guid
+                ..categories = categories
+                ..types = types
+                ..messageId = messageId
+                ..parentMessageId = parentMessageId
+                ..hideReplies = hideReplies)
+              .build();
       try {
         await messageRequest.fetchNext(
-            onSuccess: (List<BaseMessage> fetchedList) {
-              //if fetched messages list is empty, it means there are no new messages and hence stop proceeding.
-              if (fetchedList.isNotEmpty) {
-                hasMoreItems = true;
-                for (BaseMessage message in fetchedList) {
-                  if (message is InteractiveMessage) {
-                    message = InteractiveMessageUtils
-                        .getSpecificMessageFromInteractiveMessage(message);
-                  }
-                  if (message.parentMessageId != 0) {
-                    updateMessageThreadCount(message.parentMessageId);
-                  } else if (message is cc.Action) {
-                    if (message.type == MessageTypeConstants.message &&
-                        (message.action == ActionMessageTypeConstants.edited ||
-                            message.action == ActionMessageTypeConstants.deleted) &&
-                        message.actionOn is BaseMessage) {
-                      BaseMessage actionOn = message.actionOn as BaseMessage;
-                      int matchingIndex =
-                      list.indexWhere((element) => (element.id == actionOn.id));
-                      if (matchingIndex != -1) {
-                        list[matchingIndex] = actionOn;
-                        update();
-                      }
-                    } else if (message.sender?.uid != null &&
-                        loggedInUser?.uid != null &&
-                        message.sender?.uid == loggedInUser?.uid) {
-                      updateMessageWithMuid(message);
-                    } else {
-                      final wasAdded = addElement(message);
-                      if (wasAdded) {
-                        newUnreadMessageCount++;
-                      }
+          onSuccess: (List<BaseMessage> fetchedList) {
+            //if fetched messages list is empty, it means there are no new messages and hence stop proceeding.
+            if (fetchedList.isNotEmpty) {
+              hasMoreItems = true;
+              for (BaseMessage message in fetchedList) {
+                if (message is InteractiveMessage) {
+                  message =
+                      InteractiveMessageUtils.getSpecificMessageFromInteractiveMessage(
+                        message,
+                      );
+                }
+                if (message.parentMessageId != 0) {
+                  updateMessageThreadCount(message.parentMessageId);
+                } else if (message is cc.Action) {
+                  if (message.type == MessageTypeConstants.message &&
+                      (message.action == ActionMessageTypeConstants.edited ||
+                          message.action ==
+                              ActionMessageTypeConstants.deleted) &&
+                      message.actionOn is BaseMessage) {
+                    BaseMessage actionOn = message.actionOn as BaseMessage;
+                    int matchingIndex = list.indexWhere(
+                      (element) => (element.id == actionOn.id),
+                    );
+                    if (matchingIndex != -1) {
+                      list[matchingIndex] = actionOn;
                       update();
                     }
+                  } else if (message.sender?.uid != null &&
+                      loggedInUser?.uid != null &&
+                      message.sender?.uid == loggedInUser?.uid) {
+                    updateMessageWithMuid(message);
                   } else {
-                    for (int i = 0; i < list.length; i++) {
-                      if (list[i].muid == message.muid) {
-                        removeElementAt(i);
-                        update();
-                        break;
-                      }
-                    }
                     final wasAdded = addElement(message);
                     if (wasAdded) {
                       newUnreadMessageCount++;
                     }
                     update();
                   }
+                } else {
+                  for (int i = 0; i < list.length; i++) {
+                    if (list[i].muid == message.muid) {
+                      removeElementAt(i);
+                      update();
+                      break;
+                    }
+                  }
+                  final wasAdded = addElement(message);
+                  if (wasAdded) {
+                    newUnreadMessageCount++;
+                  }
+                  update();
                 }
-                messageId = fetchedList.last.id;
-                return;
-              } else {
-                hasMoreItems = false;
-                update();
               }
-            }, onError: (CometChatException e) {
-          hasMoreItems = false;
-        });
+              messageId = fetchedList.last.id;
+              return;
+            } else {
+              hasMoreItems = false;
+              update();
+            }
+          },
+          onError: (CometChatException e) {
+            hasMoreItems = false;
+          },
+        );
       } catch (e, _) {
         hasMoreItems = false;
       }
@@ -3514,20 +3729,24 @@ class CometChatMessageListController
   }
 
   Future<void> fetchNextMessagesForGotoMessages(
-      List<BaseMessage> previousMessages, BaseMessage targetedMessage) async {
+    List<BaseMessage> previousMessages,
+    BaseMessage targetedMessage,
+  ) async {
     fetchNextCall(previousMessages, targetedMessage);
   }
 
-  fetchNextCall(
-      List<BaseMessage> previousMessages, BaseMessage targetedMessage) async {
+  dynamic fetchNextCall(
+    List<BaseMessage> previousMessages,
+    BaseMessage targetedMessage,
+  ) async {
     int messageId = targetedMessage.id;
 
     // Mark that user has jumped to a quoted message (don't show overlay yet)
     hasJumpedToQuotedMessage = true;
 
-    MessagesRequest messageRequest = ((messagesBuilderProtocol.requestBuilder
-      ..messageId = messageId))
-        .build();
+    MessagesRequest messageRequest =
+        ((messagesBuilderProtocol.requestBuilder..messageId = messageId))
+            .build();
 
     final completer = Completer<void>();
 
@@ -3548,8 +3767,10 @@ class CometChatMessageListController
         // Add previous messages, but skip if it's the targeted message (to avoid duplicates)
         for (var element in previousMessages.reversed) {
           if (element is InteractiveMessage) {
-            element = InteractiveMessageUtils
-                .getSpecificMessageFromInteractiveMessage(element);
+            element =
+                InteractiveMessageUtils.getSpecificMessageFromInteractiveMessage(
+                  element,
+                );
           }
 
           // Skip if this is the targeted message - it will be added separately
@@ -3587,8 +3808,10 @@ class CometChatMessageListController
 
         for (var element in fetchedList) {
           if (element is InteractiveMessage) {
-            element = InteractiveMessageUtils
-                .getSpecificMessageFromInteractiveMessage(element);
+            element =
+                InteractiveMessageUtils.getSpecificMessageFromInteractiveMessage(
+                  element,
+                );
           }
           // Skip if this is the targeted message (already added)
           if (element.id == targetedMessage.id) {
@@ -3635,17 +3858,22 @@ class CometChatMessageListController
           // If we have a stored anchor ID (from _fetchFirstUnreadAndGoto), find it in the list
           // Skip if it's a thread reply (parentMessageId > 0)
           if (unreadMessageAnchorId != null && unreadMessageAnchor == null) {
-            final foundMessage = list.firstWhereOrNull((m) => m.id == unreadMessageAnchorId);
+            final foundMessage = list.firstWhereOrNull(
+              (m) => m.id == unreadMessageAnchorId,
+            );
             // Only set as anchor if it's not a thread reply
             if (foundMessage != null && foundMessage.parentMessageId == 0) {
               unreadMessageAnchor = foundMessage;
             } else if (foundMessage != null) {
-              unreadMessageAnchorId = null; // Clear the ID so we try other methods
+              unreadMessageAnchorId =
+                  null; // Clear the ID so we try other methods
             }
           }
           // If not found, try to find using lastReadMessageId
           // The first unread message is the first message after lastReadMessageId that's not from logged-in user
-          if (unreadMessageAnchor == null && lastReadMessageId != null && lastReadMessageId! > 0) {
+          if (unreadMessageAnchor == null &&
+              lastReadMessageId != null &&
+              lastReadMessageId! > 0) {
             unreadMessageAnchor = _findFirstUnreadAfterLastRead();
             unreadMessageAnchorId = unreadMessageAnchor?.id;
           }
@@ -3664,7 +3892,8 @@ class CometChatMessageListController
             // Check if target message is above or below the unread indicator
             // Target message ID > unread anchor ID means target is BELOW (newer) the indicator
             // Target message ID < unread anchor ID means target is ABOVE (older) the indicator
-            isTargetAboveIndicator = targetedMessage.id < unreadMessageAnchor!.id;
+            isTargetAboveIndicator =
+                targetedMessage.id < unreadMessageAnchor!.id;
 
             if (!isTargetAboveIndicator) {
               // Target is BELOW or AT the indicator (newer message)
@@ -3692,7 +3921,7 @@ class CometChatMessageListController
   }
 
   ///[_updateUserAndGroup] method updates the user and group details if the user or group is updated while the web socket connection is lost.
-  _updateUserAndGroup() async {
+  Future<void> _updateUserAndGroup() async {
     if (user != null) {
       user = await CometChat.getUser(
         user!.uid,
@@ -3726,7 +3955,10 @@ class CometChatMessageListController
     }
   }
 
-  _updateMessageOnReaction(ReactionEvent reactionEvent, String reactionAction) {
+  void _updateMessageOnReaction(
+    ReactionEvent reactionEvent,
+    String reactionAction,
+  ) {
     Reaction? messageReaction = reactionEvent.reaction;
     if (messageReaction != null) {
       int? messageId = messageReaction.messageId;
@@ -3734,15 +3966,18 @@ class CometChatMessageListController
         return;
       }
 
-      BaseMessage? message =
-      list.firstWhereOrNull((element) => element.id == messageId);
+      BaseMessage? message = list.firstWhereOrNull(
+        (element) => element.id == messageId,
+      );
       if (message == null) {
         return;
       }
 
       CometChatHelper.updateMessageWithReactionInfo(
-          message, messageReaction, reactionAction)
-          .then((reactedMessage) {
+        message,
+        messageReaction,
+        reactionAction,
+      ).then((reactedMessage) {
         if (reactedMessage == null) {
           return;
         }
@@ -3760,19 +3995,26 @@ class CometChatMessageListController
   /// This is called whenever reactions change to ensure they persist across list replacements
   void _saveReactionsToCache(BaseMessage message) {
     if (message.reactions.isNotEmpty) {
-      _savedReactionsForJump[message.id] = List<ReactionCount>.from(message.reactions);
+      _savedReactionsForJump[message.id] = List<ReactionCount>.from(
+        message.reactions,
+      );
     } else {
       // Remove from cache if no reactions
       _savedReactionsForJump.remove(message.id);
     }
   }
 
-  handleReactionPress(
-      BaseMessage message, String? reaction, List<ReactionCount> reactionList) {
+  dynamic handleReactionPress(
+    BaseMessage message,
+    String? reaction,
+    List<ReactionCount> reactionList,
+  ) {
     if (reaction == null || reaction.isEmpty) return;
-    int reactionIndex = reactionList.indexWhere((reactionCount) =>
-    reactionCount.reaction == reaction &&
-        reactionCount.reactedByMe == true);
+    int reactionIndex = reactionList.indexWhere(
+      (reactionCount) =>
+          reactionCount.reaction == reaction &&
+          reactionCount.reactedByMe == true,
+    );
 
     if (reactionIndex != -1) {
       final updatedMessage = updateReactionsOnMessage(message, reaction, false);
@@ -3788,13 +4030,16 @@ class CometChatMessageListController
           // Only revert if it's NOT a "reaction not found" error
           // If reaction not found, it means it was already removed - no need to revert
           if (error.code != 'ERR_MESSAGE_REACTION_NOT_FOUND') {
-            final revertedMessage = updateReactionsOnMessage(message, reaction, true);
+            final revertedMessage = updateReactionsOnMessage(
+              message,
+              reaction,
+              true,
+            );
             _saveReactionsToCache(revertedMessage);
             updateElement(revertedMessage);
           }
         },
-        onSuccess: (message) {
-        },
+        onSuccess: (message) {},
       );
     } else {
       /// add reaction
@@ -3809,20 +4054,25 @@ class CometChatMessageListController
           // Only revert if it's NOT an "already added" error
           // If already added, it means the reaction is there - no need to revert
           if (error.code != 'ERR_MESSAGE_REACTION_ALREADY_ADDED') {
-            final revertedMessage = updateReactionsOnMessage(message, reaction, false);
+            final revertedMessage = updateReactionsOnMessage(
+              message,
+              reaction,
+              false,
+            );
             _saveReactionsToCache(revertedMessage);
             updateElement(revertedMessage);
           }
           // Reaction already exists on server - keep the UI showing the reaction
         },
-        onSuccess: (message) {
-        },
+        onSuccess: (message) {},
       );
     }
   }
 
   void addReactionIconTap(
-      BaseMessage message, CometChatColorPalette colorPalette) async {
+    BaseMessage message,
+    CometChatColorPalette colorPalette,
+  ) async {
     Navigator.of(context).pop();
     String? reaction = await showCometChatEmojiKeyboard(
       context: context,
@@ -3845,11 +4095,18 @@ class CometChatMessageListController
   }
 
   BaseMessage updateReactionsOnMessage(
-      BaseMessage message, String reaction, bool add) {
-    ReactionCount reactionCount =
-    ReactionCount(reaction: reaction, count: 1, reactedByMe: true);
-    int match =
-    message.reactions.indexWhere((element) => element.reaction == reaction);
+    BaseMessage message,
+    String reaction,
+    bool add,
+  ) {
+    ReactionCount reactionCount = ReactionCount(
+      reaction: reaction,
+      count: 1,
+      reactedByMe: true,
+    );
+    int match = message.reactions.indexWhere(
+      (element) => element.reaction == reaction,
+    );
     if (add) {
       if (match == -1) {
         message.reactions.add(reactionCount);
@@ -3885,8 +4142,9 @@ class CometChatMessageListController
   bool _messageCategoryTypeCheck(BaseMessage message) {
     List<String> categories =
         messagesBuilderProtocol.requestBuilder.categories ??
-            CometChatUIKit.getDataSource().getAllMessageCategories();
-    List<String> types = messagesBuilderProtocol.requestBuilder.types ??
+        CometChatUIKit.getDataSource().getAllMessageCategories();
+    List<String> types =
+        messagesBuilderProtocol.requestBuilder.types ??
         CometChatUIKit.getDataSource().getAllMessageTypes();
 
     return categories.contains(message.category) &&
@@ -3897,10 +4155,11 @@ class CometChatMessageListController
     List<CometChatTextFormatter> textFormatters = this.textFormatters ?? [];
 
     if (textFormatters.isEmpty) {
-      textFormatters =
-          CometChatUIKit.getDataSource().getDefaultTextFormatters();
-      int indexOfMentionsFormatter = textFormatters
-          .indexWhere((element) => element is CometChatMentionsFormatter);
+      textFormatters = CometChatUIKit.getDataSource()
+          .getDefaultTextFormatters();
+      int indexOfMentionsFormatter = textFormatters.indexWhere(
+        (element) => element is CometChatMentionsFormatter,
+      );
       if (indexOfMentionsFormatter != -1) {
         // Only replace if it's the exact base type, not a custom subclass
         if (textFormatters[indexOfMentionsFormatter].runtimeType ==
@@ -3913,24 +4172,29 @@ class CometChatMessageListController
         }
       }
     } else if (textFormatters.indexWhere(
-            (element) => element is CometChatMentionsFormatter) ==
-        -1 &&
+              (element) => element is CometChatMentionsFormatter,
+            ) ==
+            -1 &&
         disableMentions != true) {
-      textFormatters.add(CometChatMentionsFormatter(
-        style: mentionsStyle,
-        mentionAllLabel: mentionAllLabel,
-        mentionAllLabelId: mentionAllLabelId,
-      ));
+      textFormatters.add(
+        CometChatMentionsFormatter(
+          style: mentionsStyle,
+          mentionAllLabel: mentionAllLabel,
+          mentionAllLabelId: mentionAllLabelId,
+        ),
+      );
     }
 
     if (disableMentions == true) {
-      textFormatters
-          .removeWhere((element) => element is CometChatMentionsFormatter);
+      textFormatters.removeWhere(
+        (element) => element is CometChatMentionsFormatter,
+      );
     }
 
     // Ensure rich text formatter is included for rendering formatted messages
-    int indexOfRichTextFormatter = textFormatters
-        .indexWhere((element) => element is CometChatRichTextFormatter);
+    int indexOfRichTextFormatter = textFormatters.indexWhere(
+      (element) => element is CometChatRichTextFormatter,
+    );
     if (indexOfRichTextFormatter == -1) {
       textFormatters.add(CometChatRichTextFormatter());
     }
@@ -3938,7 +4202,7 @@ class CometChatMessageListController
     this.textFormatters = textFormatters;
   }
 
-  checkAndShowReplies(User? user, Group? group) async {
+  dynamic checkAndShowReplies(User? user, Group? group) async {
     Map<String, dynamic>? apiMap;
 
     Map<String, dynamic> id = {};
@@ -3953,13 +4217,14 @@ class CometChatMessageListController
     }
 
     final listStyle = CometChatThemeHelper.getTheme<CometChatMessageListStyle>(
-        context: context, defaultTheme: CometChatMessageListStyle.of)
-        .merge(messageListStyle);
+      context: context,
+      defaultTheme: CometChatMessageListStyle.of,
+    ).merge(messageListStyle);
 
     CometChatUIEvents.showPanel(
       id,
       CustomUIPosition.messageListBottom,
-          (context) => CometChatAISmartRepliesView(
+      (context) => CometChatAISmartRepliesView(
         user: user,
         group: group,
         apiConfiguration: apiMap,
@@ -3968,9 +4233,7 @@ class CometChatMessageListController
     );
   }
 
-  _checkForSmartReplies({
-    TextMessage? textMessage,
-  }) {
+  void _checkForSmartReplies({TextMessage? textMessage}) {
     User? user;
     Group? group;
     if (textMessage != null) {
@@ -3980,30 +4243,28 @@ class CometChatMessageListController
         group = textMessage.receiver as Group;
       }
 
-      Debouncer debounce =
-      Debouncer(milliseconds: smartRepliesDelayDuration ?? 10000);
-
-      debounce.run(
-            () {
-          if (smartRepliesKeywords != null &&
-              smartRepliesKeywords!.isNotEmpty) {
-            for (String keyword in smartRepliesKeywords!) {
-              if (textMessage.text
-                  .toLowerCase()
-                  .contains(keyword.toLowerCase())) {
-                checkAndShowReplies(user, group);
-                break;
-              }
-            }
-          } else {
-            checkAndShowReplies(user, group);
-          }
-        },
+      Debouncer debounce = Debouncer(
+        milliseconds: smartRepliesDelayDuration ?? 10000,
       );
+
+      debounce.run(() {
+        if (smartRepliesKeywords != null && smartRepliesKeywords!.isNotEmpty) {
+          for (String keyword in smartRepliesKeywords!) {
+            if (textMessage.text.toLowerCase().contains(
+              keyword.toLowerCase(),
+            )) {
+              checkAndShowReplies(user, group);
+              break;
+            }
+          }
+        } else {
+          checkAndShowReplies(user, group);
+        }
+      });
     }
   }
 
-  hideSummaryPanel(Map<String, dynamic>? id) {
+  dynamic hideSummaryPanel(Map<String, dynamic>? id) {
     CometChatUIEvents.hidePanel(id, CustomUIPosition.messageListBottom);
   }
 
@@ -4031,10 +4292,11 @@ class CometChatMessageListController
     hidePanel(idMap, CustomUIPosition.messageListBottom);
   }
 
-  getConversationStarter(User? user, Group? group) async {
+  dynamic getConversationStarter(User? user, Group? group) async {
     final listStyle = CometChatThemeHelper.getTheme<CometChatMessageListStyle>(
-        context: context, defaultTheme: CometChatMessageListStyle.of)
-        .merge(messageListStyle);
+      context: context,
+      defaultTheme: CometChatMessageListStyle.of,
+    ).merge(messageListStyle);
     Map<String, dynamic>? apiMap;
 
     Map<String, dynamic> id = {};
@@ -4050,7 +4312,7 @@ class CometChatMessageListController
     CometChatUIEvents.showPanel(
       id,
       CustomUIPosition.messageListBottom,
-          (context) => CometChatAIConversationStarterView(
+      (context) => CometChatAIConversationStarterView(
         style: listStyle.aiConversationStarterStyle,
         user: user,
         group: group,
@@ -4059,10 +4321,11 @@ class CometChatMessageListController
     );
   }
 
-  getConversationsSummary(User? user, Group? group) async {
+  dynamic getConversationsSummary(User? user, Group? group) async {
     final listStyle = CometChatThemeHelper.getTheme<CometChatMessageListStyle>(
-        context: context, defaultTheme: CometChatMessageListStyle.of)
-        .merge(messageListStyle);
+      context: context,
+      defaultTheme: CometChatMessageListStyle.of,
+    ).merge(messageListStyle);
     Map<String, dynamic>? apiMap;
 
     Map<String, dynamic> id = {};
@@ -4088,11 +4351,12 @@ class CometChatMessageListController
     update();
   }
 
-// ----------------- AI Assistant Event Listeners -----------------
+  // ----------------- AI Assistant Event Listeners -----------------
   @override
   void onAIAssistantEventReceived(AIAssistantBaseEvent aiAssistantBaseEvent) {
     debugPrint(
-        "Received AI Event: ${aiAssistantBaseEvent.type} for Run ID: ${aiAssistantBaseEvent.id}");
+      "Received AI Event: ${aiAssistantBaseEvent.type} for Run ID: ${aiAssistantBaseEvent.id}",
+    );
 
     final runId = aiAssistantBaseEvent.id;
 
@@ -4104,9 +4368,11 @@ class CometChatMessageListController
     }
   }
 
-// Process all events for a specific run
+  // Process all events for a specific run
   Future<void> _processNextEvent(
-      int runId, AIAssistantBaseEvent aiAssistantBaseEvent) async {
+    int runId,
+    AIAssistantBaseEvent aiAssistantBaseEvent,
+  ) async {
     if (runId == aiAssistantBaseEvent.id) {
       await Future.delayed(_queueManager.streamDelay);
       if (aiAssistantBaseEvent.type == AgenticKeys.runStarted) {
@@ -4181,7 +4447,8 @@ class CometChatMessageListController
     final runId = aiAssistantMessage.runId;
 
     debugPrint(
-        "AI Assistant Message Received: $threadMessageParentId && ${aiAssistantMessage.parentMessageId}");
+      "AI Assistant Message Received: $threadMessageParentId && ${aiAssistantMessage.parentMessageId}",
+    );
 
     if (threadMessageParentId != aiAssistantMessage.parentMessageId ||
         runId == null) {
@@ -4192,7 +4459,7 @@ class CometChatMessageListController
     _queueManager.checkAndTriggerQueueCompletion(runId);
   }
 
-// Modify your existing addStreamMessage method
+  // Modify your existing addStreamMessage method
   void addStreamMessage(TextMessage textMessage) {
     if (_queueManager.getMessageIdForRun(textMessage.id) == null) {
       _createThinkingMessage(textMessage.id);
@@ -4216,7 +4483,8 @@ class CometChatMessageListController
       return suggestedMessages!;
     }
     return List<String>.from(
-        user?.metadata?[AIConstants.suggestedMessages] ?? []);
+      user?.metadata?[AIConstants.suggestedMessages] ?? [],
+    );
   }
 
   String getDisconnectionState(AIAssistantMessage? streamMessage) {
@@ -4239,10 +4507,10 @@ class CometChatMessageListController
 
   @override
   void onQueueCompleted(
-      AIAssistantMessage? aiAssistantMessage,
-      AIToolResultMessage? aiToolResultMessage,
-      AIToolArgumentMessage? aiToolArgumentMessage,
-      ) {
+    AIAssistantMessage? aiAssistantMessage,
+    AIToolResultMessage? aiToolResultMessage,
+    AIToolArgumentMessage? aiToolArgumentMessage,
+  ) {
     CometChatStreamCallBackEvents.ccStreamCompleted(true);
     if (aiAssistantMessage != null) {
       updateStreamMessageIntoAssistantMessage(aiAssistantMessage);
@@ -4258,7 +4526,8 @@ class CometChatMessageListController
   }
 
   void updateStreamMessageIntoAssistantMessage(
-      AIAssistantMessage aiAssistantMessage) {
+    AIAssistantMessage aiAssistantMessage,
+  ) {
     final runId = aiAssistantMessage.runId;
     for (int i = list.length - 1; i >= 0; i--) {
       if (list[i] is StreamMessage &&
@@ -4290,7 +4559,10 @@ class CometChatMessageListController
     return true;
   }
 
-  swipeGotoMessageId({BaseMessage? quotedMessage, BaseMessage? message}) async {
+  dynamic swipeGotoMessageId({
+    BaseMessage? quotedMessage,
+    BaseMessage? message,
+  }) async {
     if (quotedMessage == null || (message?.deletedAt != null)) return;
 
     final idx = list.indexWhere((m) => m.id == quotedMessage.id);
@@ -4310,7 +4582,9 @@ class CometChatMessageListController
         if (msg.reactions.isNotEmpty) {
           // Only save if not already in cache (don't overwrite newer cached reactions)
           if (!_savedReactionsForJump.containsKey(msg.id)) {
-            _savedReactionsForJump[msg.id] = List<ReactionCount>.from(msg.reactions);
+            _savedReactionsForJump[msg.id] = List<ReactionCount>.from(
+              msg.reactions,
+            );
           }
         }
       }
@@ -4356,7 +4630,7 @@ class CometChatMessageListController
     }
   }
 
-  highlightAnchorMessage(BaseMessage message) {
+  dynamic highlightAnchorMessage(BaseMessage message) {
     highlightedMessage = message;
     highlightedMessageId = message.id;
     update();
@@ -4367,14 +4641,14 @@ class CometChatMessageListController
     });
   }
 
-  updateScrollToBottom() {
+  dynamic updateScrollToBottom() {
     isScrollMessageToBottom = true;
     update();
   }
 
   /// Scrolls to the bottom of the message list without resetting/reloading messages
   /// This is used when the user clicks the scroll to bottom button
-  scrollToBottomOfList() {
+  dynamic scrollToBottomOfList() {
     // Mark conversation as read when user explicitly taps scroll-to-bottom
     if (unreadMessageAnchor != null || unreadCount > 0) {
       markConversationAsRead();
@@ -4401,7 +4675,7 @@ class CometChatMessageListController
     update();
   }
 
-  resetMessageList({int retryCount = 0}) async {
+  dynamic resetMessageList({int retryCount = 0}) async {
     _retryTimer?.cancel();
     // First clear the chatController to prevent GlobalKey conflicts
     await chatController.setMessages([]);
@@ -4438,7 +4712,7 @@ class CometChatMessageListController
     unreadMessageAnchorId = null;
     markedAsUnreadInSession = false;
     isTargetAboveIndicator = false;
-    unreadCount = 0;  // Clear unread count when user taps scroll-to-bottom
+    unreadCount = 0; // Clear unread count when user taps scroll-to-bottom
 
     request = (messagesBuilderProtocol.requestBuilder..messageId = 0).build();
 
@@ -4464,11 +4738,12 @@ class BubbleContentVerifier {
   BubbleAlignment alignment;
   bool showTime;
 
-  BubbleContentVerifier(
-      {this.showThumbnail = false,
-        this.showName = false,
-        this.showReadReceipt = true,
-        this.showFooterView = true,
-        this.alignment = BubbleAlignment.right,
-        this.showTime = true});
+  BubbleContentVerifier({
+    this.showThumbnail = false,
+    this.showName = false,
+    this.showReadReceipt = true,
+    this.showFooterView = true,
+    this.alignment = BubbleAlignment.right,
+    this.showTime = true,
+  });
 }
