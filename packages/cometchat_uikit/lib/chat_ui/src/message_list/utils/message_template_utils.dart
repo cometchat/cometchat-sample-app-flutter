@@ -143,6 +143,151 @@ class MessageTemplateUtils {
     );
   }
 
+  /// Resolves the thread a message's subscription option acts on: the parent
+  /// for a reply, the message itself for a root message.
+  static int resolveThreadId(BaseMessage messageObject) =>
+      messageObject.parentMessageId != 0
+      ? messageObject.parentMessageId
+      : messageObject.id;
+
+  /// Whether the logged-in user follows this message's thread.
+  ///
+  /// Stateless redesign: the message object IS the state — the SDK stamps
+  /// `threadSubscribed` from every fetch (normalised, never null) and keeps
+  /// no cache. Live coherence across surfaces comes from the kit event bus
+  /// (`ccThreadSubscriptionChanged` mutates the object in the list bloc), not
+  /// from an SDK store. `false` on a socket-delivered message means "the
+  /// server did not tell me", which renders as the un-followed affordance —
+  /// safe, because subscribing is idempotent.
+  static bool isSubscribedToThreadOf(BaseMessage messageObject) {
+    return messageObject.threadSubscribed;
+  }
+
+  static CometChatMessageOption getThreadSubscriptionOption(
+    BuildContext context,
+    BaseMessage messageObject,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatMessageOptionSheetStyle? messageOptionSheetStyle,
+  ) {
+    // One option id; the title flips on state (mute vocabulary per the
+    // landed design). UNKNOWN renders as the muted/get-notifications action —
+    // an unnecessary subscribe is harmless (the endpoint is idempotent).
+    final bool isSubscribed = isSubscribedToThreadOf(messageObject);
+    return CometChatMessageOption(
+      id: MessageOptionConstants.threadSubscription,
+      title: isSubscribed
+          ? Translations.of(context).messageListOptionStopReplyNotifications
+          : Translations.of(context).messageListOptionGetReplyNotifications,
+      icon: Icon(
+        isSubscribed
+            ? Icons.notifications_off_outlined
+            : Icons.notifications_outlined,
+        color: messageOptionSheetStyle?.iconColor ?? colorPalette.iconSecondary,
+        size: 24,
+      ),
+      messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
+        titleTextStyle: TextStyle(
+          color: messageOptionSheetStyle?.titleColor,
+          fontFamily: typography.body?.regular?.fontFamily,
+          fontWeight: typography.body?.regular?.fontWeight,
+          fontSize: typography.body?.regular?.fontSize,
+        ).merge(messageOptionSheetStyle?.titleTextStyle),
+        borderRadius: messageOptionSheetStyle?.borderRadius,
+        border: messageOptionSheetStyle?.border,
+        backgroundColor: messageOptionSheetStyle?.backgroundColor,
+        iconColor: messageOptionSheetStyle?.iconColor,
+        titleColor: messageOptionSheetStyle?.titleColor,
+      ),
+    );
+  }
+
+  /// Whether the message is currently pinned to its conversation. Truth is
+  /// the message object itself — pin state rides every fetch and the list
+  /// rebinds the object on pin/unpin events.
+  static bool isMessagePinned(BaseMessage messageObject) =>
+      messageObject.pinnedAt != null;
+
+  /// Whether the logged-in user has saved (bookmarked) this message.
+  static bool isMessageSaved(BaseMessage messageObject) =>
+      messageObject.savedAt != null;
+
+  static CometChatMessageOption getPinOption(
+    BuildContext context,
+    BaseMessage messageObject,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatMessageOptionSheetStyle? messageOptionSheetStyle,
+  ) {
+    // One surface slot; id and title flip on the message's pin state so the
+    // handlers can dispatch by id.
+    final bool pinned = isMessagePinned(messageObject);
+    return CometChatMessageOption(
+      id: pinned
+          ? MessageOptionConstants.unpinMessage
+          : MessageOptionConstants.pinMessage,
+      title: pinned
+          ? Translations.of(context).unpinMessageOption
+          : Translations.of(context).pinMessageOption,
+      icon: Icon(
+        pinned ? Icons.push_pin : Icons.push_pin_outlined,
+        color: messageOptionSheetStyle?.iconColor ?? colorPalette.iconSecondary,
+        size: 24,
+      ),
+      messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
+        titleTextStyle: TextStyle(
+          color: messageOptionSheetStyle?.titleColor,
+          fontFamily: typography.body?.regular?.fontFamily,
+          fontWeight: typography.body?.regular?.fontWeight,
+          fontSize: typography.body?.regular?.fontSize,
+        ).merge(messageOptionSheetStyle?.titleTextStyle),
+        borderRadius: messageOptionSheetStyle?.borderRadius,
+        border: messageOptionSheetStyle?.border,
+        backgroundColor: messageOptionSheetStyle?.backgroundColor,
+        iconColor: messageOptionSheetStyle?.iconColor,
+        titleColor: messageOptionSheetStyle?.titleColor,
+      ),
+    );
+  }
+
+  static CometChatMessageOption getSaveOption(
+    BuildContext context,
+    BaseMessage messageObject,
+    CometChatColorPalette colorPalette,
+    CometChatTypography typography,
+    CometChatMessageOptionSheetStyle? messageOptionSheetStyle,
+  ) {
+    final bool saved = isMessageSaved(messageObject);
+    return CometChatMessageOption(
+      id: saved
+          ? MessageOptionConstants.unsaveMessage
+          : MessageOptionConstants.saveMessage,
+      title: saved
+          ? Translations.of(context).unsaveMessageOption
+          : Translations.of(context).saveMessageOption,
+      icon: Icon(
+        // Plain outlined bookmark either way — the +/- variants read as
+        // separate actions rather than one toggle.
+        saved ? Icons.bookmark : Icons.bookmark_border,
+        color: messageOptionSheetStyle?.iconColor ?? colorPalette.iconSecondary,
+        size: 24,
+      ),
+      messageOptionSheetStyle: CometChatMessageOptionSheetStyle(
+        titleTextStyle: TextStyle(
+          color: messageOptionSheetStyle?.titleColor,
+          fontFamily: typography.body?.regular?.fontFamily,
+          fontWeight: typography.body?.regular?.fontWeight,
+          fontSize: typography.body?.regular?.fontSize,
+        ).merge(messageOptionSheetStyle?.titleTextStyle),
+        borderRadius: messageOptionSheetStyle?.borderRadius,
+        border: messageOptionSheetStyle?.border,
+        backgroundColor: messageOptionSheetStyle?.backgroundColor,
+        iconColor: messageOptionSheetStyle?.iconColor,
+        titleColor: messageOptionSheetStyle?.titleColor,
+      ),
+    );
+  }
+
   static CometChatMessageOption getShareOption(
     BuildContext context,
     CometChatColorPalette colorPalette,
@@ -393,6 +538,69 @@ class MessageTemplateUtils {
         )) {
       messageOptionList.add(
         getReplyInThreadOption(context, colorPalette, typography, style),
+      );
+    }
+
+    // Follow/unfollow thread — placed directly after Reply in thread so the
+    // two thread actions sit together. Feature-gated (default off): with the
+    // gate off, neither thread-subscription surface renders.
+    if (CometChatUIKit.authenticationSettings?.enableThreadSubscription ==
+            true &&
+        additionalConfigurations?.hideThreadSubscriptionOption != true &&
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.threadSubscription,
+        )) {
+      messageOptionList.add(
+        getThreadSubscriptionOption(
+          context,
+          messageObject,
+          colorPalette,
+          typography,
+          style,
+        ),
+      );
+    }
+
+    // Pin & Save — gated on the server feature flags. The rendered state
+    // (pin vs unpin, save vs unsave) comes from the message object; each
+    // state has its own hide flag.
+    if (CometChat.isPinMessageEnabled() &&
+        (isMessagePinned(messageObject)
+            ? additionalConfigurations?.hideUnpinMessageOption != true
+            : additionalConfigurations?.hidePinMessageOption != true) &&
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          isMessagePinned(messageObject)
+              ? MessageOptionConstants.unpinMessage
+              : MessageOptionConstants.pinMessage,
+        )) {
+      messageOptionList.add(
+        getPinOption(context, messageObject, colorPalette, typography, style),
+      );
+    }
+
+    if (CometChat.isSaveMessageEnabled() &&
+        (isMessageSaved(messageObject)
+            ? additionalConfigurations?.hideUnsaveMessageOption != true
+            : additionalConfigurations?.hideSaveMessageOption != true) &&
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          isMessageSaved(messageObject)
+              ? MessageOptionConstants.unsaveMessage
+              : MessageOptionConstants.saveMessage,
+        )) {
+      messageOptionList.add(
+        getSaveOption(context, messageObject, colorPalette, typography, style),
       );
     }
     if (additionalConfigurations?.hideShareMessageOption != true &&
@@ -1095,6 +1303,14 @@ class MessageTemplateUtils {
       return true;
     }
 
+    // The thread-notification option shows on every message (landed design):
+    // on a top-level message it targets that message's thread, on a reply it
+    // targets the parent thread. Never gated on replyCount — muting/unmuting
+    // a message with zero replies is legitimate.
+    if (MessageOptionConstants.threadSubscription == optionId) {
+      return true;
+    }
+
     if (MessageOptionConstants.shareMessage == optionId &&
         (messageObject is TextMessage || messageObject is MediaMessage)) {
       return true;
@@ -1105,7 +1321,41 @@ class MessageTemplateUtils {
       return true;
     }
 
+    // Pin & Save eligibility: any real, non-deleted message — including
+    // thread replies. Save is per-viewer and unrestricted; pin additionally
+    // needs SBAC (below). Action/unsent/moderation-pending messages never
+    // reach here (the assemblers early-return for those).
+    final bool isRealMessage =
+        messageObject.id != 0 && messageObject.deletedAt == null;
+
+    if ((MessageOptionConstants.saveMessage == optionId ||
+            MessageOptionConstants.unsaveMessage == optionId) &&
+        isRealMessage) {
+      return true;
+    }
+
     bool isSendMyMeOption = isSentByMe(loggedInUser, messageObject);
+
+    // Pin eligibility: any real message. Pin permission is deliberately NOT
+    // decided here — the server owns it.
+    //
+    // This used to mirror delete's scope rule (owner or admin/moderator only),
+    // but that hardcoded a policy the backend never told us: no permission
+    // data is served for pinning (no capability on Group, no scope key in the
+    // /me `features.ux.messages.pinned.*` family — only `enabled` and
+    // `limit`). So an app whose server grants participants pin rights got the
+    // option silently withheld, with no error to explain it — a false
+    // negative the user could not discover or work around.
+    //
+    // Offering it and letting the server arbitrate makes the failure visible
+    // instead: an unauthorized pin returns ERR_UNAUTHORIZED / ERR_FORBIDDEN /
+    // ERR_PERMISSION_DENIED, which the list maps to the "no permission" toast.
+    // Restore a client-side rule here only when the backend serves the policy
+    // to check against.
+    if (MessageOptionConstants.pinMessage == optionId ||
+        MessageOptionConstants.unpinMessage == optionId) {
+      return isRealMessage;
+    }
 
     if (MessageOptionConstants.messageInformation == optionId &&
         isSendMyMeOption) {
@@ -1222,6 +1472,69 @@ class MessageTemplateUtils {
         )) {
       messageOptionList.add(
         getReplyInThreadOption(context, colorPalette, typography, style),
+      );
+    }
+
+    // Follow/unfollow thread — placed directly after Reply in thread so the
+    // two thread actions sit together. Feature-gated (default off): with the
+    // gate off, neither thread-subscription surface renders.
+    if (CometChatUIKit.authenticationSettings?.enableThreadSubscription ==
+            true &&
+        additionalConfigurations?.hideThreadSubscriptionOption != true &&
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          MessageOptionConstants.threadSubscription,
+        )) {
+      messageOptionList.add(
+        getThreadSubscriptionOption(
+          context,
+          messageObject,
+          colorPalette,
+          typography,
+          style,
+        ),
+      );
+    }
+
+    // Pin & Save — gated on the server feature flags. The rendered state
+    // (pin vs unpin, save vs unsave) comes from the message object; each
+    // state has its own hide flag.
+    if (CometChat.isPinMessageEnabled() &&
+        (isMessagePinned(messageObject)
+            ? additionalConfigurations?.hideUnpinMessageOption != true
+            : additionalConfigurations?.hidePinMessageOption != true) &&
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          isMessagePinned(messageObject)
+              ? MessageOptionConstants.unpinMessage
+              : MessageOptionConstants.pinMessage,
+        )) {
+      messageOptionList.add(
+        getPinOption(context, messageObject, colorPalette, typography, style),
+      );
+    }
+
+    if (CometChat.isSaveMessageEnabled() &&
+        (isMessageSaved(messageObject)
+            ? additionalConfigurations?.hideUnsaveMessageOption != true
+            : additionalConfigurations?.hideSaveMessageOption != true) &&
+        _validateOption(
+          loggedInUser,
+          messageObject,
+          context,
+          group,
+          isMessageSaved(messageObject)
+              ? MessageOptionConstants.unsaveMessage
+              : MessageOptionConstants.saveMessage,
+        )) {
+      messageOptionList.add(
+        getSaveOption(context, messageObject, colorPalette, typography, style),
       );
     }
 

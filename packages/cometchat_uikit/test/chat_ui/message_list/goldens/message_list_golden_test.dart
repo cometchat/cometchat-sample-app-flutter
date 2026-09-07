@@ -149,14 +149,29 @@ _FakeTextMessage _emojiOnlyMessage() => _FakeTextMessage(
 // Helper: themed row
 // ---------------------------------------------------------------------------
 
+/// Wraps a scenario child in theme + directionality, deliberately WITHOUT a
+/// MaterialApp or Scaffold.
+///
+/// Alchemist lays each scenario out in a table cell that imposes no bounds.
+/// Scaffold expands to fill its parent, so nesting one here meant it was asked
+/// to lay out at Size(0.0, Infinity) and threw before any golden could be
+/// captured. Sizing only the Scaffold's body did not help — the Scaffold
+/// itself was the unbounded box. The scenarios render plain Text, so no
+/// localization is needed at this level; the group below supplies it once, the
+/// way the conversations goldens do.
 Widget _themedRow(Brightness brightness, Widget child) {
-  return MaterialApp(
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(brightness: brightness),
-    localizationsDelegates: Translations.localizationsDelegates,
-    supportedLocales: Translations.supportedLocales,
-    home: Scaffold(
-      body: SizedBox(width: 375, height: 80, child: Center(child: child)),
+  final isDark = brightness == Brightness.dark;
+  return MediaQuery(
+    data: MediaQueryData(platformBrightness: brightness),
+    child: Theme(
+      data: isDark ? ThemeData.dark() : ThemeData.light(),
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Material(
+          color: isDark ? const Color(0xFF121212) : const Color(0xFFFFFFFF),
+          child: Center(child: child),
+        ),
+      ),
     ),
   );
 }
@@ -171,90 +186,97 @@ void main() {
   goldenTest(
     'message_list_variants_light_dark',
     fileName: 'message_list_variants',
-    builder: () => GoldenTestGroup(
-      columnWidthBuilder: (_) => const FlexColumnWidth(),
-      children: [
-        GoldenTestScenario(
-          name: 'sent_read_light',
-          child: _themedRow(Brightness.light, Text(_sentReadMessage().text)),
+    builder: () => Localizations(
+      locale: const Locale('en'),
+      delegates: Translations.localizationsDelegates,
+      child: GoldenTestGroup(
+        scenarioConstraints: const BoxConstraints.tightFor(
+          width: 375,
+          height: 80,
         ),
-        GoldenTestScenario(
-          name: 'sent_read_dark',
-          child: _themedRow(Brightness.dark, Text(_sentReadMessage().text)),
-        ),
-        GoldenTestScenario(
-          name: 'sent_delivered_light',
-          child: _themedRow(
-            Brightness.light,
-            Text(_sentDeliveredMessage().text),
+        children: [
+          GoldenTestScenario(
+            name: 'sent_read_light',
+            child: _themedRow(Brightness.light, Text(_sentReadMessage().text)),
           ),
-        ),
-        GoldenTestScenario(
-          name: 'sent_delivered_dark',
-          child: _themedRow(
-            Brightness.dark,
-            Text(_sentDeliveredMessage().text),
+          GoldenTestScenario(
+            name: 'sent_read_dark',
+            child: _themedRow(Brightness.dark, Text(_sentReadMessage().text)),
           ),
-        ),
-        GoldenTestScenario(
-          name: 'sent_only_light',
-          child: _themedRow(Brightness.light, Text(_sentOnlyMessage().text)),
-        ),
-        GoldenTestScenario(
-          name: 'sent_only_dark',
-          child: _themedRow(Brightness.dark, Text(_sentOnlyMessage().text)),
-        ),
-        GoldenTestScenario(
-          name: 'received_light',
-          child: _themedRow(Brightness.light, Text(_receivedMessage().text)),
-        ),
-        GoldenTestScenario(
-          name: 'received_dark',
-          child: _themedRow(Brightness.dark, Text(_receivedMessage().text)),
-        ),
-        GoldenTestScenario(
-          name: 'long_text_light',
-          child: _themedRow(
-            Brightness.light,
-            Text(
-              _longTextMessage().text,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
+          GoldenTestScenario(
+            name: 'sent_delivered_light',
+            child: _themedRow(
+              Brightness.light,
+              Text(_sentDeliveredMessage().text),
             ),
           ),
-        ),
-        GoldenTestScenario(
-          name: 'long_text_dark',
-          child: _themedRow(
-            Brightness.dark,
-            Text(
-              _longTextMessage().text,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
+          GoldenTestScenario(
+            name: 'sent_delivered_dark',
+            child: _themedRow(
+              Brightness.dark,
+              Text(_sentDeliveredMessage().text),
             ),
           ),
-        ),
-        GoldenTestScenario(
-          name: 'emoji_only_light',
-          child: _themedRow(
-            Brightness.light,
-            Text(
-              _emojiOnlyMessage().text,
-              style: const TextStyle(fontSize: 32),
+          GoldenTestScenario(
+            name: 'sent_only_light',
+            child: _themedRow(Brightness.light, Text(_sentOnlyMessage().text)),
+          ),
+          GoldenTestScenario(
+            name: 'sent_only_dark',
+            child: _themedRow(Brightness.dark, Text(_sentOnlyMessage().text)),
+          ),
+          GoldenTestScenario(
+            name: 'received_light',
+            child: _themedRow(Brightness.light, Text(_receivedMessage().text)),
+          ),
+          GoldenTestScenario(
+            name: 'received_dark',
+            child: _themedRow(Brightness.dark, Text(_receivedMessage().text)),
+          ),
+          GoldenTestScenario(
+            name: 'long_text_light',
+            child: _themedRow(
+              Brightness.light,
+              Text(
+                _longTextMessage().text,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
             ),
           ),
-        ),
-        GoldenTestScenario(
-          name: 'emoji_only_dark',
-          child: _themedRow(
-            Brightness.dark,
-            Text(
-              _emojiOnlyMessage().text,
-              style: const TextStyle(fontSize: 32),
+          GoldenTestScenario(
+            name: 'long_text_dark',
+            child: _themedRow(
+              Brightness.dark,
+              Text(
+                _longTextMessage().text,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
             ),
           ),
-        ),
-      ],
+          GoldenTestScenario(
+            name: 'emoji_only_light',
+            child: _themedRow(
+              Brightness.light,
+              Text(
+                _emojiOnlyMessage().text,
+                style: const TextStyle(fontSize: 32),
+              ),
+            ),
+          ),
+          GoldenTestScenario(
+            name: 'emoji_only_dark',
+            child: _themedRow(
+              Brightness.dark,
+              Text(
+                _emojiOnlyMessage().text,
+                style: const TextStyle(fontSize: 32),
+              ),
+            ),
+          ),
+        ],
+      ),
     ),
     skip: isCI, // Skip platform goldens in CI, only run CI variant (Ahem font)
   );

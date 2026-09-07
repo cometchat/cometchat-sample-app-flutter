@@ -35,6 +35,7 @@ class ThreadedHeaderBloc
     on<InitializeThreadedHeader>(_onInitialize);
     on<IncrementReplyCount>(_onIncrementReplyCount);
     on<UpdateParentMessage>(_onUpdateParentMessage);
+    on<UpdateThreadSubscription>(_onUpdateThreadSubscription);
 
     // Generate unique listener keys using timestamp
     final timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -79,7 +80,10 @@ class ThreadedHeaderBloc
     // Register SDK listeners
     _registerSDKListeners();
 
-    // Emit loaded state with initial data
+    // Emit loaded state with initial data. The subscription state IS the
+    // message object's flag (stateless redesign — threadSubscribed rides
+    // every fetch because the SDK always sends withThreadSubscribed=true,
+    // normalised so it can never be null).
     emit(
       state.copyWith(
         status: ThreadedHeaderStatus.loaded,
@@ -88,8 +92,21 @@ class ThreadedHeaderBloc
         loggedInUser: loggedInUser,
         user: user,
         group: group,
+        threadSubscribed: parentMessage.threadSubscribed,
       ),
     );
+  }
+
+  /// Update the thread-subscription state (optimistic flip, revert, or a
+  /// change that originated elsewhere — the kit event bus keeps every
+  /// surface in agreement without a refetch). The parent message object is
+  /// stamped too: it is the single source the next reader consults.
+  void _onUpdateThreadSubscription(
+    UpdateThreadSubscription event,
+    Emitter<ThreadedHeaderState> emit,
+  ) {
+    state.parentMessage?.threadSubscribed = event.subscribed;
+    emit(state.copyWith(threadSubscribed: event.subscribed));
   }
 
   /// Increment the reply count by 1
@@ -135,6 +152,7 @@ class ThreadedHeaderBloc
         onCCMessageEditedCallback: _handleCCMessageEdited,
         onCCMessageDeletedCallback: _handleCCMessageDeleted,
         onSchedulerMessageReceivedCallback: _handleSchedulerMessageReceived,
+        onThreadSubscriptionChangedCallback: _handleThreadSubscriptionChanged,
       ),
     );
 
@@ -143,6 +161,15 @@ class ThreadedHeaderBloc
       _uiGroupListenerKey,
       _ThreadedHeaderUIGroupListener(),
     );
+  }
+
+  /// Handle a thread-subscription change from the kit event bus (the SDK is
+  /// stateless — every surface announces its own successful toggle here).
+  void _handleThreadSubscriptionChanged(int parentMessageId, bool subscribed) {
+    if (isClosed) return;
+    if (parentMessageId == _parentMessageId) {
+      add(UpdateThreadSubscription(subscribed));
+    }
   }
 
   // ============================================================
@@ -314,12 +341,14 @@ class _ThreadedHeaderUIMessageListener with CometChatMessageEventListener {
   final void Function(BaseMessage, MessageEditStatus) onCCMessageEditedCallback;
   final void Function(BaseMessage, EventStatus) onCCMessageDeletedCallback;
   final void Function(SchedulerMessage) onSchedulerMessageReceivedCallback;
+  final void Function(int, bool) onThreadSubscriptionChangedCallback;
 
   _ThreadedHeaderUIMessageListener({
     required this.onCCMessageSentCallback,
     required this.onCCMessageEditedCallback,
     required this.onCCMessageDeletedCallback,
     required this.onSchedulerMessageReceivedCallback,
+    required this.onThreadSubscriptionChangedCallback,
   });
 
   @override
@@ -343,6 +372,11 @@ class _ThreadedHeaderUIMessageListener with CometChatMessageEventListener {
   @override
   void onSchedulerMessageReceived(SchedulerMessage schedulerMessage) {
     onSchedulerMessageReceivedCallback(schedulerMessage);
+  }
+
+  @override
+  void ccThreadSubscriptionChanged(int parentMessageId, bool subscribed) {
+    onThreadSubscriptionChangedCallback(parentMessageId, subscribed);
   }
 }
 

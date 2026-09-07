@@ -642,8 +642,12 @@ class MessageComposerBloc
     final completer = Completer<Attachment>();
     request.uploadAttachment(
       'voice_note',
-      UploadFile.fromBytes(bytes, name: name, size: bytes.length,
-          mimeType: mimeType),
+      UploadFile.fromBytes(
+        bytes,
+        name: name,
+        size: bytes.length,
+        mimeType: mimeType,
+      ),
       _OneShotUploadListener(
         onUploaded: (attachment) {
           if (!completer.isCompleted) completer.complete(attachment);

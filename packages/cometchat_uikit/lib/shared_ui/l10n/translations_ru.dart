@@ -403,6 +403,136 @@ class TranslationsRu extends Translations {
   String get replyInThread => 'Ответить в теме';
 
   @override
+  String get threadMute => 'Отписаться от темы';
+
+  @override
+  String get threadUnmute => 'Подписаться на тему';
+
+  @override
+  String get messageListOptionStopReplyNotifications => 'Отписаться от темы';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'Подписаться на тему';
+
+  @override
+  String get threadMutedToast =>
+      'Вы отписались. Уведомления отключены, пока вы не ответите или вас не упомянут.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Вы подписаны. Мы уведомим вас о новых ответах в этой теме.';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'Не удалось обновить. Попробуйте ещё раз.';
+
+  @override
+  String get threadUnavailable => 'У вас больше нет доступа к этой ветке.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Закрепить сообщение';
+
+  @override
+  String get unpinMessageOption => 'Открепить сообщение';
+
+  @override
+  String get saveMessageOption => 'Сохранить сообщение';
+
+  @override
+  String get unsaveMessageOption => 'Убрать из сохранённых';
+
+  @override
+  String get pinConfirmTitle => 'Закрепить сообщение?';
+
+  @override
+  String get pinConfirmMessage =>
+      'Это сообщение будет закреплено в этом чате для всех.';
+
+  @override
+  String get unpinConfirmTitle => 'Открепить сообщение?';
+
+  @override
+  String get unpinConfirmMessage =>
+      'Это сообщение больше не будет закреплено для всех.';
+
+  @override
+  String get saveConfirmTitle => 'Сохранить сообщение?';
+
+  @override
+  String get saveConfirmMessage =>
+      'Это сообщение будет добавлено в ваши сохранённые.';
+
+  @override
+  String get unsaveConfirmTitle => 'Убрать сообщение из сохранённых?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'Это сообщение будет удалено из ваших сохранённых.';
+
+  @override
+  String get pinButton => 'Закрепить';
+
+  @override
+  String get unpinButton => 'Открепить';
+
+  @override
+  String get saveButton => 'Сохранить';
+
+  @override
+  String get unsaveButton => 'Убрать';
+
+  @override
+  String get messagePinnedToast => 'Сообщение закреплено';
+
+  @override
+  String get messageUnpinnedToast => 'Сообщение откреплено';
+
+  @override
+  String get messageSavedToast => 'Сообщение сохранено';
+
+  @override
+  String get messageUnsavedToast => 'Сообщение убрано из сохранённых';
+
+  @override
+  String get pinnedMessagesTitle => 'Закреплённые сообщения';
+
+  @override
+  String get savedMessagesTitle => 'Сохранённые сообщения';
+
+  @override
+  String get noPinnedMessages => 'Пока нет закреплённых сообщений';
+
+  @override
+  String get noSavedMessages => 'Пока нет сохранённых сообщений';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'Можно закрепить только $limit сообщений. Открепите одно, чтобы закрепить другое.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'Можно сохранить только $limit сообщений. Удалите одно из сохранённых, чтобы сохранить другое.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'Можно закрепить только $limit чатов. Открепите один, чтобы закрепить другой.';
+
+  @override
+  String get actionPermissionDenied =>
+      'У вас нет прав для выполнения этого действия.';
+
+  @override
+  String get pinSaveFailed => 'Не удалось обновить. Попробуйте ещё раз.';
+
+  @override
+  String get conversationPinnedToast => 'Чат закреплён';
+
+  @override
+  String get conversationUnpinnedToast => 'Чат откреплён';
+
+  @override
   String get deleteMessage => 'Удалить сообщение';
 
   @override

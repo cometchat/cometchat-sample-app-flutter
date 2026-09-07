@@ -405,6 +405,137 @@ class TranslationsFr extends Translations {
   String get replyInThread => 'Répondre dans le fil';
 
   @override
+  String get threadMute => 'Se désabonner du fil';
+
+  @override
+  String get threadUnmute => 'S\'abonner au fil';
+
+  @override
+  String get messageListOptionStopReplyNotifications => 'Se désabonner du fil';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'S\'abonner au fil';
+
+  @override
+  String get threadMutedToast =>
+      'Désabonné. Les notifications sont désactivées jusqu\'à ce que vous répondiez ou soyez mentionné.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Abonné. Vous serez notifié des nouvelles réponses dans ce fil.';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'Échec de la mise à jour. Veuillez réessayer.';
+
+  @override
+  String get threadUnavailable => 'Vous n\'avez plus accès à ce fil.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Épingler le message';
+
+  @override
+  String get unpinMessageOption => 'Désépingler le message';
+
+  @override
+  String get saveMessageOption => 'Enregistrer le message';
+
+  @override
+  String get unsaveMessageOption => 'Retirer des enregistrés';
+
+  @override
+  String get pinConfirmTitle => 'Épingler le message ?';
+
+  @override
+  String get pinConfirmMessage =>
+      'Ce message sera épinglé dans cette conversation pour tout le monde.';
+
+  @override
+  String get unpinConfirmTitle => 'Désépingler le message ?';
+
+  @override
+  String get unpinConfirmMessage =>
+      'Ce message ne sera plus épinglé pour tout le monde.';
+
+  @override
+  String get saveConfirmTitle => 'Enregistrer le message ?';
+
+  @override
+  String get saveConfirmMessage =>
+      'Ce message sera ajouté à vos messages enregistrés.';
+
+  @override
+  String get unsaveConfirmTitle => 'Retirer le message des enregistrés ?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'Ce message sera retiré de vos messages enregistrés.';
+
+  @override
+  String get pinButton => 'Épingler';
+
+  @override
+  String get unpinButton => 'Désépingler';
+
+  @override
+  String get saveButton => 'Enregistrer';
+
+  @override
+  String get unsaveButton => 'Retirer';
+
+  @override
+  String get messagePinnedToast => 'Message épinglé';
+
+  @override
+  String get messageUnpinnedToast => 'Message désépinglé';
+
+  @override
+  String get messageSavedToast => 'Message enregistré';
+
+  @override
+  String get messageUnsavedToast => 'Message retiré des enregistrés';
+
+  @override
+  String get pinnedMessagesTitle => 'Messages épinglés';
+
+  @override
+  String get savedMessagesTitle => 'Messages enregistrés';
+
+  @override
+  String get noPinnedMessages => 'Aucun message épinglé pour le moment';
+
+  @override
+  String get noSavedMessages => 'Aucun message enregistré pour le moment';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'Vous ne pouvez épingler que $limit messages. Désépinglez-en un pour en épingler un autre.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'Vous ne pouvez enregistrer que $limit messages. Supprimez-en un pour en enregistrer un autre.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'Vous ne pouvez épingler que $limit conversations. Désépinglez-en une pour en épingler une autre.';
+
+  @override
+  String get actionPermissionDenied =>
+      'Vous n\'avez pas l\'autorisation d\'effectuer cette action.';
+
+  @override
+  String get pinSaveFailed =>
+      'Impossible de mettre à jour. Veuillez réessayer.';
+
+  @override
+  String get conversationPinnedToast => 'Conversation épinglée';
+
+  @override
+  String get conversationUnpinnedToast => 'Conversation désépinglée';
+
+  @override
   String get deleteMessage => 'Supprimer le message';
 
   @override

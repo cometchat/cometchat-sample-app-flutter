@@ -398,6 +398,128 @@ class TranslationsJa extends Translations {
   String get replyInThread => 'スレッド内で返信';
 
   @override
+  String get threadMute => 'スレッドの購読を解除';
+
+  @override
+  String get threadUnmute => 'スレッドを購読';
+
+  @override
+  String get messageListOptionStopReplyNotifications => 'スレッドの購読を解除';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'スレッドを購読';
+
+  @override
+  String get threadMutedToast => '購読を解除しました。返信するか、メンションされるまで通知はオフです。';
+
+  @override
+  String get threadUnmutedToast => '購読しました。このスレッドの新しい返信が通知されます。';
+
+  @override
+  String get threadSubscriptionFailed => '更新できませんでした。もう一度お試しください。';
+
+  @override
+  String get threadUnavailable => 'このスレッドにアクセスできなくなりました。';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'メッセージをピン留め';
+
+  @override
+  String get unpinMessageOption => 'ピン留めを解除';
+
+  @override
+  String get saveMessageOption => 'メッセージを保存';
+
+  @override
+  String get unsaveMessageOption => '保存を解除';
+
+  @override
+  String get pinConfirmTitle => 'メッセージをピン留めしますか？';
+
+  @override
+  String get pinConfirmMessage => 'このメッセージはこの会話の全員にピン留めされます。';
+
+  @override
+  String get unpinConfirmTitle => 'ピン留めを解除しますか？';
+
+  @override
+  String get unpinConfirmMessage => 'このメッセージのピン留めが全員に対して解除されます。';
+
+  @override
+  String get saveConfirmTitle => 'メッセージを保存しますか？';
+
+  @override
+  String get saveConfirmMessage => 'このメッセージは保存済みメッセージに追加されます。';
+
+  @override
+  String get unsaveConfirmTitle => '保存を解除しますか？';
+
+  @override
+  String get unsaveConfirmMessage => 'このメッセージは保存済みメッセージから削除されます。';
+
+  @override
+  String get pinButton => 'ピン留め';
+
+  @override
+  String get unpinButton => '解除';
+
+  @override
+  String get saveButton => '保存';
+
+  @override
+  String get unsaveButton => '削除';
+
+  @override
+  String get messagePinnedToast => 'メッセージをピン留めしました';
+
+  @override
+  String get messageUnpinnedToast => 'ピン留めを解除しました';
+
+  @override
+  String get messageSavedToast => 'メッセージを保存しました';
+
+  @override
+  String get messageUnsavedToast => '保存を解除しました';
+
+  @override
+  String get pinnedMessagesTitle => 'ピン留めされたメッセージ';
+
+  @override
+  String get savedMessagesTitle => '保存済みメッセージ';
+
+  @override
+  String get noPinnedMessages => 'ピン留めされたメッセージはまだありません';
+
+  @override
+  String get noSavedMessages => '保存済みメッセージはまだありません';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'ピン留めできるメッセージは$limit件までです。他のメッセージをピン留めするには、いずれかを解除してください。';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      '保存できるメッセージは$limit件までです。他のメッセージを保存するには、いずれかを解除してください。';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'ピン留めできるチャットは$limit件までです。他のチャットをピン留めするには、いずれかを解除してください。';
+
+  @override
+  String get actionPermissionDenied => 'この操作を実行する権限がありません。';
+
+  @override
+  String get pinSaveFailed => '更新できませんでした。もう一度お試しください。';
+
+  @override
+  String get conversationPinnedToast => '会話をピン留めしました';
+
+  @override
+  String get conversationUnpinnedToast => '会話のピン留めを解除しました';
+
+  @override
   String get deleteMessage => 'メッセージを削除';
 
   @override

@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart' as cc;
 import '../conversations/utils/conversation_subtitle_utils.dart';
+import '../../../shared_ui/src/clean_architecture/presentation/views/misc/message_preview_subtitle.dart';
 
 /// Full-screen search widget for conversations and messages.
 ///
@@ -134,7 +135,7 @@ class _CometChatSearchState extends State<CometChatSearch> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final currentBrightness = MediaQuery.platformBrightnessOf(context);
+    final currentBrightness = CometChatThemeHelper.getBrightness(context);
     final brightnessChanged =
         _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
@@ -1010,32 +1011,6 @@ class _CometChatSearchState extends State<CometChatSearch> {
   /// list and conversation subtitles use — markdown, mentions, links — so a
   /// text result reads identically across surfaces (and cross-platform). Falls
   /// back to plain [subtitleStyle] text for non-text rows.
-  Widget _richSubtitle(TextMessage message, TextStyle subtitleStyle) {
-    final formatters = <CometChatTextFormatter>[
-      MarkdownTextFormatter(),
-      ...MessageTemplateUtils.getDefaultTextFormatters(),
-    ];
-    // The mentions formatter needs the message to resolve <@uid:..> tags to
-    // display names (mirrors the conversation-subtitle path).
-    for (final f in formatters) {
-      if (f is CometChatMentionsFormatter) f.message = message;
-    }
-    return RichText(
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      text: TextSpan(
-        children: FormatterUtils.buildTextSpan(
-          message.text,
-          formatters,
-          context,
-          BubbleAlignment.left,
-          forConversation: true,
-          textStyle: subtitleStyle,
-        ),
-      ),
-    );
-  }
-
   Widget _buildSearchItem({
     required BaseMessage message,
     required String title,
@@ -1100,48 +1075,19 @@ class _CometChatSearchState extends State<CometChatSearch> {
                       style: titleStyle,
                     ),
                     const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        if (message.parentMessageId > 0)
-                          Padding(
-                            padding: EdgeInsets.only(
-                              right: spacing.padding1 ?? 2,
-                            ),
-                            child: Icon(
-                              Icons.subdirectory_arrow_right,
-                              size: 16,
-                              color: colorPalette.iconSecondary,
-                            ),
-                          ),
-                        if (subtitlePrefix != null && subtitlePrefix.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(
-                              right: spacing.padding1 ?? 2,
-                            ),
-                            child: Text(subtitlePrefix, style: subtitleStyle),
-                          ),
-                        if (subtitleIcon != null)
-                          Padding(
-                            padding: EdgeInsets.only(
-                              right: spacing.padding1 ?? 2,
-                            ),
-                            child: Icon(
-                              subtitleIcon,
-                              size: 16,
-                              color: colorPalette.iconSecondary,
-                            ),
-                          ),
-                        Expanded(
-                          child: richTextMessage != null
-                              ? _richSubtitle(richTextMessage, subtitleStyle)
-                              : Text(
-                                  subtitle,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: subtitleStyle,
-                                ),
-                        ),
-                      ],
+                    // Shared with the saved-messages list so both surfaces
+                    // preview messages identically. Explicit values are
+                    // passed through unchanged; the widget only derives what
+                    // is omitted.
+                    MessagePreviewSubtitle(
+                      message: message,
+                      textStyle: subtitleStyle,
+                      iconColor: colorPalette.iconSecondary,
+                      spacing: spacing.padding1 ?? 2,
+                      prefix: subtitlePrefix ?? '',
+                      icon: subtitleIcon,
+                      text: subtitle,
+                      richTextMessage: richTextMessage,
                     ),
                   ],
                 ),

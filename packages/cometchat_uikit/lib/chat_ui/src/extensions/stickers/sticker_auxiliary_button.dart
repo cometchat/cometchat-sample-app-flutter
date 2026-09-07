@@ -77,7 +77,7 @@ class _StickerAuxiliaryButtonState extends State<StickerAuxiliaryButton>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final currentBrightness = MediaQuery.platformBrightnessOf(context);
+    final currentBrightness = CometChatThemeHelper.getBrightness(context);
     final brightnessChanged =
         _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;

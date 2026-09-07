@@ -5,6 +5,7 @@ import '../domain/domain.dart';
 import '../di/conversations_service_locator.dart';
 import 'conversations_event.dart';
 import 'conversations_state.dart';
+import '../utils/conversation_tier_ordering.dart';
 import '../../../../shared_ui/cometchat_uikit_shared.dart';
 import '../../shared/list_base.dart';
 import '../conversations_builder_protocol.dart';
@@ -84,6 +85,8 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
       'conversations_bloc_call_${DateTime.now().millisecondsSinceEpoch}';
   final String _connectionListenerKey =
       'conversations_bloc_connection_${DateTime.now().millisecondsSinceEpoch}';
+  final String _conversationListenerKey =
+      'conversations_bloc_conversation_${DateTime.now().millisecondsSinceEpoch}';
 
   // CC UI Event listener IDs
   final String _ccMessageListenerKey =
@@ -217,6 +220,7 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     on<_RemoveGroupConversation>(_onRemoveGroupConversation);
     on<_ConnectionStateUpdate>(_onConnectionStateUpdate);
     on<_ConversationUnreadUpdate>(_onConversationUnreadUpdate);
+    on<_ConversationPinUpdate>(_onConversationPinUpdate);
 
     // List base hook events
     on<_ListItemAdded>(_onListItemAdded);
@@ -470,6 +474,25 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
       ),
     );
 
+    // Pin Conversation: self-echo events for the logged-in user's pins —
+    // fired locally on this device's own REST success and via socket from
+    // their other devices (plus admin app_system pins).
+    CometChat.addConversationListener(
+      _conversationListenerKey,
+      _ConversationPinListener(
+        onPinnedCallback: (conversation) {
+          if (!isClosed) {
+            add(_ConversationPinUpdate(conversation, pinned: true));
+          }
+        },
+        onUnpinnedCallback: (conversation) {
+          if (!isClosed) {
+            add(_ConversationPinUpdate(conversation, pinned: false));
+          }
+        },
+      ),
+    );
+
     _registerCCEventListeners();
   }
 
@@ -659,9 +682,16 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
           return;
         }
 
+        // Dedupe against rows already loaded: a row that moved (to the
+        // top on new message, or into the pinned shelf) can reappear in a
+        // later page — and the unpin drop rule relies on pagination
+        // re-adding rows, so pages routinely carry ids we already show.
         final allConversations = [
           ...currentState.conversations,
-          ...newConversations,
+          ...newConversations.where(
+            (conversation) =>
+                _findConversationIndex(conversation.conversationId) == null,
+          ),
         ];
 
         replaceAll(allConversations);
@@ -702,9 +732,16 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
           return;
         }
 
+        // Dedupe against rows already loaded: a row that moved (to the
+        // top on new message, or into the pinned shelf) can reappear in a
+        // later page — and the unpin drop rule relies on pagination
+        // re-adding rows, so pages routinely carry ids we already show.
         final allConversations = [
           ...currentState.conversations,
-          ...newConversations,
+          ...newConversations.where(
+            (conversation) =>
+                _findConversationIndex(conversation.conversationId) == null,
+          ),
         ];
 
         replaceAll(allConversations);
@@ -845,7 +882,16 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     final conversationIndex = _findConversationIndex(event.conversationId);
 
     if (conversationIndex == null) {
-      addItem(event.updatedConversation);
+      // Tier ordering [system pins][user pins][normal]: a row that isn't
+      // loaded yet enters at the top of its own tier — never appended below
+      // the fold, never above a shelf it doesn't belong to.
+      insertItemAt(
+        ConversationTierOrdering.tierTopIndex(
+          ConversationTierOrdering.tierOf(event.updatedConversation),
+          items,
+        ),
+        event.updatedConversation,
+      );
       return;
     }
 
@@ -898,22 +944,140 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
       finalConversation.conversationId,
     );
 
-    if (existingIndex != null && existingIndex == 0) {
-      // OPTIMIZATION: Already at top - use updateItem for O(1) operation
-      // This updates ListBase's internal items and triggers onItemUpdated (no index changes)
-      updateItem(0, finalConversation);
+    // Tier ordering [system pins][user pins][normal]: activity floats the
+    // row to the top of ITS OWN tier only. A pinned row keeps its pin
+    // fields (finalConversation was built from the incoming message and
+    // knows nothing about them) and rises within its shelf section; a
+    // normal row rises to the top of the unpinned region — index 0 would
+    // put it above the pins.
+    if (existingIndex != null &&
+        currentState.conversations[existingIndex].pinnedAt != null) {
+      final local = currentState.conversations[existingIndex];
+      finalConversation.pinnedAt = local.pinnedAt;
+      finalConversation.pinnedBy = local.pinnedBy;
+    }
+
+    // Computed on the full list: the row's current slot is always at or
+    // below its own tier top, so removing it never shifts this boundary.
+    final insertAt = ConversationTierOrdering.tierTopIndex(
+      ConversationTierOrdering.tierOf(finalConversation),
+      currentState.conversations,
+    );
+
+    if (existingIndex != null && existingIndex == insertAt) {
+      // Already at its tier top - use updateItem for O(1) operation
+      updateItem(insertAt, finalConversation);
       return;
     }
 
-    // Need to move to top - this changes multiple indices, use replaceAll
     // replaceAll updates ListBase's internal items and triggers onListReplaced with rebuild
     final conversations = List<Conversation>.from(currentState.conversations);
 
     if (existingIndex != null) {
       conversations.removeAt(existingIndex);
     }
-    conversations.insert(0, finalConversation);
+    conversations.insert(
+      insertAt.clamp(0, conversations.length),
+      finalConversation,
+    );
 
+    replaceAll(conversations);
+  }
+
+  /// Pin Conversation: reorders the list when a pin/unpin lands (own action
+  /// on any device, or an admin pin).
+  ///
+  /// Pin → into the pinned shelf, kept in pinnedAt-descending order so
+  /// crossing frames from two devices settle deterministically. Unpin → back
+  /// into the activity-ordered region at its updatedAt slot; when that slot
+  /// is beyond the loaded window and more pages exist, the row is dropped —
+  /// pagination restores it where it belongs.
+  Future<void> _onConversationPinUpdate(
+    _ConversationPinUpdate event,
+    Emitter<ConversationsState> emit,
+  ) async {
+    if (state is! ConversationsLoaded) return;
+    final currentState = state as ConversationsLoaded;
+
+    final incoming = event.conversation;
+    final conversationId = incoming.conversationId;
+    if (conversationId == null) return;
+
+    final existingIndex = _findConversationIndex(conversationId);
+
+    if (event.pinned) {
+      Conversation merged;
+      if (existingIndex != null) {
+        // Keep the local row's live fields (last message, unread count) —
+        // the frame's conversation may be staler than local state — and
+        // take only the pin fields from the event.
+        merged = currentState.conversations[existingIndex];
+        merged.pinnedAt = incoming.pinnedAt;
+        merged.pinnedBy = incoming.pinnedBy;
+      } else {
+        // Pinned a conversation that isn't loaded (beyond pagination or
+        // never fetched): it belongs on the shelf, so bring it in — but
+        // never leak past a caller-provided type filter.
+        if (!_matchesFilter(incoming)) return;
+        merged = incoming;
+      }
+
+      final conversations = List<Conversation>.from(currentState.conversations);
+      if (existingIndex != null) {
+        conversations.removeAt(existingIndex);
+      }
+
+      // Insert at the top of its own tier: a system pin (pinnedBy ==
+      // app_system) enters above the user-pin section, a user pin enters
+      // below the system section — never interleaved. Freshest pin lands
+      // on top within its tier; the server's canonical order re-asserts on
+      // the next fetch.
+      final insertAt = ConversationTierOrdering.tierTopIndex(
+        ConversationTierOrdering.tierOf(merged),
+        conversations,
+      );
+      conversations.insert(insertAt, merged);
+      replaceAll(conversations);
+      return;
+    }
+
+    // ── unpin ──
+    if (existingIndex == null) return;
+
+    // copyWith cannot null the pin fields (`pinnedAt ?? this.pinnedAt`), so
+    // clear them by direct mutation on the local row.
+    final row = currentState.conversations[existingIndex];
+    row.pinnedAt = null;
+    row.pinnedBy = null;
+
+    final conversations = List<Conversation>.from(currentState.conversations)
+      ..removeAt(existingIndex);
+
+    // Its slot in the activity-ordered region: first unpinned row older than
+    // this one. A row with no updatedAt can't be placed by time — park it at
+    // the top of the unpinned region rather than risking the drop branch.
+    final updatedAt = row.updatedAt;
+    var insertAt = ConversationTierOrdering.tierTopIndex(
+      ConversationTierOrdering.normalTier,
+      conversations,
+    );
+    var found = updatedAt == null;
+    while (updatedAt != null && insertAt < conversations.length) {
+      final rowUpdatedAt = conversations[insertAt].updatedAt;
+      if (rowUpdatedAt == null || rowUpdatedAt.isBefore(updatedAt)) {
+        found = true;
+        break;
+      }
+      insertAt++;
+    }
+    if (insertAt >= conversations.length && !found && currentState.hasMore) {
+      // Older than everything loaded with more pages out there: keeping it
+      // at the loaded bottom would be a lie and a duplicate once its real
+      // page loads. Drop it; pagination restores it in place.
+      replaceAll(conversations);
+      return;
+    }
+    conversations.insert(insertAt.clamp(0, conversations.length), row);
     replaceAll(conversations);
   }
 
@@ -1887,6 +2051,7 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
     CometChat.removeGroupListener(_groupListenerKey);
     CometChat.removeCallListener(_callListenerKey);
     CometChat.removeConnectionListener(_connectionListenerKey);
+    CometChat.removeConversationListener(_conversationListenerKey);
 
     // Remove CC UI Event listeners
     CometChatMessageEvents.removeMessagesListener(_ccMessageListenerKey);
@@ -1905,6 +2070,19 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState>
 // ============================================================
 
 /// Internal event for message received updates
+/// Pin Conversation: a pin/unpin landed for the logged-in user (own action
+/// on this or another device, or an admin pin). Carries the server's updated
+/// conversation; the handler reorders the list around the pinned block.
+class _ConversationPinUpdate extends ConversationsEvent {
+  final Conversation conversation;
+  final bool pinned;
+
+  const _ConversationPinUpdate(this.conversation, {required this.pinned});
+
+  @override
+  List<Object?> get props => [conversation, pinned];
+}
+
 class _MessageReceivedUpdate extends ConversationsEvent {
   final Conversation conversation;
 
@@ -2481,4 +2659,23 @@ class _CCConversationEventListener with CometChatConversationEventListener {
   void ccUpdateConversation(Conversation conversation) {
     onCCConversationUpdatedCallback?.call(conversation);
   }
+}
+
+/// SDK ConversationListener adapter (Pin Conversation).
+class _ConversationPinListener with ConversationListener {
+  _ConversationPinListener({
+    required this.onPinnedCallback,
+    required this.onUnpinnedCallback,
+  });
+
+  final void Function(Conversation conversation) onPinnedCallback;
+  final void Function(Conversation conversation) onUnpinnedCallback;
+
+  @override
+  void onConversationPinned(Conversation conversation) =>
+      onPinnedCallback(conversation);
+
+  @override
+  void onConversationUnpinned(Conversation conversation) =>
+      onUnpinnedCallback(conversation);
 }

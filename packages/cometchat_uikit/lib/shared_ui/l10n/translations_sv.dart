@@ -404,6 +404,137 @@ class TranslationsSv extends Translations {
   String get replyInThread => 'Svara i tråd';
 
   @override
+  String get threadMute => 'Avsluta prenumeration på tråden';
+
+  @override
+  String get threadUnmute => 'Prenumerera på tråden';
+
+  @override
+  String get messageListOptionStopReplyNotifications =>
+      'Avsluta prenumeration på tråden';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'Prenumerera på tråden';
+
+  @override
+  String get threadMutedToast =>
+      'Prenumeration avslutad. Aviseringar är av tills du svarar eller nämns.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Prenumererar. Du meddelas om nya svar i den här tråden.';
+
+  @override
+  String get threadSubscriptionFailed => 'Kunde inte uppdatera. Försök igen.';
+
+  @override
+  String get threadUnavailable =>
+      'Du har inte längre åtkomst till den här tråden.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Fäst meddelande';
+
+  @override
+  String get unpinMessageOption => 'Lossa meddelande';
+
+  @override
+  String get saveMessageOption => 'Spara meddelande';
+
+  @override
+  String get unsaveMessageOption => 'Ta bort sparat';
+
+  @override
+  String get pinConfirmTitle => 'Fästa meddelandet?';
+
+  @override
+  String get pinConfirmMessage =>
+      'Det här meddelandet fästs i konversationen för alla.';
+
+  @override
+  String get unpinConfirmTitle => 'Lossa meddelandet?';
+
+  @override
+  String get unpinConfirmMessage =>
+      'Det här meddelandet är inte längre fäst för alla.';
+
+  @override
+  String get saveConfirmTitle => 'Spara meddelandet?';
+
+  @override
+  String get saveConfirmMessage =>
+      'Det här meddelandet läggs till bland dina sparade meddelanden.';
+
+  @override
+  String get unsaveConfirmTitle => 'Ta bort sparat meddelande?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'Det här meddelandet tas bort från dina sparade meddelanden.';
+
+  @override
+  String get pinButton => 'Fäst';
+
+  @override
+  String get unpinButton => 'Lossa';
+
+  @override
+  String get saveButton => 'Spara';
+
+  @override
+  String get unsaveButton => 'Ta bort';
+
+  @override
+  String get messagePinnedToast => 'Meddelandet fäst';
+
+  @override
+  String get messageUnpinnedToast => 'Meddelandet lossat';
+
+  @override
+  String get messageSavedToast => 'Meddelandet sparat';
+
+  @override
+  String get messageUnsavedToast => 'Meddelandet borttaget från sparade';
+
+  @override
+  String get pinnedMessagesTitle => 'Fästa meddelanden';
+
+  @override
+  String get savedMessagesTitle => 'Sparade meddelanden';
+
+  @override
+  String get noPinnedMessages => 'Inga fästa meddelanden ännu';
+
+  @override
+  String get noSavedMessages => 'Inga sparade meddelanden ännu';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'Du kan bara fästa $limit meddelanden. Lossa ett för att fästa ett annat.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'Du kan bara spara $limit meddelanden. Ta bort ett för att spara ett annat.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'Du kan bara fästa $limit chattar. Lossa en för att fästa en annan.';
+
+  @override
+  String get actionPermissionDenied =>
+      'Du har inte behörighet att utföra den här åtgärden.';
+
+  @override
+  String get pinSaveFailed => 'Det gick inte att uppdatera. Försök igen.';
+
+  @override
+  String get conversationPinnedToast => 'Konversationen fäst';
+
+  @override
+  String get conversationUnpinnedToast => 'Konversationen lossad';
+
+  @override
   String get deleteMessage => 'Ta bort meddelande';
 
   @override

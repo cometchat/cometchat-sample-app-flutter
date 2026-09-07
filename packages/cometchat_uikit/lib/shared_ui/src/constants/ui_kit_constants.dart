@@ -56,6 +56,11 @@ class MessageOptionConstants {
   static const String forwardMessage = "forwardMessage";
   static const String replyMessage = "replyMessage";
   static const String replyInThreadMessage = "replyInThreadMessage";
+  static const String threadSubscription = "threadSubscription";
+  static const String pinMessage = "pinMessage";
+  static const String unpinMessage = "unpinMessage";
+  static const String saveMessage = "saveMessage";
+  static const String unsaveMessage = "unsaveMessage";
   // static const String reactToMessage = "reactToMessage";
   // static const String translateMessage = "translateMessage";
   static const String messageInformation = "messageInformation";
@@ -364,7 +369,7 @@ class SetSourceConstant {
 
   /// Semantic version of the UIKit package.
   /// Must be kept in sync with pubspec.yaml version field.
-  static const String version = "6.1.0";
+  static const String version = "6.1.1";
 }
 
 class ErrorConstants {

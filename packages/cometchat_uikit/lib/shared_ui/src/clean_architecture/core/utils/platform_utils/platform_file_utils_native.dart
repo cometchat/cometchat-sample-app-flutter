@@ -207,15 +207,13 @@ Future<bool> saveFileWithPicker(
   String? localPath,
 }) async {
   try {
-    final saved = await _uikitChannel.invokeMethod<String>(
-      'saveFileWithPicker',
-      {
-        'url': url,
-        'fileName': fileName,
-        'mimeType': mimeType,
-        if (localPath != null && localPath.isNotEmpty) 'path': localPath,
-      },
-    );
+    final saved = await _uikitChannel
+        .invokeMethod<String>('saveFileWithPicker', {
+          'url': url,
+          'fileName': fileName,
+          'mimeType': mimeType,
+          if (localPath != null && localPath.isNotEmpty) 'path': localPath,
+        });
     return saved != null && saved.isNotEmpty;
   } catch (e) {
     debugPrint('saveFileWithPicker failed: $e');

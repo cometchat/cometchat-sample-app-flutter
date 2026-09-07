@@ -49,6 +49,13 @@ class FakeConversation extends Fake implements Conversation {
     return 'user';
   }
 
+  // Pin Conversation fields — read by the trailing view's pin glyph.
+  @override
+  DateTime? get pinnedAt => null;
+
+  @override
+  String? get pinnedBy => null;
+
   @override
   AppEntity get conversationWith => _conversationWith;
 
@@ -70,6 +77,8 @@ class FakeConversation extends Fake implements Conversation {
     int? unreadMentionsCount,
     int? lastReadMessageId,
     int? latestMessageId,
+    DateTime? pinnedAt,
+    String? pinnedBy,
   }) {
     return FakeConversation(
       conversationId ?? _id,

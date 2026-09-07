@@ -378,6 +378,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     on<SyncMessages>(_onSyncMessages);
     on<MessageReceived>(_onMessageReceived);
     on<MessageEdited>(_onMessageEdited);
+    on<MessagePinSaveChanged>(_onMessagePinSaveChanged);
     on<MessageDeleted>(_onMessageDeleted);
     on<DeliveryReceiptReceived>(_onDeliveryReceiptReceived);
     on<ReadReceiptReceived>(_onReadReceiptReceived);
@@ -732,6 +733,65 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
     }
   }
 
+  /// Consumer-side thread-subscription mirrors (stateless redesign §5).
+  ///
+  /// The SDK no longer infers anything; these mirror **server-side truths**
+  /// locally for immediate UI feedback — the next fetch of the parent
+  /// confirms, and a fetched flag always wins. Triggers handled here:
+  ///
+  /// * an incoming message that @-mentions the logged-in user (its thread:
+  ///   the parent for a reply, the message itself for a root), and
+  /// * the FIRST reply by someone else to a root the logged-in user
+  ///   authored. First-reply-only is what protects a deliberate
+  ///   unsubscribe: at reply one the author is guaranteed subscribed
+  ///   (authoring set the flag and nothing has happened since); by reply
+  ///   two they may have unsubscribed, so re-applying would silently undo
+  ///   their choice. Must run BEFORE the reply-count increment — the
+  ///   "first" test is `replyCount == 0` on the rendered parent.
+  ///
+  /// This is local mirroring, not a write — no subscribe call is made.
+  void _applyThreadSubscriptionMirrors(BaseMessage message) {
+    final myUid = _loggedInUser?.uid;
+    if (myUid == null) return;
+
+    final threadId = message.parentMessageId > 0
+        ? message.parentMessageId
+        : message.id;
+    if (threadId <= 0) return;
+
+    final mentionsMe = message.mentionedUsers.any(
+      (mentioned) => mentioned.uid == myUid,
+    );
+
+    var firstReplyToOwnRoot = false;
+    if (message.parentMessageId > 0 && message.sender?.uid != myUid) {
+      final parent = findMessage(message.parentMessageId);
+      firstReplyToOwnRoot =
+          parent != null &&
+          parent.sender?.uid == myUid &&
+          parent.replyCount == 0;
+    }
+
+    if (!mentionsMe && !firstReplyToOwnRoot) return;
+
+    final root = findMessage(threadId);
+    if (root != null && root.threadSubscribed) return; // already known
+    root?.threadSubscribed = true;
+    CometChatMessageEvents.ccThreadSubscriptionChanged(threadId, true);
+  }
+
+  /// Restamps this bloc's copy of a thread root when any surface announces a
+  /// subscription change — the message object is the single source of truth,
+  /// so every list instance must converge on it. Silent: the options sheet
+  /// reads the object lazily on open, no rebuild needed.
+  void _handleThreadSubscriptionChangedEvent(
+    int parentMessageId,
+    bool subscribed,
+  ) {
+    if (isClosed) return;
+    findMessage(parentMessageId)?.threadSubscribed = subscribed;
+  }
+
   // ============================================================
   // INITIALIZATION
   // ============================================================
@@ -767,6 +827,7 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         onInteractiveMessageReceivedCallback: _handleMessageReceived,
         onAIAssistantMessageReceivedCallback: _handleMessageReceived,
         onMessageEditedCallback: _handleMessageEdited,
+        onMessagePinSaveChangedCallback: _handleMessagePinSaveChanged,
         onMessageDeletedCallback: _handleMessageDeleted,
         onMessageModeratedCallback: _handleMessageModerated,
         onMessagesDeliveredCallback: _handleMessagesDelivered,
@@ -832,6 +893,8 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         onCCMessageSentCallback: _handleCCMessageSent,
         onCCMessageEditedCallback: _handleCCMessageEdited,
         onCCMessageDeletedCallback: _handleCCMessageDeleted,
+        onThreadSubscriptionChangedCallback:
+            _handleThreadSubscriptionChangedEvent,
       ),
     );
 
@@ -909,6 +972,11 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   void _handleMessageEdited(BaseMessage message) {
     if (isClosed) return;
     add(MessageEdited(message));
+  }
+
+  void _handleMessagePinSaveChanged(BaseMessage message, bool isPinScope) {
+    if (isClosed) return;
+    add(MessagePinSaveChanged(message, isPinScope: isPinScope));
   }
 
   /// Handle message deleted from SDK
@@ -1315,6 +1383,18 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         final statusStr = status.toString();
         final isSent = statusStr == core_enums.MessageStatus.sent.toString();
         if (isSent) {
+          // Auto-subscribe-on-reply mirror (server truth A7): a successful
+          // own threaded send subscribes the author — stamp the parent and
+          // announce, no unconditional overwrite of a later unsubscribe
+          // because this only fires on the send the user just performed.
+          final parent = findMessage(message.parentMessageId);
+          if (parent != null && !parent.threadSubscribed) {
+            parent.threadSubscribed = true;
+            CometChatMessageEvents.ccThreadSubscriptionChanged(
+              message.parentMessageId,
+              true,
+            );
+          }
           _incrementThreadReplyCount(message.parentMessageId);
         }
         if (hideReplies) return;
@@ -2578,6 +2658,10 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
         // (AI conversations use threading but display flat in the main view)
         final isAI = user?.role == 'ai' || user?.role == AIConstants.aiRole;
         if (!isAI) {
+          // Subscription mirrors first — the first-reply test reads the
+          // parent's replyCount, so it must see the PRE-increment value.
+          _applyThreadSubscriptionMirrors(message);
+
           // This is a thread reply - increment the parent message's reply count
           // **Validates: Requirements 15.4**
           _incrementThreadReplyCount(message.parentMessageId);
@@ -2588,6 +2672,12 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
           }
         }
       }
+    }
+
+    // Mention-arrival mirror for ROOT messages (replies were handled above,
+    // before the reply-count increment).
+    if (message.parentMessageId == 0) {
+      _applyThreadSubscriptionMirrors(message);
     }
 
     // Check message type/category filters
@@ -2694,6 +2784,31 @@ class MessageListBloc extends Bloc<MessageListEvent, MessageListState>
   /// This handles both regular edits (by ID) and status updates for sent messages (by muid).
   ///
   /// **Validates: Requirements 6.5**
+  /// Pin & Save: merges a pin/save change into the row already in the list.
+  ///
+  /// The incoming payload only speaks for its own feature — a pin frame
+  /// carries no savedAt — so the flags it does not own are carried over from
+  /// the row being replaced. Without this, pinning a message you had saved
+  /// would drop its bookmark from the bubble until the next refetch.
+  Future<void> _onMessagePinSaveChanged(
+    MessagePinSaveChanged event,
+    Emitter<MessageListState> emit,
+  ) async {
+    final incoming = event.message;
+    final index = findMessageIndex(incoming.id);
+    if (index == null || index >= state.messages.length) return;
+
+    final oldMessage = state.messages[index];
+    if (event.isPinScope) {
+      incoming.savedAt ??= oldMessage.savedAt;
+    } else {
+      incoming.pinnedAt ??= oldMessage.pinnedAt;
+      incoming.pinnedBy ??= oldMessage.pinnedBy;
+    }
+
+    add(MessageEdited(incoming));
+  }
+
   Future<void> _onMessageEdited(
     MessageEdited event,
     Emitter<MessageListState> emit,
@@ -4220,6 +4335,9 @@ class _MessageListMessageListener with MessageListener {
   final void Function(BaseMessage) onInteractiveMessageReceivedCallback;
   final void Function(BaseMessage) onAIAssistantMessageReceivedCallback;
   final void Function(BaseMessage) onMessageEditedCallback;
+
+  /// Pin & Save: (message, isPinScope) — see [MessagePinSaveChanged].
+  final void Function(BaseMessage, bool) onMessagePinSaveChangedCallback;
   final void Function(BaseMessage) onMessageDeletedCallback;
   final void Function(BaseMessage) onMessageModeratedCallback;
   final void Function(MessageReceipt) onMessagesDeliveredCallback;
@@ -4238,6 +4356,7 @@ class _MessageListMessageListener with MessageListener {
     required this.onInteractiveMessageReceivedCallback,
     required this.onAIAssistantMessageReceivedCallback,
     required this.onMessageEditedCallback,
+    required this.onMessagePinSaveChangedCallback,
     required this.onMessageDeletedCallback,
     required this.onMessageModeratedCallback,
     required this.onMessagesDeliveredCallback,
@@ -4308,6 +4427,29 @@ class _MessageListMessageListener with MessageListener {
   @override
   void onMessageEdited(BaseMessage message) {
     onMessageEditedCallback(message);
+  }
+
+  // Pin & Save events carry the full updated message (pin/save fields
+  // stamped or cleared) — routing them through the edit path replaces the
+  // row in place, which is exactly what the bubble indicators need.
+  @override
+  void onMessagePinned(BaseMessage message) {
+    onMessagePinSaveChangedCallback(message, true);
+  }
+
+  @override
+  void onMessageUnpinned(BaseMessage message) {
+    onMessagePinSaveChangedCallback(message, true);
+  }
+
+  @override
+  void onMessageSaved(BaseMessage message) {
+    onMessagePinSaveChangedCallback(message, false);
+  }
+
+  @override
+  void onMessageUnsaved(BaseMessage message) {
+    onMessagePinSaveChangedCallback(message, false);
   }
 
   @override
@@ -4558,11 +4700,13 @@ class _MessageListUIEventListener with CometChatMessageEventListener {
   final void Function(BaseMessage, dynamic) onCCMessageSentCallback;
   final void Function(BaseMessage, dynamic) onCCMessageEditedCallback;
   final void Function(BaseMessage, dynamic) onCCMessageDeletedCallback;
+  final void Function(int, bool) onThreadSubscriptionChangedCallback;
 
   _MessageListUIEventListener({
     required this.onCCMessageSentCallback,
     required this.onCCMessageEditedCallback,
     required this.onCCMessageDeletedCallback,
+    required this.onThreadSubscriptionChangedCallback,
   });
 
   @override
@@ -4578,6 +4722,11 @@ class _MessageListUIEventListener with CometChatMessageEventListener {
   @override
   void ccMessageDeleted(BaseMessage message, dynamic messageStatus) {
     onCCMessageDeletedCallback(message, messageStatus);
+  }
+
+  @override
+  void ccThreadSubscriptionChanged(int parentMessageId, bool subscribed) {
+    onThreadSubscriptionChangedCallback(parentMessageId, subscribed);
   }
 }
 

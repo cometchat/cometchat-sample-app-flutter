@@ -18,6 +18,14 @@ class UIKitSettings {
   ///Only used when [enableCalls] is true.
   final CallingConfiguration? callingConfiguration;
 
+  ///[enableThreadSubscription] feature gate for the thread follow/unfollow
+  ///surfaces (the message action-sheet option and the threaded-header
+  ///control). Defaults to false: with the gate off neither surface renders
+  ///and no thread-subscription request is made, regardless of the individual
+  ///visibility flags. There is no server-side capability signal, so this
+  ///opt-in is the only control.
+  final bool enableThreadSubscription;
+
   final String? adminHost;
   final String? clientHost;
   final List<String>? roles;
@@ -32,6 +40,7 @@ class UIKitSettings {
       authKey = builder.authKey,
       enableCalls = builder.enableCalls,
       callingConfiguration = builder.callingConfiguration,
+      enableThreadSubscription = builder.enableThreadSubscription,
       adminHost = builder.adminHost,
       clientHost = builder.clientHost,
       roles = builder.roles,
@@ -54,6 +63,10 @@ class UIKitSettingsBuilder {
   ///[callingConfiguration] optional configuration for call buttons, incoming call, outgoing call, and group call settings.
   ///Only used when [enableCalls] is true.
   CallingConfiguration? callingConfiguration;
+
+  ///[enableThreadSubscription] feature gate for the thread follow/unfollow
+  ///surfaces. Defaults to false (both surfaces stay hidden).
+  bool enableThreadSubscription = false;
 
   String? adminHost;
   String? clientHost;

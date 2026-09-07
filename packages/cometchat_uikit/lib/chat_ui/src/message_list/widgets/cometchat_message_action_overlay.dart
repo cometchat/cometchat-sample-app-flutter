@@ -196,11 +196,83 @@ class _CometChatMessageActionOverlayState
   late Animation<double> _scaleAnimation;
   late List<String> _favoriteReactions;
 
+  /// The first page, in this order. Anything not listed here — Save, Pin,
+  /// Forward, Share, Message info, Report, Send privately, Mark as unread —
+  /// falls through to the "More" page.
+  ///
+  /// Declared as an explicit order rather than derived from the incoming
+  /// list's positions, so the page reads the same however a host reorders
+  /// or injects options.
+  static const List<String> _primaryActionOrder = [
+    MessageOptionConstants.replyMessage,
+    MessageOptionConstants.replyInThreadMessage,
+    MessageOptionConstants.threadSubscription,
+    MessageOptionConstants.copyMessage,
+    MessageOptionConstants.editMessage,
+    MessageOptionConstants.deleteMessage,
+  ];
+
+  /// Save/Pin lead the "More" page, ahead of the remaining overflow items.
+  static const Set<String> _quickActionIds = {
+    MessageOptionConstants.pinMessage,
+    MessageOptionConstants.unpinMessage,
+    MessageOptionConstants.saveMessage,
+    MessageOptionConstants.unsaveMessage,
+  };
+
+  /// The "More" page: Save, Pin, then everything after the Copy option.
+  late List<ActionItem> _quickActions;
+
+  /// The first page: options up to and including Copy.
+  late List<ActionItem> _listActions;
+
+  /// Options-card page toggle: false = the primary options (…through Copy),
+  /// true = the "More" page. Flipped by the row at the bottom of the card.
+  bool _showMoreActions = false;
+
+  static int _quickActionOrder(ActionItem item) =>
+      (item.id == MessageOptionConstants.saveMessage ||
+          item.id == MessageOptionConstants.unsaveMessage)
+      ? 0
+      : 1;
+
   @override
   void initState() {
     super.initState();
+    // Quick-reaction tray is capped at 5 emojis; pin/save sit beside it.
     _favoriteReactions =
-        widget.favoriteReactions ?? ['😍', '🔥', '🤧', '👍', '❤️'];
+        (widget.favoriteReactions ?? ['😍', '🔥', '🤧', '👍', '😂'])
+            .take(5)
+            .toList();
+
+    final items = widget.actionItems;
+
+    // First page: the options named in _primaryActionOrder, in that order,
+    // skipping any the message doesn't offer (no Edit on someone else's
+    // message, no Copy on media, and so on).
+    final primary = <ActionItem>[];
+    for (final id in _primaryActionOrder) {
+      final index = items.indexWhere((item) => item.id == id);
+      if (index != -1) primary.add(items[index]);
+    }
+
+    final pinSave =
+        items.where((item) => _quickActionIds.contains(item.id)).toList()..sort(
+          (a, b) => _quickActionOrder(a).compareTo(_quickActionOrder(b)),
+        );
+
+    // "More": Save/Pin first, then everything the first page didn't claim,
+    // in the order the host supplied it.
+    final overflow = items
+        .where(
+          (item) =>
+              !_quickActionIds.contains(item.id) &&
+              !_primaryActionOrder.contains(item.id),
+        )
+        .toList();
+
+    _quickActions = [...pinSave, ...overflow];
+    _listActions = primary;
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
@@ -546,14 +618,17 @@ class _CometChatMessageActionOverlayState
     CometChatTypography typography,
     CometChatMessageActionOverlayStyle overlayStyle,
   ) {
-    if (widget.actionItems.isEmpty) return const SizedBox.shrink();
+    if (_listActions.isEmpty && _quickActions.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final pageActions = _showMoreActions ? _quickActions : _listActions;
 
     return Container(
       constraints: kIsWeb
-          ? const BoxConstraints(maxWidth: 280, maxHeight: 400)
+          ? const BoxConstraints(maxWidth: 280, maxHeight: 600)
           : BoxConstraints(
               maxWidth: MediaQuery.sizeOf(context).width * 0.72,
-              maxHeight: 400,
+              maxHeight: 600,
             ),
       decoration: BoxDecoration(
         color: overlayStyle.optionsBackgroundColor ?? colorPalette.background1,
@@ -583,31 +658,69 @@ class _CometChatMessageActionOverlayState
           physics: const ClampingScrollPhysics(),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: widget.actionItems.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              final isLast = index == widget.actionItems.length - 1;
+            children: [
+              ...pageActions.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                // The More/Back row brings its own heavier separator, so the
+                // last action never needs a trailing hairline.
+                final isLast = index == pageActions.length - 1;
 
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildOptionItem(
-                    item,
-                    colorPalette,
-                    spacing,
-                    typography,
-                    overlayStyle,
-                  ),
-                  if (!isLast)
-                    Divider(
-                      height: 0.5,
-                      thickness: 0.5,
-                      color:
-                          overlayStyle.dividerColor ?? colorPalette.borderLight,
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildOptionItem(
+                      item,
+                      colorPalette,
+                      spacing,
+                      typography,
+                      overlayStyle,
                     ),
-                ],
-              );
-            }).toList(),
+                    if (!isLast)
+                      Divider(
+                        height: 0.5,
+                        thickness: 0.5,
+                        color:
+                            overlayStyle.dividerColor ??
+                            colorPalette.borderLight,
+                      ),
+                  ],
+                );
+              }),
+              // "More" opens the second page; on it, the row reads "Back"
+              // with the same arrow the header back button uses. The toggle
+              // never dismisses the overlay.
+              if (_quickActions.isNotEmpty) ...[
+                // More/Back navigates the card rather than acting on the
+                // message, so it is cut off from the actions above with a
+                // full-weight band instead of the hairline used between
+                // peers — the break has to read at a glance.
+                Container(
+                  height: 3,
+                  // A neutral surface, not the divider colour — even at 3dp
+                  // the hairline tone would read as a heavy rule rather than
+                  // the section break this is.
+                  color: colorPalette.background3 ?? colorPalette.borderLight,
+                ),
+                _buildOptionItem(
+                  ActionItem(
+                    id: 'more_toggle',
+                    title: _showMoreActions
+                        ? Translations.of(context).backButton
+                        : Translations.of(context).more,
+                    icon: Icon(
+                      _showMoreActions ? Icons.arrow_back : Icons.more_horiz,
+                    ),
+                  ),
+                  colorPalette,
+                  spacing,
+                  typography,
+                  overlayStyle,
+                  onTapOverride: () =>
+                      setState(() => _showMoreActions = !_showMoreActions),
+                ),
+              ],
+            ],
           ),
         ),
       ),
@@ -619,8 +732,9 @@ class _CometChatMessageActionOverlayState
     CometChatColorPalette colorPalette,
     CometChatSpacing spacing,
     CometChatTypography typography,
-    CometChatMessageActionOverlayStyle overlayStyle,
-  ) {
+    CometChatMessageActionOverlayStyle overlayStyle, {
+    VoidCallback? onTapOverride,
+  }) {
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
     final iconColor =
         overlayStyle.optionIconColor ??
@@ -645,6 +759,10 @@ class _CometChatMessageActionOverlayState
               fontFamily: typography.body?.regular?.fontFamily,
               color: item.style?.titleColor ?? colorPalette.textPrimary,
             ),
+        // Two lines before ellipsizing so longer option titles (e.g.
+        // "Stop reply notifications") never truncate on narrow sheets or
+        // large font scales.
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
     );
@@ -652,7 +770,7 @@ class _CometChatMessageActionOverlayState
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => _dismiss(item),
+        onTap: onTapOverride ?? () => _dismiss(item),
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: spacing.padding4 ?? 16,

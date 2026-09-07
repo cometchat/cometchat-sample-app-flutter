@@ -42,6 +42,11 @@ class _OngoingCallParticipantListener extends ParticipantEventListeners {
   void onParticipantListChanged(List<Participant> participants) {
     bloc.add(ParticipantListChanged(participants));
   }
+
+  @override
+  void onParticipantLeft(Participant participant) {
+    bloc.add(ParticipantLeft(participant));
+  }
 }
 
 /// BLoC for managing ongoing call screen state and actions
@@ -70,6 +75,19 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
   /// Internal list of participants in the call
   List<Participant> _participantsList = [];
 
+  /// Set once the auto-teardown has fired, so a later participant update
+  /// cannot queue a second end-call sequence.
+  bool _peerLeftHandled = false;
+
+  /// Whether the call screen has already been dismissed.
+  ///
+  /// _closeCallScreen() runs more than once per teardown (explicitly in
+  /// _onCallEnded, then again inside _endCall/_endSession's folds). After the
+  /// first dismissal CallScreenOverlay.isShowing is false, so a second run
+  /// would fall through to the Navigator branch and pop whatever route is
+  /// underneath the call screen.
+  bool _callScreenClosed = false;
+
   /// Internal listeners for V5 SDK callbacks
   late final _OngoingCallSessionListener _sessionListener;
   late final _OngoingCallButtonListener _buttonListener;
@@ -93,6 +111,7 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
     on<SessionTimeout>(_onSessionTimeout);
     on<OngoingCallEnded>(_onCallEnded);
     on<ParticipantListChanged>(_onParticipantListChanged);
+    on<ParticipantLeft>(_onParticipantLeft);
 
     // Initialize
     _initialize();
@@ -250,6 +269,14 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
     if (callWorkFlow == CallWorkFlow.directCalling) {
       await _endSession(emit);
     } else {
+      // Mark this as a local hangup BEFORE any teardown runs.
+      // _endSessionQuietly() leaves the RTC session, which fires
+      // onSessionLeft/onConnectionClosed -> OngoingCallEnded. Setting the flag
+      // after those awaits meant _onCallEnded always observed
+      // isCallEndedByMe=false, so the ender branch never executed and the
+      // teardown fell through to a second _endSession instead.
+      emit(state.copyWith(isCallEndedByMe: true));
+
       // Per CometChat docs: leave the WebRTC session first, then notify
       // the server via endCall. This ensures the other participant receives
       // the "call ended" event only after the session is torn down.
@@ -260,9 +287,6 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
       // at this point because the leave hasn't propagated yet, causing
       // _endCall to be skipped and the receiver to stay in the call.
       await _endCall(emit);
-      if (!isClosed) {
-        emit(state.copyWith(isCallEndedByMe: true));
-      }
     }
   }
 
@@ -298,6 +322,61 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
   ) async {
     _participantsList = [...event.participants];
     emit(state.copyWith(participantsList: _participantsList));
+
+    _evaluatePeerLeft();
+  }
+
+  /// Handles a participant leaving the session.
+  ///
+  /// Not observed on iOS - the native Calls SDK emits no participant
+  /// join/leave events there - but kept for platforms that do deliver it.
+  /// The leaver is discounted explicitly because the participant list may not
+  /// have refreshed by the time the leave arrives.
+  Future<void> _onParticipantLeft(
+    ParticipantLeft event,
+    Emitter<OngoingCallState> emit,
+  ) async {
+    _evaluatePeerLeft(excludeUid: event.participant.uid);
+  }
+
+  /// Ends a 1-on-1 call once no other participant remains.
+  ///
+  /// Mirrors the v5 UIKit guard (`onUserLeft` -> end the session when only the
+  /// local user is left), but is driven by whichever signal the platform
+  /// actually delivers: on iOS only `onParticipantListChanged` arrives, and it
+  /// carries an empty list at the moment the peer goes away.
+  ///
+  /// The peer's app can terminate without a clean hangup, in which case no
+  /// call-ended message arrives and nothing else closes this screen. Ends the
+  /// call through the same path as the end-call button, which tears the screen
+  /// down whether or not the endCall API succeeds.
+  void _evaluatePeerLeft({String? excludeUid}) {
+    final remaining = _otherCount(_participantsList, excludeUid: excludeUid);
+
+    if (callWorkFlow != CallWorkFlow.defaultCalling) return;
+    if (!_isOneToOneCall) return;
+    if (state.isCallEndedByMe || _peerLeftHandled) return;
+    if (remaining > 0) return;
+
+    _peerLeftHandled = true;
+    add(const EndCallButtonPressed());
+  }
+
+  /// Participants other than the logged-in user.
+  ///
+  /// Counts *others* rather than the whole list, which keeps this correct
+  /// whether or not the SDK includes the local user in the participant list.
+  int _otherCount(List<Participant> participants, {String? excludeUid}) {
+    final myUid = CometChatUIKit.loggedInUser?.uid;
+    return participants
+        .where((p) => p.uid != myUid && p.uid != excludeUid)
+        .length;
+  }
+
+  /// True when the active call is a 1-on-1 (user-to-user) call.
+  bool get _isOneToOneCall {
+    final active = CallEventService.instance.activeCall;
+    return active is Call && active.receiverType == ReceiverTypeConstants.user;
   }
 
   // ============================================================
@@ -350,6 +429,10 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
           debugPrint('Session could not be ended: ${failure.message}');
         }
         _handleError(CometChatException('ERR', failure.message, ''));
+        // Close the screen even when teardown fails, matching _endCall. On the
+        // remote-hangup path this fold is the only thing standing between a
+        // failed endSession and a call screen the user cannot dismiss.
+        _closeCallScreen();
         emit(
           state.copyWith(
             status: OngoingCallStatus.error,
@@ -370,6 +453,11 @@ class OngoingCallBloc extends Bloc<OngoingCallEvent, OngoingCallState> {
       call.category = MessageCategoryConstants.call;
       CometChatCallEvents.ccCallEnded(call);
     }
+
+    // Repeat calls are no-ops. The ccCallEnded event above still fires first,
+    // so hosts observing it are unaffected.
+    if (_callScreenClosed) return;
+    _callScreenClosed = true;
 
     // Dismiss the isolated overlay if showing, otherwise fall back to
     // Navigator.pop for backward compatibility (e.g. standalone usage).

@@ -592,10 +592,7 @@ String _fmtDuration(Duration d) {
 /// The viewer intentionally offers **two** download affordances on this screen:
 /// this centre button, plus the AppBar's always-visible top-right one.
 class _UnsupportedView extends StatelessWidget {
-  const _UnsupportedView({
-    required this.onDownload,
-    this.downloading = false,
-  });
+  const _UnsupportedView({required this.onDownload, this.downloading = false});
 
   /// Invoked by the centre Download button.
   final VoidCallback onDownload;
@@ -648,39 +645,37 @@ class _UnsupportedView extends StatelessWidget {
             const SizedBox(height: 28),
             ElevatedButton.icon(
               onPressed: downloading ? null : onDownload,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: accent.withValues(alpha: 0.6),
-                  disabledForegroundColor: Colors.white70,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 28,
-                    vertical: 14,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accent,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: accent.withValues(alpha: 0.6),
+                disabledForegroundColor: Colors.white70,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 14,
                 ),
-                icon: downloading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : const Icon(Icons.file_download_outlined, size: 20),
-                label: Text(
-                  t.download,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
+              icon: downloading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Icon(Icons.file_download_outlined, size: 20),
+              label: Text(
+                t.download,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -405,6 +405,136 @@ class TranslationsHi extends Translations {
   String get replyInThread => 'थ्रेड में जवाब दें';
 
   @override
+  String get threadMute => 'थ्रेड अनसब्सक्राइब करें';
+
+  @override
+  String get threadUnmute => 'थ्रेड सब्सक्राइब करें';
+
+  @override
+  String get messageListOptionStopReplyNotifications =>
+      'थ्रेड अनसब्सक्राइब करें';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'थ्रेड सब्सक्राइब करें';
+
+  @override
+  String get threadMutedToast =>
+      'अनसब्सक्राइब किया गया। जब तक आप उत्तर नहीं देते या आपका उल्लेख नहीं होता, सूचनाएं बंद रहेंगी।';
+
+  @override
+  String get threadUnmutedToast =>
+      'सब्सक्राइब किया गया। इस थ्रेड में नए उत्तरों की सूचना आपको दी जाएगी।';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'अपडेट नहीं हो सका। कृपया पुनः प्रयास करें।';
+
+  @override
+  String get threadUnavailable => 'अब आपके पास इस थ्रेड तक पहुँच नहीं है।';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'संदेश पिन करें';
+
+  @override
+  String get unpinMessageOption => 'संदेश अनपिन करें';
+
+  @override
+  String get saveMessageOption => 'संदेश सहेजें';
+
+  @override
+  String get unsaveMessageOption => 'सहेजा गया हटाएँ';
+
+  @override
+  String get pinConfirmTitle => 'संदेश पिन करें?';
+
+  @override
+  String get pinConfirmMessage =>
+      'यह संदेश इस बातचीत में सभी के लिए पिन किया जाएगा।';
+
+  @override
+  String get unpinConfirmTitle => 'संदेश अनपिन करें?';
+
+  @override
+  String get unpinConfirmMessage => 'यह संदेश अब सभी के लिए पिन नहीं रहेगा।';
+
+  @override
+  String get saveConfirmTitle => 'संदेश सहेजें?';
+
+  @override
+  String get saveConfirmMessage =>
+      'यह संदेश आपके सहेजे गए संदेशों में जोड़ा जाएगा।';
+
+  @override
+  String get unsaveConfirmTitle => 'सहेजा गया संदेश हटाएँ?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'यह संदेश आपके सहेजे गए संदेशों से हटा दिया जाएगा।';
+
+  @override
+  String get pinButton => 'पिन करें';
+
+  @override
+  String get unpinButton => 'अनपिन करें';
+
+  @override
+  String get saveButton => 'सहेजें';
+
+  @override
+  String get unsaveButton => 'हटाएँ';
+
+  @override
+  String get messagePinnedToast => 'संदेश पिन किया गया';
+
+  @override
+  String get messageUnpinnedToast => 'संदेश अनपिन किया गया';
+
+  @override
+  String get messageSavedToast => 'संदेश सहेजा गया';
+
+  @override
+  String get messageUnsavedToast => 'संदेश हटाया गया';
+
+  @override
+  String get pinnedMessagesTitle => 'पिन किए गए संदेश';
+
+  @override
+  String get savedMessagesTitle => 'सहेजे गए संदेश';
+
+  @override
+  String get noPinnedMessages => 'अभी कोई पिन किया गया संदेश नहीं';
+
+  @override
+  String get noSavedMessages => 'अभी कोई सहेजा गया संदेश नहीं';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'आप केवल $limit संदेश पिन कर सकते हैं। दूसरा पिन करने के लिए एक को अनपिन करें।';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'आप केवल $limit संदेश सहेज सकते हैं। दूसरा सहेजने के लिए एक को हटाएं।';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'आप केवल $limit चैट पिन कर सकते हैं। दूसरी पिन करने के लिए एक को अनपिन करें।';
+
+  @override
+  String get actionPermissionDenied =>
+      'आपको यह कार्रवाई करने की अनुमति नहीं है।';
+
+  @override
+  String get pinSaveFailed => 'अपडेट नहीं हो सका। कृपया फिर से प्रयास करें।';
+
+  @override
+  String get conversationPinnedToast => 'बातचीत पिन की गई';
+
+  @override
+  String get conversationUnpinnedToast => 'बातचीत अनपिन की गई';
+
+  @override
   String get deleteMessage => 'संदेश मिटाएँ';
 
   @override

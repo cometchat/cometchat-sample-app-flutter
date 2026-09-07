@@ -935,6 +935,130 @@ abstract class Translations {
   /// **'Reply in thread'**
   String get replyInThread;
 
+  // ── Thread subscription (mute/unmute reply notifications) ─────────────
+  // Concrete getters with English defaults so existing custom Translations
+  // subclasses keep compiling; bundled locales override them.
+
+  String get threadMute => 'Unsubscribe from thread';
+
+  String get threadUnmute => 'Subscribe to thread';
+
+  String get messageListOptionStopReplyNotifications =>
+      'Unsubscribe from thread';
+
+  String get messageListOptionGetReplyNotifications => 'Subscribe to thread';
+
+  String get threadMutedToast =>
+      'Unsubscribed. Notifications are off until you reply or are mentioned.';
+
+  String get threadUnmutedToast =>
+      'Subscribed. You\'ll be notified about new replies in this thread.';
+
+  String get threadSubscriptionFailed => 'Couldn\'t update. Please try again.';
+
+  String get threadUnavailable => 'You no longer have access to this thread.';
+
+  // ── Pin & Save Message ────────────────────────────────────────────────
+  // Concrete getters with English defaults so existing custom Translations
+  // subclasses keep compiling; bundled locales override them.
+
+  String get pinMessageOption => 'Pin message';
+
+  String get unpinMessageOption => 'Unpin message';
+
+  String get saveMessageOption => 'Save message';
+
+  String get unsaveMessageOption => 'Unsave message';
+
+  String get pinConfirmTitle => 'Pin message?';
+
+  String get pinConfirmMessage =>
+      'This message will be pinned to this conversation for everyone.';
+
+  String get unpinConfirmTitle => 'Unpin message?';
+
+  String get unpinConfirmMessage =>
+      'This message will no longer be pinned for everyone.';
+
+  String get saveConfirmTitle => 'Save message?';
+
+  String get saveConfirmMessage =>
+      'This message will be added to your saved messages.';
+
+  String get unsaveConfirmTitle => 'Unsave message?';
+
+  String get unsaveConfirmMessage =>
+      'This message will be removed from your saved messages.';
+
+  String get pinButton => 'Pin';
+
+  String get unpinButton => 'Unpin';
+
+  String get saveButton => 'Save';
+
+  String get unsaveButton => 'Unsave';
+
+  String get messagePinnedToast => 'Message pinned';
+
+  String get messageUnpinnedToast => 'Message unpinned';
+
+  String get messageSavedToast => 'Message saved';
+
+  String get messageUnsavedToast => 'Message unsaved';
+
+  String get pinnedMessagesTitle => 'Pinned Messages';
+
+  String get savedMessagesTitle => 'Saved Messages';
+
+  String get noPinnedMessages => 'No pinned messages yet';
+
+  String get noSavedMessages => 'No saved messages yet';
+
+  /// Empty-state body under [noPinnedMessages].
+  String get noPinnedMessagesSubtitle =>
+      'Pin important messages to keep them easy to find.';
+
+  /// Empty-state body under [noSavedMessages].
+  String get noSavedMessagesSubtitle =>
+      'Save messages to keep them handy whenever you need them.';
+
+  /// Cap error body — [limit] comes from the server error's errorParams,
+  /// falling back to the `/me` cap (`features.ux.messages.pinned.limit`).
+  String pinLimitReachedToast(int limit) =>
+      'You can only pin $limit messages. Unpin one to pin another.';
+
+  /// Cap error body — [limit] comes from the server error's errorParams,
+  /// falling back to the `/me` cap (`features.ux.messages.saved.limit`).
+  String saveLimitReachedToast(int limit) =>
+      'You can only save $limit messages. Unsave one to save another.';
+
+  /// Cap error body — [limit] comes from the server error's errorParams,
+  /// falling back to the `/me` cap
+  /// (`features.ux.conversations.pinned.limit`).
+  String conversationPinLimitReachedToast(int limit) =>
+      'You can only pin $limit chats. Unpin one to pin another.';
+
+  String get actionPermissionDenied =>
+      'You don\'t have permission to perform this action.';
+
+  String get pinSaveFailed => 'Couldn\'t update. Please try again.';
+
+  String get conversationPinnedToast => 'Conversation pinned';
+
+  /// Overflow-menu action label (English default for all locales; full
+  /// localization pass pending).
+  String get pinConversationOption => 'Pin conversation';
+
+  /// Return-navigation label (English default for all locales; full
+  /// localization pass pending).
+  String get backButton => 'Back';
+
+  /// Self-attribution used where a list row names the message's sender
+  /// (English default for all locales; full localization pass pending).
+  String get youLabel => 'You';
+
+  String get conversationUnpinnedToast => 'Conversation unpinned';
+
   /// No description provided for @delete_message.
   ///
   /// In en, this message translates to:

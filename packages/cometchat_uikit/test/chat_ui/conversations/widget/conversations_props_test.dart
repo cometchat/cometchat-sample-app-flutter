@@ -154,6 +154,13 @@ class FakeConversation extends Fake implements Conversation {
 
   @override
   String get conversationType => conversationWith is User ? 'user' : 'group';
+
+  // Pin Conversation fields — read by the trailing view's pin glyph.
+  @override
+  DateTime? get pinnedAt => null;
+
+  @override
+  String? get pinnedBy => null;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

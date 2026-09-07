@@ -80,6 +80,16 @@ class FakeCardMessage extends Fake implements CardMessage {
   @override
   DateTime? get deletedAt => null;
 
+  // Pin & Save fields — read by the option assembly and status row.
+  @override
+  DateTime? get pinnedAt => null;
+
+  @override
+  String? get pinnedBy => null;
+
+  @override
+  DateTime? get savedAt => null;
+
   @override
   int get parentMessageId => 0;
 

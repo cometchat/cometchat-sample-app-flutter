@@ -404,6 +404,136 @@ class TranslationsHu extends Translations {
   String get replyInThread => 'Válasz szálban';
 
   @override
+  String get threadMute => 'Leiratkozás a szálról';
+
+  @override
+  String get threadUnmute => 'Feliratkozás a szálra';
+
+  @override
+  String get messageListOptionStopReplyNotifications => 'Leiratkozás a szálról';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'Feliratkozás a szálra';
+
+  @override
+  String get threadMutedToast =>
+      'Leiratkozva. Az értesítések ki vannak kapcsolva, amíg nem válaszolsz vagy nem említenek meg.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Feliratkozva. Értesítést kapsz a szál új válaszairól.';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'A frissítés nem sikerült. Próbáld újra.';
+
+  @override
+  String get threadUnavailable => 'Már nincs hozzáférésed ehhez a szálhoz.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Üzenet kitűzése';
+
+  @override
+  String get unpinMessageOption => 'Kitűzés eltávolítása';
+
+  @override
+  String get saveMessageOption => 'Üzenet mentése';
+
+  @override
+  String get unsaveMessageOption => 'Mentés visszavonása';
+
+  @override
+  String get pinConfirmTitle => 'Kitűzöd az üzenetet?';
+
+  @override
+  String get pinConfirmMessage =>
+      'Ez az üzenet mindenki számára ki lesz tűzve ebben a beszélgetésben.';
+
+  @override
+  String get unpinConfirmTitle => 'Eltávolítod a kitűzést?';
+
+  @override
+  String get unpinConfirmMessage =>
+      'Ez az üzenet többé nem lesz kitűzve senkinek.';
+
+  @override
+  String get saveConfirmTitle => 'Mented az üzenetet?';
+
+  @override
+  String get saveConfirmMessage =>
+      'Ez az üzenet bekerül a mentett üzeneteid közé.';
+
+  @override
+  String get unsaveConfirmTitle => 'Visszavonod a mentést?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'Ez az üzenet törlődik a mentett üzeneteid közül.';
+
+  @override
+  String get pinButton => 'Kitűzés';
+
+  @override
+  String get unpinButton => 'Eltávolítás';
+
+  @override
+  String get saveButton => 'Mentés';
+
+  @override
+  String get unsaveButton => 'Törlés';
+
+  @override
+  String get messagePinnedToast => 'Üzenet kitűzve';
+
+  @override
+  String get messageUnpinnedToast => 'Kitűzés eltávolítva';
+
+  @override
+  String get messageSavedToast => 'Üzenet mentve';
+
+  @override
+  String get messageUnsavedToast => 'Mentés visszavonva';
+
+  @override
+  String get pinnedMessagesTitle => 'Kitűzött üzenetek';
+
+  @override
+  String get savedMessagesTitle => 'Mentett üzenetek';
+
+  @override
+  String get noPinnedMessages => 'Még nincs kitűzött üzenet';
+
+  @override
+  String get noSavedMessages => 'Még nincs mentett üzenet';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'Csak $limit üzenetet tűzhetsz ki. Tűzz le egyet, hogy másikat tűzhess ki.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'Csak $limit üzenetet menthetsz. Törölj egyet a mentettek közül, hogy másikat menthess.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'Csak $limit beszélgetést tűzhetsz ki. Tűzz le egyet, hogy másikat tűzhess ki.';
+
+  @override
+  String get actionPermissionDenied =>
+      'Nincs jogosultságod a művelet végrehajtásához.';
+
+  @override
+  String get pinSaveFailed => 'Nem sikerült frissíteni. Próbáld újra.';
+
+  @override
+  String get conversationPinnedToast => 'Beszélgetés kitűzve';
+
+  @override
+  String get conversationUnpinnedToast => 'Kitűzés eltávolítva';
+
+  @override
   String get deleteMessage => 'Üzenet törlése';
 
   @override

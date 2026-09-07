@@ -81,6 +81,7 @@ class CometChatMessageComposer extends StatefulWidget {
     this.secondaryButtonView,
     this.sendButtonView,
     this.attachmentOptions,
+    this.richTextToolbarActions,
     this.text,
     this.onChange,
     this.maxLine,
@@ -284,6 +285,15 @@ class CometChatMessageComposer extends StatefulWidget {
 
   ///[attachmentOptions] provides options to attach files
   final ComposerActionsBuilder? attachmentOptions;
+
+  ///[richTextToolbarActions] appends consumer actions at the trailing end of
+  ///the rich-text formatting toolbar, after a UIKit-owned divider (Trailing
+  ///Toolbar Buttons DD). Same builder shape as [attachmentOptions]; each
+  ///action's [CometChatMessageComposerAction.onToolbarTap] receives the live
+  ///[RichTextEditingController], so it can read `text`/`selection` and call
+  ///`applyFormat`/`applyInlineStyle`. Rendered in both composer layouts, and
+  ///only while the rich-text toolbar itself is visible.
+  final ComposerActionsBuilder? richTextToolbarActions;
 
   ///[stateCallBack] callback to handle state of the message composer
   ///Now returns MessageComposerBloc instead of the old controller
@@ -1059,7 +1069,7 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
 
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     // But re-initialize when brightness changes (dark mode toggle)
-    final currentBrightness = MediaQuery.platformBrightnessOf(context);
+    final currentBrightness = CometChatThemeHelper.getBrightness(context);
     final brightnessChanged =
         _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
@@ -5184,10 +5194,40 @@ class _CometChatMessageComposerState extends State<CometChatMessageComposer>
     Set<FormatType> activeFormats, {
     bool tightLeading = false,
   }) {
+    // Custom-toolbar escape hatch, honoured in the RENDERED path. It used to
+    // live only in _buildRichTextToolbar(), whose output the layout consults
+    // as a null check and then discards — so the hook never drew (Trailing
+    // Toolbar Buttons DD, blocker B2). Both layout modes route through here.
+    final customView = widget.richTextToolbarView;
+    if (customView != null && _textEditingController != null) {
+      return customView(context, _textEditingController!);
+    }
+
+    // Trailing consumer actions render only when the live controller can
+    // actually service their taps — a caller-supplied plain
+    // TextEditingController silently disables formatting (same gate the
+    // built-in buttons have via _applyToolbarFormat), so trailing buttons
+    // are withheld rather than rendered dead.
+    //
+    // Resolve the ACTIVE controller, not the composer-level one: with
+    // segment-based code blocks the visible field is the focused segment's
+    // own RichTextEditingController, and handing out the outer one would
+    // give consumers a controller that neither holds the selection nor
+    // paints the text. Returns null while a code segment has focus — there
+    // is nothing meaningful to style there.
+    final controller = _getActiveTextController();
+    final trailingActions =
+        (widget.richTextToolbarActions != null &&
+            controller is RichTextEditingController)
+        ? widget.richTextToolbarActions!(context, widget.user, widget.group, {})
+        : const <CometChatMessageComposerAction>[];
+
     return CometChatRichTextToolbar(
       onFormatTap: _applyToolbarFormat,
       activeFormats: activeFormats,
       hiddenFormats: _getHiddenFormats(),
+      trailingActions: trailingActions,
+      trailingTapController: controller,
       style: CometChatRichTextToolbarStyle(
         backgroundColor: Colors.transparent,
         border: null,

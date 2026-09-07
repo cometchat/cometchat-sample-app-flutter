@@ -404,6 +404,138 @@ class TranslationsPt extends Translations {
   String get replyInThread => 'Responder no tópico';
 
   @override
+  String get threadMute => 'Cancelar inscrição na conversa';
+
+  @override
+  String get threadUnmute => 'Inscrever-se na conversa';
+
+  @override
+  String get messageListOptionStopReplyNotifications =>
+      'Cancelar inscrição na conversa';
+
+  @override
+  String get messageListOptionGetReplyNotifications =>
+      'Inscrever-se na conversa';
+
+  @override
+  String get threadMutedToast =>
+      'Inscrição cancelada. As notificações ficam desativadas até você responder ou ser mencionado.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Inscrito. Você será notificado sobre novas respostas nesta conversa.';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'Não foi possível atualizar. Tente novamente.';
+
+  @override
+  String get threadUnavailable => 'Você não tem mais acesso a este tópico.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Fixar mensagem';
+
+  @override
+  String get unpinMessageOption => 'Desafixar mensagem';
+
+  @override
+  String get saveMessageOption => 'Salvar mensagem';
+
+  @override
+  String get unsaveMessageOption => 'Remover dos salvos';
+
+  @override
+  String get pinConfirmTitle => 'Fixar mensagem?';
+
+  @override
+  String get pinConfirmMessage =>
+      'Esta mensagem será fixada nesta conversa para todos.';
+
+  @override
+  String get unpinConfirmTitle => 'Desafixar mensagem?';
+
+  @override
+  String get unpinConfirmMessage =>
+      'Esta mensagem deixará de estar fixada para todos.';
+
+  @override
+  String get saveConfirmTitle => 'Salvar mensagem?';
+
+  @override
+  String get saveConfirmMessage =>
+      'Esta mensagem será adicionada às suas mensagens salvas.';
+
+  @override
+  String get unsaveConfirmTitle => 'Remover mensagem dos salvos?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'Esta mensagem será removida das suas mensagens salvas.';
+
+  @override
+  String get pinButton => 'Fixar';
+
+  @override
+  String get unpinButton => 'Desafixar';
+
+  @override
+  String get saveButton => 'Salvar';
+
+  @override
+  String get unsaveButton => 'Remover';
+
+  @override
+  String get messagePinnedToast => 'Mensagem fixada';
+
+  @override
+  String get messageUnpinnedToast => 'Mensagem desafixada';
+
+  @override
+  String get messageSavedToast => 'Mensagem salva';
+
+  @override
+  String get messageUnsavedToast => 'Mensagem removida dos salvos';
+
+  @override
+  String get pinnedMessagesTitle => 'Mensagens fixadas';
+
+  @override
+  String get savedMessagesTitle => 'Mensagens salvas';
+
+  @override
+  String get noPinnedMessages => 'Ainda não há mensagens fixadas';
+
+  @override
+  String get noSavedMessages => 'Ainda não há mensagens salvas';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'Você só pode fixar $limit mensagens. Desafixe uma para fixar outra.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'Você só pode salvar $limit mensagens. Remova uma para salvar outra.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'Você só pode fixar $limit conversas. Desafixe uma para fixar outra.';
+
+  @override
+  String get actionPermissionDenied =>
+      'Você não tem permissão para realizar esta ação.';
+
+  @override
+  String get pinSaveFailed => 'Não foi possível atualizar. Tente novamente.';
+
+  @override
+  String get conversationPinnedToast => 'Conversa fixada';
+
+  @override
+  String get conversationUnpinnedToast => 'Conversa desafixada';
+
+  @override
   String get deleteMessage => 'Excluir mensagem';
 
   @override

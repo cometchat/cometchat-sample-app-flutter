@@ -98,7 +98,7 @@ class _CometChatVideoBubbleState extends State<CometChatVideoBubble> {
     super.didChangeDependencies();
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     // But re-initialize when brightness changes (dark mode toggle)
-    final currentBrightness = MediaQuery.platformBrightnessOf(context);
+    final currentBrightness = CometChatThemeHelper.getBrightness(context);
     final brightnessChanged =
         _themeInitialized && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {

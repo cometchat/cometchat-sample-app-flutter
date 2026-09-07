@@ -44,6 +44,13 @@ class _FakeGroup extends Fake implements Group {
 }
 
 class _FakeConversation extends Fake implements Conversation {
+
+  // Pin Conversation fields — read by the trailing view's pin glyph.
+  @override
+  DateTime? get pinnedAt => null;
+
+  @override
+  String? get pinnedBy => null;
   _FakeConversation({
     required AppEntity conversationWith,
     this.conversationId = 'c1',

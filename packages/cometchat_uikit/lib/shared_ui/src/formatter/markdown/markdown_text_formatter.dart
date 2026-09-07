@@ -23,6 +23,7 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
     this.enableItalic = true,
     this.enableStrikethrough = true,
     this.enableUnderline = true,
+    this.enableColorTags = true,
     this.enableInlineCode = true,
     this.enableCodeBlock = true,
     this.enableLink = true,
@@ -35,6 +36,11 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
   final bool enableItalic;
   final bool enableStrikethrough;
   final bool enableUnderline;
+
+  /// Parses `<color=#RRGGBB>…</color>` tags emitted by the composer's
+  /// consumer inline styles (Trailing Toolbar Buttons DD). Same angle-bracket
+  /// vocabulary the underline tag already uses.
+  final bool enableColorTags;
   final bool enableInlineCode;
   final bool enableCodeBlock;
   final bool enableLink;
@@ -53,6 +59,10 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
   static final _doubleUnderscoreItalicPattern = RegExp(r'__(.+?)__');
   static final _strikethroughPattern = RegExp(r'~~(.+?)~~');
   static final _underlinePattern = RegExp(r'<u>(.+?)</u>');
+  static final _colorPattern = RegExp(
+    r'<color=#([0-9a-fA-F]{6})>(.*?)</color>',
+    dotAll: true,
+  );
   static final _inlineCodePattern = RegExp(r'`([^`]+)`');
   // Code blocks are parsed manually via _findCodeBlocks, not via regex
   static final _linkPattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
@@ -243,6 +253,16 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
         ),
       );
     }
+    if (enableColorTags) {
+      result = _collectColorTags(
+        text,
+        context,
+        alignment,
+        result,
+        onTap,
+        excludeRanges: codeRanges,
+      );
+    }
     if (enableInlineCode) {
       result = _collectInlineCode(
         text,
@@ -330,6 +350,43 @@ class MarkdownTextFormatter extends CometChatTextFormatter {
             onTap: onTap,
           );
         })
+        .toList();
+
+    if (existing.isNotEmpty) {
+      return mergeAttributedText(attrs, existing);
+    }
+    return attrs;
+  }
+
+  /// Collects `<color=#RRGGBB>…</color>` ranges.
+  ///
+  /// Separate from [_collectInline] because the style is per-match (it comes
+  /// from the tag's own hex) rather than a fixed builder, and because the
+  /// tag carries two capture groups.
+  List<AttributedText> _collectColorTags(
+    String text,
+    BuildContext context,
+    BubbleAlignment? alignment,
+    List<AttributedText> existing,
+    Function(String)? onTap, {
+    List<_Range> excludeRanges = const [],
+  }) {
+    final attrs = _colorPattern
+        .allMatches(text)
+        .where((match) => !_overlapsAny(match.start, match.end, excludeRanges))
+        .map((match) {
+          final hex = match.group(1)!;
+          final content = match.group(2) ?? '';
+          final value = int.parse(hex, radix: 16) | 0xFF000000;
+          return AttributedText(
+            start: match.start,
+            end: match.end,
+            underlyingText: content,
+            style: TextStyle(color: Color(value)),
+            onTap: onTap,
+          );
+        })
+        .where((attr) => attr.underlyingText?.isNotEmpty ?? false)
         .toList();
 
     if (existing.isNotEmpty) {

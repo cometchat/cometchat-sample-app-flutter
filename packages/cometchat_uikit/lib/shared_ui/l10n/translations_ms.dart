@@ -406,6 +406,138 @@ class TranslationsMs extends Translations {
   String get replyInThread => 'Balas dalam thread';
 
   @override
+  String get threadMute => 'Berhenti melanggan bebenang';
+
+  @override
+  String get threadUnmute => 'Langgan bebenang';
+
+  @override
+  String get messageListOptionStopReplyNotifications =>
+      'Berhenti melanggan bebenang';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'Langgan bebenang';
+
+  @override
+  String get threadMutedToast =>
+      'Berhenti melanggan. Pemberitahuan dimatikan sehingga anda membalas atau disebut.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Dilanggan. Anda akan dimaklumkan tentang balasan baharu dalam bebenang ini.';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'Tidak dapat mengemas kini. Sila cuba lagi.';
+
+  @override
+  String get threadUnavailable =>
+      'Anda tidak lagi mempunyai akses kepada bebenang ini.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Semat mesej';
+
+  @override
+  String get unpinMessageOption => 'Nyahsemat mesej';
+
+  @override
+  String get saveMessageOption => 'Simpan mesej';
+
+  @override
+  String get unsaveMessageOption => 'Nyahsimpan mesej';
+
+  @override
+  String get pinConfirmTitle => 'Semat mesej?';
+
+  @override
+  String get pinConfirmMessage =>
+      'Mesej ini akan disematkan dalam perbualan ini untuk semua orang.';
+
+  @override
+  String get unpinConfirmTitle => 'Nyahsemat mesej?';
+
+  @override
+  String get unpinConfirmMessage =>
+      'Mesej ini tidak lagi disematkan untuk semua orang.';
+
+  @override
+  String get saveConfirmTitle => 'Simpan mesej?';
+
+  @override
+  String get saveConfirmMessage =>
+      'Mesej ini akan ditambahkan ke mesej tersimpan anda.';
+
+  @override
+  String get unsaveConfirmTitle => 'Nyahsimpan mesej?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'Mesej ini akan dialih keluar daripada mesej tersimpan anda.';
+
+  @override
+  String get pinButton => 'Semat';
+
+  @override
+  String get unpinButton => 'Nyahsemat';
+
+  @override
+  String get saveButton => 'Simpan';
+
+  @override
+  String get unsaveButton => 'Alih keluar';
+
+  @override
+  String get messagePinnedToast => 'Mesej disematkan';
+
+  @override
+  String get messageUnpinnedToast => 'Mesej dinyahsemat';
+
+  @override
+  String get messageSavedToast => 'Mesej disimpan';
+
+  @override
+  String get messageUnsavedToast => 'Mesej dinyahsimpan';
+
+  @override
+  String get pinnedMessagesTitle => 'Mesej Tersemat';
+
+  @override
+  String get savedMessagesTitle => 'Mesej Tersimpan';
+
+  @override
+  String get noPinnedMessages => 'Belum ada mesej tersemat';
+
+  @override
+  String get noSavedMessages => 'Belum ada mesej tersimpan';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'Anda hanya boleh menyematkan $limit mesej. Nyahsemat satu untuk menyematkan yang lain.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'Anda hanya boleh menyimpan $limit mesej. Buang satu untuk menyimpan yang lain.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'Anda hanya boleh menyematkan $limit sembang. Nyahsemat satu untuk menyematkan yang lain.';
+
+  @override
+  String get actionPermissionDenied =>
+      'Anda tidak mempunyai kebenaran untuk melakukan tindakan ini.';
+
+  @override
+  String get pinSaveFailed => 'Tidak dapat mengemas kini. Sila cuba lagi.';
+
+  @override
+  String get conversationPinnedToast => 'Perbualan disematkan';
+
+  @override
+  String get conversationUnpinnedToast => 'Perbualan dinyahsemat';
+
+  @override
   String get deleteMessage => 'Padam mesej';
 
   @override

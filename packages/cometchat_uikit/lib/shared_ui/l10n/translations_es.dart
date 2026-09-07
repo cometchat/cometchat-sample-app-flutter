@@ -404,6 +404,137 @@ class TranslationsEs extends Translations {
   String get replyInThread => 'Responder en el hilo';
 
   @override
+  String get threadMute => 'Cancelar suscripción al hilo';
+
+  @override
+  String get threadUnmute => 'Suscribirse al hilo';
+
+  @override
+  String get messageListOptionStopReplyNotifications =>
+      'Cancelar suscripción al hilo';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'Suscribirse al hilo';
+
+  @override
+  String get threadMutedToast =>
+      'Suscripción cancelada. Las notificaciones están desactivadas hasta que respondas o te mencionen.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Suscrito. Recibirás notificaciones sobre nuevas respuestas en este hilo.';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'No se pudo actualizar. Inténtalo de nuevo.';
+
+  @override
+  String get threadUnavailable => 'Ya no tienes acceso a este hilo.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Fijar mensaje';
+
+  @override
+  String get unpinMessageOption => 'Dejar de fijar';
+
+  @override
+  String get saveMessageOption => 'Guardar mensaje';
+
+  @override
+  String get unsaveMessageOption => 'Dejar de guardar';
+
+  @override
+  String get pinConfirmTitle => '¿Fijar mensaje?';
+
+  @override
+  String get pinConfirmMessage =>
+      'Este mensaje se fijará en esta conversación para todos.';
+
+  @override
+  String get unpinConfirmTitle => '¿Dejar de fijar el mensaje?';
+
+  @override
+  String get unpinConfirmMessage =>
+      'Este mensaje dejará de estar fijado para todos.';
+
+  @override
+  String get saveConfirmTitle => '¿Guardar mensaje?';
+
+  @override
+  String get saveConfirmMessage =>
+      'Este mensaje se añadirá a tus mensajes guardados.';
+
+  @override
+  String get unsaveConfirmTitle => '¿Dejar de guardar el mensaje?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'Este mensaje se eliminará de tus mensajes guardados.';
+
+  @override
+  String get pinButton => 'Fijar';
+
+  @override
+  String get unpinButton => 'No fijar';
+
+  @override
+  String get saveButton => 'Guardar';
+
+  @override
+  String get unsaveButton => 'Quitar';
+
+  @override
+  String get messagePinnedToast => 'Mensaje fijado';
+
+  @override
+  String get messageUnpinnedToast => 'Mensaje desfijado';
+
+  @override
+  String get messageSavedToast => 'Mensaje guardado';
+
+  @override
+  String get messageUnsavedToast => 'Mensaje eliminado de guardados';
+
+  @override
+  String get pinnedMessagesTitle => 'Mensajes fijados';
+
+  @override
+  String get savedMessagesTitle => 'Mensajes guardados';
+
+  @override
+  String get noPinnedMessages => 'Aún no hay mensajes fijados';
+
+  @override
+  String get noSavedMessages => 'Aún no hay mensajes guardados';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'Solo puedes fijar $limit mensajes. Desfija uno para fijar otro.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'Solo puedes guardar $limit mensajes. Quita uno para guardar otro.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'Solo puedes fijar $limit chats. Desfija uno para fijar otro.';
+
+  @override
+  String get actionPermissionDenied =>
+      'No tienes permiso para realizar esta acción.';
+
+  @override
+  String get pinSaveFailed => 'No se pudo actualizar. Inténtalo de nuevo.';
+
+  @override
+  String get conversationPinnedToast => 'Conversación fijada';
+
+  @override
+  String get conversationUnpinnedToast => 'Conversación desfijada';
+
+  @override
   String get deleteMessage => 'Eliminar mensaje';
 
   @override

@@ -157,10 +157,11 @@ class CallEventService with CallListener, CometChatCallEventListener {
         onError: onCallsInitError,
       );
     } else {
-      final callAppSettings = (CallAppSettingBuilder()
-            ..appId = appId
-            ..region = region)
-          .build();
+      final callAppSettings =
+          (CallAppSettingBuilder()
+                ..appId = appId
+                ..region = region)
+              .build();
 
       CometChatCalls.init(
         callAppSettings,
@@ -600,7 +601,38 @@ class CallEventService with CallListener, CometChatCallEventListener {
       'CallEventService: onCallEndedMessageReceived sessionId=${call.sessionId}',
     );
     IncomingCallOverlay.dismiss();
+    // The remote party ended the call — tear down this device's call screen.
+    //
+    // Nothing else does it: OngoingCallBloc subscribes to no call events and
+    // only closes the screen from locally-initiated end paths, and the v5
+    // guard (onUserLeft -> endSession once <=1 participant remained) was
+    // dropped during the Clean Architecture + BLoC migration. Without this the
+    // surviving device sits on a dead call screen after the peer hangs up.
+    unawaited(_tearDownOngoingCall());
     _clearActiveCall(call);
+  }
+
+  /// Leaves the media session and closes the ongoing call screen, if one is up.
+  ///
+  /// Safe on the device that ended the call itself: the overlay is already
+  /// gone, so this returns immediately.
+  ///
+  /// Deliberately does NOT call `CometChat.endCall()` — the call is already
+  /// ended server-side, and re-ending it just fails with
+  /// "The call with sessionid ... is ended."
+  Future<void> _tearDownOngoingCall() async {
+    if (!CallScreenOverlay.isShowing) return;
+    try {
+      // Aborts the Android ongoing-call foreground service and leaves the
+      // WebRTC session, so audio actually stops rather than only the UI going
+      // away.
+      await CometChatUIKitCalls.endSession();
+    } catch (e) {
+      developer.log(
+        'CallEventService: endSession during remote teardown failed: $e',
+      );
+    }
+    CallScreenOverlay.dismiss();
   }
 
   // ================================================================

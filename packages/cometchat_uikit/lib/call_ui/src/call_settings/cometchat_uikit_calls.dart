@@ -273,7 +273,18 @@ class CometChatUIKitCalls {
       // Abort the ongoing call foreground service (Android notification)
       await CometChatOngoingCallService.abort();
       await CallSession.getInstance()?.leaveSession();
-      CometChat.clearActiveCall();
+      // NOTE: do NOT clear the active call here.
+      //
+      // The documented teardown order is leaveSession() first, then
+      // CometChat.endCall(). endCall resolves the required `joinedAt` post
+      // parameter from the call cached by initiateCall/acceptCall, so wiping
+      // that cache here left endCall sending `joinedAt: 0`, which the server
+      // rejects with "The joinedAt post parameter is required to end a call".
+      // The call then stayed `ongoing` server-side and the other participant
+      // never received the call-ended event.
+      //
+      // Clearing is not needed here anyway: CometChat.endCall() nulls the
+      // cached call itself once the status update succeeds.
       try {
         if (onSuccess != null) {
           onSuccess('session ended successfully');

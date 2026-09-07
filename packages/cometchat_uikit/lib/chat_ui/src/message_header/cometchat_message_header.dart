@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../cometchat_chat_uikit.dart';
 import '../../../cometchat_chat_uikit.dart' as cc;
+import '../../../shared_ui/src/clean_architecture/core/utils/thread_toast.dart';
 import '../../../call_ui/src/call_buttons/cometchat_call_buttons.dart';
 import 'bloc/message_header_bloc.dart';
 import 'bloc/message_header_event.dart';
@@ -41,6 +42,15 @@ class CometChatMessageHeader extends StatefulWidget
     this.subtitleView,
     this.listItemStyle,
     this.onBack,
+    this.threadSubscriptionVisibility = true,
+    this.parentMessage,
+    this.pinnedMessagesVisibility = true,
+    this.onPinnedMessageItemTap,
+    this.pinnedMessagesStyle,
+    this.onInfoTap,
+    this.onSearchTap,
+    this.onHeaderTap,
+    this.onPinnedMessagesTap,
     this.avatarHeight,
     this.avatarWidth,
     this.height,
@@ -99,6 +109,61 @@ class CometChatMessageHeader extends StatefulWidget
 
   /// [onBack] callback triggered on closing this screen
   final VoidCallback? onBack;
+
+  /// [threadSubscriptionVisibility] controls the thread mute/unmute
+  /// notification bell rendered in the header's trailing area (pinned right,
+  /// sized to the back icon) when [parentMessage] is set. Defaults to
+  /// visible; the bell additionally requires the thread-subscription feature
+  /// gate ([UIKitSettings.enableThreadSubscription]) to be on.
+  ///
+  /// Naming note: the cross-platform design doc (§6.2) defines this flag on
+  /// each platform's *threaded-header* component, because that is where the
+  /// other four kits render the control. On Flutter the landed design places
+  /// the bell in the message header's top bar instead, so the same flag name
+  /// lives here — one concept, one name, per-platform placement.
+  final bool? threadSubscriptionVisibility;
+
+  /// [parentMessage] the thread's root message the notification bell acts
+  /// on. The bell renders only when this is set (and
+  /// [threadSubscriptionVisibility] is not false).
+  final BaseMessage? parentMessage;
+
+  /// [pinnedMessagesVisibility] controls the pinned-messages entry in the
+  /// header's overflow (⋯) menu, which opens the conversation's
+  /// [CometChatPinnedMessages] as a pushed screen. Defaults to visible; the
+  /// entry additionally requires the server Pin feature flag
+  /// ([CometChat.isPinMessageEnabled]) and renders only on a conversation
+  /// header (never when [parentMessage] puts the header in thread mode).
+  final bool? pinnedMessagesVisibility;
+
+  /// [onPinnedMessageItemTap] forwarded to the pinned-messages screen — fires
+  /// when a pinned row is tapped (after that screen pops) so the host screen
+  /// can jump its message list to the tapped message.
+  final Function(BaseMessage message)? onPinnedMessageItemTap;
+
+  /// [pinnedMessagesStyle] styling for the pinned-messages screen opened from
+  /// the header's overflow (⋯) menu.
+  final CometChatPinnedMessagesStyle? pinnedMessagesStyle;
+
+  /// [onInfoTap] when set, the header's ⋯ overflow menu carries a
+  /// "Group Info"/"User Info" entry that invokes it (the host app owns the
+  /// info screen).
+  final VoidCallback? onInfoTap;
+
+  /// [onSearchTap] when set, the header's ⋯ overflow menu carries a
+  /// "Search" entry that invokes it.
+  final VoidCallback? onSearchTap;
+
+  /// [onHeaderTap] fires when the avatar/name/subtitle area is tapped —
+  /// typically wired to open the info screen.
+  final VoidCallback? onHeaderTap;
+
+  /// [onPinnedMessagesTap] when set, the ⋯ menu's pinned-messages entry
+  /// invokes this instead of pushing [CometChatPinnedMessages] itself — so a
+  /// host with its own layout (a desktop side panel, say) can decide where
+  /// the list appears. [onPinnedMessageItemTap] still forwards row taps when
+  /// the kit does the presenting.
+  final VoidCallback? onPinnedMessagesTap;
 
   /// [avatarHeight] set height for avatar
   final double? avatarHeight;
@@ -164,6 +229,157 @@ class CometChatMessageHeader extends StatefulWidget
 }
 
 class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
+  /// Whether the thread notification bell should render: a root message to
+  /// act on ([CometChatMessageHeader.parentMessage]), visibility not turned
+  /// off, and the thread-subscription feature gate on.
+  bool get _showThreadBell =>
+      widget.parentMessage != null &&
+      widget.threadSubscriptionVisibility != false &&
+      CometChatUIKit.authenticationSettings?.enableThreadSubscription == true;
+
+  /// Whether the overflow menu's pinned-messages entry should render: a
+  /// conversation header (not a thread header), visibility not turned off,
+  /// and the server Pin feature flag enabled.
+  bool get _showPinnedMessagesButton =>
+      widget.parentMessage == null &&
+      widget.pinnedMessagesVisibility != false &&
+      CometChat.isPinMessageEnabled();
+
+  void _openPinnedMessages() {
+    // A host that owns its own layout (e.g. a desktop side panel) can take
+    // over the presentation; otherwise the kit pushes the screen itself.
+    final opener = widget.onPinnedMessagesTap;
+    if (opener != null) {
+      opener();
+      return;
+    }
+    CometChatPinnedMessages.show(
+      context,
+      user: widget.user,
+      group: widget.group,
+      onItemTap: widget.onPinnedMessageItemTap,
+      style: widget.pinnedMessagesStyle,
+    );
+  }
+
+  /// Whether the ⋯ overflow menu renders: conversation headers only.
+  bool get _showOverflowMenu =>
+      widget.parentMessage == null &&
+      (_showPinnedMessagesButton ||
+          widget.onInfoTap != null ||
+          widget.onSearchTap != null);
+
+  /// One overflow entry: label + icon + action + whether it is destructive.
+  ///
+  /// Menu order: search, pinned messages, info. No entry is destructive
+  /// today — the delete-chat entry was removed — but the flag and its
+  /// styling are kept for the next one that is.
+  List<({String label, IconData icon, VoidCallback action, bool isDestructive})>
+  get _overflowEntries {
+    final translations = cc.Translations.of(context);
+    return [
+      if (widget.onSearchTap != null)
+        (
+          label: translations.search,
+          icon: Icons.search,
+          action: widget.onSearchTap!,
+          isDestructive: false,
+        ),
+      if (_showPinnedMessagesButton)
+        (
+          label: translations.pinnedMessagesTitle,
+          icon: Icons.push_pin_outlined,
+          action: _openPinnedMessages,
+          isDestructive: false,
+        ),
+      if (widget.onInfoTap != null)
+        (
+          label: widget.group != null
+              ? translations.groupInfo
+              : translations.userInfo,
+          icon: Icons.info_outline,
+          action: widget.onInfoTap!,
+          isDestructive: false,
+        ),
+    ];
+  }
+
+  /// Builds the native Material 3 dropdown for the ⋯ button.
+  ///
+  /// Uses [MenuAnchor]/[MenuItemButton] — the M3 menu primitives — so the
+  /// surface, elevation, shape, ripple and leading-icon layout come from the
+  /// theme instead of being hand-rolled. Same presentation on every platform
+  /// (Flutter's Cupertino library has no anchored menu widget).
+  Widget _buildOverflowMenu(
+    CometChatMessageHeaderStyle headerStyle,
+    CometChatColorPalette colorPalette,
+  ) {
+    final entries = _overflowEntries;
+    // M3 menu spec, expressed in kit tokens: container is a surface at
+    // elevation 2 with a 4dp corner and 8dp vertical padding; items are 48dp
+    // tall with a 12dp gutter, label-large text (14/500, +0.1 tracking) in
+    // the primary text colour, and a 24dp leading icon in the secondary icon
+    // colour. Spelled out rather than left to ThemeData so the menu matches
+    // the kit palette in apps that never configured a Material theme.
+    return MenuAnchor(
+      alignmentOffset: const Offset(0, 4),
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(
+          colorPalette.background1 ?? colorPalette.white,
+        ),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        elevation: const WidgetStatePropertyAll(2),
+        padding: const WidgetStatePropertyAll(
+          EdgeInsets.symmetric(vertical: 8),
+        ),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        ),
+        visualDensity: VisualDensity.standard,
+      ),
+      builder: (context, controller, child) => IconButton(
+        iconSize: 26,
+        icon: Icon(
+          Icons.more_vert,
+          color: headerStyle.backIconColor ?? colorPalette.iconPrimary,
+        ),
+        onPressed: () =>
+            controller.isOpen ? controller.close() : controller.open(),
+      ),
+      menuChildren: [
+        for (final entry in entries)
+          MenuItemButton(
+            style: MenuItemButton.styleFrom(
+              minimumSize: const Size(112, 48),
+              maximumSize: const Size(280, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              foregroundColor: entry.isDestructive
+                  ? colorPalette.error
+                  : colorPalette.textPrimary,
+              iconColor: entry.isDestructive
+                  ? colorPalette.error
+                  : colorPalette.iconSecondary,
+              textStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.1,
+                fontFamily: typography.body?.medium?.fontFamily,
+              ),
+            ),
+            leadingIcon: Icon(
+              entry.icon,
+              size: 24,
+              color: entry.isDestructive
+                  ? colorPalette.error
+                  : colorPalette.iconSecondary,
+            ),
+            onPressed: entry.action,
+            child: Text(entry.label),
+          ),
+      ],
+    );
+  }
+
   late MessageHeaderBloc _bloc;
   late CometChatMessageHeaderStyle headerStyle;
   late CometChatColorPalette colorPalette;
@@ -195,7 +411,7 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
 
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     // But re-initialize when brightness changes (dark mode toggle)
-    final currentBrightness = MediaQuery.platformBrightnessOf(context);
+    final currentBrightness = CometChatThemeHelper.getBrightness(context);
     final brightnessChanged =
         _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
@@ -256,12 +472,40 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _getBackButtonView(context, headerStyle, colorPalette),
-              Flexible(
-                child: Padding(
-                  padding: EdgeInsets.only(left: spacing.padding4 ?? 0),
-                  child: _getBody(context),
+              // When the thread bell occupies the trailing slot beside a
+              // custom listItemView, the body must EXPAND so the bell pins to
+              // the right edge (a loose Flexible would leave it hugging the
+              // title on wide layouts).
+              if (_showThreadBell && widget.listItemView != null)
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: spacing.padding4 ?? 0),
+                    child: _getBody(context),
+                  ),
+                )
+              else
+                Flexible(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: spacing.padding4 ?? 0),
+                    child: _getBody(context),
+                  ),
                 ),
-              ),
+              // A custom listItemView replaces the whole list item including
+              // its tail, so the thread notification bell gets its trailing
+              // slot here in that case — pinned to the right edge.
+              if (_showThreadBell && widget.listItemView != null)
+                Padding(
+                  padding: EdgeInsets.only(right: spacing.padding2 ?? 0),
+                  child: _ThreadNotificationBell(
+                    parentMessage: widget.parentMessage!,
+                  ),
+                ),
+              // ...and any host-supplied trailing controls sit AFTER it, so a
+              // close/dismiss affordance lands beside the bell rather than
+              // replacing it. (On the default list-item path trailingView is
+              // consumed by the list item itself — see _getTrailingView.)
+              if (widget.listItemView != null && widget.trailingView != null)
+                ...?widget.trailingView!(widget.user, widget.group, context),
             ],
           ),
         ),
@@ -541,6 +785,12 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
       tailWidgetList.add(auxiliaryHeaderMenu);
     }
 
+    if (_showThreadBell) {
+      tailWidgetList.add(
+        _ThreadNotificationBell(parentMessage: widget.parentMessage!),
+      );
+    }
+
     if (widget.trailingView != null) {
       var temp = _getTrailingView(context, state, headerStyle);
 
@@ -551,6 +801,12 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
 
     if (state.isUserAgentic) {
       tailWidgetList.addAll(_getAgenticButtons());
+    }
+
+    // ⋯ overflow menu — rightmost: View pinned messages, Pin conversation,
+    // Group/User info, Search. Platform-adaptive presentation.
+    if (_showOverflowMenu) {
+      tailWidgetList.add(_buildOverflowMenu(headerStyle, colorPalette));
     }
 
     if (tailWidgetList.isNotEmpty) {
@@ -569,7 +825,9 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
     }
 
     return GestureDetector(
-      onTap: () {},
+      // Tapping the avatar/name/subtitle area opens the info screen (tail
+      // buttons claim their own taps first).
+      onTap: widget.onHeaderTap,
       child: CometChatListItem(
         avatarName: avatarName,
         avatarURL: avatarUrl,
@@ -846,5 +1104,107 @@ class _CometChatMessageHeaderState extends State<CometChatMessageHeader> {
               ?.otherDays(lastActiveAt.millisecondsSinceEpoch) ??
           "${cc.Translations.of(context).lastSeen} $formattedDate ${cc.Translations.of(context).at} $formattedTime";
     }
+  }
+}
+
+/// Thread mute/unmute notification bell rendered by [CometChatMessageHeader]
+/// when [CometChatMessageHeader.showThreadNotificationButton] is on.
+///
+/// State: the root message's [BaseMessage.threadSubscribed] is the truth
+/// (stateless redesign — the SDK keeps no cache); kept in sync with every
+/// other surface via the kit event bus (`ccThreadSubscriptionChanged`). Tap =
+/// optimistic flip + idempotent subscribe/unsubscribe, revert + failure
+/// toast on error. Private to the header — not public kit API.
+class _ThreadNotificationBell extends StatefulWidget {
+  const _ThreadNotificationBell({required this.parentMessage});
+
+  final BaseMessage parentMessage;
+
+  @override
+  State<_ThreadNotificationBell> createState() =>
+      _ThreadNotificationBellState();
+}
+
+class _ThreadNotificationBellState extends State<_ThreadNotificationBell>
+    with CometChatMessageEventListener {
+  late bool _subscribed;
+  bool _inFlight = false;
+  late final String _listenerId;
+
+  @override
+  void initState() {
+    super.initState();
+    _subscribed = widget.parentMessage.threadSubscribed;
+    _listenerId =
+        'message_header_thread_bell_${DateTime.now().millisecondsSinceEpoch}';
+    CometChatMessageEvents.addMessagesListener(_listenerId, this);
+  }
+
+  @override
+  void dispose() {
+    CometChatMessageEvents.removeMessagesListener(_listenerId);
+    super.dispose();
+  }
+
+  @override
+  void ccThreadSubscriptionChanged(int parentMessageId, bool subscribed) {
+    if (!mounted || parentMessageId != widget.parentMessage.id) return;
+    setState(() => _subscribed = subscribed);
+  }
+
+  Future<void> _toggle() async {
+    if (_inFlight) return;
+    _inFlight = true;
+    final target = !_subscribed;
+    setState(() => _subscribed = target); // optimistic flip
+    try {
+      final result = target
+          ? await CometChat.subscribeToThread(widget.parentMessage.id)
+          : await CometChat.unsubscribeFromThread(widget.parentMessage.id);
+      if (!mounted) return;
+      if (result != null) {
+        // The message object is the state (stateless redesign) — stamp it,
+        // then tell the other surfaces through the kit event bus.
+        widget.parentMessage.threadSubscribed = target;
+        CometChatMessageEvents.ccThreadSubscriptionChanged(
+          widget.parentMessage.id,
+          target,
+        );
+        CometChatThreadToast.show(
+          context,
+          target
+              ? Translations.of(context).threadUnmutedToast
+              : Translations.of(context).threadMutedToast,
+        );
+      } else {
+        setState(() => _subscribed = !target); // revert
+        CometChatThreadToast.show(
+          context,
+          Translations.of(context).threadSubscriptionFailed,
+        );
+      }
+    } finally {
+      _inFlight = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = CometChatThemeHelper.getColorPalette(context);
+    final label = _subscribed
+        ? Translations.of(context).threadMute
+        : Translations.of(context).threadUnmute;
+    return IconButton(
+      onPressed: _toggle,
+      tooltip: label,
+      iconSize: 26,
+      visualDensity: VisualDensity.compact,
+      icon: Icon(
+        _subscribed
+            ? Icons.notifications_outlined
+            : Icons.notifications_off_outlined,
+        color: palette.iconPrimary,
+      ),
+    );
   }
 }

@@ -398,6 +398,128 @@ class TranslationsKo extends Translations {
   String get replyInThread => '스레드 내에서 답장';
 
   @override
+  String get threadMute => '스레드 구독 취소';
+
+  @override
+  String get threadUnmute => '스레드 구독';
+
+  @override
+  String get messageListOptionStopReplyNotifications => '스레드 구독 취소';
+
+  @override
+  String get messageListOptionGetReplyNotifications => '스레드 구독';
+
+  @override
+  String get threadMutedToast => '구독을 취소했습니다. 답글을 작성하거나 멘션될 때까지 알림이 꺼집니다.';
+
+  @override
+  String get threadUnmutedToast => '구독했습니다. 이 스레드의 새 답글을 알려드립니다.';
+
+  @override
+  String get threadSubscriptionFailed => '업데이트하지 못했습니다. 다시 시도해 주세요.';
+
+  @override
+  String get threadUnavailable => '더 이상 이 스레드에 접근할 수 없습니다.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => '메시지 고정';
+
+  @override
+  String get unpinMessageOption => '메시지 고정 해제';
+
+  @override
+  String get saveMessageOption => '메시지 저장';
+
+  @override
+  String get unsaveMessageOption => '저장 취소';
+
+  @override
+  String get pinConfirmTitle => '메시지를 고정할까요?';
+
+  @override
+  String get pinConfirmMessage => '이 메시지는 이 대화의 모든 사람에게 고정됩니다.';
+
+  @override
+  String get unpinConfirmTitle => '고정을 해제할까요?';
+
+  @override
+  String get unpinConfirmMessage => '이 메시지는 더 이상 모두에게 고정되지 않습니다.';
+
+  @override
+  String get saveConfirmTitle => '메시지를 저장할까요?';
+
+  @override
+  String get saveConfirmMessage => '이 메시지가 저장된 메시지에 추가됩니다.';
+
+  @override
+  String get unsaveConfirmTitle => '저장을 취소할까요?';
+
+  @override
+  String get unsaveConfirmMessage => '이 메시지가 저장된 메시지에서 제거됩니다.';
+
+  @override
+  String get pinButton => '고정';
+
+  @override
+  String get unpinButton => '해제';
+
+  @override
+  String get saveButton => '저장';
+
+  @override
+  String get unsaveButton => '제거';
+
+  @override
+  String get messagePinnedToast => '메시지가 고정되었습니다';
+
+  @override
+  String get messageUnpinnedToast => '고정이 해제되었습니다';
+
+  @override
+  String get messageSavedToast => '메시지가 저장되었습니다';
+
+  @override
+  String get messageUnsavedToast => '저장이 취소되었습니다';
+
+  @override
+  String get pinnedMessagesTitle => '고정된 메시지';
+
+  @override
+  String get savedMessagesTitle => '저장된 메시지';
+
+  @override
+  String get noPinnedMessages => '아직 고정된 메시지가 없습니다';
+
+  @override
+  String get noSavedMessages => '아직 저장된 메시지가 없습니다';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      '메시지는 $limit개까지만 고정할 수 있습니다. 다른 메시지를 고정하려면 하나를 해제하세요.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      '메시지는 $limit개까지만 저장할 수 있습니다. 다른 메시지를 저장하려면 하나를 해제하세요.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      '채팅은 $limit개까지만 고정할 수 있습니다. 다른 채팅을 고정하려면 하나를 해제하세요.';
+
+  @override
+  String get actionPermissionDenied => '이 작업을 수행할 권한이 없습니다.';
+
+  @override
+  String get pinSaveFailed => '업데이트하지 못했습니다. 다시 시도해 주세요.';
+
+  @override
+  String get conversationPinnedToast => '대화가 고정되었습니다';
+
+  @override
+  String get conversationUnpinnedToast => '대화 고정이 해제되었습니다';
+
+  @override
   String get deleteMessage => '메시지 삭제';
 
   @override

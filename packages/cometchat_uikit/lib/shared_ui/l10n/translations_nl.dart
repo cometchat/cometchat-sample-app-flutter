@@ -402,6 +402,137 @@ class TranslationsNl extends Translations {
   String get replyInThread => 'Beantwoord in draad';
 
   @override
+  String get threadMute => 'Abonnement op thread opzeggen';
+
+  @override
+  String get threadUnmute => 'Abonneren op thread';
+
+  @override
+  String get messageListOptionStopReplyNotifications =>
+      'Abonnement op thread opzeggen';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'Abonneren op thread';
+
+  @override
+  String get threadMutedToast =>
+      'Afgemeld. Meldingen staan uit totdat je reageert of wordt genoemd.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Geabonneerd. Je krijgt een melding bij nieuwe reacties in deze thread.';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'Bijwerken mislukt. Probeer het opnieuw.';
+
+  @override
+  String get threadUnavailable => 'Je hebt geen toegang meer tot deze thread.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Bericht vastzetten';
+
+  @override
+  String get unpinMessageOption => 'Bericht losmaken';
+
+  @override
+  String get saveMessageOption => 'Bericht opslaan';
+
+  @override
+  String get unsaveMessageOption => 'Opslaan ongedaan maken';
+
+  @override
+  String get pinConfirmTitle => 'Bericht vastzetten?';
+
+  @override
+  String get pinConfirmMessage =>
+      'Dit bericht wordt voor iedereen in dit gesprek vastgezet.';
+
+  @override
+  String get unpinConfirmTitle => 'Bericht losmaken?';
+
+  @override
+  String get unpinConfirmMessage =>
+      'Dit bericht is dan niet meer vastgezet voor iedereen.';
+
+  @override
+  String get saveConfirmTitle => 'Bericht opslaan?';
+
+  @override
+  String get saveConfirmMessage =>
+      'Dit bericht wordt toegevoegd aan je opgeslagen berichten.';
+
+  @override
+  String get unsaveConfirmTitle => 'Opslaan ongedaan maken?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'Dit bericht wordt verwijderd uit je opgeslagen berichten.';
+
+  @override
+  String get pinButton => 'Vastzetten';
+
+  @override
+  String get unpinButton => 'Losmaken';
+
+  @override
+  String get saveButton => 'Opslaan';
+
+  @override
+  String get unsaveButton => 'Verwijderen';
+
+  @override
+  String get messagePinnedToast => 'Bericht vastgezet';
+
+  @override
+  String get messageUnpinnedToast => 'Bericht losgemaakt';
+
+  @override
+  String get messageSavedToast => 'Bericht opgeslagen';
+
+  @override
+  String get messageUnsavedToast => 'Bericht verwijderd uit opgeslagen';
+
+  @override
+  String get pinnedMessagesTitle => 'Vastgezette berichten';
+
+  @override
+  String get savedMessagesTitle => 'Opgeslagen berichten';
+
+  @override
+  String get noPinnedMessages => 'Nog geen vastgezette berichten';
+
+  @override
+  String get noSavedMessages => 'Nog geen opgeslagen berichten';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'Je kunt maar $limit berichten vastzetten. Maak er een los om een ander vast te zetten.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'Je kunt maar $limit berichten opslaan. Verwijder er een om een ander op te slaan.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'Je kunt maar $limit chats vastzetten. Maak er een los om een andere vast te zetten.';
+
+  @override
+  String get actionPermissionDenied =>
+      'Je hebt geen toestemming om deze actie uit te voeren.';
+
+  @override
+  String get pinSaveFailed => 'Bijwerken mislukt. Probeer het opnieuw.';
+
+  @override
+  String get conversationPinnedToast => 'Gesprek vastgezet';
+
+  @override
+  String get conversationUnpinnedToast => 'Gesprek losgemaakt';
+
+  @override
   String get deleteMessage => 'Verwijder bericht';
 
   @override

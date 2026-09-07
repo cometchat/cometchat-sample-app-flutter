@@ -407,6 +407,139 @@ class TranslationsDe extends Translations {
   String get replyInThread => 'Im Thread antworten';
 
   @override
+  String get threadMute => 'Thread nicht mehr abonnieren';
+
+  @override
+  String get threadUnmute => 'Thread abonnieren';
+
+  @override
+  String get messageListOptionStopReplyNotifications =>
+      'Thread nicht mehr abonnieren';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'Thread abonnieren';
+
+  @override
+  String get threadMutedToast =>
+      'Abbestellt. Benachrichtigungen sind aus, bis du antwortest oder erwähnt wirst.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Abonniert. Du wirst über neue Antworten in diesem Thread benachrichtigt.';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'Aktualisierung fehlgeschlagen. Bitte versuche es erneut.';
+
+  @override
+  String get threadUnavailable =>
+      'Du hast keinen Zugriff mehr auf diesen Thread.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Nachricht anheften';
+
+  @override
+  String get unpinMessageOption => 'Anheften aufheben';
+
+  @override
+  String get saveMessageOption => 'Nachricht speichern';
+
+  @override
+  String get unsaveMessageOption => 'Speichern aufheben';
+
+  @override
+  String get pinConfirmTitle => 'Nachricht anheften?';
+
+  @override
+  String get pinConfirmMessage =>
+      'Diese Nachricht wird für alle in dieser Unterhaltung angeheftet.';
+
+  @override
+  String get unpinConfirmTitle => 'Anheften aufheben?';
+
+  @override
+  String get unpinConfirmMessage =>
+      'Diese Nachricht ist dann für alle nicht mehr angeheftet.';
+
+  @override
+  String get saveConfirmTitle => 'Nachricht speichern?';
+
+  @override
+  String get saveConfirmMessage =>
+      'Diese Nachricht wird zu deinen gespeicherten Nachrichten hinzugefügt.';
+
+  @override
+  String get unsaveConfirmTitle => 'Speichern aufheben?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'Diese Nachricht wird aus deinen gespeicherten Nachrichten entfernt.';
+
+  @override
+  String get pinButton => 'Anheften';
+
+  @override
+  String get unpinButton => 'Lösen';
+
+  @override
+  String get saveButton => 'Speichern';
+
+  @override
+  String get unsaveButton => 'Entfernen';
+
+  @override
+  String get messagePinnedToast => 'Nachricht angeheftet';
+
+  @override
+  String get messageUnpinnedToast => 'Nachricht losgelöst';
+
+  @override
+  String get messageSavedToast => 'Nachricht gespeichert';
+
+  @override
+  String get messageUnsavedToast => 'Nachricht entfernt';
+
+  @override
+  String get pinnedMessagesTitle => 'Angeheftete Nachrichten';
+
+  @override
+  String get savedMessagesTitle => 'Gespeicherte Nachrichten';
+
+  @override
+  String get noPinnedMessages => 'Noch keine angehefteten Nachrichten';
+
+  @override
+  String get noSavedMessages => 'Noch keine gespeicherten Nachrichten';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'Du kannst nur $limit Nachrichten anheften. Löse eine, um eine andere anzuheften.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'Du kannst nur $limit Nachrichten speichern. Entferne eine, um eine andere zu speichern.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'Du kannst nur $limit Chats anheften. Löse einen, um einen anderen anzuheften.';
+
+  @override
+  String get actionPermissionDenied =>
+      'Du hast keine Berechtigung, diese Aktion auszuführen.';
+
+  @override
+  String get pinSaveFailed =>
+      'Konnte nicht aktualisiert werden. Bitte versuche es erneut.';
+
+  @override
+  String get conversationPinnedToast => 'Unterhaltung angeheftet';
+
+  @override
+  String get conversationUnpinnedToast => 'Unterhaltung losgelöst';
+
+  @override
   String get deleteMessage => 'Nachricht löschen';
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../cometchat_chat_uikit.dart';
 import '../../../cometchat_chat_uikit.dart' as cc;
+import '../../../shared_ui/src/clean_architecture/core/utils/thread_toast.dart';
 
 ///[CometChatConversations] is a component that shows all conversations involving the logged in user with the help of [CometChatListBase] and [CometChatListItem]
 ///By default, for each conversation that will be listed, the name of the user or group the logged in user is having conversation with will be displayed in the title of every list item,
@@ -77,6 +78,7 @@ class CometChatConversations extends StatefulWidget {
     this.avatarWidth,
     this.avatarHeight,
     this.deleteConversationOptionVisibility = true,
+    this.pinConversationOptionVisibility = true,
     this.groupTypeVisibility = true,
     this.setOptions,
     this.addOptions,
@@ -281,6 +283,14 @@ class CometChatConversations extends StatefulWidget {
   ///[deleteConversationOptionVisibility] controls visibility of delete conversation option
   final bool? deleteConversationOptionVisibility;
 
+  ///[pinConversationOptionVisibility] controls the Pin/Unpin action shown in
+  ///the long-press overlay. The rendered action follows the conversation's
+  ///pin state: unpinned → Pin; pinned by the logged-in user → Unpin; pinned
+  ///by an admin surface (`pinnedBy == app_system` or another uid) → no
+  ///action, since only a self pin is user-removable. The pinned indicator on
+  ///the row renders whenever `pinnedBy` exists, independent of this flag.
+  final bool? pinConversationOptionVisibility;
+
   ///[groupTypeVisibility] Hide the group type icon which is visible on the group icon.
   final bool? groupTypeVisibility;
 
@@ -406,7 +416,7 @@ class _CometChatConversationsState extends State<CometChatConversations>
 
     // Only initialize theme once to avoid expensive lookups during keyboard animation
     // But re-initialize when brightness changes (dark mode toggle)
-    final currentBrightness = MediaQuery.platformBrightnessOf(context);
+    final currentBrightness = CometChatThemeHelper.getBrightness(context);
     final brightnessChanged =
         _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (_themeInitialized && !brightnessChanged) return;
@@ -719,7 +729,8 @@ class _CometChatConversationsState extends State<CometChatConversations>
               badgePadding: widget.badgePadding,
               dateTimeFormatterCallback: widget.dateTimeFormatterCallback,
               itemWrapperBuilder:
-                  widget.deleteConversationOptionVisibility == true
+                  (widget.deleteConversationOptionVisibility == true ||
+                      widget.pinConversationOptionVisibility != false)
                   ? _wrapItemWithDeleteOverlay
                   : null,
               onLoad: widget.onLoad,
@@ -768,9 +779,25 @@ class _CometChatConversationsState extends State<CometChatConversations>
     );
   }
 
-  /// Default long press handler that shows delete button overlay on the tile
+  /// Whether the long-press menu offers Pin/Unpin for this row.
+  ///
+  /// Unpinned → Pin. Pinned by the logged-in user → Unpin. Pinned by an
+  /// admin surface (`app_system`, or another uid) → neither: those pins are
+  /// not user-removable, though the row still shows the pinned indicator.
+  bool _canTogglePin(Conversation conversation) {
+    if (widget.pinConversationOptionVisibility == false) return false;
+    // Server feature flag (features.ux.conversations.pinned.enabled) —
+    // absence means enabled, so older backends keep the option.
+    if (!CometChat.isPinConversationEnabled()) return false;
+    final pinnedBy = conversation.pinnedBy;
+    if (pinnedBy == null) return true;
+    return pinnedBy == CometChatUIKit.loggedInUser?.uid;
+  }
+
+  /// Default long press handler that shows the action overlay on the tile
   void _handleDefaultLongPress(Conversation conversation) {
-    if (widget.deleteConversationOptionVisibility != true) {
+    if (widget.deleteConversationOptionVisibility != true &&
+        !_canTogglePin(conversation)) {
       return;
     }
 
@@ -811,83 +838,120 @@ class _CometChatConversationsState extends State<CometChatConversations>
     Conversation conversation,
     Widget child,
   ) {
-    final isShowingDelete =
+    final isOpen =
         _conversationShowingDeleteOverlay == conversation.conversationId;
 
-    if (!isShowingDelete) return child;
+    final bool isPinned = conversation.pinnedBy != null;
+    final bool showPinAction = _canTogglePin(conversation);
+    final bool showDeleteAction =
+        widget.deleteConversationOptionVisibility == true;
 
-    return Stack(
-      children: [
-        ColoredBox(
-          color: (colorPalette.error ?? Colors.red).withValues(alpha: 0.08),
-          child: child,
-        ),
-        Positioned(
-          right: spacing.padding4 ?? 16,
-          top: 0,
-          bottom: 0,
-          child: Center(
-            child: GestureDetector(
-              onTap: () => _handleDeleteFromOverlay(conversation),
-              child: Container(
-                width: 120,
-                height: 44,
-                padding: const EdgeInsets.all(10),
-                clipBehavior: Clip.antiAlias,
-                decoration: ShapeDecoration(
-                  color: colorPalette.background1 ?? Colors.white,
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(
-                      width: 1,
-                      color:
-                          colorPalette.borderLight ?? const Color(0xFFF5F5F5),
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  shadows: const [
-                    BoxShadow(
-                      color: Color(0x07101828),
-                      blurRadius: 6,
-                      offset: Offset(0, 4),
-                      spreadRadius: -2,
-                    ),
-                    BoxShadow(
-                      color: Color(0x14101828),
-                      blurRadius: 16,
-                      offset: Offset(0, 12),
-                      spreadRadius: -4,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/icons/delete_icon.png',
-                      package: 'cometchat_chat_uikit',
-                      width: 24,
-                      height: 24,
-                      color: colorPalette.error ?? const Color(0xFFF44649),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      cc.Translations.of(context).delete,
-                      style: TextStyle(
-                        color: colorPalette.error ?? const Color(0xFFF44649),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        height: 1.20,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+    return _ConversationContextMenu(
+      open: isOpen,
+      onDismissed: () {
+        if (_conversationShowingDeleteOverlay == conversation.conversationId) {
+          setState(() => _conversationShowingDeleteOverlay = null);
+        }
+      },
+      colorPalette: colorPalette,
+      typography: typography,
+      entries: [
+        if (showPinAction)
+          (
+            label: isPinned
+                ? cc.Translations.of(context).unpinButton
+                : cc.Translations.of(context).pinButton,
+            icon: isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+            isDestructive: false,
+            action: () => _handlePinFromOverlay(conversation),
           ),
-        ),
+        if (showDeleteAction)
+          (
+            label: cc.Translations.of(context).delete,
+            icon: Icons.delete_outline,
+            isDestructive: true,
+            action: () => _handleDeleteFromOverlay(conversation),
+          ),
       ],
+      child: child,
     );
+  }
+
+  /// Handle the Pin/Unpin action from the long-press overlay: SDK call →
+  /// stamp the conversation object → toast. No confirm dialog — the action
+  /// is instantly reversible.
+  Future<void> _handlePinFromOverlay(Conversation conversation) async {
+    setState(() {
+      _conversationShowingDeleteOverlay = null;
+    });
+
+    String? conversationWith;
+    final counterpart = conversation.conversationWith;
+    if (counterpart is User) {
+      conversationWith = counterpart.uid;
+    } else if (counterpart is Group) {
+      conversationWith = counterpart.guid;
+    }
+    if (conversationWith == null || conversationWith.isEmpty) return;
+
+    final bool pin = conversation.pinnedBy == null;
+    final updated = pin
+        ? await CometChat.pinConversation(
+            conversationWith,
+            conversation.conversationType,
+            onError: (error) {
+              if (mounted) {
+                CometChatThreadToast.show(
+                  context,
+                  _conversationPinErrorText(error),
+                );
+              }
+            },
+          )
+        : await CometChat.unpinConversation(
+            conversationWith,
+            conversation.conversationType,
+            onError: (error) {
+              if (mounted) {
+                CometChatThreadToast.show(
+                  context,
+                  _conversationPinErrorText(error),
+                );
+              }
+            },
+          );
+
+    if (updated != null && mounted) {
+      // No local mutation: the SDK facade fans the pin out to
+      // ConversationListener on success, and the bloc both restamps the row
+      // and reorders it around the pinned shelf — one path for this device
+      // and for echoes from the user's other devices.
+      CometChatThreadToast.show(
+        context,
+        pin
+            ? cc.Translations.of(context).conversationPinnedToast
+            : cc.Translations.of(context).conversationUnpinnedToast,
+      );
+    }
+  }
+
+  /// Maps a conversation pin/unpin failure to its user-facing toast text.
+  /// The cap error interpolates the server-supplied limit from the
+  /// structured errorParams, falling back to the `/me` cap
+  /// (`features.ux.conversations.pinned.limit`), then a static default.
+  String _conversationPinErrorText(CometChatException error) {
+    final limit = (error.errorParams?['limit'] as num?)?.toInt();
+    switch (error.code) {
+      case 'ERR_PINNED_CONVERSATIONS_LIMIT_EXCEEDED':
+        return cc.Translations.of(context).conversationPinLimitReachedToast(
+            limit ?? CometChat.getPinnedConversationsLimit() ?? 5);
+      case 'ERR_UNAUTHORIZED':
+      case 'ERR_FORBIDDEN':
+      case 'ERR_PERMISSION_DENIED':
+        return cc.Translations.of(context).actionPermissionDenied;
+      default:
+        return cc.Translations.of(context).pinSaveFailed;
+    }
   }
 
   /// Shows delete confirmation dialog
@@ -993,5 +1057,125 @@ class _CometChatConversationsState extends State<CometChatConversations>
         }
       },
     ).show();
+  }
+}
+
+/// Long-press context menu for a conversation row, rendered with the M3 menu
+/// primitives ([MenuAnchor]/[MenuItemButton]) so its surface, elevation,
+/// shape and ripple match the message header's ⋯ menu instead of a
+/// hand-rolled popup.
+///
+/// The list owns which row is open, so [open] drives the menu controller
+/// rather than a button press; [onDismissed] reports a tap-outside back so
+/// the list can clear its own state.
+class _ConversationContextMenu extends StatefulWidget {
+  const _ConversationContextMenu({
+    required this.open,
+    required this.onDismissed,
+    required this.entries,
+    required this.colorPalette,
+    required this.typography,
+    required this.child,
+  });
+
+  final bool open;
+  final VoidCallback onDismissed;
+  final List<
+    ({String label, IconData icon, bool isDestructive, VoidCallback action})
+  >
+  entries;
+  final CometChatColorPalette colorPalette;
+  final CometChatTypography typography;
+  final Widget child;
+
+  @override
+  State<_ConversationContextMenu> createState() =>
+      _ConversationContextMenuState();
+}
+
+/// Fixed so the anchor offset can cancel it exactly; wide enough for
+/// "Unpin"/"Delete" with the 24dp icon and 12dp gutters.
+const double _menuWidth = 180;
+
+class _ConversationContextMenuState extends State<_ConversationContextMenu> {
+  final MenuController _controller = MenuController();
+
+  @override
+  void didUpdateWidget(covariant _ConversationContextMenu oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.open == oldWidget.open) return;
+    // Deferred a frame: open() needs the anchor laid out, and this runs from
+    // the same build that introduced it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (widget.open && !_controller.isOpen) {
+        _controller.open();
+      } else if (!widget.open && _controller.isOpen) {
+        _controller.close();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = widget.colorPalette;
+    if (widget.entries.isEmpty) return widget.child;
+
+    return MenuAnchor(
+      controller: _controller,
+      onClose: widget.onDismissed,
+      // Alignment.topRight puts the menu's LEFT edge on the row's right
+      // edge, which runs it off screen. Shifting left by the menu's own
+      // width plus the gutter lands its right edge inside the row instead —
+      // hence the fixed item width below, so the shift is exact.
+      alignmentOffset: const Offset(-(_menuWidth + 16), -8),
+      style: MenuStyle(
+        alignment: Alignment.topRight,
+        backgroundColor: WidgetStatePropertyAll(
+          palette.background1 ?? palette.white,
+        ),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        elevation: const WidgetStatePropertyAll(2),
+        padding: const WidgetStatePropertyAll(
+          EdgeInsets.symmetric(vertical: 8),
+        ),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        ),
+      ),
+      builder: (context, controller, child) => child!,
+      menuChildren: [
+        for (final entry in widget.entries)
+          MenuItemButton(
+            style: MenuItemButton.styleFrom(
+              minimumSize: const Size(_menuWidth, 48),
+              maximumSize: const Size(_menuWidth, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              foregroundColor: entry.isDestructive
+                  ? palette.error
+                  : palette.textPrimary,
+              iconColor: entry.isDestructive
+                  ? palette.error
+                  : palette.iconSecondary,
+              textStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.1,
+                fontFamily: widget.typography.body?.medium?.fontFamily,
+              ),
+            ),
+            leadingIcon: Icon(
+              entry.icon,
+              size: 24,
+              color: entry.isDestructive
+                  ? palette.error
+                  : palette.iconSecondary,
+            ),
+            onPressed: entry.action,
+            child: Text(entry.label),
+          ),
+      ],
+      child: widget.child,
+    );
   }
 }

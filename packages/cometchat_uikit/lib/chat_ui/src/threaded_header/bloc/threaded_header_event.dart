@@ -29,6 +29,16 @@ class IncrementReplyCount extends ThreadedHeaderEvent {
   const IncrementReplyCount();
 }
 
+/// Update the thread-subscription state shown by the header's follow control
+class UpdateThreadSubscription extends ThreadedHeaderEvent {
+  final bool subscribed;
+
+  const UpdateThreadSubscription(this.subscribed);
+
+  @override
+  List<Object?> get props => [subscribed];
+}
+
 /// Update parent message (edit/delete)
 class UpdateParentMessage extends ThreadedHeaderEvent {
   final BaseMessage message;

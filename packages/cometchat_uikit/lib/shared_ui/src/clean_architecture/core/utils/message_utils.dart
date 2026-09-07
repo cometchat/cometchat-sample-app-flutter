@@ -1,5 +1,6 @@
 import "package:cometchat_sdk/cometchat_sdk.dart" hide CardMessage;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../data/models/additional_configurations.dart';
 
 // Import all necessary dependencies
@@ -63,6 +64,23 @@ class MessageUtils {
     CometChatIncomingMessageBubbleStyle? incomingMessageBubbleStyle,
     Key? key,
     bool? receiptsVisibility,
+    // List surfaces (pinned messages) render every bubble flush-left so the
+    // column reads as one list. Layout (row alignment, avatar, sender name)
+    // follows LEFT while content/status styling still follows
+    // [bubbleAlignment], so an outgoing bubble keeps its own colour scheme
+    // and readable text. Default off — no change for the chat list.
+    bool forceLeftLayout = false,
+    // Replaces the sender name in the header (e.g. "You" for the logged-in
+    // user's own messages in a pinned list). Null keeps sender.name.
+    String? senderNameOverride,
+    // Appends "• dd/MM/yy" after the sender name. List surfaces span many
+    // days with no date separators, so each row states its own date.
+    bool showSentDateInHeader = false,
+    // Prefixes the bubble's status line with a pin glyph — the pinned list
+    // marks every row as pinned. Default off for the chat list.
+    bool showPinIndicator = false,
+    // Adds a bookmark glyph beside it when the message is also saved.
+    bool showSaveIndicator = false,
   }) {
     if (message.deletedAt == null && template?.bubbleView != null) {
       return template?.bubbleView!(message, context, BubbleAlignment.left) ??
@@ -102,6 +120,10 @@ class MessageUtils {
           null,
         );
 
+    final layoutAlignment = forceLeftLayout
+        ? BubbleAlignment.left
+        : bubbleAlignment;
+
     contentView = _getSuitableContentView(
       message,
       colorPalette,
@@ -122,10 +144,12 @@ class MessageUtils {
       bubbleStyleData?.messageBubbleDateStyle,
       bubbleStyleData?.messageReceiptStyle,
       receiptsVisibility,
+      showPinIndicator: showPinIndicator,
+      showSaveIndicator: showSaveIndicator,
     );
 
     leadingView = _getAvatar(
-      bubbleAlignment,
+      layoutAlignment,
       message,
       context,
       colorPalette,
@@ -136,7 +160,7 @@ class MessageUtils {
     );
 
     headerView = _getHeaderView(
-      bubbleAlignment,
+      layoutAlignment,
       message,
       context,
       colorPalette,
@@ -144,6 +168,9 @@ class MessageUtils {
       spacing,
       template,
       bubbleStyleData,
+      senderNameOverride: senderNameOverride,
+      alwaysShowName: forceLeftLayout,
+      showSentDate: showSentDateInHeader,
     );
 
     Color backgroundColor =
@@ -159,25 +186,33 @@ class MessageUtils {
       key: key,
       children: [
         Row(
-          mainAxisAlignment: bubbleAlignment == BubbleAlignment.left
+          mainAxisAlignment: layoutAlignment == BubbleAlignment.left
               ? MainAxisAlignment.start
-              : bubbleAlignment == BubbleAlignment.center
+              : layoutAlignment == BubbleAlignment.center
               ? MainAxisAlignment.center
               : MainAxisAlignment.end,
           children: [
-            CometChatMessageBubble(
-              style: CometChatMessageBubbleStyle(
-                backgroundColor: backgroundColor,
-                border: bubbleStyleData?.border,
-                borderRadius: bubbleStyleData?.borderRadius,
-                backgroundImage: bubbleStyleData?.messageBubbleBackgroundImage,
+            // Flexible, not a bare child: a Row lays out non-flex children
+            // with unbounded width, so a long message would size to its
+            // intrinsic width and overflow the row (and ignore any maxWidth
+            // the caller set). Loose fit keeps short bubbles hugging their
+            // content while long ones wrap at the available width.
+            Flexible(
+              child: CometChatMessageBubble(
+                style: CometChatMessageBubbleStyle(
+                  backgroundColor: backgroundColor,
+                  border: bubbleStyleData?.border,
+                  borderRadius: bubbleStyleData?.borderRadius,
+                  backgroundImage:
+                      bubbleStyleData?.messageBubbleBackgroundImage,
+                ),
+                headerView: headerView,
+                alignment: layoutAlignment,
+                contentView: contentView,
+                footerView: const SizedBox(),
+                leadingView: leadingView,
+                statusInfoView: statusInfoView,
               ),
-              headerView: headerView,
-              alignment: bubbleAlignment,
-              contentView: contentView,
-              footerView: const SizedBox(),
-              leadingView: leadingView,
-              statusInfoView: statusInfoView,
             ),
           ],
         ),
@@ -216,6 +251,20 @@ class MessageUtils {
     }
   }
 
+  /// Separator between a state glyph and whatever follows it in the caption
+  /// row. Its surrounding spaces are the spacing — no extra padding.
+  static Widget _statusBullet(Color? color, CometChatTypography typography) {
+    return Text(
+      ' • ',
+      style: TextStyle(
+        color: color,
+        fontSize: typography.caption2?.regular?.fontSize,
+        fontWeight: typography.caption2?.regular?.fontWeight,
+        fontFamily: typography.caption2?.regular?.fontFamily,
+      ),
+    );
+  }
+
   static Widget? _getStatusInfoView(
     BubbleAlignment alignment,
     BaseMessage message,
@@ -226,11 +275,17 @@ class MessageUtils {
     CometChatMessageTemplate? template,
     CometChatDateStyle? dateStyle,
     CometChatMessageReceiptStyle? receiptStyle,
-    bool? receiptsVisibility,
-  ) {
+    bool? receiptsVisibility, {
+    bool showPinIndicator = false,
+    bool showSaveIndicator = false,
+  }) {
     if (template?.statusInfoView != null) {
       return template?.statusInfoView!(message, context, alignment);
     } else {
+      final statusForeground = alignment == BubbleAlignment.right
+          ? colorPalette.white
+          : colorPalette.neutral600;
+      final isSaved = message.savedAt != null;
       return Padding(
         padding: EdgeInsets.only(top: spacing.padding1 ?? 0),
         child: Row(
@@ -259,7 +314,29 @@ class MessageUtils {
                   ),
                 ),
               ),
-            _getTime(message, colorPalette, typography, alignment, dateStyle),
+            // State glyphs sit ahead of the time, each closed by its own
+            // bullet: pinned when the row is a pin, saved when the reader
+            // saved it too, so "pin • save • time" reads as three items.
+            if (showPinIndicator) ...[
+              Icon(Icons.push_pin, size: 12, color: statusForeground),
+              _statusBullet(statusForeground, typography),
+            ],
+            if (showSaveIndicator && isSaved) ...[
+              Icon(Icons.bookmark, size: 12, color: statusForeground),
+              _statusBullet(statusForeground, typography),
+            ],
+            _getTime(
+              message,
+              colorPalette,
+              typography,
+              alignment,
+              dateStyle,
+              // With a glyph ahead of it, the date's default side padding
+              // widens the status row past the message text — the bubble
+              // then sizes to the row and the line stops reading as
+              // right-aligned. Drop it so the row hugs.
+              compact: showPinIndicator || showSaveIndicator,
+            ),
             if (alignment == BubbleAlignment.right &&
                 (receiptsVisibility ?? true))
               _getReceiptIcon(message, colorPalette, spacing, receiptStyle),
@@ -304,12 +381,19 @@ class MessageUtils {
     CometChatTypography typography,
     CometChatSpacing spacing,
     CometChatMessageTemplate? template,
-    CometChatMessageBubbleStyleData? messageBubbleStyleData,
-  ) {
+    CometChatMessageBubbleStyleData? messageBubbleStyleData, {
+    String? senderNameOverride,
+    // Pinned/saved list surfaces show a name on EVERY row (including 1-1
+    // and own messages) so each row is attributable at a glance.
+    bool alwaysShowName = false,
+    // Renders the sent date beside the name, bullet-separated.
+    bool showSentDate = false,
+  }) {
     if (message.sender != null &&
-        message.receiver != null &&
-        message.receiver is Group &&
-        alignment == BubbleAlignment.left) {
+        (alwaysShowName ||
+            (message.receiver != null &&
+                message.receiver is Group &&
+                alignment == BubbleAlignment.left))) {
       if (template?.headerView != null) {
         return template?.headerView!(message, context, alignment);
       } else {
@@ -324,6 +408,8 @@ class MessageUtils {
             spacing,
             template,
             messageBubbleStyleData,
+            senderNameOverride: senderNameOverride,
+            showSentDate: showSentDate,
           ),
         );
       }
@@ -339,24 +425,56 @@ class MessageUtils {
     CometChatTypography typography,
     CometChatSpacing spacing,
     CometChatMessageTemplate? template,
-    CometChatMessageBubbleStyleData? messageBubbleStyleData,
-  ) {
+    CometChatMessageBubbleStyleData? messageBubbleStyleData, {
+    String? senderNameOverride,
+    bool showSentDate = false,
+  }) {
+    // List surfaces (the ones showing the date) give the name a little more
+    // presence than a chat bubble does — it is the row's title there, not a
+    // caption above the message.
+    final baseNameSize = typography.caption1?.medium?.fontSize;
+    final nameText = Text(
+      senderNameOverride ?? message.sender!.name,
+      style: TextStyle(
+        fontSize: showSentDate && baseNameSize != null
+            ? baseNameSize + 2
+            : baseNameSize,
+        color: colorPalette.primary,
+        fontWeight: showSentDate
+            ? FontWeight.w500
+            : typography.caption1?.medium?.fontWeight,
+        fontFamily: typography.caption1?.medium?.fontFamily,
+        letterSpacing: 0,
+      ).merge(messageBubbleStyleData?.senderNameTextStyle),
+      overflow: TextOverflow.ellipsis,
+    );
+
+    final sentAt = message.sentAt;
     return Padding(
       padding: EdgeInsets.only(
         right: spacing.padding2 ?? 0,
         left: spacing.padding2 ?? 0,
       ),
-      child: Text(
-        message.sender!.name,
-        style: TextStyle(
-          fontSize: typography.caption1?.medium?.fontSize,
-          color: colorPalette.primary,
-          fontWeight: typography.caption1?.medium?.fontWeight,
-          fontFamily: typography.caption1?.medium?.fontFamily,
-          letterSpacing: 0,
-        ).merge(messageBubbleStyleData?.senderNameTextStyle),
-        overflow: TextOverflow.ellipsis,
-      ),
+      child: (!showSentDate || sentAt == null)
+          ? nameText
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // The name yields first: a long name ellipsizes rather than
+                // pushing the date out of the row.
+                Flexible(child: nameText),
+                Text(
+                  ' • ${DateFormat('dd/MM/yyyy').format(sentAt)}',
+                  style: TextStyle(
+                    fontSize: typography.caption1?.regular?.fontSize,
+                    color: colorPalette.textSecondary,
+                    fontWeight: typography.caption1?.regular?.fontWeight,
+                    fontFamily: typography.caption1?.regular?.fontFamily,
+                    letterSpacing: 0,
+                  ),
+                ),
+              ],
+            ),
     );
   }
 
@@ -365,8 +483,9 @@ class MessageUtils {
     CometChatColorPalette? colorPalette,
     CometChatTypography? typography,
     BubbleAlignment alignment,
-    CometChatDateStyle? dateStyle,
-  ) {
+    CometChatDateStyle? dateStyle, {
+    bool compact = false,
+  }) {
     if (messageObject.sentAt == null) {
       return const SizedBox();
     }
@@ -376,6 +495,7 @@ class MessageUtils {
       date: lastMessageTime,
       pattern: DateTimePattern.timeFormat,
       isTransparentBackground: true,
+      padding: compact ? EdgeInsets.zero : null,
       style: CometChatDateStyle(
         backgroundColor: Colors.transparent,
         textStyle: TextStyle(
@@ -491,7 +611,7 @@ extension BubbleUIBuilder on MessageUtils {
     }
     CometChatMessageBubbleStyleData? messageBubbleStyleData;
     switch (key) {
-      case MessageCategoryConstants.message + MessageTypeConstants.text:
+      case (MessageCategoryConstants.message + MessageTypeConstants.text):
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
           backgroundColor: isSent
               ? outgoingMessageBubbleStyle?.textBubbleStyle?.backgroundColor
@@ -549,7 +669,7 @@ extension BubbleUIBuilder on MessageUtils {
                     ?.threadedMessageIndicatorTextStyle,
         );
         break;
-      case MessageCategoryConstants.message + MessageTypeConstants.image:
+      case (MessageCategoryConstants.message + MessageTypeConstants.image):
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
           backgroundColor: isSent
               ? outgoingMessageBubbleStyle?.imageBubbleStyle?.backgroundColor
@@ -607,7 +727,7 @@ extension BubbleUIBuilder on MessageUtils {
                     ?.threadedMessageIndicatorTextStyle,
         );
         break;
-      case MessageCategoryConstants.message + MessageTypeConstants.file:
+      case (MessageCategoryConstants.message + MessageTypeConstants.file):
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
           backgroundColor: isSent
               ? outgoingMessageBubbleStyle?.fileBubbleStyle?.backgroundColor
@@ -665,7 +785,7 @@ extension BubbleUIBuilder on MessageUtils {
                     ?.threadedMessageIndicatorTextStyle,
         );
         break;
-      case MessageCategoryConstants.message + MessageTypeConstants.video:
+      case (MessageCategoryConstants.message + MessageTypeConstants.video):
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
           backgroundColor: isSent
               ? outgoingMessageBubbleStyle?.videoBubbleStyle?.backgroundColor
@@ -723,7 +843,7 @@ extension BubbleUIBuilder on MessageUtils {
                     ?.threadedMessageIndicatorTextStyle,
         );
         break;
-      case MessageCategoryConstants.message + MessageTypeConstants.audio:
+      case (MessageCategoryConstants.message + MessageTypeConstants.audio):
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
           backgroundColor: isSent
               ? outgoingMessageBubbleStyle?.audioBubbleStyle?.backgroundColor
@@ -781,7 +901,7 @@ extension BubbleUIBuilder on MessageUtils {
                     ?.threadedMessageIndicatorTextStyle,
         );
         break;
-      case MessageCategoryConstants.custom + ExtensionType.extensionPoll:
+      case (MessageCategoryConstants.custom + ExtensionType.extensionPoll):
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
           backgroundColor: isSent
               ? outgoingMessageBubbleStyle?.pollsBubbleStyle?.backgroundColor
@@ -833,7 +953,7 @@ extension BubbleUIBuilder on MessageUtils {
                     ?.threadedMessageIndicatorTextStyle,
         );
         break;
-      case MessageCategoryConstants.custom + ExtensionType.document:
+      case (MessageCategoryConstants.custom + ExtensionType.document):
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
           backgroundColor: isSent
               ? outgoingMessageBubbleStyle
@@ -899,7 +1019,7 @@ extension BubbleUIBuilder on MessageUtils {
                     ?.threadedMessageIndicatorTextStyle,
         );
         break;
-      case MessageCategoryConstants.custom + ExtensionType.whiteboard:
+      case (MessageCategoryConstants.custom + ExtensionType.whiteboard):
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
           backgroundColor: isSent
               ? outgoingMessageBubbleStyle
@@ -965,7 +1085,7 @@ extension BubbleUIBuilder on MessageUtils {
                     ?.threadedMessageIndicatorTextStyle,
         );
         break;
-      case MessageCategoryConstants.custom + ExtensionType.sticker:
+      case (MessageCategoryConstants.custom + ExtensionType.sticker):
         messageBubbleStyleData = CometChatMessageBubbleStyleData(
           backgroundColor:
               (isSent
@@ -1025,7 +1145,7 @@ extension BubbleUIBuilder on MessageUtils {
                     ?.threadedMessageIndicatorTextStyle,
         );
         break;
-      case MessageCategoryConstants.custom + MessageTypeConstants.meeting:
+      case (MessageCategoryConstants.custom + MessageTypeConstants.meeting):
         CustomMessage msg = message as CustomMessage;
         String? callType;
         if (msg.customData != null &&

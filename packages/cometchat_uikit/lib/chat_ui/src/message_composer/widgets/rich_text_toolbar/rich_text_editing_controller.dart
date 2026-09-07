@@ -1282,6 +1282,75 @@ class RichTextEditingController extends CustomTextEditingController {
   }
 
   /// Apply format to selection or toggle pending format
+  TextSelection? _lastNonCollapsedSelection;
+
+  /// The most recent valid, non-collapsed selection this controller held.
+  ///
+  /// On web, tapping a toolbar button can blur the text field, which
+  /// collapses [selection] before the button's handler reads it — leaving
+  /// selection-based actions (the built-in formats and DD trailing actions
+  /// alike) with nothing to act on. Handlers should fall back to this when
+  /// [selection] is collapsed, bounds-checking against the current [text]
+  /// (the value is a memory, not a live range).
+  TextSelection? get lastNonCollapsedSelection => _lastNonCollapsedSelection;
+
+  @override
+  set value(TextEditingValue newValue) {
+    if (newValue.selection.isValid && !newValue.selection.isCollapsed) {
+      _lastNonCollapsedSelection = newValue.selection;
+    }
+    super.value = newValue;
+  }
+
+  /// Applies an arbitrary inline [style] to [start]..[end] under [id]
+  /// (Trailing Toolbar Buttons DD §8.3 — e.g. a colour picker's selection).
+  ///
+  /// The style is tracked by the span manager and folded into
+  /// [buildTextSpan]'s segment merge, so it survives rebuilds and composes
+  /// with the built-in formats in both application orders. It is
+  /// composer-local: [RichTextSpanManager.toMarkdown] ignores it by design.
+  /// Same-id re-application replaces; different ids compose.
+  void applyInlineStyle(
+    int start,
+    int end,
+    TextStyle style, {
+    required String id,
+  }) {
+    if (start >= end) return;
+    _spanManager.applyInlineStyle(start, end, style, id: id);
+    value = value.copyWith();
+    notifyListeners();
+  }
+
+  /// Removes [id]-styling from [start]..[end]. A collapsed range no-ops.
+  void removeInlineStyle(int start, int end, {required String id}) {
+    if (start >= end) return;
+    _spanManager.removeInlineStyle(start, end, id: id);
+    value = value.copyWith();
+    notifyListeners();
+  }
+
+  /// The mention ranges currently tracked in this text (DD §8.3 S4).
+  ///
+  /// Read from the attached [CometChatMentionsFormatter]'s tracked
+  /// positions — the same source [buildTextSpan] styles mentions from — so
+  /// a consumer formatter can exclude them (e.g. never recolour a mention).
+  /// Empty when no mentions formatter is attached.
+  List<TextRange> getMentionRanges() {
+    final ranges = <TextRange>[];
+    for (final formatter in formatters ?? const <CometChatTextFormatter>[]) {
+      if (formatter is CometChatMentionsFormatter) {
+        formatter.trackedMentionPositions.forEach((startPos, mentionText) {
+          ranges.add(
+            TextRange(start: startPos, end: startPos + mentionText.length),
+          );
+        });
+      }
+    }
+    ranges.sort((a, b) => a.start.compareTo(b.start));
+    return ranges;
+  }
+
   void applyFormat(FormatType format) {
     _log('applyFormat called with: $format');
 
@@ -1813,7 +1882,10 @@ class RichTextEditingController extends CustomTextEditingController {
     final hasMarkdown = markdownMatches.isNotEmpty;
 
     // If no rich text formatting spans, no line formats, and no markdown, use parent's buildTextSpan
-    if (_spanManager.spans.isEmpty && !hasLineFormats && !hasMarkdown) {
+    if (_spanManager.spans.isEmpty &&
+        _spanManager.styleRanges.isEmpty &&
+        !hasLineFormats &&
+        !hasMarkdown) {
       return super.buildTextSpan(
         context: context,
         style: style,
@@ -2113,6 +2185,12 @@ class RichTextEditingController extends CustomTextEditingController {
             forWhitespace: isWhitespaceOnly,
           );
         }
+        // Consumer inline style sits between formats and attribution:
+        // it augments bold/italic, and a mention's own attribution style
+        // still wins over a colour laid across it (DD §8.2 S3/S4).
+        if (seg.inlineStyle != null) {
+          segStyle = segStyle.merge(seg.inlineStyle);
+        }
         if (seg.attribution != null) {
           segStyle = _applyAttributionStyle(segStyle, seg.attribution!);
         }
@@ -2227,6 +2305,12 @@ class RichTextEditingController extends CustomTextEditingController {
             backgroundColor: baseStyle!.backgroundColor,
           );
         }
+        // Consumer inline style sits between formats and attribution:
+        // it augments bold/italic, and a mention's own attribution style
+        // still wins over a colour laid across it (DD §8.2 S3/S4).
+        if (seg.inlineStyle != null) {
+          segStyle = segStyle.merge(seg.inlineStyle);
+        }
         if (seg.attribution != null) {
           segStyle = _applyAttributionStyle(segStyle, seg.attribution!);
         }
@@ -2332,6 +2416,12 @@ class RichTextEditingController extends CustomTextEditingController {
             forWhitespace: isWhitespaceOnly,
           );
         }
+        // Consumer inline style sits between formats and attribution:
+        // it augments bold/italic, and a mention's own attribution style
+        // still wins over a colour laid across it (DD §8.2 S3/S4).
+        if (seg.inlineStyle != null) {
+          segStyle = segStyle.merge(seg.inlineStyle);
+        }
         if (seg.attribution != null) {
           segStyle = _applyAttributionStyle(segStyle, seg.attribution!);
         }
@@ -2389,6 +2479,17 @@ class RichTextEditingController extends CustomTextEditingController {
         boundaries.add(attr.end);
       }
     }
+    // Consumer inline styles (DD §8.3) participate in segmentation like any
+    // other style source — that is what makes them survive the rebuild.
+    final inlineStyleRanges = _spanManager.styleRanges;
+    for (final range in inlineStyleRanges) {
+      if (range.start > rangeStart && range.start < rangeEnd) {
+        boundaries.add(range.start);
+      }
+      if (range.end > rangeStart && range.end < rangeEnd) {
+        boundaries.add(range.end);
+      }
+    }
 
     final sortedBoundaries = boundaries.toList()..sort();
 
@@ -2415,8 +2516,18 @@ class RichTextEditingController extends CustomTextEditingController {
         }
       }
 
-      // Only include if there's something to render (format or attribution)
-      if (formats.isNotEmpty || attr != null) {
+      // Merge consumer inline styles covering this position, in list order.
+      TextStyle? inlineStyle;
+      for (final range in inlineStyleRanges) {
+        if (range.start <= segStart && range.end >= segEnd) {
+          inlineStyle = inlineStyle == null
+              ? range.style
+              : inlineStyle.merge(range.style);
+        }
+      }
+
+      // Only include if there's something to render
+      if (formats.isNotEmpty || attr != null || inlineStyle != null) {
         // For attributions that span multiple sub-segments, only attach the
         // attribution object to the FIRST sub-segment so underlyingText
         // (display name) is only emitted once. Subsequent sub-segments within
@@ -2440,6 +2551,7 @@ class RichTextEditingController extends CustomTextEditingController {
             end: segEnd,
             richFormats: formats,
             attribution: effectiveAttr,
+            inlineStyle: inlineStyle,
           ),
         );
       }
@@ -3287,11 +3399,16 @@ class _MergedSegment {
   final Set<FormatType> richFormats;
   final AttributedText? attribution;
 
+  /// Consumer inline styles covering this segment, pre-merged in
+  /// application order (Trailing Toolbar Buttons DD §8.3).
+  final TextStyle? inlineStyle;
+
   const _MergedSegment({
     required this.start,
     required this.end,
     required this.richFormats,
     this.attribution,
+    this.inlineStyle,
   });
 }
 

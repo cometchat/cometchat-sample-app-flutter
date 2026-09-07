@@ -1,3 +1,5 @@
+import 'package:flutter/painting.dart';
+
 import '../../../../../../shared_ui/src/rich_text_formatting/domain/entities/format_type.dart';
 
 /// Helper class for format markers
@@ -43,11 +45,55 @@ class RichTextSpan {
       'RichTextSpan($start-$end, $formats${metadata != null ? ', meta=$metadata' : ''})';
 }
 
+/// An arbitrary inline style applied to a text range (Trailing Toolbar
+/// Buttons DD §8.3 — the enabler for consumer styles like a colour picker).
+///
+/// Deliberately separate from [RichTextSpan]: format spans are a closed
+/// [FormatType] vocabulary with markdown serialization; a styled range
+/// carries an open [TextStyle] payload, is composer-local, and is ignored
+/// by [RichTextSpanManager.toMarkdown] by design (cross-surface rendering
+/// is out of the DD's scope).
+class InlineStyleRange {
+  final int start;
+  final int end;
+  final TextStyle style;
+
+  /// Consumer-chosen identity (e.g. `'text-color'`) — [removeInlineStyle]
+  /// with the same id removes only that consumer's styling from the range,
+  /// leaving other ids intact.
+  final String id;
+
+  const InlineStyleRange({
+    required this.start,
+    required this.end,
+    required this.style,
+    required this.id,
+  });
+
+  InlineStyleRange copyWith({int? start, int? end, TextStyle? style}) {
+    return InlineStyleRange(
+      start: start ?? this.start,
+      end: end ?? this.end,
+      style: style ?? this.style,
+      id: id,
+    );
+  }
+
+  @override
+  String toString() => 'InlineStyleRange($start-$end, id=$id)';
+}
+
 /// Manages formatting spans for rich text editing
 class RichTextSpanManager {
   final List<RichTextSpan> _spans = [];
 
   List<RichTextSpan> get spans => List.unmodifiable(_spans);
+
+  final List<InlineStyleRange> _styleRanges = [];
+
+  /// Consumer-applied inline styles (DD §8.3). Unlike [spans], these carry a
+  /// full [TextStyle] and never serialize to markdown.
+  List<InlineStyleRange> get styleRanges => List.unmodifiable(_styleRanges);
 
   /// Add formatting to a range
   void addFormat(
@@ -272,6 +318,59 @@ class RichTextSpanManager {
     return null;
   }
 
+  /// Applies an inline [style] to [start]..[end] under [id].
+  ///
+  /// Same-id overlaps are carved out first, so re-applying (e.g. picking a
+  /// second colour over part of an old one) replaces rather than stacks;
+  /// different ids coexist and compose in application order.
+  void applyInlineStyle(
+    int start,
+    int end,
+    TextStyle style, {
+    required String id,
+  }) {
+    if (start >= end) return;
+    removeInlineStyle(start, end, id: id);
+    _styleRanges.add(
+      InlineStyleRange(start: start, end: end, style: style, id: id),
+    );
+    _styleRanges.sort((a, b) => a.start.compareTo(b.start));
+  }
+
+  /// Removes [id]-styling from [start]..[end], splitting ranges that
+  /// straddle the boundary. Other ids are untouched.
+  void removeInlineStyle(int start, int end, {required String id}) {
+    if (start >= end) return;
+    final next = <InlineStyleRange>[];
+    for (final range in _styleRanges) {
+      if (range.id != id || range.end <= start || range.start >= end) {
+        next.add(range);
+        continue;
+      }
+      if (range.start < start) {
+        next.add(range.copyWith(end: start));
+      }
+      if (range.end > end) {
+        next.add(range.copyWith(start: end));
+      }
+    }
+    _styleRanges
+      ..clear()
+      ..addAll(next);
+  }
+
+  /// The style ranges under [id] that intersect [start]..[end].
+  List<InlineStyleRange> stylesInRange(int start, int end, {String? id}) {
+    return _styleRanges
+        .where(
+          (range) =>
+              range.start < end &&
+              range.end > start &&
+              (id == null || range.id == id),
+        )
+        .toList();
+  }
+
   /// Adjust spans when text is inserted
   void onTextInserted(int position, int length) {
     for (int i = 0; i < _spans.length; i++) {
@@ -283,6 +382,17 @@ class RichTextSpanManager {
         );
       } else if (span.end > position) {
         _spans[i] = span.copyWith(end: span.end + length);
+      }
+    }
+    for (int i = 0; i < _styleRanges.length; i++) {
+      final range = _styleRanges[i];
+      if (range.start >= position) {
+        _styleRanges[i] = range.copyWith(
+          start: range.start + length,
+          end: range.end + length,
+        );
+      } else if (range.end > position) {
+        _styleRanges[i] = range.copyWith(end: range.end + length);
       }
     }
   }
@@ -320,11 +430,30 @@ class RichTextSpanManager {
     }
 
     _spans.removeWhere((s) => toRemove.contains(s) || s.start >= s.end);
+
+    for (int i = 0; i < _styleRanges.length; i++) {
+      final range = _styleRanges[i];
+      if (range.end <= start) {
+        continue;
+      } else if (range.start >= end) {
+        _styleRanges[i] = range.copyWith(
+          start: range.start - length,
+          end: range.end - length,
+        );
+      } else if (range.start < start && range.end > end) {
+        _styleRanges[i] = range.copyWith(end: range.end - length);
+      } else if (range.start < start) {
+        _styleRanges[i] = range.copyWith(end: start);
+      } else {
+        _styleRanges[i] = range.copyWith(start: start, end: range.end - length);
+      }
+    }
+    _styleRanges.removeWhere((r) => r.start >= r.end);
   }
 
   /// Convert plain text to markdown
   String toMarkdown(String plainText) {
-    if (_spans.isEmpty) return plainText;
+    if (_spans.isEmpty && _styleRanges.isEmpty) return plainText;
 
     // Sort spans by start position
     final sortedSpans = [..._spans]..sort((a, b) => a.start.compareTo(b.start));
@@ -355,7 +484,99 @@ class RichTextSpanManager {
       buffer.write(plainText.substring(currentPos));
     }
 
+    return _wrapColorTags(buffer.toString(), plainText);
+  }
+
+  /// Wraps coloured ranges in `<color=#RRGGBB>…</color>` tags.
+  ///
+  /// Applied AFTER the format markers so the tags sit outside them
+  /// (`<color=#FF0000>**bold**</color>`) — the bubble's markdown formatter
+  /// strips the colour tag and then parses the inner markers as usual.
+  ///
+  /// Offsets are recomputed against the marked-up string: inserting `**`
+  /// shifts everything after it, so a colour range recorded against the
+  /// plain text would land in the wrong place. The shift for a given plain
+  /// offset is the total marker length inserted before it.
+  String _wrapColorTags(String markedUp, String plainText) {
+    final coloured =
+        _styleRanges.where((range) => range.style.color != null).toList()
+          ..sort((a, b) => a.start.compareTo(b.start));
+    if (coloured.isEmpty) return markedUp;
+
+    // Map plain-text offsets → marked-up offsets by replaying the same span
+    // walk that produced [markedUp].
+    //
+    // Start and end use different boundary rules on purpose: a marker
+    // inserted AT the colour's start belongs inside the tag (so the tag
+    // wraps `**bold**` rather than splitting it), while a marker inserted at
+    // the colour's end must be swallowed by it. Hence strict `<` for start
+    // and `<=` for end.
+    final shiftStart = _buildOffsetMap(plainText, inclusive: false);
+    final shiftEnd = _buildOffsetMap(plainText, inclusive: true);
+
+    final buffer = StringBuffer();
+    var cursor = 0;
+    for (final range in coloured) {
+      final start = shiftStart(range.start);
+      final end = shiftEnd(range.end);
+      if (start < cursor || end > markedUp.length || end <= start) continue;
+      buffer.write(markedUp.substring(cursor, start));
+      buffer.write('<color=${_hex(range.style.color!)}>');
+      buffer.write(markedUp.substring(start, end));
+      buffer.write('</color>');
+      cursor = end;
+    }
+    if (cursor < markedUp.length) {
+      buffer.write(markedUp.substring(cursor));
+    }
     return buffer.toString();
+  }
+
+  /// Builds a plain-offset → marked-up-offset translator by walking the same
+  /// spans [toMarkdown] wrapped, accumulating each opening/closing marker's
+  /// length at the position it was inserted.
+  int Function(int) _buildOffsetMap(
+    String plainText, {
+    required bool inclusive,
+  }) {
+    final insertions = <MapEntry<int, int>>[]; // (plainOffset, addedLength)
+    final sortedSpans = [..._spans]..sort((a, b) => a.start.compareTo(b.start));
+    for (final span in sortedSpans) {
+      final spanText = plainText.substring(
+        span.start,
+        span.end.clamp(0, plainText.length),
+      );
+      final wrapped = _wrapWithMarkers(
+        spanText,
+        span.formats,
+        metadata: span.metadata,
+      );
+      final added = wrapped.length - spanText.length;
+      if (added == 0) continue;
+      // Opening markers land at the span start; the rest (closing markers,
+      // link URL) lands at the span end.
+      final opening = wrapped.indexOf(spanText);
+      final openingLen = opening < 0 ? added : opening;
+      insertions.add(MapEntry(span.start, openingLen));
+      if (added - openingLen > 0) {
+        insertions.add(MapEntry(span.end, added - openingLen));
+      }
+    }
+    return (int plainOffset) {
+      var shifted = plainOffset;
+      for (final insertion in insertions) {
+        final applies = inclusive
+            ? insertion.key <= plainOffset
+            : insertion.key < plainOffset;
+        if (applies) shifted += insertion.value;
+      }
+      return shifted;
+    };
+  }
+
+  static String _hex(Color color) {
+    final value = color.toARGB32() & 0xFFFFFF;
+    return '#${value.toRadixString(16).padLeft(6, '0').toUpperCase()}';
   }
 
   String _wrapWithMarkers(
@@ -560,5 +781,6 @@ class RichTextSpanManager {
 
   void clear() {
     _spans.clear();
+    _styleRanges.clear();
   }
 }

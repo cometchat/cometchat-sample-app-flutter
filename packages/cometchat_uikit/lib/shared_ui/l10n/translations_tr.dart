@@ -403,6 +403,136 @@ class TranslationsTr extends Translations {
   String get replyInThread => 'Dizi içinde cevapla';
 
   @override
+  String get threadMute => 'Konu aboneliğinden çık';
+
+  @override
+  String get threadUnmute => 'Konuya abone ol';
+
+  @override
+  String get messageListOptionStopReplyNotifications =>
+      'Konu aboneliğinden çık';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'Konuya abone ol';
+
+  @override
+  String get threadMutedToast =>
+      'Abonelikten çıkıldı. Siz yanıtlayana veya sizden bahsedilene kadar bildirimler kapalı.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Abone olundu. Bu konudaki yeni yanıtlar size bildirilecek.';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'Güncellenemedi. Lütfen tekrar deneyin.';
+
+  @override
+  String get threadUnavailable => 'Artık bu konuya erişiminiz yok.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Mesajı sabitle';
+
+  @override
+  String get unpinMessageOption => 'Sabitlemeyi kaldır';
+
+  @override
+  String get saveMessageOption => 'Mesajı kaydet';
+
+  @override
+  String get unsaveMessageOption => 'Kaydetmeyi geri al';
+
+  @override
+  String get pinConfirmTitle => 'Mesaj sabitlensin mi?';
+
+  @override
+  String get pinConfirmMessage =>
+      'Bu mesaj bu sohbette herkes için sabitlenecek.';
+
+  @override
+  String get unpinConfirmTitle => 'Sabitleme kaldırılsın mı?';
+
+  @override
+  String get unpinConfirmMessage =>
+      'Bu mesaj artık kimse için sabitlenmiş olmayacak.';
+
+  @override
+  String get saveConfirmTitle => 'Mesaj kaydedilsin mi?';
+
+  @override
+  String get saveConfirmMessage =>
+      'Bu mesaj kaydedilen mesajlarınıza eklenecek.';
+
+  @override
+  String get unsaveConfirmTitle => 'Kaydetme geri alınsın mı?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'Bu mesaj kaydedilen mesajlarınızdan kaldırılacak.';
+
+  @override
+  String get pinButton => 'Sabitle';
+
+  @override
+  String get unpinButton => 'Kaldır';
+
+  @override
+  String get saveButton => 'Kaydet';
+
+  @override
+  String get unsaveButton => 'Kaldır';
+
+  @override
+  String get messagePinnedToast => 'Mesaj sabitlendi';
+
+  @override
+  String get messageUnpinnedToast => 'Sabitleme kaldırıldı';
+
+  @override
+  String get messageSavedToast => 'Mesaj kaydedildi';
+
+  @override
+  String get messageUnsavedToast => 'Kayıt kaldırıldı';
+
+  @override
+  String get pinnedMessagesTitle => 'Sabitlenen Mesajlar';
+
+  @override
+  String get savedMessagesTitle => 'Kaydedilen Mesajlar';
+
+  @override
+  String get noPinnedMessages => 'Henüz sabitlenen mesaj yok';
+
+  @override
+  String get noSavedMessages => 'Henüz kaydedilen mesaj yok';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'Yalnızca $limit mesaj sabitleyebilirsiniz. Başka bir mesajı sabitlemek için birinin sabitlemesini kaldırın.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'Yalnızca $limit mesaj kaydedebilirsiniz. Başka bir mesajı kaydetmek için birini kayıtlardan kaldırın.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'Yalnızca $limit sohbet sabitleyebilirsiniz. Başka bir sohbeti sabitlemek için birinin sabitlemesini kaldırın.';
+
+  @override
+  String get actionPermissionDenied => 'Bu işlemi gerçekleştirme yetkiniz yok.';
+
+  @override
+  String get pinSaveFailed => 'Güncellenemedi. Lütfen tekrar deneyin.';
+
+  @override
+  String get conversationPinnedToast => 'Sohbet sabitlendi';
+
+  @override
+  String get conversationUnpinnedToast => 'Sohbet sabitlemesi kaldırıldı';
+
+  @override
   String get deleteMessage => 'Mesajı sil';
 
   @override

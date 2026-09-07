@@ -397,7 +397,8 @@ class AttachmentTrayController extends ChangeNotifier {
     const order = ['image', 'video', 'audio', 'file'];
     final kinds = order.where((k) => byKind[k]!.isNotEmpty).toList();
 
-    final batchId = _batchId ?? DateTime.now().microsecondsSinceEpoch.toString();
+    final batchId =
+        _batchId ?? DateTime.now().microsecondsSinceEpoch.toString();
     final cap = caption.trim();
     final isBatch = kinds.length > 1;
     final now = DateTime.now();

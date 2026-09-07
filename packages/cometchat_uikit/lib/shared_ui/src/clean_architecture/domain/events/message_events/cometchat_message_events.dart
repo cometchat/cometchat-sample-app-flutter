@@ -45,6 +45,48 @@ class CometChatMessageEvents {
     });
   }
 
+  ///Event for the logged-in user following/unfollowing a thread from either
+  ///kit surface (the message action sheet or the threaded-header control).
+  ///Keeps the two entry points in agreement without a refetch, and gives an
+  ///integrator's own thread list a channel to react to (an unfollow also
+  ///hard-deletes the thread's row server-side, so remove it locally).
+  static void ccThreadSubscriptionChanged(
+    int parentMessageId,
+    bool subscribed,
+  ) {
+    messagesListener.forEach((key, value) {
+      value.ccThreadSubscriptionChanged(parentMessageId, subscribed);
+    });
+  }
+
+  ///Events for the logged-in user pinning/unpinning/saving/unsaving a
+  ///message from a kit surface. [message] is the full updated object (pin/
+  ///save fields stamped or cleared) so panels like Pinned/Saved Messages can
+  ///insert or drop rows without a refetch.
+  static void ccMessagePinned(BaseMessage message) {
+    messagesListener.forEach((key, value) {
+      value.ccMessagePinned(message);
+    });
+  }
+
+  static void ccMessageUnpinned(BaseMessage message) {
+    messagesListener.forEach((key, value) {
+      value.ccMessageUnpinned(message);
+    });
+  }
+
+  static void ccMessageSaved(BaseMessage message) {
+    messagesListener.forEach((key, value) {
+      value.ccMessageSaved(message);
+    });
+  }
+
+  static void ccMessageUnsaved(BaseMessage message) {
+    messagesListener.forEach((key, value) {
+      value.ccMessageUnsaved(message);
+    });
+  }
+
   static void ccLiveReaction(String reaction, String receiverId) {
     messagesListener.forEach((key, value) {
       value.ccLiveReaction(reaction);

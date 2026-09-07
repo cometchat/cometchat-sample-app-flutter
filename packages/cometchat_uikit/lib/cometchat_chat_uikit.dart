@@ -86,6 +86,10 @@ export 'chat_ui/src/message_composer/data/datasources/message_composer_datasourc
 
 //Threaded Message
 export 'chat_ui/src/threaded_header/threaded_header.dart';
+export 'chat_ui/src/pinned_messages/cometchat_pinned_messages.dart';
+export 'chat_ui/src/pinned_messages/cometchat_pinned_messages_style.dart';
+export 'chat_ui/src/saved_messages/cometchat_saved_messages.dart';
+export 'chat_ui/src/saved_messages/cometchat_saved_messages_style.dart';
 
 //Extension
 export 'chat_ui/src/extensions/extension.dart';
@@ -114,6 +118,9 @@ export 'chat_ui/src/ai_assistant_chat_history/domain/domain.dart'
 
 // Rich Text Formatting
 export 'chat_ui/src/message_composer/widgets/rich_text_toolbar/rich_text_toolbar.dart';
+// FormatType is the value type of the public hideRichTextFormattingOptions
+// param — consumers could not name it without deep imports.
+export 'shared_ui/src/rich_text_formatting/domain/entities/format_type.dart';
 
 // Search
 export 'chat_ui/src/search/search.dart';

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
+import '../../../../shared_ui/src/clean_architecture/core/utils/thread_toast.dart';
 import 'cometchat_flag_message_dialog.dart';
 import 'cometchat_message_action_overlay.dart';
 import 'cometchat_message_swipe.dart';
@@ -39,6 +40,41 @@ typedef HeaderFooterBuilder =
 typedef StateViewBuilder = Widget Function(BuildContext context);
 
 /// [CometChatMessageList] is a Clean Architecture + BLoC based message list widget.
+/// Imperative handle for an already-mounted [CometChatMessageList].
+///
+/// [CometChatMessageList.goToMessageId] is read once, in initState, so it can
+/// only aim a list that is about to be built. Surfaces that stay on screen
+/// and need to re-aim the list they already have — a pinned or saved row
+/// jumping to its message — attach one of these instead of remounting.
+///
+/// Create it in the host State, pass it to [CometChatMessageList.controller],
+/// and call [jumpToMessage]. It attaches on mount and detaches on dispose;
+/// calls made while detached return false rather than throwing.
+class CometChatMessageListController {
+  _CometChatMessageListState? _state;
+
+  /// Whether a list is currently mounted and listening.
+  bool get isAttached => _state != null;
+
+  void _attach(_CometChatMessageListState state) => _state = state;
+
+  void _detach(_CometChatMessageListState state) {
+    // Guarded so a new list attaching before the old one disposes (route
+    // transitions rebuild both) does not clear the live attachment.
+    if (identical(_state, state)) _state = null;
+  }
+
+  /// Scrolls the list to [messageId] and highlights it, fetching the page
+  /// around it first when the message is not loaded yet.
+  ///
+  /// Returns false when no list is attached.
+  Future<bool> jumpToMessage(int messageId) async {
+    final state = _state;
+    if (state == null) return false;
+    return state.jumpToMessage(messageId);
+  }
+}
+
 class CometChatMessageList extends StatefulWidget {
   const CometChatMessageList({
     super.key,
@@ -109,6 +145,11 @@ class CometChatMessageList extends StatefulWidget {
     this.hideMessagePrivatelyOption = false,
     this.hideReactionOption = false,
     this.hideReplyInThreadOption = false,
+    this.hideThreadSubscriptionOption = false,
+    this.hidePinMessageOption = false,
+    this.hideUnpinMessageOption = false,
+    this.hideSaveMessageOption = false,
+    this.hideUnsaveMessageOption = false,
     this.hideReplyOption = false,
     this.hideTranslateMessageOption = false,
     this.hideShareMessageOption = false,
@@ -132,6 +173,7 @@ class CometChatMessageList extends StatefulWidget {
     this.dateTimeFormatterCallback,
     this.enableSwipeToReply = true,
     this.goToMessageId,
+    this.controller,
     this.showMarkAsUnreadOption = false,
     this.startFromUnreadMessages = false,
     this.hideFlagOption = false,
@@ -167,6 +209,12 @@ class CometChatMessageList extends StatefulWidget {
   final WidgetBuilder? emptyChatGreetingView;
   final CometChatMessageListStyle? style;
   final ScrollController? scrollController;
+
+  ///[controller] optional imperative handle used to re-aim an already-mounted
+  ///list (see [CometChatMessageListController.jumpToMessage]). Unlike
+  ///[goToMessageId], which is consumed once at init, this works for the life
+  ///of the widget.
+  final CometChatMessageListController? controller;
   final ChatAlignment alignment;
   final OnError? onError;
   final OnLoad<BaseMessage>? onLoad;
@@ -221,6 +269,30 @@ class CometChatMessageList extends StatefulWidget {
   final bool? hideMessagePrivatelyOption;
   final bool? hideReactionOption;
   final bool? hideReplyInThreadOption;
+
+  ///[hideThreadSubscriptionOption] hides the Follow/Unfollow thread option in
+  ///the message action sheet. Only takes effect when the thread-subscription
+  ///feature gate ([UIKitSettings.enableThreadSubscription]) is on — with the
+  ///gate off the option never renders regardless of this flag.
+  final bool? hideThreadSubscriptionOption;
+
+  ///[hidePinMessageOption] hides the Pin message option in the action sheet
+  ///(the option renders only while the message is unpinned and the server
+  ///Pin feature flag is enabled).
+  final bool? hidePinMessageOption;
+
+  ///[hideUnpinMessageOption] hides the Unpin message option in the action
+  ///sheet (the option renders only while the message is pinned).
+  final bool? hideUnpinMessageOption;
+
+  ///[hideSaveMessageOption] hides the Save message option in the action
+  ///sheet (the option renders only while the message is unsaved and the
+  ///server Save feature flag is enabled).
+  final bool? hideSaveMessageOption;
+
+  ///[hideUnsaveMessageOption] hides the Unsave message option in the action
+  ///sheet (the option renders only while the message is saved).
+  final bool? hideUnsaveMessageOption;
   final bool? hideReplyOption;
   final bool? hideTranslateMessageOption;
   final bool? hideShareMessageOption;
@@ -328,6 +400,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   @override
   void initState() {
     super.initState();
+    widget.controller?._attach(this);
     WidgetsBinding.instance.addObserver(this);
     _uiEventListenerId =
         'message_list_${DateTime.now().millisecondsSinceEpoch}';
@@ -376,7 +449,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     super.didChangeDependencies();
 
     // Check if brightness has changed (dark mode toggle)
-    final currentBrightness = MediaQuery.platformBrightnessOf(context);
+    final currentBrightness = CometChatThemeHelper.getBrightness(context);
     final brightnessChanged =
         _cachedBrightness != null && _cachedBrightness != currentBrightness;
 
@@ -397,6 +470,10 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   @override
   void didUpdateWidget(covariant CometChatMessageList oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.controller, widget.controller)) {
+      oldWidget.controller?._detach(this);
+      widget.controller?._attach(this);
+    }
     if (widget.hideModerationView != oldWidget.hideModerationView) {
       ModerationCheckUtil.instance.hideModerationStatus =
           widget.hideModerationView ?? false;
@@ -620,6 +697,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
 
   @override
   void dispose() {
+    widget.controller?._detach(this);
     CometChatUIEvents.removeUiListener(_uiEventListenerId);
     WidgetsBinding.instance.removeObserver(this);
     _operationsSubscription?.cancel();
@@ -895,6 +973,24 @@ class _CometChatMessageListState extends State<CometChatMessageList>
   }
 
   /// Wait for JumpToMessage to load the target, then scroll to it.
+  /// Scrolls to [messageId], loading the page around it when needed.
+  ///
+  /// Drives the same path initState takes for goToMessageId, so the caller
+  /// gets the shimmer, the fetch-around and the highlight — without the list
+  /// being torn down and rebuilt. Already-loaded messages skip the fetch and
+  /// scroll straight away.
+  Future<bool> jumpToMessage(int messageId) async {
+    if (!mounted) return false;
+    if (_messageListBloc.findMessageIndex(messageId) != null) {
+      _scrollToMessageAfterLayout(messageId);
+      return true;
+    }
+    _isJumpingToMessage.value = true;
+    _messageListBloc.add(JumpToMessage(messageId: messageId));
+    _waitForJumpTarget(messageId);
+    return true;
+  }
+
   void _waitForJumpTarget(int messageId) {
     late StreamSubscription<MessageListState> sub;
     sub = _messageListBloc.stream.listen((state) {
@@ -1657,7 +1753,12 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // deletedAt is part of the key so a delete forces the item to rebuild
     // immediately (same reason editedAt is included for edits).
     final deletedHash = message.deletedAt?.millisecondsSinceEpoch ?? 0;
-    final compositeKey = '$messageKey-$editedHash-$deletedHash';
+    // Pin/save state is part of the key so the status-row indicators appear
+    // and disappear immediately when the row is rebound on those events.
+    final pinnedHash = message.pinnedAt?.millisecondsSinceEpoch ?? 0;
+    final savedHash = message.savedAt?.millisecondsSinceEpoch ?? 0;
+    final compositeKey =
+        '$messageKey-$editedHash-$deletedHash-$pinnedHash-$savedHash';
 
     // Create a GlobalKey to measure the bubble size for the action overlay
     final bubbleKey = GlobalKey();
@@ -1741,6 +1842,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
                 // Sent (right-aligned) → ⋯ on the bubble's left (free) side;
                 // received (left-aligned) → ⋯ on the right.
                 alignEnd: alignment == BubbleAlignment.right,
+                centerNudge: _hoverCenterNudge(message, alignment),
                 mainAxisAlignment: alignment == BubbleAlignment.left
                     ? MainAxisAlignment.start
                     : alignment == BubbleAlignment.center
@@ -2539,6 +2641,55 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // Build status info items
     final List<Widget> statusItems = [];
 
+    // Pin & Save indicators: a pin glyph while the message is pinned, a
+    // filled bookmark while the logged-in user has saved it. Same caption
+    // row as the Edited tag / timestamp so they inherit its color logic.
+    final bool showsPin =
+        message.pinnedAt != null && CometChat.isPinMessageEnabled();
+    final bool showsSave =
+        message.savedAt != null && CometChat.isSaveMessageEnabled();
+
+    // Each glyph is closed by its own bullet — "pin • save • time" — the
+    // same caption the pinned and saved lists use. The LAST bullet is held
+    // back and emitted by whatever comes next, so a bubble with nothing
+    // after the glyphs (timestamps hidden, not edited) never ends on a
+    // dangling separator.
+    Widget stateBullet() => Text(
+      ' • ',
+      style: TextStyle(
+        color: dateColor,
+        fontSize: _typography.caption2?.regular?.fontSize,
+        fontWeight: _typography.caption2?.regular?.fontWeight,
+        fontFamily: _typography.caption2?.regular?.fontFamily,
+      ),
+    );
+
+    if (showsPin) {
+      statusItems.add(
+        Icon(
+          Icons.push_pin,
+          size: _typography.caption2?.regular?.fontSize ?? 10,
+          color: dateColor,
+        ),
+      );
+      if (showsSave) statusItems.add(stateBullet());
+    }
+    if (showsSave) {
+      statusItems.add(
+        Icon(
+          Icons.bookmark,
+          size: _typography.caption2?.regular?.fontSize ?? 10,
+          color: dateColor,
+        ),
+      );
+    }
+    var pendingStateBullet = showsPin || showsSave;
+    void addStateBullet() {
+      if (!pendingStateBullet) return;
+      pendingStateBullet = false;
+      statusItems.add(stateBullet());
+    }
+
     // Show "Edited" for any edited `message`-category message — text plus
     // image/video/audio/file, whose captions became editable with
     // multi-attachment. Gating on `type == text` dated from when the SDK
@@ -2546,9 +2697,7 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     // captions. Custom/action/call are other categories and stay excluded.
     if (message.editedAt != null &&
         message.category == MessageCategoryConstants.message) {
-      if (statusItems.isNotEmpty) {
-        statusItems.add(SizedBox(width: _spacing.padding1 ?? 4));
-      }
+      addStateBullet();
       statusItems.add(
         Flexible(
           child: Text(
@@ -2568,7 +2717,9 @@ class _CometChatMessageListState extends State<CometChatMessageList>
     if (showTimestamp &&
         widget.hideTimestamp != true &&
         message.sentAt != null) {
-      if (statusItems.isNotEmpty) {
+      final bulletPending = pendingStateBullet;
+      addStateBullet();
+      if (!bulletPending && statusItems.isNotEmpty) {
         statusItems.add(SizedBox(width: _spacing.padding1 ?? 4));
       }
       statusItems.add(
@@ -2915,6 +3066,11 @@ class _CometChatMessageListState extends State<CometChatMessageList>
               hideMessageInfoOption: widget.hideMessageInfoOption,
               hideMessagePrivatelyOption: widget.hideMessagePrivatelyOption,
               hideReplyInThreadOption: widget.hideReplyInThreadOption,
+              hideThreadSubscriptionOption: widget.hideThreadSubscriptionOption,
+              hidePinMessageOption: widget.hidePinMessageOption,
+              hideUnpinMessageOption: widget.hideUnpinMessageOption,
+              hideSaveMessageOption: widget.hideSaveMessageOption,
+              hideUnsaveMessageOption: widget.hideUnsaveMessageOption,
               hideReplyOption: widget.hideReplyOption,
               hideShareMessageOption: widget.hideShareMessageOption,
               hideReactionOption: widget.hideReactionOption,
@@ -3007,6 +3163,24 @@ class _CometChatMessageListState extends State<CometChatMessageList>
             '[MessageList] replyInThreadMessage filter: hideReplyInThreadOption=${widget.hideReplyInThreadOption}',
           );
           return widget.hideReplyInThreadOption != true;
+        case MessageOptionConstants.threadSubscription:
+          return CometChatUIKit
+                      .authenticationSettings
+                      ?.enableThreadSubscription ==
+                  true &&
+              widget.hideThreadSubscriptionOption != true;
+        case MessageOptionConstants.pinMessage:
+          return CometChat.isPinMessageEnabled() &&
+              widget.hidePinMessageOption != true;
+        case MessageOptionConstants.unpinMessage:
+          return CometChat.isPinMessageEnabled() &&
+              widget.hideUnpinMessageOption != true;
+        case MessageOptionConstants.saveMessage:
+          return CometChat.isSaveMessageEnabled() &&
+              widget.hideSaveMessageOption != true;
+        case MessageOptionConstants.unsaveMessage:
+          return CometChat.isSaveMessageEnabled() &&
+              widget.hideUnsaveMessageOption != true;
         case MessageOptionConstants.replyMessage:
           return widget.hideReplyOption != true;
         case MessageOptionConstants.shareMessage:
@@ -3070,6 +3244,32 @@ class _CometChatMessageListState extends State<CometChatMessageList>
             return;
           }
 
+          // Handle follow/unfollow thread option
+          if (option.id == MessageOptionConstants.threadSubscription) {
+            _handleThreadSubscriptionToggle(message);
+            return;
+          }
+
+          // Handle pin/unpin message options
+          if (option.id == MessageOptionConstants.pinMessage ||
+              option.id == MessageOptionConstants.unpinMessage) {
+            _handlePinToggle(
+              message,
+              pin: option.id == MessageOptionConstants.pinMessage,
+            );
+            return;
+          }
+
+          // Handle save/unsave message options
+          if (option.id == MessageOptionConstants.saveMessage ||
+              option.id == MessageOptionConstants.unsaveMessage) {
+            _handleSaveToggle(
+              message,
+              save: option.id == MessageOptionConstants.saveMessage,
+            );
+            return;
+          }
+
           // Handle copy message option
           if (option.id == MessageOptionConstants.copyMessage) {
             _handleCopyMessage(message);
@@ -3122,6 +3322,205 @@ class _CometChatMessageListState extends State<CometChatMessageList>
         },
       );
     }).toList();
+  }
+
+  /// Vertical nudge that re-centers the hover ⋯ button on the visible bubble.
+  ///
+  /// The hover row centers against the whole message composite, but the
+  /// sender-name header renders above the bubble background and the
+  /// replies link / reactions rows render below it. Compensating by half of
+  /// (header − below-bubble rows) puts the button at the bubble's own
+  /// vertical center. Heights are derived from the caption font size so the
+  /// nudge tracks text scaling.
+  double _hoverCenterNudge(BaseMessage message, BubbleAlignment alignment) {
+    final caption = _typography.caption1?.regular?.fontSize ?? 12;
+    final headerH = (alignment == BubbleAlignment.left && widget.group != null)
+        ? caption * 1.5
+        : 0.0;
+    final threadH = (message.replyCount > 0 && widget.hideThreadView != true)
+        ? caption * 1.5
+        : 0.0;
+    final reactionsH = message.reactions.isNotEmpty ? caption * 2.3 : 0.0;
+    return (headerH - threadH - reactionsH) / 2;
+  }
+
+  /// One in-flight thread-subscription request per parentMessageId, shared
+  /// across list instances (§7.6). No queue, no retry, no persistence.
+  static final Set<int> _threadSubscriptionInFlight = {};
+
+  /// Shows a thread toast as a dark pill centered within the enclosing
+  /// chat/thread panel (the right-hand panel in a web side-by-side layout),
+  /// floating above the composer.
+  void _showThreadToast(String text) {
+    if (!mounted) return;
+    CometChatThreadToast.show(context, text);
+  }
+
+  /// Handle the mute/unmute reply-notifications action from the option sheet.
+  ///
+  /// Acts on the message's thread (the parent for a reply, the message itself
+  /// for a root message). Calls the SDK (idempotent either way), re-emits on
+  /// the kit event bus so the threaded-header control stays in agreement
+  /// without a refetch, and surfaces the failure snackbar on error.
+  Future<void> _handleThreadSubscriptionToggle(BaseMessage message) async {
+    final threadId = MessageTemplateUtils.resolveThreadId(message);
+    if (threadId <= 0 || _threadSubscriptionInFlight.contains(threadId)) {
+      return;
+    }
+    _threadSubscriptionInFlight.add(threadId);
+    try {
+      final wasSubscribed = MessageTemplateUtils.isSubscribedToThreadOf(
+        message,
+      );
+      final result = wasSubscribed
+          ? await CometChat.unsubscribeFromThread(threadId)
+          : await CometChat.subscribeToThread(threadId);
+      if (result != null) {
+        // The message object is the state (stateless redesign): stamp the
+        // tapped message, then announce on the kit event bus so the bells,
+        // the threaded header, and the bloc's copy of the thread root all
+        // restamp themselves.
+        message.threadSubscribed = !wasSubscribed;
+        CometChatMessageEvents.ccThreadSubscriptionChanged(
+          threadId,
+          !wasSubscribed,
+        );
+        if (mounted) {
+          _showThreadToast(
+            wasSubscribed
+                ? Translations.of(context).threadMutedToast
+                : Translations.of(context).threadUnmutedToast,
+          );
+        }
+      } else if (mounted) {
+        _showThreadToast(Translations.of(context).threadSubscriptionFailed);
+      }
+    } finally {
+      _threadSubscriptionInFlight.remove(threadId);
+    }
+  }
+
+  /// One in-flight pin/save request per messageId, shared across list
+  /// instances. No queue, no retry.
+  static final Set<int> _pinSaveInFlight = {};
+
+  /// Maps a pin/save failure to its user-facing toast text. Cap errors
+  /// interpolate the server-supplied limit from the structured errorParams,
+  /// falling back to the `/me` caps, then a static default.
+  String _pinSaveErrorText(CometChatException error) {
+    final limit = (error.errorParams?['limit'] as num?)?.toInt();
+    switch (error.code) {
+      case 'ERR_PINNED_MESSAGES_LIMIT_EXCEEDED':
+        return Translations.of(context).pinLimitReachedToast(
+          limit ?? CometChat.getPinnedMessagesLimit() ?? 100,
+        );
+      case 'ERR_SAVED_MESSAGES_LIMIT_EXCEEDED':
+        return Translations.of(context).saveLimitReachedToast(
+          limit ?? CometChat.getSavedMessagesLimit() ?? 100,
+        );
+      case 'ERR_UNAUTHORIZED':
+      case 'ERR_FORBIDDEN':
+      case 'ERR_PERMISSION_DENIED':
+        return Translations.of(context).actionPermissionDenied;
+      default:
+        return Translations.of(context).pinSaveFailed;
+    }
+  }
+
+  /// Handle the Pin/Unpin message action: SDK call → toast + kit event.
+  ///
+  /// No confirmation step — pin is cheap and reversible from the same menu,
+  /// so a modal only adds a tap. The row itself updates through the SDK
+  /// listener fan-out (the pin events carry the full updated message into
+  /// the bloc's edit path), so no direct list mutation happens here.
+  Future<void> _handlePinToggle(
+    BaseMessage message, {
+    required bool pin,
+  }) async {
+    if (!mounted || message.id == 0 || _pinSaveInFlight.contains(message.id)) {
+      return;
+    }
+
+    _pinSaveInFlight.add(message.id);
+    try {
+      final updated = pin
+          ? await CometChat.pinMessage(
+              message.id,
+              onSuccess: null,
+              onError: (error) {
+                if (mounted) _showThreadToast(_pinSaveErrorText(error));
+              },
+            )
+          : await CometChat.unpinMessage(
+              message.id,
+              onSuccess: null,
+              onError: (error) {
+                if (mounted) _showThreadToast(_pinSaveErrorText(error));
+              },
+            );
+      if (updated != null) {
+        if (pin) {
+          CometChatMessageEvents.ccMessagePinned(updated);
+        } else {
+          CometChatMessageEvents.ccMessageUnpinned(updated);
+        }
+        if (mounted) {
+          _showThreadToast(
+            pin
+                ? Translations.of(context).messagePinnedToast
+                : Translations.of(context).messageUnpinnedToast,
+          );
+        }
+      }
+    } finally {
+      _pinSaveInFlight.remove(message.id);
+    }
+  }
+
+  /// Handle the Save/Unsave message action — same shape as the pin flow,
+  /// likewise unconfirmed; saves are private to the logged-in user.
+  Future<void> _handleSaveToggle(
+    BaseMessage message, {
+    required bool save,
+  }) async {
+    if (!mounted || message.id == 0 || _pinSaveInFlight.contains(message.id)) {
+      return;
+    }
+
+    _pinSaveInFlight.add(message.id);
+    try {
+      final updated = save
+          ? await CometChat.saveMessage(
+              message.id,
+              onSuccess: null,
+              onError: (error) {
+                if (mounted) _showThreadToast(_pinSaveErrorText(error));
+              },
+            )
+          : await CometChat.unsaveMessage(
+              message.id,
+              onSuccess: null,
+              onError: (error) {
+                if (mounted) _showThreadToast(_pinSaveErrorText(error));
+              },
+            );
+      if (updated != null) {
+        if (save) {
+          CometChatMessageEvents.ccMessageSaved(updated);
+        } else {
+          CometChatMessageEvents.ccMessageUnsaved(updated);
+        }
+        if (mounted) {
+          _showThreadToast(
+            save
+                ? Translations.of(context).messageSavedToast
+                : Translations.of(context).messageUnsavedToast,
+          );
+        }
+      }
+    } finally {
+      _pinSaveInFlight.remove(message.id);
+    }
   }
 
   /// Handle copy message action
@@ -3324,6 +3723,7 @@ class _MessageHoverActions extends StatefulWidget {
     required this.mainAxisAlignment,
     this.iconColor,
     this.backgroundColor,
+    this.centerNudge = 0,
   });
 
   final Widget bubble;
@@ -3333,6 +3733,12 @@ class _MessageHoverActions extends StatefulWidget {
   final MainAxisAlignment mainAxisAlignment;
   final Color? iconColor;
   final Color? backgroundColor;
+
+  /// Vertical nudge (px) applied to the ⋯ button. The hover row centers
+  /// against the whole message composite; when a sender-name header renders
+  /// above the visible bubble, passing half the header height here re-centers
+  /// the button on the bubble itself.
+  final double centerNudge;
 
   @override
   State<_MessageHoverActions> createState() => _MessageHoverActionsState();
@@ -3351,12 +3757,15 @@ class _MessageHoverActionsState extends State<_MessageHoverActions> {
     }
 
     // Fades in on hover but keeps its footprint (so the bubble never shifts).
-    final button = AnimatedOpacity(
-      opacity: _hovering ? 1 : 0,
-      duration: const Duration(milliseconds: 120),
-      child: IgnorePointer(ignoring: !_hovering, child: _moreButton()),
+    final button = Transform.translate(
+      offset: Offset(0, widget.centerNudge),
+      child: AnimatedOpacity(
+        opacity: _hovering ? 1 : 0,
+        duration: const Duration(milliseconds: 120),
+        child: IgnorePointer(ignoring: !_hovering, child: _moreButton()),
+      ),
     );
-    const gap = SizedBox(width: 4);
+    const gap = SizedBox(width: 2);
     final bubble = Flexible(child: widget.bubble);
 
     return MouseRegion(

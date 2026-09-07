@@ -59,6 +59,20 @@ class ParticipantListChanged extends OngoingCallEvent {
   List<Object?> get props => [participants];
 }
 
+/// A participant left the session (from V5 SDK callback)
+///
+/// Mirrors the v5 UIKit, which decided the 1-on-1 teardown in `onUserLeft`
+/// rather than on a list update: a leave event inherently implies the peer
+/// had joined, so no "has the peer joined yet" latch is needed.
+class ParticipantLeft extends OngoingCallEvent {
+  final Participant participant;
+
+  const ParticipantLeft(this.participant);
+
+  @override
+  List<Object?> get props => [participant];
+}
+
 /// Calling widget received from SDK
 class CallingWidgetReceived extends OngoingCallEvent {
   final dynamic widget;

@@ -1,3 +1,18 @@
+# 6.1.1
+
+## New
+- Added pinned and saved messages, making it easier to highlight important messages and save messages for later.
+- Added thread subscriptions, allowing users to manage notifications for specific conversation threads.
+- Added conversation pinning to help keep important conversations easily accessible.
+
+## Enhancements
+- Improved the conversation action menu for a better and more consistent experience.
+
+## Fixes
+- Fixed an issue where the call screen remained open after the other participant ended the call.
+- Fixed an issue where one-to-one calls could remain active when the other participant unexpectedly left the app.
+- Fixed an issue where some components did not update correctly when switching between light and dark themes.
+
 # 6.1.0
 
 ## New

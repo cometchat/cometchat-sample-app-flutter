@@ -322,8 +322,9 @@ class _AudioRowState extends State<_AudioRow> {
   /// Restores an earlier download so the row shows play + duration right away.
   Future<void> _restoreDownloaded() async {
     if (kIsWeb) return;
-    final p =
-        await platform_file.getDownloadedFilePath(widget.attachment.fileName);
+    final p = await platform_file.getDownloadedFilePath(
+      widget.attachment.fileName,
+    );
     // A mismatched (non-audio) file renders as a file card — never initialise a
     // player for it, even if a copy is already on the device.
     if (p == null || !mounted || _isMismatch) return;
@@ -508,7 +509,9 @@ class _AudioRowState extends State<_AudioRow> {
   /// Lower-cased extension from the file name (falling back to `fileExtension`).
   String _ext() {
     final n = widget.attachment.fileName;
-    final e = n.contains('.') ? n.split('.').last : widget.attachment.fileExtension;
+    final e = n.contains('.')
+        ? n.split('.').last
+        : widget.attachment.fileExtension;
     return e.toLowerCase();
   }
 
@@ -593,41 +596,43 @@ class _AudioRowState extends State<_AudioRow> {
               mimeType: widget.attachment.fileMimeType,
               size: 36,
             ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              widget.attachment.fileName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: mainColor,
-              ).merge(style?.nameTextStyle),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                widget.attachment.fileName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: mainColor,
+                ).merge(style?.nameTextStyle),
+              ),
             ),
-          ),
-          if (_showDownload)
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-              tooltip: Translations.of(context).download,
-              icon: _busy
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(downloadColor),
+            if (_showDownload)
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                tooltip: Translations.of(context).download,
+                icon: _busy
+                    ? SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            downloadColor,
+                          ),
+                        ),
+                      )
+                    : Icon(
+                        Icons.file_download_outlined,
+                        color: downloadColor,
+                        size: 22,
                       ),
-                    )
-                  : Icon(
-                      Icons.file_download_outlined,
-                      color: downloadColor,
-                      size: 22,
-                    ),
-              onPressed: _busy ? null : _onDownloadTap,
-            ),
+                onPressed: _busy ? null : _onDownloadTap,
+              ),
           ],
         ),
       ),

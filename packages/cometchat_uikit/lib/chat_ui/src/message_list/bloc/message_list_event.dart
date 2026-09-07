@@ -76,6 +76,25 @@ class MessageEdited extends MessageListEvent {
   List<Object?> get props => [message];
 }
 
+/// Pin & Save: a pin/unpin/save/unsave landed on a message in this list.
+///
+/// Kept apart from [MessageEdited] because these payloads only speak for
+/// their own feature: a pin frame carries no savedAt, so replacing the row
+/// wholesale would silently clear the reader's save (and vice versa). The
+/// handler merges instead, preserving the flags the event does not own.
+class MessagePinSaveChanged extends MessageListEvent {
+  final BaseMessage message;
+
+  /// True for pin/unpin (preserve the row's save state), false for
+  /// save/unsave (preserve its pin state).
+  final bool isPinScope;
+
+  const MessagePinSaveChanged(this.message, {required this.isPinScope});
+
+  @override
+  List<Object?> get props => [message, isPinScope];
+}
+
 /// Handle message deletion from SDK listener
 class MessageDeleted extends MessageListEvent {
   final BaseMessage message;

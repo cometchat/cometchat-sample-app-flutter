@@ -404,6 +404,135 @@ class TranslationsLt extends Translations {
   String get replyInThread => 'Atsakyti temoje';
 
   @override
+  String get threadMute => 'Atsisakyti gijos prenumeratos';
+
+  @override
+  String get threadUnmute => 'Prenumeruoti giją';
+
+  @override
+  String get messageListOptionStopReplyNotifications =>
+      'Atsisakyti gijos prenumeratos';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'Prenumeruoti giją';
+
+  @override
+  String get threadMutedToast =>
+      'Prenumeratos atsisakyta. Pranešimai išjungti, kol neatsakysite arba nebūsite paminėti.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Užprenumeruota. Būsite informuoti apie naujus atsakymus šioje gijoje.';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'Nepavyko atnaujinti. Bandykite dar kartą.';
+
+  @override
+  String get threadUnavailable => 'Nebeturite prieigos prie šios gijos.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Prisegti žinutę';
+
+  @override
+  String get unpinMessageOption => 'Atsegti žinutę';
+
+  @override
+  String get saveMessageOption => 'Išsaugoti žinutę';
+
+  @override
+  String get unsaveMessageOption => 'Pašalinti iš išsaugotų';
+
+  @override
+  String get pinConfirmTitle => 'Prisegti žinutę?';
+
+  @override
+  String get pinConfirmMessage =>
+      'Ši žinutė bus prisegta šiame pokalbyje visiems.';
+
+  @override
+  String get unpinConfirmTitle => 'Atsegti žinutę?';
+
+  @override
+  String get unpinConfirmMessage => 'Ši žinutė nebebus prisegta visiems.';
+
+  @override
+  String get saveConfirmTitle => 'Išsaugoti žinutę?';
+
+  @override
+  String get saveConfirmMessage =>
+      'Ši žinutė bus pridėta prie jūsų išsaugotų žinučių.';
+
+  @override
+  String get unsaveConfirmTitle => 'Pašalinti žinutę iš išsaugotų?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'Ši žinutė bus pašalinta iš jūsų išsaugotų žinučių.';
+
+  @override
+  String get pinButton => 'Prisegti';
+
+  @override
+  String get unpinButton => 'Atsegti';
+
+  @override
+  String get saveButton => 'Išsaugoti';
+
+  @override
+  String get unsaveButton => 'Pašalinti';
+
+  @override
+  String get messagePinnedToast => 'Žinutė prisegta';
+
+  @override
+  String get messageUnpinnedToast => 'Žinutė atsegta';
+
+  @override
+  String get messageSavedToast => 'Žinutė išsaugota';
+
+  @override
+  String get messageUnsavedToast => 'Žinutė pašalinta iš išsaugotų';
+
+  @override
+  String get pinnedMessagesTitle => 'Prisegtos žinutės';
+
+  @override
+  String get savedMessagesTitle => 'Išsaugotos žinutės';
+
+  @override
+  String get noPinnedMessages => 'Prisegtų žinučių kol kas nėra';
+
+  @override
+  String get noSavedMessages => 'Išsaugotų žinučių kol kas nėra';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'Galite prisegti tik $limit žinučių. Atsekite vieną, kad prisegtumėte kitą.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'Galite išsaugoti tik $limit žinučių. Pašalinkite vieną, kad išsaugotumėte kitą.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'Galite prisegti tik $limit pokalbių. Atsekite vieną, kad prisegtumėte kitą.';
+
+  @override
+  String get actionPermissionDenied => 'Neturite leidimo atlikti šį veiksmą.';
+
+  @override
+  String get pinSaveFailed => 'Nepavyko atnaujinti. Bandykite dar kartą.';
+
+  @override
+  String get conversationPinnedToast => 'Pokalbis prisegtas';
+
+  @override
+  String get conversationUnpinnedToast => 'Pokalbis atsegtas';
+
+  @override
   String get deleteMessage => 'Ištrinti pranešimą';
 
   @override

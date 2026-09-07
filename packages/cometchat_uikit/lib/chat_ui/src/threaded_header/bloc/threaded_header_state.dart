@@ -42,6 +42,11 @@ class ThreadedHeaderState extends Equatable {
   /// Error message when status is error
   final String? errorMessage;
 
+  /// Whether the logged-in user follows this thread. Read off the parent
+  /// message (stateless redesign); `false` renders as the un-followed
+  /// affordance, enabled — never a spinner or a disabled control.
+  final bool threadSubscribed;
+
   const ThreadedHeaderState({
     this.status = ThreadedHeaderStatus.initial,
     this.parentMessage,
@@ -50,6 +55,7 @@ class ThreadedHeaderState extends Equatable {
     this.user,
     this.group,
     this.errorMessage,
+    this.threadSubscribed = false,
   });
 
   /// Returns true if the state has an error
@@ -64,6 +70,7 @@ class ThreadedHeaderState extends Equatable {
     User? user,
     Group? group,
     String? errorMessage,
+    bool? threadSubscribed,
   }) {
     return ThreadedHeaderState(
       status: status ?? this.status,
@@ -73,6 +80,7 @@ class ThreadedHeaderState extends Equatable {
       user: user ?? this.user,
       group: group ?? this.group,
       errorMessage: errorMessage ?? this.errorMessage,
+      threadSubscribed: threadSubscribed ?? this.threadSubscribed,
     );
   }
 
@@ -85,5 +93,6 @@ class ThreadedHeaderState extends Equatable {
     user,
     group,
     errorMessage,
+    threadSubscribed,
   ];
 }

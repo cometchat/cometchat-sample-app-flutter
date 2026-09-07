@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../cometchat_chat_uikit.dart';
 import '../../../../cometchat_chat_uikit.dart' as cc;
+import '../../../../shared_ui/src/clean_architecture/core/utils/thread_toast.dart';
 
 /// [CometChatThreadedHeader] is a widget that displays a parent message
 /// and its reply count in a threaded conversation view.
@@ -28,6 +29,8 @@ class CometChatThreadedHeader extends StatefulWidget {
     this.height,
     this.width,
     this.receiptsVisibility = true,
+    this.threadSubscriptionVisibility = true,
+    this.onThreadSubscriptionChange,
     this.textFormatters,
     // Optional pre-cached theme values for optimization
     this.colorPalette,
@@ -58,6 +61,19 @@ class CometChatThreadedHeader extends StatefulWidget {
 
   /// [receiptsVisibility] controls visibility of receipts
   final bool? receiptsVisibility;
+
+  /// [threadSubscriptionVisibility] controls visibility of the follow/unfollow
+  /// control in the reply-count row. Only takes effect when the
+  /// thread-subscription feature gate ([UIKitSettings.enableThreadSubscription])
+  /// is on — with the gate off the control never renders regardless of this
+  /// flag. [messageActionView] keeps winning as the full-replacement escape
+  /// hatch: when it is set, the built-in control (and this flag) is bypassed.
+  final bool? threadSubscriptionVisibility;
+
+  /// [onThreadSubscriptionChange] called after the follow/unfollow toggle
+  /// succeeds, with the parent message id and the new subscribed state.
+  final Function(int parentMessageId, bool subscribed)?
+  onThreadSubscriptionChange;
 
   /// [textFormatters] list of text formatters. null = use defaults, empty = no formatters
   final List<CometChatTextFormatter>? textFormatters;
@@ -150,7 +166,7 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
     super.didChangeDependencies();
 
     // Only initialize theme once to avoid expensive lookups during rebuilds
-    final currentBrightness = MediaQuery.platformBrightnessOf(context);
+    final currentBrightness = CometChatThemeHelper.getBrightness(context);
     final brightnessChanged =
         _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
@@ -215,8 +231,118 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
     super.dispose();
   }
 
+  /// Debounce + one-in-flight guard for the follow toggle (§7.6): no queue,
+  /// no retry, no persistence — a failed toggle reverts visibly.
+  bool _subscriptionToggleInFlight = false;
+  DateTime? _lastSubscriptionToggleAt;
+
+  static const Duration _toggleDebounce = Duration(milliseconds: 400);
+
+  /// Whether the follow control should render: feature gate on (default off)
+  /// AND the per-component visibility flag not disabled.
+  bool get _showThreadSubscriptionControl =>
+      CometChatUIKit.authenticationSettings?.enableThreadSubscription == true &&
+      widget.threadSubscriptionVisibility != false;
+
+  /// Shows one of the thread toasts as a dark pill centered within the
+  /// enclosing chat/thread panel (the right-hand panel in a web side-by-side
+  /// layout), floating above the composer.
+  void _showThreadToast(String text) {
+    if (!mounted) return;
+    CometChatThreadToast.show(context, text);
+  }
+
+  /// Handle a tap on the mute/unmute control: optimistic flip, then the
+  /// idempotent SDK call; revert + failure snackbar on error.
+  Future<void> _onThreadSubscriptionTap(bool wasSubscribed) async {
+    final now = DateTime.now();
+    if (_subscriptionToggleInFlight) return;
+    if (_lastSubscriptionToggleAt != null &&
+        now.difference(_lastSubscriptionToggleAt!) < _toggleDebounce) {
+      return;
+    }
+    _lastSubscriptionToggleAt = now;
+    _subscriptionToggleInFlight = true;
+
+    final parentMessageId = widget.parentMessage.id;
+    final target = !wasSubscribed;
+
+    // Optimistic flip — the bloc stamps the parent message object; the
+    // server call below is the acknowledgement (stateless redesign).
+    _bloc.add(UpdateThreadSubscription(target));
+
+    try {
+      final result = target
+          ? await CometChat.subscribeToThread(parentMessageId)
+          : await CometChat.unsubscribeFromThread(parentMessageId);
+
+      if (result != null) {
+        // Keep the action-sheet surface (and integrator lists) in agreement.
+        CometChatMessageEvents.ccThreadSubscriptionChanged(
+          parentMessageId,
+          target,
+        );
+        widget.onThreadSubscriptionChange?.call(parentMessageId, target);
+        if (mounted) {
+          _showThreadToast(
+            target
+                ? cc.Translations.of(context).threadUnmutedToast
+                : cc.Translations.of(context).threadMutedToast,
+          );
+        }
+      } else {
+        if (!_bloc.isClosed) {
+          _bloc.add(UpdateThreadSubscription(wasSubscribed));
+        }
+        if (mounted) {
+          _showThreadToast(
+            cc.Translations.of(context).threadSubscriptionFailed,
+          );
+        }
+      }
+    } finally {
+      _subscriptionToggleInFlight = false;
+    }
+  }
+
+  /// Build the mute/unmute control. Action-labelled per the landed design:
+  /// bell + "Mute thread" while notifications are on, bell-off +
+  /// "Unmute thread" while muted. An un-told state reads `false` and renders
+  /// as the muted affordance, enabled — an unnecessary subscribe is harmless
+  /// (idempotent endpoint). IconButton supplies the ≥40dp target,
+  /// ripple/hover, cursor, tooltip and the accessible name in one widget
+  /// (no manual Semantics — it would double-announce).
+  Widget _buildThreadSubscriptionControl(
+    bool isSubscribed,
+    BuildContext context,
+  ) {
+    final label = isSubscribed
+        ? cc.Translations.of(context).threadMute
+        : cc.Translations.of(context).threadUnmute;
+
+    return IconButton(
+      onPressed: () => _onThreadSubscriptionTap(isSubscribed),
+      tooltip: label,
+      iconSize: 20,
+      visualDensity: VisualDensity.compact,
+      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+      padding: EdgeInsets.zero,
+      icon: Icon(
+        isSubscribed
+            ? Icons.notifications_outlined
+            : Icons.notifications_off_outlined,
+        color:
+            _threadedHeaderStyle.countTextColor ?? _colorPalette.iconSecondary,
+      ),
+    );
+  }
+
   /// Build the action view showing reply count
-  Widget _buildActionView(int replyCount, BuildContext context) {
+  Widget _buildActionView(
+    int replyCount,
+    bool threadSubscribed,
+    BuildContext context,
+  ) {
     if (widget.messageActionView != null) {
       return widget.messageActionView!(widget.parentMessage, context);
     }
@@ -241,19 +367,27 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
         vertical: _spacing.padding1 ?? 0,
         horizontal: _spacing.padding4 ?? 0,
       ),
-      child: Text(
-        "$replyCount ${replyCount > 1 ? cc.Translations.of(context).replies : cc.Translations.of(context).reply}",
-        style:
-            TextStyle(
-                  color:
-                      _threadedHeaderStyle.countTextColor ??
-                      _colorPalette.textSecondary,
-                  fontSize: _typography.body?.regular?.fontSize,
-                  fontFamily: _typography.body?.regular?.fontFamily,
-                  fontWeight: _typography.body?.regular?.fontWeight,
-                )
-                .merge(_threadedHeaderStyle.countTextStyle)
-                .copyWith(color: _threadedHeaderStyle.countTextColor),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              "$replyCount ${replyCount > 1 ? cc.Translations.of(context).replies : cc.Translations.of(context).reply}",
+              style:
+                  TextStyle(
+                        color:
+                            _threadedHeaderStyle.countTextColor ??
+                            _colorPalette.textSecondary,
+                        fontSize: _typography.body?.regular?.fontSize,
+                        fontFamily: _typography.body?.regular?.fontFamily,
+                        fontWeight: _typography.body?.regular?.fontWeight,
+                      )
+                      .merge(_threadedHeaderStyle.countTextStyle)
+                      .copyWith(color: _threadedHeaderStyle.countTextColor),
+            ),
+          ),
+          if (_showThreadSubscriptionControl)
+            _buildThreadSubscriptionControl(threadSubscribed, context),
+        ],
       ),
     );
   }
@@ -296,35 +430,44 @@ class _CometChatThreadedHeaderState extends State<CometChatThreadedHeader> {
 
         // Use cached screen height instead of MediaQuery.sizeOf(context)
         // to avoid subscribing to MediaQuery changes during keyboard animation
-        final maxHeight = _cachedScreenHeight * 0.30;
+        final maxHeight = widget.height ?? _cachedScreenHeight * 0.30;
+        final minHeight = (_cachedScreenHeight * 0.10)
+            .clamp(0.0, maxHeight)
+            .toDouble();
 
         return Container(
           width: widget.width ?? double.infinity,
           constraints:
               _threadedHeaderStyle.constraints ??
-              BoxConstraints(maxHeight: widget.height ?? maxHeight),
-          child: Column(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color:
-                        _threadedHeaderStyle.bubbleContainerBackGroundColor ??
-                        _colorPalette.background3,
-                    borderRadius:
-                        _threadedHeaderStyle.bubbleContainerBorderRadius,
-                    border: _threadedHeaderStyle.bubbleContainerBorder,
-                  ),
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: _spacing.padding4 ?? 0),
-                      child: IgnorePointer(child: _cachedBubble),
+              BoxConstraints(minHeight: minHeight, maxHeight: maxHeight),
+          // The preview sizes to its content, clamped between 10% and 30%
+          // of screen (10:90 floor, 30:70 ceiling). IntrinsicHeight makes
+          // the clamp content-aware; Expanded hands any floor-forced extra
+          // space to the bubble area rather than leaving a dead strip.
+          child: IntrinsicHeight(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color:
+                          _threadedHeaderStyle.bubbleContainerBackGroundColor ??
+                          _colorPalette.background3,
+                      borderRadius:
+                          _threadedHeaderStyle.bubbleContainerBorderRadius,
+                      border: _threadedHeaderStyle.bubbleContainerBorder,
+                    ),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: _spacing.padding4 ?? 0),
+                        child: IgnorePointer(child: _cachedBubble),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              _buildActionView(replyCount, context),
-            ],
+                _buildActionView(replyCount, state.threadSubscribed, context),
+              ],
+            ),
           ),
         );
       },

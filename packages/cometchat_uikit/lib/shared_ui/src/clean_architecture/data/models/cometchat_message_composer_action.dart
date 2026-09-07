@@ -28,6 +28,7 @@ class CometChatMessageComposerAction {
     this.icon,
     this.style,
     this.onItemClick,
+    this.onToolbarTap,
   });
 
   ///[id] is an unique id for this message composer action
@@ -44,6 +45,19 @@ class CometChatMessageComposerAction {
 
   ///[onItemClick] executes some task when this message composer action is selected
   final Function(BuildContext, User?, Group?)? onItemClick;
+
+  ///[onToolbarTap] executes when this action is tapped from the rich-text
+  ///toolbar's trailing slot (Trailing Toolbar Buttons DD §3.4). Receives the
+  ///live text controller — a [RichTextEditingController] when rich text is
+  ///enabled, so the handler can read `text`/`selection` and call
+  ///`applyFormat`/`applyInlineStyle` (same contract as `richTextToolbarView`).
+  ///
+  ///Surface split: the rich-text toolbar fires ONLY this callback (it
+  ///ignores [onItemClick] and [style]); the attachment sheet fires ONLY
+  ///[onItemClick] (it ignores this). Set the one matching where the action
+  ///is used.
+  final void Function(BuildContext context, TextEditingController controller)?
+  onToolbarTap;
 
   @override
   String toString() {

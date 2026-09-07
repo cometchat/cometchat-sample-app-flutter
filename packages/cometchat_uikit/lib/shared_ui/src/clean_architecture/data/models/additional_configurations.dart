@@ -88,6 +88,11 @@ class AdditionalConfigurations {
     this.hideMessageInfoOption,
     this.hideTranslateMessageOption,
     this.hideReplyInThreadOption,
+    this.hideThreadSubscriptionOption,
+    this.hidePinMessageOption,
+    this.hideUnpinMessageOption,
+    this.hideSaveMessageOption,
+    this.hideUnsaveMessageOption,
     this.hideReplyOption,
     this.hideShareMessageOption,
     this.showMarkAsUnreadOption,
@@ -206,6 +211,32 @@ class AdditionalConfigurations {
 
   ///[hideReplyInThreadOption] This prop defines whether Reply In Thread option should be visible or not.
   final bool? hideReplyInThreadOption;
+
+  ///[hideThreadSubscriptionOption] This prop defines whether the Follow/Unfollow
+  ///thread option should be visible or not. Only takes effect when the
+  ///thread-subscription feature gate ([UIKitSettings.enableThreadSubscription])
+  ///is enabled; with the gate off the option never renders.
+  final bool? hideThreadSubscriptionOption;
+
+  ///[hidePinMessageOption] This prop defines whether the Pin message option
+  ///should be visible or not (renders only while the message is unpinned and
+  ///the server Pin feature flag is enabled).
+  final bool? hidePinMessageOption;
+
+  ///[hideUnpinMessageOption] This prop defines whether the Unpin message
+  ///option should be visible or not (renders only while the message is
+  ///pinned).
+  final bool? hideUnpinMessageOption;
+
+  ///[hideSaveMessageOption] This prop defines whether the Save message option
+  ///should be visible or not (renders only while the message is unsaved and
+  ///the server Save feature flag is enabled).
+  final bool? hideSaveMessageOption;
+
+  ///[hideUnsaveMessageOption] This prop defines whether the Unsave message
+  ///option should be visible or not (renders only while the message is
+  ///saved).
+  final bool? hideUnsaveMessageOption;
 
   ///[hideReplyOption] This prop defines whether the inline Reply option should be visible or not.
   final bool? hideReplyOption;

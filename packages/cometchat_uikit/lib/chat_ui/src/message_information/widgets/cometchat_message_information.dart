@@ -138,7 +138,7 @@ class _CometChatMessageInformationState
 
     // Only initialize theme once to avoid expensive lookups during rebuilds
     // **Requirements: 6.1, 6.2**
-    final currentBrightness = MediaQuery.platformBrightnessOf(context);
+    final currentBrightness = CometChatThemeHelper.getBrightness(context);
     final brightnessChanged =
         _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {

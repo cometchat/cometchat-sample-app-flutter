@@ -707,7 +707,29 @@ class CometChatConversationListItem extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6.5),
-          Flexible(child: _buildUnreadBadge(effectiveStyle)),
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Pin Conversation indicator — beside the unread badge, shown
+                // whenever the conversation carries a pin, regardless of who
+                // placed it (a self pin or an admin/app_system pin).
+                if (conversation.pinnedBy != null)
+                  Padding(
+                    padding: EdgeInsets.only(
+                      right: effectiveSpacing.padding1 ?? 4,
+                    ),
+                    child: Icon(
+                      Icons.push_pin,
+                      size:
+                          effectiveTypography.caption1?.regular?.fontSize ?? 12,
+                      color: effectiveColorPalette.iconSecondary,
+                    ),
+                  ),
+                Flexible(child: _buildUnreadBadge(effectiveStyle)),
+              ],
+            ),
+          ),
         ],
       ),
     );

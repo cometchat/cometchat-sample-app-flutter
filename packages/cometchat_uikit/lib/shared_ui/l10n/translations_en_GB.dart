@@ -405,6 +405,136 @@ class TranslationsEnGb extends Translations {
   String get replyInThread => 'Reply in thread';
 
   @override
+  String get threadMute => 'Unsubscribe from thread';
+
+  @override
+  String get threadUnmute => 'Subscribe to thread';
+
+  @override
+  String get messageListOptionStopReplyNotifications =>
+      'Unsubscribe from thread';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'Subscribe to thread';
+
+  @override
+  String get threadMutedToast =>
+      'Unsubscribed. Notifications are off until you reply or are mentioned.';
+
+  @override
+  String get threadUnmutedToast =>
+      'Subscribed. You\'ll be notified about new replies in this thread.';
+
+  @override
+  String get threadSubscriptionFailed => 'Couldn\'t update. Please try again.';
+
+  @override
+  String get threadUnavailable => 'You no longer have access to this thread.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'Pin message';
+
+  @override
+  String get unpinMessageOption => 'Unpin message';
+
+  @override
+  String get saveMessageOption => 'Save message';
+
+  @override
+  String get unsaveMessageOption => 'Unsave message';
+
+  @override
+  String get pinConfirmTitle => 'Pin message?';
+
+  @override
+  String get pinConfirmMessage =>
+      'This message will be pinned to this conversation for everyone.';
+
+  @override
+  String get unpinConfirmTitle => 'Unpin message?';
+
+  @override
+  String get unpinConfirmMessage =>
+      'This message will no longer be pinned for everyone.';
+
+  @override
+  String get saveConfirmTitle => 'Save message?';
+
+  @override
+  String get saveConfirmMessage =>
+      'This message will be added to your saved messages.';
+
+  @override
+  String get unsaveConfirmTitle => 'Unsave message?';
+
+  @override
+  String get unsaveConfirmMessage =>
+      'This message will be removed from your saved messages.';
+
+  @override
+  String get pinButton => 'Pin';
+
+  @override
+  String get unpinButton => 'Unpin';
+
+  @override
+  String get saveButton => 'Save';
+
+  @override
+  String get unsaveButton => 'Unsave';
+
+  @override
+  String get messagePinnedToast => 'Message pinned';
+
+  @override
+  String get messageUnpinnedToast => 'Message unpinned';
+
+  @override
+  String get messageSavedToast => 'Message saved';
+
+  @override
+  String get messageUnsavedToast => 'Message unsaved';
+
+  @override
+  String get pinnedMessagesTitle => 'Pinned Messages';
+
+  @override
+  String get savedMessagesTitle => 'Saved Messages';
+
+  @override
+  String get noPinnedMessages => 'No pinned messages yet';
+
+  @override
+  String get noSavedMessages => 'No saved messages yet';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'You can only pin $limit messages. Unpin one to pin another.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'You can only save $limit messages. Unsave one to save another.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'You can only pin $limit chats. Unpin one to pin another.';
+
+  @override
+  String get actionPermissionDenied =>
+      'You don\'t have permission to perform this action.';
+
+  @override
+  String get pinSaveFailed => 'Couldn\'t update. Please try again.';
+
+  @override
+  String get conversationPinnedToast => 'Conversation pinned';
+
+  @override
+  String get conversationUnpinnedToast => 'Conversation unpinned';
+
+  @override
   String get deleteMessage => 'Delete message';
 
   @override

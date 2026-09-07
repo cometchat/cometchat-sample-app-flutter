@@ -98,7 +98,26 @@ class ConversationsTrailingView extends StatelessWidget {
         children: [
           Flexible(child: _getTime(context)),
           const SizedBox(height: 6.5),
-          Flexible(child: _getUnreadCount(context)),
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Pin Conversation indicator — beside the unread badge, shown
+                // whenever the conversation carries a pin, regardless of who
+                // placed it (a self pin or an admin/app_system pin).
+                if (conversation.pinnedBy != null)
+                  Padding(
+                    padding: EdgeInsets.only(right: spacing.padding1 ?? 4),
+                    child: Icon(
+                      Icons.push_pin,
+                      size: typography.caption1?.regular?.fontSize ?? 12,
+                      color: colorPalette.iconSecondary,
+                    ),
+                  ),
+                Flexible(child: _getUnreadCount(context)),
+              ],
+            ),
+          ),
         ],
       ),
     );

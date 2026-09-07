@@ -401,6 +401,128 @@ class TranslationsZh extends Translations {
   String get replyInThread => '在话题中回复';
 
   @override
+  String get threadMute => '取消订阅话题';
+
+  @override
+  String get threadUnmute => '订阅话题';
+
+  @override
+  String get messageListOptionStopReplyNotifications => '取消订阅话题';
+
+  @override
+  String get messageListOptionGetReplyNotifications => '订阅话题';
+
+  @override
+  String get threadMutedToast => '已取消订阅。在你回复或被提及之前，通知处于关闭状态。';
+
+  @override
+  String get threadUnmutedToast => '已订阅。此话题有新回复时会通知你。';
+
+  @override
+  String get threadSubscriptionFailed => '无法更新，请重试。';
+
+  @override
+  String get threadUnavailable => '你已无法访问此话题。';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => '置顶消息';
+
+  @override
+  String get unpinMessageOption => '取消置顶';
+
+  @override
+  String get saveMessageOption => '收藏消息';
+
+  @override
+  String get unsaveMessageOption => '取消收藏';
+
+  @override
+  String get pinConfirmTitle => '置顶这条消息？';
+
+  @override
+  String get pinConfirmMessage => '这条消息将为此对话中的所有人置顶。';
+
+  @override
+  String get unpinConfirmTitle => '取消置顶？';
+
+  @override
+  String get unpinConfirmMessage => '这条消息将不再为所有人置顶。';
+
+  @override
+  String get saveConfirmTitle => '收藏这条消息？';
+
+  @override
+  String get saveConfirmMessage => '这条消息将添加到你的收藏消息中。';
+
+  @override
+  String get unsaveConfirmTitle => '取消收藏？';
+
+  @override
+  String get unsaveConfirmMessage => '这条消息将从你的收藏消息中移除。';
+
+  @override
+  String get pinButton => '置顶';
+
+  @override
+  String get unpinButton => '取消置顶';
+
+  @override
+  String get saveButton => '收藏';
+
+  @override
+  String get unsaveButton => '移除';
+
+  @override
+  String get messagePinnedToast => '消息已置顶';
+
+  @override
+  String get messageUnpinnedToast => '已取消置顶';
+
+  @override
+  String get messageSavedToast => '消息已收藏';
+
+  @override
+  String get messageUnsavedToast => '已取消收藏';
+
+  @override
+  String get pinnedMessagesTitle => '置顶消息';
+
+  @override
+  String get savedMessagesTitle => '收藏的消息';
+
+  @override
+  String get noPinnedMessages => '暂无置顶消息';
+
+  @override
+  String get noSavedMessages => '暂无收藏消息';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      '最多只能置顶 $limit 条消息。取消置顶一条后即可置顶其他消息。';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      '最多只能收藏 $limit 条消息。取消收藏一条后即可收藏其他消息。';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      '最多只能置顶 $limit 个会话。取消置顶一个后即可置顶其他会话。';
+
+  @override
+  String get actionPermissionDenied => '你没有执行此操作的权限。';
+
+  @override
+  String get pinSaveFailed => '无法更新，请重试。';
+
+  @override
+  String get conversationPinnedToast => '会话已置顶';
+
+  @override
+  String get conversationUnpinnedToast => '已取消会话置顶';
+
+  @override
   String get deleteMessage => '删除消息';
 
   @override
@@ -1741,6 +1863,128 @@ class TranslationsZhTw extends TranslationsZh {
 
   @override
   String get replyInThread => '在執行緒中回覆';
+
+  @override
+  String get threadMute => '靜音討論串';
+
+  @override
+  String get threadUnmute => '取消靜音討論串';
+
+  @override
+  String get messageListOptionStopReplyNotifications => '停止回覆通知';
+
+  @override
+  String get messageListOptionGetReplyNotifications => '有回覆時通知我';
+
+  @override
+  String get threadMutedToast => '你將不會收到此討論串新回覆的通知。';
+
+  @override
+  String get threadUnmutedToast => '你將收到此討論串新回覆的通知。';
+
+  @override
+  String get threadSubscriptionFailed => '無法更新，請重試。';
+
+  @override
+  String get threadUnavailable => '你已無法存取此討論串。';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => '釘選訊息';
+
+  @override
+  String get unpinMessageOption => '取消釘選';
+
+  @override
+  String get saveMessageOption => '收藏訊息';
+
+  @override
+  String get unsaveMessageOption => '取消收藏';
+
+  @override
+  String get pinConfirmTitle => '釘選這則訊息？';
+
+  @override
+  String get pinConfirmMessage => '這則訊息將為此對話中的所有人釘選。';
+
+  @override
+  String get unpinConfirmTitle => '取消釘選？';
+
+  @override
+  String get unpinConfirmMessage => '這則訊息將不再為所有人釘選。';
+
+  @override
+  String get saveConfirmTitle => '收藏這則訊息？';
+
+  @override
+  String get saveConfirmMessage => '這則訊息將加入你的收藏訊息。';
+
+  @override
+  String get unsaveConfirmTitle => '取消收藏？';
+
+  @override
+  String get unsaveConfirmMessage => '這則訊息將從你的收藏訊息中移除。';
+
+  @override
+  String get pinButton => '釘選';
+
+  @override
+  String get unpinButton => '取消釘選';
+
+  @override
+  String get saveButton => '收藏';
+
+  @override
+  String get unsaveButton => '移除';
+
+  @override
+  String get messagePinnedToast => '訊息已釘選';
+
+  @override
+  String get messageUnpinnedToast => '已取消釘選';
+
+  @override
+  String get messageSavedToast => '訊息已收藏';
+
+  @override
+  String get messageUnsavedToast => '已取消收藏';
+
+  @override
+  String get pinnedMessagesTitle => '釘選訊息';
+
+  @override
+  String get savedMessagesTitle => '收藏的訊息';
+
+  @override
+  String get noPinnedMessages => '尚無釘選訊息';
+
+  @override
+  String get noSavedMessages => '尚無收藏訊息';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      '最多只能釘選 $limit 則訊息。取消釘選一則後即可釘選其他訊息。';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      '最多只能收藏 $limit 則訊息。取消收藏一則後即可收藏其他訊息。';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      '最多只能釘選 $limit 個對話。取消釘選一個後即可釘選其他對話。';
+
+  @override
+  String get actionPermissionDenied => '你沒有執行此操作的權限。';
+
+  @override
+  String get pinSaveFailed => '無法更新，請重試。';
+
+  @override
+  String get conversationPinnedToast => '對話已釘選';
+
+  @override
+  String get conversationUnpinnedToast => '已取消對話釘選';
 
   @override
   String get deleteMessage => '刪除訊息';

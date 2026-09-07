@@ -25,6 +25,21 @@ mixin CometChatMessageEventListener implements UIEventHandler {
   //event for message read by logged-in user
   void ccMessageRead(BaseMessage message) {}
 
+  //event for the logged-in user following/unfollowing a thread from a kit
+  //surface; default no-op so existing listeners are unaffected
+  void ccThreadSubscriptionChanged(int parentMessageId, bool subscribed) {}
+
+  //Pin & Save events for actions taken by the logged-in user from a kit
+  //surface; [message] carries the full updated object. Default no-ops so
+  //existing listeners are unaffected.
+  void ccMessagePinned(BaseMessage message) {}
+
+  void ccMessageUnpinned(BaseMessage message) {}
+
+  void ccMessageSaved(BaseMessage message) {}
+
+  void ccMessageUnsaved(BaseMessage message) {}
+
   //event for transient message sent by logged-in user
   void ccLiveReaction(String reaction) {}
 

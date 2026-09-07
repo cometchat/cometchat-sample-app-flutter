@@ -201,8 +201,7 @@ Future<bool> saveFileWithPicker(
   String fileName,
   String mimeType, {
   String? localPath,
-}) async =>
-    false;
+}) async => false;
 
 bool fileExistsSync(String path) => false;
 

@@ -351,7 +351,7 @@ class _CometChatMessageListState extends State<CometChatMessageList> {
     super.didChangeDependencies();
 
     // Check if brightness has changed (dark mode toggle)
-    final currentBrightness = MediaQuery.platformBrightnessOf(context);
+    final currentBrightness = CometChatThemeHelper.getBrightness(context);
     final brightnessChanged =
         _cachedBrightness != null && _cachedBrightness != currentBrightness;
 

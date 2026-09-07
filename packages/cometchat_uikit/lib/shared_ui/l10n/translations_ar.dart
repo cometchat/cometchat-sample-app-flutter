@@ -401,6 +401,134 @@ class TranslationsAr extends Translations {
   String get replyInThread => 'الرد في الموضوع';
 
   @override
+  String get threadMute => 'إلغاء الاشتراك في المحادثة';
+
+  @override
+  String get threadUnmute => 'الاشتراك في المحادثة';
+
+  @override
+  String get messageListOptionStopReplyNotifications =>
+      'إلغاء الاشتراك في المحادثة';
+
+  @override
+  String get messageListOptionGetReplyNotifications => 'الاشتراك في المحادثة';
+
+  @override
+  String get threadMutedToast =>
+      'تم إلغاء الاشتراك. الإشعارات معطّلة حتى ترد أو يتم ذكرك.';
+
+  @override
+  String get threadUnmutedToast =>
+      'تم الاشتراك. سيتم إعلامك بالردود الجديدة في هذه المحادثة.';
+
+  @override
+  String get threadSubscriptionFailed =>
+      'تعذر التحديث. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get threadUnavailable => 'لم يعد بإمكانك الوصول إلى هذه السلسلة.';
+
+  // ── Pin & Save Message ──
+
+  @override
+  String get pinMessageOption => 'تثبيت الرسالة';
+
+  @override
+  String get unpinMessageOption => 'إلغاء تثبيت الرسالة';
+
+  @override
+  String get saveMessageOption => 'حفظ الرسالة';
+
+  @override
+  String get unsaveMessageOption => 'إلغاء حفظ الرسالة';
+
+  @override
+  String get pinConfirmTitle => 'تثبيت الرسالة؟';
+
+  @override
+  String get pinConfirmMessage =>
+      'سيتم تثبيت هذه الرسالة في هذه المحادثة للجميع.';
+
+  @override
+  String get unpinConfirmTitle => 'إلغاء تثبيت الرسالة؟';
+
+  @override
+  String get unpinConfirmMessage =>
+      'لن تكون هذه الرسالة مثبتة للجميع بعد الآن.';
+
+  @override
+  String get saveConfirmTitle => 'حفظ الرسالة؟';
+
+  @override
+  String get saveConfirmMessage => 'ستُضاف هذه الرسالة إلى رسائلك المحفوظة.';
+
+  @override
+  String get unsaveConfirmTitle => 'إلغاء حفظ الرسالة؟';
+
+  @override
+  String get unsaveConfirmMessage => 'ستُزال هذه الرسالة من رسائلك المحفوظة.';
+
+  @override
+  String get pinButton => 'تثبيت';
+
+  @override
+  String get unpinButton => 'إلغاء التثبيت';
+
+  @override
+  String get saveButton => 'حفظ';
+
+  @override
+  String get unsaveButton => 'إزالة';
+
+  @override
+  String get messagePinnedToast => 'تم تثبيت الرسالة';
+
+  @override
+  String get messageUnpinnedToast => 'تم إلغاء تثبيت الرسالة';
+
+  @override
+  String get messageSavedToast => 'تم حفظ الرسالة';
+
+  @override
+  String get messageUnsavedToast => 'تم إلغاء حفظ الرسالة';
+
+  @override
+  String get pinnedMessagesTitle => 'الرسائل المثبتة';
+
+  @override
+  String get savedMessagesTitle => 'الرسائل المحفوظة';
+
+  @override
+  String get noPinnedMessages => 'لا توجد رسائل مثبتة بعد';
+
+  @override
+  String get noSavedMessages => 'لا توجد رسائل محفوظة بعد';
+
+  @override
+  String pinLimitReachedToast(int limit) =>
+      'يمكنك تثبيت $limit رسالة فقط. ألغِ تثبيت رسالة لتثبيت أخرى.';
+
+  @override
+  String saveLimitReachedToast(int limit) =>
+      'يمكنك حفظ $limit رسالة فقط. ألغِ حفظ رسالة لحفظ أخرى.';
+
+  @override
+  String conversationPinLimitReachedToast(int limit) =>
+      'يمكنك تثبيت $limit محادثة فقط. ألغِ تثبيت محادثة لتثبيت أخرى.';
+
+  @override
+  String get actionPermissionDenied => 'ليست لديك صلاحية لتنفيذ هذا الإجراء.';
+
+  @override
+  String get pinSaveFailed => 'تعذر التحديث. يُرجى المحاولة مرة أخرى.';
+
+  @override
+  String get conversationPinnedToast => 'تم تثبيت المحادثة';
+
+  @override
+  String get conversationUnpinnedToast => 'تم إلغاء تثبيت المحادثة';
+
+  @override
   String get deleteMessage => 'حذف رسالة';
 
   @override

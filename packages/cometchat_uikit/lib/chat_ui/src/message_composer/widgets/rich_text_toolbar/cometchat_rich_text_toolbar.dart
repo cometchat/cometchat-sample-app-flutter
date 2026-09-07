@@ -40,6 +40,8 @@ class CometChatRichTextToolbar extends StatelessWidget {
     this.activeFormats = const {},
     this.hiddenFormats = const {},
     this.style,
+    this.trailingActions = const [],
+    this.trailingTapController,
   });
 
   /// Callback invoked when a format button is tapped.
@@ -62,6 +64,20 @@ class CometChatRichTextToolbar extends StatelessWidget {
   ///
   /// If not provided, default theme values will be used.
   final CometChatRichTextToolbarStyle? style;
+
+  /// Consumer actions appended at the trailing end of the toolbar, after a
+  /// UIKit-owned divider matching the group dividers (Trailing Toolbar
+  /// Buttons DD §3.1/§4). The toolbar renders each action's [icon]
+  /// ([title] becomes the tooltip; [style] and [onItemClick] are attachment-
+  /// sheet concerns and are ignored here) and fires [onToolbarTap] with
+  /// [trailingTapController]. Empty by default — the toolbar renders
+  /// byte-identical to a toolbar without the feature.
+  final List<CometChatMessageComposerAction> trailingActions;
+
+  /// The live text controller handed to [trailingActions] taps. When null,
+  /// trailing taps are inert — hosts should pass the composer's
+  /// [RichTextEditingController].
+  final TextEditingController? trailingTapController;
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +182,85 @@ class CometChatRichTextToolbar extends StatelessWidget {
       buttons.addAll(quoteAndCodeButtons);
     }
 
+    // Trailing consumer actions (DD §4): one UIKit-owned divider — the same
+    // primitive the groups use — then the consumer buttons, always last.
+    if (trailingActions.isNotEmpty) {
+      if (buttons.isNotEmpty) {
+        buttons.add(_buildDivider(toolbarStyle, colorPalette, spacing));
+      }
+      for (final action in trailingActions) {
+        buttons.add(
+          _buildTrailingActionButton(
+            context,
+            action,
+            toolbarStyle,
+            colorPalette,
+            spacing,
+          ),
+        );
+      }
+    }
+
     return buttons;
+  }
+
+  /// A trailing consumer action, rendered with the same chrome as the
+  /// built-in format buttons so it reads as part of the toolbar.
+  Widget _buildTrailingActionButton(
+    BuildContext context,
+    CometChatMessageComposerAction action,
+    CometChatRichTextToolbarStyle toolbarStyle,
+    CometChatColorPalette colorPalette,
+    CometChatSpacing spacing,
+  ) {
+    final controller = trailingTapController;
+    final enabled = controller != null && action.onToolbarTap != null;
+
+    return Padding(
+      padding: EdgeInsets.only(right: toolbarStyle.buttonSpacing ?? 8),
+      child: Semantics(
+        button: true,
+        enabled: enabled,
+        label: action.title,
+        child: Tooltip(
+          message: action.title,
+          child: GestureDetector(
+            onTap: enabled
+                ? () => action.onToolbarTap!(context, controller)
+                : null,
+            child: Opacity(
+              opacity: enabled ? 1.0 : 0.4,
+              child: Container(
+                width: 32,
+                height: 32,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(spacing.radius2 ?? 8),
+                ),
+                child: IconTheme(
+                  data: IconThemeData(
+                    size: 20,
+                    color:
+                        toolbarStyle.buttonIconColor ??
+                        colorPalette.iconSecondary,
+                  ),
+                  child:
+                      action.icon ??
+                      Icon(
+                        Icons.extension_outlined,
+                        size: 20,
+                        color:
+                            toolbarStyle.buttonIconColor ??
+                            colorPalette.iconSecondary,
+                      ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   /// Builds a group of format buttons, filtering out hidden formats.

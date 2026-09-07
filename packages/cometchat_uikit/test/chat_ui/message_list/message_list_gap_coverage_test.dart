@@ -192,7 +192,12 @@ MessageListBloc _makeBloc(
     markAsDeliveredUseCase: MarkAsDeliveredUseCase(repo),
     markAsUnreadUseCase: MarkAsUnreadUseCase(repo),
     getLoggedInUserUseCase: GetLoggedInUserUseCase(repo),
-    user: user ?? FakeUser(),
+    // Only default to a user when no group was given. `user ?? FakeUser()`
+    // alone re-supplied a user for `user: null, group: FakeGroup()` call
+    // sites, and MessageListBloc resolves user before group
+    // (conversationType is `user != null ? 'user' : 'group'`), so every
+    // group case was silently exercised as a user conversation.
+    user: user ?? (group == null ? FakeUser() : null),
     group: group,
     parentMessageId: parentMessageId,
     hideDeletedMessages: hideDeletedMessages,

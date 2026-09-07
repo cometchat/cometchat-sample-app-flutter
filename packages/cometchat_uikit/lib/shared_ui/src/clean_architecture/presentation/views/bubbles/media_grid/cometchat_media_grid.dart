@@ -78,8 +78,7 @@ class CometChatMediaGrid extends StatelessWidget {
       thumb = _VideoCell(
         attachment: a,
         thumbUrl: index < thumbs.length ? thumbs[index] : null,
-        showDurationChip:
-            overflow == null && style?.showVideoDuration != false,
+        showDurationChip: overflow == null && style?.showVideoDuration != false,
         style: style,
       );
     } else {

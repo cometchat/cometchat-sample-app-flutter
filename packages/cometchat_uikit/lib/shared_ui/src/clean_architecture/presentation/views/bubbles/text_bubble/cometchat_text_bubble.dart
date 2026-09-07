@@ -80,7 +80,7 @@ class _CometChatTextBubbleState extends State<CometChatTextBubble> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Only initialize theme once to avoid expensive lookups during keyboard animation
-    final currentBrightness = MediaQuery.platformBrightnessOf(context);
+    final currentBrightness = CometChatThemeHelper.getBrightness(context);
     final brightnessChanged =
         _cachedBrightness != null && _cachedBrightness != currentBrightness;
     if (!_themeInitialized || brightnessChanged) {
