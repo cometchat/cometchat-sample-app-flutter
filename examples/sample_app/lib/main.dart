@@ -161,6 +161,12 @@ class _BlocSampleAppState extends State<BlocSampleApp> {
         ..enableCalls = true
         ..callingConfiguration = CallingConfiguration();
 
+      // Thread subscription is gated off by default in the UI Kit, because
+      // there is no server capability to detect it from. Opting in renders
+      // both follow/unfollow surfaces: the message action sheet entry and
+      // the bell on the threaded header.
+      settingsBuilder.enableThreadSubscription = true;
+
       final uiKitSettings = settingsBuilder.build();
 
       debugPrint('🚀 Initializing CometChat UIKit...');
@@ -293,7 +299,12 @@ class _BlocSampleAppState extends State<BlocSampleApp> {
     return MaterialApp(
       title: 'CometChat Sample App',
       debugShowCheckedModeBanner: false,
-      navigatorKey: kIsWeb ? CallNavigationContext.navigatorKey : null,
+      // The Kit's calling UI is presented through an Overlay obtained from
+      // this navigator key. Leaving it null on mobile meant
+      // CallScreenOverlay.show() had no Overlay to insert into: the call
+      // screen silently never appeared, and the stale un-inserted entry
+      // then crashed the next dismiss(). Needed on every platform.
+      navigatorKey: CallNavigationContext.navigatorKey,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

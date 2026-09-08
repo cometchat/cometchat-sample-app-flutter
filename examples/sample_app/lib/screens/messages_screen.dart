@@ -49,6 +49,12 @@ class _MessagesScreenState extends State<MessagesScreen>
 
   final _toggles = ComponentToggles.instance;
 
+  /// Imperative handle on the message list. `goToMessageId` is read once when
+  /// the list mounts, so it cannot re-aim a list that is already on screen —
+  /// which is exactly what tapping a pinned or saved row needs.
+  final CometChatMessageListController _messageListController =
+      CometChatMessageListController();
+
   @override
   void initState() {
     super.initState();
@@ -237,6 +243,7 @@ class _MessagesScreenState extends State<MessagesScreen>
     return CometChatMessageList(
       user: _user,
       group: _group,
+      controller: _messageListController,
       goToMessageId: widget.goToMessageId,
       parentMessageId: parentMessageId,
       messagesRequestBuilder: requestBuilder,
@@ -300,6 +307,46 @@ class _MessagesScreenState extends State<MessagesScreen>
     );
   }
 
+  /// Opens a pinned message. A pinned *reply* lives in a thread, so it opens
+  /// the thread screen aimed at that reply; a top-level message just jumps
+  /// the list that is already on screen.
+  Future<void> _openPinnedMessage(BaseMessage message) async {
+    if (message.parentMessageId != 0) {
+      final parent = await CometChat.getMessageDetails(message.parentMessageId);
+      if (parent == null || !mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ThreadScreen(
+            user: _user,
+            group: _group,
+            message: parent,
+            goToMessageId: message.id,
+          ),
+        ),
+      );
+      return;
+    }
+    if (!mounted) return;
+    _messageListController.jumpToMessage(message.id);
+  }
+
+  /// Opens the conversation's info screen. Also used by the header's
+  /// tap-on-name area.
+  void _openInfoScreen() {
+    if (_group != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => GroupInfoScreen(group: _group!)),
+      );
+    } else if (_user != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => UserInfoScreen(user: _user!)),
+      );
+    }
+  }
+
   Widget _buildComposer() {
     final t = _toggles;
     final isAI = _user?.role == 'ai' || _user?.role == '@agentic';
@@ -346,6 +393,15 @@ class _MessagesScreenState extends State<MessagesScreen>
         hideVideoCallButton: _isAI || _toggles.hideVideoCallButton.value,
         hideVoiceCallButton: _isAI || _toggles.hideVoiceCallButton.value,
         usersStatusVisibility: _toggles.headerUsersStatusVisibility.value,
+        // Pin & Save: the header's ⋯ menu opens this conversation's pinned
+        // list. Leaving onPinnedMessagesTap unset lets the Kit push the
+        // screen itself, which is the right behaviour on mobile; a host with
+        // its own layout would set it to place the list where it wants.
+        onPinnedMessageItemTap: _openPinnedMessage,
+        // Info moved into the ⋯ menu (it used to be a standalone icon), so
+        // the header no longer carries two ways to reach the same screen.
+        onInfoTap: _isAI ? null : _openInfoScreen,
+        onHeaderTap: _isAI ? null : _openInfoScreen,
         chatHistoryButtonClick: () {
           Navigator.push(
             context,
@@ -466,28 +522,8 @@ class _MessagesScreenState extends State<MessagesScreen>
               },
             ),
           ], // end AI buttons spread
-          if (!_isAI)
-            IconButton(
-              icon: Icon(Icons.info_outline, color: _colorPalette.iconPrimary),
-              tooltip: _group != null ? 'Group Info' : 'User Info',
-            onPressed: () {
-              if (_group != null) {
-                Navigator.push(
-                  ctx,
-                  MaterialPageRoute(
-                    builder: (_) => GroupInfoScreen(group: _group!),
-                  ),
-                );
-              } else if (_user != null) {
-                Navigator.push(
-                  ctx,
-                  MaterialPageRoute(
-                    builder: (_) => UserInfoScreen(user: _user!),
-                  ),
-                );
-              }
-            },
-            ),
+            // Group/User Info now lives in the header’s ⋯ overflow menu
+            // (see onInfoTap above), so there is no standalone icon here.
         ],
       ),
       body: SafeArea(

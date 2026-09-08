@@ -89,6 +89,10 @@ class _ThreadScreenState extends State<ThreadScreen> {
             CometChatThreadedHeader(
               parentMessage: widget.message,
               loggedInUser: CometChatUIKit.loggedInUser!,
+              // The screen's own header above already carries the
+              // follow/unfollow bell, so suppress the one built into the
+              // threaded header rather than showing two.
+              threadSubscriptionVisibility: false,
               template: widget.template,
               textFormatters: [
                 CometChatMentionsFormatter(

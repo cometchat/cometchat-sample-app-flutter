@@ -530,6 +530,26 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen> {
               );
             }
             break;
+          case '/saved':
+            // On desktop the listing stays in the left panel while the tapped
+            // message opens in the centre; on mobile it is a pushed route
+            // that pops on jump.
+            final saved = CometChatSavedMessages(
+              onItemTap: _openSavedMessage,
+              popOnItemTap: !isDesktopLayout(context),
+              useCloseButton: isDesktopLayout(context),
+            );
+            if (isDesktopLayout(context)) {
+              _leftNavKey.currentState?.push(
+                MaterialPageRoute(builder: (_) => saved),
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => saved),
+              );
+            }
+            break;
           case '/logout':
             await CometChatUIKit.logout(
               onSuccess: (_) {
@@ -561,6 +581,23 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen> {
                     color: _colorPalette.iconSecondary, size: 22),
               ),
               Text('Create conversation',
+                  style: TextStyle(
+                      fontSize: 14, color: _colorPalette.textPrimary)),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          value: '/saved',
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Icon(Icons.bookmark_border,
+                    color: _colorPalette.iconSecondary, size: 22),
+              ),
+              Text('Saved messages',
                   style: TextStyle(
                       fontSize: 14, color: _colorPalette.textPrimary)),
             ],
@@ -890,6 +927,56 @@ class _ResponsiveHomeScreenState extends State<ResponsiveHomeScreen> {
       );
     }
   }
+
+  /// Opens a saved message. Saves span every conversation, so the receiver has
+  /// to be resolved off the message before the conversation can be opened; a
+  /// saved *reply* opens its thread instead.
+  Future<void> _openSavedMessage(BaseMessage message) async {
+    User? user;
+    Group? group;
+    if (message.receiverType == ReceiverTypeConstants.group) {
+      final receiver = message.receiver;
+      if (receiver is Group) group = receiver;
+    } else {
+      final loggedInUid = CometChatUIKit.loggedInUser?.uid;
+      final sender = message.sender;
+      final receiver = message.receiver;
+      if (sender != null && sender.uid != loggedInUid) {
+        user = sender;
+      } else if (receiver is User) {
+        user = receiver;
+      }
+    }
+    if (user == null && group == null) return;
+
+    if (message.parentMessageId != 0) {
+      final parent = await CometChat.getMessageDetails(message.parentMessageId);
+      if (parent == null || !mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ThreadScreen(
+            user: user,
+            group: group,
+            message: parent,
+            goToMessageId: message.id,
+          ),
+        ),
+      );
+      return;
+    }
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MessagesScreen(
+          user: user,
+          group: group,
+          goToMessageId: message.id,
+        ),
+      ),
+    );
+  }
 }
 
 /// Listener for CometChat UI events in ResponsiveHomeScreen
@@ -902,4 +989,5 @@ class _ResponsiveHomeUIEventListener with CometChatUIEventListener {
   void openChat(User? user, Group? group) {
     onOpenChat(user, group);
   }
+
 }

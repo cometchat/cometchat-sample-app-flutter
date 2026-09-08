@@ -480,6 +480,9 @@ class _UserInfoScreenState extends State<UserInfoScreen>
             Divider(color: _colorPalette.borderLight, height: 1),
             // Search
             _buildSearchTile(),
+            // Pin & Save entry
+            _buildPinnedMessagesTile(),
+            Divider(color: _colorPalette.borderLight, height: 1),
             // Block / Unblock
             _buildActionTile(
               _blockedByMe
@@ -689,4 +692,68 @@ class _UserInfoScreenState extends State<UserInfoScreen>
       ),
     );
   }
+
+  /// Pin & Save: the conversation's pinned messages. Pinning the conversation
+  /// itself lives on the chat-list row's long-press menu instead.
+  Widget _buildPinnedMessagesTile() {
+    return ListTile(
+      onTap: _viewPinnedMessages,
+      leading:
+          Icon(Icons.push_pin_outlined, color: _colorPalette.iconPrimary),
+      contentPadding: EdgeInsets.symmetric(horizontal: _spacing.padding5 ?? 0),
+      title: Text(
+        cc.Translations.of(context).pinnedMessagesTitle,
+        style: TextStyle(
+          fontSize: _typography.heading4?.regular?.fontSize,
+          fontFamily: _typography.heading4?.regular?.fontFamily,
+          fontWeight: _typography.heading4?.regular?.fontWeight,
+          color: _colorPalette.textPrimary,
+        ),
+      ),
+    );
+  }
+
+  void _viewPinnedMessages() {
+    CometChatPinnedMessages.show(
+      context,
+      user: _user,
+      onItemTap: (message) {
+        // Capture the navigator before popping this screen, then open the
+        // conversation aimed at the message. A pinned reply opens its thread.
+        final navigator = Navigator.of(context);
+        final user = _user;
+        if (message.parentMessageId > 0) {
+          CometChatHelper.getMessageDetails(
+            message.parentMessageId,
+            onSuccess: (parent) {
+              if (parent == null) return;
+              navigator.pop();
+              navigator.push(
+                MaterialPageRoute(
+                  builder: (_) => ThreadScreen(
+                    user: user,
+                    message: parent,
+                    goToMessageId: message.id,
+                  ),
+                ),
+              );
+            },
+            onError: (_) {},
+          );
+          return;
+        }
+        navigator.pop();
+        navigator.pushReplacement(
+          MaterialPageRoute(
+            settings: const RouteSettings(name: 'messages'),
+            builder: (_) => MessagesScreen(
+              user: user,
+              goToMessageId: message.id,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 }

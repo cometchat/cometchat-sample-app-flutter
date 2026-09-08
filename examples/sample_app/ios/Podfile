@@ -1,5 +1,6 @@
 # Global platform for CometChat SDK (requires iOS 12.0+)
-platform :ios, '13.0'
+# cometchat_calls_sdk 5.0.4 (pulled by chat UI Kit 6.1.1) requires iOS 15.1.
+platform :ios, '15.1'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -39,6 +40,12 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+
+    # Every pod must match the app's minimum, or CocoaPods refuses to resolve
+    # cometchat_calls_sdk.
+    target.build_configurations.each do |build_configuration|
+      build_configuration.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+    end
 
     # Enable permission_handler permissions for iOS
     if target.name == 'permission_handler_apple'
